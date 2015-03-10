@@ -70,6 +70,11 @@
 (defvar swiper--buffer nil
   "Store current buffer.")
 
+(defalias 'swiper-font-lock-ensure
+    (if (fboundp 'font-lock-ensure)
+        'font-lock-ensure
+      'font-lock-fontify-buffer))
+
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
   (let* ((line-width (1+ (floor (log (count-lines
@@ -80,7 +85,7 @@
          candidates)
     (save-excursion
       (goto-char (point-min))
-      (font-lock-ensure)
+      (swiper-font-lock-ensure)
       (while (< (point) (point-max))
         (push (format fspec
                       (incf line-number)
