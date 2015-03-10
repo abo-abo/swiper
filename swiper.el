@@ -80,7 +80,7 @@
          candidates)
     (save-excursion
       (goto-char (point-min))
-      (font-lock-ensure (point-min) (point-max))
+      (font-lock-ensure)
       (while (< (point) (point-max))
         (push (format fspec
                       (incf line-number)
