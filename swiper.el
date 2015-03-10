@@ -46,15 +46,15 @@
   "Face for `swiper' matches.")
 
 (defface swiper-match-face-2
-  '((t (:background "#F15C79")))
-  "Face for `swiper' matches.")
-
-(defface swiper-match-face-3
   '((t (:background "#F9A35A")))
   "Face for `swiper' matches.")
 
-(defface swiper-match-face-4
+(defface swiper-match-face-3
   '((t (:background "#fb7905")))
+  "Face for `swiper' matches.")
+
+(defface swiper-match-face-4
+  '((t (:background "#F15C79")))
   "Face for `swiper' matches.")
 
 (defface swiper-line-face
@@ -160,10 +160,13 @@
                   (let ((overlay (make-overlay (match-beginning i)
                                                (match-end i)))
                         (face
-                         (if (zerop i)
-                             (car swiper-faces)
-                           (nth (1+ (mod i (1- (length swiper-faces))))
-                                swiper-faces))))
+                         (cond ((zerop swiper--subexps)
+                                (caddr swiper-faces))
+                               ((zerop i)
+                                (car swiper-faces))
+                               (t
+                                (nth (1+ (mod (1- i) (1- (length swiper-faces))))
+                                     swiper-faces)))))
                     (push overlay swiper--overlays)
                     (overlay-put overlay 'face face)
                     (overlay-put overlay 'priority i)
@@ -251,20 +254,23 @@
 
 (defun swiper--regex ()
   "Re-build regex in case it has a space."
-  (cdr
-   (let ((hashed (gethash helm-input swiper--regex-hash)))
-     (if hashed
-         (prog1 hashed
-           (setq swiper--subexps (car hashed)))
-       (puthash helm-input
-                (let ((subs (split-string helm-input " +" t)))
-                  (cons
-                   (setq swiper--subexps (length subs))
-                   (mapconcat
-                    (lambda (x) (format "\\(%s\\)" x))
-                    subs
-                    ".*")))
-                swiper--regex-hash)))))
+  (let ((hashed (gethash helm-input swiper--regex-hash)))
+    (if hashed
+        (prog1 (cdr hashed)
+          (setq swiper--subexps (car hashed)))
+      (cdr (puthash helm-input
+                    (let ((subs (split-string helm-input " +" t)))
+                      (if (= (length subs) 1)
+                          (cons
+                           (setq swiper--subexps 0)
+                           (car subs))
+                        (cons
+                         (setq swiper--subexps (length subs))
+                         (mapconcat
+                          (lambda (x) (format "\\(%s\\)" x))
+                          subs
+                          ".*"))))
+                    swiper--regex-hash)))))
 
 (defun swiper--action (x)
   "Goto line X."
