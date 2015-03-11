@@ -96,6 +96,7 @@
         (zerop (forward-line 1)))
       (nreverse candidates))))
 
+;;;###autoload
 (defun swiper ()
   "Interactive `occur' using `helm'."
   (interactive)
