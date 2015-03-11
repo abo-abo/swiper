@@ -122,7 +122,7 @@
                            (add-hook 'helm-after-update-hook
                                      #'swiper--reanchor)))
                  (match-strict . (lambda (x) (ignore-errors
-                                          (string-match (swiper--regex) x))))
+                                          (string-match (swiper--regex helm-input) x))))
                  (candidates . ,(swiper--candidates))
                  (filtered-candidate-transformer
                   helm-fuzzy-highlight-matches)
@@ -152,7 +152,7 @@
 (defun swiper--update-input ()
   "Update selection."
   (with-current-buffer swiper--buffer
-    (let ((re (swiper--regex))
+    (let ((re (swiper--regex helm-input))
           (we (window-end nil t)))
       (while swiper--overlays
         (delete-overlay (pop swiper--overlays)))
@@ -212,7 +212,7 @@
 
 (defun swiper--update-sel ()
   "Update selection."
-  (let* ((re (swiper--regex))
+  (let* ((re (swiper--regex helm-input))
          (str (buffer-substring-no-properties
                (line-beginning-position)
                (line-end-position)))
@@ -252,20 +252,20 @@
       (helm-next-line 1))))
 
 (defvar swiper--subexps 1
-  "Number of groups in `(swiper--regex)'.")
+  "Number of groups in `swiper--regex'.")
 
 (defvar swiper--regex-hash
   (make-hash-table :test 'equal)
   "Store pre-computed regex.")
 
-(defun swiper--regex ()
-  "Re-build regex in case it has a space."
-  (let ((hashed (gethash helm-input swiper--regex-hash)))
+(defun swiper--regex (str)
+  "Re-build regex from STR in case it has a space."
+  (let ((hashed (gethash str swiper--regex-hash)))
     (if hashed
         (prog1 (cdr hashed)
           (setq swiper--subexps (car hashed)))
-      (cdr (puthash helm-input
-                    (let ((subs (split-string helm-input " +" t)))
+      (cdr (puthash str
+                    (let ((subs (split-string str " +" t)))
                       (if (= (length subs) 1)
                           (cons
                            (setq swiper--subexps 0)
@@ -283,7 +283,7 @@
   (goto-char (point-min))
   (forward-line (1- (read x)))
   (re-search-forward
-   (swiper--regex) (line-end-position) t))
+   (swiper--regex helm-input) (line-end-position) t))
 
 (provide 'swiper)
 
