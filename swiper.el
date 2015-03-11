@@ -1,11 +1,11 @@
-;;; swiper.el --- Isearch with an overview. Oh, man! -*- lexical-binding: t -*-
+;;; swiper.el --- Isearch with a helm overview. Oh, man! -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.1.0
-;; Package-Requires: ((helm "1.6.7"))
+;; Package-Requires: ((helm "1.6.7") (emacs "24.1"))
 ;; Keywords: matching
 
 ;; This file is not part of GNU Emacs
