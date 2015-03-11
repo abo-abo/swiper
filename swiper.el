@@ -88,7 +88,7 @@
       (swiper-font-lock-ensure)
       (while (< (point) (point-max))
         (push (format fspec
-                      (incf line-number)
+                      (cl-incf line-number)
                       (buffer-substring
                        (line-beginning-position)
                        (line-end-position)))
@@ -167,7 +167,7 @@
                                                (match-end i)))
                         (face
                          (cond ((zerop swiper--subexps)
-                                (caddr swiper-faces))
+                                (cl-caddr swiper-faces))
                                ((zerop i)
                                 (car swiper-faces))
                                (t
@@ -176,7 +176,7 @@
                     (push overlay swiper--overlays)
                     (overlay-put overlay 'face face)
                     (overlay-put overlay 'priority i)
-                    (incf i))))))))))
+                    (cl-incf i))))))))))
   (when (/= (length helm-input) swiper--len)
     (setq swiper--len (length helm-input))
     (swiper--reanchor)))
@@ -196,7 +196,7 @@
           (when (< (setq d (abs (- n swiper--anchor))) min)
             (setq min d)
             (setq ln beg))
-          (incf beg)
+          (cl-incf beg)
           (forward-line 1))
         (goto-char (point-min))
         (when ln
