@@ -96,6 +96,13 @@
         (zerop (forward-line 1)))
       (nreverse candidates))))
 
+(defvar swiper--keymap
+  (let ((map (copy-keymap helm-map)))
+    (define-key map (kbd "C-s") 'helm-next-line)
+    (define-key map (kbd "C-r") 'helm-previous-line)
+    map)
+  "Allows you to go to next and previous hit isearch-style")
+
 ;;;###autoload
 (defun swiper ()
   "Interactive `occur' using `helm'."
@@ -127,6 +134,7 @@
                  (filtered-candidate-transformer
                   helm-fuzzy-highlight-matches)
                  (action . swiper--action))
+               :keymap swiper--keymap
                :preselect
                (format "^%d " swiper--anchor)
                :buffer "*swiper*"))
