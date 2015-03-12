@@ -1,11 +1,11 @@
-;;; swiper.el --- Isearch with a helm overview. Oh, man! -*- lexical-binding: t -*-
+;;; swiper.el --- Isearch with an overview. Oh, man! -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.1.0
-;; Package-Requires: ((helm "1.6.7") (emacs "24.1"))
+;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
 ;; This file is not part of GNU Emacs
@@ -26,23 +26,30 @@
 ;;; Commentary:
 ;;
 ;; This package gives an overview of the current regex search
-;; candidates in a `helm' buffer.  The search regex can be split into
-;; groups with a space.  Each group is highlighted with a different
-;; face.
+;; candidates.  The search regex can be split into groups with a
+;; space.  Each group is highlighted with a different face.
+;;
+;; The overview back end can be either `helm' or `ivy'.
 ;;
 ;; It can double as a quick `regex-builder', although only single
 ;; lines will be matched.
 
 ;;; Code:
-(require 'helm)
+(require 'ivy)
 
 (defgroup swiper nil
-  "Interactive `occur' using `helm'."
+  "`isearch' with an overview."
   :group 'matching
   :prefix "swiper-")
 
+(defcustom swiper-completion-method 'helm
+  "Method to select a candidate from a list of strings."
+  :type '(choice
+          (const :tag "Helm" helm)
+          (const :tag "Ivy" ivy)))
+
 (defface swiper-match-face-1
-  '((t (:background "#FEEA89")))
+    '((t (:background "#FEEA89")))
   "Face for `swiper' matches.")
 
 (defface swiper-match-face-2
@@ -70,6 +77,10 @@
 (defvar swiper--buffer nil
   "Store current buffer.")
 
+(defvar swiper--window nil
+  "Store current window.
+This is necessary for `window-start' while in minibuffer.")
+
 (defalias 'swiper-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
         'font-lock-ensure
@@ -96,20 +107,53 @@
         (zerop (forward-line 1)))
       (nreverse candidates))))
 
-(defvar swiper--keymap
-  (let ((map (copy-keymap helm-map)))
+(defvar swiper-helm-keymap
+  (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-s") 'helm-next-line)
     (define-key map (kbd "C-r") 'helm-previous-line)
     map)
-  "Allows you to go to next and previous hit isearch-style")
+  "Allows you to go to next and previous hit isearch-style.")
 
 ;;;###autoload
 (defun swiper ()
-  "Interactive `occur' using `helm'."
+  "`isearch' with an overview."
   (interactive)
+  (if (and (eq 'swiper-completion-method 'helm)
+           (featurep 'helm))
+      (swiper--helm)
+    (swiper--ivy)))
+
+(defun swiper--init ()
+  "Perform initialization common to both completion methods."
   (deactivate-mark)
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
+  (setq swiper--buffer (current-buffer))
+  (setq swiper--window (selected-window)))
+
+(defun swiper--ivy ()
+  "`isearch' with an overview using `ivy'."
+  (interactive)
+  (ido-mode -1)
+  (swiper--init)
+  (unwind-protect
+       (let ((res (ivy-read "pattern: "
+                            (swiper--candidates)
+                            #'swiper--update-input-ivy)))
+         (goto-char (point-min))
+         (forward-line (1- (read res)))
+         (re-search-forward
+          (ivy--regex ivy-text)
+          (line-end-position)
+          t))
+    (ido-mode 1)
+    (swiper--cleanup)))
+
+(defun swiper--helm ()
+  "`isearch' with an overview using `helm'."
+  (interactive)
+  (require 'helm)
+  (swiper--init)
   (unwind-protect
        (let ((helm-display-function
               (lambda (buf)
@@ -121,32 +165,35 @@
          (helm :sources
                `((name . ,(buffer-name))
                  (init . (lambda ()
-                           (setq swiper--buffer (current-buffer))
                            (add-hook 'helm-move-selection-after-hook
                                      #'swiper--update-sel)
                            (add-hook 'helm-update-hook
-                                     #'swiper--update-input)
+                                     #'swiper--update-input-helm)
                            (add-hook 'helm-after-update-hook
                                      #'swiper--reanchor)))
-                 (match-strict . (lambda (x) (ignore-errors
-                                          (string-match (swiper--regex helm-input) x))))
+                 (match-strict . (lambda (x)
+                                   (ignore-errors
+                                     (string-match (ivy--regex helm-input) x))))
                  (candidates . ,(swiper--candidates))
                  (filtered-candidate-transformer
                   helm-fuzzy-highlight-matches)
                  (action . swiper--action))
-               :keymap swiper--keymap
+               :keymap (make-composed-keymap
+                        swiper-helm-keymap
+                        helm-map)
                :preselect
                (format "^%d " swiper--anchor)
                :buffer "*swiper*"))
     ;; cleanup
-    (remove-hook 'helm-move-selection-after-hook
-                 #'swiper--update-sel)
-    (remove-hook 'helm-update-hook
-                 #'swiper--update-input)
-    (remove-hook 'helm-after-update-hook
-                 #'swiper--reanchor)
-    (while swiper--overlays
-      (delete-overlay (pop swiper--overlays)))))
+    (remove-hook 'helm-move-selection-after-hook #'swiper--update-sel)
+    (remove-hook 'helm-update-hook #'swiper--update-input-helm)
+    (remove-hook 'helm-after-update-hook #'swiper--reanchor)
+    (swiper--cleanup)))
+
+(defun swiper--cleanup ()
+  "Clean up the overlays."
+  (while swiper--overlays
+    (delete-overlay (pop swiper--overlays))))
 
 (defvar swiper--overlays nil
   "Store overlays.")
@@ -155,39 +202,75 @@
   "A line number to which the search should be anchored.")
 
 (defvar swiper--len 0
-  "The last length of `helm-input' for which an anchoring was made.")
+  "The last length of input for which an anchoring was made.")
 
-(defun swiper--update-input ()
+(defun swiper--update-input-helm ()
   "Update selection."
+  (swiper--cleanup)
   (with-current-buffer swiper--buffer
-    (let ((re (swiper--regex helm-input))
-          (we (window-end nil t)))
-      (while swiper--overlays
-        (delete-overlay (pop swiper--overlays)))
-      (when (> (length helm-input) 1)
-        (save-excursion
-          (goto-char (window-start))
-          (while (ignore-errors (re-search-forward re we t))
-            (let ((i 0))
-              (while (<= i swiper--subexps)
-                (when (match-beginning i)
-                  (let ((overlay (make-overlay (match-beginning i)
-                                               (match-end i)))
-                        (face
-                         (cond ((zerop swiper--subexps)
-                                (cl-caddr swiper-faces))
-                               ((zerop i)
-                                (car swiper-faces))
-                               (t
-                                (nth (1+ (mod (1- i) (1- (length swiper-faces))))
-                                     swiper-faces)))))
-                    (push overlay swiper--overlays)
-                    (overlay-put overlay 'face face)
-                    (overlay-put overlay 'priority i)
-                    (cl-incf i))))))))))
+    (swiper--add-overlays
+     (ivy--regex helm-input)
+     (window-start swiper--window)
+     (window-end swiper--window t)))
   (when (/= (length helm-input) swiper--len)
     (setq swiper--len (length helm-input))
     (swiper--reanchor)))
+
+(defun swiper--update-input-ivy ()
+  "Called when `ivy' input is updated."
+  (swiper--cleanup)
+  (let* ((re (ivy--regex ivy-text))
+         (str ivy--current)
+         (num (if (string-match "^[0-9]+" str)
+                  (string-to-number (match-string 0 str))
+                0)))
+    (with-current-buffer swiper--buffer
+      (goto-char (point-min))
+      (when (plusp num)
+        (goto-char (point-min))
+        (forward-line (1- num))
+        (setf (window-point swiper--window)
+              (point)))
+      (let ((ov (make-overlay
+                 (line-beginning-position)
+                 (1+ (line-end-position)))))
+        (overlay-put ov 'face 'swiper-line-face)
+        (overlay-put ov 'window swiper--window)
+        (push ov swiper--overlays))
+      (swiper--add-overlays
+       re
+       (save-excursion
+         (forward-line (- (window-height swiper--window)))
+         (point))
+       (save-excursion
+         (forward-line (window-height swiper--window))
+         (point))))))
+
+(defun swiper--add-overlays (re beg end)
+  "Add overlays for RE regexp in current buffer between BEG and END."
+  (when (> (length re) 1)
+    (save-excursion
+      (goto-char beg)
+      ;; RE can become an invalid regexp
+      (while (ignore-errors (re-search-forward re end t))
+        (let ((i 0))
+          (while (<= i ivy--subexps)
+            (when (match-beginning i)
+              (let ((overlay (make-overlay (match-beginning i)
+                                           (match-end i)))
+                    (face
+                     (cond ((zerop ivy--subexps)
+                            (cl-caddr swiper-faces))
+                           ((zerop i)
+                            (car swiper-faces))
+                           (t
+                            (nth (1+ (mod (1- i) (1- (length swiper-faces))))
+                                 swiper-faces)))))
+                (push overlay swiper--overlays)
+                (overlay-put overlay 'face face)
+                (overlay-put overlay 'window swiper--window)
+                (overlay-put overlay 'priority i)))
+            (cl-incf i)))))))
 
 (defun swiper--binary (beg end)
   "Find anchor between BEG and END."
@@ -220,7 +303,7 @@
 
 (defun swiper--update-sel ()
   "Update selection."
-  (let* ((re (swiper--regex helm-input))
+  (let* ((re (ivy--regex helm-input))
          (str (buffer-substring-no-properties
                (line-beginning-position)
                (line-end-position)))
@@ -239,7 +322,7 @@
             (helm-persistent-action-display-window)
           (goto-char pt)
           (recenter)
-          (swiper--update-input))))
+          (swiper--update-input-helm))))
     (with-current-buffer swiper--buffer
       (let ((ov (make-overlay
                  (line-beginning-position)
@@ -259,39 +342,12 @@
       (forward-line -1)
       (helm-next-line 1))))
 
-(defvar swiper--subexps 1
-  "Number of groups in `swiper--regex'.")
-
-(defvar swiper--regex-hash
-  (make-hash-table :test 'equal)
-  "Store pre-computed regex.")
-
-(defun swiper--regex (str)
-  "Re-build regex from STR in case it has a space."
-  (let ((hashed (gethash str swiper--regex-hash)))
-    (if hashed
-        (prog1 (cdr hashed)
-          (setq swiper--subexps (car hashed)))
-      (cdr (puthash str
-                    (let ((subs (split-string str " +" t)))
-                      (if (= (length subs) 1)
-                          (cons
-                           (setq swiper--subexps 0)
-                           (car subs))
-                        (cons
-                         (setq swiper--subexps (length subs))
-                         (mapconcat
-                          (lambda (x) (format "\\(%s\\)" x))
-                          subs
-                          ".*"))))
-                    swiper--regex-hash)))))
-
 (defun swiper--action (x)
   "Goto line X."
   (goto-char (point-min))
   (forward-line (1- (read x)))
   (re-search-forward
-   (swiper--regex helm-input) (line-end-position) t))
+   (ivy--regex helm-input) (line-end-position) t))
 
 (provide 'swiper)
 
