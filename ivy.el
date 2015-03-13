@@ -3,8 +3,10 @@
 ;; Copyright (C) 2015 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
-;; URL: https://github.com/abo-abo/ivy
+;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.1.0
+;; Package-Requires: ((emacs "24.1"))
+;; Keywords: matching
 
 ;; This file is not part of GNU Emacs
 
