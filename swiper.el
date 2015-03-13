@@ -74,12 +74,8 @@
                           swiper-match-face-4)
   "List of `swiper' faces for group matches.")
 
-(defvar swiper--buffer nil
-  "Store current buffer.")
-
 (defvar swiper--window nil
-  "Store current window.
-This is necessary for `window-start' while in minibuffer.")
+  "Store the current window.")
 
 (defalias 'swiper-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
@@ -128,7 +124,6 @@ This is necessary for `window-start' while in minibuffer.")
   (deactivate-mark)
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
-  (setq swiper--buffer (current-buffer))
   (setq swiper--window (selected-window)))
 
 (defun swiper--ivy ()
@@ -207,7 +202,7 @@ This is necessary for `window-start' while in minibuffer.")
 (defun swiper--update-input-helm ()
   "Update selection."
   (swiper--cleanup)
-  (with-current-buffer swiper--buffer
+  (with-selected-window swiper--window
     (swiper--add-overlays
      (ivy--regex helm-input)
      (window-start swiper--window)
@@ -224,13 +219,12 @@ This is necessary for `window-start' while in minibuffer.")
          (num (if (string-match "^[0-9]+" str)
                   (string-to-number (match-string 0 str))
                 0)))
-    (with-current-buffer swiper--buffer
+    (with-selected-window swiper--window
       (goto-char (point-min))
       (when (plusp num)
         (goto-char (point-min))
         (forward-line (1- num))
-        (setf (window-point swiper--window)
-              (point)))
+        (recenter))
       (let ((ov (make-overlay
                  (line-beginning-position)
                  (1+ (line-end-position)))))
@@ -239,12 +233,8 @@ This is necessary for `window-start' while in minibuffer.")
         (push ov swiper--overlays))
       (swiper--add-overlays
        re
-       (save-excursion
-         (forward-line (- (window-height swiper--window)))
-         (point))
-       (save-excursion
-         (forward-line (window-height swiper--window))
-         (point))))))
+       (window-start swiper--window)
+       (window-end swiper--window t)))))
 
 (defun swiper--add-overlays (re beg end)
   "Add overlays for RE regexp in current buffer between BEG and END."
@@ -312,7 +302,7 @@ This is necessary for `window-start' while in minibuffer.")
                 0))
          pt)
     (when (> (length re) 0)
-      (with-current-buffer swiper--buffer
+      (with-selected-window swiper--window
         (goto-char (point-min))
         (forward-line (1- num))
         (when (re-search-forward re (point-max) t)
@@ -323,7 +313,7 @@ This is necessary for `window-start' while in minibuffer.")
           (goto-char pt)
           (recenter)
           (swiper--update-input-helm))))
-    (with-current-buffer swiper--buffer
+    (with-selected-window swiper--window
       (let ((ov (make-overlay
                  (line-beginning-position)
                  (1+ (line-end-position)))))
