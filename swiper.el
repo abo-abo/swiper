@@ -242,7 +242,8 @@
     (save-excursion
       (goto-char beg)
       ;; RE can become an invalid regexp
-      (while (ignore-errors (re-search-forward re end t))
+      (while (and (ignore-errors (re-search-forward re end t))
+                  (> (- (match-end 0) (match-beginning 0)) 0))
         (let ((i 0))
           (while (<= i ivy--subexps)
             (when (match-beginning i)
