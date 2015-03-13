@@ -218,6 +218,16 @@ Should be run via minibuffer `post-command-hook'."
 (defvar ivy--old-cands nil
   "Store the candidates matched by `ivy--old-re'.")
 
+(defun ivy--add-face (str face)
+  "Propertize STR with FACE.
+A better function `add-face-text-property' is used if it's available.
+Otherwise, `propertize'."
+  (if (fboundp 'add-face-text-property)
+      (progn
+        (add-face-text-property 0 (length str) face t str)
+        str)
+    (propertize str 'face face)))
+
 (defun ivy-completions (name candidates)
   "Return as text the current completions.
 NAME is a string of words separated by spaces that is used to
@@ -252,7 +262,7 @@ CANDIDATES is a list of strings."
         (setq ivy--current (copy-sequence
                             (nth index cands)))
         (setf (nth index cands)
-              (propertize ivy--current 'face 'ivy-current-match))
+              (ivy--add-face ivy--current 'ivy-current-match))
         (concat "\n" (mapconcat #'identity cands "\n"))))))
 
 (provide 'ivy)
