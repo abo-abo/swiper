@@ -152,7 +152,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (re-search-forward
          (ivy--regex ivy-text)
          (line-end-position)
-         t)))))
+         t)
+        (swiper--ensure-visible)))))
 
 (defun swiper--helm (&optional initial-input)
   "`isearch' with an overview using `helm'.
@@ -196,6 +197,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (remove-hook 'helm-update-hook #'swiper--update-input-helm)
     (remove-hook 'helm-after-update-hook #'swiper--reanchor)
     (swiper--cleanup)))
+
+(defun swiper--ensure-visible ()
+  "Remove overlays hiding point."
+  (let ((overlays (overlays-at (point)))
+        ov expose)
+    (while (setq ov (pop overlays))
+      (if (and (invisible-p (overlay-get ov 'invisible))
+               (setq expose (overlay-get ov 'isearch-open-invisible)))
+          (funcall expose ov)))))
 
 (defun swiper--cleanup ()
   "Clean up the overlays."
@@ -350,7 +360,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (goto-char (point-min))
   (forward-line (1- (read x)))
   (re-search-forward
-   (ivy--regex helm-input) (line-end-position) t))
+   (ivy--regex helm-input) (line-end-position) t)
+  (swiper--ensure-visible))
 
 (provide 'swiper)
 
