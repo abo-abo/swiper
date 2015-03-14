@@ -72,6 +72,7 @@
   (interactive)
   (delete-minibuffer-contents)
   (insert ivy--current)
+  (setq ivy-exit 'done)
   (exit-minibuffer))
 
 (defun ivy-next-line ()
@@ -117,6 +118,7 @@ UPDATE-FN is called each time the current candidate(s) is changed."
   (setq ivy-text "")
   (setq ivy--all-candidates collection)
   (setq ivy--update-fn update-fn)
+  (setq ivy-exit nil)
   (unwind-protect
        (minibuffer-with-setup-hook
            #'ivy--minibuffer-setup
@@ -125,6 +127,10 @@ UPDATE-FN is called each time the current candidate(s) is changed."
 
 (defvar ivy-text ""
   "Stores the user's string as it is typed in.")
+
+(defvar ivy-exit nil
+  "Store 'done if the completion was successfully selected.
+Otherwise, store nil.")
 
 ;;* Implementation
 ;;** Regex
