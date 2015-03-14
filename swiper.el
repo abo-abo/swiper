@@ -49,23 +49,23 @@
           (const :tag "Ivy" ivy)))
 
 (defface swiper-match-face-1
-    '((t (:background "#FEEA89")))
+  '((t (:inherit isearch-lazy-highlight-face)))
   "Face for `swiper' matches.")
 
 (defface swiper-match-face-2
-  '((t (:background "#F9A35A")))
+  '((t (:inherit isearch)))
   "Face for `swiper' matches.")
 
 (defface swiper-match-face-3
-  '((t (:background "#fb7905")))
+  '((t (:inherit match)))
   "Face for `swiper' matches.")
 
 (defface swiper-match-face-4
-  '((t (:background "#F15C79")))
+  '((t (:inherit isearch)))
   "Face for `swiper' matches.")
 
 (defface swiper-line-face
-  '((t (:background "#f3d3d3")))
+  '((t (:inherit highlight)))
   "Face for current `swiper' line.")
 
 (defcustom swiper-faces '(swiper-match-face-1

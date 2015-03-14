@@ -43,7 +43,7 @@
   :group 'convenience)
 
 (defface ivy-current-match
-    '((t (:background "#e5b7c0")))
+  '((t (:inherit highlight)))
   "Face used by Ivy for highlighting first match.")
 
 (defcustom ivy-height 10
