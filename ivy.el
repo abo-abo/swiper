@@ -106,10 +106,11 @@ On error (read-only), quit without selecting."
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
-(defun ivy-read (prompt collection &optional update-fn)
+(defun ivy-read (prompt collection &optional initial-input update-fn)
   "Read a string in the minibuffer, with completion.
 PROMPT is a string to prompt with; normally it ends in a colon and a space.
 COLLECTION is a list of strings.
+If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
 UPDATE-FN is called each time the current candidate(s) is changed."
   (setq ivy--index 0)
   (setq ivy--old-re nil)
@@ -119,7 +120,7 @@ UPDATE-FN is called each time the current candidate(s) is changed."
   (unwind-protect
        (minibuffer-with-setup-hook
            #'ivy--minibuffer-setup
-         (read-from-minibuffer prompt))
+         (read-from-minibuffer prompt initial-input))
     (remove-hook 'post-command-hook #'ivy--exhibit)))
 
 (defvar ivy-text ""

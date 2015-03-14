@@ -111,13 +111,14 @@
   "Allows you to go to next and previous hit isearch-style.")
 
 ;;;###autoload
-(defun swiper ()
-  "`isearch' with an overview."
+(defun swiper (&optional initial-input)
+  "`isearch' with an overview.
+When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (if (and (eq 'swiper-completion-method 'helm)
            (featurep 'helm))
-      (swiper--helm)
-    (swiper--ivy)))
+      (swiper--helm initial-input)
+    (swiper--ivy initial-input)))
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
@@ -126,14 +127,16 @@
   (setq swiper--anchor (line-number-at-pos))
   (setq swiper--window (selected-window)))
 
-(defun swiper--ivy ()
-  "`isearch' with an overview using `ivy'."
+(defun swiper--ivy (&optional initial-input)
+  "`isearch' with an overview using `ivy'.
+When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (ido-mode -1)
   (swiper--init)
   (unwind-protect
        (let ((res (ivy-read "pattern: "
                             (swiper--candidates)
+                            initial-input
                             #'swiper--update-input-ivy)))
          (goto-char (point-min))
          (forward-line (1- (read res)))
@@ -144,8 +147,9 @@
     (ido-mode 1)
     (swiper--cleanup)))
 
-(defun swiper--helm ()
-  "`isearch' with an overview using `helm'."
+(defun swiper--helm (&optional initial-input)
+  "`isearch' with an overview using `helm'.
+When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (require 'helm)
   (swiper--init)
@@ -176,6 +180,7 @@
                :keymap (make-composed-keymap
                         swiper-helm-keymap
                         helm-map)
+               :input initial-input
                :preselect
                (format "^%d " swiper--anchor)
                :buffer "*swiper*"))
