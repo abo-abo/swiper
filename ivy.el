@@ -104,6 +104,7 @@ On error (read-only), quit without selecting."
   (condition-case nil
       (backward-delete-char 1)
     (error
+     (require 'delsel)
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
