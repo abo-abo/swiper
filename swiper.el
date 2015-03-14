@@ -110,11 +110,15 @@
     map)
   "Allows you to go to next and previous hit isearch-style.")
 
+(defvar swiper--opoint
+  "The point when `swiper' starts.")
+
 ;;;###autoload
 (defun swiper (&optional initial-input)
   "`isearch' with an overview.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
+  (setq swiper--opoint (point))
   (if (and (eq 'swiper-completion-method 'helm)
            (featurep 'helm))
       (swiper--helm initial-input)
@@ -133,19 +137,22 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (ido-mode -1)
   (swiper--init)
-  (unwind-protect
-       (let ((res (ivy-read "pattern: "
-                            (swiper--candidates)
-                            initial-input
-                            #'swiper--update-input-ivy)))
-         (goto-char (point-min))
-         (forward-line (1- (read res)))
-         (re-search-forward
-          (ivy--regex ivy-text)
-          (line-end-position)
-          t))
-    (ido-mode 1)
-    (swiper--cleanup)))
+  (let (res)
+    (unwind-protect
+         (setq res (ivy-read "pattern: "
+                             (swiper--candidates)
+                             initial-input
+                             #'swiper--update-input-ivy))
+      (ido-mode 1)
+      (swiper--cleanup)
+      (if (null ivy-exit)
+          (goto-char swiper--opoint)
+        (goto-char (point-min))
+        (forward-line (1- (read res)))
+        (re-search-forward
+         (ivy--regex ivy-text)
+         (line-end-position)
+         t)))))
 
 (defun swiper--helm (&optional initial-input)
   "`isearch' with an overview using `helm'.
