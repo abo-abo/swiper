@@ -147,13 +147,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (swiper--cleanup)
       (if (null ivy-exit)
           (goto-char swiper--opoint)
-        (goto-char (point-min))
-        (forward-line (1- (read res)))
-        (re-search-forward
-         (ivy--regex ivy-text)
-         (line-end-position)
-         t)
-        (swiper--ensure-visible)))))
+        (swiper--action res ivy-text)))))
 
 (defun swiper--helm (&optional initial-input)
   "`isearch' with an overview using `helm'.
@@ -184,7 +178,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  (candidates . ,(swiper--candidates))
                  (filtered-candidate-transformer
                   helm-fuzzy-highlight-matches)
-                 (action . swiper--action))
+                 (action . swiper--action-helm))
                :keymap (make-composed-keymap
                         swiper-helm-keymap
                         helm-map)
@@ -355,13 +349,21 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (forward-line -1)
       (helm-next-line 1))))
 
-(defun swiper--action (x)
+(defun swiper--action-helm (x)
   "Goto line X."
+  (swiper--action x helm-input))
+
+(defun swiper--action (x input)
+  "Goto line X and search for input."
   (goto-char (point-min))
   (forward-line (1- (read x)))
   (re-search-forward
-   (ivy--regex helm-input) (line-end-position) t)
-  (swiper--ensure-visible))
+   (ivy--regex input) (line-end-position) t)
+  (swiper--ensure-visible)
+  (when (/= (point) swiper--opoint)
+    (unless (and transient-mark-mode mark-active)
+      (push-mark swiper--opoint t)
+      (message "Mark saved where search started"))))
 
 (provide 'swiper)
 
