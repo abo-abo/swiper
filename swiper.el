@@ -241,7 +241,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (when (plusp num)
         (goto-char (point-min))
         (forward-line (1- num))
-        (recenter))
+        (unless (and (> (point) (window-start))
+                     (< (point) (window-end swiper--window t)))
+          (recenter)))
       (let ((ov (make-overlay
                  (line-beginning-position)
                  (1+ (line-end-position)))))
