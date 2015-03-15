@@ -142,7 +142,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
          (setq res (ivy-read "pattern: "
                              (swiper--candidates)
                              initial-input
-                             #'swiper--update-input-ivy))
+                             #'swiper--update-input-ivy
+                             (1- (line-number-at-pos))))
       (ido-mode 1)
       (swiper--cleanup)
       (if (null ivy-exit)

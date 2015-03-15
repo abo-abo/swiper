@@ -108,14 +108,16 @@ On error (read-only), quit without selecting."
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
-(defun ivy-read (prompt collection &optional initial-input update-fn)
+(defun ivy-read (prompt collection &optional initial-input update-fn index)
   "Read a string in the minibuffer, with completion.
 PROMPT is a string to prompt with; normally it ends in a colon and a space.
 COLLECTION is a list of strings.
 If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
-UPDATE-FN is called each time the current candidate(s) is changed."
-  (setq ivy--index 0)
+UPDATE-FN is called each time the current candidate(s) is changed.
+If INDEX is non-nil select the corresponding candidate."
+  (setq ivy--index (or index 0))
   (setq ivy--old-re nil)
+  (setq ivy--old-cands nil)
   (setq ivy-text "")
   (setq ivy--all-candidates collection)
   (setq ivy--update-fn update-fn)
@@ -242,15 +244,23 @@ NAME is a string of words separated by spaces that is used to
 build a regex.
 CANDIDATES is a list of strings."
   (let* ((re (ivy--regex name))
-         (cands (if (equal re ivy--old-re)
+         (cands (if (and (equal re ivy--old-re)
+                         ivy--old-cands)
                     ivy--old-cands
                   (setq ivy--old-re re)
-                  (setq ivy--old-cands
-                        (ignore-errors
-                          (cl-remove-if-not
-                           (lambda (x) (string-match re x))
-                           candidates))))))
+                  (ignore-errors
+                    (cl-remove-if-not
+                     (lambda (x) (string-match re x))
+                     candidates))))
+         (tail (nthcdr ivy--index ivy--old-cands))
+         idx)
     (setq ivy--length (length cands))
+    (when (and tail ivy--old-cands)
+      (while (and tail
+                  (null (setq idx (cl-position (pop tail) cands
+                                               :test #'equal)))))
+      (setq ivy--index (or idx 0)))
+    (setq ivy--old-cands cands)
     ;; should do a re-anchor here
     (when (>= ivy--index ivy--length)
       (setq ivy--index (1- ivy--length)))
@@ -262,9 +272,9 @@ CANDIDATES is a list of strings."
                   (cl-subseq cands 0 (min (1- ivy-height) ivy--length)))
           (setq cands
                 (cl-subseq cands
-                        (- index (/ ivy-height 2))
-                        (min (+ index (/ ivy-height 2))
-                             ivy--length)))
+                           (- index (/ ivy-height 2))
+                           (min (+ index (/ ivy-height 2))
+                                ivy--length)))
           (setq index (min (/ ivy-height 2)
                            (1- (length cands)))))
         (setq ivy--current (copy-sequence
