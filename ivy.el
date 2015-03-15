@@ -95,7 +95,7 @@
   "Select the previous completion candidate."
   (interactive)
   (unless (zerop ivy--index)
-    (decf ivy--index)))
+    (cl-decf ivy--index)))
 
 (defun ivy-backward-delete-char ()
   "Forward to `backward-delete-char'.
@@ -261,7 +261,6 @@ CANDIDATES is a list of strings."
                                                :test #'equal)))))
       (setq ivy--index (or idx 0)))
     (setq ivy--old-cands cands)
-    ;; should do a re-anchor here
     (when (>= ivy--index ivy--length)
       (setq ivy--index (1- ivy--length)))
     (if (null cands)
