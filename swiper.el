@@ -42,7 +42,7 @@
   :group 'matching
   :prefix "swiper-")
 
-(defcustom swiper-completion-method 'helm
+(defcustom swiper-completion-method 'ivy
   "Method to select a candidate from a list of strings."
   :type '(choice
           (const :tag "Helm" helm)
