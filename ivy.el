@@ -79,7 +79,7 @@
   "Select the next completion candidate."
   (interactive)
   (unless (>= ivy--index (1- ivy--length))
-    (incf ivy--index)))
+    (cl-incf ivy--index)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
