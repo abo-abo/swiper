@@ -52,6 +52,7 @@
 
 ;;* User Visible
 ;;** Keymap
+(require 'delsel)
 (defvar ivy-minibuffer-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-m") 'ivy-done)
@@ -63,8 +64,17 @@
     (define-key map (kbd "DEL") 'ivy-backward-delete-char)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
     (define-key map (kbd "M->") 'ivy-end-of-buffer)
+    (define-key map (kbd "M-n") 'next-history-element)
+    (define-key map (kbd "M-p") 'previous-history-element)
+    (define-key map (kbd "C-g") 'minibuffer-keyboard-quit)
     map)
   "Keymap used in the minibuffer.")
+
+(defvar ivy-history nil
+  "History list of candidates entered in the minibuffer.
+
+Maximum length of the history list is determined by the value
+of `history-length', which see.")
 
 ;;** Commands
 (defun ivy-done ()
@@ -104,7 +114,6 @@ On error (read-only), quit without selecting."
   (condition-case nil
       (backward-delete-char 1)
     (error
-     (require 'delsel)
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
@@ -122,10 +131,16 @@ If INDEX is non-nil select the corresponding candidate."
   (setq ivy--all-candidates collection)
   (setq ivy--update-fn update-fn)
   (setq ivy-exit nil)
+  (setq ivy--default (or (thing-at-point 'symbol) ""))
   (unwind-protect
        (minibuffer-with-setup-hook
            #'ivy--minibuffer-setup
-         (read-from-minibuffer prompt initial-input))
+         (read-from-minibuffer
+          prompt
+          initial-input
+          ivy-minibuffer-map
+          nil
+          'ivy-history))
     (remove-hook 'post-command-hook #'ivy--exhibit)))
 
 (defvar ivy-text ""
@@ -168,6 +183,9 @@ Otherwise, store nil.")
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
   (set (make-local-variable 'completion-show-inline-help) nil)
+  (set (make-local-variable 'minibuffer-default-add-function)
+       (lambda ()
+         (list ivy--default)))
   (use-local-map (make-composed-keymap ivy-minibuffer-map
                                        (current-local-map)))
   (setq-local max-mini-window-height ivy-height)
@@ -186,6 +204,9 @@ Otherwise, store nil.")
 
 (defvar ivy--current ""
   "Current candidate.")
+
+(defvar ivy--default nil
+  "Default initial input.")
 
 (defvar ivy--update-fn nil
   "Current function to call when current candidate(s) update.")
