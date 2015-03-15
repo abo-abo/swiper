@@ -274,6 +274,7 @@ CANDIDATES is a list of strings."
                      (lambda (x) (string-match re x))
                      candidates))))
          (tail (nthcdr ivy--index ivy--old-cands))
+         (ww (window-width))
          idx)
     (setq ivy--length (length cands))
     (when (and tail ivy--old-cands)
@@ -301,7 +302,12 @@ CANDIDATES is a list of strings."
                             (nth index cands)))
         (setf (nth index cands)
               (ivy--add-face ivy--current 'ivy-current-match))
-        (concat "\n" (mapconcat #'identity cands "\n"))))))
+        (concat "\n" (mapconcat
+                      (lambda (s)
+                        (if (> (length s) ww)
+                            (concat (substring s 0 (- ww 3)) "...")
+                          s))
+                      cands "\n"))))))
 
 (provide 'ivy)
 
