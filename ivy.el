@@ -124,24 +124,28 @@ COLLECTION is a list of strings.
 If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
 UPDATE-FN is called each time the current candidate(s) is changed.
 If INDEX is non-nil select the corresponding candidate."
-  (setq ivy--index (or index 0))
-  (setq ivy--old-re nil)
-  (setq ivy--old-cands nil)
-  (setq ivy-text "")
-  (setq ivy--all-candidates collection)
-  (setq ivy--update-fn update-fn)
-  (setq ivy-exit nil)
-  (setq ivy--default (or (thing-at-point 'symbol) ""))
-  (unwind-protect
-       (minibuffer-with-setup-hook
-           #'ivy--minibuffer-setup
-         (read-from-minibuffer
-          prompt
-          initial-input
-          ivy-minibuffer-map
-          nil
-          'ivy-history))
-    (remove-hook 'post-command-hook #'ivy--exhibit)))
+  (cl-case (length collection)
+    (0 nil)
+    (1 (car collection))
+    (t
+     (setq ivy--index (or index 0))
+     (setq ivy--old-re nil)
+     (setq ivy--old-cands nil)
+     (setq ivy-text "")
+     (setq ivy--all-candidates collection)
+     (setq ivy--update-fn update-fn)
+     (setq ivy-exit nil)
+     (setq ivy--default (or (thing-at-point 'symbol) ""))
+     (unwind-protect
+          (minibuffer-with-setup-hook
+              #'ivy--minibuffer-setup
+            (read-from-minibuffer
+             prompt
+             initial-input
+             ivy-minibuffer-map
+             nil
+             'ivy-history))
+       (remove-hook 'post-command-hook #'ivy--exhibit)))))
 
 (defvar ivy-text ""
   "Stores the user's string as it is typed in.")
