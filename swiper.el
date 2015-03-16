@@ -205,7 +205,10 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defun swiper--cleanup ()
   "Clean up the overlays."
   (while swiper--overlays
-    (delete-overlay (pop swiper--overlays))))
+    (delete-overlay (pop swiper--overlays)))
+  (save-excursion
+    (goto-char (point-min))
+    (isearch-clean-overlays)))
 
 (defvar swiper--overlays nil
   "Store overlays.")
