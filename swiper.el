@@ -84,24 +84,24 @@
 
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
-  (let* ((line-width (1+ (floor (log (count-lines
-                                      (point-min) (point-max))
-                                     10))))
-         (fspec (format "%%-%dd %%s" line-width))
-         (line-number 0)
-         candidates)
-    (save-excursion
-      (goto-char (point-min))
-      (swiper-font-lock-ensure)
-      (while (< (point) (point-max))
-        (push (format fspec
-                      (cl-incf line-number)
-                      (buffer-substring
-                       (line-beginning-position)
-                       (line-end-position)))
-              candidates)
-        (zerop (forward-line 1)))
-      (nreverse candidates))))
+  (let ((n-lines (count-lines (point-min) (point-max))))
+    (unless (zerop n-lines)
+      (let* ((line-width (1+ (floor (log n-lines 10))))
+             (fspec (format "%%-%dd %%s" line-width))
+             (line-number 0)
+             candidates)
+        (save-excursion
+          (goto-char (point-min))
+          (swiper-font-lock-ensure)
+          (while (< (point) (point-max))
+            (push (format fspec
+                          (cl-incf line-number)
+                          (buffer-substring
+                           (line-beginning-position)
+                           (line-end-position)))
+                  candidates)
+            (zerop (forward-line 1)))
+          (nreverse candidates))))))
 
 (defvar swiper-helm-keymap
   (let ((map (make-sparse-keymap)))
@@ -363,15 +363,17 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper--action (x input)
   "Goto line X and search for input."
-  (goto-char (point-min))
-  (forward-line (1- (read x)))
-  (re-search-forward
-   (ivy--regex input) (line-end-position) t)
-  (swiper--ensure-visible)
-  (when (/= (point) swiper--opoint)
-    (unless (and transient-mark-mode mark-active)
-      (push-mark swiper--opoint t)
-      (message "Mark saved where search started"))))
+  (if (null x)
+      (user-error "No candidates")
+    (goto-char (point-min))
+    (forward-line (1- (read x)))
+    (re-search-forward
+     (ivy--regex input) (line-end-position) t)
+    (swiper--ensure-visible)
+    (when (/= (point) swiper--opoint)
+      (unless (and transient-mark-mode mark-active)
+        (push-mark swiper--opoint t)
+        (message "Mark saved where search started")))))
 
 (provide 'swiper)
 
