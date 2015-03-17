@@ -35,12 +35,26 @@
 (defun counsel ()
   "Elisp completion at point."
   (interactive)
+  (counsel--generic
+   (lambda (str) (all-completions str obarray))))
+
+(defun couns-clj ()
+  "Clojure completion at point."
+  (interactive)
+  (counsel--generic
+   (lambda (str)
+     (mapcar
+      #'cl-caddr
+      (cider-sync-request:complete str ":same")))))
+
+(defun counsel--generic (completion-fn)
+  "Complete thing at point with COMPLETION-FN."
   (let* ((bnd (bounds-of-thing-at-point 'symbol))
          (str (if bnd
                   (buffer-substring-no-properties
                    (car bnd) (cdr bnd))
                 ""))
-         (candidates (all-completions str obarray))
+         (candidates (funcall completion-fn str))
          (ivy-height 7)
          (res (ivy-read (format "pattern (%s): " str)
                         candidates)))
