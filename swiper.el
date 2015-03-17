@@ -110,7 +110,7 @@
     map)
   "Allows you to go to next and previous hit isearch-style.")
 
-(defvar swiper--opoint
+(defvar swiper--opoint 1
   "The point when `swiper' starts.")
 
 ;;;###autoload
