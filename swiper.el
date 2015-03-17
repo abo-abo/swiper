@@ -119,7 +119,7 @@
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (setq swiper--opoint (point))
-  (if (and (eq 'swiper-completion-method 'helm)
+  (if (and (eq swiper-completion-method 'helm)
            (featurep 'helm))
       (swiper--helm initial-input)
     (swiper--ivy initial-input)))
