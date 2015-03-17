@@ -77,10 +77,12 @@
 (defvar swiper--window nil
   "Store the current window.")
 
-(defalias 'swiper-font-lock-ensure
+(defun swiper-font-lock-ensure ()
+  "Ensure the entired buffer is highlighted."
+  (unless (derived-mode-p 'magit-mode)
     (if (fboundp 'font-lock-ensure)
-        'font-lock-ensure
-      'font-lock-fontify-buffer))
+        (font-lock-ensure)
+      (font-lock-fontify-buffer))))
 
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
@@ -362,7 +364,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (swiper--action x helm-input))
 
 (defun swiper--action (x input)
-  "Goto line X and search for input."
+  "Goto line X and search for INPUT."
   (if (null x)
       (user-error "No candidates")
     (goto-char (point-min))
