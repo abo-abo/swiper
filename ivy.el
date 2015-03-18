@@ -64,8 +64,8 @@
     (define-key map (kbd "DEL") 'ivy-backward-delete-char)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
     (define-key map (kbd "M->") 'ivy-end-of-buffer)
-    (define-key map (kbd "M-n") 'next-history-element)
-    (define-key map (kbd "M-p") 'previous-history-element)
+    (define-key map (kbd "M-n") 'ivy-next-history-element)
+    (define-key map (kbd "M-p") 'ivy-previous-history-element)
     (define-key map (kbd "C-g") 'minibuffer-keyboard-quit)
     map)
   "Keymap used in the minibuffer.")
@@ -88,6 +88,8 @@ of `history-length', which see.")
 (defun ivy-next-line ()
   "Select the next completion candidate."
   (interactive)
+  (when (string= ivy-text "")
+    (ivy-previous-history-element 1))
   (unless (>= ivy--index (1- ivy--length))
     (cl-incf ivy--index)))
 
@@ -104,8 +106,22 @@ of `history-length', which see.")
 (defun ivy-previous-line ()
   "Select the previous completion candidate."
   (interactive)
+  (when (string= ivy-text "")
+    (ivy-previous-history-element 1))
   (unless (zerop ivy--index)
     (cl-decf ivy--index)))
+
+(defun ivy-previous-history-element (arg)
+  "Forward to `previous-history-element' with ARG."
+  (interactive "p")
+  (previous-history-element arg)
+  (move-end-of-line 1))
+
+(defun ivy-next-history-element (arg)
+  "Forward to `next-history-element' with ARG."
+  (interactive "p")
+  (next-history-element arg)
+  (move-end-of-line 1))
 
 (defun ivy-backward-delete-char ()
   "Forward to `backward-delete-char'.
