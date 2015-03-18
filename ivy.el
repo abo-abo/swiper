@@ -145,6 +145,8 @@ If INDEX is non-nil select the corresponding candidate."
              ivy-minibuffer-map
              nil
              'ivy-history))
+       (pop ivy-history)
+       (add-to-list 'ivy-history ivy-text)
        (remove-hook 'post-command-hook #'ivy--exhibit)))))
 
 (defvar ivy-text ""
