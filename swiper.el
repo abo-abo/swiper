@@ -158,6 +158,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (require 'helm)
+  (require 'helm-match-plugin)
   (swiper--init)
   (unwind-protect
        (let ((helm-display-function
