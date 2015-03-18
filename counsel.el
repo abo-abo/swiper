@@ -47,6 +47,19 @@
       #'cl-caddr
       (cider-sync-request:complete str ":same")))))
 
+(defun couns-git ()
+  "Find file in the current Git repository."
+  (interactive)
+  (let* ((default-directory (locate-dominating-file
+                             default-directory ".git"))
+         (cands (split-string
+                 (shell-command-to-string
+                  "git ls-files --full-name --")
+                 "\n"))
+         (file (ivy-read "Find file: " cands)))
+    (when file
+      (find-file file))))
+
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
   (let* ((bnd (bounds-of-thing-at-point 'symbol))
