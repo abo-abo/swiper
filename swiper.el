@@ -79,7 +79,8 @@
 
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
-  (unless (derived-mode-p 'magit-mode)
+  (unless (or (derived-mode-p 'magit-mode)
+              (memq major-mode '(package-menu-mode emms-playlist-mode)))
     (if (fboundp 'font-lock-ensure)
         (font-lock-ensure)
       (font-lock-fontify-buffer))))
