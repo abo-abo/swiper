@@ -134,18 +134,28 @@ On error (read-only), quit without selecting."
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
-(defun ivy-read (prompt collection &optional initial-input update-fn index)
+(defun ivy-read (prompt collection &optional initial-input update-fn preselect)
   "Read a string in the minibuffer, with completion.
+
 PROMPT is a string to prompt with; normally it ends in a colon and a space.
+
 COLLECTION is a list of strings.
+
 If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
+
 UPDATE-FN is called each time the current candidate(s) is changed.
-If INDEX is non-nil select the corresponding candidate."
+
+If PRESELECT is non-nil select the corresponding candidate out of
+the ones that match INITIAL-INPUT."
   (cl-case (length collection)
     (0 nil)
     (1 (car collection))
     (t
-     (setq ivy--index (or index 0))
+     (setq ivy--index (or
+                       (and preselect
+                            (ivy--preselect-index
+                             collection initial-input preselect))
+                       0))
      (setq ivy--old-re nil)
      (setq ivy--old-cands nil)
      (setq ivy-text "")
@@ -168,6 +178,19 @@ If INDEX is non-nil select the corresponding candidate."
                       (cons ivy-text (delete ivy-text ivy-history)))
                 res)))
        (remove-hook 'post-command-hook #'ivy--exhibit)))))
+
+(defun ivy--preselect-index (candidates initial-input preselect)
+  "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT."
+  (when initial-input
+    (setq candidates
+          (cl-remove-if-not
+           (lambda (x)
+             (string-match initial-input x))
+           candidates)))
+  (cl-position-if
+   (lambda (x)
+     (string-match preselect x))
+   candidates))
 
 (defvar ivy-text ""
   "Stores the user's string as it is typed in.")

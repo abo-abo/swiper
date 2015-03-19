@@ -134,42 +134,27 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (setq swiper--anchor (line-number-at-pos))
   (setq swiper--window (selected-window)))
 
-(defun swiper--index-at-point (candidates initial-input)
-  "Return the index of current line in CANDIDATES filtered by INITIAL-INPUT."
-  (cl-position-if
-   `(lambda (x)
-      (string-match
-       ,(format
-         "[0-9]+ *%s"
-         (regexp-quote
-          (buffer-substring-no-properties
-           (line-beginning-position)
-           (line-end-position))))
-       x))
-   (cl-remove-if-not
-    (lambda (x)
-      (string-match initial-input x))
-    candidates)))
-
 (defun swiper--ivy (&optional initial-input)
   "`isearch' with an overview using `ivy'.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (ido-mode -1)
   (swiper--init)
-  (let* ((candidates (swiper--candidates))
-         (index (if initial-input
-                    (swiper--index-at-point
-                     candidates initial-input)
-                  (1-
-                   (line-number-at-pos))))
-         res)
+  (let ((candidates (swiper--candidates))
+        (preselect (format
+                    "%d *%s"
+                    (line-number-at-pos)
+                    (regexp-quote
+                     (buffer-substring-no-properties
+                      (line-beginning-position)
+                      (line-end-position)))))
+        res)
     (unwind-protect
          (setq res (ivy-read "pattern: "
                              candidates
                              initial-input
                              #'swiper--update-input-ivy
-                             index))
+                             preselect))
       (ido-mode 1)
       (swiper--cleanup)
       (if (null ivy-exit)
