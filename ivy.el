@@ -304,10 +304,9 @@ When non-nil, it should contain one %d.")
 Should be run via minibuffer `post-command-hook'."
   (setq ivy-text (ivy--input))
   (ivy--cleanup)
-  (let ((text (while-no-input
-                (ivy-completions
-                 ivy-text
-                 ivy--all-candidates)))
+  (let ((text (ivy-completions
+               ivy-text
+               ivy--all-candidates))
         (buffer-undo-list t)
         deactivate-mark)
     (when ivy--update-fn
