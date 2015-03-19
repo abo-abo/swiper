@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper)
+
 ## Swiper
 
 Package for GNU Emacs that gives you an overview as you search for a regex
