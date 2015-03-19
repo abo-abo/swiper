@@ -176,6 +176,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (goto-char swiper--opoint)
         (swiper--action res ivy-text)))))
 
+(defvar helm-candidate-number-limit)
+(defvar helm-display-function)
+(defvar helm-map)
+(defvar helm-input)
+(declare-function helm "ext:helm")
+(declare-function helm-persistent-action-display-window "ext:helm")
+(declare-function helm-window "ext:helm")
+(declare-function helm-next-line "ext:helm")
+
 (defun swiper--helm (&optional initial-input)
   "`isearch' with an overview using `helm'.
 When non-nil, INITIAL-INPUT is the initial search pattern."
@@ -268,7 +277,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                 0)))
     (with-selected-window swiper--window
       (goto-char (point-min))
-      (when (plusp num)
+      (when (cl-plusp num)
         (goto-char (point-min))
         (forward-line (1- num))
         (isearch-range-invisible (line-beginning-position)
@@ -374,7 +383,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper--reanchor ()
   "Move to a valid match closest to `swiper--anchor'."
-  (with-helm-window
+  (with-selected-window (helm-window)
     (goto-char (point-min))
     (if (re-search-forward (format "^%d " swiper--anchor) nil t)
         nil
