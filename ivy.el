@@ -81,8 +81,9 @@ of `history-length', which see.")
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (insert ivy--current)
-  (setq ivy-exit 'done)
+  (unless (zerop ivy--length)
+    (insert ivy--current)
+    (setq ivy-exit 'done))
   (exit-minibuffer))
 
 (defun ivy-next-line ()
@@ -155,16 +156,17 @@ If INDEX is non-nil select the corresponding candidate."
      (unwind-protect
           (minibuffer-with-setup-hook
               #'ivy--minibuffer-setup
-            (read-from-minibuffer
-             prompt
-             initial-input
-             ivy-minibuffer-map
-             nil
-             'ivy-history))
-       (when (eq ivy-exit 'done)
-         (pop ivy-history)
-         (setq ivy-history
-               (cons ivy-text (delete ivy-text ivy-history))))
+            (let ((res (read-from-minibuffer
+                        prompt
+                        initial-input
+                        ivy-minibuffer-map
+                        nil
+                        'ivy-history)))
+              (when (eq ivy-exit 'done)
+                (pop ivy-history)
+                (setq ivy-history
+                      (cons ivy-text (delete ivy-text ivy-history)))
+                res)))
        (remove-hook 'post-command-hook #'ivy--exhibit)))))
 
 (defvar ivy-text ""
