@@ -137,7 +137,9 @@ On error (read-only), quit without selecting."
 (defun ivy-read (prompt collection &optional initial-input update-fn preselect)
   "Read a string in the minibuffer, with completion.
 
-PROMPT is a string to prompt with; normally it ends in a colon and a space.
+PROMPT is a string to prompt with; normally it ends in a colon
+and a space.  When PROMPT contains %d, it will be updated with
+the current number of matching candidates.
 
 COLLECTION is a list of strings.
 
@@ -163,6 +165,10 @@ the ones that match INITIAL-INPUT."
      (setq ivy--update-fn update-fn)
      (setq ivy-exit nil)
      (setq ivy--default (or (thing-at-point 'symbol) ""))
+     (setq ivy--prompt
+           (if (string-match "%.*d" prompt)
+               prompt
+             nil))
      (unwind-protect
           (minibuffer-with-setup-hook
               #'ivy--minibuffer-setup
@@ -273,6 +279,26 @@ Otherwise, store nil.")
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
+(defvar ivy--prompt nil
+  "Store the format-style prompt.
+When non-nil, it should contain one %d.")
+
+(defun ivy--insert-prompt ()
+  "Update the prompt according to `ivy--prompt'."
+  (when ivy--prompt
+    (let ((inhibit-read-only t)
+          (n-str (format ivy--prompt ivy--length)))
+      (save-excursion
+        (goto-char (point-min))
+        (delete-region (point-min) (minibuffer-prompt-end))
+        (set-text-properties
+         0 (length n-str)
+         '(front-sticky t rear-nonsticky t field t read-only t face minibuffer-prompt)
+         n-str)
+        (insert n-str))
+      ;; get out of the prompt area
+      (constrain-to-field nil (point-max)))))
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -286,6 +312,7 @@ Should be run via minibuffer `post-command-hook'."
         deactivate-mark)
     (when ivy--update-fn
       (funcall ivy--update-fn))
+    (ivy--insert-prompt)
     ;; Do nothing if while-no-input was aborted.
     (when (stringp text)
       (save-excursion
@@ -333,7 +360,7 @@ CANDIDATES is a list of strings."
       (setq ivy--index (or idx 0)))
     (setq ivy--old-cands cands)
     (when (>= ivy--index ivy--length)
-      (setq ivy--index (1- ivy--length)))
+      (setq ivy--index (max (1- ivy--length) 0)))
     (if (null cands)
         ""
       (let ((index ivy--index))

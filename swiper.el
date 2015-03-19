@@ -85,19 +85,22 @@
         (font-lock-ensure)
       (font-lock-fontify-buffer))))
 
+(defvar swiper--format-spec ""
+  "Store the current candidates format spec.")
+
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
   (let ((n-lines (count-lines (point-min) (point-max))))
     (unless (zerop n-lines)
-      (let* ((line-width (1+ (floor (log n-lines 10))))
-             (fspec (format "%%-%dd %%s" line-width))
-             (line-number 0)
-             candidates)
+      (setq swiper--format-spec
+            (format "%%-%dd %%s" (1+ (floor (log n-lines 10)))))
+      (let ((line-number 0)
+            candidates)
         (save-excursion
           (goto-char (point-min))
           (swiper-font-lock-ensure)
           (while (< (point) (point-max))
-            (push (format fspec
+            (push (format swiper--format-spec
                           (cl-incf line-number)
                           (buffer-substring
                            (line-beginning-position)
@@ -142,7 +145,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (swiper--init)
   (let ((candidates (swiper--candidates))
         (preselect (format
-                    "%d *%s"
+                    swiper--format-spec
                     (line-number-at-pos)
                     (regexp-quote
                      (buffer-substring-no-properties
@@ -150,11 +153,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                       (line-end-position)))))
         res)
     (unwind-protect
-         (setq res (ivy-read "pattern: "
-                             candidates
-                             initial-input
-                             #'swiper--update-input-ivy
-                             preselect))
+         (setq res (ivy-read
+                    (replace-regexp-in-string
+                     "%s" "pattern: " swiper--format-spec)
+                    candidates
+                    initial-input
+                    #'swiper--update-input-ivy
+                    preselect))
       (ido-mode 1)
       (swiper--cleanup)
       (if (null ivy-exit)
