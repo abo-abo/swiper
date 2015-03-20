@@ -362,19 +362,12 @@ CANDIDATES is a list of strings."
       (setq ivy--index (max (1- ivy--length) 0)))
     (if (null cands)
         ""
-      (let ((index ivy--index))
-        (if (< index (/ ivy-height 2))
-            (setq cands
-                  (cl-subseq cands 0 (min (1- ivy-height) ivy--length)))
-          (setq cands
-                (cl-subseq cands
-                           (- index (/ ivy-height 2))
-                           (min (+ index (/ ivy-height 2))
-                                ivy--length)))
-          (setq index (min (/ ivy-height 2)
-                           (1- (length cands)))))
-        (setq ivy--current (copy-sequence
-                            (nth index cands)))
+      (let* ((half-height (/ ivy-height 2))
+             (start (max 0 (- ivy--index half-height)))
+             (end (min (+ start (1- ivy-height)) ivy--length))
+             (cands (cl-subseq cands start end))
+             (index (min ivy--index half-height (1- (length cands)))))
+        (setq ivy--current (copy-sequence (nth index cands)))
         (setf (nth index cands)
               (ivy--add-face ivy--current 'ivy-current-match))
         (concat "\n" (mapconcat
