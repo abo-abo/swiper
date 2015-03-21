@@ -63,8 +63,8 @@ Set this to nil if you don't want the count."
     (define-key map (kbd "C-m") 'ivy-done)
     (define-key map (kbd "C-n") 'ivy-next-line)
     (define-key map (kbd "C-p") 'ivy-previous-line)
-    (define-key map (kbd "C-s") 'ivy-next-line)
-    (define-key map (kbd "C-r") 'ivy-previous-line)
+    (define-key map (kbd "C-s") 'ivy-next-line-or-history)
+    (define-key map (kbd "C-r") 'ivy-previous-line-or-history)
     (define-key map (kbd "SPC") 'self-insert-command)
     (define-key map (kbd "DEL") 'ivy-backward-delete-char)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
@@ -91,14 +91,6 @@ of `history-length', which see.")
     (setq ivy-exit 'done))
   (exit-minibuffer))
 
-(defun ivy-next-line ()
-  "Select the next completion candidate."
-  (interactive)
-  (when (string= ivy-text "")
-    (ivy-previous-history-element 1))
-  (unless (>= ivy--index (1- ivy--length))
-    (cl-incf ivy--index)))
-
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
   (interactive)
@@ -109,8 +101,30 @@ of `history-length', which see.")
   (interactive)
   (setq ivy--index (1- ivy--length)))
 
+(defun ivy-next-line ()
+  "Select the next completion candidate."
+  (interactive)
+  (unless (>= ivy--index (1- ivy--length))
+    (cl-incf ivy--index)))
+
+(defun ivy-next-line-or-history ()
+  "Select the next completion candidate.
+If the input is empty, select the previous history element instead."
+  (interactive)
+  (when (string= ivy-text "")
+    (ivy-previous-history-element 1))
+  (unless (>= ivy--index (1- ivy--length))
+    (cl-incf ivy--index)))
+
 (defun ivy-previous-line ()
   "Select the previous completion candidate."
+  (interactive)
+  (unless (zerop ivy--index)
+    (cl-decf ivy--index)))
+
+(defun ivy-previous-line-or-history ()
+  "Select the previous completion candidate.
+If the input is empty, select the previous history element instead."
   (interactive)
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
