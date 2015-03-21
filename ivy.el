@@ -50,6 +50,11 @@
   "Number of lines for the minibuffer window."
   :type 'integer)
 
+(defcustom ivy-count-format "%-4d "
+  "The style of showing the current candidate count for `ivy-read'.
+Set this to nil if you don't want the count."
+  :type 'string)
+
 ;;* User Visible
 ;;** Keymap
 (require 'delsel)
@@ -166,9 +171,12 @@ the ones that match INITIAL-INPUT."
      (setq ivy-exit nil)
      (setq ivy--default (or (thing-at-point 'symbol) ""))
      (setq ivy--prompt
-           (if (string-match "%.*d" prompt)
-               prompt
-             nil))
+           (cond ((string-match "%.*d" prompt)
+                  prompt)
+                 ((string-match "%.*d" ivy-count-format)
+                  (concat ivy-count-format prompt))
+                 (t
+                  nil)))
      (unwind-protect
           (minibuffer-with-setup-hook
               #'ivy--minibuffer-setup
