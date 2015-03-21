@@ -111,12 +111,12 @@
   "`isearch' with an overview.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
-  (setq swiper--opoint (point))
   (swiper--ivy initial-input))
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
   (deactivate-mark)
+  (setq swiper--opoint (point))
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
   (setq swiper--window (selected-window)))
