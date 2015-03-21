@@ -1,4 +1,4 @@
-;;; swiper.el --- Help version of Swiper -*- lexical-binding: t -*-
+;;; swiper.el --- Helm version of Swiper. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015 Oleh Krehel
 
