@@ -55,6 +55,10 @@
 Set this to nil if you don't want the count."
   :type 'string)
 
+(defcustom ivy-wrap nil
+  "Whether to wrap around after the first and last candidate."
+  :type 'boolean)
+
 ;;* User Visible
 ;;** Keymap
 (require 'delsel)
@@ -104,7 +108,9 @@ of `history-length', which see.")
 (defun ivy-next-line ()
   "Select the next completion candidate."
   (interactive)
-  (unless (>= ivy--index (1- ivy--length))
+  (if (>= ivy--index (1- ivy--length))
+      (when ivy-wrap
+        (ivy-beginning-of-buffer))
     (cl-incf ivy--index)))
 
 (defun ivy-next-line-or-history ()
@@ -113,13 +119,17 @@ If the input is empty, select the previous history element instead."
   (interactive)
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (unless (>= ivy--index (1- ivy--length))
+  (if (>= ivy--index (1- ivy--length))
+      (when ivy-wrap
+        (ivy-beginning-of-buffer))
     (cl-incf ivy--index)))
 
 (defun ivy-previous-line ()
   "Select the previous completion candidate."
   (interactive)
-  (unless (zerop ivy--index)
+  (if (zerop ivy--index)
+      (when ivy-wrap
+        (ivy-end-of-buffer))
     (cl-decf ivy--index)))
 
 (defun ivy-previous-line-or-history ()
@@ -128,7 +138,9 @@ If the input is empty, select the previous history element instead."
   (interactive)
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (unless (zerop ivy--index)
+  (if (zerop ivy--index)
+      (when ivy-wrap
+        (ivy-end-of-buffer))
     (cl-decf ivy--index)))
 
 (defun ivy-previous-history-element (arg)
