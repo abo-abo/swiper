@@ -68,6 +68,10 @@
                           swiper-match-face-4)
   "List of `swiper' faces for group matches.")
 
+(defcustom swiper-min-highlight 2
+  "Only highlight matches for regexps at least this long."
+  :type 'integer)
+
 (defvar swiper--window nil
   "Store the current window.")
 
@@ -207,7 +211,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper--add-overlays (re beg end)
   "Add overlays for RE regexp in current buffer between BEG and END."
-  (when (> (length re) 1)
+  (when (>= (length re) swiper-min-highlight)
     (save-excursion
       (goto-char beg)
       ;; RE can become an invalid regexp
