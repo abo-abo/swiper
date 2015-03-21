@@ -334,13 +334,10 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--add-face (str face)
   "Propertize STR with FACE.
-A better function `add-face-text-property' is used if it's available.
-Otherwise, `propertize'."
-  (if (fboundp 'add-face-text-property)
-      (progn
-        (add-face-text-property 0 (length str) face t str)
-        str)
-    (propertize str 'face face)))
+`font-lock-append-text-property' is used, since it's better than
+`propertize' or `add-face-text-property' in this case."
+  (font-lock-append-text-property 0 (length str) 'face face str)
+  str)
 
 (defun ivy-completions (name candidates)
   "Return as text the current completions.
