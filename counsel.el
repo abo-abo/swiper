@@ -1,14 +1,10 @@
 ;;; consel.el --- Elisp completion at point -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015 Oleh Krehel
+;; Copyright (C) 2015  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
-;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.1"))
-;; Keywords: completion
 
-;; This file is not part of GNU Emacs
+;; This file is part of GNU Emacs.
 
 ;; This file is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
