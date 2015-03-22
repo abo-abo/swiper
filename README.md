@@ -6,25 +6,11 @@ Package for GNU Emacs that gives you an overview as you search for a regex
 
 ![swiper.png](http://oremacs.com/download/swiper.png)
 
-The package allows for two different back ends for the overview: `helm` and `ivy`.  You can set the
-one you want by customizing `swiper-completion-method`.
+The package uses the `ivy` back end for the overview, see also
+[swiper-helm](https://github.com/abo-abo/swiper-helm).
 
-## Screenshots of the `ivy` back end
-
-### One
+## Screenshots
 
 ![ivy-swiper-1.png](http://oremacs.com/download/ivy-swiper-1.png)
 
-## Screenshots of the `helm` back end
-
-### One
-
-![swiper-1.png](http://oremacs.com/download/swiper-1.png)
-
-### Two
-
-![swiper-2.png](http://oremacs.com/download/swiper-2.png)
-
-### Three
-
-![swiper-3.png](http://oremacs.com/download/swiper-3.png)
+There's also a one minute [video demo](https://www.youtube.com/watch?v=s3qwiAtKjuA).
