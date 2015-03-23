@@ -401,12 +401,14 @@ CANDIDATES is a list of strings."
         (setq ivy--current (copy-sequence (nth index cands)))
         (setf (nth index cands)
               (ivy--add-face ivy--current 'ivy-current-match))
-        (concat "\n" (mapconcat
-                      (lambda (s)
-                        (if (> (length s) ww)
-                            (concat (substring s 0 (- ww 3)) "...")
-                          s))
-                      cands "\n"))))))
+        (let ((res (concat "\n" (mapconcat
+                                 (lambda (s)
+                                   (if (> (length s) ww)
+                                       (concat (substring s 0 (- ww 3)) "...")
+                                     s))
+                                 cands "\n"))))
+          (put-text-property 0 (length res) 'read-only nil res)
+          res)))))
 
 (provide 'ivy)
 
