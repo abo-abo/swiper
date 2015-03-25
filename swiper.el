@@ -81,16 +81,18 @@
 (defun swiper-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
-  (delete-minibuffer-contents)
-  (setq ivy--action
-        (lambda ()
-          (let ((from (ivy--regex ivy-text)))
-            (perform-replace
-             from
-             (query-replace-read-to from "Query replace" t)
-             t t t))))
-  (swiper--cleanup)
-  (exit-minibuffer))
+  (if (null (window-minibuffer-p))
+      (user-error "Should only be called in the minibuffer through `swiper-map'")
+    (delete-minibuffer-contents)
+    (setq ivy--action
+          (lambda ()
+            (let ((from (ivy--regex ivy-text)))
+              (perform-replace
+               from
+               (query-replace-read-to from "Query replace" t)
+               t t t))))
+    (swiper--cleanup)
+    (exit-minibuffer)))
 
 (defvar swiper--window nil
   "Store the current window.")
