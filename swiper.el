@@ -83,16 +83,15 @@
   (interactive)
   (if (null (window-minibuffer-p))
       (user-error "Should only be called in the minibuffer through `swiper-map'")
-    (delete-minibuffer-contents)
-    (setq ivy--action
-          (lambda ()
-            (let ((from (ivy--regex ivy-text)))
-              (perform-replace
-               from
-               (query-replace-read-to from "Query replace" t)
-               t t t))))
-    (swiper--cleanup)
-    (exit-minibuffer)))
+    (let* ((from (ivy--regex ivy-text))
+           (to (query-replace-read-to from "Query replace" t)))
+      (delete-minibuffer-contents)
+      (setq ivy--action
+            (lambda ()
+              (perform-replace from to
+                               t t t)))
+      (swiper--cleanup)
+      (exit-minibuffer))))
 
 (defvar swiper--window nil
   "Store the current window.")
