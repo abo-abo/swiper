@@ -79,6 +79,9 @@
   "Ensure the entired buffer is highlighted."
   (unless (or (derived-mode-p 'magit-mode)
               (memq major-mode '(package-menu-mode
+                                 gnus-summary-mode
+                                 gnus-article-mode
+                                 gnus-group-mode
                                  emms-playlist-mode erc-mode)))
     (if (fboundp 'font-lock-ensure)
         (font-lock-ensure)
