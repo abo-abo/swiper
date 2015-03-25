@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
@@ -165,7 +165,8 @@ On error (read-only), quit without selecting."
      (minibuffer-keyboard-quit))))
 
 ;;** Entry Point
-(defun ivy-read (prompt collection &optional initial-input update-fn preselect)
+(defun ivy-read (prompt collection
+                 &optional initial-input keymap preselect update-fn)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -179,7 +180,9 @@ If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
 UPDATE-FN is called each time the current candidate(s) is changed.
 
 If PRESELECT is non-nil select the corresponding candidate out of
-the ones that match INITIAL-INPUT."
+the ones that match INITIAL-INPUT.
+
+KEYMAP is composed together with `ivy-minibuffer-map'."
   (cl-case (length collection)
     (0 nil)
     (1 (car collection))
@@ -203,21 +206,28 @@ the ones that match INITIAL-INPUT."
                   (concat ivy-count-format prompt))
                  (t
                   nil)))
-     (unwind-protect
-          (minibuffer-with-setup-hook
-              #'ivy--minibuffer-setup
-            (let ((res (read-from-minibuffer
-                        prompt
-                        initial-input
-                        ivy-minibuffer-map
-                        nil
-                        'ivy-history)))
-              (when (eq ivy-exit 'done)
-                (pop ivy-history)
-                (setq ivy-history
-                      (cons ivy-text (delete ivy-text ivy-history)))
-                res)))
-       (remove-hook 'post-command-hook #'ivy--exhibit)))))
+     (setq ivy--action nil)
+     (prog1
+         (unwind-protect
+              (minibuffer-with-setup-hook
+                  #'ivy--minibuffer-setup
+                (let ((res (read-from-minibuffer
+                            prompt
+                            initial-input
+                            (make-composed-keymap keymap ivy-minibuffer-map)
+                            nil
+                            'ivy-history)))
+                  (when (eq ivy-exit 'done)
+                    (pop ivy-history)
+                    (setq ivy-history
+                          (cons ivy-text (delete ivy-text ivy-history)))
+                    res)))
+           (remove-hook 'post-command-hook #'ivy--exhibit))
+       (when ivy--action
+         (funcall ivy--action))))))
+
+(defvar ivy--action nil
+  "Store a function to call at the end of `ivy--read'.")
 
 (defun ivy--preselect-index (candidates initial-input preselect)
   "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT."

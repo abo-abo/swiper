@@ -51,7 +51,8 @@
          (cands (split-string
                  (shell-command-to-string
                   "git ls-files --full-name --")
-                 "\n"))
+                 "\n"
+                 t))
          (file (ivy-read "Find file: " cands)))
     (when file
       (find-file file))))
