@@ -108,6 +108,7 @@ of `history-length', which see.")
 (defun ivy-next-line (&optional arg)
   "Move cursor vertically down ARG candidates."
   (interactive "p")
+  (setq arg (or arg 1))
   (cl-incf ivy--index arg)
   (when (>= ivy--index (1- ivy--length))
     (if ivy-wrap
@@ -125,6 +126,7 @@ If the input is empty, select the previous history element instead."
 (defun ivy-previous-line (&optional arg)
   "Move cursor vertically up ARG candidates."
   (interactive "p")
+  (setq arg (or arg 1))
   (cl-decf ivy--index arg)
   (when (< ivy--index 0)
     (if ivy-wrap
