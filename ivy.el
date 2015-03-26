@@ -119,10 +119,7 @@ If the input is empty, select the previous history element instead."
   (interactive)
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (if (>= ivy--index (1- ivy--length))
-      (when ivy-wrap
-        (ivy-beginning-of-buffer))
-    (cl-incf ivy--index)))
+  (ivy-next-line))
 
 (defun ivy-previous-line ()
   "Select the previous completion candidate."
@@ -138,10 +135,7 @@ If the input is empty, select the previous history element instead."
   (interactive)
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (if (zerop ivy--index)
-      (when ivy-wrap
-        (ivy-end-of-buffer))
-    (cl-decf ivy--index)))
+  (ivy-previous-line))
 
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
