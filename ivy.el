@@ -105,37 +105,39 @@ of `history-length', which see.")
   (interactive)
   (setq ivy--index (1- ivy--length)))
 
-(defun ivy-next-line ()
-  "Select the next completion candidate."
-  (interactive)
-  (if (>= ivy--index (1- ivy--length))
-      (when ivy-wrap
-        (ivy-beginning-of-buffer))
-    (cl-incf ivy--index)))
+(defun ivy-next-line (&optional arg)
+  "Move cursor vertically down ARG candidates."
+  (interactive "p")
+  (cl-incf ivy--index arg)
+  (when (>= ivy--index (1- ivy--length))
+    (if ivy-wrap
+        (ivy-beginning-of-buffer)
+      (setq ivy--index (1- ivy--length)))))
 
-(defun ivy-next-line-or-history ()
-  "Select the next completion candidate.
+(defun ivy-next-line-or-history (&optional arg)
+  "Move cursor vertically down ARG candidates.
 If the input is empty, select the previous history element instead."
-  (interactive)
+  (interactive "p")
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (ivy-next-line))
+  (ivy-next-line arg))
 
-(defun ivy-previous-line ()
-  "Select the previous completion candidate."
-  (interactive)
-  (if (zerop ivy--index)
-      (when ivy-wrap
-        (ivy-end-of-buffer))
-    (cl-decf ivy--index)))
+(defun ivy-previous-line (&optional arg)
+  "Move cursor vertically up ARG candidates."
+  (interactive "p")
+  (cl-decf ivy--index arg)
+  (when (< ivy--index 0)
+    (if ivy-wrap
+        (ivy-end-of-buffer)
+      (setq ivy--index 0))))
 
-(defun ivy-previous-line-or-history ()
-  "Select the previous completion candidate.
+(defun ivy-previous-line-or-history (arg)
+  "Move cursor vertically up ARG candidates.
 If the input is empty, select the previous history element instead."
-  (interactive)
+  (interactive "p")
   (when (string= ivy-text "")
     (ivy-previous-history-element 1))
-  (ivy-previous-line))
+  (ivy-previous-line arg))
 
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
@@ -166,17 +168,18 @@ On error (read-only), quit without selecting."
 PROMPT is a string to prompt with; normally it ends in a colon
 and a space.  When PROMPT contains %d, it will be updated with
 the current number of matching candidates.
+See also `ivy-count-format'.
 
 COLLECTION is a list of strings.
 
 If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
 
-UPDATE-FN is called each time the current candidate(s) is changed.
+KEYMAP is composed together with `ivy-minibuffer-map'.
 
 If PRESELECT is non-nil select the corresponding candidate out of
 the ones that match INITIAL-INPUT.
 
-KEYMAP is composed together with `ivy-minibuffer-map'."
+UPDATE-FN is called each time the current candidate(s) is changed."
   (cl-case (length collection)
     (0 nil)
     (1 (car collection))
