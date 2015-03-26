@@ -83,7 +83,8 @@
   (interactive)
   (if (null (window-minibuffer-p))
       (user-error "Should only be called in the minibuffer through `swiper-map'")
-    (let* ((from (ivy--regex ivy-text))
+    (let* ((enable-recursive-minibuffers t)
+           (from (ivy--regex ivy-text))
            (to (query-replace-read-to from "Query replace" t)))
       (delete-minibuffer-contents)
       (setq ivy--action
