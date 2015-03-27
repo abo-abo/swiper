@@ -75,6 +75,7 @@
 (defvar swiper-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-q") 'swiper-query-replace)
+    (define-key map (kbd "C-l") 'swiper-recenter-top-bottom)
     map)
   "Keymap for swiper.")
 
@@ -93,6 +94,12 @@
                                t t t)))
       (swiper--cleanup)
       (exit-minibuffer))))
+
+(defun swiper-recenter-top-bottom (&optional arg)
+  "Call (`recenter-top-bottom' ARG) in `swiper--window'."
+  (interactive "P")
+  (with-selected-window swiper--window
+    (recenter-top-bottom arg)))
 
 (defvar swiper--window nil
   "Store the current window.")
@@ -222,8 +229,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (forward-line (1- num))
         (isearch-range-invisible (line-beginning-position)
                                  (line-end-position))
-        (unless (and (> (point) (window-start))
-                     (< (point) (window-end swiper--window t)))
+        (unless (and (>= (point) (window-start))
+                     (<= (point) (window-end swiper--window t)))
           (recenter)))
       (let ((ov (make-overlay
                  (line-beginning-position)
