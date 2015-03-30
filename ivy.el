@@ -393,9 +393,9 @@ CANDIDATES is a list of strings."
          idx)
     (setq ivy--length (length cands))
     (when (and tail ivy--old-cands)
-      (while (and tail
-                  (null (setq idx (cl-position (pop tail) cands
-                                               :test #'equal)))))
+      (while (and tail (null idx))
+        ;; Compare with eq to handle equal duplicates in cands
+        (setq idx (cl-position (pop tail) cands)))
       (setq ivy--index (or idx 0)))
     (setq ivy--old-cands cands)
     (when (>= ivy--index ivy--length)

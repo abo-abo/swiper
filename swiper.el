@@ -137,7 +137,7 @@
                            (line-beginning-position)
                            (line-end-position)))
                   candidates)
-            (zerop (forward-line 1)))
+            (forward-line 1))
           (nreverse candidates))))))
 
 (defvar swiper--opoint 1
