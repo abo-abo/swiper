@@ -59,6 +59,10 @@ Set this to nil if you don't want the count."
   "Whether to wrap around after the first and last candidate."
   :type 'boolean)
 
+(defcustom ivy-backward-delete-char-function `(minibuffer-keyboard-quit)
+  "Function called when ivy-backward-delete-char throws an error."
+  :type 'function)
+
 ;;* User Visible
 ;;** Keymap
 (require 'delsel)
@@ -155,12 +159,12 @@ If the input is empty, select the previous history element instead."
 
 (defun ivy-backward-delete-char ()
   "Forward to `backward-delete-char'.
-On error (read-only), quit without selecting."
+On error (read-only), call ivy-backward-delete-char-function."
   (interactive)
   (condition-case nil
       (backward-delete-char 1)
     (error
-     (minibuffer-keyboard-quit))))
+     (eval ivy-backward-delete-char-function))))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
