@@ -1,8 +1,12 @@
-;;; consel.el --- Elisp completion at point -*- lexical-binding: t -*-
+;;; consel.el --- Various completion functions using Ivy -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
+;; URL: https://github.com/abo-abo/swiper
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "24.1") (ivy "0.2.0"))
+;; Keywords: completion, matching
 
 ;; This file is part of GNU Emacs.
 
@@ -21,8 +25,10 @@
 
 ;;; Commentary:
 ;;
-;; Just call `counsel' to start completing the `obarray'.
-;; The initial (optional) input is thing-at-point.
+;; Just call one of the interactive functions in this file to complete
+;; the corresponding thing using `ivy'.
+;;
+;; Currently available: Elisp symbols, Clojure symbols, Git files.
 
 ;;; Code:
 
