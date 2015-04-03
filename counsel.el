@@ -47,7 +47,8 @@
    (lambda (str)
      (mapcar
       #'cl-caddr
-      (cider-sync-request:complete str ":same")))))
+      (with-no-warnings
+        (cider-sync-request:complete str ":same"))))))
 
 (defun couns-git ()
   "Find file in the current Git repository."
