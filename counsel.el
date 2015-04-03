@@ -1,4 +1,4 @@
-;;; consel.el --- Various completion functions using Ivy -*- lexical-binding: t -*-
+;;; counsel.el --- Various completion functions using Ivy -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015  Free Software Foundation, Inc.
 
