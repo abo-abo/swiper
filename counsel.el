@@ -34,13 +34,13 @@
 
 (require 'ivy)
 
-(defun counsel ()
+(defun counsel-el ()
   "Elisp completion at point."
   (interactive)
   (counsel--generic
    (lambda (str) (all-completions str obarray))))
 
-(defun couns-clj ()
+(defun counsel-clj ()
   "Clojure completion at point."
   (interactive)
   (counsel--generic
@@ -50,7 +50,7 @@
       (with-no-warnings
         (cider-sync-request:complete str ":same"))))))
 
-(defun couns-git ()
+(defun counsel-git ()
   "Find file in the current Git repository."
   (interactive)
   (let* ((default-directory (locate-dominating-file
