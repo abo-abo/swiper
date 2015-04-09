@@ -111,7 +111,8 @@
                                  gnus-summary-mode
                                  gnus-article-mode
                                  gnus-group-mode
-                                 emms-playlist-mode erc-mode)))
+                                 emms-playlist-mode erc-mode
+                                 org-agenda-mode)))
     (if (fboundp 'font-lock-ensure)
         (font-lock-ensure)
       (font-lock-fontify-buffer))))
