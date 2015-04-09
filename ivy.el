@@ -231,6 +231,44 @@ UPDATE-FN is called each time the current candidate(s) is changed."
        (when ivy--action
          (funcall ivy--action))))))
 
+(defun ivy-completing-read (prompt collection
+                            &optional predicate _require-match initial-input
+                            &rest _ignore)
+  "Read a string in the minibuffer, with completion.
+
+This is an interface that conforms to `completing-read', so that
+it can be used for `completing-read-function'.
+
+PROMPT is a string to prompt with; normally it ends in a colon and a space.
+COLLECTION can be a list of strings, an alist, an obarray or a hash table.
+PREDICATE limits completion to a subset of COLLECTION.
+
+_REQUIRE-MATCH is ignored for now.
+INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
+
+The history, defaults and input-method arguments are ignored for now."
+  (cond ((functionp collection)
+         (error "Function as a collection unsupported"))
+        ((hash-table-p collection)
+         (error "Hash table as a collection unsupported"))
+        ((listp (car collection))
+         (setq collection (mapcar #'car collection))))
+  (when predicate
+    (setq collection (cl-remove-if-not predicate collection)))
+  (ivy-read prompt collection initial-input))
+
+;;;###autoload
+(define-minor-mode ivy-mode
+    "Toggle Ivy mode on or off.
+With ARG, turn Ivy mode on if arg is positive, off otherwise.
+Turning on Ivy mode will set `completing-read-function' to
+`ivy-completing-read'."
+  :group 'ivy
+  :global t
+  (if ivy-mode
+      (setq completing-read-function 'ivy-completing-read)
+    (setq completing-read-function 'completing-read-default)))
+
 (defvar ivy--action nil
   "Store a function to call at the end of `ivy--read'.")
 
