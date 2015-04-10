@@ -265,6 +265,7 @@ Turning on Ivy mode will set `completing-read-function' to
 `ivy-completing-read'."
   :group 'ivy
   :global t
+  :lighter " ivy"
   (if ivy-mode
       (setq completing-read-function 'ivy-completing-read)
     (setq completing-read-function 'completing-read-default)))
@@ -427,7 +428,6 @@ CANDIDATES is a list of strings."
          (cands (if (and (equal re ivy--old-re)
                          ivy--old-cands)
                     ivy--old-cands
-                  (setq ivy--old-re re)
                   (ignore-errors
                     (cl-remove-if-not
                      (lambda (x) (string-match re x))
@@ -435,12 +435,15 @@ CANDIDATES is a list of strings."
          (tail (nthcdr ivy--index ivy--old-cands))
          (ww (window-width))
          idx)
-    (setq ivy--length (length cands))
     (when (and tail ivy--old-cands)
-      (while (and tail (null idx))
-        ;; Compare with eq to handle equal duplicates in cands
-        (setq idx (cl-position (pop tail) cands)))
-      (setq ivy--index (or idx 0)))
+      (unless (and (not (equal re ivy--old-re))
+                   (setq ivy--index (cl-position re cands :test 'equal)))
+        (while (and tail (null idx))
+          ;; Compare with eq to handle equal duplicates in cands
+          (setq idx (cl-position (pop tail) cands)))
+        (setq ivy--index (or idx 0))))
+    (setq ivy--old-re re)
+    (setq ivy--length (length cands))
     (setq ivy--old-cands cands)
     (when (>= ivy--index ivy--length)
       (setq ivy--index (max (1- ivy--length) 0)))
