@@ -45,6 +45,7 @@
   (interactive
    (let ((v (variable-at-point))
          (enable-recursive-minibuffers t)
+         (preselect (thing-at-point 'symbol))
          val)
      (setq val (ivy-read
                 (if (symbolp v)
@@ -57,7 +58,8 @@
                      (when (or (get vv 'variable-documentation)
                                (and (boundp vv) (not (keywordp vv))))
                        (push (symbol-name vv) cands))))
-                  cands)))
+                  cands)
+                nil nil preselect))
      (list (if (equal val "")
                v
              (intern val)))))
@@ -68,6 +70,7 @@
   (interactive
    (let ((fn (function-called-at-point))
          (enable-recursive-minibuffers t)
+         (preselect (thing-at-point 'symbol))
          val)
      (setq val (ivy-read (if fn
                              (format "Describe function (default %s): " fn)
@@ -77,7 +80,8 @@
                             (lambda (x)
                               (when (fboundp x)
                                 (push (symbol-name x) cands))))
-                           cands)))
+                           cands)
+                         nil nil preselect))
      (list (if (equal val "")
                fn (intern val)))))
   (describe-function function))
