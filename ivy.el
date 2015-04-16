@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
@@ -233,7 +233,7 @@ UPDATE-FN is called each time the current candidate(s) is changed."
 
 (defun ivy-completing-read (prompt collection
                             &optional predicate _require-match initial-input
-                            &rest _ignore)
+                              _history def _inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This is an interface that conforms to `completing-read', so that
@@ -245,17 +245,23 @@ PREDICATE limits completion to a subset of COLLECTION.
 
 _REQUIRE-MATCH is ignored for now.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
+_HISTORY is ignored for now.
+DEF is the default value.
+_INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
   (cond ((functionp collection)
-         (error "Function as a collection unsupported"))
+         (setq collection (all-completions "" collection))
+         (setq initial-input nil))
         ((hash-table-p collection)
          (error "Hash table as a collection unsupported"))
         ((listp (car collection))
          (setq collection (mapcar #'car collection))))
   (when predicate
     (setq collection (cl-remove-if-not predicate collection)))
-  (ivy-read prompt collection initial-input))
+  (when (listp def)
+    (setq def (car def)))
+  (ivy-read prompt collection initial-input nil def))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
