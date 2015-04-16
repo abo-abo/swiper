@@ -90,12 +90,18 @@ This is usually meant as a quick exit out of the minibuffer."
 Maximum length of the history list is determined by the value
 of `history-length', which see.")
 
+(defvar ivy-require-match t
+  "Store require-match. See `completing-read'.")
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (unless (zerop ivy--length)
+  (if (zerop ivy--length)
+      (when (memq ivy-require-match '(nil confirm confirm-after-completion))
+        (insert ivy-text)
+        (setq ivy-exit 'done))
     (insert ivy--current)
     (setq ivy-exit 'done))
   (exit-minibuffer))
@@ -232,7 +238,7 @@ UPDATE-FN is called each time the current candidate(s) is changed."
          (funcall ivy--action))))))
 
 (defun ivy-completing-read (prompt collection
-                            &optional predicate _require-match initial-input
+                            &optional predicate require-match initial-input
                               _history def _inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
@@ -243,7 +249,7 @@ PROMPT is a string to prompt with; normally it ends in a colon and a space.
 COLLECTION can be a list of strings, an alist, an obarray or a hash table.
 PREDICATE limits completion to a subset of COLLECTION.
 
-_REQUIRE-MATCH is ignored for now.
+REQUIRE-MATCH is stored into `ivy-require-match'. See `completing-read'.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
 _HISTORY is ignored for now.
 DEF is the default value.
@@ -261,6 +267,7 @@ The history, defaults and input-method arguments are ignored for now."
     (setq collection (cl-remove-if-not predicate collection)))
   (when (listp def)
     (setq def (car def)))
+  (setq ivy-require-match require-match)
   (ivy-read prompt collection initial-input nil def))
 
 ;;;###autoload
