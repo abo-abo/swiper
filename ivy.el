@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.2.2
+;; Version: 0.2.3
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
@@ -256,15 +256,15 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
-  (cond ((functionp collection)
-         (setq collection (all-completions "" collection))
+  (cond ((or (functionp collection)
+             (vectorp collection))
+         (setq collection (all-completions "" collection predicate))
+         ;; find-file is problematic
          (setq initial-input nil))
         ((hash-table-p collection)
          (error "Hash table as a collection unsupported"))
         ((listp (car collection))
-         (setq collection (mapcar #'car collection))))
-  (when predicate
-    (setq collection (cl-remove-if-not predicate collection)))
+         (setq collection (all-completions "" collection predicate))))
   (when (listp def)
     (setq def (car def)))
   (setq ivy-require-match require-match)
