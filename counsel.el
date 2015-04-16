@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.1") (ivy "0.2.1"))
+;; Package-Requires: ((emacs "24.1") (swiper "0.2.1"))
 ;; Keywords: completion, matching
 
 ;; This file is part of GNU Emacs.
@@ -59,7 +59,7 @@
                                (and (boundp vv) (not (keywordp vv))))
                        (push (symbol-name vv) cands))))
                   cands)
-                nil nil preselect))
+                nil nil nil preselect))
      (list (if (equal val "")
                v
              (intern val)))))
@@ -81,7 +81,7 @@
                               (when (fboundp x)
                                 (push (symbol-name x) cands))))
                            cands)
-                         nil nil preselect))
+                         nil nil nil preselect))
      (list (if (equal val "")
                fn (intern val)))))
   (describe-function function))

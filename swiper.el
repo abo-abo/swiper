@@ -179,6 +179,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                     (replace-regexp-in-string
                      "%s" "pattern: " swiper--format-spec)
                     candidates
+                    nil
                     initial-input
                     swiper-map
                     preselect

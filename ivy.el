@@ -70,6 +70,7 @@ This is usually meant as a quick exit out of the minibuffer."
 (defvar ivy-minibuffer-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-m") 'ivy-done)
+    (define-key map (kbd "C-j") 'ivy-alt-done)
     (define-key map (kbd "C-n") 'ivy-next-line)
     (define-key map (kbd "C-p") 'ivy-previous-line)
     (define-key map (kbd "C-s") 'ivy-next-line-or-history)
@@ -93,6 +94,9 @@ of `history-length', which see.")
 (defvar ivy-require-match t
   "Store require-match. See `completing-read'.")
 
+(defvar ivy--directory nil
+  "Current directory when completing file names.")
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
@@ -102,9 +106,29 @@ of `history-length', which see.")
       (when (memq ivy-require-match '(nil confirm confirm-after-completion))
         (insert ivy-text)
         (setq ivy-exit 'done))
-    (insert ivy--current)
+    (if ivy--directory
+        (insert (expand-file-name ivy--current ivy--directory))
+      (insert ivy--current))
     (setq ivy-exit 'done))
   (exit-minibuffer))
+
+(defun ivy-alt-done ()
+  "Exit the minibuffer with the selected candidate."
+  (interactive)
+  (if (and ivy--directory
+           (file-directory-p
+            (expand-file-name ivy--current ivy--directory)))
+      (progn
+        (delete-minibuffer-contents)
+        (setq ivy--directory
+              (expand-file-name ivy--current ivy--directory))
+        (setq ivy--old-cands nil)
+        (setq ivy--all-candidates
+              (let ((default-directory ivy--directory))
+                (all-completions "" 'read-file-name-internal)))
+
+        (ivy--exhibit))
+    (ivy-done)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -168,15 +192,24 @@ If the input is empty, select the previous history element instead."
   "Forward to `backward-delete-char'.
 On error (read-only), call `ivy-on-del-error-function'."
   (interactive)
-  (condition-case nil
-      (backward-delete-char 1)
-    (error
-     (when ivy-on-del-error-function
-       (funcall ivy-on-del-error-function)))))
+  (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
+      (progn
+        (setq ivy--old-cands nil)
+        (setq ivy--all-candidates
+              (let ((default-directory (setq ivy--directory
+                                             (file-name-directory
+                                              (directory-file-name ivy--directory)))))
+                (all-completions "" 'read-file-name-internal)))
+        (ivy--exhibit))
+    (condition-case nil
+        (backward-delete-char 1)
+      (error
+       (when ivy-on-del-error-function
+         (funcall ivy-on-del-error-function))))))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
-                 &optional initial-input keymap preselect update-fn)
+                 &optional predicate initial-input keymap preselect update-fn)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -194,6 +227,17 @@ If PRESELECT is non-nil select the corresponding candidate out of
 the ones that match INITIAL-INPUT.
 
 UPDATE-FN is called each time the current candidate(s) is changed."
+  (setq ivy--directory nil)
+  (cond ((or (functionp collection)
+             (vectorp collection))
+         (when (eq collection 'read-file-name-internal)
+           (setq ivy--directory default-directory)
+           (setq initial-input nil))
+         (setq collection (all-completions "" collection predicate)))
+        ((hash-table-p collection)
+         (error "Hash table as a collection unsupported"))
+        ((listp (car collection))
+         (setq collection (all-completions "" collection predicate))))
   (cl-case (length collection)
     (0 nil)
     (1 (car collection))
@@ -215,6 +259,8 @@ UPDATE-FN is called each time the current candidate(s) is changed."
                   prompt)
                  ((string-match "%.*d" ivy-count-format)
                   (concat ivy-count-format prompt))
+                 (ivy--directory
+                  prompt)
                  (t
                   nil)))
      (setq ivy--action nil)
@@ -256,19 +302,10 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
-  (cond ((or (functionp collection)
-             (vectorp collection))
-         (setq collection (all-completions "" collection predicate))
-         ;; find-file is problematic
-         (setq initial-input nil))
-        ((hash-table-p collection)
-         (error "Hash table as a collection unsupported"))
-        ((listp (car collection))
-         (setq collection (all-completions "" collection predicate))))
   (when (listp def)
     (setq def (car def)))
   (setq ivy-require-match require-match)
-  (ivy-read prompt collection initial-input nil def))
+  (ivy-read prompt collection predicate initial-input nil def))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
@@ -388,7 +425,11 @@ When non-nil, it should contain one %d.")
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
     (let ((inhibit-read-only t)
-          (n-str (format ivy--prompt ivy--length)))
+          (n-str
+           (format
+            (if ivy--directory
+                (concat ivy--prompt (abbreviate-file-name ivy--directory))
+              ivy--prompt) ivy--length)))
       (save-excursion
         (goto-char (point-min))
         (delete-region (point-min) (minibuffer-prompt-end))
