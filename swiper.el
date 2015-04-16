@@ -113,9 +113,10 @@
                                  gnus-group-mode
                                  emms-playlist-mode erc-mode
                                  org-agenda-mode)))
-    (if (fboundp 'font-lock-ensure)
-        (font-lock-ensure)
-      (font-lock-fontify-buffer))))
+    (unless (> (buffer-size) 100000)
+      (if (fboundp 'font-lock-ensure)
+          (font-lock-ensure)
+        (font-lock-fontify-buffer)))))
 
 (defvar swiper--format-spec ""
   "Store the current candidates format spec.")
