@@ -163,7 +163,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "`isearch' with an overview using `ivy'.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
-  (ido-mode -1)
   (swiper--init)
   (let ((candidates (swiper--candidates))
         (preselect (format
@@ -183,7 +182,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                     swiper-map
                     preselect
                     #'swiper--update-input-ivy))
-      (ido-mode 1)
       (swiper--cleanup)
       (if (null ivy-exit)
           (goto-char swiper--opoint)
