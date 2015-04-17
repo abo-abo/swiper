@@ -238,6 +238,10 @@ UPDATE-FN is called each time the current candidate(s) is changed."
          (error "Hash table as a collection unsupported"))
         ((listp (car collection))
          (setq collection (all-completions "" collection predicate))))
+  (when preselect
+    (unless (or ivy-require-match
+                (all-completions preselect collection))
+      (setq collection (cons preselect collection))))
   (cl-case (length collection)
     (0 nil)
     (1 (car collection))
