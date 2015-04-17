@@ -188,18 +188,25 @@ If the input is empty, select the previous history element instead."
   (next-history-element arg)
   (move-end-of-line 1))
 
+(defun ivy--cd (dir)
+  "When completing file names, move to directory DIR."
+  (if (null ivy--directory)
+      (error "Unexpected")
+    (setq ivy--old-cands nil)
+    (setq ivy--all-candidates
+          (let ((default-directory (setq ivy--directory dir)))
+            (all-completions "" 'read-file-name-internal)))
+    (setq ivy-text "")
+    (delete-minibuffer-contents)))
+
 (defun ivy-backward-delete-char ()
   "Forward to `backward-delete-char'.
 On error (read-only), call `ivy-on-del-error-function'."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
-        (setq ivy--old-cands nil)
-        (setq ivy--all-candidates
-              (let ((default-directory (setq ivy--directory
-                                             (file-name-directory
-                                              (directory-file-name ivy--directory)))))
-                (all-completions "" 'read-file-name-internal)))
+        (ivy--cd (file-name-directory
+                  (directory-file-name ivy--directory)))
         (ivy--exhibit))
     (condition-case nil
         (backward-delete-char 1)
@@ -450,6 +457,11 @@ When non-nil, it should contain one %d.")
 Should be run via minibuffer `post-command-hook'."
   (setq ivy-text (ivy--input))
   (ivy--cleanup)
+  (when ivy--directory
+    (if (string-match "/$" ivy-text)
+        (ivy--cd "/")
+      (if (string-match "~$" ivy-text)
+          (ivy--cd (expand-file-name "~/")))))
   (let ((text (ivy-completions
                ivy-text
                ivy--all-candidates))
