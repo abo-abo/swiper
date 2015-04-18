@@ -125,6 +125,7 @@
                                  (ucs-names)))))
     (insert-char (get-text-property 0 'result char))))
 
+(declare-function cider-sync-request:complete "ext:cider-client")
 (defun counsel-clj ()
   "Clojure completion at point."
   (interactive)
@@ -132,8 +133,7 @@
    (lambda (str)
      (mapcar
       #'cl-caddr
-      (with-no-warnings
-        (cider-sync-request:complete str ":same"))))))
+      (cider-sync-request:complete str ":same")))))
 
 (defun counsel-git ()
   "Find file in the current Git repository."
