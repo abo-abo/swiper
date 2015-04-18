@@ -254,7 +254,15 @@ the ones that match INITIAL-INPUT.
 
 UPDATE-FN is called each time the current candidate(s) is changed."
   (setq ivy--directory nil)
-  (cond ((eq collection 'read-file-name-internal)
+  (cond ((eq collection 'Info-read-node-name-1)
+         (if (equal Info-current-file "dir")
+             (setq collection
+                   (mapcar (lambda (x) (format "(%s)" x))
+                           (cl-delete-duplicates
+                            (all-completions "(" collection predicate)
+                            :test 'equal)))
+           (setq collection (all-completions "" collection predicate))))
+        ((eq collection 'read-file-name-internal)
          (setq ivy--directory default-directory)
          (setq initial-input nil)
          (setq collection
