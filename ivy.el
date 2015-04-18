@@ -102,6 +102,44 @@ of `history-length', which see.")
 (defvar ivy--directory nil
   "Current directory when completing file names.")
 
+(defvar ivy--length 0
+  "Store the amount of viable candidates.")
+
+(defvar ivy-text ""
+  "Store the user's string as it is typed in.")
+
+(defvar ivy--current ""
+  "Current candidate.")
+
+(defvar ivy--index 0
+  "Store the index of the current candidate.")
+
+(defvar ivy-exit nil
+  "Store 'done if the completion was successfully selected.
+Otherwise, store nil.")
+
+(defvar ivy--action nil
+  "Store a function to call at the end of `ivy--read'.")
+
+(defvar ivy--all-candidates nil
+  "Store the candidates passed to `ivy-read'.")
+
+(defvar ivy--default nil
+  "Default initial input.")
+
+(defvar ivy--update-fn nil
+  "Current function to call when current candidate(s) update.")
+
+(defvar ivy--prompt nil
+  "Store the format-style prompt.
+When non-nil, it should contain one %d.")
+
+(defvar ivy--old-re nil
+  "Store the old regexp.")
+
+(defvar ivy--old-cands nil
+  "Store the candidates matched by `ivy--old-re'.")
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
@@ -369,9 +407,6 @@ Turning on Ivy mode will set `completing-read-function' to
       (setq completing-read-function 'ivy-completing-read)
     (setq completing-read-function 'completing-read-default)))
 
-(defvar ivy--action nil
-  "Store a function to call at the end of `ivy--read'.")
-
 (defun ivy--preselect-index (candidates initial-input preselect)
   "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT."
   (when initial-input
@@ -384,13 +419,6 @@ Turning on Ivy mode will set `completing-read-function' to
    (lambda (x)
      (string-match preselect x))
    candidates))
-
-(defvar ivy-text ""
-  "Stores the user's string as it is typed in.")
-
-(defvar ivy-exit nil
-  "Store 'done if the completion was successfully selected.
-Otherwise, store nil.")
 
 ;;* Implementation
 ;;** Regex
@@ -435,24 +463,6 @@ Otherwise, store nil.")
   ;; show completions with empty input
   (ivy--exhibit))
 
-(defvar ivy--all-candidates nil
-  "Store the candidates passed to `ivy-read'.")
-
-(defvar ivy--index 0
-  "Store the index of the current candidate.")
-
-(defvar ivy--length 0
-  "Store the amount of viable candidates.")
-
-(defvar ivy--current ""
-  "Current candidate.")
-
-(defvar ivy--default nil
-  "Default initial input.")
-
-(defvar ivy--update-fn nil
-  "Current function to call when current candidate(s) update.")
-
 (defun ivy--input ()
   "Return the current minibuffer input."
   ;; assume one-line minibuffer input
@@ -465,10 +475,6 @@ Otherwise, store nil.")
   (save-excursion
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
-
-(defvar ivy--prompt nil
-  "Store the format-style prompt.
-When non-nil, it should contain one %d.")
 
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
@@ -515,12 +521,6 @@ Should be run via minibuffer `post-command-hook'."
       (save-excursion
         (forward-line 1)
         (insert text)))))
-
-(defvar ivy--old-re nil
-  "Store the old regexp.")
-
-(defvar ivy--old-cands nil
-  "Store the candidates matched by `ivy--old-re'.")
 
 (defun ivy--add-face (str face)
   "Propertize STR with FACE.
