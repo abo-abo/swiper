@@ -64,6 +64,11 @@ Set this to nil if you don't want the count."
 This is usually meant as a quick exit out of the minibuffer."
   :type 'function)
 
+(defcustom ivy-extra-directories '("../" "./")
+  "Add this to the front of the list when completing file names.
+Only \"./\" and \"../\" apply here. They appear in reverse order."
+  :type 'list)
+
 ;;* User Visible
 ;;** Keymap
 (require 'delsel)
@@ -221,17 +226,19 @@ Directories come first."
          (seq (all-completions "" 'read-file-name-internal)))
     (if (equal dir "/")
         seq
-      (cons "./" (cons "../"
-                       (cl-sort
-                        (delete "./" (delete "../" seq))
-                        (lambda (x y)
-                          (if (file-directory-p x)
-                              (if (file-directory-p y)
-                                  (string< x y)
-                                t)
-                            (if (file-directory-p y)
-                                nil
-                              (string< x y))))))))))
+      (setq seq (cl-sort
+                 (delete "./" (delete "../" seq))
+                 (lambda (x y)
+                   (if (file-directory-p x)
+                       (if (file-directory-p y)
+                           (string< x y)
+                         t)
+                     (if (file-directory-p y)
+                         nil
+                       (string< x y))))))
+      (dolist (dir ivy-extra-directories)
+        (push dir seq))
+      seq)))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
