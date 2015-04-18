@@ -359,7 +359,9 @@ The history, defaults and input-method arguments are ignored for now."
     "Toggle Ivy mode on or off.
 With ARG, turn Ivy mode on if arg is positive, off otherwise.
 Turning on Ivy mode will set `completing-read-function' to
-`ivy-completing-read'."
+`ivy-completing-read'.
+
+\\{ivy-minibuffer-map}"
   :group 'ivy
   :global t
   :lighter " ivy"
