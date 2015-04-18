@@ -20,6 +20,7 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 (require 'ert)
+(require 'ivy)
 
 (defvar ivy-expr nil
   "Holds a test expression to evaluate with `ivy-eval'.")
