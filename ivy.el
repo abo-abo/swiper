@@ -165,6 +165,7 @@ When non-nil, it should contain one %d.")
            (ivy-done))
 
           ((and ivy--directory
+                (plusp ivy--length)
                 (file-directory-p
                  (setq dir (expand-file-name
                             ivy--current ivy--directory))))
