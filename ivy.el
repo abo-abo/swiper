@@ -147,14 +147,21 @@ When non-nil, it should contain one %d.")
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (if (zerop ivy--length)
-      (when (memq ivy-require-match '(nil confirm confirm-after-completion))
-        (insert ivy-text)
-        (setq ivy-exit 'done))
-    (if ivy--directory
-        (insert (expand-file-name ivy--current ivy--directory))
-      (insert ivy--current))
-    (setq ivy-exit 'done))
+  (cond (ivy--directory
+         (insert (expand-file-name
+                  (if (zerop ivy--length)
+                      ivy-text
+                    ivy--current)
+                  ivy--directory))
+         (setq ivy-exit 'done))
+        ((zerop ivy--length)
+         (when (memq ivy-require-match
+                     '(nil confirm confirm-after-completion))
+           (insert ivy-text)
+           (setq ivy-exit 'done)))
+        (t
+         (insert ivy--current)
+         (setq ivy-exit 'done)))
   (exit-minibuffer))
 
 (defun ivy-alt-done ()
