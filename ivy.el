@@ -553,7 +553,9 @@ CANDIDATES is a list of strings."
          (cands (cond ((and (equal re ivy--old-re)
                             ivy--old-cands)
                        ivy--old-cands)
-                      ((and ivy--old-re (eq 0 (cl-search ivy--old-re re)))
+                      ((and ivy--old-re
+                            (not (equal ivy--old-re ""))
+                            (eq 0 (cl-search ivy--old-re re)))
                        (ignore-errors
                          (cl-remove-if-not
                           (lambda (x) (string-match re x))
