@@ -542,11 +542,22 @@ Turning on Ivy mode will set `completing-read-function' to
       ;; get out of the prompt area
       (constrain-to-field nil (point-max)))))
 
+(defvar ivy--dynamic-function nil
+  "When this is non-nil, call it for each input change to get new candidates.")
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
   (setq ivy-text (ivy--input))
   (ivy--cleanup)
+  (when (and ivy--dynamic-function
+             (not (equal (ivy--regex ivy-text)
+                         ivy--old-re)))
+    (setq ivy--old-re nil)
+    (setq ivy--old-cands nil)
+    (let ((store ivy--dynamic-function)
+          (ivy--dynamic-function nil))
+      (setq ivy--all-candidates (funcall store ivy-text))))
   (when ivy--directory
     (if (string-match "/$" ivy-text)
         (if (member ivy-text ivy--all-candidates)

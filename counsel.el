@@ -201,6 +201,24 @@
       (goto-char (point-min))
       (forward-line (1- (string-to-number (cadr lst)))))))
 
+(defun counsel-locate-function (str &rest _u)
+  (if (string= str "")
+      '("no" "matches")
+    (setq ivy--all-candidates
+          (split-string
+           (shell-command-to-string (concat "locate -l 20 " str)) "\n" t))
+    (setq ivy--old-re nil)
+    (setq ivy--old-cands nil)
+    (ivy--exhibit)))
+
+(defun counsel-locate ()
+  "Call locate."
+  (interactive)
+  (let* ((ivy--dynamic-function 'counsel-locate-function)
+         (val (ivy-read "pattern: " 'counsel-locate-function)))
+    (when val
+      (find-file val))))
+
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
   (let* ((bnd (bounds-of-thing-at-point 'symbol))
