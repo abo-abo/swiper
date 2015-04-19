@@ -550,13 +550,19 @@ NAME is a string of words separated by spaces that is used to
 build a regex.
 CANDIDATES is a list of strings."
   (let* ((re (ivy--regex name))
-         (cands (if (and (equal re ivy--old-re)
-                         ivy--old-cands)
-                    ivy--old-cands
-                  (ignore-errors
-                    (cl-remove-if-not
-                     (lambda (x) (string-match re x))
-                     candidates))))
+         (cands (cond ((and (equal re ivy--old-re)
+                            ivy--old-cands)
+                       ivy--old-cands)
+                      ((and ivy--old-re (eq 0 (cl-search ivy--old-re re)))
+                       (ignore-errors
+                         (cl-remove-if-not
+                          (lambda (x) (string-match re x))
+                          ivy--old-cands)))
+                      (t
+                       (ignore-errors
+                         (cl-remove-if-not
+                          (lambda (x) (string-match re x))
+                          candidates)))))
          (tail (nthcdr ivy--index ivy--old-cands))
          (ww (window-width))
          idx)
