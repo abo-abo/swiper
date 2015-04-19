@@ -160,7 +160,9 @@
 (defun counsel-git-grep ()
   "Grep for a string in the current git repository."
   (interactive)
-  (let ((val (ivy-read "pattern: " 'counsel-git-grep-function))
+  (let ((default-directory (locate-dominating-file
+                             default-directory ".git"))
+        (val (ivy-read "pattern: " 'counsel-git-grep-function))
         lst)
     (when val
       (setq lst (split-string val ":"))
