@@ -279,6 +279,21 @@ On error (read-only), call `ivy-on-del-error-function'."
        (when ivy-on-del-error-function
          (funcall ivy-on-del-error-function))))))
 
+(defun ivy-sort-file-function-default (x y)
+  "Compare two files X and Y.
+Prioritize directories."
+  (if (file-directory-p x)
+      (if (file-directory-p y)
+          (string< x y)
+        t)
+    (if (file-directory-p y)
+        nil
+      (string< x y))))
+
+(defvar ivy-sort-file-function 'ivy-sort-file-function-default
+  "The function that compares file names.
+It should take two string arguments and return nil and non-nil.")
+
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
 Directories come first."
@@ -288,14 +303,7 @@ Directories come first."
         seq
       (setq seq (cl-sort
                  (delete "./" (delete "../" seq))
-                 (lambda (x y)
-                   (if (file-directory-p x)
-                       (if (file-directory-p y)
-                           (string< x y)
-                         t)
-                     (if (file-directory-p y)
-                         nil
-                       (string< x y))))))
+                 ivy-sort-file-function))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
       seq)))
