@@ -175,6 +175,11 @@
     (when file
       (find-file file))))
 
+(defun counsel-git-grep-count (str)
+  "Quickly count the amount of git grep STR matches."
+  (shell-command-to-string
+   (format "git grep -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'" str)))
+
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
   (split-string
