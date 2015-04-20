@@ -46,6 +46,10 @@
   '((t (:inherit highlight)))
   "Face used by Ivy for highlighting first match.")
 
+(defface ivy-subdir
+  '((t (:weight bold)))
+  "Face used by Ivy for highlighting subdirs in the alternatives.")
+
 (defcustom ivy-height 10
   "Number of lines for the minibuffer window."
   :type 'integer)
@@ -606,6 +610,12 @@ CANDIDATES is a list of strings."
              (end (min (+ start (1- ivy-height)) ivy--length))
              (cands (cl-subseq cands start end))
              (index (min ivy--index half-height (1- (length cands)))))
+        (when ivy--directory
+          (setq cands (mapcar (lambda (x)
+                                (if (string-match-p "/$" x)
+                                    (propertize x 'face 'ivy-subdir)
+                                  x))
+                              cands)))
         (setq ivy--current (copy-sequence (nth index cands)))
         (setf (nth index cands)
               (ivy--add-face ivy--current 'ivy-current-match))
