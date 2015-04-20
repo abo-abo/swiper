@@ -95,14 +95,14 @@
       (swiper--cleanup)
       (exit-minibuffer))))
 
+(defvar swiper--window nil
+  "Store the current window.")
+
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG) in `swiper--window'."
   (interactive "P")
   (with-selected-window swiper--window
     (recenter-top-bottom arg)))
-
-(defvar swiper--window nil
-  "Store the current window.")
 
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
@@ -117,7 +117,7 @@
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
-        (font-lock-fontify-buffer)))))
+        (with-no-warnings (font-lock-fontify-buffer))))))
 
 (defvar swiper--format-spec ""
   "Store the current candidates format spec.")
@@ -152,6 +152,12 @@
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy initial-input))
+
+(defvar swiper--anchor nil
+  "A line number to which the search should be anchored.")
+
+(defvar swiper--len 0
+  "The last length of input for which an anchoring was made.")
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
@@ -199,6 +205,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                (setq expose (overlay-get ov 'isearch-open-invisible)))
           (funcall expose ov)))))
 
+(defvar swiper--overlays nil
+  "Store overlays.")
+
 (defun swiper--cleanup ()
   "Clean up the overlays."
   (while swiper--overlays
@@ -206,15 +215,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (save-excursion
     (goto-char (point-min))
     (isearch-clean-overlays)))
-
-(defvar swiper--overlays nil
-  "Store overlays.")
-
-(defvar swiper--anchor nil
-  "A line number to which the search should be anchored.")
-
-(defvar swiper--len 0
-  "The last length of input for which an anchoring was made.")
 
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
