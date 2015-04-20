@@ -152,11 +152,13 @@ When non-nil, it should contain one %d.")
   (interactive)
   (delete-minibuffer-contents)
   (cond (ivy--directory
-         (insert (expand-file-name
-                  (if (zerop ivy--length)
-                      ivy-text
-                    ivy--current)
-                  ivy--directory))
+         (insert
+          (cond ((string= ivy-text "")
+                 ivy--current)
+                ((zerop ivy--length)
+                 (expand-file-name ivy-text ivy--directory))
+                (t
+                 (expand-file-name ivy--current ivy--directory))))
          (setq ivy-exit 'done))
         ((zerop ivy--length)
          (when (memq ivy-require-match
