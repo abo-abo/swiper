@@ -304,7 +304,7 @@ Directories come first."
       (setq seq (delete "./" (delete "../" seq)))
       (when (eq ivy-sort-file-function 'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
-                            (propertize x 'dirp (file-directory-p x)))
+                            (propertize x 'dirp (string-match-p "/$" x)))
                           (delete "./" (delete "../" seq)))))
       (setq seq (cl-sort seq ivy-sort-file-function))
       (dolist (dir ivy-extra-directories)
