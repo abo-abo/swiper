@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.1") (swiper "0.2.1"))
+;; Package-Requires: ((emacs "24.1") (swiper "0.3.0"))
 ;; Keywords: completion, matching
 
 ;; This file is part of GNU Emacs.
