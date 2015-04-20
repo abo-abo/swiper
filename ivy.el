@@ -37,6 +37,8 @@
 ;; So "for example" is transformed into "\\(for\\).*\\(example\\)".
 
 ;;; Code:
+(require 'cl-lib)
+
 ;;* Customization
 (defgroup ivy nil
   "Incremental vertical completion."
@@ -186,7 +188,7 @@ When non-nil, it should contain one %d.")
            (ivy-done))
 
           ((and ivy--directory
-                (plusp ivy--length)
+                (cl-plusp ivy--length)
                 (file-directory-p
                  (setq dir (expand-file-name
                             ivy--current ivy--directory))))
