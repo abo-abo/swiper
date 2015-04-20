@@ -524,6 +524,15 @@ Turning on Ivy mode will set `completing-read-function' to
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
+(defvar ivy--dynamic-function nil
+  "When this is non-nil, call it for each input change to get new candidates.")
+
+(defvar ivy--full-length nil
+  "When `ivy--dynamic-function' is non-nil, this can be the total amount of candidates.")
+
+(defvar ivy--old-text nil
+  "Store old `ivy-text' for dynamic completion.")
+
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
@@ -532,7 +541,10 @@ Turning on Ivy mode will set `completing-read-function' to
            (format
             (if ivy--directory
                 (concat ivy--prompt (abbreviate-file-name ivy--directory))
-              ivy--prompt) ivy--length)))
+              ivy--prompt)
+            (or (and ivy--dynamic-function
+                     ivy--full-length)
+                ivy--length))))
       (save-excursion
         (goto-char (point-min))
         (delete-region (point-min) (minibuffer-prompt-end))
@@ -544,32 +556,34 @@ Turning on Ivy mode will set `completing-read-function' to
       ;; get out of the prompt area
       (constrain-to-field nil (point-max)))))
 
-(defvar ivy--dynamic-function nil
-  "When this is non-nil, call it for each input change to get new candidates.")
-
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
   (setq ivy-text (ivy--input))
+  (if ivy--dynamic-function
+      ;; while-no-input would cause annoying
+      ;; "Waiting for process to die...done" message interruptions
+      (progn
+        (unless (equal ivy--old-text ivy-text)
+          (let ((store ivy--dynamic-function)
+                (ivy--dynamic-function nil))
+            (setq ivy--all-candidates (funcall store ivy-text)))
+          (setq ivy--old-text ivy-text))
+        (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
+    (when ivy--directory
+      (if (string-match "/$" ivy-text)
+          (if (member ivy-text ivy--all-candidates)
+              (ivy--cd (expand-file-name ivy-text ivy--directory))
+            (ivy--cd "/"))
+        (if (string-match "~$" ivy-text)
+            (ivy--cd (expand-file-name "~/")))))
+    (ivy--insert-minibuffer
+     (ivy--format
+      (ivy--filter ivy-text ivy--all-candidates)))))
+
+(defun ivy--insert-minibuffer (text)
   (ivy--cleanup)
-  (when (and ivy--dynamic-function
-             (not (equal (ivy--regex ivy-text)
-                         ivy--old-re)))
-    (setq ivy--old-re nil)
-    (setq ivy--old-cands nil)
-    (let ((store ivy--dynamic-function)
-          (ivy--dynamic-function nil))
-      (setq ivy--all-candidates (funcall store ivy-text))))
-  (when ivy--directory
-    (if (string-match "/$" ivy-text)
-        (if (member ivy-text ivy--all-candidates)
-            (ivy--cd (expand-file-name ivy-text ivy--directory))
-          (ivy--cd "/"))
-      (if (string-match "~$" ivy-text)
-          (ivy--cd (expand-file-name "~/")))))
-  (let ((text (ivy--format
-               (ivy--filter ivy-text ivy--all-candidates)))
-        (buffer-undo-list t)
+  (let ((buffer-undo-list t)
         deactivate-mark)
     (when ivy--update-fn
       (funcall ivy--update-fn))

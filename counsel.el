@@ -177,24 +177,42 @@
 
 (defun counsel-git-grep-count (str)
   "Quickly count the amount of git grep STR matches."
-  (shell-command-to-string
-   (format "git grep -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'" str)))
+  (let ((out (shell-command-to-string
+              (format "git grep -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
+                      (ivy--regex str)))))
+    (string-to-number out)))
+
+(defvar counsel--git-grep-count nil
+  "Store the line count in current repository.")
 
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
-  (split-string
-   (shell-command-to-string
-    (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\"" string))
-   "\n"
-   t))
+  (if (and (> counsel--git-grep-count 20000)
+           (< (length string) 3))
+      (progn
+        (setq ivy--full-length counsel--git-grep-count)
+        (list ""
+              (format "%d chars more" (- 3 (length ivy-text)))))
+    (let ((cmd-t "git --no-pager grep --full-name -n --no-color -i -e \"%s\"")
+          res)
+      (if (<= counsel--git-grep-count 20000)
+          (progn
+            (setq res (shell-command-to-string (format cmd-t string)))
+            (setq ivy--full-length nil))
+        (setq res (shell-command-to-string (concat (format cmd-t (ivy--regex string)) " | head -n 5000")))
+        (setq ivy--full-length (counsel-git-grep-count ivy-text)))
+      (split-string res "\n" t))))
 
 (defun counsel-git-grep ()
   "Grep for a string in the current git repository."
   (interactive)
-  (let ((default-directory (locate-dominating-file
+  (let* ((counsel--git-grep-count (counsel-git-grep-count ""))
+         (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
+                                  'counsel-git-grep-function))
+         (default-directory (locate-dominating-file
                              default-directory ".git"))
-        (val (ivy-read "pattern: " 'counsel-git-grep-function))
-        lst)
+         (val (ivy-read "pattern: " 'counsel-git-grep-function))
+         lst)
     (when val
       (setq lst (split-string val ":"))
       (find-file (car lst))
@@ -202,14 +220,11 @@
       (forward-line (1- (string-to-number (cadr lst)))))))
 
 (defun counsel-locate-function (str &rest _u)
-  (if (string= str "")
-      '("no" "matches")
-    (setq ivy--all-candidates
-          (split-string
-           (shell-command-to-string (concat "locate -l 20 " str)) "\n" t))
-    (setq ivy--old-re nil)
-    (setq ivy--old-cands nil)
-    (ivy--exhibit)))
+  (if (< (length str) 3)
+      (list ""
+            (format "%d chars more" (- 3 (length ivy-text))))
+    (split-string
+     (shell-command-to-string (concat "locate -i -l 20 --regex " (ivy--regex str))) "\n" t)))
 
 (defun counsel-locate ()
   "Call locate."
