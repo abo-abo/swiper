@@ -40,6 +40,32 @@
   (counsel--generic
    (lambda (str) (all-completions str obarray))))
 
+(defvar counsel-describe-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-.") 'counsel-find-symbol)
+    map))
+
+(defun counsel-find-symbol ()
+  "Jump to the definition of the current symbol."
+  (interactive)
+  (setq ivy--action 'counsel--find-symbol)
+  (setq ivy-exit 'done)
+  (exit-minibuffer))
+
+(defun counsel--find-symbol ()
+  (let ((sym (read ivy--current)))
+    (cond ((boundp sym)
+           (find-variable sym))
+          ((fboundp sym)
+           (find-function sym))
+          ((or (featurep sym)
+               (locate-library
+                (prin1-to-string sym)))
+           (find-library (prin1-to-string sym)))
+          (t
+           (error "Couldn't fild definition of %s"
+                  sym)))))
+
 (defun counsel-describe-variable (variable &optional buffer frame)
   "Forward to (`describe-variable' VARIABLE BUFFER FRAME)."
   (interactive
@@ -59,7 +85,7 @@
                                (and (boundp vv) (not (keywordp vv))))
                        (push (symbol-name vv) cands))))
                   cands)
-                nil nil nil preselect))
+                nil nil counsel-describe-map preselect))
      (list (if (equal val "")
                v
              (intern val)))))
@@ -81,7 +107,7 @@
                               (when (fboundp x)
                                 (push (symbol-name x) cands))))
                            cands)
-                         nil nil nil preselect))
+                         nil nil counsel-describe-map preselect))
      (list (if (equal val "")
                fn (intern val)))))
   (describe-function function))
