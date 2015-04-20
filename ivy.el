@@ -445,10 +445,11 @@ Turning on Ivy mode will set `completing-read-function' to
            (lambda (x)
              (string-match initial-input x))
            candidates)))
-  (cl-position-if
-   (lambda (x)
-     (string-match preselect x))
-   candidates))
+  (or (cl-position preselect candidates :test 'equal)
+      (cl-position-if
+       (lambda (x)
+         (string-match preselect x))
+       candidates)))
 
 ;;* Implementation
 ;;** Regex
