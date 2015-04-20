@@ -582,7 +582,11 @@ CANDIDATES is a list of strings."
                        ivy--old-cands)
                       ((and ivy--old-re
                             (not (equal ivy--old-re ""))
-                            (eq 0 (cl-search ivy--old-re re)))
+                            (memq (cl-search
+                                   (if (string-match "\\\\)$" ivy--old-re)
+                                       (substring ivy--old-re 0 -2)
+                                     ivy--old-re)
+                                   re) '(0 2)))
                        (ignore-errors
                          (cl-remove-if-not
                           (lambda (x) (string-match re x))
