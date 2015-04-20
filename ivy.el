@@ -154,7 +154,9 @@ When non-nil, it should contain one %d.")
   (cond (ivy--directory
          (insert
           (cond ((string= ivy-text "")
-                 ivy--current)
+                 (if (equal ivy--current "./")
+                     ivy--directory
+                   ivy--current))
                 ((zerop ivy--length)
                  (expand-file-name ivy-text ivy--directory))
                 (t
