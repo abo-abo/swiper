@@ -494,7 +494,7 @@ Turning on Ivy mode will set `completing-read-function' to
                          (mapconcat
                           (lambda (x) (format "\\(%s\\)" x))
                           subs
-                          ".*"))))
+                          ".*?"))))
                     ivy--regex-hash)))))
 
 ;;** Rest
