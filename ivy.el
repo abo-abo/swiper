@@ -170,7 +170,9 @@ When non-nil, it should contain one %d.")
           (cond ((string= ivy-text "")
                  (if (equal ivy--current "./")
                      ivy--directory
-                   (expand-file-name ivy--current ivy--directory)))
+                   (if (string-match "\\*" ivy--current)
+                       ivy--current
+                     (expand-file-name ivy--current ivy--directory))))
                 ((zerop ivy--length)
                  (expand-file-name ivy-text ivy--directory))
                 (t
