@@ -99,6 +99,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "C-g") 'minibuffer-keyboard-quit)
     (define-key map (kbd "C-v") 'ivy-scroll-up-command)
     (define-key map (kbd "M-v") 'ivy-scroll-down-command)
+    (define-key map (kbd "C-M-n") 'ivy-next-line-and-call)
+    (define-key map (kbd "C-M-p") 'ivy-previous-line-and-call)
     map)
   "Keymap used in the minibuffer.")
 
@@ -120,6 +122,9 @@ of `history-length', which see.")
 (defvar ivy-text ""
   "Store the user's string as it is typed in.")
 
+(defvar ivy-window nil
+  "Store the window in which `ivy-read' was called.")
+
 (defvar ivy--current ""
   "Current candidate.")
 
@@ -132,6 +137,9 @@ Otherwise, store nil.")
 
 (defvar ivy--action nil
   "Store a function to call at the end of `ivy--read'.")
+
+(defvar ivy--persistent-action nil
+  "Store a function to call for current candidate without exiting.")
 
 (defvar ivy--all-candidates nil
   "Store the candidates passed to `ivy-read'.")
@@ -256,6 +264,24 @@ If the input is empty, select the previous history element instead."
     (ivy-previous-history-element 1))
   (ivy-previous-line arg))
 
+(defun ivy-next-line-and-call (&optional arg)
+  "Move cursor vertically down ARG candidates."
+  (interactive "p")
+  (ivy-next-line arg)
+  (ivy--exhibit)
+  (when ivy--persistent-action
+    (with-selected-window ivy-window
+      (funcall ivy--persistent-action ivy--current))))
+
+(defun ivy-previous-line-and-call (&optional arg)
+  "Move cursor vertically down ARG candidates."
+  (interactive "p")
+  (ivy-previous-line arg)
+  (ivy--exhibit)
+  (when ivy--persistent-action
+    (with-selected-window ivy-window
+      (funcall ivy--persistent-action ivy--current))))
+
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
   (interactive "p")
@@ -367,6 +393,7 @@ UPDATE-FN is called each time the current candidate(s) is changed.
 
 When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--directory nil)
+  (setq ivy-window (selected-window))
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
