@@ -234,48 +234,47 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (unless (and (>= (point) (window-start))
                      (<= (point) (window-end swiper--window t)))
           (recenter)))
-      (let ((ov (make-overlay
-                 (line-beginning-position)
-                 (1+ (line-end-position)))))
-        (overlay-put ov 'face 'swiper-line-face)
-        (overlay-put ov 'window swiper--window)
-        (push ov swiper--overlays))
-      (let ((wh (window-height)))
-        (swiper--add-overlays
-         re
-         (save-excursion
-           (forward-line (- wh))
-           (point))
-         (save-excursion
-           (forward-line wh)
-           (point)))))))
+      (swiper--add-overlays re))))
 
-(defun swiper--add-overlays (re beg end)
-  "Add overlays for RE regexp in current buffer between BEG and END."
-  (when (>= (length re) swiper-min-highlight)
-    (save-excursion
-      (goto-char beg)
-      ;; RE can become an invalid regexp
-      (while (and (ignore-errors (re-search-forward re end t))
-                  (> (- (match-end 0) (match-beginning 0)) 0))
-        (let ((i 0))
-          (while (<= i ivy--subexps)
-            (when (match-beginning i)
-              (let ((overlay (make-overlay (match-beginning i)
-                                           (match-end i)))
-                    (face
-                     (cond ((zerop ivy--subexps)
-                            (cl-caddr swiper-faces))
-                           ((zerop i)
-                            (car swiper-faces))
-                           (t
-                            (nth (1+ (mod (1- i) (1- (length swiper-faces))))
-                                 swiper-faces)))))
-                (push overlay swiper--overlays)
-                (overlay-put overlay 'face face)
-                (overlay-put overlay 'window swiper--window)
-                (overlay-put overlay 'priority i)))
-            (cl-incf i)))))))
+(defun swiper--add-overlays (re)
+  "Add overlays for RE regexp in visible part of the current buffer."
+  (let ((ov (make-overlay
+             (line-beginning-position)
+             (1+ (line-end-position)))))
+    (overlay-put ov 'face 'swiper-line-face)
+    (overlay-put ov 'window swiper--window)
+    (push ov swiper--overlays))
+  (let* ((wh (window-height))
+         (beg (save-excursion
+                (forward-line (- wh))
+                (point)))
+         (end (save-excursion
+                (forward-line wh)
+                (point))))
+    (when (>= (length re) swiper-min-highlight)
+      (save-excursion
+        (goto-char beg)
+        ;; RE can become an invalid regexp
+        (while (and (ignore-errors (re-search-forward re end t))
+                    (> (- (match-end 0) (match-beginning 0)) 0))
+          (let ((i 0))
+            (while (<= i ivy--subexps)
+              (when (match-beginning i)
+                (let ((overlay (make-overlay (match-beginning i)
+                                             (match-end i)))
+                      (face
+                       (cond ((zerop ivy--subexps)
+                              (cl-caddr swiper-faces))
+                             ((zerop i)
+                              (car swiper-faces))
+                             (t
+                              (nth (1+ (mod (1- i) (1- (length swiper-faces))))
+                                   swiper-faces)))))
+                  (push overlay swiper--overlays)
+                  (overlay-put overlay 'face face)
+                  (overlay-put overlay 'window swiper--window)
+                  (overlay-put overlay 'priority i)))
+              (cl-incf i))))))))
 
 (defun swiper--action (x input)
   "Goto line X and search for INPUT."
