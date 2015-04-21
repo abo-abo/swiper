@@ -407,9 +407,12 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
              (setq coll (all-completions "" collection predicate))))
           ((eq collection 'read-file-name-internal)
            (setq ivy--directory default-directory)
-           (setq initial-input nil)
            (setq coll
-                 (ivy--sorted-files default-directory)))
+                 (ivy--sorted-files default-directory))
+           (when initial-input
+             (unless ivy-require-match
+               (setq coll (cons initial-input coll)))
+             (setq initial-input nil)))
           ((or (functionp collection)
                (vectorp collection)
                (listp (car collection)))
