@@ -304,30 +304,43 @@ Prioritize directories."
         nil
       (string< x y))))
 
-(defvar ivy-sort-file-function 'ivy-sort-file-function-default
-  "The function that compares file names.
-It should take two string arguments and return nil and non-nil.")
+(defvar ivy-sort-functions-alist
+  '((read-file-name-internal . ivy-sort-file-function-default)
+    (internal-complete-buffer . nil)
+    (counsel-git-grep-function . nil)
+    (t . string-lessp))
+  "And alist of sorting functions for each collection function.
+For each entry, nil means no sorting.
+The entry associated to t is used for all fall-through cases.")
+
+(defcustom ivy-sort-max-size 30000
+  "Sorting won't be done for collections larger than this."
+  :type 'integer)
 
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
 Directories come first."
   (let* ((default-directory dir)
-         (seq (all-completions "" 'read-file-name-internal)))
+         (seq (all-completions "" 'read-file-name-internal))
+         sort-fn)
     (if (equal dir "/")
         seq
       (setq seq (delete "./" (delete "../" seq)))
-      (when (eq ivy-sort-file-function 'ivy-sort-file-function-default)
+      (when (eq (setq sort-fn (cdr (assoc 'read-file-name-internal
+                                          ivy-sort-functions-alist)))
+                'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
                             (propertize x 'dirp (string-match-p "/$" x)))
                           (delete "./" (delete "../" seq)))))
-      (setq seq (cl-sort seq ivy-sort-file-function))
+      (when sort-fn
+        (setq seq (cl-sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
       seq)))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
-                 &optional predicate initial-input keymap preselect update-fn)
+                 &optional predicate initial-input keymap preselect update-fn sort)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -344,76 +357,89 @@ KEYMAP is composed together with `ivy-minibuffer-map'.
 If PRESELECT is non-nil select the corresponding candidate out of
 the ones that match INITIAL-INPUT.
 
-UPDATE-FN is called each time the current candidate(s) is changed."
+UPDATE-FN is called each time the current candidate(s) is changed.
+
+When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--directory nil)
-  (cond ((eq collection 'Info-read-node-name-1)
-         (if (equal Info-current-file "dir")
-             (setq collection
-                   (mapcar (lambda (x) (format "(%s)" x))
-                           (cl-delete-duplicates
-                            (all-completions "(" collection predicate)
-                            :test 'equal)))
-           (setq collection (all-completions "" collection predicate))))
-        ((eq collection 'read-file-name-internal)
-         (setq ivy--directory default-directory)
-         (setq initial-input nil)
-         (setq collection
-               (ivy--sorted-files default-directory)))
-        ((or (functionp collection)
-             (vectorp collection))
-         (setq collection (all-completions "" collection predicate)))
-        ((hash-table-p collection)
-         (error "Hash table as a collection unsupported"))
-        ((listp (car collection))
-         (setq collection (all-completions "" collection predicate))))
-  (when preselect
-    (unless (or ivy-require-match
-                (all-completions preselect collection))
-      (setq collection (cons preselect collection))))
-  (cl-case (length collection)
-    (0 nil)
-    (1 (car collection))
-    (t
-     (setq ivy--index (or
-                       (and preselect
-                            (ivy--preselect-index
-                             collection initial-input preselect))
-                       0))
-     (setq ivy--old-re nil)
-     (setq ivy--old-cands nil)
-     (setq ivy-text "")
-     (setq ivy--all-candidates collection)
-     (setq ivy--update-fn update-fn)
-     (setq ivy-exit nil)
-     (setq ivy--default (or (thing-at-point 'symbol) ""))
-     (setq ivy--prompt
-           (cond ((string-match "%.*d" prompt)
-                  prompt)
-                 ((string-match "%.*d" ivy-count-format)
-                  (concat ivy-count-format prompt))
-                 (ivy--directory
-                  prompt)
-                 (t
-                  nil)))
-     (setq ivy--action nil)
-     (prog1
-         (unwind-protect
-              (minibuffer-with-setup-hook
-                  #'ivy--minibuffer-setup
-                (let ((res (read-from-minibuffer
-                            prompt
-                            initial-input
-                            (make-composed-keymap keymap ivy-minibuffer-map)
-                            nil
-                            'ivy-history)))
-                  (when (eq ivy-exit 'done)
-                    (pop ivy-history)
-                    (setq ivy-history
-                          (cons ivy-text (delete ivy-text ivy-history)))
-                    res)))
-           (remove-hook 'post-command-hook #'ivy--exhibit))
-       (when ivy--action
-         (funcall ivy--action))))))
+  (let (coll sort-fn)
+    (cond ((eq collection 'Info-read-node-name-1)
+           (if (equal Info-current-file "dir")
+               (setq coll
+                     (mapcar (lambda (x) (format "(%s)" x))
+                             (cl-delete-duplicates
+                              (all-completions "(" collection predicate)
+                              :test 'equal)))
+             (setq coll (all-completions "" collection predicate))))
+          ((eq collection 'read-file-name-internal)
+           (setq ivy--directory default-directory)
+           (setq initial-input nil)
+           (setq coll
+                 (ivy--sorted-files default-directory)))
+          ((or (functionp collection)
+               (vectorp collection)
+               (listp (car collection)))
+           (setq coll (all-completions "" collection predicate)))
+          ((hash-table-p collection)
+           (error "Hash table as a collection unsupported"))
+          (t
+           (setq coll collection)))
+    (when sort
+      (if (and (functionp collection)
+               (not (eq collection 'read-file-name-internal))
+               (setq sort-fn (assoc collection ivy-sort-functions-alist)))
+          (when (setq sort-fn (cdr sort-fn))
+            (setq coll (cl-sort coll sort-fn)))
+        (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
+                 (<= (length coll) ivy-sort-max-size))
+            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
+    (when preselect
+      (unless (or ivy-require-match
+                  (all-completions preselect collection))
+        (setq coll (cons preselect coll))))
+    (cl-case (length coll)
+      (0 nil)
+      (1 (car coll))
+      (t
+       (setq ivy--index (or
+                         (and preselect
+                              (ivy--preselect-index
+                               coll initial-input preselect))
+                         0))
+       (setq ivy--old-re nil)
+       (setq ivy--old-cands nil)
+       (setq ivy-text "")
+       (setq ivy--all-candidates coll)
+       (setq ivy--update-fn update-fn)
+       (setq ivy-exit nil)
+       (setq ivy--default (or (thing-at-point 'symbol) ""))
+       (setq ivy--prompt
+             (cond ((string-match "%.*d" prompt)
+                    prompt)
+                   ((string-match "%.*d" ivy-count-format)
+                    (concat ivy-count-format prompt))
+                   (ivy--directory
+                    prompt)
+                   (t
+                    nil)))
+       (setq ivy--action nil)
+       (prog1
+           (unwind-protect
+                (minibuffer-with-setup-hook
+                    #'ivy--minibuffer-setup
+                  (let ((res (read-from-minibuffer
+                              prompt
+                              initial-input
+                              (make-composed-keymap keymap ivy-minibuffer-map)
+                              nil
+                              'ivy-history)))
+                    (when (eq ivy-exit 'done)
+                      (pop ivy-history)
+                      (setq ivy-history
+                            (cons ivy-text (delete ivy-text ivy-history)))
+                      res)))
+             (remove-hook 'post-command-hook #'ivy--exhibit))
+         (when ivy--action
+           (funcall ivy--action)))))))
 
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
@@ -437,7 +463,7 @@ The history, defaults and input-method arguments are ignored for now."
   (when (listp def)
     (setq def (car def)))
   (setq ivy-require-match require-match)
-  (ivy-read prompt collection predicate initial-input nil def))
+  (ivy-read prompt collection predicate initial-input nil def nil t))
 
 ;;;###autoload
 (define-minor-mode ivy-mode

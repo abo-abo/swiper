@@ -85,7 +85,8 @@
                                (and (boundp vv) (not (keywordp vv))))
                        (push (symbol-name vv) cands))))
                   cands)
-                nil nil counsel-describe-map preselect))
+                nil nil counsel-describe-map preselect
+                nil t))
      (list (if (equal val "")
                v
              (intern val)))))
@@ -107,7 +108,8 @@
                               (when (fboundp x)
                                 (push (symbol-name x) cands))))
                            cands)
-                         nil nil counsel-describe-map preselect))
+                         nil nil counsel-describe-map preselect
+                         nil t))
      (list (if (equal val "")
                fn (intern val)))))
   (describe-function function))
