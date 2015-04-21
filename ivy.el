@@ -188,25 +188,36 @@ When non-nil, it should contain one %d.")
          (setq ivy-exit 'done)))
   (exit-minibuffer))
 
-(defun ivy-alt-done ()
-  "Exit the minibuffer with the selected candidate."
+(defun ivy-alt-done (&optional arg)
+  "Exit the minibuffer with the selected candidate.
+When ARG is t, exit with current text, ignoring the candidates."
+  (interactive "P")
+  (if arg
+      (ivy-immediate-done)
+    (let (dir)
+      (cond ((and ivy--directory
+                  (= 0 ivy--index)
+                  (= 0 (length ivy-text)))
+             (ivy-done))
+
+            ((and ivy--directory
+                  (cl-plusp ivy--length)
+                  (file-directory-p
+                   (setq dir (expand-file-name
+                              ivy--current ivy--directory))))
+             (ivy--cd dir)
+             (ivy--exhibit))
+
+            (t
+             (ivy-done))))))
+
+(defun ivy-immediate-done ()
+  "Exit the minibuffer with the current input."
   (interactive)
-  (let (dir)
-    (cond ((and ivy--directory
-                (= 0 ivy--index)
-                (= 0 (length ivy-text)))
-           (ivy-done))
-
-          ((and ivy--directory
-                (cl-plusp ivy--length)
-                (file-directory-p
-                 (setq dir (expand-file-name
-                            ivy--current ivy--directory))))
-           (ivy--cd dir)
-           (ivy--exhibit))
-
-          (t
-           (ivy-done)))))
+  (delete-minibuffer-contents)
+  (insert ivy-text)
+  (setq ivy-exit 'done)
+  (exit-minibuffer))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
