@@ -538,9 +538,11 @@ Turning on Ivy mode will set `completing-read-function' to
   (make-hash-table :test 'equal)
   "Store pre-computed regex.")
 
-(defun ivy--regex (str)
-  "Re-build regex from STR in case it has a space."
-  (let ((hashed (gethash str ivy--regex-hash)))
+(defun ivy--regex (str &optional greedy)
+  "Re-build regex from STR in case it has a space.
+When GREEDY is non-nil, join words in a greedy way."
+  (let ((hashed (unless greedy
+                  (gethash str ivy--regex-hash))))
     (if hashed
         (prog1 (cdr hashed)
           (setq ivy--subexps (car hashed)))
@@ -553,9 +555,14 @@ Turning on Ivy mode will set `completing-read-function' to
                         (cons
                          (setq ivy--subexps (length subs))
                          (mapconcat
-                          (lambda (x) (format "\\(%s\\)" x))
+                          (lambda (x)
+                            (if (string-match "^\\\\(.*\\\\)$" x)
+                                x
+                              (format "\\(%s\\)" x)))
                           subs
-                          ".*?"))))
+                          (if greedy
+                              ".*"
+                            ".*?")))))
                     ivy--regex-hash)))))
 
 ;;** Rest
