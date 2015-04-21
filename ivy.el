@@ -331,12 +331,12 @@ Directories come first."
                 'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
                             (propertize x 'dirp (string-match-p "/$" x)))
-                          (delete "./" (delete "../" seq)))))
+                          seq)))
       (when sort-fn
         (setq seq (cl-sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
-      seq)))
+      (or seq '("" "")))))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
