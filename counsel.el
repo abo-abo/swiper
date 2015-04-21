@@ -32,7 +32,7 @@
 
 ;;; Code:
 
-(require 'ivy)
+(require 'swiper)
 
 (defun counsel-el ()
   "Elisp completion at point."
@@ -195,33 +195,39 @@
         (setq ivy--full-length counsel--git-grep-count)
         (list ""
               (format "%d chars more" (- 3 (length ivy-text)))))
-    (let ((cmd-t "git --no-pager grep --full-name -n --no-color -i -e \"%s\"")
+    (let ((cmd (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
+                       (ivy--regex string t)))
           res)
       (if (<= counsel--git-grep-count 20000)
           (progn
-            (setq res (shell-command-to-string (format cmd-t string)))
+            (setq res (shell-command-to-string cmd))
             (setq ivy--full-length nil))
-        (setq res (shell-command-to-string (concat (format cmd-t (ivy--regex string)) " | head -n 5000")))
+        (setq res (shell-command-to-string (concat cmd " | head -n 5000")))
         (setq ivy--full-length (counsel-git-grep-count ivy-text)))
       (split-string res "\n" t))))
 
 (defun counsel-git-grep ()
   "Grep for a string in the current git repository."
   (interactive)
-  (let* ((counsel--git-grep-count (counsel-git-grep-count ""))
-         (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
-                                  'counsel-git-grep-function))
-         (git-dir (locate-dominating-file
-                   default-directory ".git"))
-         (ivy--persistent-action (lambda (x)
-                                   (setq lst (split-string x ":"))
-                                   (find-file (expand-file-name (car lst) git-dir))
-                                   (goto-char (point-min))
-                                   (forward-line (1- (string-to-number (cadr lst))))))
-         (val (ivy-read "pattern: " 'counsel-git-grep-function))
-         lst)
-    (when val
-      (funcall ivy--persistent-action val))))
+  (unwind-protect
+       (let* ((counsel--git-grep-count (counsel-git-grep-count ""))
+              (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
+                                       'counsel-git-grep-function))
+              (git-dir (locate-dominating-file
+                        default-directory ".git"))
+              (ivy--persistent-action (lambda (x)
+                                        (setq lst (split-string x ":"))
+                                        (find-file (expand-file-name (car lst) git-dir))
+                                        (goto-char (point-min))
+                                        (forward-line (1- (string-to-number (cadr lst))))
+                                        (setq swiper--window (selected-window))
+                                        (swiper--cleanup)
+                                        (swiper--add-overlays (ivy--regex ivy-text))))
+              (val (ivy-read "pattern: " 'counsel-git-grep-function))
+              lst)
+         (when val
+           (funcall ivy--persistent-action val)))
+    (swiper--cleanup)))
 
 (defun counsel-locate-function (str &rest _u)
   (if (< (length str) 3)
