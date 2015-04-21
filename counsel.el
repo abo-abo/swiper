@@ -181,11 +181,15 @@
     (when file
       (find-file file))))
 
+(defvar counsel--git-grep-dir nil
+  "Store the base git directory.")
+
 (defun counsel-git-grep-count (str)
   "Quickly count the amount of git grep STR matches."
-  (let ((out (shell-command-to-string
-              (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
-                      (ivy--regex str)))))
+  (let* ((default-directory counsel--git-grep-dir)
+         (out (shell-command-to-string
+               (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
+                       (ivy--regex str)))))
     (string-to-number out)))
 
 (defvar counsel--git-grep-count nil
@@ -199,14 +203,15 @@
         (setq ivy--full-length counsel--git-grep-count)
         (list ""
               (format "%d chars more" (- 3 (length ivy-text)))))
-    (let ((cmd (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
-                       (ivy--regex string t)))
-          res)
+    (let* ((default-directory counsel--git-grep-dir)
+           (cmd (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
+                        (ivy--regex string t)))
+           res)
       (if (<= counsel--git-grep-count 20000)
           (progn
             (setq res (shell-command-to-string cmd))
             (setq ivy--full-length nil))
-        (setq res (shell-command-to-string (concat cmd " | head -n 5000")))
+        (setq res (shell-command-to-string (concat cmd " | head -n 2000")))
         (setq ivy--full-length (counsel-git-grep-count ivy-text)))
       (split-string res "\n" t))))
 
@@ -214,14 +219,14 @@
   "Grep for a string in the current git repository."
   (interactive)
   (unwind-protect
-       (let* ((counsel--git-grep-count (counsel-git-grep-count ""))
+       (let* ((counsel--git-grep-dir (locate-dominating-file
+                                      default-directory ".git"))
+              (counsel--git-grep-count (counsel-git-grep-count ""))
               (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
                                        'counsel-git-grep-function))
-              (git-dir (locate-dominating-file
-                        default-directory ".git"))
               (ivy--persistent-action (lambda (x)
                                         (setq lst (split-string x ":"))
-                                        (find-file (expand-file-name (car lst) git-dir))
+                                        (find-file (expand-file-name (car lst) counsel--git-grep-dir))
                                         (goto-char (point-min))
                                         (forward-line (1- (string-to-number (cadr lst))))
                                         (setq swiper--window (selected-window))
