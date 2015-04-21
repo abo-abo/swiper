@@ -73,6 +73,7 @@
          (enable-recursive-minibuffers t)
          (preselect (thing-at-point 'symbol))
          val)
+     (setq ivy--action nil)
      (setq val (ivy-read
                 (if (symbolp v)
                     (format
@@ -90,7 +91,8 @@
      (list (if (equal val "")
                v
              (intern val)))))
-  (describe-variable variable buffer frame))
+  (unless (eq ivy--action 'counsel--find-symbol)
+    (describe-variable variable buffer frame)))
 
 (defun counsel-describe-function (function)
   "Forward to (`describe-function' FUNCTION) with ivy completion."
@@ -99,6 +101,7 @@
          (enable-recursive-minibuffers t)
          (preselect (thing-at-point 'symbol))
          val)
+     (setq ivy--action nil)
      (setq val (ivy-read (if fn
                              (format "Describe function (default %s): " fn)
                            "Describe function: ")
@@ -112,7 +115,8 @@
                          nil t))
      (list (if (equal val "")
                fn (intern val)))))
-  (describe-function function))
+  (unless (eq ivy--action 'counsel--find-symbol)
+    (describe-function function)))
 
 (defvar info-lookup-mode)
 (declare-function info-lookup->completions "info-look")
