@@ -410,7 +410,8 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
            (setq coll
                  (ivy--sorted-files default-directory))
            (when initial-input
-             (unless ivy-require-match
+             (unless (or ivy-require-match
+                         (equal initial-input default-directory))
                (setq coll (cons initial-input coll)))
              (setq initial-input nil)))
           ((or (functionp collection)
