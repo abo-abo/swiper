@@ -711,7 +711,14 @@ CANDIDATES are assumed to be static."
          idx)
     (when (and tail ivy--old-cands)
       (unless (and (not (equal re ivy--old-re))
-                   (setq ivy--index (cl-position re cands :test 'equal)))
+                   (or (setq ivy--index
+                             (or
+                              (cl-position re cands
+                                           :test 'equal)
+                              (and ivy--directory
+                                   (cl-position
+                                    (concat re "/") cands
+                                    :test 'equal))))))
         (while (and tail (null idx))
           ;; Compare with eq to handle equal duplicates in cands
           (setq idx (cl-position (pop tail) cands)))
