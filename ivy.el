@@ -336,7 +336,13 @@ Directories come first."
         (setq seq (cl-sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
-      (or seq '("" "")))))
+      (cl-case (length seq)
+        (0
+         '("" ""))
+        (1
+         (cons "" seq))
+        (t
+         seq)))))
 
 ;;** Entry Point
 (defun ivy-read (prompt collection
@@ -385,9 +391,9 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
            (setq coll collection)))
     (when sort
       (if (and (functionp collection)
-               (not (eq collection 'read-file-name-internal))
                (setq sort-fn (assoc collection ivy-sort-functions-alist)))
-          (when (setq sort-fn (cdr sort-fn))
+          (when (and (setq sort-fn (cdr sort-fn))
+                     (not (eq collection 'read-file-name-internal)))
             (setq coll (cl-sort coll sort-fn)))
         (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
                  (<= (length coll) ivy-sort-max-size))
