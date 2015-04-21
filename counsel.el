@@ -184,7 +184,7 @@
 (defun counsel-git-grep-count (str)
   "Quickly count the amount of git grep STR matches."
   (let ((out (shell-command-to-string
-              (format "git grep -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
+              (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
                       (ivy--regex str)))))
     (string-to-number out)))
 
