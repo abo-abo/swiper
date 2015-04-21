@@ -162,7 +162,7 @@ When non-nil, it should contain one %d.")
           (cond ((string= ivy-text "")
                  (if (equal ivy--current "./")
                      ivy--directory
-                   ivy--current))
+                   (expand-file-name ivy--current ivy--directory)))
                 ((zerop ivy--length)
                  (expand-file-name ivy-text ivy--directory))
                 (t
