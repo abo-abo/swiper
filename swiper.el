@@ -90,8 +90,9 @@
       (delete-minibuffer-contents)
       (setq ivy--action
             (lambda ()
-              (perform-replace from to
-                               t t t)))
+              (with-selected-window swiper--window
+                (perform-replace from to
+                                 t t t))))
       (swiper--cleanup)
       (exit-minibuffer))))
 

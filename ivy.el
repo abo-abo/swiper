@@ -626,8 +626,6 @@ When GREEDY is non-nil, join words in a greedy way."
   (set (make-local-variable 'minibuffer-default-add-function)
        (lambda ()
          (list ivy--default)))
-  (use-local-map (make-composed-keymap ivy-minibuffer-map
-                                       (current-local-map)))
   (setq-local max-mini-window-height ivy-height)
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
   ;; show completions with empty input
