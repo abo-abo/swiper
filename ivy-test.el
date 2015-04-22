@@ -59,4 +59,4 @@
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
                      "z C-m")
-           nil)))
+           "z")))
