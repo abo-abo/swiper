@@ -692,6 +692,7 @@ CANDIDATES are assumed to be static."
                             ivy--old-cands)
                        ivy--old-cands)
                       ((and ivy--old-re
+                            (not (string-match "\\\\" ivy--old-re))
                             (not (equal ivy--old-re ""))
                             (memq (cl-search
                                    (if (string-match "\\\\)$" ivy--old-re)
