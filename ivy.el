@@ -160,6 +160,9 @@ When non-nil, it should contain one %d.")
 (defvar ivy--old-cands nil
   "Store the candidates matched by `ivy--old-re'.")
 
+(defvar ivy--regex-function 'ivy--regex
+  "Current function for building a regex.")
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
@@ -363,9 +366,16 @@ Prioritize directories."
     (internal-complete-buffer . nil)
     (counsel-git-grep-function . nil)
     (t . string-lessp))
-  "And alist of sorting functions for each collection function.
+  "An alist of sorting functions for each collection function.
 For each entry, nil means no sorting.
 The entry associated to t is used for all fall-through cases.")
+
+(defvar ivy-re-builders-alist
+  '((t . ivy--regex))
+  "An alist of regex building functions for each collection function.
+Each function should take a string and return a valid regex.
+The entry associated to t is used for all fall-through cases.
+Possible choices: `ivy--regex', `regexp-quote'.")
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
@@ -418,6 +428,12 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--directory nil)
   (setq ivy-require-match require-match)
   (setq ivy-window (selected-window))
+  (setq ivy--regex-function
+        (or (and (functionp collection)
+                 (cdr (assoc collection ivy-re-builders-alist)))
+            (cdr (assoc t ivy-re-builders-alist))
+            'ivy--regex))
+  (setq ivy--subexps 0)
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
@@ -701,7 +717,7 @@ Should be run via minibuffer `post-command-hook'."
 (defun ivy--filter (name candidates)
   "Return the matches for NAME for CANDIDATES.
 CANDIDATES are assumed to be static."
-  (let* ((re (ivy--regex name))
+  (let* ((re (funcall ivy--regex-function name))
          (cands (cond ((and (equal re ivy--old-re)
                             ivy--old-cands)
                        ivy--old-cands)
