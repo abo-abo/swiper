@@ -185,23 +185,21 @@ When non-nil, it should contain one %d.")
               ((zerop ivy--length)
                (if (memq ivy-require-match
                          '(nil confirm confirm-after-completion))
-                   (if (= ivy--length 0)
-                       t
+                   (progn
                      (insert ivy-text)
                      (setq ivy-exit 'done))
-                 (progn
-                   (unless (string-match "match required" ivy--prompt)
-                     (setq ivy--prompt
-                           (if (string-match ": $" ivy--prompt)
-                               (concat
-                                (substring ivy--prompt 0 -2)
-                                " (match required): ")
+                 (unless (string-match "match required" ivy--prompt)
+                   (setq ivy--prompt
+                         (if (string-match ": $" ivy--prompt)
                              (concat
-                              ivy--prompt
-                              "(match required) "))))
-                   (insert ivy-text)
-                   (ivy--exhibit)
-                   nil)))
+                              (substring ivy--prompt 0 -2)
+                              " (match required): ")
+                           (concat
+                            ivy--prompt
+                            "(match required) "))))
+                 (insert ivy-text)
+                 (ivy--exhibit)
+                 nil))
               (t
                (insert ivy--current)
                (setq ivy-exit 'done)))
