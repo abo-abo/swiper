@@ -189,6 +189,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                     :initial-input initial-input
                     :keymap swiper-map
                     :preselect preselect
+                    :require-match t
                     :update-fn #'swiper--update-input-ivy))
       (swiper--cleanup)
       (if (null ivy-exit)
