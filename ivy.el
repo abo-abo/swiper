@@ -723,7 +723,8 @@ Should be run via minibuffer `post-command-hook'."
   "Propertize STR with FACE.
 `font-lock-append-text-property' is used, since it's better than
 `propertize' or `add-face-text-property' in this case."
-  (font-lock-append-text-property 0 (length str) 'face face str)
+  (ignore-errors
+    (font-lock-append-text-property 0 (length str) 'face face str))
   str)
 
 (defun ivy--filter (name candidates)
