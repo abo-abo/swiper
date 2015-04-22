@@ -101,6 +101,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-v") 'ivy-scroll-down-command)
     (define-key map (kbd "C-M-n") 'ivy-next-line-and-call)
     (define-key map (kbd "C-M-p") 'ivy-previous-line-and-call)
+    (define-key map (kbd "M-q") 'ivy-toggle-regexp-quote)
     map)
   "Keymap used in the minibuffer.")
 
@@ -350,6 +351,15 @@ On error (read-only), call `ivy-on-del-error-function'."
        (when ivy-on-del-error-function
          (funcall ivy-on-del-error-function))))))
 
+(defvar ivy--regexp-quote 'regexp-quote
+  "Store the regexp quoting state.")
+
+(defun ivy-toggle-regexp-quote ()
+  "Toggle the regexp quoting."
+  (interactive)
+  (setq ivy--old-re nil)
+  (cl-rotatef ivy--regex-function ivy--regexp-quote))
+
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
 Prioritize directories."
@@ -434,6 +444,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
             (cdr (assoc t ivy-re-builders-alist))
             'ivy--regex))
   (setq ivy--subexps 0)
+  (setq ivy--regexp-quote 'regexp-quote)
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
