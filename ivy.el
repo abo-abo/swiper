@@ -165,28 +165,43 @@ When non-nil, it should contain one %d.")
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (cond (ivy--directory
-         (insert
-          (cond ((string= ivy-text "")
-                 (if (equal ivy--current "./")
-                     ivy--directory
-                   (if (string-match "\\*" ivy--current)
-                       ivy--current
-                     (expand-file-name ivy--current ivy--directory))))
-                ((zerop ivy--length)
-                 (expand-file-name ivy-text ivy--directory))
-                (t
-                 (expand-file-name ivy--current ivy--directory))))
-         (setq ivy-exit 'done))
-        ((zerop ivy--length)
-         (when (memq ivy-require-match
-                     '(nil confirm confirm-after-completion))
-           (insert ivy-text)
-           (setq ivy-exit 'done)))
-        (t
-         (insert ivy--current)
-         (setq ivy-exit 'done)))
-  (exit-minibuffer))
+  (when (cond (ivy--directory
+               (insert
+                (cond ((string= ivy-text "")
+                       (if (equal ivy--current "./")
+                           ivy--directory
+                         (if (string-match "\\*" ivy--current)
+                             ivy--current
+                           (expand-file-name ivy--current ivy--directory))))
+                      ((zerop ivy--length)
+                       (expand-file-name ivy-text ivy--directory))
+                      (t
+                       (expand-file-name ivy--current ivy--directory))))
+               (setq ivy-exit 'done))
+              ((zerop ivy--length)
+               (if (memq ivy-require-match
+                         '(nil confirm confirm-after-completion))
+                   (if (= ivy--length 0)
+                       t
+                     (insert ivy-text)
+                     (setq ivy-exit 'done))
+                 (progn
+                   (unless (string-match "match required" ivy--prompt)
+                     (setq ivy--prompt
+                           (if (string-match ": $" ivy--prompt)
+                               (concat
+                                (substring ivy--prompt 0 -2)
+                                " (match required): ")
+                             (concat
+                              ivy--prompt
+                              "(match required) "))))
+                   (insert ivy-text)
+                   (ivy--exhibit)
+                   nil)))
+              (t
+               (insert ivy--current)
+               (setq ivy-exit 'done)))
+    (exit-minibuffer)))
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
