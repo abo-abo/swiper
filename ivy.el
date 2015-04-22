@@ -375,17 +375,12 @@ Directories come first."
         (setq seq (cl-sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
-      (cl-case (length seq)
-        (0
-         '("" ""))
-        (1
-         (cons "" seq))
-        (t
-         seq)))))
+      seq)))
 
 ;;** Entry Point
-(defun ivy-read (prompt collection
-                 &optional predicate initial-input keymap preselect update-fn sort)
+(cl-defun ivy-read (prompt collection
+                           &key predicate require-match initial-input
+                           history preselect keymap update-fn sort)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -406,6 +401,7 @@ UPDATE-FN is called each time the current candidate(s) is changed.
 
 When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--directory nil)
+  (setq ivy-require-match require-match)
   (setq ivy-window (selected-window))
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
@@ -421,7 +417,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
            (setq coll
                  (ivy--sorted-files default-directory))
            (when initial-input
-             (unless (or ivy-require-match
+             (unless (or require-match
                          (equal initial-input default-directory))
                (setq coll (cons initial-input coll)))
              (setq initial-input nil)))
@@ -443,57 +439,54 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                  (<= (length coll) ivy-sort-max-size))
             (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
     (when preselect
-      (unless (or ivy-require-match
+      (unless (or require-match
                   (all-completions preselect collection))
         (setq coll (cons preselect coll))))
-    (cl-case (length coll)
-      (0 nil)
-      (1 (car coll))
-      (t
-       (setq ivy--index (or
-                         (and preselect
-                              (ivy--preselect-index
-                               coll initial-input preselect))
-                         0))
-       (setq ivy--old-re nil)
-       (setq ivy--old-cands nil)
-       (setq ivy-text "")
-       (setq ivy--all-candidates coll)
-       (setq ivy--update-fn update-fn)
-       (setq ivy-exit nil)
-       (setq ivy--default (or (thing-at-point 'symbol) ""))
-       (setq ivy--prompt
-             (cond ((string-match "%.*d" prompt)
-                    prompt)
-                   ((string-match "%.*d" ivy-count-format)
-                    (concat ivy-count-format prompt))
-                   (ivy--directory
-                    prompt)
-                   (t
-                    nil)))
-       (setq ivy--action nil)
-       (prog1
-           (unwind-protect
-                (minibuffer-with-setup-hook
-                    #'ivy--minibuffer-setup
-                  (let ((res (read-from-minibuffer
-                              prompt
-                              initial-input
-                              (make-composed-keymap keymap ivy-minibuffer-map)
-                              nil
-                              'ivy-history)))
-                    (when (eq ivy-exit 'done)
-                      (pop ivy-history)
-                      (setq ivy-history
-                            (cons ivy-text (delete ivy-text ivy-history)))
-                      res)))
-             (remove-hook 'post-command-hook #'ivy--exhibit))
-         (when ivy--action
-           (funcall ivy--action)))))))
+    (setq ivy--index (or
+                      (and preselect
+                           (ivy--preselect-index
+                            coll initial-input preselect))
+                      0))
+    (setq ivy--old-re nil)
+    (setq ivy--old-cands nil)
+    (setq ivy-text "")
+    (setq ivy--all-candidates coll)
+    (setq ivy--update-fn update-fn)
+    (setq ivy-exit nil)
+    (setq ivy--default (or (thing-at-point 'symbol) ""))
+    (setq ivy--prompt
+          (cond ((string-match "%.*d" prompt)
+                 prompt)
+                ((string-match "%.*d" ivy-count-format)
+                 (concat ivy-count-format prompt))
+                (ivy--directory
+                 prompt)
+                (t
+                 nil)))
+    (setq ivy--action nil)
+    (prog1
+        (unwind-protect
+             (minibuffer-with-setup-hook
+                 #'ivy--minibuffer-setup
+               (let* ((hist (or history 'ivy-history))
+                      (res (read-from-minibuffer
+                            prompt
+                            initial-input
+                            (make-composed-keymap keymap ivy-minibuffer-map)
+                            nil
+                            hist)))
+                 (when (eq ivy-exit 'done)
+                   (set hist (cons ivy-text
+                                   (delete ivy-text
+                                           (cdr (symbol-value hist)))))
+                   res)))
+          (remove-hook 'post-command-hook #'ivy--exhibit))
+      (when ivy--action
+        (funcall ivy--action)))))
 
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
-                              _history def _inherit-input-method)
+                              history def _inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This is an interface that conforms to `completing-read', so that
@@ -512,8 +505,14 @@ _INHERIT-INPUT-METHOD is ignored for now.
 The history, defaults and input-method arguments are ignored for now."
   (when (listp def)
     (setq def (car def)))
-  (setq ivy-require-match require-match)
-  (ivy-read prompt collection predicate initial-input nil def nil t))
+  (ivy-read prompt collection
+            :predicate predicate
+            :require-match require-match
+            :initial-input initial-input
+            :preselect def
+            :history history
+            :keymap nil
+            :sort t))
 
 ;;;###autoload
 (define-minor-mode ivy-mode

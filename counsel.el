@@ -66,6 +66,9 @@
            (error "Couldn't fild definition of %s"
                   sym)))))
 
+(defvar counsel-describe-symbol-history nil
+  "History for `counsel-describe-variable' and `counsel-describe-function'.")
+
 (defun counsel-describe-variable (variable &optional buffer frame)
   "Forward to (`describe-variable' VARIABLE BUFFER FRAME)."
   (interactive
@@ -75,10 +78,7 @@
          val)
      (setq ivy--action nil)
      (setq val (ivy-read
-                (if (symbolp v)
-                    (format
-                     "Describe variable (default %s): " v)
-                  "Describe variable: ")
+                "Describe variable: "
                 (let (cands)
                   (mapatoms
                    (lambda (vv)
@@ -86,8 +86,11 @@
                                (and (boundp vv) (not (keywordp vv))))
                        (push (symbol-name vv) cands))))
                   cands)
-                nil nil counsel-describe-map preselect
-                nil t))
+                :keymap counsel-describe-map
+                :preselect preselect
+                :history 'counsel-describe-symbol-history
+                :require-match t
+                :sort t))
      (list (if (equal val "")
                v
              (intern val)))))
@@ -102,17 +105,18 @@
          (preselect (thing-at-point 'symbol))
          val)
      (setq ivy--action nil)
-     (setq val (ivy-read (if fn
-                             (format "Describe function (default %s): " fn)
-                           "Describe function: ")
+     (setq val (ivy-read "Describe function: "
                          (let (cands)
                            (mapatoms
                             (lambda (x)
                               (when (fboundp x)
                                 (push (symbol-name x) cands))))
                            cands)
-                         nil nil counsel-describe-map preselect
-                         nil t))
+                         :keymap counsel-describe-map
+                         :preselect preselect
+                         :history 'counsel-describe-symbol-history
+                         :require-match t
+                         :sort t))
      (list (if (equal val "")
                fn (intern val)))))
   (unless (eq ivy--action 'counsel--find-symbol)
