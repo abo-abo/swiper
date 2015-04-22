@@ -480,7 +480,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
             (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
     (when preselect
       (unless (or require-match
-                  (all-completions preselect collection))
+                  (member preselect coll))
         (setq coll (cons preselect coll))))
     (setq ivy--index (or
                       (and preselect
