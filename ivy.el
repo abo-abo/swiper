@@ -687,13 +687,14 @@ Should be run via minibuffer `post-command-hook'."
   (if ivy--dynamic-function
       ;; while-no-input would cause annoying
       ;; "Waiting for process to die...done" message interruptions
-      (progn
-        (unless (equal ivy--old-text ivy-text)
-          (let ((store ivy--dynamic-function)
-                (ivy--dynamic-function nil))
-            (setq ivy--all-candidates (funcall store ivy-text)))
-          (setq ivy--old-text ivy-text))
-        (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
+      (let ((inhibit-message t))
+       (while-no-input
+         (unless (equal ivy--old-text ivy-text)
+           (let ((store ivy--dynamic-function)
+                 (ivy--dynamic-function nil))
+             (setq ivy--all-candidates (funcall store ivy-text)))
+           (setq ivy--old-text ivy-text))
+         (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
     (when ivy--directory
       (if (string-match "/$" ivy-text)
           (if (member ivy-text ivy--all-candidates)
