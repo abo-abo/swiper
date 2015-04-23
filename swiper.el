@@ -172,6 +172,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "`isearch' with an overview using `ivy'.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
+  (unless (eq (length (help-function-arglist 'ivy-read)) 4)
+    (warn "You seem to be using the outdated stand-alone \"ivy\" package.
+Please remove it and update the \"swiper\" package."))
   (swiper--init)
   (let ((candidates (swiper--candidates))
         (preselect (format
