@@ -688,7 +688,8 @@ Should be run via minibuffer `post-command-hook'."
       (if (string-match "/$" ivy-text)
           (if (member ivy-text ivy--all-candidates)
               (ivy--cd (expand-file-name ivy-text ivy--directory))
-            (ivy--cd "/"))
+            (when (string-match "//$" ivy-text)
+              (ivy--cd "/")))
         (if (string-match "~$" ivy-text)
             (ivy--cd (expand-file-name "~/")))))
     (ivy--insert-minibuffer
