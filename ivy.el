@@ -164,6 +164,8 @@ When non-nil, it should contain one %d.")
 (defvar ivy--regex-function 'ivy--regex
   "Current function for building a regex.")
 
+(defvar Info-current-file)
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
@@ -402,8 +404,8 @@ Directories come first."
 
 ;;** Entry Point
 (cl-defun ivy-read (prompt collection
-                           &key predicate require-match initial-input
-                           history preselect keymap update-fn sort)
+                    &key predicate require-match initial-input
+                      history preselect keymap update-fn sort)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
