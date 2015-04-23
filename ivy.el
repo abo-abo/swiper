@@ -343,7 +343,9 @@ On error (read-only), call `ivy-on-del-error-function'."
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
         (ivy--cd (file-name-directory
-                  (directory-file-name ivy--directory)))
+                  (directory-file-name
+                   (expand-file-name
+                    ivy--directory))))
         (ivy--exhibit))
     (condition-case nil
         (backward-delete-char 1)
