@@ -114,7 +114,8 @@
                                  gnus-group-mode
                                  emms-playlist-mode erc-mode
                                  org-agenda-mode
-                                 dired-mode)))
+                                 dired-mode
+                                 jabber-chat-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
