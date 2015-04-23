@@ -465,9 +465,10 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
           (when (and (setq sort-fn (cdr sort-fn))
                      (not (eq collection 'read-file-name-internal)))
             (setq coll (cl-sort coll sort-fn)))
-        (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
-                 (<= (length coll) ivy-sort-max-size))
-            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
+        (unless (eq history 'org-refile-history)
+          (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
+                   (<= (length coll) ivy-sort-max-size))
+              (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
     (when preselect
       (unless (or require-match
                   (member preselect coll))
