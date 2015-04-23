@@ -166,32 +166,44 @@ When non-nil, it should contain one %d.")
 
 (defvar Info-current-file)
 
+(defun ivy--extend-prompt (str)
+  "Extend the current prompt with STR."
+  (unless (string-match str ivy--prompt)
+    (setq ivy--prompt
+          (if (string-match ": $" ivy--prompt)
+              (concat
+               (substring ivy--prompt 0 -2)
+               " " str ": ")
+            (concat ivy--prompt str " ")))))
+
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
   (when (cond (ivy--directory
-               (insert
-                (if (zerop ivy--length)
-                    (expand-file-name ivy-text ivy--directory)
-                  (expand-file-name ivy--current ivy--directory)))
-               (setq ivy-exit 'done))
+               (if (zerop ivy--length)
+                   (if (or (not (eq confirm-nonexistent-file-or-buffer t))
+                           (string-match "confirm" ivy--prompt))
+                       (progn
+                         (insert
+                          (expand-file-name ivy-text ivy--directory))
+                         (setq ivy-exit 'done))
+                     (ivy--extend-prompt "confirm")
+                     (insert ivy-text)
+                     (ivy--exhibit)
+                     nil)
+                 (insert
+                  (expand-file-name
+                   ivy--current ivy--directory))
+                 (setq ivy-exit 'done)))
               ((zerop ivy--length)
                (if (memq ivy-require-match
                          '(nil confirm confirm-after-completion))
                    (progn
                      (insert ivy-text)
                      (setq ivy-exit 'done))
-                 (unless (string-match "match required" ivy--prompt)
-                   (setq ivy--prompt
-                         (if (string-match ": $" ivy--prompt)
-                             (concat
-                              (substring ivy--prompt 0 -2)
-                              " (match required): ")
-                           (concat
-                            ivy--prompt
-                            "(match required) "))))
+                 (ivy--extend-prompt "(match required)")
                  (insert ivy-text)
                  (ivy--exhibit)
                  nil))
