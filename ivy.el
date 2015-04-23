@@ -178,7 +178,9 @@ When non-nil, it should contain one %d.")
                              ivy--current
                            (expand-file-name ivy--current ivy--directory))))
                       ((zerop ivy--length)
-                       (expand-file-name ivy-text ivy--directory))
+                       (if (string-match "\\*" ivy-text)
+                           ivy-text
+                         (expand-file-name ivy-text ivy--directory)))
                       (t
                        (expand-file-name ivy--current ivy--directory))))
                (setq ivy-exit 'done))
