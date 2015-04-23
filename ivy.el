@@ -171,18 +171,9 @@ When non-nil, it should contain one %d.")
   (delete-minibuffer-contents)
   (when (cond (ivy--directory
                (insert
-                (cond ((string-match "\\*" ivy--current)
-                       ivy--current)
-                      ((string= ivy-text "")
-                       (if (equal ivy--current "./")
-                           ivy--directory
-                         (expand-file-name ivy--current ivy--directory)))
-                      ((zerop ivy--length)
-                       (if (string-match "\\*" ivy-text)
-                           ivy-text
-                         (expand-file-name ivy-text ivy--directory)))
-                      (t
-                       (expand-file-name ivy--current ivy--directory))))
+                (if (zerop ivy--length)
+                    (expand-file-name ivy-text ivy--directory)
+                  (expand-file-name ivy--current ivy--directory)))
                (setq ivy-exit 'done))
               ((zerop ivy--length)
                (if (memq ivy-require-match
@@ -214,21 +205,16 @@ When ARG is t, exit with current text, ignoring the candidates."
   (if arg
       (ivy-immediate-done)
     (let (dir)
-      (cond ((and ivy--directory
-                  (= 0 ivy--index)
-                  (= 0 (length ivy-text)))
-             (ivy-done))
-
-            ((and ivy--directory
-                  (cl-plusp ivy--length)
-                  (file-directory-p
-                   (setq dir (expand-file-name
-                              ivy--current ivy--directory))))
-             (ivy--cd dir)
-             (ivy--exhibit))
-
-            (t
-             (ivy-done))))))
+      (if (and ivy--directory
+               (not (string= ivy--current "./"))
+               (cl-plusp ivy--length)
+               (file-directory-p
+                (setq dir (expand-file-name
+                           ivy--current ivy--directory))))
+          (progn
+            (ivy--cd dir)
+            (ivy--exhibit))
+        (ivy-done)))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
