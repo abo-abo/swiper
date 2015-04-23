@@ -171,12 +171,12 @@ When non-nil, it should contain one %d.")
   (delete-minibuffer-contents)
   (when (cond (ivy--directory
                (insert
-                (cond ((string= ivy-text "")
+                (cond ((string-match "\\*" ivy--current)
+                       ivy--current)
+                      ((string= ivy-text "")
                        (if (equal ivy--current "./")
                            ivy--directory
-                         (if (string-match "\\*" ivy--current)
-                             ivy--current
-                           (expand-file-name ivy--current ivy--directory))))
+                         (expand-file-name ivy--current ivy--directory)))
                       ((zerop ivy--length)
                        (if (string-match "\\*" ivy-text)
                            ivy-text
@@ -677,6 +677,8 @@ When GREEDY is non-nil, join words in a greedy way."
         (insert n-str))
       ;; get out of the prompt area
       (constrain-to-field nil (point-max)))))
+
+(defvar inhibit-message)
 
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
