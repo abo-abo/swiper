@@ -92,7 +92,7 @@
             (lambda ()
               (with-selected-window swiper--window
                 (perform-replace from to
-                                 t t t))))
+                                 t t nil))))
       (swiper--cleanup)
       (exit-minibuffer))))
 
