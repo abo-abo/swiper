@@ -336,6 +336,7 @@ If the input is empty, select the previous history element instead."
       (error "Unexpected")
     (setq ivy--old-cands nil)
     (setq ivy--old-re nil)
+    (setq ivy--index 0)
     (setq ivy--all-candidates
           (ivy--sorted-files (setq ivy--directory dir)))
     (setq ivy-text "")
