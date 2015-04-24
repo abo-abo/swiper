@@ -49,11 +49,11 @@
   "Face used by Ivy for highlighting first match.")
 
 (defface ivy-confirm-face
-  '((t :foreground "ForestGreen"))
+  '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
   "Face used by Ivy to issue a confirmation prompt.")
 
 (defface ivy-match-required-face
-  '((t :foreground "red"))
+  '((t :foreground "red" :inherit minibuffer-prompt))
   "Face used by Ivy to issue a match required prompt.")
 
 (defface ivy-subdir
