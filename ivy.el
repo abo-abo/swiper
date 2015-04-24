@@ -48,6 +48,14 @@
   '((t (:inherit highlight)))
   "Face used by Ivy for highlighting first match.")
 
+(defface ivy-confirm-face
+  '((t :foreground "ForestGreen"))
+  "Face used by Ivy to issue a confirmation prompt.")
+
+(defface ivy-match-required-face
+  '((t :foreground "red"))
+  "Face used by Ivy to issue a match required prompt.")
+
 (defface ivy-subdir
   '((t (:weight bold)))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
@@ -159,6 +167,9 @@ Otherwise, store nil.")
   "Store the format-style prompt.
 When non-nil, it should contain one %d.")
 
+(defvar ivy--prompt-extra ""
+  "Temporary modifications to the prompt")
+
 (defvar ivy--old-re nil
   "Store the old regexp.")
 
@@ -170,16 +181,6 @@ When non-nil, it should contain one %d.")
 
 (defvar Info-current-file)
 
-(defun ivy--extend-prompt (str)
-  "Extend the current prompt with STR."
-  (unless (string-match str ivy--prompt)
-    (setq ivy--prompt
-          (if (string-match ": $" ivy--prompt)
-              (concat
-               (substring ivy--prompt 0 -2)
-               " " str ": ")
-            (concat ivy--prompt str " ")))))
-
 ;;** Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
@@ -188,12 +189,12 @@ When non-nil, it should contain one %d.")
   (when (cond (ivy--directory
                (if (zerop ivy--length)
                    (if (or (not (eq confirm-nonexistent-file-or-buffer t))
-                           (string-match "confirm" ivy--prompt))
+                           (equal " (confirm)" ivy--prompt-extra))
                        (progn
                          (insert
                           (expand-file-name ivy-text ivy--directory))
                          (setq ivy-exit 'done))
-                     (ivy--extend-prompt "confirm")
+                     (setq ivy--prompt-extra " (confirm)")
                      (insert ivy-text)
                      (ivy--exhibit)
                      nil)
@@ -207,7 +208,7 @@ When non-nil, it should contain one %d.")
                    (progn
                      (insert ivy-text)
                      (setq ivy-exit 'done))
-                 (ivy--extend-prompt "(match required)")
+                 (setq ivy--prompt-extra " (match required)")
                  (insert ivy-text)
                  (ivy--exhibit)
                  nil))
@@ -678,25 +679,50 @@ When GREEDY is non-nil, join words in a greedy way."
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
-    (let ((inhibit-read-only t)
-          (n-str
-           (format
-            (if ivy--directory
-                (concat ivy--prompt (abbreviate-file-name ivy--directory))
-              ivy--prompt)
-            (or (and ivy--dynamic-function
-                     ivy--full-length)
-                ivy--length))))
-      (save-excursion
-        (goto-char (point-min))
-        (delete-region (point-min) (minibuffer-prompt-end))
-        (set-text-properties
-         0 (length n-str)
-         '(front-sticky t rear-nonsticky t field t read-only t face minibuffer-prompt)
-         n-str)
-        (insert n-str))
-      ;; get out of the prompt area
-      (constrain-to-field nil (point-max)))))
+    (unless (memq this-command '(ivy-done ivy-alt-done))
+      (setq ivy--prompt-extra ""))
+    (let (head tail)
+      (if (string-match "\\(.*\\): $" ivy--prompt)
+          (progn
+            (setq head (match-string 1 ivy--prompt))
+            (setq tail ": "))
+        (setq head (substring ivy--prompt 0 -1))
+        (setq tail " "))
+      (let ((inhibit-read-only t)
+            (std-props '(front-sticky t rear-nonsticky t field t read-only t))
+            (n-str
+             (format
+              (concat head
+                      ivy--prompt-extra
+                      tail
+                      (if ivy--directory
+                          (abbreviate-file-name ivy--directory)
+                        ""))
+              (or (and ivy--dynamic-function
+                       ivy--full-length)
+                  ivy--length))))
+        (save-excursion
+          (goto-char (point-min))
+          (delete-region (point-min) (minibuffer-prompt-end))
+          (set-text-properties 0 (length n-str)
+                               `(face minibuffer-prompt ,@std-props)
+                               n-str)
+          (ivy--set-match-props n-str "confirm"
+                                `(face ivy-confirm-face ,@std-props))
+          (ivy--set-match-props n-str "match required"
+                                `(face ivy-match-required-face ,@std-props))
+          (insert n-str))
+        ;; get out of the prompt area
+        (constrain-to-field nil (point-max))))))
+
+(defun ivy--set-match-props (str match props)
+  "Set STR text proprties that match MATCH to PROPS."
+  (when (string-match match str)
+    (set-text-properties
+     (match-beginning 0)
+     (match-end 0)
+     props
+     str)))
 
 (defvar inhibit-message)
 
