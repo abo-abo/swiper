@@ -52,6 +52,10 @@
   '((t (:weight bold)))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
+(defface ivy-remote
+  '((t (:foreground "#110099")))
+  "Face used by Ivy for highlighting remotes in the alternatives.")
+
 (defcustom ivy-height 10
   "Number of lines for the minibuffer window."
   :type 'integer)
@@ -466,6 +470,15 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                          (equal initial-input default-directory))
                (setq coll (cons initial-input coll)))
              (setq initial-input nil)))
+          ((eq collection 'internal-complete-buffer)
+           (setq coll
+                 (mapcar (lambda (x)
+                           (if (with-current-buffer x
+                                 (file-remote-p
+                                  (abbreviate-file-name default-directory)))
+                               (propertize x 'face 'ivy-remote)
+                             x))
+                         (all-completions "" collection predicate))))
           ((or (functionp collection)
                (vectorp collection)
                (listp (car collection)))
