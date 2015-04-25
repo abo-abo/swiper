@@ -94,6 +94,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-m") 'ivy-done)
     (define-key map (kbd "C-j") 'ivy-alt-done)
+    (define-key map (kbd "TAB") 'ivy-alt-done)
     (define-key map (kbd "C-n") 'ivy-next-line)
     (define-key map (kbd "C-p") 'ivy-previous-line)
     (define-key map (kbd "<down>") 'ivy-next-line)
