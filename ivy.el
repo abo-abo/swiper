@@ -323,13 +323,25 @@ If the input is empty, select the previous history element instead."
   "Forward to `previous-history-element' with ARG."
   (interactive "p")
   (previous-history-element arg)
-  (move-end-of-line 1))
+  (move-end-of-line 1)
+  (ivy--maybe-scroll-history))
 
 (defun ivy-next-history-element (arg)
   "Forward to `next-history-element' with ARG."
   (interactive "p")
   (next-history-element arg)
-  (move-end-of-line 1))
+  (move-end-of-line 1)
+  (ivy--maybe-scroll-history))
+
+(defun ivy--maybe-scroll-history ()
+  "If the selected history element holds an index, scroll there."
+  (let ((idx (ignore-errors
+               (get-text-property
+                (minibuffer-prompt-end)
+                'ivy-index))))
+    (when idx
+      (ivy--exhibit)
+      (setq ivy--index idx))))
 
 (defun ivy--cd (dir)
   "When completing file names, move to directory DIR."
@@ -539,7 +551,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                             nil
                             hist)))
                  (when (eq ivy-exit 'done)
-                   (set hist (cons ivy-text
+                   (set hist (cons (propertize ivy-text 'ivy-index ivy--index)
                                    (delete ivy-text
                                            (cdr (symbol-value hist)))))
                    res)))
