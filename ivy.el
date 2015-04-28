@@ -660,6 +660,23 @@ When GREEDY is non-nil, join words in a greedy way."
                             ".*?")))))
                     ivy--regex-hash)))))
 
+(defun ivy--regex-plus (str)
+  "Build a regex sequence from STR.
+Spaces are wild, everything before \"!\" should match.
+Everything after \"!\" should not match."
+  (let ((parts (split-string str "!" t)))
+    (cl-case (length parts)
+      (0
+       "")
+      (1
+       (ivy--regex (car parts)))
+      (2
+       (let ((r2 (ivy--regex (cadr parts)))
+             (r1 (ivy--regex (car parts))))
+         (list (cons r1 t)
+               (cons r2 nil))))
+      (t (error "Unexpected: use only one !")))))
+
 ;;** Rest
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
@@ -804,6 +821,8 @@ CANDIDATES are assumed to be static."
                             ivy--old-cands)
                        ivy--old-cands)
                       ((and ivy--old-re
+                            (stringp re)
+                            (stringp ivy--old-re)
                             (not (string-match "\\\\" ivy--old-re))
                             (not (equal ivy--old-re ""))
                             (memq (cl-search
@@ -816,10 +835,17 @@ CANDIDATES are assumed to be static."
                           (lambda (x) (string-match re x))
                           ivy--old-cands)))
                       (t
-                       (ignore-errors
-                         (cl-remove-if-not
-                          (lambda (x) (string-match re x))
-                          candidates)))))
+                       (let ((re-list (if (stringp re) (list (cons re t)) re))
+                             (res candidates))
+                         (dolist (re re-list)
+                           (setq res
+                                 (funcall
+                                  (if (cdr re)
+                                      #'cl-remove-if-not
+                                    #'cl-remove-if)
+                                  `(lambda (x) (string-match ,(car re) x))
+                                  res)))
+                         res))))
          (tail (nthcdr ivy--index ivy--old-cands))
          idx)
     (when (and tail ivy--old-cands)
