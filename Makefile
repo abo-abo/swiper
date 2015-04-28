@@ -1,6 +1,6 @@
 emacs ?= emacs
 
-LOAD = -l ivy.el -l swiper.el
+LOAD = -l colir.el -l ivy.el -l swiper.el
 
 .PHONY: all compile clean
 
