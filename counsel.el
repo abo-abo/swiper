@@ -219,7 +219,7 @@
         (setq ivy--full-length (counsel-git-grep-count ivy-text)))
       (split-string res "\n" t))))
 
-(defun counsel-git-grep ()
+(defun counsel-git-grep (&optional initial-input)
   "Grep for a string in the current git repository."
   (interactive)
   (unwind-protect
@@ -236,7 +236,8 @@
                                           (setq swiper--window (selected-window))
                                           (swiper--cleanup)
                                           (swiper--add-overlays (ivy--regex ivy-text)))))
-              (val (ivy-read "pattern: " 'counsel-git-grep-function)))
+              (val (ivy-read "pattern: " 'counsel-git-grep-function
+                             :initial-input initial-input)))
          (when val
            (funcall ivy--persistent-action val)))
     (swiper--cleanup)))
