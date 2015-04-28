@@ -832,7 +832,7 @@ CANDIDATES are assumed to be static."
           ;; Compare with eq to handle equal duplicates in cands
           (setq idx (cl-position (pop tail) cands)))
         (setq ivy--index (or idx 0))))
-    (when (string= name "")
+    (when (and (string= name "") (not (equal ivy--old-re "")))
       (setq ivy--index
             (or (cl-position ivy-def cands :test 'equal)
                 ivy--index)))
