@@ -409,11 +409,20 @@ For each entry, nil means no sorting.
 The entry associated to t is used for all fall-through cases.")
 
 (defvar ivy-re-builders-alist
-  '((t . ivy--regex))
+  '((t . ivy--regex-plus))
   "An alist of regex building functions for each collection function.
-Each function should take a string and return a valid regex.
+Each function should take a string and return a valid regex or a
+regex sequence (see below).
+
 The entry associated to t is used for all fall-through cases.
-Possible choices: `ivy--regex', `regexp-quote'.")
+Possible choices: `ivy--regex', `regexp-quote', `ivy--regex-plus'.
+
+In case a function returns a list, it should look like this:
+'((\"matching-regexp\" . t) (\"non-matching-regexp\") ...).
+
+The matches will be filtered in a sequence, you can mix the
+regexps that should match and that should not match as you
+like.")
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
