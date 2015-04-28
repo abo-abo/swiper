@@ -228,11 +228,15 @@ When ARG is t, exit with current text, ignoring the candidates."
       (ivy-immediate-done)
     (let (dir)
       (if (and ivy--directory
-               (not (string= ivy--current "./"))
-               (cl-plusp ivy--length)
-               (file-directory-p
-                (setq dir (expand-file-name
-                           ivy--current ivy--directory))))
+               (or
+                (and
+                 (not (string= ivy--current "./"))
+                 (cl-plusp ivy--length)
+                 (file-directory-p
+                  (setq dir (expand-file-name
+                             ivy--current ivy--directory))))
+                (prog1 (string-match ":" ivy-text)
+                  (setq dir ivy-text))))
           (progn
             (ivy--cd dir)
             (ivy--exhibit))
