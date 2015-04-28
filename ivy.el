@@ -126,6 +126,9 @@ of `history-length', which see.")
 (defvar ivy-require-match t
   "Store require-match. See `completing-read'.")
 
+(defvar ivy-def nil
+  "Store the default completion value. See `completing-read'.")
+
 (defvar ivy--directory nil
   "Current directory when completing file names.")
 
@@ -458,6 +461,7 @@ UPDATE-FN is called each time the current candidate(s) is changed.
 When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--directory nil)
   (setq ivy-require-match require-match)
+  (setq ivy-def preselect)
   (setq ivy-window (selected-window))
   (setq ivy--regex-function
         (or (and (functionp collection)
@@ -578,13 +582,11 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
-  (when (listp def)
-    (setq def (car def)))
   (ivy-read prompt collection
             :predicate predicate
             :require-match require-match
             :initial-input initial-input
-            :preselect def
+            :preselect (if (listp def) (car def) def)
             :history history
             :keymap nil
             :sort t))
@@ -826,6 +828,10 @@ CANDIDATES are assumed to be static."
           ;; Compare with eq to handle equal duplicates in cands
           (setq idx (cl-position (pop tail) cands)))
         (setq ivy--index (or idx 0))))
+    (when (string= name "")
+      (setq ivy--index
+            (or (cl-position ivy-def cands :test 'equal)
+                ivy--index)))
     (setq ivy--old-re re)
     (setq ivy--old-cands cands)))
 
