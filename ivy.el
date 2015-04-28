@@ -124,10 +124,10 @@ Maximum length of the history list is determined by the value
 of `history-length', which see.")
 
 (defvar ivy-require-match t
-  "Store require-match. See `completing-read'.")
+  "Store require-match.  See `completing-read'.")
 
 (defvar ivy-def nil
-  "Store the default completion value. See `completing-read'.")
+  "Store the default completion value.  See `completing-read'.")
 
 (defvar ivy--directory nil
   "Current directory when completing file names.")
@@ -171,7 +171,7 @@ Otherwise, store nil.")
 When non-nil, it should contain one %d.")
 
 (defvar ivy--prompt-extra ""
-  "Temporary modifications to the prompt")
+  "Temporary modifications to the prompt.")
 
 (defvar ivy--old-re nil
   "Store the old regexp.")
@@ -341,7 +341,7 @@ If the input is empty, select the previous history element instead."
   (ivy--maybe-scroll-history))
 
 (defun ivy--maybe-scroll-history ()
-  "If the selected history element holds an index, scroll there."
+  "If the selected history element has an index, scroll there."
   (let ((idx (ignore-errors
                (get-text-property
                 (minibuffer-prompt-end)
@@ -579,7 +579,7 @@ PROMPT is a string to prompt with; normally it ends in a colon and a space.
 COLLECTION can be a list of strings, an alist, an obarray or a hash table.
 PREDICATE limits completion to a subset of COLLECTION.
 
-REQUIRE-MATCH is stored into `ivy-require-match'. See `completing-read'.
+REQUIRE-MATCH is stored into `ivy-require-match'.  See `completing-read'.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
 _HISTORY is ignored for now.
 DEF is the default value.
@@ -789,6 +789,7 @@ Should be run via minibuffer `post-command-hook'."
       (ivy--filter ivy-text ivy--all-candidates)))))
 
 (defun ivy--insert-minibuffer (text)
+  "Insert TEXT into minibuffer with appropriate cleanup."
   (ivy--cleanup)
   (let ((buffer-undo-list t)
         deactivate-mark)
@@ -814,7 +815,7 @@ Should be run via minibuffer `post-command-hook'."
   str)
 
 (defun ivy--filter (name candidates)
-  "Return the matches for NAME for CANDIDATES.
+  "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
   (let* ((re (funcall ivy--regex-function name))
          (cands (cond ((and (equal re ivy--old-re)
