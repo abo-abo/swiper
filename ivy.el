@@ -183,6 +183,9 @@ When non-nil, it should contain one %d.")
 (defvar ivy--regex-function 'ivy--regex
   "Current function for building a regex.")
 
+(defvar ivy--collection nil
+  "Store the current collection function.")
+
 (defvar Info-current-file)
 
 ;;** Commands
@@ -504,6 +507,9 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
             'ivy--regex))
   (setq ivy--subexps 0)
   (setq ivy--regexp-quote 'regexp-quote)
+  (setq ivy--collection (and (functionp collection)
+                             collection))
+  (setq ivy--old-text nil)
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
@@ -799,24 +805,33 @@ Should be run via minibuffer `post-command-hook'."
       ;; while-no-input would cause annoying
       ;; "Waiting for process to die...done" message interruptions
       (let ((inhibit-message t))
-       (while-no-input
-         (unless (equal ivy--old-text ivy-text)
-           (let ((store ivy--dynamic-function)
-                 (ivy--dynamic-function nil))
-             (setq ivy--all-candidates (funcall store ivy-text)))
-           (setq ivy--old-text ivy-text))
-         (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
-    (when ivy--directory
-      (if (string-match "/$" ivy-text)
-          (if (member ivy-text ivy--all-candidates)
-              (ivy--cd (expand-file-name ivy-text ivy--directory))
-            (when (string-match "//$" ivy-text)
-              (ivy--cd "/")))
-        (if (string-match "~$" ivy-text)
-            (ivy--cd (expand-file-name "~/")))))
+        (while-no-input
+          (unless (equal ivy--old-text ivy-text)
+            (let ((store ivy--dynamic-function)
+                  (ivy--dynamic-function nil))
+              (setq ivy--all-candidates (funcall store ivy-text))))
+          (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
+    (cond (ivy--directory
+           (if (string-match "/$" ivy-text)
+               (if (member ivy-text ivy--all-candidates)
+                   (ivy--cd (expand-file-name ivy-text ivy--directory))
+                 (when (string-match "//$" ivy-text)
+                   (ivy--cd "/")))
+             (if (string-match "~$" ivy-text)
+                 (ivy--cd (expand-file-name "~/")))))
+          ((and (eq ivy--collection 'internal-complete-buffer)
+                (> (length ivy-text) 0)
+                (or (= (length ivy--old-text) 0)
+                    (/= (aref ivy-text 0)
+                        (aref ivy--old-text 0))))
+           (setq ivy--all-candidates
+                 (all-completions
+                  (if (eq (aref ivy-text 0) ?\ ) " " "")
+                  'internal-complete-buffer))))
     (ivy--insert-minibuffer
      (ivy--format
-      (ivy--filter ivy-text ivy--all-candidates)))))
+      (ivy--filter ivy-text ivy--all-candidates))))
+  (setq ivy--old-text ivy-text))
 
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
