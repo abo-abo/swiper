@@ -820,14 +820,20 @@ Should be run via minibuffer `post-command-hook'."
              (if (string-match "~$" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
           ((and (eq ivy--collection 'internal-complete-buffer)
-                (> (length ivy-text) 0)
                 (or (= (length ivy--old-text) 0)
-                    (/= (aref ivy-text 0)
-                        (aref ivy--old-text 0))))
+                    (condition-case nil
+                        (/= (aref ivy-text 0)
+                            (aref ivy--old-text 0))
+                      (error t))))
            (setq ivy--all-candidates
                  (all-completions
-                  (if (eq (aref ivy-text 0) ?\ ) " " "")
-                  'internal-complete-buffer))))
+                  (if (and (> (length ivy-text) 0)
+                           (eq (aref ivy-text 0)
+                               ?\ ))
+                      " "
+                    "")
+                  'internal-complete-buffer))
+           (setq ivy--old-re " ")))
     (ivy--insert-minibuffer
      (ivy--format
       (ivy--filter ivy-text ivy--all-candidates))))
