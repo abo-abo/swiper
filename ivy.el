@@ -94,6 +94,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-m") 'ivy-done)
     (define-key map (kbd "C-j") 'ivy-alt-done)
+    (define-key map (kbd "TAB") 'ivy-partial-or-done)
     (define-key map (kbd "C-n") 'ivy-next-line)
     (define-key map (kbd "C-p") 'ivy-previous-line)
     (define-key map (kbd "<down>") 'ivy-next-line)
@@ -241,6 +242,26 @@ When ARG is t, exit with current text, ignoring the candidates."
             (ivy--cd dir)
             (ivy--exhibit))
         (ivy-done)))))
+
+(defun ivy-partial-or-done ()
+  "Complete the minibuffer text as much as possible.
+When called twice in a row, exit the minibuffer with the current
+candidate."
+  (interactive)
+  (if (eq this-command last-command)
+      (progn
+        (delete-minibuffer-contents)
+        (insert ivy--current)
+        (setq ivy-exit 'done)
+        (exit-minibuffer))
+    (let* ((parts (split-string ivy-text " " t))
+           (postfix (car (last parts)))
+           (new (try-completion postfix
+                                (mapcar (lambda (str) (substring str (string-match postfix str)))
+                                        ivy--old-cands))))
+      (delete-region (minibuffer-prompt-end) (point-max))
+      (setcar (last parts) new)
+      (insert (mapconcat #'identity parts " ") " "))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
@@ -723,7 +744,7 @@ Everything after \"!\" should not match."
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
-    (unless (memq this-command '(ivy-done ivy-alt-done))
+    (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done))
       (setq ivy--prompt-extra ""))
     (let (head tail)
       (if (string-match "\\(.*\\): $" ivy--prompt)
