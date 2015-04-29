@@ -509,7 +509,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
   (setq ivy--regexp-quote 'regexp-quote)
   (setq ivy--collection (and (functionp collection)
                              collection))
-  (setq ivy--old-text nil)
+  (setq ivy--old-text "")
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
@@ -744,7 +744,7 @@ Everything after \"!\" should not match."
 (defvar ivy--full-length nil
   "When `ivy--dynamic-function' is non-nil, this can be the total amount of candidates.")
 
-(defvar ivy--old-text nil
+(defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
 
 (defun ivy--insert-prompt ()
@@ -819,21 +819,20 @@ Should be run via minibuffer `post-command-hook'."
                    (ivy--cd "/")))
              (if (string-match "~$" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
-          ((and (eq ivy--collection 'internal-complete-buffer)
-                (or (= (length ivy--old-text) 0)
-                    (condition-case nil
-                        (/= (aref ivy-text 0)
-                            (aref ivy--old-text 0))
-                      (error t))))
-           (setq ivy--all-candidates
-                 (all-completions
-                  (if (and (> (length ivy-text) 0)
-                           (eq (aref ivy-text 0)
-                               ?\ ))
-                      " "
-                    "")
-                  'internal-complete-buffer))
-           (setq ivy--old-re " ")))
+          ((eq ivy--collection 'internal-complete-buffer)
+           (when (or (and (string-match "^ " ivy-text)
+                          (not (string-match "^ " ivy--old-text)))
+                     (and (string-match "^ " ivy--old-text)
+                          (not (string-match "^ " ivy-text))))
+             (setq ivy--all-candidates
+                   (all-completions
+                    (if (and (> (length ivy-text) 0)
+                             (eq (aref ivy-text 0)
+                                 ?\ ))
+                        " "
+                      "")
+                    'internal-complete-buffer))
+             (setq ivy--old-re nil))))
     (ivy--insert-minibuffer
      (ivy--format
       (ivy--filter ivy-text ivy--all-candidates))))
