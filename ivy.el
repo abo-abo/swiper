@@ -433,7 +433,8 @@ For each entry, nil means no sorting.
 The entry associated to t is used for all fall-through cases.")
 
 (defvar ivy-re-builders-alist
-  '((t . ivy--regex-plus))
+  '((internal-complete-buffer . ivy--buffer-regex)
+    (t . ivy--regex-plus))
   "An alist of regex building functions for each collection function.
 Each function should take a string and return a valid regex or a
 regex sequence (see below).
@@ -695,6 +696,14 @@ When GREEDY is non-nil, join words in a greedy way."
                               ".*"
                             ".*?")))))
                     ivy--regex-hash)))))
+
+(defun ivy--buffer-regex (str)
+  "Like `ivy--regex' but treat a leading space literally.
+Useful when completing buffers where a hidden buffers are
+characterized by a leading space in their name."
+  (ivy--regex (if (string-match-p "^ " str)
+		  (concat  "^[[:space:]]" str)
+		str)))
 
 (defun ivy--regex-plus (str)
   "Build a regex sequence from STR.
