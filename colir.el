@@ -32,7 +32,7 @@
 
 (require 'color)
 
-(defcustom colir-compose-method 'colir-compose-overlay
+(defcustom colir-compose-method 'colir-compose-alpha
   "Select a method to compose two color channels."
   :type '(choice
           (const colir-compose-alpha)
@@ -52,10 +52,11 @@
       (* 2 a b)
     (- 1 (* 2 (- 1 a) (- 1 b)))))
 
-(defun colir-compose-alpha (a b &optional alpha)
+(defun colir-compose-alpha (a b &optional alpha gamma)
   "Compose A and B channels."
   (setq alpha (or alpha 0.5))
-  (+ (* a alpha) (* b (- 1 alpha))))
+  (setq gamma (or gamma 2.2))
+  (+ (* (expt a gamma) alpha) (* (expt b gamma) (- 1 alpha))))
 
 (defun colir-blend (c1 c2)
   "Blend the two colors C1 and C2 using `colir-compose-method'.
