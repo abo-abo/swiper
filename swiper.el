@@ -44,19 +44,19 @@
 
 (defface swiper-match-face-1
   '((t (:inherit isearch-lazy-highlight-face)))
-  "Face for `swiper' matches.")
+  "The background face for `swiper' matches.")
 
 (defface swiper-match-face-2
   '((t (:inherit isearch)))
-  "Face for `swiper' matches.")
+  "Face for `swiper' matches modulo 1.")
 
 (defface swiper-match-face-3
   '((t (:inherit match)))
-  "Face for `swiper' matches.")
+  "Face for `swiper' matches modulo 2.")
 
 (defface swiper-match-face-4
-  '((t (:inherit isearch)))
-  "Face for `swiper' matches.")
+  '((t (:inherit isearch-fail)))
+  "Face for `swiper' matches modulo 3.")
 
 (defface swiper-line-face
   '((t (:inherit highlight)))
@@ -271,11 +271,11 @@ BEG and END, when specified, are the point bounds."
                                              (match-end i)))
                       (face
                        (cond ((zerop ivy--subexps)
-                              (cl-caddr swiper-faces))
+                              (cadr swiper-faces))
                              ((zerop i)
                               (car swiper-faces))
                              (t
-                              (nth (1+ (mod (1- i) (1- (length swiper-faces))))
+                              (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
                                    swiper-faces)))))
                   (push overlay swiper--overlays)
                   (overlay-put overlay 'face face)

@@ -57,7 +57,7 @@
   "Face used by Ivy to issue a match required prompt.")
 
 (defface ivy-subdir
-  '((t (:weight bold)))
+  '((t (:inherit 'dired-directory)))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
 (defface ivy-remote
