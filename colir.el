@@ -24,28 +24,45 @@
 ;; This package solves the problem of adding a face with a background
 ;; to text which may already have a background.  In all conflicting
 ;; areas, instead of choosing either the original or the new
-;; background face, their alpha blended sum is used.
+;; background face, their blended sum is used.
+;;
+;; The blend mode functions are taken from http://en.wikipedia.org/wiki/Blend_modes.
 
 ;;; Code:
 
-(defun colir-join (r g b)
-  "Build a color from R G B.
-Inverse of `color-values'."
-  (format "#%02x%02x%02x"
-          (ash r -8)
-          (ash g -8)
-          (ash b -8)))
+(require 'color)
 
-(defun colir-blend (c1 c2 &optional alpha)
-  "Blend the two colors C1 and C2 with ALPHA.
-C1 and C2 are in the format of `color-values'.
-ALPHA is a number between 0.0 and 1.0 which corresponds to the
-influence of C1 on the result."
+(defcustom colir-compose-method 'colir-compose-overlay
+  "Select a method to compose two color channels."
+  :type '(choice
+          (const colir-compose-alpha)
+          (const colir-compose-overlay)
+          (const colir-compose-soft-light))
+  :group 'ivy)
+
+(defun colir-compose-soft-light (a b)
+  "Compose A and B channels."
+  (if (< b 0.5)
+      (+ (* 2 a b) (* a a (- 1 b b)))
+    (+ (* 2 a (- 1 b)) (* (sqrt a) (- (* 2 b) 1)))))
+
+(defun colir-compose-overlay (a b)
+  "Compose A and B channels."
+  (if (< a 0.5)
+      (* 2 a b)
+    (- 1 (* 2 (- 1 a) (- 1 b)))))
+
+(defun colir-compose-alpha (a b &optional alpha)
+  "Compose A and B channels."
   (setq alpha (or alpha 0.5))
-  (apply #'colir-join
+  (+ (* a alpha) (* b (- 1 alpha))))
+
+(defun colir-blend (c1 c2)
+  "Blend the two colors C1 and C2 using `colir-compose-method'.
+C1 and C2 are triples of floats in [0.0 1.0] range."
+  (apply #'color-rgb-to-hex
          (cl-mapcar
-          (lambda (x y)
-            (round (+ (* x alpha) (* y (- 1 alpha)))))
+          colir-compose-method
           c1 c2)))
 
 (defun colir-blend-face-background (start end face &optional object)
@@ -66,8 +83,8 @@ See also `font-lock-append-text-property'."
                (if background-prev
                    (cons `(background-color
                            . ,(colir-blend
-                               (color-values background-prev)
-                               (color-values (face-background face nil t))))
+                               (color-name-to-rgb background-prev)
+                               (color-name-to-rgb (face-background face nil t))))
                          prev)
                  (list face prev))
                object)))
