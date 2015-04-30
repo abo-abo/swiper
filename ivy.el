@@ -224,6 +224,15 @@ When non-nil, it should contain one %d.")
                (setq ivy-exit 'done)))
     (exit-minibuffer)))
 
+(defun ivy-build-tramp-name (x)
+  "Reconstruct X into a path.
+Is is a cons cell, related to `tramp-get-completion-function'."
+  (let ((user (car x))
+        (domain (cadr x)))
+    (if user
+        (concat user "@" domain)
+      domain)))
+
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
 When ARG is t, exit with current text, ignoring the candidates."
@@ -231,20 +240,30 @@ When ARG is t, exit with current text, ignoring the candidates."
   (if arg
       (ivy-immediate-done)
     (let (dir)
-      (if (and ivy--directory
-               (or
-                (and
-                 (not (string= ivy--current "./"))
-                 (cl-plusp ivy--length)
-                 (file-directory-p
-                  (setq dir (expand-file-name
-                             ivy--current ivy--directory))))
-                (prog1 (string-match ":" ivy-text)
-                  (setq dir ivy-text))))
-          (progn
-            (ivy--cd dir)
-            (ivy--exhibit))
-        (ivy-done)))))
+      (cond ((and ivy--directory
+                  (or
+                   (and
+                    (not (string= ivy--current "./"))
+                    (cl-plusp ivy--length)
+                    (file-directory-p
+                     (setq dir (expand-file-name
+                                ivy--current ivy--directory))))))
+             (ivy--cd dir)
+             (ivy--exhibit))
+            ((string-match "\\`/\\([^/]+\\)[:@]\\'" ivy-text)
+             (let ((full-method ivy-text)
+                   (method (match-string 1 ivy-text))
+                   res)
+               (dolist (x (tramp-get-completion-function method))
+                 (setq res (append res (funcall (car x) (cadr x)))))
+               (setq res (delq nil res))
+               (let ((host (ivy-read "Find File: "
+                                     (mapcar #'ivy-build-tramp-name res))))
+                 (when host
+                   (setq ivy--directory "/")
+                   (ivy--cd (concat full-method host ":"))))))
+            (t
+             (ivy-done))))))
 
 (defun ivy-partial-or-done ()
   "Complete the minibuffer text as much as possible.
