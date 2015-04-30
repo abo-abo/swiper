@@ -250,18 +250,22 @@ When ARG is t, exit with current text, ignoring the candidates."
                                 ivy--current ivy--directory))))))
              (ivy--cd dir)
              (ivy--exhibit))
-            ((string-match "\\`/\\([^/]+\\)[:@]\\'" ivy-text)
-             (let ((full-method ivy-text)
-                   (method (match-string 1 ivy-text))
+            ((string-match "^/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text)
+             (let ((method (match-string 1 ivy-text))
+                   (user (match-string 2 ivy-text))
                    res)
                (dolist (x (tramp-get-completion-function method))
                  (setq res (append res (funcall (car x) (cadr x)))))
                (setq res (delq nil res))
+               (when user
+                 (dolist (x res)
+                   (setcar x user)))
+               (setq res (cl-delete-duplicates res :test 'equal))
                (let ((host (ivy-read "Find File: "
                                      (mapcar #'ivy-build-tramp-name res))))
                  (when host
                    (setq ivy--directory "/")
-                   (ivy--cd (concat full-method host ":"))))))
+                   (ivy--cd (concat "/" method ":" host ":"))))))
             (t
              (ivy-done))))))
 
