@@ -890,12 +890,13 @@ CANDIDATES are assumed to be static."
                              (res candidates))
                          (dolist (re re-list)
                            (setq res
-                                 (funcall
-                                  (if (cdr re)
-                                      #'cl-remove-if-not
-                                    #'cl-remove-if)
-                                  `(lambda (x) (string-match ,(car re) x))
-                                  res)))
+                                 (ignore-errors
+                                   (funcall
+                                    (if (cdr re)
+                                        #'cl-remove-if-not
+                                      #'cl-remove-if)
+                                    `(lambda (x) (string-match ,(car re) x))
+                                    res))))
                          res))))
          (tail (nthcdr ivy--index ivy--old-cands))
          idx)
