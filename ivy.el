@@ -707,10 +707,11 @@ Everything after \"!\" should not match."
       (1
        (ivy--regex (car parts)))
       (2
-       (let ((r2 (ivy--regex (cadr parts)))
-             (r1 (ivy--regex (car parts))))
-         (list (cons r1 t)
-               (cons r2 nil))))
+       (let ((res
+              (mapcar #'list
+                      (split-string (cadr parts) " " t))))
+         (cons (cons (ivy--regex (car parts)) t)
+               res)))
       (t (error "Unexpected: use only one !")))))
 
 ;;** Rest
