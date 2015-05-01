@@ -132,9 +132,6 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
 Maximum length of the history list is determined by the value
 of `history-length', which see.")
 
-(defvar ivy-def nil
-  "Store the default completion value.  See `completing-read'.")
-
 (defvar ivy--directory nil
   "Current directory when completing file names.")
 
@@ -552,7 +549,6 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
          :update-fn update-fn
          :sort sort))
   (setq ivy--directory nil)
-  (setq ivy-def preselect)
   (setq ivy-window (selected-window))
   (setq ivy--regex-function
         (or (and (functionp collection)
@@ -988,7 +984,8 @@ CANDIDATES are assumed to be static."
         (setq ivy--index (or idx 0))))
     (when (and (string= name "") (not (equal ivy--old-re "")))
       (setq ivy--index
-            (or (cl-position ivy-def cands :test 'equal)
+            (or (cl-position (ivy-state-preselect ivy-last)
+                             cands :test 'equal)
                 ivy--index)))
     (setq ivy--old-re re)
     (setq ivy--old-cands cands)))
