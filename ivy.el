@@ -312,7 +312,8 @@ candidate."
    :preselect ivy--current
    :keymap (ivy-state-keymap ivy-last)
    :update-fn (ivy-state-update-fn ivy-last)
-   :sort (ivy-state-sort ivy-last)))
+   :sort (ivy-state-sort ivy-last)
+   :action (ivy-state-action ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
