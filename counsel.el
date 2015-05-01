@@ -215,19 +215,18 @@
                                       default-directory ".git"))
               (counsel--git-grep-count (counsel-git-grep-count ""))
               (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
-                                       'counsel-git-grep-function))
-              (ivy--persistent-action (lambda (x)
-                                        (let ((lst (split-string x ":")))
-                                          (find-file (expand-file-name (car lst) counsel--git-grep-dir))
-                                          (goto-char (point-min))
-                                          (forward-line (1- (string-to-number (cadr lst))))
-                                          (setq swiper--window (selected-window))
-                                          (swiper--cleanup)
-                                          (swiper--add-overlays (ivy--regex ivy-text)))))
-              (val (ivy-read "pattern: " 'counsel-git-grep-function
-                             :initial-input initial-input)))
-         (when val
-           (funcall ivy--persistent-action val)))
+                                       'counsel-git-grep-function)))
+         (ivy-read "pattern: " 'counsel-git-grep-function
+                   :initial-input initial-input
+                   :action
+                   (lambda ()
+                     (let ((lst (split-string ivy--current ":")))
+                       (find-file (expand-file-name (car lst) counsel--git-grep-dir))
+                       (goto-char (point-min))
+                       (forward-line (1- (string-to-number (cadr lst))))
+                       (setq swiper--window (selected-window))
+                       (swiper--cleanup)
+                       (swiper--add-overlays (ivy--regex ivy-text))))))
     (swiper--cleanup)))
 
 (defun counsel-locate-function (str &rest _u)

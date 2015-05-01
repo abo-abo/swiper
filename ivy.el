@@ -157,9 +157,6 @@ of `history-length', which see.")
   "Store 'done if the completion was successfully selected.
 Otherwise, store nil.")
 
-(defvar ivy--persistent-action nil
-  "Store a function to call for current candidate without exiting.")
-
 (defvar ivy--all-candidates nil
   "Store the candidates passed to `ivy-read'.")
 
@@ -378,18 +375,16 @@ If the input is empty, select the previous history element instead."
   (interactive "p")
   (ivy-next-line arg)
   (ivy--exhibit)
-  (when ivy--persistent-action
-    (with-selected-window (ivy-state-window ivy-last)
-      (funcall ivy--persistent-action ivy--current))))
+  (with-selected-window (ivy-state-window ivy-last)
+    (funcall (ivy-state-action ivy-last))))
 
 (defun ivy-previous-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates."
   (interactive "p")
   (ivy-previous-line arg)
   (ivy--exhibit)
-  (when ivy--persistent-action
-    (with-selected-window (ivy-state-window ivy-last)
-      (funcall ivy--persistent-action ivy--current))))
+  (with-selected-window (ivy-state-window ivy-last)
+    (funcall (ivy-state-action ivy-last))))
 
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
