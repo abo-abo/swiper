@@ -722,6 +722,24 @@ Turning on Ivy mode will set `completing-read-function' to
   (make-hash-table :test 'equal)
   "Store pre-computed regex.")
 
+(defun ivy--split (str)
+  "Split STR into a list by single spaces.
+The remaining spaces stick to their left.
+This allows to \"quote\" N spaces by inputting N+1 spaces."
+  (let ((len (length str))
+        (start 0)
+        res s)
+    (while (and (string-match " +" str start)
+                (< start len))
+      (setq s (substring str start (1- (match-end 0))))
+      (unless (= (length s) 0)
+        (push s res))
+      (setq start (match-end 0)))
+    (setq s (substring str start))
+    (unless (= (length s) 0)
+      (push s res))
+    (nreverse res)))
+
 (defun ivy--regex (str &optional greedy)
   "Re-build regex from STR in case it has a space.
 When GREEDY is non-nil, join words in a greedy way."
@@ -731,7 +749,7 @@ When GREEDY is non-nil, join words in a greedy way."
         (prog1 (cdr hashed)
           (setq ivy--subexps (car hashed)))
       (cdr (puthash str
-                    (let ((subs (split-string str " +" t)))
+                    (let ((subs (ivy--split str)))
                       (if (= (length subs) 1)
                           (cons
                            (setq ivy--subexps 0)
