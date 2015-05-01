@@ -123,10 +123,14 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   predicate require-match initial-input
   history preselect keymap update-fn sort
   ;; The window in which `ivy-read' was called
-  window)
+  window
+  action)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
+
+(defsubst ivy-set-action (action)
+  (setf (ivy-state-action ivy-last) action))
 
 (defvar ivy-history nil
   "History list of candidates entered in the minibuffer.
@@ -152,9 +156,6 @@ of `history-length', which see.")
 (defvar ivy-exit nil
   "Store 'done if the completion was successfully selected.
 Otherwise, store nil.")
-
-(defvar ivy--action nil
-  "Store a function to call at the end of `ivy--read'.")
 
 (defvar ivy--persistent-action nil
   "Store a function to call for current candidate without exiting.")
@@ -514,8 +515,9 @@ Directories come first."
 
 ;;** Entry Point
 (cl-defun ivy-read (prompt collection
-                    &key predicate require-match initial-input
-                      history preselect keymap update-fn sort)
+                           &key predicate require-match initial-input
+                           history preselect keymap update-fn sort
+                           action)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -547,6 +549,7 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
          :keymap keymap
          :update-fn update-fn
          :sort sort
+         :action action
          :window (selected-window)))
   (setq ivy--directory nil)
   (setq ivy--regex-function
@@ -631,7 +634,6 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                  prompt)
                 (t
                  nil)))
-    (setq ivy--action nil)
     (prog1
         (unwind-protect
              (minibuffer-with-setup-hook
@@ -649,8 +651,8 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                                            (cdr (symbol-value hist)))))
                    res)))
           (remove-hook 'post-command-hook #'ivy--exhibit))
-      (when ivy--action
-        (funcall ivy--action)))))
+      (when (setq action (ivy-state-action ivy-last))
+        (funcall action)))))
 
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
@@ -817,7 +819,8 @@ Everything after \"!\" should not match."
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
-    (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done))
+    (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
+                                 counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
       (if (string-match "\\(.*\\): $" ivy--prompt)
@@ -996,7 +999,7 @@ CANDS is a list of strings."
   (when (>= ivy--index ivy--length)
     (setq ivy--index (max (1- ivy--length) 0)))
   (if (null cands)
-      ""
+      (setq ivy--current "")
     (let* ((half-height (/ ivy-height 2))
            (start (max 0 (- ivy--index half-height)))
            (end (min (+ start (1- ivy-height)) ivy--length))
