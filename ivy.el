@@ -119,9 +119,11 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
 
 ;;* Globals
 (cl-defstruct ivy-state
-    prompt collection
-    predicate require-match initial-input
-    history preselect keymap update-fn sort)
+  prompt collection
+  predicate require-match initial-input
+  history preselect keymap update-fn sort
+  ;; The window in which `ivy-read' was called
+  window)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
@@ -140,9 +142,6 @@ of `history-length', which see.")
 
 (defvar ivy-text ""
   "Store the user's string as it is typed in.")
-
-(defvar ivy-window nil
-  "Store the window in which `ivy-read' was called.")
 
 (defvar ivy--current ""
   "Current candidate.")
@@ -378,7 +377,7 @@ If the input is empty, select the previous history element instead."
   (ivy-next-line arg)
   (ivy--exhibit)
   (when ivy--persistent-action
-    (with-selected-window ivy-window
+    (with-selected-window (ivy-state-window ivy-last)
       (funcall ivy--persistent-action ivy--current))))
 
 (defun ivy-previous-line-and-call (&optional arg)
@@ -387,7 +386,7 @@ If the input is empty, select the previous history element instead."
   (ivy-previous-line arg)
   (ivy--exhibit)
   (when ivy--persistent-action
-    (with-selected-window ivy-window
+    (with-selected-window (ivy-state-window ivy-last)
       (funcall ivy--persistent-action ivy--current))))
 
 (defun ivy-previous-history-element (arg)
@@ -547,9 +546,9 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
          :preselect preselect
          :keymap keymap
          :update-fn update-fn
-         :sort sort))
+         :sort sort
+         :window (selected-window)))
   (setq ivy--directory nil)
-  (setq ivy-window (selected-window))
   (setq ivy--regex-function
         (or (and (functionp collection)
                  (cdr (assoc collection ivy-re-builders-alist)))
