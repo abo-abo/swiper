@@ -87,8 +87,7 @@ This is usually meant as a quick exit out of the minibuffer."
 Only \"./\" and \"../\" apply here. They appear in reverse order."
   :type 'list)
 
-;;* User Visible
-;;** Keymap
+;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
   (let ((map (make-sparse-keymap)))
@@ -118,14 +117,20 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     map)
   "Keymap used in the minibuffer.")
 
+;;* Globals
+(cl-defstruct ivy-state
+    prompt collection
+    predicate require-match initial-input
+    history preselect keymap update-fn sort)
+
+(defvar ivy-last nil
+  "The last parameters passed to `ivy-read'.")
+
 (defvar ivy-history nil
   "History list of candidates entered in the minibuffer.
 
 Maximum length of the history list is determined by the value
 of `history-length', which see.")
-
-(defvar ivy-require-match t
-  "Store require-match.  See `completing-read'.")
 
 (defvar ivy-def nil
   "Store the default completion value.  See `completing-read'.")
@@ -188,7 +193,7 @@ When non-nil, it should contain one %d.")
 
 (defvar Info-current-file)
 
-;;** Commands
+;;* Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
@@ -210,7 +215,7 @@ When non-nil, it should contain one %d.")
                    ivy--current ivy--directory))
                  (setq ivy-exit 'done)))
               ((zerop ivy--length)
-               (if (memq ivy-require-match
+               (if (memq (ivy-state-require-match ivy-last)
                          '(nil confirm confirm-after-completion))
                    (progn
                      (insert ivy-text)
@@ -296,6 +301,21 @@ candidate."
   (insert ivy-text)
   (setq ivy-exit 'done)
   (exit-minibuffer))
+
+(defun ivy-resume ()
+  "Resume the last completion session."
+  (interactive)
+  (ivy-read
+   (ivy-state-prompt ivy-last)
+   (ivy-state-collection ivy-last)
+   :predicate (ivy-state-predicate ivy-last)
+   :require-match (ivy-state-require-match ivy-last)
+   :initial-input ivy-text
+   :history (ivy-state-history ivy-last)
+   :preselect ivy--current
+   :keymap (ivy-state-keymap ivy-last)
+   :update-fn (ivy-state-update-fn ivy-last)
+   :sort (ivy-state-sort ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -519,8 +539,19 @@ the ones that match INITIAL-INPUT.
 UPDATE-FN is called each time the current candidate(s) is changed.
 
 When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
+  (setq ivy-last
+        (make-ivy-state
+         :prompt prompt
+         :collection collection
+         :predicate predicate
+         :require-match require-match
+         :initial-input initial-input
+         :history history
+         :preselect preselect
+         :keymap keymap
+         :update-fn update-fn
+         :sort sort))
   (setq ivy--directory nil)
-  (setq ivy-require-match require-match)
   (setq ivy-def preselect)
   (setq ivy-window (selected-window))
   (setq ivy--regex-function
@@ -637,8 +668,7 @@ it can be used for `completing-read-function'.
 PROMPT is a string to prompt with; normally it ends in a colon and a space.
 COLLECTION can be a list of strings, an alist, an obarray or a hash table.
 PREDICATE limits completion to a subset of COLLECTION.
-
-REQUIRE-MATCH is stored into `ivy-require-match'.  See `completing-read'.
+REQUIRE-MATCH is considered boolean. See `completing-read'.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
 _HISTORY is ignored for now.
 DEF is the default value.
