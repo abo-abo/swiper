@@ -124,7 +124,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   history preselect keymap update-fn sort
   ;; The window in which `ivy-read' was called
   window
-  action)
+  action
+  unwind)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
@@ -310,7 +311,8 @@ candidate."
    :keymap (ivy-state-keymap ivy-last)
    :update-fn (ivy-state-update-fn ivy-last)
    :sort (ivy-state-sort ivy-last)
-   :action (ivy-state-action ivy-last)))
+   :action (ivy-state-action ivy-last)
+   :unwind (ivy-state-unwind ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -511,9 +513,9 @@ Directories come first."
 
 ;;** Entry Point
 (cl-defun ivy-read (prompt collection
-                           &key predicate require-match initial-input
-                           history preselect keymap update-fn sort
-                           action)
+                    &key predicate require-match initial-input
+                      history preselect keymap update-fn sort
+                      action unwind)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -532,7 +534,11 @@ the ones that match INITIAL-INPUT.
 
 UPDATE-FN is called each time the current candidate(s) is changed.
 
-When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
+When SORT is t, refer to `ivy-sort-functions-alist' for sorting.
+
+ACTION is a lambda to call after a result was selected.
+
+UNWIND is a lambda to call before exiting."
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -546,7 +552,8 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
          :update-fn update-fn
          :sort sort
          :action action
-         :window (selected-window)))
+         :window (selected-window)
+         :unwind unwind))
   (setq ivy--directory nil)
   (setq ivy--regex-function
         (or (and (functionp collection)
@@ -646,7 +653,9 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting."
                                    (delete ivy-text
                                            (cdr (symbol-value hist)))))
                    res)))
-          (remove-hook 'post-command-hook #'ivy--exhibit))
+          (remove-hook 'post-command-hook #'ivy--exhibit)
+          (when (setq unwind (ivy-state-unwind ivy-last))
+            (funcall unwind)))
       (when (setq action (ivy-state-action ivy-last))
         (funcall action)))))
 

@@ -195,8 +195,8 @@ Please remove it and update the \"swiper\" package."))
                     :keymap swiper-map
                     :preselect preselect
                     :require-match t
-                    :update-fn #'swiper--update-input-ivy))
-      (swiper--cleanup)
+                    :update-fn #'swiper--update-input-ivy
+                    :unwind #'swiper--cleanup))
       (if (null ivy-exit)
           (goto-char swiper--opoint)
         (swiper--action res ivy-text)))))
