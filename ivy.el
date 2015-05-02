@@ -704,6 +704,7 @@ Turning on Ivy mode will set `completing-read-function' to
 (defun ivy--preselect-index (candidates initial-input preselect)
   "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT."
   (when initial-input
+    (setq initial-input (ivy--regex-plus initial-input))
     (setq candidates
           (cl-remove-if-not
            (lambda (x)
