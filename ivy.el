@@ -307,7 +307,7 @@ candidate."
    :require-match (ivy-state-require-match ivy-last)
    :initial-input ivy-text
    :history (ivy-state-history ivy-last)
-   :preselect ivy--current
+   :preselect (regexp-quote ivy--current)
    :keymap (ivy-state-keymap ivy-last)
    :update-fn (ivy-state-update-fn ivy-last)
    :sort (ivy-state-sort ivy-last)
