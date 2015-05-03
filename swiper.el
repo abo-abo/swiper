@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.3.0
+;; Version: 0.4.0
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
@@ -29,10 +29,13 @@
 ;; candidates.  The search regex can be split into groups with a
 ;; space.  Each group is highlighted with a different face.
 ;;
-;; The overview back end is `ivy'.
-;;
 ;; It can double as a quick `regex-builder', although only single
 ;; lines will be matched.
+;;
+;; It also provides `ivy-mode': a global minor mode that uses the
+;; matching back end of `swiper' for all matching on your system,
+;; including file matching. You can use it in place of `ido-mode'
+;; (can't have both on at once).
 
 ;;; Code:
 (require 'ivy)
