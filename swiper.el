@@ -170,7 +170,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (setq swiper--opoint (point))
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
-  (setq swiper--window (selected-window)))
+  (setq swiper--window (selected-window))
+  (setq ivy--regex-function
+        (cdr (assoc t ivy-re-builders-alist))))
 
 (defun swiper--ivy (&optional initial-input)
   "`isearch' with an overview using `ivy'.
@@ -227,7 +229,7 @@ Please remove it and update the \"swiper\" package."))
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
   (swiper--cleanup)
-  (let* ((re (ivy--regex ivy-text))
+  (let* ((re (funcall ivy--regex-function ivy-text))
          (str ivy--current)
          (num (if (string-match "^[0-9]+" str)
                   (string-to-number (match-string 0 str))
@@ -292,7 +294,7 @@ BEG and END, when specified, are the point bounds."
     (goto-char (point-min))
     (forward-line (1- (read x)))
     (re-search-forward
-     (ivy--regex input) (line-end-position) t)
+     (funcall ivy--regex-function input) (line-end-position) t)
     (swiper--ensure-visible)
     (when (/= (point) swiper--opoint)
       (unless (and transient-mark-mode mark-active)
