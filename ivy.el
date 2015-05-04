@@ -286,6 +286,7 @@ candidate."
         (exit-minibuffer))
     (let* ((parts (split-string ivy-text " " t))
            (postfix (car (last parts)))
+           (completion-ignore-case t)
            (new (try-completion postfix
                                 (mapcar (lambda (str) (substring str (string-match postfix str)))
                                         ivy--old-cands))))
