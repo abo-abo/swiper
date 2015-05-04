@@ -279,7 +279,7 @@ When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
   (if (eq this-command last-command)
-      (progn
+      (when (> (length ivy--current) 0)
         (delete-minibuffer-contents)
         (insert ivy--current)
         (setq ivy-exit 'done)
@@ -290,10 +290,11 @@ candidate."
            (new (try-completion postfix
                                 (mapcar (lambda (str) (substring str (string-match postfix str)))
                                         ivy--old-cands))))
-      (delete-region (minibuffer-prompt-end) (point-max))
-      (setcar (last parts) new)
-      (insert (mapconcat #'identity parts " ")
-              (if ivy-tab-space " " "")))))
+      (when new
+        (delete-region (minibuffer-prompt-end) (point-max))
+        (setcar (last parts) new)
+        (insert (mapconcat #'identity parts " ")
+                (if ivy-tab-space " " ""))))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
