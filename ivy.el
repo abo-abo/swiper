@@ -269,6 +269,10 @@ When ARG is t, exit with current text, ignoring the candidates."
             (t
              (ivy-done))))))
 
+(defcustom ivy-tab-space nil
+  "When non-nil, `ivy-partial-or-done' should insert a space."
+  :type 'boolean)
+
 (defun ivy-partial-or-done ()
   "Complete the minibuffer text as much as possible.
 When called twice in a row, exit the minibuffer with the current
@@ -287,7 +291,8 @@ candidate."
                                         ivy--old-cands))))
       (delete-region (minibuffer-prompt-end) (point-max))
       (setcar (last parts) new)
-      (insert (mapconcat #'identity parts " ") " "))))
+      (insert (mapconcat #'identity parts " ")
+              (if ivy-tab-space " " "")))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
