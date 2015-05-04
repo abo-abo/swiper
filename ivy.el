@@ -279,11 +279,7 @@ When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
   (if (eq this-command last-command)
-      (when (> (length ivy--current) 0)
-        (delete-minibuffer-contents)
-        (insert ivy--current)
-        (setq ivy-exit 'done)
-        (exit-minibuffer))
+      (ivy-alt-done)
     (let* ((parts (split-string ivy-text " " t))
            (postfix (car (last parts)))
            (completion-ignore-case t)
