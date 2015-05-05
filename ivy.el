@@ -185,41 +185,38 @@ When non-nil, it should contain one %d.")
 
 (defvar Info-current-file)
 
+(defun ivy--done (text)
+  "Insert TEXT and exit minibuffer."
+  (insert
+   (if ivy--directory
+       (expand-file-name
+        text ivy--directory)
+     text))
+  (setq ivy-exit 'done)
+  (exit-minibuffer))
+
 ;;* Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (when (cond (ivy--directory
-               (if (zerop ivy--length)
-                   (if (or (not (eq confirm-nonexistent-file-or-buffer t))
-                           (equal " (confirm)" ivy--prompt-extra))
-                       (progn
-                         (insert
-                          (expand-file-name ivy-text ivy--directory))
-                         (setq ivy-exit 'done))
-                     (setq ivy--prompt-extra " (confirm)")
-                     (insert ivy-text)
-                     (ivy--exhibit)
-                     nil)
-                 (insert
-                  (expand-file-name
-                   ivy--current ivy--directory))
-                 (setq ivy-exit 'done)))
-              ((zerop ivy--length)
-               (if (memq (ivy-state-require-match ivy-last)
-                         '(nil confirm confirm-after-completion))
-                   (progn
-                     (insert ivy-text)
-                     (setq ivy-exit 'done))
-                 (setq ivy--prompt-extra " (match required)")
-                 (insert ivy-text)
-                 (ivy--exhibit)
-                 nil))
-              (t
-               (insert ivy--current)
-               (setq ivy-exit 'done)))
-    (exit-minibuffer)))
+  (cond ((> ivy--length 0)
+         (ivy--done ivy--current))
+        ((memq (ivy-state-collection ivy-last)
+               '(read-file-name-internal internal-complete-buffer))
+         (if (or (not (eq confirm-nonexistent-file-or-buffer t))
+                 (equal " (confirm)" ivy--prompt-extra))
+             (ivy--done ivy-text)
+           (setq ivy--prompt-extra " (confirm)")
+           (insert ivy-text)
+           (ivy--exhibit)))
+        ((memq (ivy-state-require-match ivy-last)
+               '(nil confirm confirm-after-completion))
+         (ivy--done ivy-text))
+        (t
+         (setq ivy--prompt-extra " (match required)")
+         (insert ivy-text)
+         (ivy--exhibit))))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
