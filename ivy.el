@@ -580,6 +580,7 @@ UNWIND is a lambda to call before exiting."
              (setq coll (all-completions "" collection predicate))))
           ((eq collection 'read-file-name-internal)
            (setq ivy--directory default-directory)
+           (require 'dired)
            (setq coll
                  (ivy--sorted-files default-directory))
            (when initial-input
