@@ -280,11 +280,17 @@ candidate."
            (new (try-completion postfix
                                 (mapcar (lambda (str) (substring str (string-match postfix str)))
                                         ivy--old-cands))))
-      (when new
-        (delete-region (minibuffer-prompt-end) (point-max))
-        (setcar (last parts) new)
-        (insert (mapconcat #'identity parts " ")
-                (if ivy-tab-space " " ""))))))
+      (if new
+          (progn
+            (delete-region (minibuffer-prompt-end) (point-max))
+            (setcar (last parts) new)
+            (insert (mapconcat #'identity parts " ")
+                    (if ivy-tab-space " " "")))
+        (when (and (eq confirm-nonexistent-file-or-buffer t)
+                   (memq (ivy-state-collection ivy-last)
+                         '(read-file-name-internal
+                           internal-complete-buffer)))
+          (ivy-done))))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
