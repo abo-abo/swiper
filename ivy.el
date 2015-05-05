@@ -183,9 +183,6 @@ When non-nil, it should contain one %d.")
 (defvar ivy--regex-function 'ivy--regex
   "Current function for building a regex.")
 
-(defvar ivy--collection nil
-  "Store the current collection function.")
-
 (defvar Info-current-file)
 
 ;;* Commands
@@ -565,8 +562,6 @@ UNWIND is a lambda to call before exiting."
             'ivy--regex))
   (setq ivy--subexps 0)
   (setq ivy--regexp-quote 'regexp-quote)
-  (setq ivy--collection (and (functionp collection)
-                             collection))
   (setq ivy--old-text "")
   (setq ivy-text "")
   (let (coll sort-fn)
@@ -919,7 +914,7 @@ Should be run via minibuffer `post-command-hook'."
                    (ivy--cd "/")))
              (if (string-match "~$" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
-          ((eq ivy--collection 'internal-complete-buffer)
+          ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
            (when (or (and (string-match "^ " ivy-text)
                           (not (string-match "^ " ivy--old-text)))
                      (and (string-match "^ " ivy--old-text)
