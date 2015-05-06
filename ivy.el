@@ -934,10 +934,11 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
-  (ivy--cleanup)
-  (let ((buffer-undo-list t)
+  (let ((resize-mini-windows nil)
+        (buffer-undo-list t)
         (update-fn (ivy-state-update-fn ivy-last))
         deactivate-mark)
+    (ivy--cleanup)
     (when update-fn
       (funcall update-fn))
     (ivy--insert-prompt)
