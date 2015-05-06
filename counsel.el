@@ -260,6 +260,42 @@
         (delete-region (car bnd) (cdr bnd)))
       (insert res))))
 
+(defun counsel-directory-parent (dir)
+  "Return the directory parent of directory DIR."
+  (concat (file-name-nondirectory
+           (directory-file-name dir)) "/"))
+
+(defun counsel-load-library ()
+  "Load a selected the Emacs Lisp library.
+The libraries are offered from `load-path'."
+  (interactive)
+  (let ((dirs load-path)
+        (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
+        (cands (make-hash-table :test #'equal))
+        short-name
+        old-dir)
+    (dolist (dir dirs)
+      (when (file-directory-p dir)
+        (dolist (file (file-name-all-completions "" dir))
+          (when (string-match suffix file)
+            (unless (string-match "pkg.elc?$" file)
+              (setq short-name (substring file 0 (match-beginning 0)))
+              (if (setq old-dir (gethash short-name cands))
+                  (progn
+                    (remhash short-name cands)
+                    ;; assume going up directory once will resolve name clash
+                    (puthash (concat (counsel-directory-parent old-dir)
+                                     short-name)
+                             old-dir cands)
+                    (puthash (concat (counsel-directory-parent dir)
+                                     short-name)
+                             dir cands))
+                (puthash short-name dir cands)))))))
+    (ivy-read "Load library: " (hash-table-keys cands)
+              :action (lambda ()
+                        (load-library ivy--current))
+              :keymap counsel-describe-map)))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
