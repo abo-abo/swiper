@@ -187,11 +187,11 @@ When non-nil, it should contain one %d.")
 
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
-  (insert
-   (if ivy--directory
-       (expand-file-name
-        text ivy--directory)
-     text))
+  (if (and ivy--directory
+           (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
+      (insert (expand-file-name
+                 text ivy--directory))
+    (insert text))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
