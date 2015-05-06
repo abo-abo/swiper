@@ -274,7 +274,7 @@ candidate."
   (interactive)
   (if (eq this-command last-command)
       (ivy-alt-done)
-    (let* ((parts (split-string ivy-text " " t))
+    (let* ((parts (or (split-string ivy-text " " t) (list "")))
            (postfix (car (last parts)))
            (completion-ignore-case t)
            (new (try-completion postfix
