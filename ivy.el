@@ -164,9 +164,6 @@ Otherwise, store nil.")
 (defvar ivy--default nil
   "Default initial input.")
 
-(defvar ivy--update-fn nil
-  "Current function to call when current candidate(s) update.")
-
 (defvar ivy--prompt nil
   "Store the format-style prompt.
 When non-nil, it should contain one %d.")
@@ -627,7 +624,6 @@ UNWIND is a lambda to call before exiting."
     (setq ivy--old-re nil)
     (setq ivy--old-cands nil)
     (setq ivy--all-candidates coll)
-    (setq ivy--update-fn update-fn)
     (setq ivy-exit nil)
     (setq ivy--default (or (thing-at-point 'symbol) ""))
     (setq ivy--prompt
@@ -940,9 +936,10 @@ Should be run via minibuffer `post-command-hook'."
   "Insert TEXT into minibuffer with appropriate cleanup."
   (ivy--cleanup)
   (let ((buffer-undo-list t)
+        (update-fn (ivy-state-update-fn ivy-last))
         deactivate-mark)
-    (when ivy--update-fn
-      (funcall ivy--update-fn))
+    (when update-fn
+      (funcall update-fn))
     (ivy--insert-prompt)
     ;; Do nothing if while-no-input was aborted.
     (when (stringp text)
