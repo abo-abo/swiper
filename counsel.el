@@ -52,18 +52,22 @@
   (ivy-done))
 
 (defun counsel--find-symbol ()
-  (let ((sym (read ivy--current)))
-    (cond ((boundp sym)
-           (find-variable sym))
-          ((fboundp sym)
-           (find-function sym))
-          ((or (featurep sym)
-               (locate-library
+  (let ((full-name (get-text-property 0 'full-name ivy--current)))
+    (if full-name
+        (find-library full-name)
+      (let ((sym (read ivy--current)))
+        (cond ((boundp sym)
+               (find-variable sym))
+              ((fboundp sym)
+               (find-function sym))
+              ((or (featurep sym)
+                   (locate-library
+                    (prin1-to-string sym)))
+               (find-library
                 (prin1-to-string sym)))
-           (find-library (prin1-to-string sym)))
-          (t
-           (error "Couldn't fild definition of %s"
-                  sym)))))
+              (t
+               (error "Couldn't fild definition of %s"
+                      sym)))))))
 
 (defvar counsel-describe-symbol-history nil
   "History for `counsel-describe-variable' and `counsel-describe-function'.")
@@ -265,6 +269,15 @@
   (concat (file-name-nondirectory
            (directory-file-name dir)) "/"))
 
+(defun counsel-string-compose (prefix str)
+  "Make PREFIX the display prefix of STR though text properties."
+  (let ((str (copy-sequence str)))
+    (put-text-property
+     0 1 'display
+     (concat prefix (substring str 0 1))
+     str)
+    str))
+
 (defun counsel-load-library ()
   "Load a selected the Emacs Lisp library.
 The libraries are offered from `load-path'."
@@ -273,27 +286,43 @@ The libraries are offered from `load-path'."
         (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
         (cands (make-hash-table :test #'equal))
         short-name
-        old-dir)
+        old-val
+        dir-parent
+        res)
     (dolist (dir dirs)
       (when (file-directory-p dir)
         (dolist (file (file-name-all-completions "" dir))
           (when (string-match suffix file)
             (unless (string-match "pkg.elc?$" file)
               (setq short-name (substring file 0 (match-beginning 0)))
-              (if (setq old-dir (gethash short-name cands))
+              (if (setq old-val (gethash short-name cands))
                   (progn
-                    (remhash short-name cands)
                     ;; assume going up directory once will resolve name clash
-                    (puthash (concat (counsel-directory-parent old-dir)
-                                     short-name)
-                             old-dir cands)
-                    (puthash (concat (counsel-directory-parent dir)
-                                     short-name)
-                             dir cands))
-                (puthash short-name dir cands)))))))
-    (ivy-read "Load library: " (hash-table-keys cands)
+                    (setq dir-parent (counsel-directory-parent (cdr old-val)))
+                    (puthash short-name
+                             (cons
+                              (counsel-string-compose dir-parent (car old-val))
+                              (cdr old-val))
+                             cands)
+                    (setq dir-parent (counsel-directory-parent dir))
+                    (puthash (concat dir-parent short-name)
+                             (cons
+                              (propertize
+                               (counsel-string-compose
+                                dir-parent short-name)
+                               'full-name (expand-file-name file dir))
+                              dir)
+                             cands))
+                (puthash short-name
+                         (cons (propertize
+                                short-name
+                                'full-name (expand-file-name file dir))
+                               dir) cands)))))))
+    (maphash (lambda (_k v) (push (car v) res)) cands)
+    (ivy-read "Load library: " (nreverse res)
               :action (lambda ()
-                        (load-library ivy--current))
+                        (load-library
+                         (get-text-property 0 'full-name ivy--current)))
               :keymap counsel-describe-map)))
 
 (provide 'counsel)
