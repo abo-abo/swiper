@@ -60,3 +60,16 @@
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
                      "z C-m")
            "z")))
+
+(ert-deftest ivy--transform-re ()
+  (setq ivy-last
+        (make-ivy-state
+         :keymap swiper-map))
+  (setq swiper--width 4)
+  (setq ivy--regex-function #'ivy--regex-plus)
+  (should (string= (ivy--transform-re (funcall ivy--regex-function "^"))
+                   "."))
+  (should (string= (ivy--transform-re (funcall ivy--regex-function "^a"))
+                   "^[0-9 ]\\{5\\}a"))
+  (should (string= (ivy--transform-re (funcall ivy--regex-function "^a b"))
+                   "\\(^[0-9 ]\\{5\\}a\\).*?\\(b\\)")))
