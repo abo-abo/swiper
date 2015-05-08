@@ -271,23 +271,30 @@ candidate."
   (interactive)
   (if (eq this-command last-command)
       (ivy-alt-done)
-    (let* ((parts (or (split-string ivy-text " " t) (list "")))
-           (postfix (car (last parts)))
-           (completion-ignore-case t)
-           (new (try-completion postfix
-                                (mapcar (lambda (str) (substring str (string-match postfix str)))
-                                        ivy--old-cands))))
-      (if new
-          (progn
-            (delete-region (minibuffer-prompt-end) (point-max))
-            (setcar (last parts) new)
-            (insert (mapconcat #'identity parts " ")
-                    (if ivy-tab-space " " "")))
-        (when (and (eq confirm-nonexistent-file-or-buffer t)
-                   (memq (ivy-state-collection ivy-last)
-                         '(read-file-name-internal
-                           internal-complete-buffer)))
-          (ivy-done))))))
+    (unless (ivy-partial)
+      (when (and (eq confirm-nonexistent-file-or-buffer t)
+                       (memq (ivy-state-collection ivy-last)
+                             '(read-file-name-internal
+                               internal-complete-buffer)))
+        (ivy-done)))))
+
+(defun ivy-partial ()
+  "Complete the minibuffer text as much as possible."
+  (interactive)
+  (let* ((parts (or (split-string ivy-text " " t) (list "")))
+         (postfix (car (last parts)))
+         (completion-ignore-case t)
+         (new (try-completion postfix
+                              (mapcar (lambda (str) (substring str (string-match postfix str)))
+                                      ivy--old-cands))))
+    (cond ((eq new t)
+           nil)
+          (new
+           (delete-region (minibuffer-prompt-end) (point-max))
+           (setcar (last parts) new)
+           (insert (mapconcat #'identity parts " ")
+                   (if ivy-tab-space " " ""))
+           t))))
 
 (defun ivy-immediate-done ()
   "Exit the minibuffer with the current input."
