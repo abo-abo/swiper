@@ -281,14 +281,10 @@ When ARG is t, exit with current text, ignoring the candidates."
 When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
-  (if (eq this-command last-command)
-      (ivy-alt-done)
-    (unless (ivy-partial)
-      (when (and (eq confirm-nonexistent-file-or-buffer t)
-                       (memq (ivy-state-collection ivy-last)
-                             '(read-file-name-internal
-                               internal-complete-buffer)))
-        (ivy-done)))))
+  (or (ivy-partial)
+      (if (eq this-command last-command)
+	  (ivy-done)
+	(ivy-alt-done))))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
@@ -299,8 +295,8 @@ candidate."
          (new (try-completion postfix
                               (mapcar (lambda (str) (substring str (string-match postfix str)))
                                       ivy--old-cands))))
-    (cond ((eq new t)
-           nil)
+    (cond ((eq new t) nil)
+	  ((string= new ivy-text) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar (last parts) new)
