@@ -182,6 +182,16 @@ When non-nil, it should contain one %d.")
 
 (defvar Info-current-file)
 
+(defmacro ivy-quit-and-run (&rest body)
+  "Quit the minibuffer and run BODY afterwards."
+  `(progn
+     (put 'quit 'error-message "")
+     (run-at-time nil nil
+                  (lambda ()
+                    (put 'quit 'error-message "Quit")
+                    ,@body))
+     (minibuffer-keyboard-quit)))
+
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
   (if (and ivy--directory
@@ -223,6 +233,8 @@ Is is a cons cell, related to `tramp-get-completion-function'."
     (if user
         (concat user "@" domain)
       domain)))
+
+(declare-function tramp-get-completion-function "tramp")
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
