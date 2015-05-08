@@ -79,7 +79,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-q") 'swiper-query-replace)
     (define-key map (kbd "C-l") 'swiper-recenter-top-bottom)
-    (define-key map (kbd "C-'") 'avy-swiper)
+    (define-key map (kbd "C-'") 'swiper-avy)
     map)
   "Keymap for swiper.")
 
@@ -106,12 +106,13 @@
 (declare-function avy--goto "ext:avy")
 
 ;;;###autoload
-(defun avy-swiper ()
+(defun swiper-avy ()
   "Jump to one of the current swiper candidates."
   (interactive)
   (with-selected-window (ivy-state-window ivy-last)
     (let* ((candidates
-            (avy--regex-candidates ivy-text))
+            (avy--regex-candidates
+             (funcall ivy--regex-function ivy-text)))
            (avy-background nil)
            (candidate
             (avy--process candidates #'avy--overlay-post)))
