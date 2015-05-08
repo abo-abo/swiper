@@ -990,6 +990,8 @@ Should be run via minibuffer `post-command-hook'."
        (font-lock-append-text-property 0 (length str) 'face face str))))
   str)
 
+(defvar swiper-map)
+(defvar swiper--width)
 (defun ivy--transform-re (regex)
   "Transform REGEX into another regex.
 This is a work-around for `swiper' and line starts."
