@@ -87,6 +87,10 @@ This is usually meant as a quick exit out of the minibuffer."
 Only \"./\" and \"../\" apply here. They appear in reverse order."
   :type 'list)
 
+(defcustom ivy-use-virtual-buffers nil
+  "When non-nil, add `recentf-mode' and bookmarks to the list of buffers."
+  :type 'boolean)
+
 ;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
@@ -1099,7 +1103,6 @@ CANDS is a list of strings."
 (defvar ido-use-faces)
 (defvar ido-process-ignore-lists)
 (defvar ido-ignored-list)
-(defvar ido-use-virtual-buffers)
 (declare-function ido-make-buffer-list "ido")
 
 (defun ivy--virtual-buffers ()
@@ -1143,7 +1146,7 @@ See `ido-make-buffer-list'."
     (delete-dups
      (append (ido-make-buffer-list nil)
              (and
-              ido-use-virtual-buffers
+              ivy-use-virtual-buffers
               (ivy--virtual-buffers))))))
 
 (defun ivy-switch-buffer ()
