@@ -967,10 +967,26 @@ Should be run via minibuffer `post-command-hook'."
        (font-lock-append-text-property 0 (length str) 'face face str))))
   str)
 
+(defun ivy--transform-re (regex)
+  "Transform REGEX into another regex.
+This is a work-around for `swiper' and line starts."
+  (if (equal (ivy-state-keymap ivy-last) swiper-map)
+      (cond
+        ((equal regex "^")
+         ".")
+        ((string-match "^\\(?:\\\\(\\)?\\(\\^\\)" regex)
+         (setq ivy--old-re "")
+         (replace-match (format "^[0-9 ]\\{%d\\}"
+                                (1+ swiper--width)) nil t regex 1))
+        (t
+         regex))
+    regex))
+
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
-  (let* ((re (funcall ivy--regex-function name))
+  (let* ((re (ivy--transform-re
+              (funcall ivy--regex-function name)))
          (cands (cond ((and (equal re ivy--old-re)
                             ivy--old-cands)
                        ivy--old-cands)

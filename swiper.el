@@ -127,12 +127,16 @@
 (defvar swiper--format-spec ""
   "Store the current candidates format spec.")
 
+(defvar swiper--width nil
+  "Store the amount of digits needed for the longest line nubmer.")
+
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
   (let ((n-lines (count-lines (point-min) (point-max))))
     (unless (zerop n-lines)
+      (setq swiper--width (1+ (floor (log n-lines 10))))
       (setq swiper--format-spec
-            (format "%%-%dd %%s" (1+ (floor (log n-lines 10)))))
+            (format "%%-%dd %%s" swiper--width))
       (let ((line-number 0)
             candidates)
         (save-excursion
