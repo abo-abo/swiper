@@ -117,6 +117,12 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     map)
   "Keymap used in the minibuffer.")
 
+(defvar ivy-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap switch-to-buffer] 'ivy-switch-buffer)
+    map)
+  "Keymap for `ivy-mode'.")
+
 ;;* Globals
 (cl-defstruct ivy-state
   prompt collection
@@ -701,14 +707,19 @@ The history, defaults and input-method arguments are ignored for now."
 
 ;;;###autoload
 (define-minor-mode ivy-mode
-    "Toggle Ivy mode on or off.
+  "Toggle Ivy mode on or off.
 With ARG, turn Ivy mode on if arg is positive, off otherwise.
 Turning on Ivy mode will set `completing-read-function' to
 `ivy-completing-read'.
 
+Global bindings:
+\\{ivy-mode-map}
+
+Minibuffer bindings:
 \\{ivy-minibuffer-map}"
   :group 'ivy
   :global t
+  :keymap ivy-mode-map
   :lighter " ivy"
   (if ivy-mode
       (setq completing-read-function 'ivy-completing-read)
@@ -1080,6 +1091,75 @@ CANDS is a list of strings."
                                 cands "\n"))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
+
+(defvar ivy--virtual-buffers nil
+  "Store the virtual buffers alist.")
+
+(defvar recentf-list)
+(defvar ido-use-faces)
+(defvar ido-process-ignore-lists)
+(defvar ido-ignored-list)
+(defvar ido-use-virtual-buffers)
+(declare-function ido-make-buffer-list "ido")
+
+(defun ivy--virtual-buffers ()
+  "Adapted from `ido-add-virtual-buffers-to-list'."
+  (unless recentf-mode
+    (recentf-mode 1))
+  (let ((bookmarks (and (boundp 'bookmark-alist)
+                        bookmark-alist))
+        virtual-buffers name)
+    (dolist (head (append
+                   recentf-list
+                   (delete "   - no file -"
+                           (delq nil (mapcar (lambda (bookmark)
+                                               (cdr (assoc 'filename bookmark)))
+                                             bookmarks)))))
+      (setq name (file-name-nondirectory head))
+      (when (equal name "")
+        (setq name (file-name-nondirectory (directory-file-name head))))
+      (when (equal name "")
+        (setq name head))
+      (and (not (equal name ""))
+           (null (get-file-buffer head))
+           (not (assoc name virtual-buffers))
+           (push (cons name head) virtual-buffers)))
+    (when virtual-buffers
+      (if ido-use-faces
+          (dolist (comp virtual-buffers)
+            (put-text-property 0 (length (car comp))
+                               'face 'ido-virtual
+                               (car comp))))
+      (setq ivy--virtual-buffers (nreverse virtual-buffers))
+      (mapcar #'car ivy--virtual-buffers))))
+
+(defun ivy-buffer-list ()
+  "Return the current list of buffers.
+See `ido-make-buffer-list'."
+  (require 'ido)
+  (setq ivy--virtual-buffers nil)
+  (let ((ido-process-ignore-lists t)
+        ido-ignored-list)
+    (delete-dups
+     (append (ido-make-buffer-list nil)
+             (and
+              ido-use-virtual-buffers
+              (ivy--virtual-buffers))))))
+
+(defun ivy-switch-buffer ()
+  "Switch to another buffer."
+  (interactive)
+  (if (not ivy-mode)
+      (call-interactively 'switch-to-buffer)
+    (let ((bl (ivy-buffer-list)))
+      (ivy-read "Switch to buffer: " bl
+                :action
+                (lambda ()
+                  (let ((virtual (assoc ivy--current ivy--virtual-buffers)))
+                    (if virtual
+                        (find-file (cdr virtual))
+                      (switch-to-buffer
+                       ivy--current nil 'force-same-window))))))))
 
 (provide 'ivy)
 
