@@ -1063,7 +1063,7 @@ CANDIDATES are assumed to be static."
             (or (cl-position (ivy-state-preselect ivy-last)
                              cands :test 'equal)
                 ivy--index)))
-    (setq ivy--old-re re)
+    (setq ivy--old-re (if cands re ""))
     (setq ivy--old-cands cands)))
 
 (defun ivy--format (cands)
