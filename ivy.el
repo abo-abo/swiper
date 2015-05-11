@@ -294,10 +294,11 @@ When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
   (if (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
-      (progn
+      (let ((default-directory ivy--directory))
         (minibuffer-complete)
         (setq ivy-text (ivy--input))
-        (when (file-directory-p ivy-text)
+        (when (and (file-directory-p ivy-text)
+                   (= ivy--length 1))
           (ivy--cd (expand-file-name ivy-text))))
     (or (ivy-partial)
         (if (eq this-command last-command)
