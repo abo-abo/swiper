@@ -298,7 +298,7 @@ candidate."
         (minibuffer-complete)
         (setq ivy-text (ivy--input))
         (when (file-directory-p ivy-text)
-          (ivy--cd ivy-text)))
+          (ivy--cd (expand-file-name ivy-text))))
     (or (ivy-partial)
         (if (eq this-command last-command)
             (ivy-done)
