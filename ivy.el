@@ -136,7 +136,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   ;; The window in which `ivy-read' was called
   window
   action
-  unwind)
+  unwind
+  re-builder)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
@@ -338,7 +339,8 @@ candidate."
    :update-fn (ivy-state-update-fn ivy-last)
    :sort (ivy-state-sort ivy-last)
    :action (ivy-state-action ivy-last)
-   :unwind (ivy-state-unwind ivy-last)))
+   :unwind (ivy-state-unwind ivy-last)
+   :re-builder (ivy-state-re-builder ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -554,7 +556,7 @@ Directories come first."
 (cl-defun ivy-read (prompt collection
                     &key predicate require-match initial-input
                       history preselect keymap update-fn sort
-                      action unwind)
+                      action unwind re-builder)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -577,7 +579,9 @@ When SORT is t, refer to `ivy-sort-functions-alist' for sorting.
 
 ACTION is a lambda to call after a result was selected.
 
-UNWIND is a lambda to call before exiting."
+UNWIND is a lambda to call before exiting.
+
+RE-BUILDER is a lambda that transforms text into a regex."
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -592,10 +596,12 @@ UNWIND is a lambda to call before exiting."
          :sort sort
          :action action
          :window (selected-window)
-         :unwind unwind))
+         :unwind unwind
+         :re-builder re-builder))
   (setq ivy--directory nil)
   (setq ivy--regex-function
-        (or (and (functionp collection)
+        (or re-builder
+            (and (functionp collection)
                  (cdr (assoc collection ivy-re-builders-alist)))
             (cdr (assoc t ivy-re-builders-alist))
             'ivy--regex))
