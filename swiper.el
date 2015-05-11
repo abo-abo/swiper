@@ -112,7 +112,7 @@
   (with-selected-window (ivy-state-window ivy-last)
     (let* ((candidates
             (avy--regex-candidates
-             (funcall ivy--regex-function ivy-text)))
+             (ivy--regex ivy-text)))
            (avy-background nil)
            (candidate
             (avy--process candidates #'avy--overlay-post)))
@@ -195,9 +195,28 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (setq swiper--opoint (point))
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
-  (setq swiper--window (selected-window))
-  (setq ivy--regex-function
-        (cdr (assoc t ivy-re-builders-alist))))
+  (setq swiper--window (selected-window)))
+
+(defun swiper--re-builder (str)
+  "Transform STR into a swiper regex.
+This is the regex used in the minibuffer, since the candidates
+there have line numbers. In the buffer, `ivy--regex' should be used."
+  (cond
+    ((equal str "")
+     "")
+    ((equal str "^")
+     ".")
+    ((string-match "\\^" str)
+     (setq ivy--old-re "")
+     (let ((re (ivy--regex-plus (substring str 1))))
+       (format "^[0-9][0-9 ]\\{%d\\}%s"
+               swiper--width
+               (if (zerop ivy--subexps)
+                   (prog1 (format "\\(%s\\)" re)
+                     (setq ivy--subexps 1))
+                 re))))
+    (t
+     (ivy--regex-plus str))))
 
 (defun swiper--ivy (&optional initial-input)
   "`isearch' with an overview using `ivy'.
@@ -226,7 +245,8 @@ Please remove it and update the \"swiper\" package."))
                     :preselect preselect
                     :require-match t
                     :update-fn #'swiper--update-input-ivy
-                    :unwind #'swiper--cleanup))
+                    :unwind #'swiper--cleanup
+                    :re-builder #'swiper--re-builder))
       (if (null ivy-exit)
           (goto-char swiper--opoint)
         (swiper--action res ivy-text)))))
@@ -254,7 +274,7 @@ Please remove it and update the \"swiper\" package."))
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
   (swiper--cleanup)
-  (let* ((re (funcall ivy--regex-function ivy-text))
+  (let* ((re (ivy--regex ivy-text))
          (str ivy--current)
          (num (if (string-match "^[0-9]+" str)
                   (string-to-number (match-string 0 str))
@@ -319,7 +339,7 @@ BEG and END, when specified, are the point bounds."
     (goto-char (point-min))
     (forward-line (1- (read x)))
     (re-search-forward
-     (funcall ivy--regex-function input) (line-end-position) t)
+     (ivy--regex input) (line-end-position) t)
     (swiper--ensure-visible)
     (when (/= (point) swiper--opoint)
       (unless (and transient-mark-mode mark-active)
