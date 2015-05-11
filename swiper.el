@@ -139,7 +139,8 @@
                                  org-agenda-mode
                                  dired-mode
                                  jabber-chat-mode
-                                 elfeed-search-mode)))
+                                 elfeed-search-mode
+                                 fundamental-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
