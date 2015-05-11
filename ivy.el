@@ -1068,6 +1068,31 @@ CANDIDATES are assumed to be static."
     (setq ivy--old-re (if cands re ""))
     (setq ivy--old-cands cands)))
 
+(defvar ivy-format-function 'ivy-format-function-default
+  "Function to transform the list of candidates into a string.
+This string will be inserted into the minibuffer.")
+
+(defun ivy-format-function-default (cands)
+  "Transform CANDS into a string for minibuffer."
+  (let ((ww (window-width)))
+    (mapconcat
+     (lambda (s)
+       (if (> (length s) ww)
+           (concat (substring s 0 (- ww 3)) "...")
+         s))
+     cands "\n")))
+
+(defun ivy-format-function-arrow (cands)
+  "Transform CANDS into a string for minibuffer."
+  (let ((i -1))
+    (mapconcat
+     (lambda (s)
+       (concat (if (eq (cl-incf i) ivy--index)
+                   "==> "
+                 "    ")
+               s))
+     cands "\n")))
+
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
 CANDS is a list of strings."
@@ -1090,13 +1115,8 @@ CANDS is a list of strings."
       (setq ivy--current (copy-sequence (nth index cands)))
       (setf (nth index cands)
             (ivy--add-face ivy--current 'ivy-current-match))
-      (let* ((ww (window-width))
-             (res (concat "\n" (mapconcat
-                                (lambda (s)
-                                  (if (> (length s) ww)
-                                      (concat (substring s 0 (- ww 3)) "...")
-                                    s))
-                                cands "\n"))))
+      (let* ((ivy--index index)
+             (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
 
