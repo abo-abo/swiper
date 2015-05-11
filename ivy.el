@@ -293,10 +293,16 @@ When ARG is t, exit with current text, ignoring the candidates."
 When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
-  (or (ivy-partial)
-      (if (eq this-command last-command)
-	  (ivy-done)
-	(ivy-alt-done))))
+  (if (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+      (progn
+        (minibuffer-complete)
+        (setq ivy-text (ivy--input))
+        (when (file-directory-p ivy-text)
+          (ivy--cd ivy-text)))
+    (or (ivy-partial)
+        (if (eq this-command last-command)
+            (ivy-done)
+          (ivy-alt-done)))))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
@@ -685,6 +691,8 @@ RE-BUILDER is a lambda that transforms text into a regex."
              (minibuffer-with-setup-hook
                  #'ivy--minibuffer-setup
                (let* ((hist (or history 'ivy-history))
+                      (minibuffer-completion-table collection)
+                      (minibuffer-completion-predicate predicate)
                       (res (read-from-minibuffer
                             prompt
                             initial-input
