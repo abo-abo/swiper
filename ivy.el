@@ -106,6 +106,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "C-r") 'ivy-previous-line-or-history)
     (define-key map (kbd "SPC") 'self-insert-command)
     (define-key map (kbd "DEL") 'ivy-backward-delete-char)
+    (define-key map (kbd "M-DEL") 'ivy-backward-kill-word)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
     (define-key map (kbd "M->") 'ivy-end-of-buffer)
     (define-key map (kbd "<left>") 'ivy-beginning-of-buffer)
@@ -465,6 +466,19 @@ On error (read-only), call `ivy-on-del-error-function'."
       (error
        (when ivy-on-del-error-function
          (funcall ivy-on-del-error-function))))))
+
+(defun ivy-backward-kill-word ()
+  "Forward to `backward-kill-word'."
+  (interactive)
+  (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
+      (progn
+        (ivy--cd (file-name-directory
+                  (directory-file-name
+                   (expand-file-name
+                    ivy--directory))))
+        (ivy--exhibit))
+    (ignore-errors
+      (backward-kill-word 1))))
 
 (defvar ivy--regexp-quote 'regexp-quote
   "Store the regexp quoting state.")
