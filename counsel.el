@@ -222,6 +222,7 @@
                                        'counsel-git-grep-function)))
          (ivy-read "pattern: " 'counsel-git-grep-function
                    :initial-input initial-input
+                   :matcher #'counsel-git-grep-matcher
                    :action
                    (lambda ()
                      (let ((lst (split-string ivy--current ":")))
@@ -232,6 +233,21 @@
                        (swiper--cleanup)
                        (swiper--add-overlays (ivy--regex ivy-text))))))
     (swiper--cleanup)))
+
+(defun counsel-git-grep-matcher (x)
+  (when (string-match "^[^:]+:[^:]+:" x)
+    (setq x (substring x (match-end 0)))
+    (if (stringp ivy--old-re)
+      (string-match ivy--old-re x)
+    (let ((res t))
+      (dolist (re ivy--old-re)
+        (setq res
+              (and res
+                   (ignore-errors
+                     (if (cdr re)
+                         (string-match (car re) x)
+                       (not (string-match (car re) x)))))))
+      res))))
 
 (defun counsel-locate-function (str &rest _u)
   (if (< (length str) 3)

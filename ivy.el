@@ -137,7 +137,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   window
   action
   unwind
-  re-builder)
+  re-builder
+  matcher)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
@@ -348,7 +349,8 @@ candidate."
    :sort (ivy-state-sort ivy-last)
    :action (ivy-state-action ivy-last)
    :unwind (ivy-state-unwind ivy-last)
-   :re-builder (ivy-state-re-builder ivy-last)))
+   :re-builder (ivy-state-re-builder ivy-last)
+   :matcher (ivy-state-matcher ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -564,7 +566,7 @@ Directories come first."
 (cl-defun ivy-read (prompt collection
                     &key predicate require-match initial-input
                       history preselect keymap update-fn sort
-                      action unwind re-builder)
+                      action unwind re-builder matcher)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -589,7 +591,9 @@ ACTION is a lambda to call after a result was selected.
 
 UNWIND is a lambda to call before exiting.
 
-RE-BUILDER is a lambda that transforms text into a regex."
+RE-BUILDER is a lambda that transforms text into a regex.
+
+MATCHER can completely override matching."
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -605,7 +609,8 @@ RE-BUILDER is a lambda that transforms text into a regex."
          :action action
          :window (selected-window)
          :unwind unwind
-         :re-builder re-builder))
+         :re-builder re-builder
+         :matcher matcher))
   (setq ivy--directory nil)
   (setq ivy--regex-function
         (or re-builder
@@ -1015,36 +1020,41 @@ Should be run via minibuffer `post-command-hook'."
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
   (let* ((re (funcall ivy--regex-function name))
-         (cands (cond ((and (equal re ivy--old-re)
-                            ivy--old-cands)
-                       ivy--old-cands)
-                      ((and ivy--old-re
-                            (stringp re)
-                            (stringp ivy--old-re)
-                            (not (string-match "\\\\" ivy--old-re))
-                            (not (equal ivy--old-re ""))
-                            (memq (cl-search
-                                   (if (string-match "\\\\)$" ivy--old-re)
-                                       (substring ivy--old-re 0 -2)
-                                     ivy--old-re)
-                                   re) '(0 2)))
-                       (ignore-errors
-                         (cl-remove-if-not
-                          (lambda (x) (string-match re x))
-                          ivy--old-cands)))
-                      (t
-                       (let ((re-list (if (stringp re) (list (cons re t)) re))
-                             (res candidates))
-                         (dolist (re re-list)
-                           (setq res
-                                 (ignore-errors
-                                   (funcall
-                                    (if (cdr re)
-                                        #'cl-remove-if-not
-                                      #'cl-remove-if)
-                                    `(lambda (x) (string-match ,(car re) x))
-                                    res))))
-                         res))))
+         (matcher (ivy-state-matcher ivy-last))
+         (cands (cond
+                  (matcher
+                   (let ((ivy--old-re re))
+                     (cl-remove-if-not matcher candidates)))
+                  ((and (equal re ivy--old-re)
+                        ivy--old-cands)
+                   ivy--old-cands)
+                  ((and ivy--old-re
+                        (stringp re)
+                        (stringp ivy--old-re)
+                        (not (string-match "\\\\" ivy--old-re))
+                        (not (equal ivy--old-re ""))
+                        (memq (cl-search
+                               (if (string-match "\\\\)$" ivy--old-re)
+                                   (substring ivy--old-re 0 -2)
+                                 ivy--old-re)
+                               re) '(0 2)))
+                   (ignore-errors
+                     (cl-remove-if-not
+                      (lambda (x) (string-match re x))
+                      ivy--old-cands)))
+                  (t
+                   (let ((re-list (if (stringp re) (list (cons re t)) re))
+                         (res candidates))
+                     (dolist (re re-list)
+                       (setq res
+                             (ignore-errors
+                               (funcall
+                                (if (cdr re)
+                                    #'cl-remove-if-not
+                                  #'cl-remove-if)
+                                `(lambda (x) (string-match ,(car re) x))
+                                res))))
+                     res))))
          (tail (nthcdr ivy--index ivy--old-cands))
          idx)
     (when (and tail ivy--old-cands)
