@@ -293,7 +293,8 @@ When ARG is t, exit with current text, ignoring the candidates."
 When called twice in a row, exit the minibuffer with the current
 candidate."
   (interactive)
-  (if (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+  (if (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+           (string-match "^/" ivy-text))
       (let ((default-directory ivy--directory))
         (minibuffer-complete)
         (setq ivy-text (ivy--input))
