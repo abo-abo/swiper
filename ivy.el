@@ -1207,7 +1207,8 @@ When VIRTUAL is non-nil, add virtual buffers."
   (if (not ivy-mode)
       (call-interactively 'switch-to-buffer)
     (ivy-read "Switch to buffer: " 'internal-complete-buffer
-              :action #'ivy--switch-buffer-action)))
+              :action #'ivy--switch-buffer-action
+              :preselect (buffer-name (other-buffer (current-buffer))))))
 
 (provide 'ivy)
 
