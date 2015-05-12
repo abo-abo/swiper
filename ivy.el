@@ -138,7 +138,9 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   action
   unwind
   re-builder
-  matcher)
+  matcher
+  ;; When this is non-nil, call it for each input change to get new candidates
+  dynamic-collection)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.")
@@ -350,7 +352,8 @@ candidate."
    :action (ivy-state-action ivy-last)
    :unwind (ivy-state-unwind ivy-last)
    :re-builder (ivy-state-re-builder ivy-last)
-   :matcher (ivy-state-matcher ivy-last)))
+   :matcher (ivy-state-matcher ivy-last)
+   :dynamic-collection (ivy-state-dynamic-collection ivy-last)))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -566,7 +569,7 @@ Directories come first."
 (cl-defun ivy-read (prompt collection
                     &key predicate require-match initial-input
                       history preselect keymap update-fn sort
-                      action unwind re-builder matcher)
+                      action unwind re-builder matcher dynamic-collection)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -593,7 +596,10 @@ UNWIND is a lambda to call before exiting.
 
 RE-BUILDER is a lambda that transforms text into a regex.
 
-MATCHER can completely override matching."
+MATCHER can completely override matching.
+
+DYNAMIC-COLLECTION is a function to call to update the list of
+candidates with each input."
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -610,7 +616,8 @@ MATCHER can completely override matching."
          :window (selected-window)
          :unwind unwind
          :re-builder re-builder
-         :matcher matcher))
+         :matcher matcher
+         :dynamic-collection dynamic-collection))
   (setq ivy--directory nil)
   (setq ivy--regex-function
         (or re-builder
@@ -889,11 +896,8 @@ Everything after \"!\" should not match."
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
-(defvar ivy--dynamic-function nil
-  "When this is non-nil, call it for each input change to get new candidates.")
-
 (defvar ivy--full-length nil
-  "When `ivy--dynamic-function' is non-nil, this can be the total amount of candidates.")
+  "When :dynamic-collection is non-nil, this can be the total amount of candidates.")
 
 (defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
@@ -921,7 +925,7 @@ Everything after \"!\" should not match."
                       (if ivy--directory
                           (abbreviate-file-name ivy--directory)
                         ""))
-              (or (and ivy--dynamic-function
+              (or (and (ivy-state-dynamic-collection ivy-last)
                        ivy--full-length)
                   ivy--length))))
         (save-excursion
@@ -953,14 +957,14 @@ Everything after \"!\" should not match."
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
   (setq ivy-text (ivy--input))
-  (if ivy--dynamic-function
+  (if (ivy-state-dynamic-collection ivy-last)
       ;; while-no-input would cause annoying
       ;; "Waiting for process to die...done" message interruptions
       (let ((inhibit-message t))
         (while-no-input
           (unless (equal ivy--old-text ivy-text)
-            (let ((store ivy--dynamic-function)
-                  (ivy--dynamic-function nil))
+            (cl-letf ((store (ivy-state-dynamic-collection ivy-last))
+                      ((ivy-state-dynamic-collection ivy-last) nil))
               (setq ivy--all-candidates (funcall store ivy-text))))
           (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
     (cond (ivy--directory

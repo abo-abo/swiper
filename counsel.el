@@ -214,25 +214,25 @@
 (defun counsel-git-grep (&optional initial-input)
   "Grep for a string in the current git repository."
   (interactive)
-  (unwind-protect
-       (let* ((counsel--git-grep-dir (locate-dominating-file
-                                      default-directory ".git"))
-              (counsel--git-grep-count (counsel-git-grep-count ""))
-              (ivy--dynamic-function (when (> counsel--git-grep-count 20000)
-                                       'counsel-git-grep-function)))
-         (ivy-read "pattern: " 'counsel-git-grep-function
-                   :initial-input initial-input
-                   :matcher #'counsel-git-grep-matcher
-                   :action
-                   (lambda ()
-                     (let ((lst (split-string ivy--current ":")))
-                       (find-file (expand-file-name (car lst) counsel--git-grep-dir))
-                       (goto-char (point-min))
-                       (forward-line (1- (string-to-number (cadr lst))))
-                       (setq swiper--window (selected-window))
-                       (swiper--cleanup)
-                       (swiper--add-overlays (ivy--regex ivy-text))))))
-    (swiper--cleanup)))
+  (setq counsel--git-grep-dir
+        (locate-dominating-file default-directory ".git"))
+  (setq counsel--git-grep-count (counsel-git-grep-count ""))
+  (ivy-read "pattern: " 'counsel-git-grep-function
+            :initial-input initial-input
+            :matcher #'counsel-git-grep-matcher
+            :dynamic-collection (when (> counsel--git-grep-count 20000)
+                                  'counsel-git-grep-function)
+            :action
+            (lambda ()
+              (let ((lst (split-string ivy--current ":")))
+                (find-file (expand-file-name (car lst) counsel--git-grep-dir))
+                (goto-char (point-min))
+                (forward-line (1- (string-to-number (cadr lst))))
+                (unless (eq ivy-exit 'done)
+                  (setq swiper--window (selected-window))
+                  (swiper--cleanup)
+                  (swiper--add-overlays (ivy--regex ivy-text)))))
+            :unwind #'swiper--cleanup))
 
 (defun counsel-git-grep-matcher (x)
   (when (string-match "^[^:]+:[^:]+:" x)
