@@ -636,16 +636,7 @@ RE-BUILDER is a lambda that transforms text into a regex."
                (setq coll (cons initial-input coll)))
              (setq initial-input nil)))
           ((eq collection 'internal-complete-buffer)
-           (setq coll
-                 (ivy-add-virtual-buffers
-                  (mapcar
-                   (lambda (x)
-                     (if (with-current-buffer x
-                           (file-remote-p
-                            (abbreviate-file-name default-directory)))
-                         (propertize x 'face 'ivy-remote)
-                       x))
-                   (all-completions "" collection predicate)))))
+           (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers)))
           ((or (functionp collection)
                (vectorp collection)
                (listp (car collection)))
@@ -980,13 +971,11 @@ Should be run via minibuffer `post-command-hook'."
                      (and (string-match "^ " ivy--old-text)
                           (not (string-match "^ " ivy-text))))
              (setq ivy--all-candidates
-                   (all-completions
-                    (if (and (> (length ivy-text) 0)
-                             (eq (aref ivy-text 0)
-                                 ?\ ))
-                        " "
-                      "")
-                    'internal-complete-buffer))
+                   (if (and (> (length ivy-text) 0)
+                            (eq (aref ivy-text 0)
+                                ?\ ))
+                       (ivy--buffer-list " ")
+                     (ivy--buffer-list "" ivy-use-virtual-buffers)))
              (setq ivy--old-re nil))))
     (ivy--insert-minibuffer
      (ivy--format
@@ -1168,12 +1157,20 @@ CANDS is a list of strings."
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
-(defun ivy-add-virtual-buffers (buffer-list)
-  "Add virtual buffers to BUFFER-LIST."
+(defun ivy--buffer-list (str &optional virtual)
+  "Return the buffers that match STR.
+When VIRTUAL is non-nil, add virtual buffers."
   (delete-dups
    (append
-    buffer-list
-    (and ivy-use-virtual-buffers
+    (mapcar
+     (lambda (x)
+       (if (with-current-buffer x
+             (file-remote-p
+              (abbreviate-file-name default-directory)))
+           (propertize x 'face 'ivy-remote)
+         x))
+     (all-completions str 'internal-complete-buffer))
+    (and virtual
          (ivy--virtual-buffers)))))
 
 (defun ivy--switch-buffer-action ()
