@@ -675,6 +675,8 @@ candidates with each input."
                               coll))
         (setq coll (cons preselect coll))))
     (setq ivy--index (or
+                      (and dynamic-collection
+                           ivy--index)
                       (and preselect
                            (ivy--preselect-index
                             coll initial-input preselect))
