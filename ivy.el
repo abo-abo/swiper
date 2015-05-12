@@ -637,13 +637,15 @@ RE-BUILDER is a lambda that transforms text into a regex."
              (setq initial-input nil)))
           ((eq collection 'internal-complete-buffer)
            (setq coll
-                 (mapcar (lambda (x)
-                           (if (with-current-buffer x
-                                 (file-remote-p
-                                  (abbreviate-file-name default-directory)))
-                               (propertize x 'face 'ivy-remote)
-                             x))
-                         (all-completions "" collection predicate))))
+                 (ivy-add-virtual-buffers
+                  (mapcar
+                   (lambda (x)
+                     (if (with-current-buffer x
+                           (file-remote-p
+                            (abbreviate-file-name default-directory)))
+                         (propertize x 'face 'ivy-remote)
+                       x))
+                   (all-completions "" collection predicate)))))
           ((or (functionp collection)
                (vectorp collection)
                (listp (car collection)))
@@ -1134,9 +1136,6 @@ CANDS is a list of strings."
 
 (defvar recentf-list)
 (defvar ido-use-faces)
-(defvar ido-process-ignore-lists)
-(defvar ido-ignored-list)
-(declare-function ido-make-buffer-list "ido")
 
 (defun ivy--virtual-buffers ()
   "Adapted from `ido-add-virtual-buffers-to-list'."
@@ -1169,33 +1168,32 @@ CANDS is a list of strings."
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
-(defun ivy-buffer-list ()
-  "Return the current list of buffers.
-See `ido-make-buffer-list'."
-  (require 'ido)
-  (setq ivy--virtual-buffers nil)
-  (let ((ido-process-ignore-lists t)
-        ido-ignored-list)
-    (delete-dups
-     (append (ido-make-buffer-list nil)
-             (and
-              ivy-use-virtual-buffers
-              (ivy--virtual-buffers))))))
+(defun ivy-add-virtual-buffers (buffer-list)
+  "Add virtual buffers to BUFFER-LIST."
+  (delete-dups
+   (append
+    buffer-list
+    (and ivy-use-virtual-buffers
+         (ivy--virtual-buffers)))))
+
+(defun ivy--switch-buffer-action ()
+  "Finalizer for `ivy-switch-buffer'."
+  (if (zerop (length ivy--current))
+      (switch-to-buffer
+       ivy-text nil 'force-same-window)
+    (let ((virtual (assoc ivy--current ivy--virtual-buffers)))
+      (if virtual
+          (find-file (cdr virtual))
+        (switch-to-buffer
+         ivy--current nil 'force-same-window)))))
 
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
   (if (not ivy-mode)
       (call-interactively 'switch-to-buffer)
-    (let ((bl (ivy-buffer-list)))
-      (ivy-read "Switch to buffer: " bl
-                :action
-                (lambda ()
-                  (let ((virtual (assoc ivy--current ivy--virtual-buffers)))
-                    (if virtual
-                        (find-file (cdr virtual))
-                      (switch-to-buffer
-                       ivy--current nil 'force-same-window))))))))
+    (ivy-read "Switch to buffer: " 'internal-complete-buffer
+              :action #'ivy--switch-buffer-action)))
 
 (provide 'ivy)
 
