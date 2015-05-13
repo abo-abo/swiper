@@ -305,7 +305,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                    (= ivy--length 1))
           (ivy--cd (expand-file-name ivy-text))))
     (or (ivy-partial)
-        (ivy-alt-done))))
+        (when (or (eq this-command last-command)
+                  (eq ivy--length 1))
+          (ivy-alt-done)))))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
