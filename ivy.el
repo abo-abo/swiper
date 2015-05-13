@@ -306,9 +306,7 @@ candidate."
                    (= ivy--length 1))
           (ivy--cd (expand-file-name ivy-text))))
     (or (ivy-partial)
-        (if (eq this-command last-command)
-            (ivy-done)
-          (ivy-alt-done)))))
+        (ivy-alt-done))))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
