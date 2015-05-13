@@ -292,11 +292,7 @@ When ARG is t, exit with current text, ignoring the candidates."
   "When non-nil, `ivy-partial-or-done' should insert a space."
   :type 'boolean)
 
-(defun ivy-partial-or-done ()
-  "Complete the minibuffer text as much as possible.
-When called twice in a row, exit the minibuffer with the current
-candidate."
-  (interactive)
+(defun ivy-partial-or-funcall (fn)
   (if (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
            (string-match "^/" ivy-text))
       (let ((default-directory ivy--directory))
@@ -306,9 +302,24 @@ candidate."
                    (= ivy--length 1))
           (ivy--cd (expand-file-name ivy-text))))
     (or (ivy-partial)
-        (if (eq this-command last-command)
-            (ivy-done)
-          (ivy-alt-done)))))
+        (funcall fn))))
+
+(defun ivy-partial-or-done ()
+  "Complete the minibuffer text as much as possible.
+When called twice in a row, exit the minibuffer with the current
+candidate."
+  (interactive)
+  (ivy-partial-or-funcall
+   (lambda ()
+     (if (eq this-command last-command)
+	 (ivy-done)
+       (ivy-alt-done)))))
+
+(defun ivy-partial-or-alt-done ()
+  "Complete the minibuffer text as much as possible.
+When the text cannot be completed any further, call `ivy-alt-done'."
+  (interactive)
+  (ivy-partial-or-funcall #'ivy-alt-done))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
