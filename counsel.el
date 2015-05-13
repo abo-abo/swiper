@@ -211,6 +211,27 @@
         (setq ivy--full-length (counsel-git-grep-count ivy-text)))
       (split-string res "\n" t))))
 
+(defvar counsel-git-grep-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-l") 'counsel-git-grep-recenter)
+    map))
+
+(defun counsel-git-grep-recenter ()
+  (interactive)
+  (with-selected-window (ivy-state-window ivy-last)
+    (counsel-git-grep-action)
+    (recenter-top-bottom)))
+
+(defun counsel-git-grep-action ()
+  (let ((lst (split-string ivy--current ":")))
+    (find-file (expand-file-name (car lst) counsel--git-grep-dir))
+    (goto-char (point-min))
+    (forward-line (1- (string-to-number (cadr lst))))
+    (unless (eq ivy-exit 'done)
+      (setq swiper--window (selected-window))
+      (swiper--cleanup)
+      (swiper--add-overlays (ivy--regex ivy-text)))))
+
 (defun counsel-git-grep (&optional initial-input)
   "Grep for a string in the current git repository."
   (interactive)
@@ -222,32 +243,24 @@
             :matcher #'counsel-git-grep-matcher
             :dynamic-collection (when (> counsel--git-grep-count 20000)
                                   'counsel-git-grep-function)
-            :action
-            (lambda ()
-              (let ((lst (split-string ivy--current ":")))
-                (find-file (expand-file-name (car lst) counsel--git-grep-dir))
-                (goto-char (point-min))
-                (forward-line (1- (string-to-number (cadr lst))))
-                (unless (eq ivy-exit 'done)
-                  (setq swiper--window (selected-window))
-                  (swiper--cleanup)
-                  (swiper--add-overlays (ivy--regex ivy-text)))))
+            :keymap counsel-git-grep-map
+            :action #'counsel-git-grep-action
             :unwind #'swiper--cleanup))
 
 (defun counsel-git-grep-matcher (x)
   (when (string-match "^[^:]+:[^:]+:" x)
     (setq x (substring x (match-end 0)))
     (if (stringp ivy--old-re)
-      (string-match ivy--old-re x)
-    (let ((res t))
-      (dolist (re ivy--old-re)
-        (setq res
-              (and res
-                   (ignore-errors
-                     (if (cdr re)
-                         (string-match (car re) x)
-                       (not (string-match (car re) x)))))))
-      res))))
+        (string-match ivy--old-re x)
+      (let ((res t))
+        (dolist (re ivy--old-re)
+          (setq res
+                (and res
+                     (ignore-errors
+                       (if (cdr re)
+                           (string-match (car re) x)
+                         (not (string-match (car re) x)))))))
+        res))))
 
 (defun counsel-locate-function (str &rest _u)
   (if (< (length str) 3)
