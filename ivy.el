@@ -294,8 +294,7 @@ When ARG is t, exit with current text, ignoring the candidates."
 
 (defun ivy-partial-or-done ()
   "Complete the minibuffer text as much as possible.
-When called twice in a row, exit the minibuffer with the current
-candidate."
+If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (if (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
            (string-match "^/" ivy-text))
