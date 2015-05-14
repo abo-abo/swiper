@@ -801,17 +801,29 @@ Minibuffer bindings:
 The remaining spaces stick to their left.
 This allows to \"quote\" N spaces by inputting N+1 spaces."
   (let ((len (length str))
-        (start 0)
+        start0
+        (start1 0)
         res s)
-    (while (and (string-match " +" str start)
-                (< start len))
-      (setq s (substring str start (1- (match-end 0))))
+    (while (and (string-match " +" str start1)
+                (< start1 len))
+      (setq match-len (- (match-end 0) (match-beginning 0)))
+      (if (= match-len 1)
+          (progn
+            (when start0
+              (setq start1 start0)
+              (setq start0 nil))
+            (push (substring str start1 (match-beginning 0)) res)
+            (setq start1 (match-end 0)))
+        (setq str (replace-match
+                   (make-string (1- match-len) ?\ )
+                   nil nil str))
+        (setq start0 (or start0 start1))
+        (setq start1 (1- (match-end 0)))))
+    (if start0
+        (push (substring str start0) res)
+      (setq s (substring str start1))
       (unless (= (length s) 0)
-        (push s res))
-      (setq start (match-end 0)))
-    (setq s (substring str start))
-    (unless (= (length s) 0)
-      (push s res))
+        (push s res)))
     (nreverse res)))
 
 (defun ivy--regex (str &optional greedy)

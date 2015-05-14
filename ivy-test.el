@@ -69,3 +69,15 @@
                    "^[0-9][0-9 ]\\{4\\}\\(a\\)"))
   (should (string= (swiper--re-builder "^a b")
                    "^[0-9][0-9 ]\\{4\\}\\(a\\).*?\\(b\\)")))
+
+(ert-deftest ivy--split ()
+  (should (equal (ivy--split "King of the who?")
+                 '("King" "of" "the" "who?")))
+  (should (equal (ivy--split "The  Brittons.")
+                 '("The Brittons.")))
+  (should (equal (ivy--split "Who  are the  Brittons?")
+                 '("Who are" "the Brittons?")))
+  (should (equal (ivy--split "We're  all  Britons and   I   am your   king.")
+                 '("We're all Britons"
+                  "and  I  am"
+                   "your  king."))))
