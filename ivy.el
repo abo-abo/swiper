@@ -784,7 +784,7 @@ Minibuffer bindings:
   (or (cl-position preselect candidates :test 'equal)
       (cl-position-if
        (lambda (x)
-         (string-match preselect x))
+         (string-match (regexp-quote preselect) x))
        candidates)))
 
 ;;* Implementation
