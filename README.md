@@ -15,6 +15,18 @@ The package uses the `ivy` back end for the overview, see also
 
 There's also a ten minute [video demo](https://www.youtube.com/watch?v=VvnJQpTFVDc).
 
+## Installation
+
+You can install the package from MELPA / GNU ELPA.
+Here is some minimal configuration:
+
+```elisp
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(global-set-key "\C-s" 'swiper)
+(global-set-key "\C-r" 'swiper)
+```
+
 ## Issues
 
 Recently, the `ivy` package that provided `ivy.el` was removed from MELPA.  Now, the `swiper` package provides `ivy.el`. You should remove the outdated `ivy` package from your system.
