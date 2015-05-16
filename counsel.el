@@ -237,15 +237,17 @@
   (interactive)
   (setq counsel--git-grep-dir
         (locate-dominating-file default-directory ".git"))
-  (setq counsel--git-grep-count (counsel-git-grep-count ""))
-  (ivy-read "pattern: " 'counsel-git-grep-function
-            :initial-input initial-input
-            :matcher #'counsel-git-grep-matcher
-            :dynamic-collection (when (> counsel--git-grep-count 20000)
-                                  'counsel-git-grep-function)
-            :keymap counsel-git-grep-map
-            :action #'counsel-git-grep-action
-            :unwind #'swiper--cleanup))
+  (if (null counsel--git-grep-dir)
+      (error "Not in a git repository")
+    (setq counsel--git-grep-count (counsel-git-grep-count ""))
+    (ivy-read "pattern: " 'counsel-git-grep-function
+              :initial-input initial-input
+              :matcher #'counsel-git-grep-matcher
+              :dynamic-collection (when (> counsel--git-grep-count 20000)
+                                    'counsel-git-grep-function)
+              :keymap counsel-git-grep-map
+              :action #'counsel-git-grep-action
+              :unwind #'swiper--cleanup)))
 
 (defun counsel-git-grep-matcher (x)
   (when (string-match "^[^:]+:[^:]+:" x)
