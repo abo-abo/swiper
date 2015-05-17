@@ -108,6 +108,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "DEL") 'ivy-backward-delete-char)
     (define-key map (kbd "M-DEL") 'ivy-backward-kill-word)
     (define-key map (kbd "C-d") 'ivy-delete-char)
+    (define-key map (kbd "C-f") 'ivy-forward-char)
     (define-key map (kbd "M-d") 'ivy-kill-word)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
     (define-key map (kbd "M->") 'ivy-end-of-buffer)
@@ -488,6 +489,12 @@ On error (read-only), call `ivy-on-del-error-function'."
   (interactive "p")
   (unless (= (point) (line-end-position))
     (delete-char arg)))
+
+(defun ivy-forward-char (arg)
+  "Forward to `forward-char' ARG."
+  (interactive "p")
+  (unless (= (point) (line-end-position))
+    (forward-char arg)))
 
 (defun ivy-kill-word (arg)
   "Forward to `kill-word' ARG."
