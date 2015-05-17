@@ -416,20 +416,24 @@ If the input is empty, select the previous history element instead."
   (ivy-previous-line arg))
 
 (defun ivy-next-line-and-call (&optional arg)
-  "Move cursor vertically down ARG candidates."
+  "Move cursor vertically down ARG candidates.
+Call the permanent action if possible."
   (interactive "p")
   (ivy-next-line arg)
   (ivy--exhibit)
-  (with-selected-window (ivy-state-window ivy-last)
-    (funcall (ivy-state-action ivy-last))))
+  (when (ivy-state-action ivy-last)
+    (with-selected-window (ivy-state-window ivy-last)
+      (funcall (ivy-state-action ivy-last)))))
 
 (defun ivy-previous-line-and-call (&optional arg)
-  "Move cursor vertically down ARG candidates."
+  "Move cursor vertically down ARG candidates.
+Call the permanent action if possible."
   (interactive "p")
   (ivy-previous-line arg)
   (ivy--exhibit)
-  (with-selected-window (ivy-state-window ivy-last)
-    (funcall (ivy-state-action ivy-last))))
+  (when (ivy-state-action ivy-last)
+    (with-selected-window (ivy-state-window ivy-last)
+      (funcall (ivy-state-action ivy-last)))))
 
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
