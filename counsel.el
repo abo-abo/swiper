@@ -137,7 +137,8 @@
             (enable-recursive-minibuffers t)
             (value (ivy-read
                     "Describe symbol: "
-                    (mapcar #'car completions))))
+                    (mapcar #'car completions)
+                    :sort t)))
        (list value info-lookup-mode))))
   (info-lookup 'symbol symbol mode))
 
