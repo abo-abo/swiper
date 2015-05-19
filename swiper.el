@@ -83,6 +83,9 @@
     map)
   "Keymap for swiper.")
 
+(defvar swiper--window nil
+  "Store the current window.")
+
 (defun swiper-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
@@ -118,9 +121,6 @@
             (avy--process candidates #'avy--overlay-post)))
       (ivy-quit-and-run
        (avy--goto candidate)))))
-
-(defvar swiper--window nil
-  "Store the current window.")
 
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG) in `swiper--window'."

@@ -198,6 +198,15 @@ When non-nil, it should contain one %d.")
 (defvar ivy--regex-function 'ivy--regex
   "Current function for building a regex.")
 
+(defvar ivy--subexps 0
+  "Number of groups in the current `ivy--regex'.")
+
+(defvar ivy--full-length nil
+  "When :dynamic-collection is non-nil, this can be the total amount of candidates.")
+
+(defvar ivy--old-text ""
+  "Store old `ivy-text' for dynamic completion.")
+
 (defvar Info-current-file)
 
 (defmacro ivy-quit-and-run (&rest body)
@@ -807,9 +816,6 @@ Minibuffer bindings:
 
 ;;* Implementation
 ;;** Regex
-(defvar ivy--subexps 0
-  "Number of groups in the current `ivy--regex'.")
-
 (defvar ivy--regex-hash
   (make-hash-table :test 'equal)
   "Store pre-computed regex.")
@@ -821,7 +827,8 @@ This allows to \"quote\" N spaces by inputting N+1 spaces."
   (let ((len (length str))
         start0
         (start1 0)
-        res s)
+        res s
+        match-len)
     (while (and (string-match " +" str start1)
                 (< start1 len))
       (setq match-len (- (match-end 0) (match-beginning 0)))
@@ -934,17 +941,11 @@ Everything after \"!\" should not match."
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
-(defvar ivy--full-length nil
-  "When :dynamic-collection is non-nil, this can be the total amount of candidates.")
-
-(defvar ivy--old-text ""
-  "Store old `ivy-text' for dynamic completion.")
-
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
     (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
-                                 counsel-find-symbol))
+                                          counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
       (if (string-match "\\(.*\\): $" ivy--prompt)
@@ -1045,6 +1046,8 @@ Should be run via minibuffer `post-command-hook'."
       (save-excursion
         (forward-line 1)
         (insert text)))))
+
+(declare-function colir-blend-face-background "ext:colir")
 
 (defun ivy--add-face (str face)
   "Propertize STR with FACE.
