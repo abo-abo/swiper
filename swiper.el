@@ -207,7 +207,7 @@ there have line numbers. In the buffer, `ivy--regex' should be used."
      "")
     ((equal str "^")
      ".")
-    ((string-match "\\^" str)
+    ((string-match "^\\^" str)
      (setq ivy--old-re "")
      (let ((re (ivy--regex-plus (substring str 1))))
        (format "^[0-9][0-9 ]\\{%d\\}%s"
