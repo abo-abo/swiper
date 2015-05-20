@@ -167,16 +167,15 @@
 (defun counsel-git ()
   "Find file in the current Git repository."
   (interactive)
-  (let* ((default-directory (locate-dominating-file
-                             default-directory ".git"))
-         (cands (split-string
-                 (shell-command-to-string
-                  "git ls-files --full-name --")
-                 "\n"
-                 t))
-         (file (ivy-read "Find file: " cands)))
-    (when file
-      (find-file file))))
+  (ivy-read "Find file: "
+            (let ((default-directory (locate-dominating-file
+                                      default-directory ".git")))
+              (split-string
+               (shell-command-to-string
+                "git ls-files --full-name --")
+               "\n"
+               t))
+            :action (lambda () (find-file ivy--current))))
 
 (defvar counsel--git-grep-dir nil
   "Store the base git directory.")
