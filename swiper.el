@@ -95,7 +95,7 @@
            (from (ivy--regex ivy-text))
            (to (query-replace-read-to from "Query replace" t)))
       (delete-minibuffer-contents)
-      (ivy-set-action (lambda ()
+      (ivy-set-action (lambda (_)
                         (with-selected-window swiper--window
                           (perform-replace from to
                                            t t nil))))
