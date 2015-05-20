@@ -342,7 +342,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   "Exit the minibuffer with the current input."
   (interactive)
   (delete-minibuffer-contents)
-  (insert ivy-text)
+  (insert (setq ivy--current ivy-text))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
