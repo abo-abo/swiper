@@ -773,7 +773,9 @@ The history, defaults and input-method arguments are ignored for now."
   (ivy-read prompt collection
             :predicate predicate
             :require-match require-match
-            :initial-input initial-input
+            :initial-input (if (consp initial-input)
+                               (car initial-input)
+                             initial-input)
             :preselect (if (listp def) (car def) def)
             :history history
             :keymap nil
