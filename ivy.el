@@ -280,7 +280,7 @@ When ARG is t, exit with current text, ignoring the candidates."
                                 ivy--current ivy--directory))))))
              (ivy--cd dir)
              (ivy--exhibit))
-            ((string-match "^/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text)
+            ((string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text)
              (let ((method (match-string 1 ivy-text))
                    (user (match-string 2 ivy-text))
                    res)
@@ -290,7 +290,7 @@ When ARG is t, exit with current text, ignoring the candidates."
                (when user
                  (dolist (x res)
                    (setcar x user)))
-               (setq res (cl-delete-duplicates res :test 'equal))
+               (setq res (cl-delete-duplicates res :test #'equal))
                (let ((host (ivy-read "Find File: "
                                      (mapcar #'ivy-build-tramp-name res))))
                  (when host
@@ -307,8 +307,8 @@ When ARG is t, exit with current text, ignoring the candidates."
   "Complete the minibuffer text as much as possible.
 If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
-  (if (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
-           (string-match "^/" ivy-text))
+  (if (and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
+           (string-match "\\`/" ivy-text))
       (let ((default-directory ivy--directory))
         (minibuffer-complete)
         (setq ivy-text (ivy--input))
@@ -588,9 +588,9 @@ Directories come first."
       (setq seq (delete "./" (delete "../" seq)))
       (when (eq (setq sort-fn (cdr (assoc 'read-file-name-internal
                                           ivy-sort-functions-alist)))
-                'ivy-sort-file-function-default)
+                #'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
-                            (propertize x 'dirp (string-match-p "/$" x)))
+                            (propertize x 'dirp (string-match-p "/\\'" x)))
                           seq)))
       (when sort-fn
         (setq seq (cl-sort seq sort-fn)))
@@ -669,7 +669,7 @@ candidates with each input."
                      (mapcar (lambda (x) (format "(%s)" x))
                              (cl-delete-duplicates
                               (all-completions "(" collection predicate)
-                              :test 'equal)))
+                              :test #'equal)))
              (setq coll (all-completions "" collection predicate))))
           ((eq collection 'read-file-name-internal)
            (setq ivy--directory default-directory)
@@ -703,9 +703,9 @@ candidates with each input."
               (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
     (when preselect
       (unless (or require-match
-                  (cl-find-if `(lambda (x)
-                                 (string-match ,(format "^%s" preselect) x))
-                              coll))
+                  (let ((re (format "\\`%s" preselect)))
+                    (cl-find-if (lambda (x) (string-match re x))
+                                coll)))
         (setq coll (cons preselect coll))))
     (setq ivy--index (or
                       (and dynamic-collection
@@ -808,7 +808,7 @@ Minibuffer bindings:
            (lambda (x)
              (string-match initial-input x))
            candidates)))
-  (or (cl-position preselect candidates :test 'equal)
+  (or (cl-position preselect candidates :test #'equal)
       (cl-position-if
        (lambda (x)
          (string-match (regexp-quote preselect) x))
@@ -817,7 +817,7 @@ Minibuffer bindings:
 ;;* Implementation
 ;;** Regex
 (defvar ivy--regex-hash
-  (make-hash-table :test 'equal)
+  (make-hash-table :test #'equal)
   "Store pre-computed regex.")
 
 (defun ivy--split (str)
@@ -869,7 +869,7 @@ When GREEDY is non-nil, join words in a greedy way."
                          (setq ivy--subexps (length subs))
                          (mapconcat
                           (lambda (x)
-                            (if (string-match "^\\\\(.*\\\\)$" x)
+                            (if (string-match "\\`\\\\(.*\\\\)\\'" x)
                                 x
                               (format "\\(%s\\)" x)))
                           subs
@@ -892,7 +892,7 @@ Ignore the order of each group."
        (let ((all (mapconcat #'identity subs "\\|")))
          (mapconcat
           (lambda (x)
-            (if (string-match "^\\\\(.*\\\\)$" x)
+            (if (string-match "\\`\\\\(.*\\\\)\\'" x)
                 x
               (format "\\(%s\\)" x)))
           (make-list len all)
@@ -948,7 +948,7 @@ Everything after \"!\" should not match."
                                           counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
-      (if (string-match "\\(.*\\): $" ivy--prompt)
+      (if (string-match "\\(.*\\): \\'" ivy--prompt)
           (progn
             (setq head (match-string 1 ivy--prompt))
             (setq tail ": "))
@@ -1007,18 +1007,18 @@ Should be run via minibuffer `post-command-hook'."
               (setq ivy--all-candidates (funcall store ivy-text))))
           (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
     (cond (ivy--directory
-           (if (string-match "/$" ivy-text)
+           (if (string-match "/\\'" ivy-text)
                (if (member ivy-text ivy--all-candidates)
                    (ivy--cd (expand-file-name ivy-text ivy--directory))
-                 (when (string-match "//$" ivy-text)
+                 (when (string-match "//\\'" ivy-text)
                    (ivy--cd "/")))
-             (if (string-match "~$" ivy-text)
+             (if (string-match "~\\'" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
           ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
-           (when (or (and (string-match "^ " ivy-text)
-                          (not (string-match "^ " ivy--old-text)))
-                     (and (string-match "^ " ivy--old-text)
-                          (not (string-match "^ " ivy-text))))
+           (when (or (and (string-match "\\` " ivy-text)
+                          (not (string-match "\\` " ivy--old-text)))
+                     (and (string-match "\\` " ivy--old-text)
+                          (not (string-match "\\` " ivy-text))))
              (setq ivy--all-candidates
                    (if (and (> (length ivy-text) 0)
                             (eq (aref ivy-text 0)
@@ -1079,10 +1079,11 @@ CANDIDATES are assumed to be static."
                         (not (string-match "\\\\" ivy--old-re))
                         (not (equal ivy--old-re ""))
                         (memq (cl-search
-                               (if (string-match "\\\\)$" ivy--old-re)
+                               (if (string-match "\\\\)\\'" ivy--old-re)
                                    (substring ivy--old-re 0 -2)
                                  ivy--old-re)
-                               re) '(0 2)))
+                               re)
+                              '(0 2)))
                    (ignore-errors
                      (cl-remove-if-not
                       (lambda (x) (string-match re x))
@@ -1097,7 +1098,8 @@ CANDIDATES are assumed to be static."
                                 (if (cdr re)
                                     #'cl-remove-if-not
                                   #'cl-remove-if)
-                                `(lambda (x) (string-match ,(car re) x))
+                                (let ((re (car re)))
+                                  (lambda (x) (string-match re x)))
                                 res))))
                      res))))
          (tail (nthcdr ivy--index ivy--old-cands))
@@ -1107,11 +1109,11 @@ CANDIDATES are assumed to be static."
                    (or (setq ivy--index
                              (or
                               (cl-position re cands
-                                           :test 'equal)
+                                           :test #'equal)
                               (and ivy--directory
                                    (cl-position
                                     (concat re "/") cands
-                                    :test 'equal))))))
+                                    :test #'equal))))))
         (while (and tail (null idx))
           ;; Compare with eq to handle equal duplicates in cands
           (setq idx (cl-position (pop tail) cands)))
@@ -1119,7 +1121,7 @@ CANDIDATES are assumed to be static."
     (when (and (string= name "") (not (equal ivy--old-re "")))
       (setq ivy--index
             (or (cl-position (ivy-state-preselect ivy-last)
-                             cands :test 'equal)
+                             cands :test #'equal)
                 ivy--index)))
     (setq ivy--old-re (if cands re ""))
     (setq ivy--old-cands cands)))
@@ -1164,7 +1166,7 @@ CANDS is a list of strings."
            (index (min ivy--index half-height (1- (length cands)))))
       (when ivy--directory
         (setq cands (mapcar (lambda (x)
-                              (if (string-match-p "/$" x)
+                              (if (string-match-p "/\\'" x)
                                   (propertize x 'face 'ivy-subdir)
                                 x))
                             cands)))
