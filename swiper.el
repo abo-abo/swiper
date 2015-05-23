@@ -113,7 +113,8 @@
   "Jump to one of the current swiper candidates."
   (interactive)
   (with-selected-window (ivy-state-window ivy-last)
-    (let* ((candidates
+    (let* ((avy-all-windows nil)
+           (candidates
             (avy--regex-candidates
              (ivy--regex ivy-text)))
            (avy-background nil)
