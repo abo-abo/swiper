@@ -392,7 +392,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive "p")
   (setq arg (or arg 1))
   (cl-incf ivy--index arg)
-  (when (>= ivy--index (1- ivy--length))
+  (when (> ivy--index (1- ivy--length))
     (if ivy-wrap
         (ivy-beginning-of-buffer)
       (setq ivy--index (1- ivy--length)))))
