@@ -233,10 +233,9 @@ Please remove it and update the \"swiper\" package."))
         (preselect (format
                     swiper--format-spec
                     (line-number-at-pos)
-                    (regexp-quote
-                     (buffer-substring-no-properties
-                      (line-beginning-position)
-                      (line-end-position)))))
+                    (buffer-substring-no-properties
+                     (line-beginning-position)
+                     (line-end-position))))
         res)
     (unwind-protect
          (setq res (ivy-read
