@@ -279,6 +279,16 @@ When ARG is t, exit with current text, ignoring the candidates."
                                 ivy--current ivy--directory))))))
              (ivy--cd dir)
              (ivy--exhibit))
+            ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
+             (if (or (equal ivy--current "(./)")
+                     (equal ivy--current "(../)"))
+                 (ivy-quit-and-run
+                  (ivy-read "Go to file: " 'read-file-name-internal
+                            :action (lambda (x)
+                                      (Info-find-node
+                                       (expand-file-name x ivy--directory)
+                                       "Top"))))
+               (ivy-done)))
             ((string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text)
              (let ((method (match-string 1 ivy-text))
                    (user (match-string 2 ivy-text))
