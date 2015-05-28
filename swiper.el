@@ -133,6 +133,7 @@
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
   (unless (or (derived-mode-p 'magit-mode)
+              (bound-and-true-p magit-blame-mode)
               (memq major-mode '(package-menu-mode
                                  gnus-summary-mode
                                  gnus-article-mode
