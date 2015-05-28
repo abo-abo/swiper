@@ -251,21 +251,29 @@
               :action #'counsel-git-grep-action
               :unwind #'swiper--cleanup)))
 
-(defun counsel-git-grep-matcher (x)
-  (ignore-errors
-    (when (string-match "^[^:]+:[^:]+:" x)
-      (setq x (substring x (match-end 0)))
-      (if (stringp ivy--old-re)
-          (string-match ivy--old-re x)
-        (let ((res t))
-          (dolist (re ivy--old-re)
-            (setq res
-                  (and res
-                       (ignore-errors
-                         (if (cdr re)
-                             (string-match (car re) x)
-                           (not (string-match (car re) x)))))))
-          res)))))
+(defun counsel-git-grep-matcher (regexp candidates)
+  (or (and (equal regexp ivy--old-re)
+           ivy--old-cands)
+      (prog1
+          (setq ivy--old-cands
+                (cl-remove-if-not
+                 (lambda (x)
+                   (ignore-errors
+                     (when (string-match "^[^:]+:[^:]+:" x)
+                       (setq x (substring x (match-end 0)))
+                       (if (stringp regexp)
+                           (string-match regexp x)
+                         (let ((res t))
+                           (dolist (re regexp)
+                             (setq res
+                                   (and res
+                                        (ignore-errors
+                                          (if (cdr re)
+                                              (string-match (car re) x)
+                                            (not (string-match (car re) x)))))))
+                           res)))))
+                 candidates))
+        (setq ivy--old-re regexp))))
 
 (defun counsel-locate-function (str &rest _u)
   (if (< (length str) 3)

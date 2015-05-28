@@ -1080,8 +1080,7 @@ CANDIDATES are assumed to be static."
          (matcher (ivy-state-matcher ivy-last))
          (cands (cond
                   (matcher
-                   (let ((ivy--old-re re))
-                     (cl-remove-if-not matcher candidates)))
+                   (funcall matcher re candidates))
                   ((and (equal re ivy--old-re)
                         ivy--old-cands)
                    ivy--old-cands)
