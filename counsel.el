@@ -148,6 +148,7 @@
                     (mapcar #'car completions)
                     :sort t)))
        (list value info-lookup-mode))))
+  (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
 (defun counsel-unicode-char ()
