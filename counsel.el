@@ -42,13 +42,20 @@
 
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-.") 'counsel-find-symbol)
+    (define-key map (kbd "C-.") #'counsel-find-symbol)
+    (define-key map (kbd "C-,") #'counsel--info-lookup-symbol)
     map))
 
 (defun counsel-find-symbol ()
   "Jump to the definition of the current symbol."
   (interactive)
-  (ivy-set-action 'counsel--find-symbol)
+  (ivy-set-action #'counsel--find-symbol)
+  (ivy-done))
+
+(defun counsel--info-lookup-symbol ()
+  "Lookup the current symbol in the info docs."
+  (interactive)
+  (ivy-set-action #'counsel-info-lookup-symbol)
   (ivy-done))
 
 (defun counsel--find-symbol (x)
