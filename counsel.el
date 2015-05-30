@@ -259,6 +259,34 @@
               :action #'counsel-git-grep-action
               :unwind #'swiper--cleanup)))
 
+(defun counsel-find-file ()
+  "Forward to `find-file'."
+  (interactive)
+  (ivy-read "Find file: " 'read-file-name-internal
+            :matcher #'counsel--find-file-matcher
+            :action
+            (lambda (x)
+              (find-file (expand-file-name x ivy--directory)))))
+
+(defcustom counsel-find-file-ignore-regexp "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
+  "A regexp of files to ignore while in `counsel-find-file'.
+These files are un-ignored if `ivy-text' matches them.
+The common way to show all files is to start `ivy-text' with a dot.")
+
+(defun counsel--find-file-matcher (regexp candidates)
+  "Return REGEXP-matching CANDIDATES.
+Skip some dotfiles unless `ivy-text' requires them."
+  (let ((res (cl-remove-if-not
+              (lambda (x)
+                (string-match regexp x))
+              candidates)))
+    (if (string-match counsel-find-file-ignore-regexp ivy-text)
+        res
+      (cl-remove-if
+       (lambda (x)
+         (string-match counsel-find-file-ignore-regexp x))
+       res))))
+
 (defun counsel-git-grep-matcher (regexp candidates)
   (or (and (equal regexp ivy--old-re)
            ivy--old-cands)
