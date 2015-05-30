@@ -259,6 +259,10 @@
               :action #'counsel-git-grep-action
               :unwind #'swiper--cleanup)))
 
+(defcustom counsel-find-file-at-point nil
+  "When non-nil, add file-at-point to the list of candidates."
+  :type 'boolean)
+
 (defun counsel-find-file ()
   "Forward to `find-file'."
   (interactive)
@@ -266,7 +270,10 @@
             :matcher #'counsel--find-file-matcher
             :action
             (lambda (x)
-              (find-file (expand-file-name x ivy--directory)))))
+              (find-file (expand-file-name x ivy--directory)))
+            :preselect (when counsel-find-file-at-point
+                         (require 'ffap)
+                         (ffap-guesser))))
 
 (defcustom counsel-find-file-ignore-regexp "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
   "A regexp of files to ignore while in `counsel-find-file'.
