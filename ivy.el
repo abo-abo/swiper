@@ -1269,6 +1269,21 @@ BUFFER may be a string or nil."
   (ivy-read "Recentf: " recentf-list
             :action #'find-file))
 
+(defun ivy-yank-word ()
+  "Pull next word from buffer into search string."
+  (interactive)
+  (let (amend)
+    (with-selected-window (ivy-state-window ivy-last)
+      (let ((pt (point))
+            (le (line-end-position)))
+        (forward-word 1)
+        (setf (window-point) (point))
+        (if (> (point) le)
+            (goto-char pt)
+          (setq amend (buffer-substring-no-properties pt (point))))))
+    (when amend
+      (insert amend))))
+
 (provide 'ivy)
 
 ;;; ivy.el ends here
