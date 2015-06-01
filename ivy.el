@@ -1277,7 +1277,6 @@ BUFFER may be a string or nil."
       (let ((pt (point))
             (le (line-end-position)))
         (forward-word 1)
-        (setf (window-point) (point))
         (if (> (point) le)
             (goto-char pt)
           (setq amend (buffer-substring-no-properties pt (point))))))
