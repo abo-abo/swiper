@@ -1263,6 +1263,12 @@ BUFFER may be a string or nil."
               :preselect (buffer-name (other-buffer (current-buffer)))
               :action #'ivy--switch-buffer-action)))
 
+(defun ivy-recentf ()
+  "Find a file on `recentf-list'."
+  (interactive)
+  (ivy-read "Recentf: " recentf-list
+            :action #'find-file))
+
 (provide 'ivy)
 
 ;;; ivy.el ends here
