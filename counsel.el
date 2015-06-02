@@ -80,6 +80,14 @@
 (defvar counsel-describe-symbol-history nil
   "History for `counsel-describe-variable' and `counsel-describe-function'.")
 
+(defun counsel-symbol-at-point ()
+  "Return current symbol at point as a string."
+  (let ((s (thing-at-point 'symbol)))
+    (and (stringp s)
+         (if (string-match "\\'\\(.*\\)'\\'" s)
+             (match-string 1 s)
+           s))))
+
 (defun counsel-describe-variable ()
   "Forward to `describe-variable'."
   (interactive)
@@ -94,7 +102,7 @@
             (push (symbol-name vv) cands))))
        cands)
      :keymap counsel-describe-map
-     :preselect (thing-at-point 'symbol)
+     :preselect (counsel-symbol-at-point)
      :history 'counsel-describe-symbol-history
      :require-match t
      :sort t
@@ -114,7 +122,7 @@
                      (push (symbol-name x) cands))))
                 cands)
               :keymap counsel-describe-map
-              :preselect (thing-at-point 'symbol)
+              :preselect (counsel-symbol-at-point)
               :history 'counsel-describe-symbol-history
               :require-match t
               :sort t
