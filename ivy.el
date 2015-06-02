@@ -222,9 +222,9 @@ When non-nil, it should contain one %d.")
   "Insert TEXT and exit minibuffer."
   (if (and ivy--directory
            (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
-      (insert (expand-file-name
-                 text ivy--directory))
-    (insert text))
+      (insert (setq ivy--current (expand-file-name
+                                  text ivy--directory)))
+    (insert (setq ivy--current text)))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
