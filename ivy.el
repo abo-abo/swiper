@@ -713,7 +713,7 @@ candidates with each input."
               (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
     (when preselect
       (unless (or require-match
-                  (let ((re (format "\\`%s" preselect)))
+                  (let ((re (format "\\`%s" (regexp-quote preselect))))
                     (cl-find-if (lambda (x) (string-match re x))
                                 coll)))
         (setq coll (cons preselect coll))))
