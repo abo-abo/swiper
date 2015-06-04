@@ -269,7 +269,10 @@
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
-  :type 'boolean)
+  :type 'boolean
+  :group 'ivy)
+
+(declare-function ffap-guesser "ffap")
 
 (defun counsel-find-file ()
   "Forward to `find-file'."
@@ -286,7 +289,8 @@
 (defcustom counsel-find-file-ignore-regexp "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
   "A regexp of files to ignore while in `counsel-find-file'.
 These files are un-ignored if `ivy-text' matches them.
-The common way to show all files is to start `ivy-text' with a dot.")
+The common way to show all files is to start `ivy-text' with a dot."
+  :group 'ivy)
 
 (defun counsel--find-file-matcher (regexp candidates)
   "Return REGEXP-matching CANDIDATES.
@@ -336,8 +340,7 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defun counsel-locate ()
   "Call locate."
   (interactive)
-  (let* ((ivy--dynamic-function 'counsel-locate-function)
-         (val (ivy-read "pattern: " 'counsel-locate-function)))
+  (let ((val (ivy-read "pattern: " 'counsel-locate-function)))
     (when val
       (find-file val))))
 

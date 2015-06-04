@@ -261,6 +261,7 @@ Is is a cons cell, related to `tramp-get-completion-function'."
       domain)))
 
 (declare-function tramp-get-completion-function "tramp")
+(declare-function Info-find-node "info")
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.

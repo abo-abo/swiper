@@ -103,6 +103,7 @@
       (exit-minibuffer))))
 
 (defvar avy-background)
+(defvar avy-all-windows)
 (declare-function avy--regex-candidates "ext:avy")
 (declare-function avy--process "ext:avy")
 (declare-function avy--overlay-post "ext:avy")
