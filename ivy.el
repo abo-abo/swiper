@@ -1193,7 +1193,9 @@ CANDS is a list of strings."
   "Store the virtual buffers alist.")
 
 (defvar recentf-list)
-(defvar ido-use-faces)
+
+(defface ivy-virtual '((t :inherit font-lock-builtin-face))
+  "Face used by Ivy for matching virtual buffer names.")
 
 (defun ivy--virtual-buffers ()
   "Adapted from `ido-add-virtual-buffers-to-list'."
@@ -1218,11 +1220,10 @@ CANDS is a list of strings."
            (not (assoc name virtual-buffers))
            (push (cons name head) virtual-buffers)))
     (when virtual-buffers
-      (if ido-use-faces
-          (dolist (comp virtual-buffers)
-            (put-text-property 0 (length (car comp))
-                               'face 'ido-virtual
-                               (car comp))))
+      (dolist (comp virtual-buffers)
+        (put-text-property 0 (length (car comp))
+                           'face 'ivy-virtual
+                           (car comp)))
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
