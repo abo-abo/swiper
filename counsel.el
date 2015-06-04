@@ -198,14 +198,6 @@
 (defvar counsel--git-grep-dir nil
   "Store the base git directory.")
 
-(defun counsel-git-grep-count (str)
-  "Quickly count the amount of git grep STR matches."
-  (let* ((default-directory counsel--git-grep-dir)
-         (out (shell-command-to-string
-               (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
-                       (ivy--regex str)))))
-    (string-to-number out)))
-
 (defvar counsel--git-grep-count nil
   "Store the line count in current repository.")
 
@@ -224,10 +216,11 @@
       (if (<= counsel--git-grep-count 20000)
           (progn
             (setq res (shell-command-to-string cmd))
-            (setq ivy--full-length nil))
-        (setq res (shell-command-to-string (concat cmd " | head -n 2000")))
-        (setq ivy--full-length (counsel-git-grep-count ivy-text)))
-      (split-string res "\n" t))))
+            (setq ivy--full-length nil)
+            (split-string res "\n" t))
+        (setq ivy--full-length -1)
+        (counsel--gg-candidates (ivy--regex string))
+        nil))))
 
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
@@ -237,7 +230,7 @@
 (defun counsel-git-grep-recenter ()
   (interactive)
   (with-selected-window (ivy-state-window ivy-last)
-    (counsel-git-grep-action)
+    (counsel-git-grep-action ivy--current)
     (recenter-top-bottom)))
 
 (defun counsel-git-grep-action (x)
@@ -257,7 +250,7 @@
         (locate-dominating-file default-directory ".git"))
   (if (null counsel--git-grep-dir)
       (error "Not in a git repository")
-    (setq counsel--git-grep-count (counsel-git-grep-count ""))
+    (setq counsel--git-grep-count (counsel--gg-count "" t))
     (ivy-read "pattern: " 'counsel-git-grep-function
               :initial-input initial-input
               :matcher #'counsel-git-grep-matcher
@@ -420,6 +413,66 @@ The libraries are offered from `load-path'."
                         (load-library
                          (get-text-property 0 'full-name x)))
               :keymap counsel-describe-map)))
+
+(defun counsel--gg-candidates (regex)
+  "Return git grep candidates for REGEX."
+  (counsel--gg-count regex)
+  (let* ((default-directory counsel--git-grep-dir)
+         (counsel-gg-process " *counsel-gg*")
+         (proc (get-process counsel-gg-process))
+         (buff (get-buffer counsel-gg-process)))
+    (when proc
+      (delete-process proc))
+    (when buff
+      (kill-buffer buff))
+    (setq proc (start-process-shell-command
+                counsel-gg-process
+                counsel-gg-process
+                (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\" | head -n 200"
+                        regex)))
+    (set-process-sentinel
+     proc
+     #'counsel--gg-sentinel)))
+
+(defun counsel--gg-sentinel (process event)
+  (if (string= event "finished\n")
+      (progn
+        (with-current-buffer (process-buffer process)
+          (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
+          (setq ivy--old-cands ivy--all-candidates))
+        (unless (eq ivy--full-length -1)
+          (ivy--insert-minibuffer
+           (ivy--format ivy--all-candidates))))
+    (if (string= event "exited abnormally with code 1\n")
+        (message "Error"))))
+
+(defun counsel--gg-count (regex &optional no-async)
+  "Quickly and asynchronously count the amount of git grep REGEX matches.
+When NO-ASYNC is non-nil, do it synchronously."
+  (let ((default-directory counsel--git-grep-dir)
+        (cmd (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
+                     regex))
+        (counsel-ggc-process " *counsel-gg-count*"))
+    (if no-async
+        (string-to-number (shell-command-to-string cmd))
+      (let ((proc (get-process counsel-ggc-process))
+            (buff (get-buffer counsel-ggc-process)))
+        (when proc
+          (delete-process proc))
+        (when buff
+          (kill-buffer buff))
+        (setq proc (start-process-shell-command
+                    counsel-ggc-process
+                    counsel-ggc-process
+                    cmd))
+        (set-process-sentinel
+         proc
+         #'(lambda (process event)
+             (when (string= event "finished\n")
+               (with-current-buffer (process-buffer process)
+                 (setq ivy--full-length (string-to-number (buffer-string))))
+               (ivy--insert-minibuffer
+                (ivy--format ivy--all-candidates)))))))))
 
 (provide 'counsel)
 

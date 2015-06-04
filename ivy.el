@@ -1013,12 +1013,14 @@ Should be run via minibuffer `post-command-hook'."
       ;; while-no-input would cause annoying
       ;; "Waiting for process to die...done" message interruptions
       (let ((inhibit-message t))
-        (while-no-input
-          (unless (equal ivy--old-text ivy-text)
-            (cl-letf ((store (ivy-state-dynamic-collection ivy-last))
-                      ((ivy-state-dynamic-collection ivy-last) nil))
-              (setq ivy--all-candidates (funcall store ivy-text))))
-          (ivy--insert-minibuffer (ivy--format ivy--all-candidates))))
+        (unless (equal ivy--old-text ivy-text)
+          (while-no-input
+            ;; dynamic collection should take care of everything
+            (funcall (ivy-state-dynamic-collection ivy-last) ivy-text)
+            (setq ivy--old-text ivy-text)))
+        (unless (eq ivy--full-length -1)
+          (ivy--insert-minibuffer
+           (ivy--format ivy--all-candidates))))
     (cond (ivy--directory
            (if (string-match "/\\'" ivy-text)
                (if (member ivy-text ivy--all-candidates)
@@ -1041,8 +1043,8 @@ Should be run via minibuffer `post-command-hook'."
              (setq ivy--old-re nil))))
     (ivy--insert-minibuffer
      (ivy--format
-      (ivy--filter ivy-text ivy--all-candidates))))
-  (setq ivy--old-text ivy-text))
+      (ivy--filter ivy-text ivy--all-candidates)))
+    (setq ivy--old-text ivy-text)))
 
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
