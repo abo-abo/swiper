@@ -959,7 +959,7 @@ Everything after \"!\" should not match."
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
     (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
-                                          counsel-find-symbol))
+                                 counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
       (if (string-match "\\(.*\\): \\'" ivy--prompt)
@@ -972,12 +972,17 @@ Everything after \"!\" should not match."
             (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
              (format
-              (concat head
-                      ivy--prompt-extra
-                      tail
-                      (if ivy--directory
-                          (abbreviate-file-name ivy--directory)
-                        ""))
+              (concat
+               (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
+                        (> (minibuffer-depth) 1))
+                   (format "[%d] " (minibuffer-depth))
+                 "")
+               head
+               ivy--prompt-extra
+               tail
+               (if ivy--directory
+                   (abbreviate-file-name ivy--directory)
+                 ""))
               (or (and (ivy-state-dynamic-collection ivy-last)
                        ivy--full-length)
                   ivy--length))))
