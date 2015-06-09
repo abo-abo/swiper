@@ -1254,7 +1254,8 @@ BUFFER may be a string or nil."
       (switch-to-buffer
        ivy-text nil 'force-same-window)
     (let ((virtual (assoc buffer ivy--virtual-buffers)))
-      (if virtual
+      (if (and virtual
+               (not (get-buffer buffer)))
           (find-file (cdr virtual))
         (switch-to-buffer
          buffer nil 'force-same-window)))))
