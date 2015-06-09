@@ -210,7 +210,7 @@
         (list ""
               (format "%d chars more" (- 3 (length ivy-text)))))
     (let* ((default-directory counsel--git-grep-dir)
-           (cmd (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
+           (cmd (format "git --no-pager grep --full-name -n --no-color -i -e %S"
                         (ivy--regex string t)))
            res)
       (if (<= counsel--git-grep-count 20000)
@@ -428,7 +428,7 @@ The libraries are offered from `load-path'."
     (setq proc (start-process-shell-command
                 counsel-gg-process
                 counsel-gg-process
-                (format "git --no-pager grep --full-name -n --no-color -i -e \"%s\" | head -n 200"
+                (format "git --no-pager grep --full-name -n --no-color -i -e %S | head -n 200"
                         regex)))
     (set-process-sentinel
      proc
