@@ -714,7 +714,8 @@ candidates with each input."
                    (<= (length coll) ivy-sort-max-size))
               (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
     (when preselect
-      (unless (or require-match
+      (unless (or (and require-match
+                       (not (eq collection 'internal-complete-buffer)))
                   (let ((re (format "\\`%s" (regexp-quote preselect))))
                     (cl-find-if (lambda (x) (string-match re x))
                                 coll)))
