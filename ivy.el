@@ -931,6 +931,11 @@ Everything after \"!\" should not match."
                res)))
       (t (error "Unexpected: use only one !")))))
 
+(defun ivy--regex-fuzzy (str)
+  "Build a regex sequence from STR.
+Insert .* between each char."
+  (mapconcat #'string (string-to-list str) ".*"))
+
 ;;** Rest
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
