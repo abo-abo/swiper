@@ -490,15 +490,27 @@ If a command is bound, add it's binding after it."
 (defun counsel-M-x ()
   "Ivy version of `execute-extended-command'."
   (interactive)
-  (let ((ivy-format-function #'counsel--format-function-M-x))
-    (ivy-read "M-x " obarray
-              :predicate 'commandp
+  (let ((ivy-format-function #'counsel--format-function-M-x)
+        (cands obarray)
+        (pred 'commandp)
+        (sort t))
+    (when (or (featurep 'smex)
+              (package-installed-p 'smex))
+      (require 'smex)
+      (smex-detect-new-commands)
+      (smex-update)
+      (setq cands smex-ido-cache)
+      (setq pred nil)
+      (setq sort nil))
+    (ivy-read "M-x " cands
+              :predicate pred
               :require-match t
               :history 'extended-command-history
               :action
               (lambda (cmd)
                 (execute-extended-command current-prefix-arg cmd))
-              :sort t)))
+              :sort sort
+              :keymap counsel-describe-map)))
 
 (provide 'counsel)
 
