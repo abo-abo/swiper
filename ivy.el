@@ -367,7 +367,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
    :require-match (ivy-state-require-match ivy-last)
    :initial-input ivy-text
    :history (ivy-state-history ivy-last)
-   :preselect (regexp-quote ivy--current)
+   :preselect (unless (eq (ivy-state-collection ivy-last)
+                          'read-file-name-internal)
+                (regexp-quote ivy--current))
    :keymap (ivy-state-keymap ivy-last)
    :update-fn (ivy-state-update-fn ivy-last)
    :sort (ivy-state-sort ivy-last)
@@ -690,7 +692,8 @@ candidates with each input."
                  (ivy--sorted-files default-directory))
            (when initial-input
              (unless (or require-match
-                         (equal initial-input default-directory))
+                         (equal initial-input default-directory)
+                         (equal initial-input ""))
                (setq coll (cons initial-input coll)))
              (setq initial-input nil)))
           ((eq collection 'internal-complete-buffer)
