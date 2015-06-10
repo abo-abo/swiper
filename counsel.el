@@ -474,6 +474,32 @@ When NO-ASYNC is non-nil, do it synchronously."
                (ivy--insert-minibuffer
                 (ivy--format ivy--all-candidates)))))))))
 
+(defun counsel--format-function-M-x (cands)
+  "Join CANDS, a list of command names, with newlines.
+If a command is bound, add it's binding after it."
+  (with-selected-window (ivy-state-window ivy-last)
+    (mapconcat (lambda (x)
+                 (let ((binding (substitute-command-keys (format "\\[%s]" x))))
+                   (if (string-match "^M-x" binding)
+                       x
+                     (format "%s (%s)" x
+                             (propertize binding 'face 'font-lock-keyword-face)))))
+               cands
+               "\n")))
+
+(defun counsel-M-x ()
+  "Ivy version of `execute-extended-command'."
+  (interactive)
+  (let ((ivy-format-function #'counsel--format-function-M-x))
+    (ivy-read "M-x " obarray
+              :predicate 'commandp
+              :require-match t
+              :history 'extended-command-history
+              :action
+              (lambda (cmd)
+                (execute-extended-command current-prefix-arg cmd))
+              :sort t)))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
