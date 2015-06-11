@@ -44,6 +44,7 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") #'counsel-find-symbol)
     (define-key map (kbd "C-,") #'counsel--info-lookup-symbol)
+    (define-key map (kbd "SPC") #'minibuffer-complete-word)
     map))
 
 (defun counsel-find-symbol ()
@@ -273,11 +274,11 @@
   (ivy-read "Find file: " 'read-file-name-internal
             :matcher #'counsel--find-file-matcher
             :action
-            (lambda (x)
-              (find-file (expand-file-name x ivy--directory)))
-            :preselect (when counsel-find-file-at-point
-                         (require 'ffap)
-                         (ffap-guesser))))
+    (lambda (x)
+      (find-file (expand-file-name x ivy--directory)))
+    :preselect (when counsel-find-file-at-point
+                 (require 'ffap)
+                 (ffap-guesser))))
 
 (defcustom counsel-find-file-ignore-regexp "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
   "A regexp of files to ignore while in `counsel-find-file'.
@@ -507,10 +508,10 @@ If a command is bound, add it's binding after it."
               :require-match t
               :history 'extended-command-history
               :action
-              (lambda (cmd)
-                (execute-extended-command current-prefix-arg cmd))
-              :sort sort
-              :keymap counsel-describe-map)))
+      (lambda (cmd)
+        (execute-extended-command current-prefix-arg cmd))
+      :sort sort
+      :keymap counsel-describe-map)))
 
 (provide 'counsel)
 
