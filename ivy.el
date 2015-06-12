@@ -385,37 +385,48 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
    :matcher (ivy-state-matcher ivy-last)
    :dynamic-collection (ivy-state-dynamic-collection ivy-last)))
 
+(defvar ivy-calling nil
+  "When non-nil, call the current action when `ivy--index' changes.")
+
+(defun ivy-set-index (index)
+  "Set `ivy--index' to INDEX."
+  (setq ivy--index index)
+  (when ivy-calling
+    (ivy--exhibit)
+    (ivy-call)))
+
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
   (interactive)
-  (setq ivy--index 0))
+  (ivy-set-index 0))
 
 (defun ivy-end-of-buffer ()
   "Select the last completion candidate."
   (interactive)
-  (setq ivy--index (1- ivy--length)))
+  (ivy-set-index (1- ivy--length)))
 
 (defun ivy-scroll-up-command ()
   "Scroll the candidates upward by the minibuffer height."
   (interactive)
-  (setq ivy--index (min (+ ivy--index ivy-height)
-                        (1- ivy--length))))
+  (ivy-set-index (min (+ ivy--index ivy-height)
+                      (1- ivy--length))))
 
 (defun ivy-scroll-down-command ()
   "Scroll the candidates downward by the minibuffer height."
   (interactive)
-  (setq ivy--index (max (- ivy--index ivy-height)
-                        0)))
+  (ivy-set-index (max (- ivy--index ivy-height)
+                      0)))
 
 (defun ivy-next-line (&optional arg)
   "Move cursor vertically down ARG candidates."
   (interactive "p")
   (setq arg (or arg 1))
-  (cl-incf ivy--index arg)
-  (when (> ivy--index (1- ivy--length))
-    (if ivy-wrap
-        (ivy-beginning-of-buffer)
-      (setq ivy--index (1- ivy--length)))))
+  (let ((index (+ ivy--index arg)))
+    (if (> index (1- ivy--length))
+        (if ivy-wrap
+            (ivy-beginning-of-buffer)
+          (ivy-set-index (1- ivy--length)))
+      (ivy-set-index index))))
 
 (defun ivy-next-line-or-history (&optional arg)
   "Move cursor vertically down ARG candidates.
@@ -429,11 +440,12 @@ If the input is empty, select the previous history element instead."
   "Move cursor vertically up ARG candidates."
   (interactive "p")
   (setq arg (or arg 1))
-  (cl-decf ivy--index arg)
-  (when (< ivy--index 0)
-    (if ivy-wrap
-        (ivy-end-of-buffer)
-      (setq ivy--index 0))))
+  (let ((index (- ivy--index arg)))
+    (if (< index 0)
+        (if ivy-wrap
+            (ivy-end-of-buffer)
+          (ivy-set-index 0))
+      (ivy-set-index index))))
 
 (defun ivy-previous-line-or-history (arg)
   "Move cursor vertically up ARG candidates.
@@ -443,15 +455,25 @@ If the input is empty, select the previous history element instead."
     (ivy-previous-history-element 1))
   (ivy-previous-line arg))
 
+(defun ivy-toggle-calling ()
+  "Flip `ivy-calling'"
+  (interactive)
+  (when (setq ivy-calling (not ivy-calling))
+    (ivy-call)))
+
+(defun ivy-call ()
+  "Call the current action without exiting completion."
+  (when (ivy-state-action ivy-last)
+    (with-selected-window (ivy-state-window ivy-last)
+      (funcall (ivy-state-action ivy-last) ivy--current))))
+
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
 Call the permanent action if possible."
   (interactive "p")
   (ivy-next-line arg)
   (ivy--exhibit)
-  (when (ivy-state-action ivy-last)
-    (with-selected-window (ivy-state-window ivy-last)
-      (funcall (ivy-state-action ivy-last) ivy--current))))
+  (ivy-call))
 
 (defun ivy-previous-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
@@ -459,9 +481,7 @@ Call the permanent action if possible."
   (interactive "p")
   (ivy-previous-line arg)
   (ivy--exhibit)
-  (when (ivy-state-action ivy-last)
-    (with-selected-window (ivy-state-window ivy-last)
-      (funcall (ivy-state-action ivy-last) ivy--current))))
+  (ivy-call))
 
 (defun ivy-previous-history-element (arg)
   "Forward to `previous-history-element' with ARG."
@@ -682,6 +702,7 @@ candidates with each input."
   (setq ivy--regexp-quote 'regexp-quote)
   (setq ivy--old-text "")
   (setq ivy-text "")
+  (setq ivy-calling nil)
   (let (coll sort-fn)
     (cond ((eq collection 'Info-read-node-name-1)
            (if (equal Info-current-file "dir")
