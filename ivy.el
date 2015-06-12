@@ -125,6 +125,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "C-o") 'hydra-ivy/body)
     map)
   "Keymap used in the minibuffer.")
+(autoload 'hydra-ivy/body "ivy-hydra" "" t)
 
 (defvar ivy-mode-map
   (let ((map (make-sparse-keymap)))
