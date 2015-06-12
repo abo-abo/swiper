@@ -81,3 +81,17 @@
                  '("We're all Britons"
                   "and  I  am"
                    "your  king."))))
+
+(ert-deftest ivy--regex-fuzzy ()
+  (should (string= (ivy--regex-fuzzy "tmux")
+                   "t.*m.*u.*x"))
+  (should (string= (ivy--regex-fuzzy "^tmux")
+                   "^t.*m.*u.*x"))
+  (should (string= (ivy--regex-fuzzy "^tmux$")
+                   "^t.*m.*u.*x$"))
+  (should (string= (ivy--regex-fuzzy "")
+                   ""))
+  (should (string= (ivy--regex-fuzzy "^")
+                   "^"))
+  (should (string= (ivy--regex-fuzzy "$")
+                   "$")))

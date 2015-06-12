@@ -966,7 +966,11 @@ Everything after \"!\" should not match."
 (defun ivy--regex-fuzzy (str)
   "Build a regex sequence from STR.
 Insert .* between each char."
-  (mapconcat #'string (string-to-list str) ".*"))
+  (if (string-match "\\`\\(\\^?\\)\\(.*?\\)\\(\\$?\\)\\'" str)
+      (concat (match-string 1 str)
+              (mapconcat #'string (string-to-list (match-string 2 str)) ".*")
+              (match-string 3 str))
+    str))
 
 ;;** Rest
 (defun ivy--minibuffer-setup ()
