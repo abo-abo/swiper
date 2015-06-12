@@ -337,14 +337,20 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (let* ((parts (or (split-string ivy-text " " t) (list "")))
          (postfix (car (last parts)))
          (completion-ignore-case t)
-         (new (try-completion postfix
+         (startp (string-match "^\\^" postfix))
+         (new (try-completion (if startp
+                                  (substring postfix 1)
+                                postfix)
                               (mapcar (lambda (str) (substring str (string-match postfix str)))
                                       ivy--old-cands))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
-           (setcar (last parts) new)
+           (setcar (last parts)
+                   (if startp
+                       (concat "^" new)
+                     new))
            (insert (mapconcat #'identity parts " ")
                    (if ivy-tab-space " " ""))
            t))))
