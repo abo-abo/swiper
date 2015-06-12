@@ -34,6 +34,7 @@
 
 (require 'swiper)
 
+;;;###autoload
 (defun counsel-el ()
   "Elisp completion at point."
   (interactive)
@@ -88,6 +89,7 @@
              (match-string 1 s)
            s))))
 
+;;;###autoload
 (defun counsel-describe-variable ()
   "Forward to `describe-variable'."
   (interactive)
@@ -110,6 +112,7 @@
                (describe-variable
                 (intern x))))))
 
+;;;###autoload
 (defun counsel-describe-function ()
   "Forward to `describe-function'."
   (interactive)
@@ -137,6 +140,7 @@
 (declare-function info-lookup-change-mode "info-look")
 (declare-function info-lookup "info-look")
 
+;;;###autoload
 (defun counsel-info-lookup-symbol (symbol &optional mode)
   "Forward to (`info-describe-symbol' SYMBOL MODE) with ivy completion."
   (interactive
@@ -159,6 +163,7 @@
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
+;;;###autoload
 (defun counsel-unicode-char ()
   "Insert a Unicode character at point."
   (interactive)
@@ -172,6 +177,7 @@
     (insert-char (get-text-property 0 'result char))))
 
 (declare-function cider-sync-request:complete "ext:cider-client")
+;;;###autoload
 (defun counsel-clj ()
   "Clojure completion at point."
   (interactive)
@@ -181,6 +187,7 @@
       #'cl-caddr
       (cider-sync-request:complete str ":same")))))
 
+;;;###autoload
 (defun counsel-git ()
   "Find file in the current Git repository."
   (interactive)
@@ -243,6 +250,7 @@
       (swiper--cleanup)
       (swiper--add-overlays (ivy--regex ivy-text)))))
 
+;;;###autoload
 (defun counsel-git-grep (&optional initial-input)
   "Grep for a string in the current git repository."
   (interactive)
@@ -267,6 +275,7 @@
 
 (declare-function ffap-guesser "ffap")
 
+;;;###autoload
 (defun counsel-find-file ()
   "Forward to `find-file'."
   (interactive)
@@ -330,6 +339,7 @@ Skip some dotfiles unless `ivy-text' requires them."
     (split-string
      (shell-command-to-string (concat "locate -i -l 20 --regex " (ivy--regex str))) "\n" t)))
 
+;;;###autoload
 (defun counsel-locate ()
   "Call locate."
   (interactive)
@@ -367,6 +377,7 @@ Skip some dotfiles unless `ivy-text' requires them."
      str)
     str))
 
+;;;###autoload
 (defun counsel-load-library ()
   "Load a selected the Emacs Lisp library.
 The libraries are offered from `load-path'."
@@ -491,6 +502,7 @@ If a command is bound, add it's binding after it."
   "Initial input for `counsel-M-x'."
   :group 'ivy)
 
+;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
 Optional INITIAL-INPUT is the initial input in the minibuffer."
