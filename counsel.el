@@ -518,6 +518,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
     (when (or (featurep 'smex)
               (package-installed-p 'smex))
       (require 'smex)
+      (unless smex-initialized-p
+        (smex-initialize))
       (smex-detect-new-commands)
       (smex-update)
       (setq cands smex-ido-cache)
