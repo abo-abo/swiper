@@ -122,6 +122,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "C-M-p") 'ivy-previous-line-and-call)
     (define-key map (kbd "M-q") 'ivy-toggle-regexp-quote)
     (define-key map (kbd "M-j") 'ivy-yank-word)
+    (define-key map (kbd "C-o") 'hydra-ivy/body)
     map)
   "Keymap used in the minibuffer.")
 
