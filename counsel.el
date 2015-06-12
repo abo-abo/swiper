@@ -493,6 +493,7 @@ If a command is bound, add it's binding after it."
   (with-selected-window (ivy-state-window ivy-last)
     (mapconcat (lambda (x)
                  (let ((binding (substitute-command-keys (format "\\[%s]" x))))
+                   (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
                    (if (string-match "^M-x" binding)
                        x
                      (format "%s (%s)" x
