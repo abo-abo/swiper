@@ -487,9 +487,15 @@ If a command is bound, add it's binding after it."
                cands
                "\n")))
 
-(defun counsel-M-x ()
-  "Ivy version of `execute-extended-command'."
+(defcustom counsel-M-x-initial-input "^"
+  "Initial input for `counsel-M-x'."
+  :group 'ivy)
+
+(defun counsel-M-x (&optional initial-input)
+  "Ivy version of `execute-extended-command'.
+Optional INITIAL-INPUT is the initial input in the minibuffer."
   (interactive)
+  (setq initial-input (or initial-input counsel-M-x-initial-input))
   (let ((ivy-format-function #'counsel--format-function-M-x)
         (cands obarray)
         (pred 'commandp)
@@ -510,7 +516,8 @@ If a command is bound, add it's binding after it."
               (lambda (cmd)
                 (execute-extended-command current-prefix-arg cmd))
               :sort sort
-              :keymap counsel-describe-map)))
+              :keymap counsel-describe-map
+              :initial-input initial-input)))
 
 (provide 'counsel)
 
