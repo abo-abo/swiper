@@ -288,10 +288,11 @@
                          (require 'ffap)
                          (ffap-guesser))))
 
-(defcustom counsel-find-file-ignore-regexp "\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)"
+(defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
 These files are un-ignored if `ivy-text' matches them.
-The common way to show all files is to start `ivy-text' with a dot."
+The common way to show all files is to start `ivy-text' with a dot.
+Possible value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\"."
   :group 'ivy)
 
 (defun counsel--find-file-matcher (regexp candidates)
@@ -301,7 +302,8 @@ Skip some dotfiles unless `ivy-text' requires them."
               (lambda (x)
                 (string-match regexp x))
               candidates)))
-    (if (string-match counsel-find-file-ignore-regexp ivy-text)
+    (if (or (null counsel-find-file-ignore-regexp)
+            (string-match counsel-find-file-ignore-regexp ivy-text))
         res
       (cl-remove-if
        (lambda (x)
