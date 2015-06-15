@@ -1233,8 +1233,9 @@ CANDS is a list of strings."
     (let* ((half-height (/ ivy-height 2))
            (start (max 0 (- ivy--index half-height)))
            (end (min (+ start (1- ivy-height)) ivy--length))
+           (start (max 0 (min start (- end (1- ivy-height)))))
            (cands (cl-subseq cands start end))
-           (index (min ivy--index half-height (1- (length cands)))))
+           (index (- ivy--index start)))
       (when ivy--directory
         (setq cands (mapcar (lambda (x)
                               (if (string-match-p "/\\'" x)

@@ -95,3 +95,22 @@
                    "^"))
   (should (string= (ivy--regex-fuzzy "$")
                    "$")))
+
+(ert-deftest ivy--format ()
+  (should (string= (let ((ivy--index 10)
+                         (ivy-format-function (lambda (x) (mapconcat #'identity x "\n")))
+                         (cands '("NAME"
+                                  "SYNOPSIS"
+                                  "DESCRIPTION"
+                                  "FUNCTION LETTERS"
+                                  "SWITCHES"
+                                  "DIAGNOSTICS"
+                                  "EXAMPLE 1"
+                                  "EXAMPLE 2"
+                                  "EXAMPLE 3"
+                                  "SEE ALSO"
+                                  "AUTHOR")))
+                     (ivy--format cands))
+                   #("\nDESCRIPTION\nFUNCTION LETTERS\nSWITCHES\nDIAGNOSTICS\nEXAMPLE 1\nEXAMPLE 2\nEXAMPLE 3\nSEE ALSO\nAUTHOR"
+                     0 90 (read-only nil)
+                     90 96 (face ivy-current-match read-only nil)))))
