@@ -1105,7 +1105,6 @@ Should be run via minibuffer `post-command-hook'."
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
   (let ((resize-mini-windows nil)
-        (buffer-undo-list t)
         (update-fn (ivy-state-update-fn ivy-last))
         deactivate-mark)
     (ivy--cleanup)
@@ -1114,9 +1113,10 @@ Should be run via minibuffer `post-command-hook'."
     (ivy--insert-prompt)
     ;; Do nothing if while-no-input was aborted.
     (when (stringp text)
-      (save-excursion
-        (forward-line 1)
-        (insert text)))))
+      (let ((buffer-undo-list t))
+        (save-excursion
+          (forward-line 1)
+          (insert text))))))
 
 (declare-function colir-blend-face-background "ext:colir")
 
