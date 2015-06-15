@@ -594,9 +594,16 @@ Prioritize directories."
   '((read-file-name-internal . ivy-sort-file-function-default)
     (internal-complete-buffer . nil)
     (counsel-git-grep-function . nil)
+    (Man-goto-section . nil)
+    (org-refile . nil)
     (t . string-lessp))
   "An alist of sorting functions for each collection function.
-For each entry, nil means no sorting.
+Interactive functions that call completion fit in here as well.
+
+For each entry, nil means no sorting. It's very useful to turn
+off the sorting for functions that have candidates in the natural
+buffer order, like `org-refile' or `Man-goto-section'.
+
 The entry associated to t is used for all fall-through cases.")
 
 (defvar ivy-re-builders-alist
@@ -835,7 +842,11 @@ The history, defaults and input-method arguments are ignored for now."
             :preselect (if (listp def) (car def) def)
             :history history
             :keymap nil
-            :sort t))
+            :sort
+            (let ((sort (assoc this-command ivy-sort-functions-alist)))
+              (if sort
+                  (cdr sort)
+                t))))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
