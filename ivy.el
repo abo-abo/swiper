@@ -617,7 +617,9 @@ like.")
 
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
-    (counsel-M-x . "^"))
+    (counsel-M-x . "^")
+    (man . "^")
+    (woman . "^"))
   "Command to initial input table.")
 
 (defcustom ivy-sort-max-size 30000
