@@ -614,6 +614,11 @@ The matches will be filtered in a sequence, you can mix the
 regexps that should match and that should not match as you
 like.")
 
+(defvar ivy-initial-inputs-alist
+  '((org-refile . "^")
+    (counsel-M-x . "^"))
+  "Command to initial input table.")
+
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
   :type 'integer)
@@ -675,6 +680,9 @@ MATCHER can completely override matching.
 
 DYNAMIC-COLLECTION is a function to call to update the list of
 candidates with each input."
+  (unless initial-input
+    (setq initial-input (cdr (assoc this-command
+                                    ivy-initial-inputs-alist))))
   (setq ivy-last
         (make-ivy-state
          :prompt prompt

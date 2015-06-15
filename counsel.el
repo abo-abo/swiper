@@ -501,16 +501,14 @@ If a command is bound, add it's binding after it."
                cands
                "\n")))
 
-(defcustom counsel-M-x-initial-input "^"
-  "Initial input for `counsel-M-x'."
-  :group 'ivy)
-
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
 Optional INITIAL-INPUT is the initial input in the minibuffer."
   (interactive)
-  (setq initial-input (or initial-input counsel-M-x-initial-input))
+  (unless initial-input
+    (setq initial-input (cdr (assoc this-command
+                                    ivy-initial-inputs-alist))))
   (let ((ivy-format-function #'counsel--format-function-M-x)
         (cands obarray)
         (pred 'commandp)
