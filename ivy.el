@@ -1366,6 +1366,14 @@ Don't finish completion."
   (delete-minibuffer-contents)
   (insert ivy--current))
 
+(defun ivy-toggle-fuzzy ()
+  "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."
+  (interactive)
+  (setq ivy--old-re nil)
+  (if (eq ivy--regex-function 'ivy--regex-fuzzy)
+      (setq ivy--regex-function 'ivy--regex-plus)
+    (setq ivy--regex-function 'ivy--regex-fuzzy)))
+
 (provide 'ivy)
 
 ;;; ivy.el ends here

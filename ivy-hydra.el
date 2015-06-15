@@ -42,13 +42,15 @@
                (byte-compile-file (buffer-file-name) t)))
          (error "Please install `hydra' and recompile/reinstall `ivy-hydra'")))))
 
+
+
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
 ^^^^^^          ^Yes^     ^No^     ^Maybe^
 ^^^^^^^^^^^^^^---------------------------------------
 ^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")
-_h_ ^✜^ _l_     _d_one    _o_ops
+_h_ ^✜^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
 ^ ^ _j_ ^ ^
 "
   ;; arrows
@@ -61,7 +63,8 @@ _h_ ^✜^ _l_     _d_one    _o_ops
   ("i" nil)
   ("f" ivy-alt-done :exit nil)
   ("d" ivy-done :exit t)
-  ("c" ivy-toggle-calling))
+  ("c" ivy-toggle-calling)
+  ("m" ivy-toggle-fuzzy))
 
 (provide 'ivy-hydra)
 
