@@ -29,19 +29,20 @@
 (require 'hydra nil t)
 (require 'ivy)
 
-(unless (package-installed-p 'hydra)
-  (defmacro defhydra (name &rest _)
-    "This is a stub for the uninstalled `hydra' package."
-    `(defun ,(intern (format "%S/body" name)) ()
-       (interactive)
-       (let ((enable-recursive-minibuffers t))
-         (if (yes-or-no-p "Package `hydra' not installed. Install?")
-             (progn
-               (package-install 'hydra)
-               (save-window-excursion
-                 (find-library "ivy-hydra")
-                 (byte-compile-file (buffer-file-name) t)))
-           (error "Please install `hydra' and recompile/reinstall `ivy-hydra'"))))))
+(eval-when-compile
+  (unless (package-installed-p 'hydra)
+    (defmacro defhydra (name &rest _)
+      "This is a stub for the uninstalled `hydra' package."
+      `(defun ,(intern (format "%S/body" name)) ()
+         (interactive)
+         (let ((enable-recursive-minibuffers t))
+           (if (yes-or-no-p "Package `hydra' not installed. Install?")
+               (progn
+                 (package-install 'hydra)
+                 (save-window-excursion
+                   (find-library "ivy-hydra")
+                   (byte-compile-file (buffer-file-name) t)))
+             (error "Please install `hydra' and recompile/reinstall `ivy-hydra'")))))))
 
 (defhydra hydra-ivy (:hint nil
                      :color pink)
