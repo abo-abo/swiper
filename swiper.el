@@ -197,7 +197,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
-  (deactivate-mark)
   (setq swiper--opoint (point))
   (setq swiper--len 0)
   (setq swiper--anchor (line-number-at-pos))
