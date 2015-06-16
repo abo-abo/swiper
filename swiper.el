@@ -97,6 +97,7 @@
       (delete-minibuffer-contents)
       (ivy-set-action (lambda (_)
                         (with-selected-window swiper--window
+                          (move-beginning-of-line 1)
                           (perform-replace from to
                                            t t nil))))
       (swiper--cleanup)
