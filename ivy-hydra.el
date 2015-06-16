@@ -26,7 +26,7 @@
 ;; shorter than usual, using mostly unprefixed keys.
 
 ;;; Code:
-(require 'hydra)
+(require 'hydra nil t)
 (require 'ivy)
 
 (unless (package-installed-p 'hydra)
@@ -34,15 +34,14 @@
     "This is a stub for the uninstalled `hydra' package."
     `(defun ,(intern (format "%S/body" name)) ()
        (interactive)
-       (if (yes-or-no-p "Package `hydra' not installed. Install?")
-           (progn
-             (package-install 'hydra)
-             (save-window-excursion
-               (find-library "ivy-hydra")
-               (byte-compile-file (buffer-file-name) t)))
-         (error "Please install `hydra' and recompile/reinstall `ivy-hydra'")))))
-
-
+       (let ((enable-recursive-minibuffers t))
+         (if (yes-or-no-p "Package `hydra' not installed. Install?")
+             (progn
+               (package-install 'hydra)
+               (save-window-excursion
+                 (find-library "ivy-hydra")
+                 (byte-compile-file (buffer-file-name) t)))
+           (error "Please install `hydra' and recompile/reinstall `ivy-hydra'"))))))
 
 (defhydra hydra-ivy (:hint nil
                      :color pink)
@@ -50,7 +49,7 @@
 ^^^^^^          ^Yes^     ^No^     ^Maybe^
 ^^^^^^^^^^^^^^---------------------------------------
 ^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")
-_h_ ^✜^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
+_h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
 ^ ^ _j_ ^ ^
 "
   ;; arrows
