@@ -298,6 +298,7 @@ When ARG is t, exit with current text, ignoring the candidates."
              (let ((method (match-string 1 ivy-text))
                    (user (match-string 2 ivy-text))
                    res)
+               (require 'tramp)
                (dolist (x (tramp-get-completion-function method))
                  (setq res (append res (funcall (car x) (cadr x)))))
                (setq res (delq nil res))
@@ -305,8 +306,10 @@ When ARG is t, exit with current text, ignoring the candidates."
                  (dolist (x res)
                    (setcar x user)))
                (setq res (cl-delete-duplicates res :test #'equal))
-               (let ((host (ivy-read "Find File: "
+               (let ((old-ivy-last ivy-last)
+                     (host (ivy-read "Find File: "
                                      (mapcar #'ivy-build-tramp-name res))))
+                 (setq ivy-last old-ivy-last)
                  (when host
                    (setq ivy--directory "/")
                    (ivy--cd (concat "/" method ":" host ":"))))))
