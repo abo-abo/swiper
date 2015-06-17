@@ -529,7 +529,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               :history 'extended-command-history
               :action
               (lambda (cmd)
-                (smex-rank (intern cmd))
+                (when (featurep 'smex)
+                  (smex-rank (intern cmd)))
                 (execute-extended-command current-prefix-arg cmd))
               :sort sort
               :keymap counsel-describe-map
