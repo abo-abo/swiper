@@ -493,6 +493,7 @@ Call the permanent action if possible."
   "Forward to `previous-history-element' with ARG."
   (interactive "p")
   (previous-history-element arg)
+  (ivy--cd-maybe)
   (move-end-of-line 1)
   (ivy--maybe-scroll-history))
 
@@ -500,8 +501,23 @@ Call the permanent action if possible."
   "Forward to `next-history-element' with ARG."
   (interactive "p")
   (next-history-element arg)
+  (ivy--cd-maybe)
   (move-end-of-line 1)
   (ivy--maybe-scroll-history))
+
+(defun ivy--cd-maybe ()
+  "Check if the current input points to a different directory.
+If so, move to that directory, while keeping only the file name."
+  (when ivy--directory
+    (let* ((input (expand-file-name (ivy--input)))
+           (file (file-name-nondirectory input))
+           (dir (expand-file-name (file-name-directory input))))
+      (if (string= dir ivy--directory)
+          (progn
+            (delete-minibuffer-contents)
+            (insert file))
+        (ivy--cd dir)
+        (insert file)))))
 
 (defun ivy--maybe-scroll-history ()
   "If the selected history element has an index, scroll there."
@@ -1367,7 +1383,8 @@ BUFFER may be a string or nil."
 Don't finish completion."
   (interactive)
   (delete-minibuffer-contents)
-  (insert ivy--current))
+  (insert ivy--current)
+  (ivy--cd-maybe))
 
 (defun ivy-toggle-fuzzy ()
   "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."
