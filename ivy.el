@@ -1242,7 +1242,7 @@ CANDIDATES are assumed to be static."
                      res))))
          (tail (nthcdr ivy--index ivy--old-cands))
          idx)
-    (when (and tail ivy--old-cands)
+    (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
       (unless (and (not (equal re ivy--old-re))
                    (or (setq ivy--index
                              (or
