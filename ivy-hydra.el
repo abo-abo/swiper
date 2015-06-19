@@ -51,7 +51,7 @@
 ^^^^^^^^^^^^^^---------------------------------------
 ^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")
 _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
-^ ^ _j_ ^ ^
+^ ^ _j_ ^ ^     ^ ^       ^ ^      _<_/_>_: shrink/grow window
 "
   ;; arrows
   ("h" ivy-beginning-of-buffer)
@@ -66,7 +66,9 @@ _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'i
   ("d" ivy-done :exit t)
   ("C-m" ivy-done :exit t)
   ("c" ivy-toggle-calling)
-  ("m" ivy-toggle-fuzzy))
+  ("m" ivy-toggle-fuzzy)
+  (">" ivy-minibuffer-grow)
+  ("<" ivy-minibuffer-shrink))
 
 (provide 'ivy-hydra)
 

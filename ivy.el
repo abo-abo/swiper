@@ -422,6 +422,19 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (ivy-set-index (max (- ivy--index ivy-height)
                       0)))
+(defun ivy-minibuffer-grow ()
+  "Grow the minibuffer window by 1 line"
+  (interactive)
+  (setq-local max-mini-window-height
+              (cl-incf ivy-height)))
+
+(defun ivy-minibuffer-shrink ()
+  "Shrink the minibuffer window by 1 line."
+  (interactive)
+  (unless (<= ivy-height 2)
+    (setq-local max-mini-window-height
+                (cl-decf ivy-height))
+    (window-resize (selected-window) -1)))
 
 (defun ivy-next-line (&optional arg)
   "Move cursor vertically down ARG candidates."
