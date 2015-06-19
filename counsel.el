@@ -487,19 +487,15 @@ When NO-ASYNC is non-nil, do it synchronously."
                (ivy--insert-minibuffer
                 (ivy--format ivy--all-candidates)))))))))
 
-(defun counsel--format-function-M-x (cands)
-  "Join CANDS, a list of command names, with newlines.
-If a command is bound, add it's binding after it."
-  (with-selected-window (ivy-state-window ivy-last)
-    (mapconcat (lambda (x)
-                 (let ((binding (substitute-command-keys (format "\\[%s]" x))))
-                   (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
-                   (if (string-match "^M-x" binding)
-                       x
-                     (format "%s (%s)" x
-                             (propertize binding 'face 'font-lock-keyword-face)))))
-               cands
-               "\n")))
+(defun counsel--M-x-transformer (cmd)
+  "Add a binding to CMD if it's bound in the current window.
+CMD is a command name."
+  (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
+    (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
+    (if (string-match "^M-x" binding)
+        cmd
+      (format "%s (%s)" cmd
+              (propertize binding 'face 'font-lock-keyword-face)))))
 
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
@@ -509,10 +505,16 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
   (unless initial-input
     (setq initial-input (cdr (assoc this-command
                                     ivy-initial-inputs-alist))))
-  (let ((ivy-format-function #'counsel--format-function-M-x)
-        (cands obarray)
-        (pred 'commandp)
-        (sort t))
+  (let* ((store ivy-format-function)
+         (ivy-format-function
+          (lambda (cands)
+            (funcall
+             store
+             (with-selected-window (ivy-state-window ivy-last)
+               (mapcar #'counsel--M-x-transformer cands)))))
+         (cands obarray)
+         (pred 'commandp)
+         (sort t))
     (when (or (featurep 'smex)
               (package-installed-p 'smex))
       (require 'smex)

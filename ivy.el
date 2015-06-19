@@ -1275,8 +1275,8 @@ This string will be inserted into the minibuffer.")
     (mapconcat
      (lambda (s)
        (concat (if (eq (cl-incf i) ivy--index)
-                   "==> "
-                 "    ")
+                   "> "
+                 "  ")
                s))
      cands "\n")))
 
