@@ -124,6 +124,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-j") 'ivy-yank-word)
     (define-key map (kbd "M-i") 'ivy-insert-current)
     (define-key map (kbd "C-o") 'hydra-ivy/body)
+    (define-key map (kbd "C-k") 'ivy-kill-line)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -588,6 +589,13 @@ On error (read-only), call `ivy-on-del-error-function'."
   (interactive "p")
   (unless (= (point) (line-end-position))
     (kill-word arg)))
+
+(defun ivy-kill-line ()
+  "Forward to `kill-line'."
+  (interactive)
+  (if (eolp)
+      (kill-region (minibuffer-prompt-end) (point))
+    (kill-line)))
 
 (defun ivy-backward-kill-word ()
   "Forward to `backward-kill-word'."
