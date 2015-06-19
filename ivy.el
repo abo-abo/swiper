@@ -1158,7 +1158,7 @@ Should be run via minibuffer `post-command-hook'."
 		   (let ((drive-root (match-string 0 ivy-text)))
 		     (when (file-exists-p drive-root)
 		       (ivy--cd drive-root)))))
-             (if (string-match "~\\'" ivy-text)
+             (if (string-match "\\`~\\'" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
           ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
            (when (or (and (string-match "\\` " ivy-text)
