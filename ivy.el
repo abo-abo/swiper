@@ -314,10 +314,11 @@ When ARG is t, exit with current text, ignoring the candidates."
                (dolist (x res)
                  (setcar x user)))
              (setq res (cl-delete-duplicates res :test #'equal))
-             (let ((old-ivy-last ivy-last)
-                   (host (ivy-read "Find File: "
-                                   (mapcar #'ivy-build-tramp-name res)
-                                   :initial-input rest)))
+             (let* ((old-ivy-last ivy-last)
+                    (enable-recursive-minibuffers t)
+                    (host (ivy-read "Find File: "
+                                    (mapcar #'ivy-build-tramp-name res)
+                                    :initial-input rest)))
                (setq ivy-last old-ivy-last)
                (when host
                  (setq ivy--directory "/")
