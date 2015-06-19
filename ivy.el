@@ -295,9 +295,10 @@ When ARG is t, exit with current text, ignoring the candidates."
                                        (expand-file-name x ivy--directory)
                                        "Top"))))
                (ivy-done)))
-            ((and ivy--directory (string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text))
+            ((and ivy--directory (string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'" ivy-text))
              (let ((method (match-string 1 ivy-text))
                    (user (match-string 2 ivy-text))
+                   (rest (match-string 3 ivy-text))
                    res)
                (require 'tramp)
                (dolist (x (tramp-get-completion-function method))
@@ -309,7 +310,8 @@ When ARG is t, exit with current text, ignoring the candidates."
                (setq res (cl-delete-duplicates res :test #'equal))
                (let ((old-ivy-last ivy-last)
                      (host (ivy-read "Find File: "
-                                     (mapcar #'ivy-build-tramp-name res))))
+                                     (mapcar #'ivy-build-tramp-name res)
+                                     :initial-input rest)))
                  (setq ivy-last old-ivy-last)
                  (when host
                    (setq ivy--directory "/")
