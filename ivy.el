@@ -1409,8 +1409,10 @@ BUFFER may be a string or nil."
 Don't finish completion."
   (interactive)
   (delete-minibuffer-contents)
-  (insert ivy--current)
-  (ivy--cd-maybe))
+  (if (and ivy--directory
+           (string-match "/$" ivy--current))
+      (insert (substring ivy--current 0 -1))
+    (insert ivy--current)))
 
 (defun ivy-toggle-fuzzy ()
   "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."
