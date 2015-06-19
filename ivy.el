@@ -1151,7 +1151,7 @@ Should be run via minibuffer `post-command-hook'."
                    (ivy--cd (expand-file-name ivy-text ivy--directory))
                  (when (string-match "//\\'" ivy-text)
 		   (if (and default-directory
-			    (string-match "[[:alpha:]]:/" default-directory))
+			    (string-match "\\`[[:alpha:]]:/" default-directory))
 		       (ivy--cd (match-string 0 default-directory))
 		     (ivy--cd "/")))
 		 (when (string-match "[[:alpha:]]:/" ivy-text)
