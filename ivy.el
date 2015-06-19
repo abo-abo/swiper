@@ -665,6 +665,8 @@ like.")
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
     (counsel-M-x . "^")
+    (counsel-describe-function . "^")
+    (counsel-describe-variable . "^")
     (man . "^")
     (woman . "^"))
   "Command to initial input table.")
