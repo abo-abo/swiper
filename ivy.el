@@ -295,7 +295,7 @@ When ARG is t, exit with current text, ignoring the candidates."
                                        (expand-file-name x ivy--directory)
                                        "Top"))))
                (ivy-done)))
-            ((string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text)
+            ((and ivy--directory (string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?" ivy-text))
              (let ((method (match-string 1 ivy-text))
                    (user (match-string 2 ivy-text))
                    res)
