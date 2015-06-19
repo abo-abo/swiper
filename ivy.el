@@ -272,52 +272,58 @@ Is is a cons cell, related to `tramp-get-completion-function'."
   "Exit the minibuffer with the selected candidate.
 When ARG is t, exit with current text, ignoring the candidates."
   (interactive "P")
-  (if arg
-      (ivy-immediate-done)
-    (let (dir)
-      (cond ((and ivy--directory
-                  (or
-                   (and
-                    (not (string= ivy--current "./"))
-                    (cl-plusp ivy--length)
-                    (file-directory-p
-                     (setq dir (expand-file-name
-                                ivy--current ivy--directory))))))
-             (ivy--cd dir)
-             (ivy--exhibit))
-            ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
-             (if (or (equal ivy--current "(./)")
-                     (equal ivy--current "(../)"))
-                 (ivy-quit-and-run
-                  (ivy-read "Go to file: " 'read-file-name-internal
-                            :action (lambda (x)
-                                      (Info-find-node
-                                       (expand-file-name x ivy--directory)
-                                       "Top"))))
-               (ivy-done)))
-            ((and ivy--directory (string-match "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'" ivy-text))
-             (let ((method (match-string 1 ivy-text))
-                   (user (match-string 2 ivy-text))
-                   (rest (match-string 3 ivy-text))
-                   res)
-               (require 'tramp)
-               (dolist (x (tramp-get-completion-function method))
-                 (setq res (append res (funcall (car x) (cadr x)))))
-               (setq res (delq nil res))
-               (when user
-                 (dolist (x res)
-                   (setcar x user)))
-               (setq res (cl-delete-duplicates res :test #'equal))
-               (let ((old-ivy-last ivy-last)
-                     (host (ivy-read "Find File: "
-                                     (mapcar #'ivy-build-tramp-name res)
-                                     :initial-input rest)))
-                 (setq ivy-last old-ivy-last)
-                 (when host
-                   (setq ivy--directory "/")
-                   (ivy--cd (concat "/" method ":" host ":"))))))
-            (t
-             (ivy-done))))))
+  (let (dir)
+    (cond (arg
+           (ivy-immediate-done))
+          ((and ivy--directory
+                (or
+                 (and
+                  (not (string= ivy--current "./"))
+                  (cl-plusp ivy--length)
+                  (file-directory-p
+                   (setq dir (expand-file-name
+                              ivy--current ivy--directory))))))
+           (ivy--cd dir)
+           (ivy--exhibit))
+          ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
+           (if (or (equal ivy--current "(./)")
+                   (equal ivy--current "(../)"))
+               (ivy-quit-and-run
+                (ivy-read "Go to file: " 'read-file-name-internal
+                          :action (lambda (x)
+                                    (Info-find-node
+                                     (expand-file-name x ivy--directory)
+                                     "Top"))))
+             (ivy-done)))
+          ((and ivy--directory
+                (string-match "\\`/[^/]+:.*:.*\\'" ivy-text))
+           (ivy-done))
+          ((and ivy--directory
+                (string-match
+                 "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                 ivy-text))
+           (let ((method (match-string 1 ivy-text))
+                 (user (match-string 2 ivy-text))
+                 (rest (match-string 3 ivy-text))
+                 res)
+             (require 'tramp)
+             (dolist (x (tramp-get-completion-function method))
+               (setq res (append res (funcall (car x) (cadr x)))))
+             (setq res (delq nil res))
+             (when user
+               (dolist (x res)
+                 (setcar x user)))
+             (setq res (cl-delete-duplicates res :test #'equal))
+             (let ((old-ivy-last ivy-last)
+                   (host (ivy-read "Find File: "
+                                   (mapcar #'ivy-build-tramp-name res)
+                                   :initial-input rest)))
+               (setq ivy-last old-ivy-last)
+               (when host
+                 (setq ivy--directory "/")
+                 (ivy--cd (concat "/" method ":" host ":"))))))
+          (t
+           (ivy-done)))))
 
 (defcustom ivy-tab-space nil
   "When non-nil, `ivy-partial-or-done' should insert a space."
