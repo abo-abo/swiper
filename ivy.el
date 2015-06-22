@@ -673,6 +673,8 @@ like.")
 
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
+    (org-agenda-refile . "^")
+    (org-capture-refile . "^")
     (counsel-M-x . "^")
     (counsel-describe-function . "^")
     (counsel-describe-variable . "^")
