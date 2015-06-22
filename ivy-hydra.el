@@ -60,6 +60,7 @@ _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'i
   ("l" ivy-end-of-buffer)
   ;; actions
   ("o" keyboard-escape-quit :exit t)
+  ("C-g" keyboard-escape-quit :exit t)
   ("i" nil)
   ("f" ivy-alt-done :exit nil)
   ("C-j" ivy-alt-done :exit nil)
