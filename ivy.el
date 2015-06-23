@@ -1321,6 +1321,15 @@ CANDS is a list of strings."
       (setq ivy--current (copy-sequence (nth index cands)))
       (setf (nth index cands)
             (ivy--add-face ivy--current 'ivy-current-match))
+      (setq cands (mapcar
+                   (lambda (s)
+                     (let ((s (copy-sequence s)))
+                       (add-face-text-property
+                        0 (length s)
+                        `(:height ,(face-attribute 'default :height)
+                                  :overline nil) nil s)
+                       s))
+                   cands))
       (let* ((ivy--index index)
              (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
