@@ -542,6 +542,30 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               :keymap counsel-describe-map
               :initial-input initial-input)))
 
+(declare-function powerline-reset "ext:powerline")
+
+(defun counsel--load-theme-action (x)
+  "Disable current themes and load theme X."
+  (condition-case nil
+      (progn
+        (mapc #'disable-theme custom-enabled-themes)
+        (load-theme (intern x))
+        (when (fboundp 'powerline-reset)
+          (powerline-reset)))
+    (error "Problem loading theme %s" x)))
+
+;;;###autoload
+(defun counsel-load-theme ()
+  "Forward to `load-theme'.
+Usable with `ivy-resume', `ivy-next-line-and-call' and
+`ivy-previous-line-and-call'."
+  (interactive)
+  (ivy-read "Load custom theme: "
+            (mapcar 'symbol-name
+                    (custom-available-themes))
+            :action #'counsel--load-theme-action))
+
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
