@@ -1324,10 +1324,11 @@ CANDS is a list of strings."
       (setq cands (mapcar
                    (lambda (s)
                      (let ((s (copy-sequence s)))
-                       (add-face-text-property
-                        0 (length s)
-                        `(:height ,(face-attribute 'default :height)
-                                  :overline nil) nil s)
+                       (when (fboundp 'add-face-text-property)
+                         (add-face-text-property
+                          0 (length s)
+                          `(:height ,(face-attribute 'default :height)
+                                    :overline nil) nil s))
                        s))
                    cands))
       (let* ((ivy--index index)
