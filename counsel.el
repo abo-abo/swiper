@@ -167,14 +167,15 @@
 (defun counsel-unicode-char ()
   "Insert a Unicode character at point."
   (interactive)
-  (let* ((minibuffer-allow-text-properties t)
-         (char (ivy-read "Unicode name: "
-                         (mapcar (lambda (x)
-                                   (propertize
-                                    (format "% -60s%c" (car x) (cdr x))
-                                    'result (cdr x)))
-                                 (ucs-names)))))
-    (insert-char (get-text-property 0 'result char))))
+  (let ((minibuffer-allow-text-properties t))
+    (ivy-read "Unicode name: "
+              (mapcar (lambda (x)
+                        (propertize
+                         (format "% -60s%c" (car x) (cdr x))
+                         'result (cdr x)))
+                      (ucs-names))
+              :action (lambda (char)
+                        (insert-char (get-text-property 0 'result char))))))
 
 (declare-function cider-sync-request:complete "ext:cider-client")
 ;;;###autoload
