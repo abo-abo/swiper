@@ -76,6 +76,8 @@ See also `font-lock-append-text-property'."
     (while (/= start end)
       (setq next (next-single-property-change start 'face object end)
             prev (get-text-property start 'face object))
+      (when (listp prev)
+        (setq prev (cl-find-if #'atom prev)))
       (if prev
           (let ((background-prev (face-background prev)))
             (progn
