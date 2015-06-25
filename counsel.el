@@ -501,6 +501,13 @@ CMD is a command name."
       (format "%s (%s)" cmd
               (propertize binding 'face 'font-lock-keyword-face)))))
 
+(defvar smex-initialized-p)
+(defvar smex-ido-cache)
+(declare-function smex-initialize "ext:smex")
+(declare-function smex-detect-new-commands "ext:smex")
+(declare-function smex-update "ext:smex")
+(declare-function smex-rank "ext:smex")
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
