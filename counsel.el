@@ -254,6 +254,9 @@
         (swiper--cleanup)
         (swiper--add-overlays (ivy--regex ivy-text))))))
 
+(defvar counsel-git-grep-history nil
+  "History for `counsel-git-grep'.")
+
 ;;;###autoload
 (defun counsel-git-grep (&optional initial-input)
   "Grep for a string in the current git repository."
@@ -270,7 +273,8 @@
                                     'counsel-git-grep-function)
               :keymap counsel-git-grep-map
               :action #'counsel-git-grep-action
-              :unwind #'swiper--cleanup)))
+              :unwind #'swiper--cleanup
+              :history 'counsel-git-grep-history)))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
