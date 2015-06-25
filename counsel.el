@@ -294,7 +294,9 @@
               (find-file (expand-file-name x ivy--directory)))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
-                         (ffap-guesser))))
+                         (ffap-guesser))
+            :require-match 'confirm-after-completion
+            :history 'file-name-history))
 
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
@@ -511,6 +513,7 @@ CMD is a command name."
 (declare-function smex-detect-new-commands "ext:smex")
 (declare-function smex-update "ext:smex")
 (declare-function smex-rank "ext:smex")
+(declare-function package-installed-p "package")
 
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
