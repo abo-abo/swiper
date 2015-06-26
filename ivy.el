@@ -743,9 +743,6 @@ MATCHER can completely override matching.
 
 DYNAMIC-COLLECTION is a function to call to update the list of
 candidates with each input."
-  (unless initial-input
-    (setq initial-input (cdr (assoc this-command
-                                    ivy-initial-inputs-alist))))
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -774,7 +771,7 @@ candidates with each input."
                     (minibuffer-completion-predicate predicate)
                     (res (read-from-minibuffer
                           prompt
-                          initial-input
+                          (ivy-state-initial-input ivy-last)
                           (make-composed-keymap keymap ivy-minibuffer-map)
                           nil
                           hist)))
@@ -805,6 +802,9 @@ This is useful for recursive `ivy-read'."
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
         (require-match (ivy-state-require-match state)))
+    (unless initial-input
+      (setq initial-input (cdr (assoc this-command
+                                      ivy-initial-inputs-alist))))
     (setq ivy--directory nil)
     (setq ivy--regex-function
           (or re-builder
@@ -884,7 +884,8 @@ This is useful for recursive `ivy-read'."
                 (ivy--directory
                  prompt)
                 (t
-                 nil)))))
+                 nil)))
+    (setf (ivy-state-initial-input ivy-last) initial-input)))
 
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
