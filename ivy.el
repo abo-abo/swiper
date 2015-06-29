@@ -815,6 +815,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--subexps 0)
     (setq ivy--regexp-quote 'regexp-quote)
     (setq ivy--old-text "")
+    (setq ivy--full-length nil)
     (setq ivy-text "")
     (setq ivy-calling nil)
     (let (coll sort-fn)

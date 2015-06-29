@@ -38,8 +38,61 @@
 (defun counsel-el ()
   "Elisp completion at point."
   (interactive)
-  (counsel--generic
-   (lambda (str) (all-completions str obarray))))
+  (let* ((bnd (unless (and (looking-at ")")
+                           (eq (char-before) ?\())
+                (bounds-of-thing-at-point
+                 'symbol)))
+         (str (if bnd
+                  (buffer-substring-no-properties
+                   (car bnd)
+                   (cdr bnd))
+                ""))
+         (ivy-height 7)
+         (funp (eq (char-before (car bnd)) ?\())
+         symbol-names)
+    (if bnd
+        (progn
+          (setq counsel-completion-beg
+                (move-marker (make-marker) (car bnd)))
+          (setq counsel-completion-end
+                (move-marker (make-marker) (cdr bnd))))
+      (setq counsel-completion-beg nil)
+      (setq counsel-completion-end nil))
+    (if (string= str "")
+        (mapatoms
+         (lambda (x)
+           (when (symbolp x)
+             (push (symbol-name x) symbol-names))))
+      (setq symbol-names
+            (all-completions str obarray
+                             (and funp
+                                  (lambda (x)
+                                    (or (functionp x)
+                                        (macrop x)
+                                        (special-form-p x)))))))
+    (ivy-read "Symbol name: " symbol-names
+              :predicate (and funp #'functionp)
+              :initial-input str
+              :action #'counsel--el-action)))
+
+(defvar counsel-completion-beg nil
+  "Completion bounds start.")
+
+(defvar counsel-completion-end nil
+  "Completion bounds end.")
+
+(defun counsel--el-action (symbol)
+  "Insert SYMBOL, erasing the previous one."
+  (when (stringp symbol)
+    (when counsel-completion-beg
+      (delete-region
+       counsel-completion-beg
+       counsel-completion-end))
+    (setq counsel-completion-beg
+          (move-marker (make-marker) (point)))
+    (insert symbol)
+    (setq counsel-completion-end
+          (move-marker (make-marker) (point)))))
 
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
