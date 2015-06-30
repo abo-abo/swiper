@@ -351,7 +351,8 @@
                          (require 'ffap)
                          (ffap-guesser))
             :require-match 'confirm-after-completion
-            :history 'file-name-history))
+            :history 'file-name-history
+            :keymap counsel-find-file-map))
 
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.

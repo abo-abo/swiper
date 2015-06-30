@@ -1430,7 +1430,8 @@ BUFFER may be a string or nil."
       (call-interactively 'switch-to-buffer)
     (ivy-read "Switch to buffer: " 'internal-complete-buffer
               :preselect (buffer-name (other-buffer (current-buffer)))
-              :action #'ivy--switch-buffer-action)))
+              :action #'ivy--switch-buffer-action
+              :keymap ivy-switch-buffer-map)))
 
 (defun ivy-recentf ()
   "Find a file on `recentf-list'."
