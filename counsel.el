@@ -336,6 +336,8 @@
 
 (declare-function ffap-guesser "ffap")
 
+(defvar counsel-find-file-map (make-sparse-keymap))
+
 ;;;###autoload
 (defun counsel-find-file ()
   "Forward to `find-file'."
