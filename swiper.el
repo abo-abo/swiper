@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.4.1
+;; Version: 0.5.1
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 

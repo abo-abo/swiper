@@ -401,16 +401,43 @@ Skip some dotfiles unless `ivy-text' requires them."
   (if (< (length str) 3)
       (list ""
             (format "%d chars more" (- 3 (length ivy-text))))
-    (split-string
-     (shell-command-to-string (concat "locate -i -l 20 --regex " (ivy--regex str))) "\n" t)))
+    (counsel--async-command
+     (concat "locate -i --regex " (ivy--regex str)))))
+
+(defun counsel--async-command (cmd)
+  (let* ((counsel--process " *counsel*")
+         (proc (get-process counsel--process))
+         (buff (get-buffer counsel--process)))
+    (when proc
+      (delete-process proc))
+    (when buff
+      (kill-buffer buff))
+    (setq proc (start-process-shell-command
+                counsel--process
+                counsel--process
+                cmd))
+    (set-process-sentinel proc #'counsel--async-sentinel)))
+
+(defun counsel--async-sentinel (process event)
+  (if (string= event "finished\n")
+      (progn
+        (with-current-buffer (process-buffer process)
+          (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
+          (setq ivy--old-cands ivy--all-candidates))
+        (ivy--insert-minibuffer
+         (ivy--format ivy--all-candidates)))
+    (if (string= event "exited abnormally with code 1\n")
+        (message "Error"))))
 
 ;;;###autoload
 (defun counsel-locate ()
   "Call locate."
   (interactive)
-  (let ((val (ivy-read "pattern: " 'counsel-locate-function)))
-    (when val
-      (find-file val))))
+  (ivy-read "pattern: " nil
+            :dynamic-collection #'counsel-locate-function
+            :action (lambda (val)
+                      (when val
+                        (find-file val)))))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
