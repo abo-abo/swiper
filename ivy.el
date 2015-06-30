@@ -1469,7 +1469,13 @@ BUFFER may be a string or nil."
       (call-interactively 'switch-to-buffer)
     (ivy-read "Switch to buffer: " 'internal-complete-buffer
               :preselect (buffer-name (other-buffer (current-buffer)))
-              :action #'ivy--switch-buffer-action
+              :action (cons
+                       1
+                       '(("default" ivy--switch-buffer-action)
+                         ("kill"
+                          (lambda (x)
+                            (kill-buffer x)
+                            (ivy--reset-state ivy-last)))))
               :keymap ivy-switch-buffer-map)))
 
 (defun ivy-recentf ()
