@@ -1421,6 +1421,8 @@ BUFFER may be a string or nil."
         (switch-to-buffer
          buffer nil 'force-same-window)))))
 
+(defvar ivy-switch-buffer-map (make-sparse-keymap))
+
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
