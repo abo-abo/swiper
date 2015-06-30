@@ -125,6 +125,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-i") 'ivy-insert-current)
     (define-key map (kbd "C-o") 'hydra-ivy/body)
     (define-key map (kbd "C-k") 'ivy-kill-line)
+    (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -1482,6 +1483,13 @@ The selected history element will be inserted into the minibufer."
                         (delete-minibuffer-contents)
                         (insert (substring-no-properties x))
                         (ivy--cd-maybe)))))
+
+(defun ivy-restrict-to-matches ()
+  "Restrict candidates to current matches and erase input."
+  (interactive)
+  (delete-minibuffer-contents)
+  (setq ivy--all-candidates
+        (ivy--filter ivy-text ivy--all-candidates)))
 
 (provide 'ivy)
 
