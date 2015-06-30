@@ -432,15 +432,31 @@ Skip some dotfiles unless `ivy-text' requires them."
     (if (string= event "exited abnormally with code 1\n")
         (message "Error"))))
 
+(defun counsel-locate-action-extern (x)
+  "Use xdg-open shell command on X."
+  (call-process shell-file-name nil
+                nil nil
+                shell-command-switch
+                (format "xdg-open %s" (shell-quote-argument x))))
+
+(defun counsel-locate-action-dired (x)
+  "Use `dired-jump' on X."
+  (dired-jump nil x))
+
 ;;;###autoload
 (defun counsel-locate ()
-  "Call locate."
+  "Call locate shell command."
   (interactive)
-  (ivy-read "pattern: " nil
+  (ivy-read "Locate: " nil
             :dynamic-collection #'counsel-locate-function
-            :action (lambda (val)
-                      (when val
-                        (find-file val)))))
+            :action
+            (cons
+             1
+             '(("default" (lambda (val)
+                            (when val
+                              (find-file val))))
+               ("xdg-open" counsel-locate-action-extern)
+               ("dired" counsel-locate-action-dired)))))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."

@@ -47,9 +47,9 @@
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
-^^^^^^          ^Yes^     ^No^     ^Maybe^
-^^^^^^^^^^^^^^---------------------------------------
-^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")
+^^^^^^          ^Yes^     ^No^     ^Maybe^           ^Action^ 
+^^^^^^^^^^^^^^---------------------------------------------------
+^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")  _w_/_s_: %s(ivy-action-name)
 _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
 ^ ^ _j_ ^ ^     ^ ^       ^ ^      _<_/_>_: shrink/grow window
 "
@@ -70,7 +70,9 @@ _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'i
   ("c" ivy-toggle-calling)
   ("m" ivy-toggle-fuzzy)
   (">" ivy-minibuffer-grow)
-  ("<" ivy-minibuffer-shrink))
+  ("<" ivy-minibuffer-shrink)
+  ("w" ivy-prev-action)
+  ("s" ivy-next-action))
 
 (provide 'ivy-hydra)
 

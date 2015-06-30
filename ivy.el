@@ -491,11 +491,50 @@ If the input is empty, select the previous history element instead."
   (when (setq ivy-calling (not ivy-calling))
     (ivy-call)))
 
+(defun ivy--get-action (state)
+  "Get the action function from STATE."
+  (let ((action (ivy-state-action state)))
+    (when action
+      (if (functionp action)
+          action
+        (cadr (nth (car action) action))))))
+
+(defun ivy--actionp (x)
+  "Return non-nil when X is a list of actions."
+  (and x (listp x) (not (eq (car x) 'closure))))
+
+(defun ivy-next-action ()
+  "When the current action is a list, scroll it forwards."
+  (interactive)
+  (let ((action (ivy-state-action ivy-last)))
+    (when (ivy--actionp action)
+      (unless (>= (car action) (1- (length action)))
+        (cl-incf (car action))))))
+
+(defun ivy-prev-action ()
+  "When the current action is a list, scroll it backwards."
+  (interactive)
+  (let ((action (ivy-state-action ivy-last)))
+    (when (ivy--actionp action)
+      (unless (<= (car action) 1)
+        (cl-decf (car action))))))
+
+(defun ivy-action-name ()
+  "Return the name associated with the current action."
+  (let ((action (ivy-state-action ivy-last)))
+    (if (ivy--actionp action)
+        (format "[%d/%d] %s"
+                (car action)
+                (1- (length action))
+                (car (nth (car action) action)))
+      "[1/1] default")))
+
 (defun ivy-call ()
   "Call the current action without exiting completion."
-  (when (ivy-state-action ivy-last)
-    (with-selected-window (ivy-state-window ivy-last)
-      (funcall (ivy-state-action ivy-last) ivy--current))))
+  (let ((action (ivy--get-action ivy-last)))
+    (when action
+      (with-selected-window (ivy-state-window ivy-last)
+        (funcall action ivy--current)))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
@@ -787,7 +826,7 @@ candidates with each input."
         (remove-hook 'post-command-hook #'ivy--exhibit)
         (when (setq unwind (ivy-state-unwind ivy-last))
           (funcall unwind)))
-    (when (setq action (ivy-state-action ivy-last))
+    (when (setq action (ivy--get-action ivy-last))
       (funcall action ivy--current))))
 
 (defun ivy--reset-state (state)
