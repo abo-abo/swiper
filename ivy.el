@@ -1155,21 +1155,29 @@ Insert .* between each char."
       (let ((inhibit-read-only t)
             (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
-             (format
               (concat
                (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
                         (> (minibuffer-depth) 1))
                    (format "[%d] " (minibuffer-depth))
                  "")
-               head
-               ivy--prompt-extra
-               tail
+               (if (string-match "%[-0-9 ]*d.*%[-0-9 ]*d" ivy-count-format)
+                   (concat (format ivy-count-format (1+ ivy--index) ivy--length)
+                           " "
+                           ;; work around swiper
+                           (let ((pr (ivy-state-prompt ivy-last)))
+                             (if (string-match "%[-0-9 ]*d" pr)
+                                 (substring pr (1+ (match-end 0)))
+                               pr)))
+                 (concat (format
+                          head
+                          (or (and (ivy-state-dynamic-collection ivy-last)
+                                   ivy--full-length)
+                              ivy--length))
+                         ivy--prompt-extra
+                         tail))
                (if ivy--directory
                    (abbreviate-file-name ivy--directory)
-                 ""))
-              (or (and (ivy-state-dynamic-collection ivy-last)
-                       ivy--full-length)
-                  ivy--length))))
+                 ""))))
         (save-excursion
           (goto-char (point-min))
           (delete-region (point-min) (minibuffer-prompt-end))
