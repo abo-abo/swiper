@@ -870,6 +870,13 @@ This is useful for recursive `ivy-read'."
             ((eq collection 'read-file-name-internal)
              (setq ivy--directory default-directory)
              (require 'dired)
+             (when preselect
+               (let ((preselect-directory (file-name-directory preselect)))
+                 (unless (string= preselect-directory
+                                  default-directory)
+                   (setq coll (ivy--sorted-files
+                               (setq ivy--directory preselect-directory)))
+                   (setq preselect (file-name-nondirectory preselect)))))
              (setq coll
                    (ivy--sorted-files default-directory))
              (when initial-input
