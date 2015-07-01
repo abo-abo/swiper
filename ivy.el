@@ -876,11 +876,9 @@ This is useful for recursive `ivy-read'."
                  (unless (or (null preselect-directory)
                              (string= preselect-directory
                                       default-directory))
-                   (setq coll (ivy--sorted-files
-                               (setq ivy--directory preselect-directory)))
-                   (setq preselect (file-name-nondirectory preselect)))))
-             (setq coll
-                   (ivy--sorted-files default-directory))
+                   (setq ivy--directory preselect-directory))
+                 (setq preselect (file-name-nondirectory preselect))))
+             (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
                            (equal initial-input default-directory)
