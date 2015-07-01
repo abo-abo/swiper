@@ -819,9 +819,10 @@ candidates with each input."
                  (let ((item (if ivy--directory
                                  ivy--current
                                ivy-text)))
-                   (set hist (cons (propertize item 'ivy-index ivy--index)
-                                   (delete item
-                                           (cdr (symbol-value hist))))))
+                   (unless (equal item "")
+                     (set hist (cons (propertize item 'ivy-index ivy--index)
+                                     (delete item
+                                             (cdr (symbol-value hist)))))))
                  res)))
         (remove-hook 'post-command-hook #'ivy--exhibit)
         (when (setq unwind (ivy-state-unwind ivy-last))
