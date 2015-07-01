@@ -1279,6 +1279,7 @@ Should be run via minibuffer `post-command-hook'."
 CANDIDATES are assumed to be static."
   (let* ((re (funcall ivy--regex-function name))
          (matcher (ivy-state-matcher ivy-last))
+         (case-fold-search (string= name (downcase name)))
          (cands (cond
                   (matcher
                    (funcall matcher re candidates))

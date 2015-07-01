@@ -114,3 +114,11 @@
                    #("\nDESCRIPTION\nFUNCTION LETTERS\nSWITCHES\nDIAGNOSTICS\nEXAMPLE 1\nEXAMPLE 2\nEXAMPLE 3\nSEE ALSO\nAUTHOR"
                      0 90 (read-only nil)
                      90 96 (face ivy-current-match read-only nil)))))
+
+(ert-deftest ivy--filter ()
+  (setq ivy-last (make-ivy-state))
+  (should (equal (ivy--filter "the" '("foo" "the" "The"))
+                 '("the" "The")))
+  (should (equal (ivy--filter "The" '("foo" "the" "The"))
+                 '("The"))))
+
