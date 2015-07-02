@@ -244,8 +244,7 @@ Please remove it and update the \"swiper\" package."))
         res)
     (unwind-protect
          (setq res (ivy-read
-                    (replace-regexp-in-string
-                     "%s" "pattern: " swiper--format-spec)
+                    "Swiper: "
                     candidates
                     :initial-input initial-input
                     :keymap swiper-map

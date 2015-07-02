@@ -927,6 +927,17 @@ This is useful for recursive `ivy-read'."
     (setq ivy--prompt
           (cond ((string-match "%.*d" prompt)
                  prompt)
+                ((string-match "%d.*%d" ivy-count-format)
+                 (let ((w (length (number-to-string
+                                   (length ivy--all-candidates))))
+                       (s (copy-sequence ivy-count-format)))
+                   (string-match "%d" s)
+                   (match-end 0)
+                   (string-match "%d" s (match-end 0))
+                   (setq s (replace-match (format "%%-%dd" w) nil nil s))
+                   (string-match "%d" s)
+                   (concat (replace-match (format "%%%dd" w) nil nil s)
+                           prompt)))
                 ((string-match "%.*d" ivy-count-format)
                  (concat ivy-count-format prompt))
                 (ivy--directory
@@ -1155,29 +1166,27 @@ Insert .* between each char."
       (let ((inhibit-read-only t)
             (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
+             (concat
+              (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
+                       (> (minibuffer-depth) 1))
+                  (format "[%d] " (minibuffer-depth))
+                "")
               (concat
-               (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
-                        (> (minibuffer-depth) 1))
-                   (format "[%d] " (minibuffer-depth))
-                 "")
-               (if (string-match "%[-0-9 ]*d.*%[-0-9 ]*d" ivy-count-format)
-                   (concat (format ivy-count-format (1+ ivy--index) ivy--length)
-                           " "
-                           ;; work around swiper
-                           (let ((pr (ivy-state-prompt ivy-last)))
-                             (if (string-match "%[-0-9 ]*d" pr)
-                                 (substring pr (1+ (match-end 0)))
-                               pr)))
-                 (concat (format
-                          head
-                          (or (and (ivy-state-dynamic-collection ivy-last)
-                                   ivy--full-length)
-                              ivy--length))
-                         ivy--prompt-extra
-                         tail))
-               (if ivy--directory
-                   (abbreviate-file-name ivy--directory)
-                 ""))))
+               (if (string-match "%d.*%d" ivy-count-format)
+                   (format head
+                           (1+ ivy--index)
+                           (or (and (ivy-state-dynamic-collection ivy-last)
+                                    ivy--full-length)
+                               ivy--length))
+                 (format head
+                         (or (and (ivy-state-dynamic-collection ivy-last)
+                                  ivy--full-length)
+                             ivy--length)))
+               ivy--prompt-extra
+               tail)
+              (if ivy--directory
+                  (abbreviate-file-name ivy--directory)
+                ""))))
         (save-excursion
           (goto-char (point-min))
           (delete-region (point-min) (minibuffer-prompt-end))
