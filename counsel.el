@@ -446,6 +446,11 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
+(ivy-set-actions
+ 'counsel-locate
+ '(("xdg-open" counsel-locate-action-extern)
+   ("dired" counsel-locate-action-dired)))
+
 ;;;###autoload
 (defun counsel-locate ()
   "Call locate shell command."
@@ -454,13 +459,9 @@ Skip some dotfiles unless `ivy-text' requires them."
             :dynamic-collection #'counsel-locate-function
             :history 'counsel-locate-history
             :action
-            (cons
-             1
-             '(("default" (lambda (val)
-                            (when val
-                              (find-file val))))
-               ("xdg-open" counsel-locate-action-extern)
-               ("dired" counsel-locate-action-dired)))))
+            (lambda (val)
+              (when val
+                (find-file val)))))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."

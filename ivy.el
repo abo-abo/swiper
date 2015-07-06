@@ -90,6 +90,14 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   "When non-nil, add `recentf-mode' and bookmarks to the list of buffers."
   :type 'boolean)
 
+(defvar ivy--actions-list nil
+  "A list of extra actions per command.")
+
+(defun ivy-set-actions (cmd actions)
+  "Set CMD extra exit points to ACTIONS."
+  (setq ivy--actions-list
+        (plist-put ivy--actions-list cmd actions)))
+
 ;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
@@ -783,6 +791,12 @@ MATCHER can completely override matching.
 
 DYNAMIC-COLLECTION is a function to call to update the list of
 candidates with each input."
+  (let ((extra-actions (plist-get ivy--actions-list this-command)))
+    (when extra-actions
+      (setq action
+            `(1
+              ("default" ,action)
+              ,@extra-actions))))
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -1487,21 +1501,23 @@ BUFFER may be a string or nil."
 
 (defvar ivy-switch-buffer-map (make-sparse-keymap))
 
+(ivy-set-actions
+ 'ivy-switch-buffer
+ '(("kill"
+    (lambda (x)
+      (kill-buffer x)
+      (ivy--reset-state ivy-last)))))
+
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
   (if (not ivy-mode)
       (call-interactively 'switch-to-buffer)
-    (ivy-read "Switch to buffer: " 'internal-complete-buffer
-              :preselect (buffer-name (other-buffer (current-buffer)))
-              :action (cons
-                       1
-                       '(("default" ivy--switch-buffer-action)
-                         ("kill"
-                          (lambda (x)
-                            (kill-buffer x)
-                            (ivy--reset-state ivy-last)))))
-              :keymap ivy-switch-buffer-map)))
+    (let ((this-command 'ivy-switch-buffer))
+      (ivy-read "Switch to buffer: " 'internal-complete-buffer
+                :preselect (buffer-name (other-buffer (current-buffer)))
+                :action #'ivy--switch-buffer-action
+                :keymap ivy-switch-buffer-map))))
 
 (defun ivy-recentf ()
   "Find a file on `recentf-list'."
