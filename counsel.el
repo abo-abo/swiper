@@ -443,12 +443,16 @@ Skip some dotfiles unless `ivy-text' requires them."
   "Use `dired-jump' on X."
   (dired-jump nil x))
 
+(defvar counsel-locate-history nil
+  "History for `counsel-locate'.")
+
 ;;;###autoload
 (defun counsel-locate ()
   "Call locate shell command."
   (interactive)
   (ivy-read "Locate: " nil
             :dynamic-collection #'counsel-locate-function
+            :history 'counsel-locate-history
             :action
             (cons
              1
