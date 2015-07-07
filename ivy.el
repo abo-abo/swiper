@@ -1073,6 +1073,8 @@ When GREEDY is non-nil, join words in a greedy way."
     (if hashed
         (prog1 (cdr hashed)
           (setq ivy--subexps (car hashed)))
+      (when (string-match "\\([^\\]\\|^\\)\\\\$" str)
+        (setq str (substring str 0 -1)))
       (cdr (puthash str
                     (let ((subs (ivy--split str)))
                       (if (= (length subs) 1)
