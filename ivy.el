@@ -539,10 +539,16 @@ If the input is empty, select the previous history element instead."
 
 (defun ivy-call ()
   "Call the current action without exiting completion."
+  (interactive)
   (let ((action (ivy--get-action ivy-last)))
     (when action
-      (with-selected-window (ivy-state-window ivy-last)
-        (funcall action ivy--current)))))
+      (let* ((collection (ivy-state-collection ivy-last))
+             (x (if (and (consp collection)
+                         (consp (car collection)))
+                    (cdr (assoc ivy--current collection))
+                  ivy--current)))
+        (with-selected-window (ivy-state-window ivy-last)
+          (funcall action x))))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
@@ -841,8 +847,7 @@ candidates with each input."
         (remove-hook 'post-command-hook #'ivy--exhibit)
         (when (setq unwind (ivy-state-unwind ivy-last))
           (funcall unwind)))
-    (when (setq action (ivy--get-action ivy-last))
-      (funcall action ivy--current))))
+    (ivy-call)))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.

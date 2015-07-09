@@ -34,6 +34,12 @@
 
 (require 'swiper)
 
+(defvar counsel-completion-beg nil
+  "Completion bounds start.")
+
+(defvar counsel-completion-end nil
+  "Completion bounds end.")
+
 ;;;###autoload
 (defun counsel-el ()
   "Elisp completion at point."
@@ -74,12 +80,6 @@
               :predicate (and funp #'functionp)
               :initial-input str
               :action #'counsel--el-action)))
-
-(defvar counsel-completion-beg nil
-  "Completion bounds start.")
-
-(defvar counsel-completion-end nil
-  "Completion bounds end.")
 
 (defun counsel--el-action (symbol)
   "Insert SYMBOL, erasing the previous one."
@@ -439,6 +439,7 @@ Skip some dotfiles unless `ivy-text' requires them."
                 shell-command-switch
                 (format "xdg-open %s" (shell-quote-argument x))))
 
+(declare-function dired-jump "dired-x")
 (defun counsel-locate-action-dired (x)
   "Use `dired-jump' on X."
   (dired-jump nil x))
@@ -684,6 +685,36 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                     (custom-available-themes))
             :action #'counsel--load-theme-action))
 
+(defvar rhythmbox-library)
+(declare-function rhythmbox-load-library "ext:helm-rhythmbox")
+(declare-function dbus-call-method "dbus")
+(declare-function rhythmbox-song-uri "ext:helm-rhythmbox")
+(declare-function helm-rhythmbox-candidates "ext:helm-rhythmbox")
+
+(defun counsel-rhythmbox-enqueue-song (song)
+  "Let Rhythmbox enqueue SONG."
+  (let ((service "org.gnome.Rhythmbox3")
+        (path "/org/gnome/Rhythmbox3/PlayQueue")
+        (interface "org.gnome.Rhythmbox3.PlayQueue"))
+    (dbus-call-method :session service path interface
+                      "AddToQueue" (rhythmbox-song-uri song))))
+
+;;;###autoload
+(defun counsel-rhythmbox ()
+  "Choose a song from the Rhythmbox library to play or enqueue."
+  (interactive)
+  (unless (require 'helm-rhythmbox nil t)
+    (error "Please install `helm-rhythmbox'"))
+  (unless rhythmbox-library
+    (rhythmbox-load-library)
+    (while (null rhythmbox-library)
+      (sit-for 0.1)))
+  (ivy-read "Rhythmbox: "
+            (helm-rhythmbox-candidates)
+            :action
+            '(1
+              ("Play song" helm-rhythmbox-play-song)
+              ("Enqueue song" counsel-rhythmbox-enqueue-song))))
 
 (provide 'counsel)
 
