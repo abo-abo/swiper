@@ -800,9 +800,11 @@ candidates with each input."
   (let ((extra-actions (plist-get ivy--actions-list this-command)))
     (when extra-actions
       (setq action
-            `(1
-              ("default" ,action)
-              ,@extra-actions))))
+            (if (functionp action)
+                `(1
+                  ("default" ,action)
+                  ,@extra-actions)
+              (delete-dups (append action extra-actions))))))
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
