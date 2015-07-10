@@ -699,6 +699,9 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
     (dbus-call-method :session service path interface
                       "AddToQueue" (rhythmbox-song-uri song))))
 
+(defvar counsel-rhythmbox-history nil
+  "History for `counsel-rhythmbox'.")
+
 ;;;###autoload
 (defun counsel-rhythmbox ()
   "Choose a song from the Rhythmbox library to play or enqueue."
@@ -711,6 +714,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
       (sit-for 0.1)))
   (ivy-read "Rhythmbox: "
             (helm-rhythmbox-candidates)
+            :history 'counsel-rhythmbox-history
             :action
             '(1
               ("Play song" helm-rhythmbox-play-song)
