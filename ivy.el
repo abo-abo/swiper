@@ -770,7 +770,8 @@ Directories come first."
 
 PROMPT is a string to prompt with; normally it ends in a colon
 and a space.  When PROMPT contains %d, it will be updated with
-the current number of matching candidates.
+the current number of matching candidates.  If % appears elsewhere
+in the PROMPT it should be quoted as %%.
 See also `ivy-count-format'.
 
 COLLECTION is a list of strings.
@@ -985,7 +986,8 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
-  (ivy-read prompt collection
+  (ivy-read (replace-regexp-in-string "%" "%%" prompt)
+            collection
             :predicate predicate
             :require-match require-match
             :initial-input (if (consp initial-input)
