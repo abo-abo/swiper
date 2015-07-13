@@ -69,7 +69,9 @@
 
 (defcustom ivy-count-format "%-4d "
   "The style of showing the current candidate count for `ivy-read'.
-Set this to nil if you don't want the count."
+Set this to nil if you don't want the count.  You can also set it
+to e.g. \"(%d/%d) \" if you want to see both the candidate index
+and the candidate count."
   :type 'string)
 
 (defcustom ivy-wrap nil
@@ -442,7 +444,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (ivy-set-index (max (- ivy--index ivy-height)
                       0)))
 (defun ivy-minibuffer-grow ()
-  "Grow the minibuffer window by 1 line"
+  "Grow the minibuffer window by 1 line."
   (interactive)
   (setq-local max-mini-window-height
               (cl-incf ivy-height)))
@@ -494,7 +496,7 @@ If the input is empty, select the previous history element instead."
   (ivy-previous-line arg))
 
 (defun ivy-toggle-calling ()
-  "Flip `ivy-calling'"
+  "Flip `ivy-calling'."
   (interactive)
   (when (setq ivy-calling (not ivy-calling))
     (ivy-call)))
@@ -703,7 +705,7 @@ Prioritize directories."
   "An alist of sorting functions for each collection function.
 Interactive functions that call completion fit in here as well.
 
-For each entry, nil means no sorting. It's very useful to turn
+For each entry, nil means no sorting.  It's very useful to turn
 off the sorting for functions that have candidates in the natural
 buffer order, like `org-refile' or `Man-goto-section'.
 
