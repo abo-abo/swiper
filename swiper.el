@@ -145,7 +145,9 @@
                                  dired-mode
                                  jabber-chat-mode
                                  elfeed-search-mode
-                                 fundamental-mode)))
+                                 fundamental-mode
+                                 Man-mode
+                                 woman-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
