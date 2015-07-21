@@ -142,6 +142,16 @@
              (match-string 1 s)
            s))))
 
+(defun counsel-variable-list ()
+  "Return the list of all currently bound variables."
+  (let (cands)
+    (mapatoms
+     (lambda (vv)
+       (when (or (get vv 'variable-documentation)
+                 (and (boundp vv) (not (keywordp vv))))
+         (push (symbol-name vv) cands))))
+    cands))
+
 ;;;###autoload
 (defun counsel-describe-variable ()
   "Forward to `describe-variable'."
@@ -149,13 +159,7 @@
   (let ((enable-recursive-minibuffers t))
     (ivy-read
      "Describe variable: "
-     (let (cands)
-       (mapatoms
-        (lambda (vv)
-          (when (or (get vv 'variable-documentation)
-                    (and (boundp vv) (not (keywordp vv))))
-            (push (symbol-name vv) cands))))
-       cands)
+     (counsel-variable-list)
      :keymap counsel-describe-map
      :preselect (counsel-symbol-at-point)
      :history 'counsel-describe-symbol-history
