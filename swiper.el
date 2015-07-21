@@ -108,7 +108,7 @@
 (declare-function avy--regex-candidates "ext:avy")
 (declare-function avy--process "ext:avy")
 (declare-function avy--overlay-post "ext:avy")
-(declare-function avy--goto "ext:avy")
+(declare-function avy-action-goto "ext:avy")
 
 ;;;###autoload
 (defun swiper-avy ()
@@ -124,7 +124,7 @@
              (candidate
               (avy--process candidates #'avy--overlay-post)))
         (ivy-quit-and-run
-         (avy--goto candidate))))))
+         (avy-action-goto candidate))))))
 
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG) in `swiper--window'."
