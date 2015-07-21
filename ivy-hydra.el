@@ -30,7 +30,7 @@
 (require 'ivy)
 
 (eval-when-compile
-  (unless (package-installed-p 'hydra)
+  (unless (or (featurep 'hydra) (package-installed-p 'hydra))
     (defmacro defhydra (name &rest _)
       "This is a stub for the uninstalled `hydra' package."
       `(defun ,(intern (format "%S/body" name)) ()
@@ -47,7 +47,7 @@
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
-^^^^^^          ^Yes^     ^No^     ^Maybe^           ^Action^ 
+^^^^^^          ^Yes^     ^No^     ^Maybe^           ^Action^
 ^^^^^^^^^^^^^^---------------------------------------------------
 ^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")  _w_/_s_: %s(ivy-action-name)
 _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
