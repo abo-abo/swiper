@@ -135,6 +135,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-j") 'ivy-yank-word)
     (define-key map (kbd "M-i") 'ivy-insert-current)
     (define-key map (kbd "C-o") 'hydra-ivy/body)
+    (define-key map (kbd "M-o") 'ivy-dispatching-done)
     (define-key map (kbd "C-k") 'ivy-kill-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     map)
@@ -267,6 +268,29 @@ When non-nil, it should contain one %d.")
          (setq ivy--prompt-extra " (match required)")
          (insert ivy-text)
          (ivy--exhibit))))
+
+(defun ivy-dispatching-done ()
+  "Select one of the available actions and call `ivy-done'."
+  (interactive)
+  (let ((actions (ivy-state-action ivy-last)))
+    (if (null (ivy--actionp actions))
+        (ivy-done)
+      (let* ((hint (mapconcat
+                    (lambda (x)
+                      (format "%s: %s"
+                              (propertize
+                               (car x)
+                               'face 'font-lock-builtin-face)
+                              (nth 2 x)))
+                    (cdr actions)
+                    "\n"))
+             (key (string (read-key hint)))
+             (action (assoc key (cdr actions))))
+        (if (null action)
+            (error "%s is not bound" key)
+          (message "")
+          (ivy-set-action (nth 1 action))
+          (ivy-done))))))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
@@ -537,7 +561,7 @@ If the input is empty, select the previous history element instead."
         (format "[%d/%d] %s"
                 (car action)
                 (1- (length action))
-                (car (nth (car action) action)))
+                (nth 2 (nth (car action) action)))
       "[1/1] default")))
 
 (defun ivy-call ()
@@ -808,7 +832,7 @@ candidates with each input."
       (setq action
             (if (functionp action)
                 `(1
-                  ("default" ,action)
+                  ("o" ,action "default")
                   ,@extra-actions)
               (delete-dups (append action extra-actions))))))
   (setq ivy-last
@@ -1519,10 +1543,11 @@ BUFFER may be a string or nil."
 
 (ivy-set-actions
  'ivy-switch-buffer
- '(("kill"
+ '(("k"
     (lambda (x)
       (kill-buffer x)
-      (ivy--reset-state ivy-last)))))
+      (ivy--reset-state ivy-last))
+    "kill")))
 
 (defun ivy-switch-buffer ()
   "Switch to another buffer."

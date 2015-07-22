@@ -453,8 +453,8 @@ Skip some dotfiles unless `ivy-text' requires them."
 
 (ivy-set-actions
  'counsel-locate
- '(("xdg-open" counsel-locate-action-extern)
-   ("dired" counsel-locate-action-dired)))
+ '(("x" counsel-locate-action-extern "xdg-open")
+   ("d" counsel-locate-action-dired "dired")))
 
 ;;;###autoload
 (defun counsel-locate ()
@@ -721,8 +721,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
             :history 'counsel-rhythmbox-history
             :action
             '(1
-              ("Play song" helm-rhythmbox-play-song)
-              ("Enqueue song" counsel-rhythmbox-enqueue-song))))
+              ("p" helm-rhythmbox-play-song "Play song")
+              ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))))
 
 (provide 'counsel)
 
