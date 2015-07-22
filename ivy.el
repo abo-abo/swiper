@@ -550,8 +550,10 @@ If the input is empty, select the previous history element instead."
                          (consp (car collection)))
                     (cdr (assoc ivy--current collection))
                   ivy--current)))
-        (with-selected-window (ivy-state-window ivy-last)
-          (funcall action x))))))
+        (if (eq (ivy-state-history ivy-last) 'extended-command-history)
+            (funcall action x)
+          (with-selected-window (ivy-state-window ivy-last)
+            (funcall action x)))))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
