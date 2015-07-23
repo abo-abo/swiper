@@ -275,15 +275,17 @@ When non-nil, it should contain one %d.")
   (let ((actions (ivy-state-action ivy-last)))
     (if (null (ivy--actionp actions))
         (ivy-done)
-      (let* ((hint (mapconcat
-                    (lambda (x)
-                      (format "%s: %s"
-                              (propertize
-                               (car x)
-                               'face 'font-lock-builtin-face)
-                              (nth 2 x)))
-                    (cdr actions)
-                    "\n"))
+      (let* ((hint (concat ivy--current
+                           "\n"
+                           (mapconcat
+                            (lambda (x)
+                              (format "%s: %s"
+                                      (propertize
+                                       (car x)
+                                       'face 'font-lock-builtin-face)
+                                      (nth 2 x)))
+                            (cdr actions)
+                            "\n")))
              (key (string (read-key hint)))
              (action (assoc key (cdr actions))))
         (cond ((string= key ""))
