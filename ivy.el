@@ -286,11 +286,13 @@ When non-nil, it should contain one %d.")
                     "\n"))
              (key (string (read-key hint)))
              (action (assoc key (cdr actions))))
-        (if (null action)
-            (error "%s is not bound" key)
-          (message "")
-          (ivy-set-action (nth 1 action))
-          (ivy-done))))))
+        (cond ((string= key ""))
+              ((null action)
+               (error "%s is not bound" key))
+              (t
+               (message "")
+               (ivy-set-action (nth 1 action))
+               (ivy-done)))))))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
