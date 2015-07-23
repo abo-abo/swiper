@@ -893,7 +893,8 @@ This is useful for recursive `ivy-read'."
         (re-builder (ivy-state-re-builder state))
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
-        (require-match (ivy-state-require-match state)))
+        (require-match (ivy-state-require-match state))
+        (matcher (ivy-state-matcher state)))
     (unless initial-input
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
@@ -968,7 +969,7 @@ This is useful for recursive `ivy-read'."
                              ivy--index)
                         (and preselect
                              (ivy--preselect-index
-                              coll initial-input preselect))
+                              coll initial-input preselect matcher))
                         0))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
@@ -1051,15 +1052,21 @@ Minibuffer bindings:
       (setq completing-read-function 'ivy-completing-read)
     (setq completing-read-function 'completing-read-default)))
 
-(defun ivy--preselect-index (candidates initial-input preselect)
-  "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT."
-  (when initial-input
-    (setq initial-input (ivy--regex-plus initial-input))
-    (setq candidates
-          (cl-remove-if-not
-           (lambda (x)
-             (string-match initial-input x))
-           candidates)))
+(defun ivy--preselect-index (candidates initial-input preselect matcher)
+  "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT.
+When MATCHER is non-nil it's used instead of `cl-remove-if-not'."
+  (if initial-input
+      (progn
+        (setq initial-input (ivy--regex-plus initial-input))
+        (setq candidates
+              (if matcher
+                  (funcall matcher initial-input candidates)
+                (cl-remove-if-not
+                 (lambda (x)
+                   (string-match initial-input x))
+                 candidates))))
+    (when matcher
+      (setq candidates (funcall matcher "" candidates))))
   (or (cl-position preselect candidates :test #'equal)
       (cl-position-if
        (lambda (x)
