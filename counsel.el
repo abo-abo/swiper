@@ -790,7 +790,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (cond ((memq this-command '(ivy-done ivy-alt-done))
          (with-selected-window (ivy-state-window ivy-last)
            (counsel-org-change-tags
-            (mapconcat #'identity counsel-org-tags ":"))))
+            (format ":%s:"
+                    (mapconcat #'identity counsel-org-tags ":")))))
         ((eq this-command 'ivy-call)
          (delete-minibuffer-contents))))
 
@@ -803,10 +804,18 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   "Add or remove tags in org-mode."
   (interactive)
   (setq counsel-org-tags (split-string (org-get-tags-string) ":" t))
-  (ivy-read (counsel-org-tag-prompt)
-            'org-tags-completion-function
-            :history 'org-tags-history
-            :action 'counsel-org-tag-action))
+  (let ((org-setting-tags t)
+        (org-last-tags-completion-table
+         (append org-tag-persistent-alist
+                 (or org-tag-alist (org-get-buffer-tags))
+                 (and
+                  org-complete-tags-always-offer-all-agenda-tags
+                  (org-global-tags-completion-table
+                   (org-agenda-files))))))
+    (ivy-read (counsel-org-tag-prompt)
+              'org-tags-completion-function
+              :history 'org-tags-history
+              :action 'counsel-org-tag-action)))
 
 (provide 'counsel)
 
