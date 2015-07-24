@@ -735,6 +735,79 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
               ("p" helm-rhythmbox-play-song "Play song")
               ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))))
 
+(defvar counsel-org-tags nil
+  "Store the current list of tags.")
+
+(defvar org-outline-regexp)
+(defvar org-indent-mode)
+(defvar org-indent-indentation-per-level)
+(defvar org-tags-column)
+(declare-function org-get-tags-string "org")
+(declare-function org-bound-and-true-p "org")
+(declare-function org-move-to-column "org")
+
+(defun counsel-org-change-tags (tags)
+  (let ((current (org-get-tags-string))
+        (col (current-column))
+        level)
+    ;; Insert new tags at the correct column
+    (beginning-of-line 1)
+    (setq level (or (and (looking-at org-outline-regexp)
+                         (- (match-end 0) (point) 1))
+                    1))
+    (cond
+      ((and (equal current "") (equal tags "")))
+      ((re-search-forward
+        (concat "\\([ \t]*" (regexp-quote current) "\\)[ \t]*$")
+        (point-at-eol) t)
+       (unless (equal tags "")
+         (goto-char (match-beginning 0))
+         (let* ((c0 (current-column))
+                ;; compute offset for the case of org-indent-mode active
+                (di (if (org-bound-and-true-p org-indent-mode)
+                        (* (1- org-indent-indentation-per-level) (1- level))
+                      0))
+                (p0 (if (equal (char-before) ?*) (1+ (point)) (point)))
+                (tc (+ org-tags-column (if (> org-tags-column 0) (- di) di)))
+                (c1 (max (1+ c0) (if (> tc 0) tc (- (- tc) (string-width tags)))))
+                (rpl (concat (make-string (max 0 (- c1 c0)) ?\ ) tags)))
+           (replace-match rpl t t)
+           (and c0 indent-tabs-mode (tabify p0 (point)))
+           tags)))
+      (t (error "Tags alignment failed")))
+    (org-move-to-column col)))
+
+(defun counsel-org-tag-action (x)
+  (if (member x counsel-org-tags)
+      (progn
+        (setq counsel-org-tags (delete x counsel-org-tags)))
+    (setq counsel-org-tags (append counsel-org-tags (list x)))
+    (unless (member x ivy--all-candidates)
+      (setq ivy--all-candidates (append ivy--all-candidates (list x)))))
+  (let ((prompt (counsel-org-tag-prompt)))
+    (setf (ivy-state-prompt ivy-last) prompt)
+    (setq ivy--prompt (concat "%-4d " prompt)))
+  (cond ((memq this-command '(ivy-done ivy-alt-done))
+         (with-selected-window (ivy-state-window ivy-last)
+           (counsel-org-change-tags
+            (mapconcat #'identity counsel-org-tags ":"))))
+        ((eq this-command 'ivy-call)
+         (delete-minibuffer-contents))))
+
+(defun counsel-org-tag-prompt ()
+  (format "Tags (%s): "
+          (mapconcat #'identity counsel-org-tags ", ")))
+
+;;;###autoload
+(defun counsel-org-tag ()
+  "Add or remove tags in org-mode."
+  (interactive)
+  (setq counsel-org-tags (split-string (org-get-tags-string) ":" t))
+  (ivy-read (counsel-org-tag-prompt)
+            'org-tags-completion-function
+            :history 'org-tags-history
+            :action 'counsel-org-tag-action))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
