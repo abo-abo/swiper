@@ -169,6 +169,11 @@
                (describe-variable
                 (intern x))))))
 
+(ivy-set-actions
+ 'counsel-describe-variable
+ '(("i" counsel-info-lookup-symbol "info")
+   ("d" counsel--find-symbol "definition")))
+
 ;;;###autoload
 (defun counsel-describe-function ()
   "Forward to `describe-function'."
