@@ -286,7 +286,7 @@ When non-nil, it should contain one %d.")
                                       (nth 2 x)))
                             (cdr actions)
                             "\n")
-                           "\n: "))
+                           "\n"))
              (key (string (read-key hint)))
              (action (assoc key (cdr actions))))
         (cond ((string= key ""))
@@ -578,11 +578,10 @@ If the input is empty, select the previous history element instead."
              (x (if (and (consp collection)
                          (consp (car collection)))
                     (cdr (assoc ivy--current collection))
-                  ivy--current)))
-        (if (eq (ivy-state-history ivy-last) 'extended-command-history)
-            (funcall action x)
-          (with-selected-window (ivy-state-window ivy-last)
-            (funcall action x)))))))
+                  (if (equal ivy--current "")
+                      ivy-text
+                    ivy--current))))
+        (funcall action x)))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
@@ -1559,7 +1558,10 @@ BUFFER may be a string or nil."
     (lambda (x)
       (kill-buffer x)
       (ivy--reset-state ivy-last))
-    "kill")))
+    "kill")
+   ("j"
+    switch-to-buffer-other-window
+    "other")))
 
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
