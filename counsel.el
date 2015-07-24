@@ -760,7 +760,10 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
       ((re-search-forward
         (concat "\\([ \t]*" (regexp-quote current) "\\)[ \t]*$")
         (point-at-eol) t)
-       (unless (equal tags "")
+       (if (equal tags "")
+           (delete-region
+            (match-beginning 0)
+            (match-end 0))
          (goto-char (match-beginning 0))
          (let* ((c0 (current-column))
                 ;; compute offset for the case of org-indent-mode active
@@ -790,8 +793,10 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (cond ((memq this-command '(ivy-done ivy-alt-done))
          (with-selected-window (ivy-state-window ivy-last)
            (counsel-org-change-tags
-            (format ":%s:"
-                    (mapconcat #'identity counsel-org-tags ":")))))
+            (if counsel-org-tags
+                (format ":%s:"
+                        (mapconcat #'identity counsel-org-tags ":"))
+              ""))))
         ((eq this-command 'ivy-call)
          (delete-minibuffer-contents))))
 
