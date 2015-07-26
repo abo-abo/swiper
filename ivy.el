@@ -1550,6 +1550,17 @@ BUFFER may be a string or nil."
         (switch-to-buffer
          buffer nil 'force-same-window)))))
 
+(defun ivy--switch-buffer-other-window-action (buffer)
+  "Switch to BUFFER in other window.
+BUFFER may be a string or nil."
+  (if (zerop (length buffer))
+      (switch-to-buffer-other-window ivy-text)
+    (let ((virtual (assoc buffer ivy--virtual-buffers)))
+      (if (and virtual
+               (not (get-buffer buffer)))
+          (find-file-other-window (cdr virtual))
+        (switch-to-buffer-other-window buffer)))))
+
 (defvar ivy-switch-buffer-map (make-sparse-keymap))
 
 (ivy-set-actions
@@ -1560,7 +1571,7 @@ BUFFER may be a string or nil."
       (ivy--reset-state ivy-last))
     "kill")
    ("j"
-    switch-to-buffer-other-window
+    ivy--switch-buffer-other-window-action
     "other")))
 
 (defun ivy-switch-buffer ()
