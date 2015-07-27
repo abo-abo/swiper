@@ -851,6 +851,41 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :action #'counsel-git-grep-action
             :unwind #'swiper--cleanup))
 
+(defun counsel-recoll-function (string &optional _pred &rest _unused)
+  "Grep in the current directory for STRING."
+  (if (< (length string) 3)
+      (counsel-more-chars 3)
+    (counsel--async-command
+     (format "recollq -b '%s'" string))
+    nil))
+
+;; This command uses the recollq command line tool that comes together
+;; with the recoll (the document indexing database) source:
+;;     http://www.lesbonscomptes.com/recoll/download.html
+;; You need to build it yourself (together with recoll):
+;;     cd ./query && make && sudo cp recollq /usr/local/bin
+;; You can try the GUI version of recoll with:
+;;     sudo apt-get install recoll
+;; Unfortunately, that does not install recollq.
+(defun counsel-recoll (&optional initial-input)
+  "Search for a string in the recoll database.
+You'll be given a list of files that match.
+Selecting a file will launch `swiper' for that file.
+INITIAL-INPUT can be given as the initial minibuffer input."
+  (interactive)
+  (setq counsel--git-grep-dir default-directory)
+  (ivy-read "recoll: " 'counsel-recoll-function
+            :initial-input initial-input
+            :dynamic-collection t
+            :history 'counsel-git-grep-history
+            :action (lambda (x)
+                      (when (string-match "file://\\(.*\\)\\'" x)
+                        (let ((file-name (match-string 1 x)))
+                          (find-file file-name)
+                          (unless (string-match "pdf$" x)
+                            (swiper ivy-text)))))
+            :unwind #'swiper--cleanup))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
