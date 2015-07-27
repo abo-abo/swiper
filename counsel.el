@@ -280,22 +280,14 @@
   "Grep in the current git repository for STRING."
   (if (and (> counsel--git-grep-count 20000)
            (< (length string) 3))
-      (progn
-        (setq ivy--full-length counsel--git-grep-count)
-        (list ""
-              (format "%d chars more" (- 3 (length ivy-text)))))
+      (list ""
+            (format "%d chars more" (- 3 (length ivy-text))))
     (let* ((default-directory counsel--git-grep-dir)
            (cmd (format "git --no-pager grep --full-name -n --no-color -i -e %S"
-                        (ivy--regex string t)))
-           res)
+                        (ivy--regex string t))))
       (if (<= counsel--git-grep-count 20000)
-          (progn
-            (setq res (shell-command-to-string cmd))
-            (setq ivy--full-length nil)
-            (split-string res "\n" t))
-        (setq ivy--full-length -1)
-        (counsel--gg-candidates (ivy--regex string))
-        nil))))
+          (split-string (shell-command-to-string cmd) "\n" t)
+        (counsel--gg-candidates (ivy--regex string))))))
 
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
@@ -557,8 +549,12 @@ The libraries are offered from `load-path'."
                          (get-text-property 0 'full-name x)))
               :keymap counsel-describe-map)))
 
+(defvar counsel-gg-state nil
+  "The current state of candidates / count sync.")
+
 (defun counsel--gg-candidates (regex)
   "Return git grep candidates for REGEX."
+  (setq counsel-gg-state -2)
   (counsel--gg-count regex)
   (let* ((default-directory counsel--git-grep-dir)
          (counsel-gg-process " *counsel-gg*")
@@ -583,9 +579,8 @@ The libraries are offered from `load-path'."
         (with-current-buffer (process-buffer process)
           (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
           (setq ivy--old-cands ivy--all-candidates))
-        (unless (eq ivy--full-length -1)
-          (ivy--insert-minibuffer
-           (ivy--format ivy--all-candidates))))
+        (when (= 0 (cl-incf counsel-gg-state))
+          (ivy--exhibit)))
     (if (string= event "exited abnormally with code 1\n")
         (message "Error"))))
 
@@ -614,8 +609,8 @@ When NO-ASYNC is non-nil, do it synchronously."
              (when (string= event "finished\n")
                (with-current-buffer (process-buffer process)
                  (setq ivy--full-length (string-to-number (buffer-string))))
-               (ivy--insert-minibuffer
-                (ivy--format ivy--all-candidates)))))))))
+               (when (= 0 (cl-incf counsel-gg-state))
+                 (ivy--exhibit)))))))))
 
 (defun counsel--M-x-transformer (cmd)
   "Add a binding to CMD if it's bound in the current window.

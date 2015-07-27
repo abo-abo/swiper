@@ -1292,22 +1292,21 @@ Should be run via minibuffer `post-command-hook'."
             ;; dynamic collection should take care of everything
             (funcall (ivy-state-dynamic-collection ivy-last) ivy-text)
             (setq ivy--old-text ivy-text)))
-        (unless (eq ivy--full-length -1)
-          (ivy--insert-minibuffer
-           (ivy--format ivy--all-candidates))))
+        (ivy--insert-minibuffer
+         (ivy--format ivy--all-candidates)))
     (cond (ivy--directory
            (if (string-match "/\\'" ivy-text)
                (if (member ivy-text ivy--all-candidates)
                    (ivy--cd (expand-file-name ivy-text ivy--directory))
                  (when (string-match "//\\'" ivy-text)
-		   (if (and default-directory
-			    (string-match "\\`[[:alpha:]]:/" default-directory))
-		       (ivy--cd (match-string 0 default-directory))
-		     (ivy--cd "/")))
-		 (when (string-match "[[:alpha:]]:/" ivy-text)
-		   (let ((drive-root (match-string 0 ivy-text)))
-		     (when (file-exists-p drive-root)
-		       (ivy--cd drive-root)))))
+                   (if (and default-directory
+                            (string-match "\\`[[:alpha:]]:/" default-directory))
+                       (ivy--cd (match-string 0 default-directory))
+                     (ivy--cd "/")))
+                 (when (string-match "[[:alpha:]]:/" ivy-text)
+                   (let ((drive-root (match-string 0 ivy-text)))
+                     (when (file-exists-p drive-root)
+                       (ivy--cd drive-root)))))
              (if (string-match "\\`~\\'" ivy-text)
                  (ivy--cd (expand-file-name "~/")))))
           ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
