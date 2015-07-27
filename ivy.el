@@ -704,7 +704,9 @@ On error (read-only), call `ivy-on-del-error-function'."
                     ivy--directory))))
         (ivy--exhibit))
     (ignore-errors
-      (backward-kill-word 1))))
+      (let ((pt (point)))
+        (forward-word -1)
+        (delete-region (point) pt)))))
 
 (defvar ivy--regexp-quote 'regexp-quote
   "Store the regexp quoting state.")
