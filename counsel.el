@@ -825,7 +825,9 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                     (org-global-tags-completion-table
                      (org-agenda-files))))))
       (ivy-read (counsel-org-tag-prompt)
-                'org-tags-completion-function
+                (lambda (str &rest _unused)
+                  (delete-dups
+                   (all-completions str 'org-tags-completion-function)))
                 :history 'org-tags-history
                 :action 'counsel-org-tag-action))))
 
