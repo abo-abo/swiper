@@ -1282,49 +1282,50 @@ Insert .* between each char."
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
-  (setq ivy-text (ivy--input))
-  (if (ivy-state-dynamic-collection ivy-last)
-      ;; while-no-input would cause annoying
-      ;; "Waiting for process to die...done" message interruptions
-      (let ((inhibit-message t))
-        (unless (equal ivy--old-text ivy-text)
-          (while-no-input
-            ;; dynamic collection should take care of everything
-            (funcall (ivy-state-dynamic-collection ivy-last) ivy-text)
-            (setq ivy--old-text ivy-text)))
-        (ivy--insert-minibuffer
-         (ivy--format ivy--all-candidates)))
-    (cond (ivy--directory
-           (if (string-match "/\\'" ivy-text)
-               (if (member ivy-text ivy--all-candidates)
-                   (ivy--cd (expand-file-name ivy-text ivy--directory))
-                 (when (string-match "//\\'" ivy-text)
-                   (if (and default-directory
-                            (string-match "\\`[[:alpha:]]:/" default-directory))
-                       (ivy--cd (match-string 0 default-directory))
-                     (ivy--cd "/")))
-                 (when (string-match "[[:alpha:]]:/" ivy-text)
-                   (let ((drive-root (match-string 0 ivy-text)))
-                     (when (file-exists-p drive-root)
-                       (ivy--cd drive-root)))))
-             (if (string-match "\\`~\\'" ivy-text)
-                 (ivy--cd (expand-file-name "~/")))))
-          ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
-           (when (or (and (string-match "\\` " ivy-text)
-                          (not (string-match "\\` " ivy--old-text)))
-                     (and (string-match "\\` " ivy--old-text)
-                          (not (string-match "\\` " ivy-text))))
-             (setq ivy--all-candidates
-                   (if (and (> (length ivy-text) 0)
-                            (eq (aref ivy-text 0)
-                                ?\ ))
-                       (ivy--buffer-list " ")
-                     (ivy--buffer-list "" ivy-use-virtual-buffers)))
-             (setq ivy--old-re nil))))
-    (ivy--insert-minibuffer
-     (ivy--format
-      (ivy--filter ivy-text ivy--all-candidates)))
-    (setq ivy--old-text ivy-text)))
+  (when (memq 'ivy--exhibit post-command-hook)
+    (setq ivy-text (ivy--input))
+    (if (ivy-state-dynamic-collection ivy-last)
+        ;; while-no-input would cause annoying
+        ;; "Waiting for process to die...done" message interruptions
+        (let ((inhibit-message t))
+          (unless (equal ivy--old-text ivy-text)
+            (while-no-input
+              ;; dynamic collection should take care of everything
+              (funcall (ivy-state-dynamic-collection ivy-last) ivy-text)
+              (setq ivy--old-text ivy-text)))
+          (ivy--insert-minibuffer
+           (ivy--format ivy--all-candidates)))
+      (cond (ivy--directory
+             (if (string-match "/\\'" ivy-text)
+                 (if (member ivy-text ivy--all-candidates)
+                     (ivy--cd (expand-file-name ivy-text ivy--directory))
+                   (when (string-match "//\\'" ivy-text)
+                     (if (and default-directory
+                              (string-match "\\`[[:alpha:]]:/" default-directory))
+                         (ivy--cd (match-string 0 default-directory))
+                       (ivy--cd "/")))
+                   (when (string-match "[[:alpha:]]:/" ivy-text)
+                     (let ((drive-root (match-string 0 ivy-text)))
+                       (when (file-exists-p drive-root)
+                         (ivy--cd drive-root)))))
+               (if (string-match "\\`~\\'" ivy-text)
+                   (ivy--cd (expand-file-name "~/")))))
+            ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
+             (when (or (and (string-match "\\` " ivy-text)
+                            (not (string-match "\\` " ivy--old-text)))
+                       (and (string-match "\\` " ivy--old-text)
+                            (not (string-match "\\` " ivy-text))))
+               (setq ivy--all-candidates
+                     (if (and (> (length ivy-text) 0)
+                              (eq (aref ivy-text 0)
+                                  ?\ ))
+                         (ivy--buffer-list " ")
+                       (ivy--buffer-list "" ivy-use-virtual-buffers)))
+               (setq ivy--old-re nil))))
+      (ivy--insert-minibuffer
+       (ivy--format
+        (ivy--filter ivy-text ivy--all-candidates)))
+      (setq ivy--old-text ivy-text))))
 
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
