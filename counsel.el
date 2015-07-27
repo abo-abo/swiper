@@ -812,19 +812,22 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defun counsel-org-tag ()
   "Add or remove tags in org-mode."
   (interactive)
-  (setq counsel-org-tags (split-string (org-get-tags-string) ":" t))
-  (let ((org-setting-tags t)
-        (org-last-tags-completion-table
-         (append org-tag-persistent-alist
-                 (or org-tag-alist (org-get-buffer-tags))
-                 (and
-                  org-complete-tags-always-offer-all-agenda-tags
-                  (org-global-tags-completion-table
-                   (org-agenda-files))))))
-    (ivy-read (counsel-org-tag-prompt)
-              'org-tags-completion-function
-              :history 'org-tags-history
-              :action 'counsel-org-tag-action)))
+  (save-excursion
+    (unless (org-at-heading-p)
+      (org-back-to-heading t))
+    (setq counsel-org-tags (split-string (org-get-tags-string) ":" t))
+    (let ((org-setting-tags t)
+          (org-last-tags-completion-table
+           (append org-tag-persistent-alist
+                   (or org-tag-alist (org-get-buffer-tags))
+                   (and
+                    org-complete-tags-always-offer-all-agenda-tags
+                    (org-global-tags-completion-table
+                     (org-agenda-files))))))
+      (ivy-read (counsel-org-tag-prompt)
+                'org-tags-completion-function
+                :history 'org-tags-history
+                :action 'counsel-org-tag-action))))
 
 (defun counsel-ag-function (string &optional _pred &rest _unused)
   "Grep in the current directory for STRING."
