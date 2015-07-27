@@ -276,18 +276,23 @@
 (defvar counsel--git-grep-count nil
   "Store the line count in current repository.")
 
+(defun counsel-more-chars (n)
+  "Return two fake candidates prompting for at least N input."
+  (list ""
+        (format "%d chars more" (- n (length ivy-text)))))
+
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
   (if (and (> counsel--git-grep-count 20000)
            (< (length string) 3))
-      (list ""
-            (format "%d chars more" (- 3 (length ivy-text))))
+      (counsel-more-chars 3)
     (let* ((default-directory counsel--git-grep-dir)
            (cmd (format "git --no-pager grep --full-name -n --no-color -i -e %S"
                         (ivy--regex string t))))
       (if (<= counsel--git-grep-count 20000)
           (split-string (shell-command-to-string cmd) "\n" t)
-        (counsel--gg-candidates (ivy--regex string))))))
+        (counsel--gg-candidates (ivy--regex string))
+        nil))))
 
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
@@ -319,7 +324,8 @@
 
 ;;;###autoload
 (defun counsel-git-grep (&optional initial-input)
-  "Grep for a string in the current git repository."
+  "Grep for a string in the current git repository.
+INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (setq counsel--git-grep-dir
         (locate-dominating-file default-directory ".git"))
@@ -329,8 +335,7 @@
     (ivy-read "pattern: " 'counsel-git-grep-function
               :initial-input initial-input
               :matcher #'counsel-git-grep-matcher
-              :dynamic-collection (when (> counsel--git-grep-count 20000)
-                                    'counsel-git-grep-function)
+              :dynamic-collection (> counsel--git-grep-count 20000)
               :keymap counsel-git-grep-map
               :action #'counsel-git-grep-action
               :unwind #'swiper--cleanup
@@ -407,13 +412,6 @@ Skip some dotfiles unless `ivy-text' requires them."
                  candidates))
         (setq ivy--old-re regexp))))
 
-(defun counsel-locate-function (str &rest _u)
-  (if (< (length str) 3)
-      (list ""
-            (format "%d chars more" (- 3 (length ivy-text))))
-    (counsel--async-command
-     (concat "locate -i --regex " (ivy--regex str)))))
-
 (defun counsel--async-command (cmd)
   (let* ((counsel--process " *counsel*")
          (proc (get-process counsel--process))
@@ -434,10 +432,12 @@ Skip some dotfiles unless `ivy-text' requires them."
         (with-current-buffer (process-buffer process)
           (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
           (setq ivy--old-cands ivy--all-candidates))
-        (ivy--insert-minibuffer
-         (ivy--format ivy--all-candidates)))
+        (ivy--exhibit))
     (if (string= event "exited abnormally with code 1\n")
-        (message "Error"))))
+        (progn
+          (setq ivy--all-candidates '("Error"))
+          (setq ivy--old-cands ivy--all-candidates)
+          (ivy--exhibit)))))
 
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
@@ -459,17 +459,23 @@ Skip some dotfiles unless `ivy-text' requires them."
  '(("x" counsel-locate-action-extern "xdg-open")
    ("d" counsel-locate-action-dired "dired")))
 
+(defun counsel-locate-function (str &rest _u)
+  (if (< (length str) 3)
+      (counsel-more-chars 3)
+    (counsel--async-command
+     (concat "locate -i --regex " (ivy--regex str)))
+    '("" "working...")))
+
 ;;;###autoload
 (defun counsel-locate ()
   "Call locate shell command."
   (interactive)
-  (ivy-read "Locate: " nil
-            :dynamic-collection #'counsel-locate-function
+  (ivy-read "Locate: " #'counsel-locate-function
+            :dynamic-collection t
             :history 'counsel-locate-history
-            :action
-            (lambda (val)
-              (when val
-                (find-file val)))))
+            :action (lambda (file)
+                      (when file
+                        (find-file file)))))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
@@ -582,7 +588,10 @@ The libraries are offered from `load-path'."
         (when (= 0 (cl-incf counsel-gg-state))
           (ivy--exhibit)))
     (if (string= event "exited abnormally with code 1\n")
-        (message "Error"))))
+        (progn
+          (setq ivy--all-candidates '("Error"))
+          (setq ivy--old-cands ivy--all-candidates)
+          (ivy--exhibit)))))
 
 (defun counsel--gg-count (regex &optional no-async)
   "Quickly and asynchronously count the amount of git grep REGEX matches.

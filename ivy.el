@@ -1290,11 +1290,12 @@ Should be run via minibuffer `post-command-hook'."
         (let ((inhibit-message t))
           (unless (equal ivy--old-text ivy-text)
             (while-no-input
-              ;; dynamic collection should take care of everything
-              (funcall (ivy-state-dynamic-collection ivy-last) ivy-text)
+              (setq ivy--all-candidates
+                    (funcall (ivy-state-collection ivy-last) ivy-text))
               (setq ivy--old-text ivy-text)))
-          (ivy--insert-minibuffer
-           (ivy--format ivy--all-candidates)))
+          (when ivy--all-candidates
+            (ivy--insert-minibuffer
+             (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
              (if (string-match "/\\'" ivy-text)
                  (if (member ivy-text ivy--all-candidates)
