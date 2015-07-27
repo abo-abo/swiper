@@ -332,7 +332,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (if (null counsel--git-grep-dir)
       (error "Not in a git repository")
     (setq counsel--git-grep-count (counsel--gg-count "" t))
-    (ivy-read "pattern: " 'counsel-git-grep-function
+    (ivy-read "git grep: " 'counsel-git-grep-function
               :initial-input initial-input
               :matcher #'counsel-git-grep-matcher
               :dynamic-collection (> counsel--git-grep-count 20000)
@@ -825,6 +825,31 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
               'org-tags-completion-function
               :history 'org-tags-history
               :action 'counsel-org-tag-action)))
+
+(defun counsel-ag-function (string &optional _pred &rest _unused)
+  "Grep in the current directory for STRING."
+  (if (< (length string) 3)
+      (counsel-more-chars 3)
+    (let ((regex (replace-regexp-in-string
+                  "\\\\)" ")"
+                  (replace-regexp-in-string
+                   "\\\\(" "("
+                   (ivy--regex string)))))
+      (counsel--async-command
+       (format "ag --noheading --nocolor %S" regex))
+      nil)))
+
+(defun counsel-ag (&optional initial-input)
+  "Grep for a string in the current directory using ag.
+INITIAL-INPUT can be given as the initial minibuffer input."
+  (interactive)
+  (setq counsel--git-grep-dir default-directory)
+  (ivy-read "ag: " 'counsel-ag-function
+            :initial-input initial-input
+            :dynamic-collection t
+            :history 'counsel-git-grep-history
+            :action #'counsel-git-grep-action
+            :unwind #'swiper--cleanup))
 
 (provide 'counsel)
 
