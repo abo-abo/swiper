@@ -876,7 +876,6 @@ You'll be given a list of files that match.
 Selecting a file will launch `swiper' for that file.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
-  (setq counsel--git-grep-dir default-directory)
   (ivy-read "recoll: " 'counsel-recoll-function
             :initial-input initial-input
             :dynamic-collection t
@@ -886,8 +885,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                         (let ((file-name (match-string 1 x)))
                           (find-file file-name)
                           (unless (string-match "pdf$" x)
-                            (swiper ivy-text)))))
-            :unwind #'swiper--cleanup))
+                            (swiper ivy-text)))))))
 
 (provide 'counsel)
 
