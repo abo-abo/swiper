@@ -794,12 +794,11 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
     (setf (ivy-state-prompt ivy-last) prompt)
     (setq ivy--prompt (concat "%-4d " prompt)))
   (cond ((memq this-command '(ivy-done ivy-alt-done))
-         (with-selected-window (ivy-state-window ivy-last)
-           (counsel-org-change-tags
-            (if counsel-org-tags
-                (format ":%s:"
-                        (mapconcat #'identity counsel-org-tags ":"))
-              ""))))
+         (counsel-org-change-tags
+          (if counsel-org-tags
+              (format ":%s:"
+                      (mapconcat #'identity counsel-org-tags ":"))
+            "")))
         ((eq this-command 'ivy-call)
          (delete-minibuffer-contents))))
 
@@ -841,6 +840,18 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                    (all-completions str 'org-tags-completion-function)))
                 :history 'org-tags-history
                 :action 'counsel-org-tag-action))))
+
+;;;###autoload
+(defun counsel-org-tag-agenda ()
+  "Set tags for the current agenda item."
+  (interactive)
+  (let ((store (symbol-function 'org-set-tags)))
+    (unwind-protect
+         (progn
+           (fset 'org-set-tags
+                 (symbol-function 'counsel-org-tag))
+           (org-agenda-set-tags nil nil))
+      (fset 'org-set-tags store))))
 
 (defun counsel-ag-function (string &optional _pred &rest _unused)
   "Grep in the current directory for STRING."
