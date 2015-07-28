@@ -747,7 +747,6 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defvar org-indent-indentation-per-level)
 (defvar org-tags-column)
 (declare-function org-get-tags-string "org")
-(declare-function org-bound-and-true-p "org-macs")
 (declare-function org-move-to-column "org")
 
 (defun counsel-org-change-tags (tags)
@@ -771,7 +770,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
          (goto-char (match-beginning 0))
          (let* ((c0 (current-column))
                 ;; compute offset for the case of org-indent-mode active
-                (di (if (org-bound-and-true-p org-indent-mode)
+                (di (if (bound-and-true-p org-indent-mode)
                         (* (1- org-indent-indentation-per-level) (1- level))
                       0))
                 (p0 (if (equal (char-before) ?*) (1+ (point)) (point)))
