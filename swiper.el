@@ -360,6 +360,16 @@ BEG and END, when specified, are the point bounds."
         (push-mark swiper--opoint t)
         (message "Mark saved where search started")))))
 
+;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
+(defun swiper-from-isearch ()
+  "Invoke `swiper' from isearch."
+  (interactive)
+  (let ((query (if isearch-regexp
+                   isearch-string
+                 (regexp-quote isearch-string))))
+    (isearch-exit)
+    (swiper query)))
+
 (provide 'swiper)
 
 ;;; swiper.el ends here
