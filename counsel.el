@@ -808,6 +808,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (format "Tags (%s): "
           (mapconcat #'identity counsel-org-tags ", ")))
 
+(defvar org-setting-tags)
+
 ;;;###autoload
 (defun counsel-org-tag ()
   "Add or remove tags in org-mode."
