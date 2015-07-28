@@ -810,6 +810,15 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 
 (defvar org-setting-tags)
 (defvar org-last-tags-completion-table)
+(defvar org-tag-persistent-alist)
+(defvar org-tag-alist)
+(defvar org-complete-tags-always-offer-all-agenda-tags)
+
+(declare-function org-at-heading-p "org")
+(declare-function org-back-to-heading "org")
+(declare-function org-get-buffer-tags "org")
+(declare-function org-global-tags-completion-table "org")
+(declare-function org-agenda-files "org")
 
 ;;;###autoload
 (defun counsel-org-tag ()
