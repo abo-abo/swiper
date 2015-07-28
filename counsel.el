@@ -809,6 +809,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
           (mapconcat #'identity counsel-org-tags ", ")))
 
 (defvar org-setting-tags)
+(defvar org-last-tags-completion-table)
 
 ;;;###autoload
 (defun counsel-org-tag ()
