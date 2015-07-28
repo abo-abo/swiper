@@ -747,7 +747,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defvar org-indent-indentation-per-level)
 (defvar org-tags-column)
 (declare-function org-get-tags-string "org")
-(declare-function org-bound-and-true-p "org")
+(declare-function org-bound-and-true-p "org-macs")
 (declare-function org-move-to-column "org")
 
 (defun counsel-org-change-tags (tags)
