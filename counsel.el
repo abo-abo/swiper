@@ -861,7 +861,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (if (< (length string) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format "recollq -b '%s'" string))
+     (format "recoll -t -b '%s'" string))
     nil))
 
 ;; This command uses the recollq command line tool that comes together
