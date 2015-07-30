@@ -83,9 +83,6 @@
     map)
   "Keymap for swiper.")
 
-(defvar swiper--window nil
-  "Store the current window.")
-
 (defun swiper-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
@@ -96,7 +93,7 @@
            (to (query-replace-read-to from "Query replace" t)))
       (delete-minibuffer-contents)
       (ivy-set-action (lambda (_)
-                        (with-selected-window swiper--window
+                        (with-ivy-window
                           (move-beginning-of-line 1)
                           (perform-replace from to
                                            t t nil))))
@@ -115,7 +112,7 @@
   "Jump to one of the current swiper candidates."
   (interactive)
   (unless (string= ivy-text "")
-    (with-selected-window (ivy-state-window ivy-last)
+    (with-ivy-window
       (let* ((avy-all-windows nil)
              (candidates
               (avy--regex-candidates
@@ -127,9 +124,9 @@
          (avy-action-goto candidate))))))
 
 (defun swiper-recenter-top-bottom (&optional arg)
-  "Call (`recenter-top-bottom' ARG) in `swiper--window'."
+  "Call (`recenter-top-bottom' ARG)."
   (interactive "P")
-  (with-selected-window swiper--window
+  (with-ivy-window
     (recenter-top-bottom arg)))
 
 (defun swiper-font-lock-ensure ()
@@ -201,8 +198,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "Perform initialization common to both completion methods."
   (setq swiper--opoint (point))
   (setq swiper--len 0)
-  (setq swiper--anchor (line-number-at-pos))
-  (setq swiper--window (selected-window)))
+  (setq swiper--anchor (line-number-at-pos)))
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
@@ -282,13 +278,13 @@ Please remove it and update the \"swiper\" package."))
 
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
-  (swiper--cleanup)
-  (let* ((re (ivy--regex ivy-text))
-         (str ivy--current)
-         (num (if (string-match "^[0-9]+" str)
-                  (string-to-number (match-string 0 str))
-                0)))
-    (with-selected-window swiper--window
+  (with-ivy-window
+    (swiper--cleanup)
+    (let* ((re (ivy--regex ivy-text))
+           (str ivy--current)
+           (num (if (string-match "^[0-9]+" str)
+                    (string-to-number (match-string 0 str))
+                  0)))
       (goto-char (point-min))
       (when (cl-plusp num)
         (goto-char (point-min))
@@ -301,7 +297,7 @@ Please remove it and update the \"swiper\" package."))
         (isearch-range-invisible (line-beginning-position)
                                  (line-end-position))
         (unless (and (>= (point) (window-start))
-                     (<= (point) (window-end swiper--window t)))
+                     (<= (point) (window-end (ivy-state-window ivy-last) t)))
           (recenter)))
       (swiper--add-overlays re))))
 
@@ -312,39 +308,39 @@ BEG and END, when specified, are the point bounds."
              (line-beginning-position)
              (1+ (line-end-position)))))
     (overlay-put ov 'face 'swiper-line-face)
-    (overlay-put ov 'window swiper--window)
-    (push ov swiper--overlays))
-  (let* ((wh (window-height))
-         (beg (or beg (save-excursion
-                        (forward-line (- wh))
-                        (point))))
-         (end (or end (save-excursion
-                        (forward-line wh)
-                        (point)))))
-    (when (>= (length re) swiper-min-highlight)
-      (save-excursion
-        (goto-char beg)
-        ;; RE can become an invalid regexp
-        (while (and (ignore-errors (re-search-forward re end t))
-                    (> (- (match-end 0) (match-beginning 0)) 0))
-          (let ((i 0))
-            (while (<= i ivy--subexps)
-              (when (match-beginning i)
-                (let ((overlay (make-overlay (match-beginning i)
-                                             (match-end i)))
-                      (face
-                       (cond ((zerop ivy--subexps)
-                              (cadr swiper-faces))
-                             ((zerop i)
-                              (car swiper-faces))
-                             (t
-                              (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                                   swiper-faces)))))
-                  (push overlay swiper--overlays)
-                  (overlay-put overlay 'face face)
-                  (overlay-put overlay 'window swiper--window)
-                  (overlay-put overlay 'priority i)))
-              (cl-incf i))))))))
+    (overlay-put ov 'window (ivy-state-window ivy-last))
+    (push ov swiper--overlays)
+    (let* ((wh (window-height))
+           (beg (or beg (save-excursion
+                          (forward-line (- wh))
+                          (point))))
+           (end (or end (save-excursion
+                          (forward-line wh)
+                          (point)))))
+      (when (>= (length re) swiper-min-highlight)
+        (save-excursion
+          (goto-char beg)
+          ;; RE can become an invalid regexp
+          (while (and (ignore-errors (re-search-forward re end t))
+                      (> (- (match-end 0) (match-beginning 0)) 0))
+            (let ((i 0))
+              (while (<= i ivy--subexps)
+                (when (match-beginning i)
+                  (let ((overlay (make-overlay (match-beginning i)
+                                               (match-end i)))
+                        (face
+                         (cond ((zerop ivy--subexps)
+                                (cadr swiper-faces))
+                               ((zerop i)
+                                (car swiper-faces))
+                               (t
+                                (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
+                                     swiper-faces)))))
+                    (push overlay swiper--overlays)
+                    (overlay-put overlay 'face face)
+                    (overlay-put overlay 'window (ivy-state-window ivy-last))
+                    (overlay-put overlay 'priority i)))
+                (cl-incf i)))))))))
 
 (defun swiper--action (x input)
   "Goto line X and search for INPUT."

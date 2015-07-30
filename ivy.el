@@ -237,6 +237,13 @@ When non-nil, it should contain one %d.")
                     ,@body))
      (minibuffer-keyboard-quit)))
 
+(defmacro with-ivy-window (&rest body)
+  "Execute BODY in the window from which `ivy-read' was called."
+  (declare (indent 0)
+           (debug t))
+  `(with-selected-window (ivy-state-window ivy-last)
+     ,@body))
+
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
   (if (and ivy--directory
@@ -1599,7 +1606,7 @@ BUFFER may be a string or nil."
   "Pull next word from buffer into search string."
   (interactive)
   (let (amend)
-    (with-selected-window (ivy-state-window ivy-last)
+    (with-ivy-window
       (let ((pt (point))
             (le (line-end-position)))
         (forward-word 1)
