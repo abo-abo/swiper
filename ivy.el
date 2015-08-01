@@ -72,7 +72,7 @@
 Set this to nil if you don't want the count.  You can also set it
 to e.g. \"(%d/%d) \" if you want to see both the candidate index
 and the candidate count."
-  :type 'string)
+  :type '(choice (const :tag "Count disabled" nil) string))
 
 (defcustom ivy-wrap nil
   "Whether to wrap around after the first and last candidate."
@@ -993,6 +993,8 @@ This is useful for recursive `ivy-read'."
     (setq ivy--prompt
           (cond ((string-match "%.*d" prompt)
                  prompt)
+                ((null ivy-count-format)
+                 nil)
                 ((string-match "%d.*%d" ivy-count-format)
                  (let ((w (length (number-to-string
                                    (length ivy--all-candidates))))
