@@ -1415,8 +1415,11 @@ CANDIDATES are assumed to be static."
       (unless (and (not (equal re ivy--old-re))
                    (or (setq ivy--index
                              (or
-                              (cl-position re cands
-                                           :test #'equal)
+                              (cl-position (if (and (> (length re) 0)
+                                                    (eq ?^ (aref re 0)))
+                                               (substring re 1)
+                                             re) cands
+                                             :test #'equal)
                               (and ivy--directory
                                    (cl-position
                                     (concat re "/") cands
