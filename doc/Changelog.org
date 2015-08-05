@@ -1,0 +1,296 @@
+#+OPTIONS: toc:nil
+* 0.6.0
+** Fixes
+*** =swiper-avy= should use only the current window
+Not all windows. See [[https://github.com/abo-abo/swiper/issues/117][#117]].
+*** fix wrap-around for =ivy-next-line=
+See [[https://github.com/abo-abo/swiper/issues/118][#118]].
+*** =swiper-avy= should do nothing for empty input
+See [[https://github.com/abo-abo/avy/issues/50][#50]].
+*** =ivy-alt-done= should require TRAMP if necessary
+See [[https://github.com/abo-abo/swiper/pull/145][#145]].
+*** =swiper-query-replace= shouldn't miss the first occurrence
+See [[https://github.com/abo-abo/swiper/pull/144][#144]].
+*** =swiper= should not deactivate mark
+*** =ivy-mode= should not switch to TRAMP for certain input
+See [[https://github.com/abo-abo/swiper/pull/145][#145]].
+*** =counsel-find-file= should work better with TRAMP
+"/ssh:foo" should not be cut off
+See [[https://github.com/abo-abo/swiper/pull/145][#145]].
+*** =counsel-find-file= supports Windows drive letters
+See [[https://github.com/abo-abo/swiper/pull/155][#155]].
+*** =counsel-file-file= should work better with files that contain "~"
+See [[https://github.com/abo-abo/swiper/pull/157][#157]].
+*** =counsel-M-x= should respect =ivy-format-function=
+See [[https://github.com/abo-abo/swiper/pull/150][#150]].
+*** =counsel-git-grep= should position better on exit
+See [[https://github.com/abo-abo/swiper/pull/153][#153]].
+*** =ivy-mode= should re-scale text to minibuffer height
+See [[https://github.com/abo-abo/swiper/pull/151][#151]].
+*** =counsel-unicode-char= should use action-style call
+See [[https://github.com/abo-abo/swiper/pull/160][#160]].
+*** =ivy-read= should allow % in prompt string
+See [[https://github.com/abo-abo/swiper/pull/171][#171]].
+*** =ivy-call= should execute in proper window
+See [[https://github.com/abo-abo/swiper/pull/176][#176]].
+** New Features
+*** =ivy-mode=
+**** Open an Info file on the file system
+When in =Info-mode=, press ~g~ and select either "(./)" or "(../)" to
+switch to file name completion. That file will be opened with Info.
+**** Account for =minibuffer-depth-indication-mode=
+If you have =minibuffer-depth-indication-mode= on, the minibuffer
+prompt will indicate the current depth.
+See [[https://github.com/abo-abo/swiper/pull/134][#134]].
+**** Add fuzzy matching function
+To enable fuzzy matching, set your =ivy-re-builders-alist= accordingly:
+#+begin_src elisp
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+#+end_src
+See [[https://github.com/abo-abo/swiper/pull/136][#136]].
+
+See also [[https://github.com/abo-abo/swiper/pull/142][#142]] for toggling fuzzy matching with ~C-o m~.
+**** =case-fold-search= optimization
+Bind case-fold-search to t when the input is all lower-case:
+
+- input "the" matches both "the" and "The".
+- input "The" matches only "The".
+
+See [[https://github.com/abo-abo/swiper/pull/166][#166]].
+**** Allow to see the candidate index a la =anzu= via =ivy-count-format=
+To have this feature, use something like this:
+#+begin_src elisp
+(setq ivy-count-format "(%d/%d) ")
+#+end_src
+See [[https://github.com/abo-abo/swiper/pull/167][#167]].
+
+You can also set this to nil, if you don't want any count, see [[https://github.com/abo-abo/swiper/pull/188][#188]].
+**** Allow to add additional exit points for any command
+Example for =ivy-switch-to-buffer=:
+#+begin_src elisp
+(ivy-set-actions
+ 'ivy-switch-buffer
+ '(("k"
+    (lambda (x)
+      (kill-buffer x)
+      (ivy--reset-state ivy-last))
+    "kill")
+   ("j"
+    ivy--switch-buffer-other-window-action
+    "other")))
+#+end_src
+
+After this:
+
+- use ~M-o k~ to kill a buffer
+- use ~M-o j~ to switch to a buffer in other window
+
+You can always use ~M-o o~ to access the default action. When there is
+only one action, ~M-o~ does the same as ~C-m~.
+
+See [[https://github.com/abo-abo/swiper/pull/164][#164]].
+
+
+
+
+
+
+
+
+*** =counsel-describe-function= and =counsel-decribe-variable=
+**** Add a binding to look up the symbol in info
+Press ~C-,~ to look up the symbol in info, instead of the default
+describe action.
+See [[https://github.com/abo-abo/swiper/pull/121][#121]].
+**** Handle symbol-at-point better in non-Elisp buffers
+See [[https://github.com/abo-abo/swiper/pull/126][#126]].
+*** =ivy-switch-buffer=
+**** New face =ivy-virtual=
+See [[https://github.com/abo-abo/swiper/pull/129][#129]].
+**** Deal better with invisible buffers
+See [[https://github.com/abo-abo/swiper/pull/135][#135]].
+**** Add custom keymap
+You can customize =ivy-switch-buffer-map=.
+
+See [[https://github.com/abo-abo/swiper/pull/164][#164]].
+**** Add extra actions
+Add a =kill-buffer= action, and =switch-to-buffer-other-window= action.
+*** =counsel-git-grep=
+**** Add Async
+Make it fully async: the process =git grep= will be killed and
+restarted on new input. This results in almost no keyboard delay.
+**** Own history variable
+*** =swiper=
+**** Own history variable
+Having own history variable allows to get more use of ~M-p~, ~M-n~ and ~C-r~.
+*** =counsel-el=
+**** Switch to action-style call
+This allows to make use of ~C-M-n~ and ~C-M-p~.
+*** =counsel-locate=
+**** Add Async
+**** Add extra actions
+In addition to the default action of opening a file add:
+
+- =xdg-open= action
+- =dired= action
+
+Press ~M-o~ or ~C-o~ to access these actions.
+**** Add own history
+
+*** API
+**** Add :matcher
+A matcher is a function that accepts a regexp and a list of candidates
+and returns the filtered list of candidates.
+
+The default matcher is basically =cl-remove-if-not= + =string-match=.
+If you'd like to customize this, pass your own matcher.
+
+See =counsel-git-grep-matcher= for an example.
+**** Allow to customize the initial input for all commands
+Customize =ivy-initial-inputs-alist= for this.
+See [[https://github.com/abo-abo/swiper/pull/140][#140]].
+**** =ivy-sort-functions-alist= should also examine =this-command=
+**** :dynamic-collection is now a boolean
+Pass the collection function as the second var instead.
+
+** New Commands
+*** =ivy-call=
+Execute the current action for the current candidate without exiting
+the minibuffer.  Bound to ~C-M-m~ or ~M-RET~ or ~C-o g~.
+
+
+*** =counsel-find-file=
+Forward to =find-file= with Ivy completion.
+
+=ivy-next-line-and-call= as well as =ivy-resume= should work for this command.
+
+The variable =counsel-find-file-ignore-regexp= allows to ignore
+certain files, like dot files.  Input a leading dot to see all files.
+
+The variable =counsel-find-file-at-point= allows to automatically use
+=ffap=.  You also can do it manually with ~M-n~ when the point is on a file name.
+
+The variable =counsel-find-file-map= allows to customize the
+minibuffer key bindings for this command.
+
+Recommended binding:
+
+#+begin_src elisp
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+#+end_src
+
+You can peek at files with ~C-M-n~ and ~C-M-p~.
+
+See [[https://github.com/abo-abo/swiper/issues/122][#122]] and [[https://github.com/abo-abo/swiper/issues/123][#123]].
+
+See [[https://github.com/abo-abo/swiper/pull/152][#152]] about ~M-n~, ~M-p~ and ~M-i~ switching directories when necessary.
+
+*** =ivy-recentf=
+Find a file on =recentf-list=.
+
+Note that if your set =ivy-use-virtual-buffers=, =recentf-list= is
+merged into candidates list for =ivy-switch-buffer=. But if you want
+it separately, you can use this command.
+
+See [[https://github.com/abo-abo/swiper/issues/124][#124]].
+*** =ivy-yank-word=
+Add word at point to minibuffer input.
+
+This is similar to what ~C-w~ does for =isearch=.  However it's bound
+to ~M-j~ instead of ~C-w~, since ~C-w~ is bound to =kill-region= - a
+useful command.
+
+See [[https://github.com/abo-abo/swiper/issues/125][#125]].
+*** =counsel-M-x=
+Forward to =execute-extended-command= with Ivy completion.
+The candidate list will also display the key binding for each bound command.
+
+This command will piggyback on =smex= for sorting, if =smex= is installed.
+
+Use =counsel-M-x-initial-input= to customize the initial input for
+this command.  By default, it's "^" - the regex character that
+indicates beginning of string.  This results in much faster matching,
+since you usually type the command name from the start.
+
+See [[https://github.com/abo-abo/swiper/pull/136][#136]] and [[https://github.com/abo-abo/swiper/pull/138][#138]].
+
+*** =hydra-ivy=
+Press ~C-o~ to toggle the Hydra for Ivy.
+It gives access to shorter bindings and many customizable options.
+
+Use ~C-o >~ to grow the minibuffer.
+Use ~C-o <~ to shrink the minibuffer.
+
+See [[https://github.com/abo-abo/swiper/pull/151][#151]].
+
+*** =ivy-toggle-calling=
+Toggle executing the current action each time a new candidate is selected.
+
+This command is bound to ~C-o c~.
+
+To explain how this is useful: ~C-M-m C-M-f C-M-f C-M-f~  is equivalent to ~C-o cjjj~.
+
+*** =ivy-insert-current=
+Inserts the current candidate into the minibuffer.
+
+Press ~M-i~ if you want something close to the current candidate. You
+can follow up with an edit and select.
+
+I find this very useful when creating new files with a similar name to
+the existing file: ~C-x C-f M-i~ + a bit of editing is very fast.
+
+See [[https://github.com/abo-abo/swiper/pull/141][#141]].
+
+*** =counsel-load-theme=
+Forward to =load-theme= with Ivy completion. Allows to rapidly try themes (e.g. with ~C-M-n~).
+
+*** =ivy-reverse-i-search=
+Allow to recursively match history with ~C-r~.
+
+I like this command from bash shell. The usual way to search through
+history is with ~M-p~ and ~M-n~.  Using =ivy-reverse-i-search= will
+open a recursive completion session with the current history as the
+candidates.
+*** =counsel-rhythmbox=
+[[http://oremacs.com/2015/07/09/counsel-rhythmbox/][Control Rhythmbox from Emacs.]]
+*** =ivy-dispatching-done=
+Select an action for the current candidate and execute it. Bound to ~M-o~.
+
+Some commands that support ~M-o~:
+
+- =counsel-rhythmbox=
+- =counsel-describe-function=
+- =counsel-describe-variable=
+- =ivy-switch-buffer=
+- =counsel-locate=
+
+*** =counsel-org-tag=
+Forward to =org-set-tags= with Ivy completion.
+
+Selecting any tag each time will toggle it on/off.
+The current list of selected tags will be displayed in the prompt.
+
+See [[https://github.com/abo-abo/swiper/pull/177][#177]] and [[https://github.com/abo-abo/swiper/pull/91][#91]].
+
+*** =counsel-org-tag-agenda=
+Forward to =org-agenda-set-tags= with Ivy completion.
+See [[https://github.com/abo-abo/swiper/pull/177][#177]].
+
+*** =counsel-ag=
+Interactively =ag= using Ivy completion.
+
+*** =counsel-recoll=
+Use =recoll= with Ivy completion.
+See [[http://oremacs.com/2015/07/27/counsel-recoll/][Using Recoll desktop search database with Emacs]].
+
+Install recoll with =sudo apt-get install recoll=.
+
+*** =swiper-from-isearch=
+Start =swiper= from the current =isearch= input.
+
+*** =ivy-immediate-done=
+Use this command to exit the minibuffer choosing not the current
+candidate, but the current text.  Bound to ~C-M-j~ or ~C-u C-j~.
+
+See [[https://github.com/abo-abo/swiper/pull/183][#183]].
