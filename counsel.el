@@ -357,7 +357,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :matcher #'counsel--find-file-matcher
             :action
             (lambda (x)
-              (find-file (expand-file-name x ivy--directory)))
+              (with-ivy-window
+                (find-file (expand-file-name x ivy--directory))))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
                          (ffap-guesser))
