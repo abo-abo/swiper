@@ -1556,15 +1556,16 @@ When VIRTUAL is non-nil, add virtual buffers."
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
 BUFFER may be a string or nil."
-  (if (zerop (length buffer))
-      (switch-to-buffer
-       ivy-text nil 'force-same-window)
-    (let ((virtual (assoc buffer ivy--virtual-buffers)))
-      (if (and virtual
-               (not (get-buffer buffer)))
-          (find-file (cdr virtual))
+  (with-ivy-window
+    (if (zerop (length buffer))
         (switch-to-buffer
-         buffer nil 'force-same-window)))))
+         ivy-text nil 'force-same-window)
+      (let ((virtual (assoc buffer ivy--virtual-buffers)))
+        (if (and virtual
+                 (not (get-buffer buffer)))
+            (find-file (cdr virtual))
+          (switch-to-buffer
+           buffer nil 'force-same-window))))))
 
 (defun ivy--switch-buffer-other-window-action (buffer)
   "Switch to BUFFER in other window.
@@ -1605,7 +1606,10 @@ BUFFER may be a string or nil."
   "Find a file on `recentf-list'."
   (interactive)
   (ivy-read "Recentf: " recentf-list
-            :action #'find-file))
+            :action
+            (lambda (f)
+              (with-ivy-window
+                (find-file f)))))
 
 (defun ivy-yank-word ()
   "Pull next word from buffer into search string."
