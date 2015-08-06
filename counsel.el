@@ -454,6 +454,11 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
+(defcustom counsel-locate-options '("-i" "--regex")
+  "Command line options for `locate`."
+  :group 'ivy
+  :type  '(repeat string))
+
 (ivy-set-actions
  'counsel-locate
  '(("x" counsel-locate-action-extern "xdg-open")
@@ -463,7 +468,10 @@ Skip some dotfiles unless `ivy-text' requires them."
   (if (< (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (concat "locate -i --regex " (ivy--regex str)))
+     (concat "locate "
+	     (mapconcat #'identity counsel-locate-options " ")
+	     " "
+	     (ivy--regex str)))
     '("" "working...")))
 
 ;;;###autoload
