@@ -444,7 +444,11 @@ Skip some dotfiles unless `ivy-text' requires them."
   (call-process shell-file-name nil
                 nil nil
                 shell-command-switch
-                (format "xdg-open %s" (shell-quote-argument x))))
+                (format "%s %s"
+                        (if (eq system-type 'darwin)
+                                    "open"
+                                  "xdg-open")
+                        (shell-quote-argument x))))
 
 (declare-function dired-jump "dired-x")
 (defun counsel-locate-action-dired (x)
@@ -454,7 +458,9 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
-(defcustom counsel-locate-options '("-i" "--regex")
+(defcustom counsel-locate-options (if (eq system-type 'darwin)
+                                      '("-i")
+                                    '("-i" "--regex"))
   "Command line options for `locate`."
   :group 'ivy
   :type  '(repeat string))
