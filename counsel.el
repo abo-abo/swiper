@@ -470,14 +470,21 @@ Skip some dotfiles unless `ivy-text' requires them."
  '(("x" counsel-locate-action-extern "xdg-open")
    ("d" counsel-locate-action-dired "dired")))
 
+(defun counsel-unquote-regex-parens (str)
+  (replace-regexp-in-string
+   "\\\\)" ")"
+   (replace-regexp-in-string
+    "\\\\(" "("
+    str)))
+
 (defun counsel-locate-function (str &rest _u)
   (if (< (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (concat "locate "
-	     (mapconcat #'identity counsel-locate-options " ")
-	     " "
-	     (ivy--regex str)))
+     (format "locate %s '%s'"
+             (mapconcat #'identity counsel-locate-options " ")
+             (counsel-unquote-regex-parens
+              (ivy--regex str))))
     '("" "working...")))
 
 ;;;###autoload
@@ -872,11 +879,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)
-    (let ((regex (replace-regexp-in-string
-                  "\\\\)" ")"
-                  (replace-regexp-in-string
-                   "\\\\(" "("
-                   (ivy--regex string)))))
+    (let ((regex (counsel-unquote-regex-parens (ivy--regex string))))
       (counsel--async-command
        (format "ag --noheading --nocolor %S" regex))
       nil)))
