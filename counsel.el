@@ -430,7 +430,9 @@ Skip some dotfiles unless `ivy-text' requires them."
   (if (string= event "finished\n")
       (progn
         (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
+          (setq ivy--all-candidates
+                (ivy--sort-maybe
+                 (split-string (buffer-string) "\n" t)))
           (setq ivy--old-cands ivy--all-candidates))
         (ivy--exhibit))
     (if (string= event "exited abnormally with code 1\n")

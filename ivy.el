@@ -1289,6 +1289,23 @@ Insert .* between each char."
 
 (defvar inhibit-message)
 
+(defun ivy--sort-maybe (collection)
+  "Sort COLLECTION if needed."
+  (let ((sort (ivy-state-sort ivy-last))
+        entry)
+    (if (null sort)
+        collection
+      (let ((sort-fn (cond ((functionp sort)
+                            sort)
+                           ((setq entry (assoc (ivy-state-collection ivy-last)
+                                               ivy-sort-functions-alist))
+                            (cdr entry))
+                           (t
+                            (cdr (assoc t ivy-sort-functions-alist))))))
+        (if (functionp sort-fn)
+            (cl-sort (copy-sequence collection) sort-fn)
+          collection)))))
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -1301,7 +1318,8 @@ Should be run via minibuffer `post-command-hook'."
           (unless (equal ivy--old-text ivy-text)
             (while-no-input
               (setq ivy--all-candidates
-                    (funcall (ivy-state-collection ivy-last) ivy-text))
+                    (ivy--sort-maybe
+                     (funcall (ivy-state-collection ivy-last) ivy-text)))
               (setq ivy--old-text ivy-text)))
           (when ivy--all-candidates
             (ivy--insert-minibuffer
