@@ -954,6 +954,7 @@ This is useful for recursive `ivy-read'."
             ((eq collection 'internal-complete-buffer)
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers)))
             ((or (functionp collection)
+                 (byte-code-function-p collection)
                  (vectorp collection)
                  (listp (car collection)))
              (setq coll (all-completions "" collection predicate)))
@@ -1038,7 +1039,10 @@ The history, defaults and input-method arguments are ignored for now."
             :require-match require-match
             :initial-input (if (consp initial-input)
                                (car initial-input)
-                             initial-input)
+                             (if (string-match "\\+" initial-input)
+                                 (replace-regexp-in-string
+                                  "\\+" "\\\\+" initial-input)
+                               initial-input))
             :preselect (if (listp def) (car def) def)
             :history history
             :keymap nil
