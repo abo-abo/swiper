@@ -1039,7 +1039,8 @@ The history, defaults and input-method arguments are ignored for now."
             :require-match require-match
             :initial-input (if (consp initial-input)
                                (car initial-input)
-                             (if (string-match "\\+" initial-input)
+                             (if (and (stringp initial-input)
+                                      (string-match "\\+" initial-input))
                                  (replace-regexp-in-string
                                   "\\+" "\\\\+" initial-input)
                                initial-input))
