@@ -139,6 +139,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-o") 'ivy-dispatching-done)
     (define-key map (kbd "C-k") 'ivy-kill-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
+    (define-key map (kbd "M-w") 'ivy-kill-ring-save)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -1647,6 +1648,18 @@ BUFFER may be a string or nil."
           (setq amend (buffer-substring-no-properties pt (point))))))
     (when amend
       (insert amend))))
+
+(defun ivy-kill-ring-save ()
+  "Store the current candidates into the kill ring.
+If the region is active, forward to `kill-ring-save' instead."
+  (interactive)
+  (if (region-active-p)
+      (call-interactively 'kill-ring-save)
+    (kill-new
+     (mapconcat
+      #'identity
+      ivy--old-cands
+      "\n"))))
 
 (defun ivy-insert-current ()
   "Make the current candidate into current input.
