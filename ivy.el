@@ -1215,7 +1215,6 @@ Insert .* between each char."
   (set (make-local-variable 'minibuffer-default-add-function)
        (lambda ()
          (list ivy--default)))
-  (setq line-spacing 0)
   (setq-local max-mini-window-height ivy-height)
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
   ;; show completions with empty input
@@ -1377,7 +1376,18 @@ Should be run via minibuffer `post-command-hook'."
       (let ((buffer-undo-list t))
         (save-excursion
           (forward-line 1)
-          (insert text))))))
+          (insert text))))
+    (when (display-graphic-p)
+      (ivy--resize-minibuffer-to-fit))))
+
+(defun ivy--resize-minibuffer-to-fit ()
+  "Resize the minibuffer window so it has enough space to display
+all of the text contained in the minibuffer."
+  (with-selected-window (minibuffer-window)
+    (let ((text-height (cdr (window-text-pixel-size)))
+          (body-height (window-body-height nil t)))
+      (when (> text-height body-height)
+        (window-resize nil (- text-height body-height) nil t t)))))
 
 (declare-function colir-blend-face-background "ext:colir")
 
