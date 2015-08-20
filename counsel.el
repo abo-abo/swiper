@@ -806,22 +806,45 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
       (t (error "Tags alignment failed")))
     (org-move-to-column col)))
 
+(defun counsel-org--set-tags ()
+  (counsel-org-change-tags
+   (if counsel-org-tags
+       (format ":%s:"
+               (mapconcat #'identity counsel-org-tags ":"))
+     "")))
+
 (defun counsel-org-tag-action (x)
   (if (member x counsel-org-tags)
       (progn
         (setq counsel-org-tags (delete x counsel-org-tags)))
-    (setq counsel-org-tags (append counsel-org-tags (list x)))
-    (unless (member x ivy--all-candidates)
-      (setq ivy--all-candidates (append ivy--all-candidates (list x)))))
+    (unless (equal x "")
+      (setq counsel-org-tags (append counsel-org-tags (list x)))
+      (unless (member x ivy--all-candidates)
+        (setq ivy--all-candidates (append ivy--all-candidates (list x))))))
   (let ((prompt (counsel-org-tag-prompt)))
     (setf (ivy-state-prompt ivy-last) prompt)
     (setq ivy--prompt (concat "%-4d " prompt)))
-  (cond ((memq this-command '(ivy-done ivy-alt-done))
-         (counsel-org-change-tags
-          (if counsel-org-tags
-              (format ":%s:"
-                      (mapconcat #'identity counsel-org-tags ":"))
-            "")))
+  (cond ((memq this-command '(ivy-done
+                              ivy-alt-done
+                              ivy-immediate-done))
+         (if (eq major-mode 'org-agenda-mode)
+             (if (null org-agenda-bulk-marked-entries)
+                 (let ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                                     (org-agenda-error))))
+                   (with-current-buffer (marker-buffer hdmarker)
+                     (goto-char hdmarker)
+                     (counsel-org--set-tags)))
+               (let ((add-tags (copy-sequence counsel-org-tags)))
+                 (dolist (m org-agenda-bulk-marked-entries)
+                   (with-current-buffer (marker-buffer m)
+                     (save-excursion
+                       (goto-char m)
+                       (setq counsel-org-tags
+                             (delete-dups
+                              (append (split-string (org-get-tags-string) ":" t)
+                                      add-tags)))
+                       (counsel-org--set-tags))))))
+           (counsel-org--set-tags)))
         ((eq this-command 'ivy-call)
          (delete-minibuffer-contents))))
 
@@ -847,15 +870,25 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   "Add or remove tags in org-mode."
   (interactive)
   (save-excursion
-    (unless (org-at-heading-p)
-      (org-back-to-heading t))
-    (setq counsel-org-tags (split-string (org-get-tags-string) ":" t))
+    (if (eq major-mode 'org-agenda-mode)
+        (if org-agenda-bulk-marked-entries
+            (setq counsel-org-tags nil)
+          (let ((hdmarker (or (org-get-at-bol 'org-hd-marker)
+                              (org-agenda-error))))
+            (with-current-buffer (marker-buffer hdmarker)
+              (goto-char hdmarker)
+              (setq counsel-org-tags
+                    (split-string (org-get-tags-string) ":" t)))))
+      (unless (org-at-heading-p)
+        (org-back-to-heading t))
+      (setq counsel-org-tags (split-string (org-get-tags-string) ":" t)))
     (let ((org-setting-tags t)
           (org-last-tags-completion-table
            (append org-tag-persistent-alist
                    (or org-tag-alist (org-get-buffer-tags))
                    (and
-                    org-complete-tags-always-offer-all-agenda-tags
+                    (or org-complete-tags-always-offer-all-agenda-tags
+                        (eq major-mode 'org-agenda-mode))
                     (org-global-tags-completion-table
                      (org-agenda-files))))))
       (ivy-read (counsel-org-tag-prompt)
