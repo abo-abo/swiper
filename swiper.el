@@ -366,6 +366,83 @@ BEG and END, when specified, are the point bounds."
     (isearch-exit)
     (swiper query)))
 
+(defvar swiper-multi-buffers nil
+  "Store the current list of buffers.")
+
+(defvar swiper-multi-candidates nil
+  "Store the list of candidates for `swiper-multi'.")
+
+(defun swiper-multi-prompt ()
+  (format "Buffers (%s): "
+          (mapconcat #'identity swiper-multi-buffers ", ")))
+
+(defun swiper-multi ()
+  "Select one or more buffers.
+Run `swiper' for those buffers."
+  (interactive)
+  (setq swiper-multi-buffers nil)
+  (setq swiper-multi-candidates nil)
+  (ivy-read (swiper-multi-prompt)
+            'internal-complete-buffer
+            :action 'swiper-multi-action-1)
+  (ivy-read "Swiper: " swiper-multi-candidates
+            :action 'swiper-multi-action-2
+            :unwind #'swiper--cleanup))
+
+(defun swiper-multi-action-1 (x)
+  (if (member x swiper-multi-buffers)
+      (progn
+        (setq swiper-multi-buffers (delete x swiper-multi-buffers)))
+    (unless (equal x "")
+      (setq swiper-multi-buffers (append swiper-multi-buffers (list x)))))
+  (let ((prompt (swiper-multi-prompt)))
+    (setf (ivy-state-prompt ivy-last) prompt)
+    (setq ivy--prompt (concat "%-4d " prompt)))
+  (cond ((memq this-command '(ivy-done
+                              ivy-alt-done
+                              ivy-immediate-done))
+         (let ((ww (window-width)))
+           (dolist (buf swiper-multi-buffers)
+             (with-current-buffer buf
+               (setq swiper-multi-candidates
+                     (append
+                      (mapcar
+                       (lambda (s)
+                         (setq s (concat s " "))
+                         (let ((len (length s)))
+                           (put-text-property
+                            (1- len) len 'display
+                            (concat
+                             (make-string
+                              (max
+                               (- ww
+                                  (string-width s)
+                                  (length (buffer-name))
+                                  1)
+                               0)
+                              ?\ )
+                             (buffer-name))
+                            s)
+                           s))
+                       (swiper--candidates))
+                      swiper-multi-candidates))))))
+        ((eq this-command 'ivy-call)
+         (delete-minibuffer-contents))))
+
+(defun swiper-multi-action-2 (x)
+  (let ((buf-space (get-text-property (1- (length x)) 'display x)))
+    (with-ivy-window
+      (when (string-match "\\` *\\([^ ]+\\)\\'" buf-space)
+        (switch-to-buffer (match-string 1 buf-space))
+        (goto-char (point-min))
+        (forward-line (1- (read x)))
+        (re-search-forward
+         (ivy--regex ivy-text)
+         (line-end-position) t)
+        (unless (eq ivy-exit 'done)
+          (swiper--cleanup)
+          (swiper--add-overlays (ivy--regex ivy-text)))))))
+
 (provide 'swiper)
 
 ;;; swiper.el ends here
