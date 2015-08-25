@@ -116,18 +116,21 @@
 (defun counsel--py-action (symbol)
   "Insert SYMBOL, erasing the previous one."
   (when (stringp symbol)
-    (when counsel-completion-beg
-      (delete-region
-       counsel-completion-beg
-       counsel-completion-end))
-    (setq counsel-completion-beg
-          (move-marker (make-marker) (point)))
-    (insert symbol)
-    (setq counsel-completion-end
-          (move-marker (make-marker) (point)))
-    (when (equal (get-text-property 0 'symbol symbol) "f")
-      (insert "()")
-      (backward-char 1))))
+    (with-ivy-window
+      (when counsel-completion-beg
+        (delete-region
+         counsel-completion-beg
+         counsel-completion-end))
+      (setq counsel-completion-beg
+            (move-marker (make-marker) (point)))
+      (insert symbol)
+      (setq counsel-completion-end
+            (move-marker (make-marker) (point)))
+      (when (equal (get-text-property 0 'symbol symbol) "f")
+        (insert "()")
+        (setq counsel-completion-end
+              (move-marker (make-marker) (point)))
+        (backward-char 1)))))
 
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
