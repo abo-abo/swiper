@@ -94,6 +94,41 @@
     (setq counsel-completion-end
           (move-marker (make-marker) (point)))))
 
+(declare-function deferred:sync! "ext:deferred")
+(declare-function jedi:complete-request "ext:jedi-core")
+(declare-function jedi:ac-direct-matches "ext:jedi")
+
+(defun counsel-jedi ()
+  "Python completion at point."
+  (interactive)
+  (let ((bnd (bounds-of-thing-at-point 'symbol)))
+    (if bnd
+        (progn
+          (setq counsel-completion-beg (car bnd))
+          (setq counsel-completion-end (cdr bnd)))
+      (setq counsel-completion-beg nil)
+      (setq counsel-completion-end nil)))
+  (deferred:sync!
+   (jedi:complete-request))
+  (ivy-read "Symbol name: " (jedi:ac-direct-matches)
+            :action #'counsel--py-action))
+
+(defun counsel--py-action (symbol)
+  "Insert SYMBOL, erasing the previous one."
+  (when (stringp symbol)
+    (when counsel-completion-beg
+      (delete-region
+       counsel-completion-beg
+       counsel-completion-end))
+    (setq counsel-completion-beg
+          (move-marker (make-marker) (point)))
+    (insert symbol)
+    (setq counsel-completion-end
+          (move-marker (make-marker) (point)))
+    (when (equal (get-text-property 0 'symbol symbol) "f")
+      (insert "()")
+      (backward-char 1))))
+
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") #'counsel-find-symbol)
@@ -812,6 +847,11 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
        (format ":%s:"
                (mapconcat #'identity counsel-org-tags ":"))
      "")))
+
+(defvar org-agenda-bulk-marked-entries)
+
+(declare-function org-get-at-bol "org")
+(declare-function org-agenda-error "org-agenda")
 
 (defun counsel-org-tag-action (x)
   (if (member x counsel-org-tags)
