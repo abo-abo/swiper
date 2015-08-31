@@ -81,18 +81,31 @@
               :initial-input str
               :action #'counsel--el-action)))
 
+;;;###autoload
+(defun counsel-cl ()
+  "Common Lisp completion at point."
+  (interactive)
+  (setq counsel-completion-beg (slime-symbol-start-pos))
+  (setq counsel-completion-end (slime-symbol-end-pos))
+  (ivy-read "Symbol name: "
+            (car (slime-contextual-completions
+                  counsel-completion-beg
+                  counsel-completion-end))
+            :action #'counsel--el-action))
+
 (defun counsel--el-action (symbol)
   "Insert SYMBOL, erasing the previous one."
   (when (stringp symbol)
-    (when counsel-completion-beg
-      (delete-region
-       counsel-completion-beg
-       counsel-completion-end))
-    (setq counsel-completion-beg
-          (move-marker (make-marker) (point)))
-    (insert symbol)
-    (setq counsel-completion-end
-          (move-marker (make-marker) (point)))))
+    (with-ivy-window
+      (when counsel-completion-beg
+        (delete-region
+         counsel-completion-beg
+         counsel-completion-end))
+      (setq counsel-completion-beg
+            (move-marker (make-marker) (point)))
+      (insert symbol)
+      (setq counsel-completion-end
+            (move-marker (make-marker) (point))))))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:complete-request "ext:jedi-core")
