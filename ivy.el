@@ -78,6 +78,17 @@ and the candidate count."
   "Whether to wrap around after the first and last candidate."
   :type 'boolean)
 
+(defcustom ivy-display-style nil
+  "The style for formatting the minibuffer.
+
+By default, the matched strings will be copied as they are.
+
+With the fancy method, the matching parts of the regexp will be
+additionally highlighted, just like `swiper' does it."
+  :type '(choice
+          (const :tag "Plain" nil)
+          (const :tag "Fancy" fancy)))
+
 (defcustom ivy-on-del-error-function 'minibuffer-keyboard-quit
   "The handler for when `ivy-backward-delete-char' throws.
 This is usually meant as a quick exit out of the minibuffer."
@@ -1509,7 +1520,8 @@ CANDS is a list of strings."
            (end (min (+ start (1- ivy-height)) ivy--length))
            (start (max 0 (min start (- end (1- ivy-height)))))
            (cands (cl-subseq cands start end))
-           (index (- ivy--index start)))
+           (index (- ivy--index start))
+           (re (funcall ivy--regex-function ivy-text)))
       (when ivy--directory
         (setq cands (mapcar (lambda (x)
                               (if (string-match-p "/\\'" x)
@@ -1521,7 +1533,28 @@ CANDS is a list of strings."
             (ivy--add-face ivy--current 'ivy-current-match))
       (setq cands (mapcar
                    (lambda (s)
-                     (let ((s (copy-sequence s)))
+                     (let ((start 0)
+                           (s (copy-sequence s)))
+                       (when (eq ivy-display-style 'fancy)
+                         (while (and (string-match re s start)
+                                     (> (- (match-end 0) (match-beginning 0)) 0))
+                           (setq start (match-end 0))
+                           (let ((i 0))
+                             (while (<= i ivy--subexps)
+                               (let ((face
+                                      (cond ((zerop ivy--subexps)
+                                             (cadr swiper-faces))
+                                            ((zerop i)
+                                             (car swiper-faces))
+                                            (t
+                                             (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
+                                                  swiper-faces)))))
+                                 (set-text-properties
+                                  (match-beginning i)
+                                  (match-end i)
+                                  `(face ,face)
+                                  s))
+                               (cl-incf i)))))
                        (when (fboundp 'add-face-text-property)
                          (add-face-text-property
                           0 (length s)
