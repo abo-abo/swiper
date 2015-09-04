@@ -1531,11 +1531,6 @@ This string will be inserted into the minibuffer.")
                nil
                str))
             (cl-incf i)))))
-    (when (fboundp 'add-face-text-property)
-      (add-face-text-property
-       0 (length str)
-       `(:height ,(face-attribute 'default :height)
-                 :overline nil) nil str))
     str))
 
 (defun ivy--format (cands)
@@ -1559,11 +1554,11 @@ CANDS is a list of strings."
                                 x))
                             cands)))
       (setq ivy--current (copy-sequence (nth index cands)))
-      (setf (nth index cands)
-            (ivy--add-face ivy--current 'ivy-current-match))
       (setq cands (mapcar
                    #'ivy--format-minibuffer-line
                    cands))
+      (setf (nth index cands)
+            (ivy--add-face (nth index cands) 'ivy-current-match))
       (let* ((ivy--index index)
              (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
