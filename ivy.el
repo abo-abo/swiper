@@ -1524,10 +1524,11 @@ This string will be inserted into the minibuffer.")
                          (t
                           (nth (1+ (mod (+ i 2) (1- (length swiper-minibuffer-faces))))
                                swiper-minibuffer-faces)))))
-              (set-text-properties
+              (add-face-text-property
                (match-beginning i)
                (match-end i)
-               `(face ,face)
+               face
+               nil
                str))
             (cl-incf i)))))
     (when (fboundp 'add-face-text-property)
