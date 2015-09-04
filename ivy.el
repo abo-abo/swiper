@@ -1511,6 +1511,8 @@ This string will be inserted into the minibuffer.")
   (let ((start 0)
         (str (copy-sequence str)))
     (when (eq ivy-display-style 'fancy)
+      (unless ivy--old-re
+        (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
       (while (and (string-match ivy--old-re str start)
                   (> (- (match-end 0) (match-beginning 0)) 0))
         (setq start (match-end 0))
