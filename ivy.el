@@ -1507,6 +1507,36 @@ This string will be inserted into the minibuffer.")
                s))
      cands "\n")))
 
+(defun ivy--format-minibuffer-line (str)
+  (let ((start 0)
+        (str (copy-sequence str)))
+    (when (eq ivy-display-style 'fancy)
+      (while (and (string-match ivy--old-re str start)
+                  (> (- (match-end 0) (match-beginning 0)) 0))
+        (setq start (match-end 0))
+        (let ((i 0))
+          (while (<= i ivy--subexps)
+            (let ((face
+                   (cond ((zerop ivy--subexps)
+                          (cadr swiper-minibuffer-faces))
+                         ((zerop i)
+                          (car swiper-minibuffer-faces))
+                         (t
+                          (nth (1+ (mod (+ i 2) (1- (length swiper-minibuffer-faces))))
+                               swiper-minibuffer-faces)))))
+              (set-text-properties
+               (match-beginning i)
+               (match-end i)
+               `(face ,face)
+               str))
+            (cl-incf i)))))
+    (when (fboundp 'add-face-text-property)
+      (add-face-text-property
+       0 (length str)
+       `(:height ,(face-attribute 'default :height)
+                 :overline nil) nil str))
+    str))
+
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
 CANDS is a list of strings."
@@ -1520,8 +1550,7 @@ CANDS is a list of strings."
            (end (min (+ start (1- ivy-height)) ivy--length))
            (start (max 0 (min start (- end (1- ivy-height)))))
            (cands (cl-subseq cands start end))
-           (index (- ivy--index start))
-           (re (funcall ivy--regex-function ivy-text)))
+           (index (- ivy--index start)))
       (when ivy--directory
         (setq cands (mapcar (lambda (x)
                               (if (string-match-p "/\\'" x)
@@ -1532,35 +1561,7 @@ CANDS is a list of strings."
       (setf (nth index cands)
             (ivy--add-face ivy--current 'ivy-current-match))
       (setq cands (mapcar
-                   (lambda (s)
-                     (let ((start 0)
-                           (s (copy-sequence s)))
-                       (when (eq ivy-display-style 'fancy)
-                         (while (and (string-match re s start)
-                                     (> (- (match-end 0) (match-beginning 0)) 0))
-                           (setq start (match-end 0))
-                           (let ((i 0))
-                             (while (<= i ivy--subexps)
-                               (let ((face
-                                      (cond ((zerop ivy--subexps)
-                                             (cadr swiper-faces))
-                                            ((zerop i)
-                                             (car swiper-faces))
-                                            (t
-                                             (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                                                  swiper-faces)))))
-                                 (set-text-properties
-                                  (match-beginning i)
-                                  (match-end i)
-                                  `(face ,face)
-                                  s))
-                               (cl-incf i)))))
-                       (when (fboundp 'add-face-text-property)
-                         (add-face-text-property
-                          0 (length s)
-                          `(:height ,(face-attribute 'default :height)
-                                    :overline nil) nil s))
-                       s))
+                   #'ivy--format-minibuffer-line
                    cands))
       (let* ((ivy--index index)
              (res (concat "\n" (funcall ivy-format-function cands))))

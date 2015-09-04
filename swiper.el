@@ -61,6 +61,22 @@
   '((t (:inherit isearch-fail)))
   "Face for `swiper' matches modulo 3.")
 
+(defface swiper-minibuffer-match-face-1
+    '((t (:inherit isearch-lazy-highlight-face)))
+  "The background face for `swiper' minibuffer matches.")
+
+(defface swiper-minibuffer-match-face-2
+    '((t (:inherit isearch)))
+  "Face for `swiper' minibuffer matches modulo 1.")
+
+(defface swiper-minibuffer-match-face-3
+    '((t (:inherit match)))
+  "Face for `swiper' minibuffer matches modulo 2.")
+
+(defface swiper-minibuffer-match-face-4
+    '((t (:inherit isearch-fail)))
+  "Face for `swiper' minibuffer matches modulo 3.")
+
 (defface swiper-line-face
   '((t (:inherit highlight)))
   "Face for current `swiper' line.")
@@ -70,6 +86,13 @@
                           swiper-match-face-3
                           swiper-match-face-4)
   "List of `swiper' faces for group matches.")
+
+(defcustom swiper-minibuffer-faces
+  '(swiper-minibuffer-match-face-1
+    swiper-minibuffer-match-face-2
+    swiper-minibuffer-match-face-3
+    swiper-minibuffer-match-face-4)
+  "List of `swiper' faces for minibuffer group matches.")
 
 (defcustom swiper-min-highlight 2
   "Only highlight matches for regexps at least this long."
