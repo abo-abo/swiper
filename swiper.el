@@ -62,19 +62,32 @@
   "Face for `swiper' matches modulo 3.")
 
 (defface swiper-minibuffer-match-face-1
-    '((t (:inherit isearch-lazy-highlight-face)))
-  "The background face for `swiper' minibuffer matches.")
+  '((((class color) (background light))
+     :background "#dddddd")
+    (((class color) (background dark))
+     :background "#555555"))
+  "The background face for `swiper' minibuffer matches."
+  :group 'function-args-faces)
 
 (defface swiper-minibuffer-match-face-2
-    '((t (:inherit isearch)))
+  '((((class color) (background light))
+     :background "#bbbbbb" :weight bold)
+    (((class color) (background dark))
+     :background "#777777" :weight bold))
   "Face for `swiper' minibuffer matches modulo 1.")
 
 (defface swiper-minibuffer-match-face-3
-    '((t (:inherit match)))
+  '((((class color) (background light))
+     :background "#bbbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#7777ff" :weight bold))
   "Face for `swiper' minibuffer matches modulo 2.")
 
 (defface swiper-minibuffer-match-face-4
-    '((t (:inherit isearch-fail)))
+  '((((class color) (background light))
+     :background "#ffbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#ff77ff" :weight bold))
   "Face for `swiper' minibuffer matches modulo 3.")
 
 (defface swiper-line-face
