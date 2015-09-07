@@ -44,7 +44,10 @@
   :group 'convenience)
 
 (defface ivy-current-match
-  '((t (:inherit highlight)))
+  '((((class color) (background light))
+     :background "#1a4b77" :foreground "white")
+    (((class color) (background dark))
+     :background "#65a7e2" :foreground "black"))
   "Face used by Ivy for highlighting first match.")
 
 (defface ivy-confirm-face
@@ -1408,7 +1411,15 @@ all of the text contained in the minibuffer."
 `propertize' or `add-face-text-property' in this case."
   (require 'colir)
   (condition-case nil
-      (colir-blend-face-background 0 (length str) face str)
+      (progn
+        (colir-blend-face-background 0 (length str) face str)
+        (let ((foreground (face-foreground face)))
+          (when foreground
+            (add-face-text-property
+             0 (length str)
+             `(:foreground ,foreground)
+             nil
+             str))))
     (error
      (ignore-errors
        (font-lock-append-text-property 0 (length str) 'face face str))))

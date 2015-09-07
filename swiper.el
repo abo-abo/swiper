@@ -63,7 +63,7 @@
 
 (defface swiper-minibuffer-match-face-1
   '((((class color) (background light))
-     :background "#dddddd")
+     :background "#d3d3d3")
     (((class color) (background dark))
      :background "#555555"))
   "The background face for `swiper' minibuffer matches."
@@ -71,7 +71,7 @@
 
 (defface swiper-minibuffer-match-face-2
   '((((class color) (background light))
-     :background "#bbbbbb" :weight bold)
+     :background "#e99ce8" :weight bold)
     (((class color) (background dark))
      :background "#777777" :weight bold))
   "Face for `swiper' minibuffer matches modulo 1.")
@@ -87,7 +87,7 @@
   '((((class color) (background light))
      :background "#ffbbff" :weight bold)
     (((class color) (background dark))
-     :background "#ff77ff" :weight bold))
+     :background "#8a498a" :weight bold))
   "Face for `swiper' minibuffer matches modulo 3.")
 
 (defface swiper-line-face
