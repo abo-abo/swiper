@@ -339,7 +339,7 @@
       (counsel-more-chars 3)
     (let* ((default-directory counsel--git-grep-dir)
            (cmd (format "git --no-pager grep --full-name -n --no-color -i -e %S"
-                        (ivy--regex string t))))
+                        (setq ivy--old-re (ivy--regex string t)))))
       (if (<= counsel--git-grep-count 20000)
           (split-string (shell-command-to-string cmd) "\n" t)
         (counsel--gg-candidates (ivy--regex string))
