@@ -81,6 +81,10 @@
               :initial-input str
               :action #'counsel--el-action)))
 
+(declare-function slime-symbol-start-pos "ext:slime")
+(declare-function slime-symbol-end-pos "ext:slime")
+(declare-function slime-contextual-completions "ext:slime-c-p-c")
+
 ;;;###autoload
 (defun counsel-cl ()
   "Common Lisp completion at point."
