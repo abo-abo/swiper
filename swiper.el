@@ -309,7 +309,8 @@ Please remove it and update the \"swiper\" package."))
   "Called when `ivy' input is updated."
   (with-ivy-window
     (swiper--cleanup)
-    (let* ((re (ivy--regex ivy-text))
+    (let* ((re (funcall ivy--regex-function ivy-text))
+           (re (if (stringp re) re (caar re)))
            (str ivy--current)
            (num (if (string-match "^[0-9]+" str)
                     (string-to-number (match-string 0 str))

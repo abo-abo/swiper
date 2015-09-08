@@ -1429,6 +1429,7 @@ all of the text contained in the minibuffer."
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
   (let* ((re (funcall ivy--regex-function name))
+         (re-str (if (listp re) (caar re) re))
          (matcher (ivy-state-matcher ivy-last))
          (case-fold-search (string= name (downcase name)))
          (cands (cond
@@ -1469,17 +1470,17 @@ CANDIDATES are assumed to be static."
          (tail (nthcdr ivy--index ivy--old-cands))
          idx)
     (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-      (unless (and (not (equal re ivy--old-re))
+      (unless (and (not (equal re-str ivy--old-re))
                    (or (setq ivy--index
                              (or
-                              (cl-position (if (and (> (length re) 0)
-                                                    (eq ?^ (aref re 0)))
-                                               (substring re 1)
-                                             re) cands
+                              (cl-position (if (and (> (length re-str) 0)
+                                                    (eq ?^ (aref re-str 0)))
+                                               (substring re-str 1)
+                                             re-str) cands
                                              :test #'equal)
                               (and ivy--directory
                                    (cl-position
-                                    (concat re "/") cands
+                                    (concat re-str "/") cands
                                     :test #'equal))))))
         (while (and tail (null idx))
           ;; Compare with eq to handle equal duplicates in cands
@@ -1490,7 +1491,7 @@ CANDIDATES are assumed to be static."
             (or (cl-position (ivy-state-preselect ivy-last)
                              cands :test #'equal)
                 ivy--index)))
-    (setq ivy--old-re (if cands re ""))
+    (setq ivy--old-re (if cands re-str ""))
     (setq ivy--old-cands cands)))
 
 (defvar ivy-format-function 'ivy-format-function-default
