@@ -100,13 +100,6 @@
                           swiper-match-face-4)
   "List of `swiper' faces for group matches.")
 
-(defcustom swiper-minibuffer-faces
-  '(swiper-minibuffer-match-face-1
-    swiper-minibuffer-match-face-2
-    swiper-minibuffer-match-face-3
-    swiper-minibuffer-match-face-4)
-  "List of `swiper' faces for minibuffer group matches.")
-
 (defcustom swiper-min-highlight 2
   "Only highlight matches for regexps at least this long."
   :type 'integer)

@@ -1518,6 +1518,13 @@ This string will be inserted into the minibuffer.")
                s))
      cands "\n")))
 
+(defcustom swiper-minibuffer-faces
+  '(swiper-minibuffer-match-face-1
+    swiper-minibuffer-match-face-2
+    swiper-minibuffer-match-face-3
+    swiper-minibuffer-match-face-4)
+  "List of `swiper' faces for minibuffer group matches.")
+
 (defun ivy--format-minibuffer-line (str)
   (let ((start 0)
         (str (copy-sequence str)))
