@@ -285,11 +285,16 @@
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
+(defvar counsel-unicode-char-history nil
+  "History for `counsel-unicode-char'.")
+
 ;;;###autoload
 (defun counsel-unicode-char ()
   "Insert a Unicode character at point."
   (interactive)
   (let ((minibuffer-allow-text-properties t))
+    (setq counsel-completion-beg (point))
+    (setq counsel-completion-end (point))
     (ivy-read "Unicode name: "
               (mapcar (lambda (x)
                         (propertize
@@ -297,7 +302,12 @@
                          'result (cdr x)))
                       (ucs-names))
               :action (lambda (char)
-                        (insert-char (get-text-property 0 'result char))))))
+                        (with-ivy-window
+                          (delete-region counsel-completion-beg counsel-completion-end)
+                          (setq counsel-completion-beg (point))
+                          (insert-char (get-text-property 0 'result char))
+                          (setq counsel-completion-end (point))))
+              :history 'counsel-unicode-char-history)))
 
 (declare-function cider-sync-request:complete "ext:cider-client")
 ;;;###autoload
