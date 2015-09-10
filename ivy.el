@@ -1398,10 +1398,12 @@ Should be run via minibuffer `post-command-hook'."
   "Resize the minibuffer window so it has enough space to display
 all of the text contained in the minibuffer."
   (with-selected-window (minibuffer-window)
-    (let ((text-height (cdr (window-text-pixel-size)))
-          (body-height (window-body-height nil t)))
-      (when (> text-height body-height)
-        (window-resize nil (- text-height body-height) nil t t)))))
+    (if (fboundp 'window-text-pixel-size)
+        (let ((text-height (cdr (window-text-pixel-size)))
+              (body-height (window-body-height nil t)))
+          (when (> text-height body-height)
+            (window-resize nil (- text-height body-height) nil t t)))
+      (fit-window-to-buffer))))
 
 (declare-function colir-blend-face-background "ext:colir")
 
