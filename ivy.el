@@ -1505,7 +1505,7 @@ This string will be inserted into the minibuffer.")
     (mapconcat
      (lambda (s)
        (if (> (length s) ww)
-           (concat (substring s 0 (- ww 3)) "...")
+           (concat (substring s 0 (- ww 4)) "...")
          s))
      cands "\n")))
 
