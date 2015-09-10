@@ -1500,7 +1500,8 @@ This string will be inserted into the minibuffer.")
 
 (defun ivy-format-function-default (cands)
   "Transform CANDS into a string for minibuffer."
-  (let ((ww (window-width)))
+  (let ((ww (- (window-width)
+               (if (eq fringe-mode 0) 1 0))))
     (mapconcat
      (lambda (s)
        (if (> (length s) ww)
