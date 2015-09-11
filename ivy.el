@@ -1229,6 +1229,8 @@ Insert .* between each char."
   (set (make-local-variable 'minibuffer-default-add-function)
        (lambda ()
          (list ivy--default)))
+  (when (display-graphic-p)
+    (setq truncate-lines t))
   (setq-local max-mini-window-height ivy-height)
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
   ;; show completions with empty input
@@ -1502,14 +1504,16 @@ This string will be inserted into the minibuffer.")
 
 (defun ivy-format-function-default (cands)
   "Transform CANDS into a string for minibuffer."
-  (let ((ww (- (window-width)
-               (if (eq fringe-mode 0) 1 0))))
-    (mapconcat
-     (lambda (s)
-       (if (> (length s) ww)
-           (concat (substring s 0 (- ww 3)) "...")
-         s))
-     cands "\n")))
+  (if (bound-and-true-p truncate-lines)
+      (mapconcat #'identity cands "\n")
+    (let ((ww (- (window-width)
+                 (if (and (boundp fringe-mode) (eq fringe-mode 0)) 1 0))))
+      (mapconcat
+       (lambda (s)
+         (if (> (length s) ww)
+             (concat (substring s 0 (- ww 3)) "...")
+           s))
+       cands "\n"))))
 
 (defun ivy-format-function-arrow (cands)
   "Transform CANDS into a string for minibuffer."
