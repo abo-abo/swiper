@@ -191,19 +191,21 @@
     (unless (zerop n-lines)
       (setq swiper--width (1+ (floor (log n-lines 10))))
       (setq swiper--format-spec
-            (format "%%-%dd %%s" swiper--width))
+            (format "%%-%dd " swiper--width))
       (let ((line-number 0)
             candidates)
         (save-excursion
           (goto-char (point-min))
           (swiper-font-lock-ensure)
           (while (< (point) (point-max))
-            (push (format swiper--format-spec
-                          (cl-incf line-number)
-                          (buffer-substring
-                           (line-beginning-position)
-                           (line-end-position)))
-                  candidates)
+            (let ((str (concat " " (buffer-substring
+                                    (line-beginning-position)
+                                    (line-end-position)))))
+              (put-text-property 0 1 'display
+                                 (format swiper--format-spec
+                                         (cl-incf line-number))
+                                 str)
+              (push str candidates))
             (forward-line 1))
           (nreverse candidates))))))
 
@@ -262,12 +264,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 Please remove it and update the \"swiper\" package."))
   (swiper--init)
   (let ((candidates (swiper--candidates))
-        (preselect (format
-                    swiper--format-spec
-                    (line-number-at-pos)
-                    (buffer-substring-no-properties
-                     (line-beginning-position)
-                     (line-end-position))))
+        (preselect (buffer-substring-no-properties
+                    (line-beginning-position)
+                    (line-end-position)))
         res)
     (unwind-protect
          (setq res (ivy-read
@@ -283,7 +282,7 @@ Please remove it and update the \"swiper\" package."))
                     :history 'swiper-history))
       (if (null ivy-exit)
           (goto-char swiper--opoint)
-        (swiper--action res ivy-text)))))
+        (swiper--action ivy--current ivy-text)))))
 
 (defun swiper--ensure-visible ()
   "Remove overlays hiding point."
@@ -309,27 +308,28 @@ Please remove it and update the \"swiper\" package."))
   "Called when `ivy' input is updated."
   (with-ivy-window
     (swiper--cleanup)
-    (let* ((re (funcall ivy--regex-function ivy-text))
-           (re (if (stringp re) re (caar re)))
-           (str ivy--current)
-           (num (if (string-match "^[0-9]+" str)
-                    (string-to-number (match-string 0 str))
-                  0)))
-      (goto-char (point-min))
-      (when (cl-plusp num)
+    (when (> (length ivy--current) 0)
+      (let* ((re (funcall ivy--regex-function ivy-text))
+             (re (if (stringp re) re (caar re)))
+             (str (get-text-property 0 'display ivy--current))
+             (num (if (string-match "^[0-9]+" str)
+                      (string-to-number (match-string 0 str))
+                    0)))
         (goto-char (point-min))
-        (forward-line (1- num))
-        (if (and (equal ivy-text "")
-                 (>= swiper--opoint (line-beginning-position))
-                 (<= swiper--opoint (line-end-position)))
-            (goto-char swiper--opoint)
-          (re-search-forward re (line-end-position) t))
-        (isearch-range-invisible (line-beginning-position)
-                                 (line-end-position))
-        (unless (and (>= (point) (window-start))
-                     (<= (point) (window-end (ivy-state-window ivy-last) t)))
-          (recenter)))
-      (swiper--add-overlays re))))
+        (when (cl-plusp num)
+          (goto-char (point-min))
+          (forward-line (1- num))
+          (if (and (equal ivy-text "")
+                   (>= swiper--opoint (line-beginning-position))
+                   (<= swiper--opoint (line-end-position)))
+              (goto-char swiper--opoint)
+            (re-search-forward re (line-end-position) t))
+          (isearch-range-invisible (line-beginning-position)
+                                   (line-end-position))
+          (unless (and (>= (point) (window-start))
+                       (<= (point) (window-end (ivy-state-window ivy-last) t)))
+            (recenter)))
+        (swiper--add-overlays re)))))
 
 (defun swiper--add-overlays (re &optional beg end)
   "Add overlays for RE regexp in visible part of the current buffer.
@@ -377,7 +377,7 @@ BEG and END, when specified, are the point bounds."
   (if (null x)
       (user-error "No candidates")
     (goto-char (point-min))
-    (forward-line (1- (read x)))
+    (forward-line (1- (read (get-text-property 0 'display x))))
     (re-search-forward
      (ivy--regex input) (line-end-position) t)
     (swiper--ensure-visible)
