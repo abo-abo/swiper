@@ -266,20 +266,19 @@ Please remove it and update the \"swiper\" package."))
   (let ((candidates (swiper--candidates))
         (preselect (buffer-substring-no-properties
                     (line-beginning-position)
-                    (line-end-position)))
-        res)
+                    (line-end-position))))
     (unwind-protect
-         (setq res (ivy-read
-                    "Swiper: "
-                    candidates
-                    :initial-input initial-input
-                    :keymap swiper-map
-                    :preselect preselect
-                    :require-match t
-                    :update-fn #'swiper--update-input-ivy
-                    :unwind #'swiper--cleanup
-                    :re-builder #'swiper--re-builder
-                    :history 'swiper-history))
+         (ivy-read
+          "Swiper: "
+          candidates
+          :initial-input initial-input
+          :keymap swiper-map
+          :preselect preselect
+          :require-match t
+          :update-fn #'swiper--update-input-ivy
+          :unwind #'swiper--cleanup
+          :re-builder #'swiper--re-builder
+          :history 'swiper-history)
       (if (null ivy-exit)
           (goto-char swiper--opoint)
         (swiper--action ivy--current ivy-text)))))
