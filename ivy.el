@@ -1507,7 +1507,7 @@ This string will be inserted into the minibuffer.")
   (if (bound-and-true-p truncate-lines)
       (mapconcat #'identity cands "\n")
     (let ((ww (- (window-width)
-                 (if (and (boundp fringe-mode) (eq fringe-mode 0)) 1 0))))
+                 (if (and (boundp 'fringe-mode) (eq fringe-mode 0)) 1 0))))
       (mapconcat
        (lambda (s)
          (if (> (length s) ww)
