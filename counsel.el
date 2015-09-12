@@ -1035,7 +1035,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                             (swiper ivy-text)))))))
 
 (defcustom counsel-yank-pop-truncate nil
-  "When non-nil, truncate the display of long strings.")
+  "When non-nil, truncate the display of long strings."
+  :group 'ivy)
 
 (defun counsel-yank-pop ()
   "Ivy replacement for `yank-pop'."
