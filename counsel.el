@@ -1038,6 +1038,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "When non-nil, truncate the display of long strings."
   :group 'ivy)
 
+;;;###autoload
 (defun counsel-yank-pop ()
   "Ivy replacement for `yank-pop'."
   (interactive)
