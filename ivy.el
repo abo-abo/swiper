@@ -1229,7 +1229,7 @@ Insert .* between each char."
   (set (make-local-variable 'minibuffer-default-add-function)
        (lambda ()
          (list ivy--default)))
-  (when (display-graphic-p)
+  (when (and (display-graphic-p) (= (length (frame-list)) 1))
     (setq truncate-lines t))
   (setq-local max-mini-window-height ivy-height)
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
