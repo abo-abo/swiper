@@ -137,8 +137,6 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-d") 'ivy-kill-word)
     (define-key map (kbd "M-<") 'ivy-beginning-of-buffer)
     (define-key map (kbd "M->") 'ivy-end-of-buffer)
-    (define-key map (kbd "<left>") 'ivy-beginning-of-buffer)
-    (define-key map (kbd "<right>") 'ivy-end-of-buffer)
     (define-key map (kbd "M-n") 'ivy-next-history-element)
     (define-key map (kbd "M-p") 'ivy-previous-history-element)
     (define-key map (kbd "C-g") 'minibuffer-keyboard-quit)
