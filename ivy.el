@@ -1669,6 +1669,12 @@ BUFFER may be a string or nil."
           (find-file-other-window (cdr virtual))
         (switch-to-buffer-other-window buffer)))))
 
+(defun ivy--rename-buffer-action (buffer)
+  "Rename BUFFER."
+  (let ((new-name (read-string "Rename buffer (to new name): ")))
+    (with-current-buffer buffer
+      (rename-buffer new-name))))
+
 (defvar ivy-switch-buffer-map (make-sparse-keymap))
 
 (ivy-set-actions
@@ -1680,7 +1686,10 @@ BUFFER may be a string or nil."
     "kill")
    ("j"
     ivy--switch-buffer-other-window-action
-    "other")))
+    "other")
+   ("r"
+    ivy--rename-buffer-action
+    "rename")))
 
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
