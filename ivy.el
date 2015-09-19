@@ -890,6 +890,7 @@ candidates with each input."
              (let* ((hist (or history 'ivy-history))
                     (minibuffer-completion-table collection)
                     (minibuffer-completion-predicate predicate)
+                    (resize-mini-windows nil)
                     (res (read-from-minibuffer
                           prompt
                           (ivy-state-initial-input ivy-last)
