@@ -856,7 +856,8 @@ MATCHER can completely override matching.
 
 DYNAMIC-COLLECTION is a function to call to update the list of
 candidates with each input."
-  (let ((extra-actions (plist-get ivy--actions-list this-command)))
+  (let ((extra-actions (plist-get ivy--actions-list this-command))
+        (resize-mini-windows nil))
     (when extra-actions
       (setq action
             (if (functionp action)
