@@ -441,6 +441,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
+;;;###autoload
 (defun ivy-resume ()
   "Resume the last completion session."
   (interactive)
@@ -494,6 +495,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (ivy-set-index (max (- ivy--index ivy-height)
                       0)))
+
 (defun ivy-minibuffer-grow ()
   "Grow the minibuffer window by 1 line."
   (interactive)
@@ -1028,6 +1030,7 @@ This is useful for recursive `ivy-read'."
                  nil)))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
+;;;###autoload
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
                               history def _inherit-input-method)
@@ -1691,6 +1694,7 @@ BUFFER may be a string or nil."
     ivy--rename-buffer-action
     "rename")))
 
+;;;###autoload
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
@@ -1702,6 +1706,7 @@ BUFFER may be a string or nil."
                 :action #'ivy--switch-buffer-action
                 :keymap ivy-switch-buffer-map))))
 
+;;;###autoload
 (defun ivy-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
