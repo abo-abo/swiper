@@ -1410,7 +1410,10 @@ all of the text contained in the minibuffer."
               (body-height (window-body-height nil t)))
           (when (> text-height body-height)
             (window-resize nil (- text-height body-height) nil t t)))
-      (fit-window-to-buffer))))
+        (let ((text-height (count-screen-lines))
+              (body-height (window-body-height)))
+          (when (> text-height body-height)
+            (window-resize nil (- text-height body-height) nil t))))))
 
 (declare-function colir-blend-face-background "ext:colir")
 
