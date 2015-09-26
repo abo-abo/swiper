@@ -1294,6 +1294,8 @@ Insert .* between each char."
         (save-excursion
           (goto-char (point-min))
           (delete-region (point-min) (minibuffer-prompt-end))
+          (when (> (length n-str) (window-width))
+            (setq n-str (concat (substring n-str 0 (- (window-width) 30)) "... ")))
           (set-text-properties 0 (length n-str)
                                `(face minibuffer-prompt ,@std-props)
                                n-str)
