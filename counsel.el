@@ -727,7 +727,6 @@ CMD is a command name."
 (declare-function smex-detect-new-commands "ext:smex")
 (declare-function smex-update "ext:smex")
 (declare-function smex-rank "ext:smex")
-(declare-function package-installed-p "package")
 
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
@@ -747,9 +746,7 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
          (cands obarray)
          (pred 'commandp)
          (sort t))
-    (when (or (featurep 'smex)
-              (package-installed-p 'smex))
-      (require 'smex)
+    (when (require 'smex nil 'noerror)
       (unless smex-initialized-p
         (smex-initialize))
       (smex-detect-new-commands)
