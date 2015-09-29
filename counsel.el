@@ -986,7 +986,9 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)
-    (let ((regex (counsel-unquote-regex-parens (ivy--regex string))))
+    (let ((regex (counsel-unquote-regex-parens
+                  (setq ivy--old-re
+                        (ivy--regex string)))))
       (counsel--async-command
        (format "ag --noheading --nocolor %S" regex))
       nil)))
