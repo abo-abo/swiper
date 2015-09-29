@@ -173,7 +173,9 @@
                                  elfeed-search-mode
                                  fundamental-mode
                                  Man-mode
-                                 woman-mode)))
+                                 woman-mode
+                                 mu4e-view-mode
+                                 mu4e-headers-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
