@@ -556,6 +556,11 @@ Skip some dotfiles unless `ivy-text' requires them."
               (ivy--regex str))))
     '("" "working...")))
 
+(defun counsel-delete-process ()
+  (let ((process (get-process " *counsel*")))
+    (when process
+      (delete-process process))))
+
 ;;;###autoload
 (defun counsel-locate ()
   "Call locate shell command."
@@ -565,7 +570,8 @@ Skip some dotfiles unless `ivy-text' requires them."
             :history 'counsel-locate-history
             :action (lambda (file)
                       (when file
-                        (find-file file)))))
+                        (find-file file)))
+            :unwind #'counsel-delete-process))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
@@ -1000,7 +1006,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :dynamic-collection t
             :history 'counsel-git-grep-history
             :action #'counsel-git-grep-action
-            :unwind #'swiper--cleanup))
+            :unwind (lambda ()
+                      (counsel-delete-process)
+                      (swiper--cleanup))))
 
 (defun counsel-recoll-function (string &optional _pred &rest _unused)
   "Grep in the current directory for STRING."
