@@ -604,7 +604,11 @@ If the input is empty, select the previous history element instead."
                   (if (equal ivy--current "")
                       ivy-text
                     ivy--current))))
-        (funcall action x)))))
+        (prog1 (funcall action x)
+          (unless (or (eq ivy-exit 'done)
+                      (equal (selected-window)
+                             (active-minibuffer-window)))
+            (select-window (active-minibuffer-window))))))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
