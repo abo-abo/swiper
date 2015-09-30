@@ -1793,7 +1793,7 @@ BUFFER may be a string or nil."
             (goto-char pt)
           (setq amend (buffer-substring-no-properties pt (point))))))
     (when amend
-      (insert amend))))
+      (insert (replace-regexp-in-string "  +" " " amend)))))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
