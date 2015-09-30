@@ -1445,74 +1445,112 @@ all of the text contained in the minibuffer."
        (font-lock-append-text-property 0 (length str) 'face face str))))
   str)
 
+(declare-function flx-make-string-cache "ext:flx")
+(declare-function flx-score "ext:flx")
+
+(defvar ivy--flx-cache nil)
+
+(eval-after-load 'flx
+  '(setq ivy--flx-cache (flx-make-string-cache)))
+
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
-  (let* ((re (funcall ivy--regex-function name))
-         (re-str (if (listp re) (caar re) re))
-         (matcher (ivy-state-matcher ivy-last))
-         (case-fold-search (string= name (downcase name)))
-         (cands (cond
-                  (matcher
-                   (funcall matcher re candidates))
-                  ((and (equal re ivy--old-re)
-                        ivy--old-cands)
-                   ivy--old-cands)
-                  ((and ivy--old-re
-                        (stringp re)
-                        (stringp ivy--old-re)
-                        (not (string-match "\\\\" ivy--old-re))
-                        (not (equal ivy--old-re ""))
-                        (memq (cl-search
-                               (if (string-match "\\\\)\\'" ivy--old-re)
-                                   (substring ivy--old-re 0 -2)
-                                 ivy--old-re)
-                               re)
-                              '(0 2)))
-                   (ignore-errors
-                     (cl-remove-if-not
-                      (lambda (x) (string-match re x))
-                      ivy--old-cands)))
-                  (t
-                   (let ((re-list (if (stringp re) (list (cons re t)) re))
-                         (res candidates))
-                     (dolist (re re-list)
-                       (setq res
-                             (ignore-errors
-                               (funcall
-                                (if (cdr re)
-                                    #'cl-remove-if-not
-                                  #'cl-remove-if)
-                                (let ((re (car re)))
-                                  (lambda (x) (string-match re x)))
-                                res))))
-                     res))))
-         (tail (nthcdr ivy--index ivy--old-cands))
-         idx)
-    (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-      (unless (and (not (equal re-str ivy--old-re))
-                   (or (setq ivy--index
-                             (or
-                              (cl-position (if (and (> (length re-str) 0)
-                                                    (eq ?^ (aref re-str 0)))
-                                               (substring re-str 1)
-                                             re-str) cands
-                                             :test #'equal)
-                              (and ivy--directory
-                                   (cl-position
-                                    (concat re-str "/") cands
-                                    :test #'equal))))))
-        (while (and tail (null idx))
-          ;; Compare with eq to handle equal duplicates in cands
-          (setq idx (cl-position (pop tail) cands)))
-        (setq ivy--index (or idx 0))))
-    (when (and (string= name "") (not (equal ivy--old-re "")))
-      (setq ivy--index
-            (or (cl-position (ivy-state-preselect ivy-last)
-                             cands :test #'equal)
-                ivy--index)))
-    (setq ivy--old-re (if cands re-str ""))
-    (setq ivy--old-cands cands)))
+  (let ((re (funcall ivy--regex-function name)))
+    (if (and (equal re ivy--old-re)
+             ivy--old-cands)
+        ;; quick caching for "C-n", "C-p" etc.
+        ivy--old-cands
+      (let* ((re-str (if (listp re) (caar re) re))
+             (matcher (ivy-state-matcher ivy-last))
+             (case-fold-search (string= name (downcase name)))
+             (cands (cond
+                      (matcher
+                       (funcall matcher re candidates))
+                      ((and ivy--old-re
+                            (stringp re)
+                            (stringp ivy--old-re)
+                            (not (string-match "\\\\" ivy--old-re))
+                            (not (equal ivy--old-re ""))
+                            (memq (cl-search
+                                   (if (string-match "\\\\)\\'" ivy--old-re)
+                                       (substring ivy--old-re 0 -2)
+                                     ivy--old-re)
+                                   re)
+                                  '(0 2)))
+                       (ignore-errors
+                         (cl-remove-if-not
+                          (lambda (x) (string-match re x))
+                          ivy--old-cands)))
+                      (t
+                       (let ((re-list (if (stringp re) (list (cons re t)) re))
+                             (res candidates))
+                         (dolist (re re-list)
+                           (setq res
+                                 (ignore-errors
+                                   (funcall
+                                    (if (cdr re)
+                                        #'cl-remove-if-not
+                                      #'cl-remove-if)
+                                    (let ((re (car re)))
+                                      (lambda (x) (string-match re x)))
+                                    res))))
+                         res))))
+             (tail (nthcdr ivy--index ivy--old-cands))
+             idx)
+        (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+          (unless (and (not (equal re-str ivy--old-re))
+                       (or (setq ivy--index
+                                 (or
+                                  (cl-position (if (and (> (length re-str) 0)
+                                                        (eq ?^ (aref re-str 0)))
+                                                   (substring re-str 1)
+                                                 re-str) cands
+                                                 :test #'equal)
+                                  (and ivy--directory
+                                       (cl-position
+                                        (concat re-str "/") cands
+                                        :test #'equal))))))
+            (while (and tail (null idx))
+              ;; Compare with eq to handle equal duplicates in cands
+              (setq idx (cl-position (pop tail) cands)))
+            (setq ivy--index (or idx 0))))
+        (when (and (string= name "") (not (equal ivy--old-re "")))
+          (setq ivy--index
+                (or (cl-position (ivy-state-preselect ivy-last)
+                                 cands :test #'equal)
+                    ivy--index)))
+        (setq ivy--old-re (if cands re-str ""))
+        (when (and (require 'flx nil 'noerror)
+                   (eq ivy--regex-function 'ivy--regex-fuzzy))
+          (setq cands (ivy--flx-sort name cands)))
+        (setq ivy--old-cands cands)))))
+
+(defun ivy--flx-sort (name cands)
+  "Sort according to closeness to string NAME the string list CANDS."
+  (condition-case nil
+      (if (and cands
+               (< (length cands) 200))
+          (let* ((flx-name (if (string-match "^\\^" name)
+                               (substring name 1)
+                             name))
+                 (cands-with-score
+                  (delq nil
+                        (mapcar
+                         (lambda (x)
+                           (let ((score (car (flx-score x flx-name ivy--flx-cache))))
+                             (and score
+                                  (cons score x))))
+                         cands))))
+            (if cands-with-score
+                (mapcar #'cdr
+                        (sort cands-with-score
+                              (lambda (x y)
+                                (> (car x) (car y)))))
+              cands))
+        cands)
+    (error
+     cands)))
 
 (defvar ivy-format-function 'ivy-format-function-default
   "Function to transform the list of candidates into a string.
