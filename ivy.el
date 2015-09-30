@@ -1226,9 +1226,14 @@ Everything after \"!\" should not match."
   "Build a regex sequence from STR.
 Insert .* between each char."
   (if (string-match "\\`\\(\\^?\\)\\(.*?\\)\\(\\$?\\)\\'" str)
-      (concat (match-string 1 str)
-              (mapconcat #'string (string-to-list (match-string 2 str)) ".*")
-              (match-string 3 str))
+      (prog1
+          (concat (match-string 1 str)
+                  (mapconcat
+                   (lambda (x)
+                     (format "\\(%c\\)" x))
+                   (string-to-list (match-string 2 str)) ".*")
+                  (match-string 3 str))
+        (setq ivy--subexps (length (match-string 2 str))))
     str))
 
 ;;** Rest

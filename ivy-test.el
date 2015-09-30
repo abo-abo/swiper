@@ -84,11 +84,11 @@
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
-                   "t.*m.*u.*x"))
+                   "\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux")
-                   "^t.*m.*u.*x"))
+                   "^\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux$")
-                   "^t.*m.*u.*x$"))
+                   "^\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)$"))
   (should (string= (ivy--regex-fuzzy "")
                    ""))
   (should (string= (ivy--regex-fuzzy "^")
@@ -121,4 +121,3 @@
                  '("the" "The")))
   (should (equal (ivy--filter "The" '("foo" "the" "The"))
                  '("The"))))
-
