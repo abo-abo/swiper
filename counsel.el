@@ -699,7 +699,9 @@ The libraries are offered from `load-path'."
   (if (string= event "finished\n")
       (progn
         (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates (split-string (buffer-string) "\n" t))
+          (setq ivy--all-candidates
+                (or (split-string (buffer-string) "\n" t)
+                    '("")))
           (setq ivy--old-cands ivy--all-candidates))
         (when (= 0 (cl-incf counsel-gg-state))
           (ivy--exhibit)))
