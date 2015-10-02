@@ -47,11 +47,11 @@
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
-^^^^^^          ^Yes^     ^No^     ^Maybe^           ^Action^
+^^^^^^          ^Yes^     ^No^     ^Maybe^            ^Action^
 ^^^^^^^^^^^^^^---------------------------------------------------
-^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")  _w_/_s_: %s(ivy-action-name)
+^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")   _w_/_s_: %s(ivy-action-name)
 _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
-^ ^ _j_ ^ ^     _g_o      ^ ^      _<_/_>_: shrink/grow window
+^ ^ _j_ ^ ^     _g_o      ^ ^      _<_/_>_: shrink/grow _t_runcate: %`truncate-lines
 "
   ;; arrows
   ("h" ivy-beginning-of-buffer)
@@ -73,7 +73,8 @@ _h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'i
   (">" ivy-minibuffer-grow)
   ("<" ivy-minibuffer-shrink)
   ("w" ivy-prev-action)
-  ("s" ivy-next-action))
+  ("s" ivy-next-action)
+  ("t" (setq truncate-lines (not truncate-lines))))
 
 (provide 'ivy-hydra)
 

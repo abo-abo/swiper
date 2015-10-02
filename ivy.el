@@ -1568,10 +1568,12 @@ This string will be inserted into the minibuffer.")
     (let ((ww (- (window-width)
                  (if (and (boundp 'fringe-mode) (eq fringe-mode 0)) 1 0))))
       (mapconcat
-       (lambda (s)
-         (if (> (length s) ww)
-             (concat (substring s 0 (- ww 3)) "...")
-           s))
+       (if truncate-lines
+           (lambda (s)
+             (if (> (length s) ww)
+                 (concat (substring s 0 (- ww 3)) "...")
+               s))
+         #'identity)
        cands "\n"))))
 
 (defun ivy-format-function-arrow (cands)
