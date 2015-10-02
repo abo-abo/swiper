@@ -454,7 +454,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
    :history (ivy-state-history ivy-last)
    :preselect (unless (eq (ivy-state-collection ivy-last)
                           'read-file-name-internal)
-                (regexp-quote ivy--current))
+                ivy--current)
    :keymap (ivy-state-keymap ivy-last)
    :update-fn (ivy-state-update-fn ivy-last)
    :sort (ivy-state-sort ivy-last)
