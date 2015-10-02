@@ -348,13 +348,16 @@
   (list ""
         (format "%d chars more" (- n (length ivy-text)))))
 
+(defvar counsel-git-grep-cmd "git --no-pager grep --full-name -n --no-color -i -e %S"
+  "Store the command for `counsel-git-grep'.")
+
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
   (if (and (> counsel--git-grep-count 20000)
            (< (length string) 3))
       (counsel-more-chars 3)
     (let* ((default-directory counsel--git-grep-dir)
-           (cmd (format "git --no-pager grep --full-name -n --no-color -i -e %S"
+           (cmd (format counsel-git-grep-cmd
                         (setq ivy--old-re (ivy--regex string t)))))
       (if (<= counsel--git-grep-count 20000)
           (split-string (shell-command-to-string cmd) "\n" t)
@@ -388,11 +391,28 @@
 (defvar counsel-git-grep-history nil
   "History for `counsel-git-grep'.")
 
+(defvar counsel-git-grep-cmd-history
+  '("git --no-pager grep --full-name -n --no-color -i -e %S")
+  "History for `counsel-git-grep' shell commands.")
+
 ;;;###autoload
-(defun counsel-git-grep (&optional initial-input)
+(defun counsel-git-grep (&optional cmd initial-input)
   "Grep for a string in the current git repository.
+When CMD is a string, use it as a \"git grep\" command.
+When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
-  (interactive)
+  (interactive "P")
+  (cond
+    ((stringp cmd)
+     (setq counsel-git-grep-cmd cmd))
+    (cmd
+     (setq counsel-git-grep-cmd
+           (ivy-read "cmd: " counsel-git-grep-cmd-history
+                     :history 'counsel-git-grep-cmd-history))
+     (setq counsel-git-grep-cmd-history
+           (delete-dups counsel-git-grep-cmd-history)))
+    (t
+     (setq counsel-git-grep-cmd "git --no-pager grep --full-name -n --no-color -i -e %S")))
   (setq counsel--git-grep-dir
         (locate-dominating-file default-directory ".git"))
   (if (null counsel--git-grep-dir)
