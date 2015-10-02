@@ -195,6 +195,9 @@
       (setq swiper--format-spec
             (format "%%-%dd " swiper--width))
       (let ((line-number 0)
+            (advancer (if visual-line-mode
+                          #'line-move
+                        #'forward-line))
             candidates)
         (save-excursion
           (goto-char (point-min))
@@ -212,7 +215,7 @@
                                          (cl-incf line-number))
                                  str)
               (push str candidates))
-            (line-move 1))
+            (funcall advancer 1))
           (nreverse candidates))))))
 
 (defvar swiper--opoint 1
@@ -322,7 +325,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char (point-min))
         (when (cl-plusp num)
           (goto-char (point-min))
-          (line-move (1- num))
+          (if visual-line-mode
+              (line-move (1- num))
+            (forward-line (1- num)))
           (if (and (equal ivy-text "")
                    (>= swiper--opoint (line-beginning-position))
                    (<= swiper--opoint (line-end-position)))
@@ -389,7 +394,10 @@ BEG and END, when specified, are the point bounds."
   (if (null x)
       (user-error "No candidates")
     (goto-char (point-min))
-    (line-move (1- (read (get-text-property 0 'display x))))
+    (funcall (if visual-line-mode
+                 #'line-move
+               #'forward-line)
+             (1- (read (get-text-property 0 'display x))))
     (re-search-forward
      (ivy--regex input) (line-end-position) t)
     (swiper--ensure-visible)
