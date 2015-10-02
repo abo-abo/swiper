@@ -689,8 +689,9 @@ The libraries are offered from `load-path'."
     (setq proc (start-process-shell-command
                 counsel-gg-process
                 counsel-gg-process
-                (format "git --no-pager grep --full-name -n --no-color -i -e %S | head -n 200"
-                        regex)))
+                (concat
+                 (format counsel-git-grep-cmd regex)
+                 " | head -n 200")))
     (set-process-sentinel
      proc
      #'counsel--gg-sentinel)))
