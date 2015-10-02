@@ -140,17 +140,26 @@
 (defun swiper-avy ()
   "Jump to one of the current swiper candidates."
   (interactive)
-  (unless (string= ivy-text "")
-    (with-ivy-window
-      (let* ((avy-all-windows nil)
-             (candidates
-              (avy--regex-candidates
-               (ivy--regex ivy-text)))
-             (avy-background nil)
-             (candidate
-              (avy--process candidates #'avy--overlay-post)))
-        (ivy-quit-and-run
-         (avy-action-goto candidate))))))
+  (let* ((avy-all-windows nil)
+         (avy-background t)
+         (candidate (let ((candidates))
+                      (save-excursion
+                        (save-restriction
+                          (narrow-to-region (window-start) (window-end))
+                          (goto-char (point-min))
+                          (forward-line)
+                          (while (< (point) (point-max))
+                            (push (cons (1+ (point))
+                                        (selected-window))
+                                  candidates)
+                            (forward-line))))
+                      (setq avy-action #'identity)
+                      (avy--process (nreverse candidates)
+                                    (avy--style-fn 'at-full)))))
+    (ivy-set-index (- (line-number-at-pos candidate) 2))
+    (ivy--exhibit)
+    (ivy-done)
+    (ivy-call)))
 
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG)."
