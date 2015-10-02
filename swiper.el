@@ -201,14 +201,18 @@
           (swiper-font-lock-ensure)
           (while (< (point) (point-max))
             (let ((str (concat " " (buffer-substring
-                                    (line-beginning-position)
-                                    (line-end-position)))))
+                                    (point)
+                                    (if visual-line-mode
+                                        (save-excursion
+                                          (end-of-visual-line)
+                                          (point))
+                                      (line-end-position))))))
               (put-text-property 0 1 'display
                                  (format swiper--format-spec
                                          (cl-incf line-number))
                                  str)
               (push str candidates))
-            (forward-line 1))
+            (line-move 1))
           (nreverse candidates))))))
 
 (defvar swiper--opoint 1
@@ -318,7 +322,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char (point-min))
         (when (cl-plusp num)
           (goto-char (point-min))
-          (forward-line (1- num))
+          (line-move (1- num))
           (if (and (equal ivy-text "")
                    (>= swiper--opoint (line-beginning-position))
                    (<= swiper--opoint (line-end-position)))
@@ -334,9 +338,17 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defun swiper--add-overlays (re &optional beg end)
   "Add overlays for RE regexp in visible part of the current buffer.
 BEG and END, when specified, are the point bounds."
-  (let ((ov (make-overlay
-             (line-beginning-position)
-             (1+ (line-end-position)))))
+  (let ((ov (if visual-line-mode
+                (make-overlay
+                 (save-excursion
+                   (beginning-of-visual-line)
+                   (point))
+                 (save-excursion
+                   (end-of-visual-line)
+                   (point)))
+              (make-overlay
+               (line-beginning-position)
+               (1+ (line-end-position))))))
     (overlay-put ov 'face 'swiper-line-face)
     (overlay-put ov 'window (ivy-state-window ivy-last))
     (push ov swiper--overlays)
@@ -377,7 +389,7 @@ BEG and END, when specified, are the point bounds."
   (if (null x)
       (user-error "No candidates")
     (goto-char (point-min))
-    (forward-line (1- (read (get-text-property 0 'display x))))
+    (line-move (1- (read (get-text-property 0 'display x))))
     (re-search-forward
      (ivy--regex input) (line-end-position) t)
     (swiper--ensure-visible)
