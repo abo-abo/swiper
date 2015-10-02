@@ -141,16 +141,44 @@
   "Jump to one of the current swiper candidates."
   (interactive)
   (unless (string= ivy-text "")
-    (with-ivy-window
-      (let* ((avy-all-windows nil)
-             (candidates
-              (avy--regex-candidates
-               (ivy--regex ivy-text)))
-             (avy-background nil)
-             (candidate
-              (avy--process candidates #'avy--overlay-post)))
+    (let* ((avy-all-windows nil)
+           (candidates (append
+                        (with-ivy-window
+                          (avy--regex-candidates
+                           (ivy--regex ivy-text)))
+                        (save-excursion
+                          (save-restriction
+                            (narrow-to-region (window-start) (window-end))
+                            (goto-char (point-min))
+                            (forward-line)
+                            (let ((cands))
+                              (while (< (point) (point-max))
+                                (push (cons (1+ (point))
+                                            (selected-window))
+                                      cands)
+                                (forward-line))
+                              cands)))))
+           (candidate (unwind-protect
+                          (prog2
+                              (avy--make-backgrounds
+                               (append (avy-window-list)
+                                       (list  (ivy-state-window ivy-last))))
+                              (if (eq avy-style 'de-bruijn)
+                                  (avy-read-de-bruijn
+                                   candidates avy-keys)
+                                (avy-read (avy-tree candidates avy-keys)
+                                          #'avy--overlay-post
+                                          #'avy--remove-leading-chars))
+                            (avy-push-mark))
+                        (avy--done))))
+      (if (window-minibuffer-p (cdr candidate))
+          (progn
+            (ivy-set-index (- (line-number-at-pos (car candidate)) 2))
+            (ivy--exhibit)
+            (ivy-done)
+            (ivy-call))
         (ivy-quit-and-run
-         (avy-action-goto candidate))))))
+         (avy-action-goto (caar candidate)))))))
 
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG)."
