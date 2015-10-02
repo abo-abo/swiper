@@ -152,6 +152,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "C-k") 'ivy-kill-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (define-key map (kbd "M-w") 'ivy-kill-ring-save)
+    (define-key map (kbd "C-'") 'ivy-avy)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -737,6 +738,29 @@ On error (read-only), call `ivy-on-del-error-function'."
   (interactive)
   (setq ivy--old-re nil)
   (cl-rotatef ivy--regex-function ivy--regexp-quote))
+
+(defun ivy-avy ()
+  "Jump to one of the current ivy candidates."
+  (interactive)
+  (let* ((avy-all-windows nil)
+         (avy-background t)
+         (candidate (let ((candidates))
+                      (save-excursion
+                        (save-restriction
+                          (narrow-to-region (window-start) (window-end))
+                          (goto-char (point-min))
+                          (forward-line)
+                          (while (< (point) (point-max))
+                            (push (cons (point) (selected-window))
+                                  candidates)
+                            (forward-line))))
+                      (setq avy-action #'identity)
+                      (avy--process (nreverse candidates)
+                                    (avy--style-fn 'at-full)))))
+    (ivy-set-index (- (line-number-at-pos candidate) 2))
+    (ivy--exhibit)
+    (ivy-done)
+    (ivy-call)))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
