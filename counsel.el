@@ -717,7 +717,7 @@ The libraries are offered from `load-path'."
 When NO-ASYNC is non-nil, do it synchronously."
   (let ((default-directory counsel--git-grep-dir)
         (cmd (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
-                     regex))
+                     (replace-regexp-in-string "'" "''" regex)))
         (counsel-ggc-process " *counsel-gg-count*"))
     (if no-async
         (string-to-number (shell-command-to-string cmd))
