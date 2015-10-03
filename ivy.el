@@ -745,28 +745,51 @@ On error (read-only), call `ivy-on-del-error-function'."
   (setq ivy--old-re nil)
   (cl-rotatef ivy--regex-function ivy--regexp-quote))
 
+(defvar avy-all-windows)
+(defvar avy-action)
+(defvar avy-keys)
+(defvar avy-keys-alist)
+(defvar avy-style)
+(defvar avy-styles-alist)
+(declare-function avy--process "ext:avy")
+(declare-function avy--style-fn "ext:avy")
+
+(eval-after-load 'avy
+  '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
+
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
   (interactive)
+  (unless (require 'avy nil 'noerror)
+    (error "Package avy isn't installed"))
   (let* ((avy-all-windows nil)
-         (avy-background t)
-         (candidate (let ((candidates))
-                      (save-excursion
-                        (save-restriction
-                          (narrow-to-region (window-start) (window-end))
-                          (goto-char (point-min))
-                          (forward-line)
-                          (while (< (point) (point-max))
-                            (push (cons (point) (selected-window))
-                                  candidates)
-                            (forward-line))))
-                      (setq avy-action #'identity)
-                      (avy--process (nreverse candidates)
-                                    (avy--style-fn 'at-full)))))
+         (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
+                       avy-keys))
+         (avy-style (or (cdr (assq 'ivy-avy
+                                   avy-styles-alist))
+                        avy-style))
+         (candidate
+          (let ((candidates))
+            (save-excursion
+              (save-restriction
+                (narrow-to-region
+                 (window-start)
+                 (window-end))
+                (goto-char (point-min))
+                (forward-line)
+                (while (< (point) (point-max))
+                  (push
+                   (cons (point)
+                         (selected-window))
+                   candidates)
+                  (forward-line))))
+            (setq avy-action #'identity)
+            (avy--process
+             (nreverse candidates)
+             (avy--style-fn avy-style)))))
     (ivy-set-index (- (line-number-at-pos candidate) 2))
     (ivy--exhibit)
-    (ivy-done)
-    (ivy-call)))
+    (ivy-done)))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
