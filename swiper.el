@@ -196,7 +196,7 @@
             (format "%%-%dd " swiper--width))
       (let ((line-number 0)
             (advancer (if visual-line-mode
-                          #'line-move
+                          (lambda (arg) (line-move arg t))
                         #'forward-line))
             candidates)
         (save-excursion
