@@ -223,7 +223,8 @@
       (setq swiper--format-spec
             (format "%%-%dd " swiper--width))
       (let ((line-number 0)
-            (advancer (if visual-line-mode
+            (advancer (if (and visual-line-mode
+                               (< (buffer-size) 20000))
                           (lambda (arg) (line-move arg t))
                         #'forward-line))
             candidates)
