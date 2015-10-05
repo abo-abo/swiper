@@ -215,16 +215,22 @@
 (defvar swiper--width nil
   "Store the amount of digits needed for the longest line nubmer.")
 
+(defvar swiper-use-visual-line nil
+  "When non-nil, use `line-move' instead of `forward-line'.")
+
 (defun swiper--candidates ()
   "Return a list of this buffer lines."
+  (setq swiper-use-visual-line
+        (and (not (eq major-mode 'org-mode))
+             visual-line-mode
+             (< (buffer-size) 20000)))
   (let ((n-lines (count-lines (point-min) (point-max))))
     (unless (zerop n-lines)
       (setq swiper--width (1+ (floor (log n-lines 10))))
       (setq swiper--format-spec
             (format "%%-%dd " swiper--width))
       (let ((line-number 0)
-            (advancer (if (and visual-line-mode
-                               (< (buffer-size) 20000))
+            (advancer (if swiper-use-visual-line
                           (lambda (arg) (line-move arg t))
                         #'forward-line))
             candidates)
@@ -234,7 +240,7 @@
           (while (< (point) (point-max))
             (let ((str (concat " " (buffer-substring
                                     (point)
-                                    (if visual-line-mode
+                                    (if swiper-use-visual-line
                                         (save-excursion
                                           (end-of-visual-line)
                                           (point))
@@ -354,7 +360,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char (point-min))
         (when (cl-plusp num)
           (goto-char (point-min))
-          (if visual-line-mode
+          (if swiper-use-visual-line
               (line-move (1- num))
             (forward-line (1- num)))
           (if (and (equal ivy-text "")
@@ -423,7 +429,7 @@ BEG and END, when specified, are the point bounds."
   (if (null x)
       (user-error "No candidates")
     (goto-char (point-min))
-    (funcall (if visual-line-mode
+    (funcall (if swiper-use-visual-line
                  #'line-move
                #'forward-line)
              (1- (read (get-text-property 0 'display x))))
