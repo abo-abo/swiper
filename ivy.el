@@ -1342,17 +1342,21 @@ Insert .* between each char."
                                   ivy--full-length)
                              ivy--length)))
                ivy--prompt-extra
-               tail)
-              (if ivy--directory
-                  (abbreviate-file-name ivy--directory)
-                ""))))
+               tail)))
+            (d-str (if ivy--directory
+                       (abbreviate-file-name ivy--directory)
+                     "")))
         (save-excursion
           (goto-char (point-min))
           (delete-region (point-min) (minibuffer-prompt-end))
-          (when (> (length n-str) (- (window-width) 35))
-            (setq n-str (concat (substring n-str 0
-                                           (max (- (window-width) 35)
-                                                10)) "... ")))
+          (if (> (+ (mod (+ (length n-str) (length d-str)) (window-width))
+                    (length ivy-text))
+                 (window-width))
+              (setq n-str (concat n-str "\n" d-str))
+            (setq n-str (concat n-str d-str)))
+          (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
+            (while (string-match regex n-str)
+              (setq n-str (replace-match (concat (match-string 1 n-str) "\n") nil t n-str 1))))
           (set-text-properties 0 (length n-str)
                                `(face minibuffer-prompt ,@std-props)
                                n-str)
