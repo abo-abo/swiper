@@ -1026,10 +1026,9 @@ This is useful for recursive `ivy-read'."
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
-                 (listp (car collection)))
+                 (and (consp collection) (listp (car collection)))
+                 (hash-table-p collection))
              (setq coll (all-completions "" collection predicate)))
-            ((hash-table-p collection)
-             (error "Hash table as a collection unsupported"))
             (t
              (setq coll collection)))
       (when sort
