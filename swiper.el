@@ -203,7 +203,8 @@
                                  Man-mode
                                  woman-mode
                                  mu4e-view-mode
-                                 mu4e-headers-mode)))
+                                 mu4e-headers-mode
+                                 help-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
