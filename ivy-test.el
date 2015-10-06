@@ -59,7 +59,16 @@
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
                      "z C-m")
-           "z")))
+           "z"))
+  (should (equal
+           (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
+                     "y <backspace> C-m")
+           "blue"))
+  (should (equal
+           (ivy-with '(let ((ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
+                       (ivy-read "pattern: " '("package-list-packages" "something-else")))
+                     "plp C-m")
+           "package-list-packages")))
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
