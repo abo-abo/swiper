@@ -75,7 +75,11 @@
 Set this to nil if you don't want the count.  You can also set it
 to e.g. \"(%d/%d) \" if you want to see both the candidate index
 and the candidate count."
-  :type '(choice (const :tag "Count disabled" nil) string))
+  :type '(choice
+          (const :tag "Count disabled" nil)
+          (const :tag "Count matches" "%-4d ")
+          (const :tag "Count matches and show current match" "(%d/%d) ")
+          string))
 
 (defcustom ivy-wrap nil
   "Whether to wrap around after the first and last candidate."
