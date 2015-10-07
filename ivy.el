@@ -1588,7 +1588,9 @@ CANDIDATES are assumed to be static."
                   (setq idx (cl-position (pop tail) cands)))
                 (setq ivy--index (or idx 0))))
           (setq ivy--index 0))
-        (when (and (string= name "") (not (equal ivy--old-re "")))
+        (when (and (or (string= name "")
+                       (string= name "^"))
+                   (not (equal ivy--old-re "")))
           (setq ivy--index
                 (or (ivy--preselect-index
                      cands
