@@ -1013,7 +1013,9 @@ This is useful for recursive `ivy-read'."
                              (string= preselect-directory
                                       default-directory))
                    (setq ivy--directory preselect-directory))
-                 (setq preselect (file-name-nondirectory preselect))))
+                 (setf
+                  (ivy-state-preselect state)
+                  (setq preselect (file-name-nondirectory preselect)))))
              (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
