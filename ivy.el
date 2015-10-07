@@ -1162,10 +1162,12 @@ When MATCHER is non-nil it's used instead of `cl-remove-if-not'."
     (when matcher
       (setq candidates (funcall matcher "" candidates))))
   (or (cl-position preselect candidates :test #'equal)
-      (cl-position-if
-       (lambda (x)
-         (string-match (regexp-quote preselect) x))
-       candidates)))
+      (and (stringp preselect)
+           (let ((re (regexp-quote preselect)))
+             (cl-position-if
+              (lambda (x)
+                (string-match re x))
+              candidates)))))
 
 ;;* Implementation
 ;;** Regex
@@ -1577,8 +1579,11 @@ CANDIDATES are assumed to be static."
           (setq ivy--index 0))
         (when (and (string= name "") (not (equal ivy--old-re "")))
           (setq ivy--index
-                (or (cl-position (ivy-state-preselect ivy-last)
-                                 cands :test #'equal)
+                (or (ivy--preselect-index
+                     cands
+                     nil
+                     (ivy-state-preselect ivy-last)
+                     nil)
                     ivy--index)))
         (setq ivy--old-re (if cands re-str ""))
         (when (and (require 'flx nil 'noerror)
