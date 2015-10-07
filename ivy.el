@@ -85,13 +85,17 @@ and the candidate count."
   "Whether to wrap around after the first and last candidate."
   :type 'boolean)
 
-(defcustom ivy-display-style nil
+(defcustom ivy-display-style (unless (version< emacs-version "24.5") 'fancy)
   "The style for formatting the minibuffer.
 
 By default, the matched strings will be copied as they are.
 
 With the fancy method, the matching parts of the regexp will be
-additionally highlighted, just like `swiper' does it."
+additionally highlighted, just like `swiper' does it.
+
+This setting depends on `add-face-text-property' - a C function
+available as of 24.5. It will behave poorly in earlier Emacs
+versions."
   :type '(choice
           (const :tag "Plain" nil)
           (const :tag "Fancy" fancy)))
