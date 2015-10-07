@@ -186,7 +186,10 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   dynamic-collection)
 
 (defvar ivy-last nil
-  "The last parameters passed to `ivy-read'.")
+  "The last parameters passed to `ivy-read'.
+
+This should eventually become a stack so that you could use
+`ivy-read' recursively.")
 
 (defsubst ivy-set-action (action)
   (setf (ivy-state-action ivy-last) action))
