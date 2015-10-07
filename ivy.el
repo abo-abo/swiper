@@ -1547,8 +1547,8 @@ CANDIDATES are assumed to be static."
                                     (if (cdr re)
                                         #'cl-remove-if-not
                                       #'cl-remove-if)
-                                    (let ((re (car re)))
-                                      (lambda (x) (string-match re x)))
+                                    (let ((re-str (car re)))
+                                      (lambda (x) (string-match re-str x)))
                                     res))))
                          res))))
              (tail (nthcdr ivy--index ivy--old-cands))
@@ -1571,7 +1571,7 @@ CANDIDATES are assumed to be static."
                   ;; Compare with eq to handle equal duplicates in cands
                   (setq idx (cl-position (pop tail) cands)))
                 (setq ivy--index (or idx 0))))
-          (setq ivy-index 0))
+          (setq ivy--index 0))
         (when (and (string= name "") (not (equal ivy--old-re "")))
           (setq ivy--index
                 (or (cl-position (ivy-state-preselect ivy-last)
