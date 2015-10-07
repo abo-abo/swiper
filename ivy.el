@@ -111,7 +111,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   :type 'list)
 
 (defcustom ivy-use-virtual-buffers nil
-  "When non-nil, add `recentf-mode' and bookmarks to the list of buffers."
+  "When non-nil, add `recentf-mode' and bookmarks to `ivy-switch-buffer'."
   :type 'boolean)
 
 (defvar ivy--actions-list nil
