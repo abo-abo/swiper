@@ -184,7 +184,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   re-builder
   matcher
   ;; When this is non-nil, call it for each input change to get new candidates
-  dynamic-collection)
+  dynamic-collection
+  caller)
 
 (defvar ivy-last nil
   "The last parameters passed to `ivy-read'.
@@ -846,6 +847,16 @@ buffer order, like `org-refile' or `Man-goto-section'.
 
 The entry associated to t is used for all fall-through cases.")
 
+(defvar ivy-index-functions-alist
+  '((swiper . ivy-recompute-index-swiper)
+    (swiper-multi . ivy-recompute-index-swiper)
+    (counsel-git-grep . ivy-recompute-index-swiper)
+    (t . ivy-recompute-index-zero))
+  "An alist of index recomputing functions for each collection function.
+When the input changes, calling the appropriate function will
+return an integer - the index of the matched candidate that
+should be selected.")
+
 (defvar ivy-re-builders-alist
   '((t . ivy--regex-plus))
   "An alist of regex building functions for each collection function.
@@ -902,7 +913,7 @@ Directories come first."
 (cl-defun ivy-read (prompt collection
                     &key predicate require-match initial-input
                       history preselect keymap update-fn sort
-                      action unwind re-builder matcher dynamic-collection)
+                      action unwind re-builder matcher dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string to prompt with; normally it ends in a colon
@@ -911,7 +922,8 @@ the current number of matching candidates.  If % appears elsewhere
 in the PROMPT it should be quoted as %%.
 See also `ivy-count-format'.
 
-COLLECTION is a list of strings.
+COLLECTION is a list of strings, or a function, or an alist, or a
+hash table.
 
 If INITIAL-INPUT is non-nil, insert it in the minibuffer initially.
 
@@ -934,7 +946,11 @@ RE-BUILDER is a lambda that transforms text into a regex.
 MATCHER can completely override matching.
 
 DYNAMIC-COLLECTION is a function to call to update the list of
-candidates with each input."
+candidates with each input.
+
+CALLER is a symbol to uniquely identify the caller to `ivy-read'.
+It's used in conjunction with COLLECTION to indentify which
+customizations should apply to the current completion session."
   (let ((extra-actions (plist-get ivy--actions-list this-command)))
     (when extra-actions
       (setq action
@@ -960,7 +976,8 @@ candidates with each input."
          :unwind unwind
          :re-builder re-builder
          :matcher matcher
-         :dynamic-collection dynamic-collection))
+         :dynamic-collection dynamic-collection
+         :caller caller))
   (ivy--reset-state ivy-last)
   (prog1
       (unwind-protect
@@ -970,9 +987,9 @@ candidates with each input."
                     (minibuffer-completion-table collection)
                     (minibuffer-completion-predicate predicate)
                     (resize-mini-windows (cond
-                                          ((display-graphic-p) nil)
-                                          ((null resize-mini-windows) 'grow-only)
-                                          (t resize-mini-windows)))
+                                           ((display-graphic-p) nil)
+                                           ((null resize-mini-windows) 'grow-only)
+                                           (t resize-mini-windows)))
                     (res (read-from-minibuffer
                           prompt
                           (ivy-state-initial-input ivy-last)
@@ -1582,43 +1599,54 @@ CANDIDATES are assumed to be static."
                                     (let ((re-str (car re)))
                                       (lambda (x) (string-match re-str x)))
                                     res))))
-                         res))))
-             (tail (nthcdr ivy--index ivy--old-cands))
-             idx)
-        (if (eq (ivy-state-unwind ivy-last) 'swiper--cleanup)
-            (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-              (unless (and (not (equal re-str ivy--old-re))
-                           (or (setq ivy--index
-                                     (or
-                                      (cl-position (if (and (> (length re-str) 0)
-                                                            (eq ?^ (aref re-str 0)))
-                                                       (substring re-str 1)
-                                                     re-str) cands
-                                                     :test #'equal)
-                                      (and ivy--directory
-                                           (cl-position
-                                            (concat re-str "/") cands
-                                            :test #'equal))))))
-                (while (and tail (null idx))
-                  ;; Compare with eq to handle equal duplicates in cands
-                  (setq idx (cl-position (pop tail) cands)))
-                (setq ivy--index (or idx 0))))
-          (setq ivy--index 0))
-        (when (and (or (string= name "")
-                       (string= name "^"))
-                   (not (equal ivy--old-re "")))
-          (setq ivy--index
-                (or (ivy--preselect-index
-                     cands
-                     nil
-                     (ivy-state-preselect ivy-last)
-                     nil)
-                    ivy--index)))
+                         res)))))
+        (ivy--recompute-index name re-str cands)
         (setq ivy--old-re (if cands re-str ""))
         (when (and (require 'flx nil 'noerror)
                    (eq ivy--regex-function 'ivy--regex-fuzzy))
           (setq cands (ivy--flx-sort name cands)))
         (setq ivy--old-cands cands)))))
+
+(defun ivy--recompute-index (name re-str cands)
+  (let* ((caller (ivy-state-caller ivy-last))
+         (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
+                   (cdr (assoc t ivy-index-functions-alist))
+                   #'ivy-recompute-index-zero)))
+    (funcall func re-str cands)
+    (when (and (or (string= name "")
+                   (string= name "^"))
+               (not (equal ivy--old-re "")))
+      (setq ivy--index
+            (or (ivy--preselect-index
+                 cands
+                 nil
+                 (ivy-state-preselect ivy-last)
+                 nil)
+                ivy--index)))))
+
+(defun ivy-recompute-index-swiper (re-str cands)
+  (let ((tail (nthcdr ivy--index ivy--old-cands))
+        idx)
+    (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+      (unless (and (not (equal re-str ivy--old-re))
+                   (or (setq ivy--index
+                             (or
+                              (cl-position (if (and (> (length re-str) 0)
+                                                    (eq ?^ (aref re-str 0)))
+                                               (substring re-str 1)
+                                             re-str) cands
+                                             :test #'equal)
+                              (and ivy--directory
+                                   (cl-position
+                                    (concat re-str "/") cands
+                                    :test #'equal))))))
+        (while (and tail (null idx))
+          ;; Compare with eq to handle equal duplicates in cands
+          (setq idx (cl-position (pop tail) cands)))
+        (setq ivy--index (or idx 0))))))
+
+(defun ivy-recompute-index-zero (_re-str _cands)
+  (setq ivy--index 0))
 
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."

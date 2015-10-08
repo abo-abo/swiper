@@ -425,7 +425,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               :keymap counsel-git-grep-map
               :action #'counsel-git-grep-action
               :unwind #'swiper--cleanup
-              :history 'counsel-git-grep-history)))
+              :history 'counsel-git-grep-history
+              :caller 'counsel-git-grep)))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."

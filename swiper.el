@@ -332,7 +332,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                     :update-fn #'swiper--update-input-ivy
                     :unwind #'swiper--cleanup
                     :re-builder #'swiper--re-builder
-                    :history 'swiper-history))
+                    :history 'swiper-history
+                    :caller 'swiper))
       (if (null ivy-exit)
           (goto-char swiper--opoint)
         (swiper--action res ivy-text)))))
@@ -483,7 +484,8 @@ Run `swiper' for those buffers."
             :action 'swiper-multi-action-1)
   (ivy-read "Swiper: " swiper-multi-candidates
             :action 'swiper-multi-action-2
-            :unwind #'swiper--cleanup))
+            :unwind #'swiper--cleanup
+            :caller 'swiper-multi))
 
 (defun swiper-multi-action-1 (x)
   (if (member x swiper-multi-buffers)
