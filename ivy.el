@@ -1041,6 +1041,9 @@ This is useful for recursive `ivy-read'."
     (setq ivy-text "")
     (setq ivy-calling nil)
     (let (coll sort-fn)
+      (when (and (eq collection 'internal-complete-buffer)
+		 ivy-use-virtual-buffers)
+	(setq collection #'ivy--complete-all-buffers))
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
                  (setq coll
@@ -1068,8 +1071,6 @@ This is useful for recursive `ivy-read'."
                            (equal initial-input ""))
                  (setq coll (cons initial-input coll)))
                (setq initial-input nil)))
-            ((eq collection 'internal-complete-buffer)
-             (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers)))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
@@ -1478,7 +1479,8 @@ Should be run via minibuffer `post-command-hook'."
                          (ivy--cd drive-root)))))
                (if (string-match "\\`~\\'" ivy-text)
                    (ivy--cd (expand-file-name "~/")))))
-            ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
+            ((memq (ivy-state-collection ivy-last) '(internal-complete-buffer
+						     ivy--complete-all-buffers))
              (when (or (and (string-match "\\` " ivy-text)
                             (not (string-match "\\` " ivy--old-text)))
                        (and (string-match "\\` " ivy--old-text)
@@ -1487,8 +1489,8 @@ Should be run via minibuffer `post-command-hook'."
                      (if (and (> (length ivy-text) 0)
                               (eq (aref ivy-text 0)
                                   ?\ ))
-                         (ivy--buffer-list " ")
-                       (ivy--buffer-list "" ivy-use-virtual-buffers)))
+                         (all-completions " " (ivy-state-collection ivy-last))
+                       (all-completions "" (ivy-state-collection ivy-last))))
                (setq ivy--old-re nil))))
       (ivy--insert-minibuffer
        (ivy--format
@@ -1778,84 +1780,59 @@ CANDS is a list of strings."
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
 
-(defvar ivy--virtual-buffers nil
-  "Store the virtual buffers alist.")
-
 (defvar recentf-list)
 
 (defface ivy-virtual '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for matching virtual buffer names.")
 
-(defun ivy--virtual-buffers ()
-  "Adapted from `ido-add-virtual-buffers-to-list'."
-  (unless recentf-mode
-    (recentf-mode 1))
-  (let ((bookmarks (and (boundp 'bookmark-alist)
-                        bookmark-alist))
-        virtual-buffers name)
-    (dolist (head (append
-                   recentf-list
-                   (delete "   - no file -"
-                           (delq nil (mapcar (lambda (bookmark)
-                                               (cdr (assoc 'filename bookmark)))
-                                             bookmarks)))))
-      (setq name (file-name-nondirectory head))
-      (when (equal name "")
-        (setq name (file-name-nondirectory (directory-file-name head))))
-      (when (equal name "")
-        (setq name head))
-      (and (not (equal name ""))
-           (null (get-file-buffer head))
-           (not (assoc name virtual-buffers))
-           (push (cons name head) virtual-buffers)))
-    (when virtual-buffers
-      (dolist (comp virtual-buffers)
-        (put-text-property 0 (length (car comp))
-                           'face 'ivy-virtual
-                           (car comp)))
-      (setq ivy--virtual-buffers (nreverse virtual-buffers))
-      (mapcar #'car ivy--virtual-buffers))))
+(defun ivy--complete-virtual-buffers (str pred action)
+  "A dynamic completion table for virtual buffers."
+  (if (or (eq (car-safe action) 'boundaries))
+      nil
+    (unless recentf-mode
+      (recentf-mode 1))
+    (let* ((bookmarks (and (boundp 'bookmark-alist)
+			   bookmark-alist))
+	   (files (delete-dups
+		   (cl-remove-if
+		    #'get-file-buffer
+		    (cl-remove-if-not
+		     #'file-exists-p
+		     (append
+		      recentf-list
+		      (delete "   - no file -"
+			      (delq nil (mapcar (lambda (bookmark)
+						  (cdr (assoc 'filename bookmark)))
+						bookmarks))))))))
+	   (comps (mapcar (lambda (f)
+			    (propertize f 'face 'ivy-virtual))
+			  files)))
+      (if (eq action 'metadata)
+	  `(metadata (category . buffer))
+	(complete-with-action action comps str pred)))))
 
-(defun ivy--buffer-list (str &optional virtual)
-  "Return the buffers that match STR.
-When VIRTUAL is non-nil, add virtual buffers."
-  (delete-dups
-   (append
-    (mapcar
-     (lambda (x)
-       (if (with-current-buffer x
-             (file-remote-p
-              (abbreviate-file-name default-directory)))
-           (propertize x 'face 'ivy-remote)
-         x))
-     (all-completions str 'internal-complete-buffer))
-    (and virtual
-         (ivy--virtual-buffers)))))
+(defalias 'ivy--complete-all-buffers (completion-table-merge
+				      #'internal-complete-buffer
+				      #'ivy--complete-virtual-buffers))
 
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
 BUFFER may be a string or nil."
   (with-ivy-window
     (if (zerop (length buffer))
-        (switch-to-buffer
-         ivy-text nil 'force-same-window)
-      (let ((virtual (assoc buffer ivy--virtual-buffers)))
-        (if (and virtual
-                 (not (get-buffer buffer)))
-            (find-file (cdr virtual))
-          (switch-to-buffer
-           buffer nil 'force-same-window))))))
+        (switch-to-buffer ivy-text nil 'force-same-window)
+      (if (eq 'ivy-virtual (get-text-property 0 'face buffer))
+	  (find-file buffer)
+	(switch-to-buffer buffer nil 'force-same-window)))))
 
 (defun ivy--switch-buffer-other-window-action (buffer)
   "Switch to BUFFER in other window.
 BUFFER may be a string or nil."
   (if (zerop (length buffer))
       (switch-to-buffer-other-window ivy-text)
-    (let ((virtual (assoc buffer ivy--virtual-buffers)))
-      (if (and virtual
-               (not (get-buffer buffer)))
-          (find-file-other-window (cdr virtual))
-        (switch-to-buffer-other-window buffer)))))
+    (if (eq 'ivy-virtual (get-text-property 0 'face buffer))
+	(find-file-other-window buffer)
+      (switch-to-buffer-other-window buffer))))
 
 (defun ivy--rename-buffer-action (buffer)
   "Rename BUFFER."
