@@ -1612,7 +1612,7 @@ CANDIDATES are assumed to be static."
          (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
                    (cdr (assoc t ivy-index-functions-alist))
                    #'ivy-recompute-index-zero)))
-    (funcall func re-str cands)
+    (setq ivy--index (funcall func re-str cands))
     (when (and (or (string= name "")
                    (string= name "^"))
                (not (equal ivy--old-re "")))
@@ -1627,26 +1627,27 @@ CANDIDATES are assumed to be static."
 (defun ivy-recompute-index-swiper (re-str cands)
   (let ((tail (nthcdr ivy--index ivy--old-cands))
         idx)
-    (when (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-      (unless (and (not (equal re-str ivy--old-re))
-                   (or (setq ivy--index
-                             (or
-                              (cl-position (if (and (> (length re-str) 0)
-                                                    (eq ?^ (aref re-str 0)))
-                                               (substring re-str 1)
-                                             re-str) cands
-                                             :test #'equal)
-                              (and ivy--directory
-                                   (cl-position
-                                    (concat re-str "/") cands
-                                    :test #'equal))))))
-        (while (and tail (null idx))
-          ;; Compare with eq to handle equal duplicates in cands
-          (setq idx (cl-position (pop tail) cands)))
-        (setq ivy--index (or idx 0))))))
+    (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+        (or (and (not (equal re-str ivy--old-re))
+                 (or
+                  (cl-position (if (and (> (length re-str) 0)
+                                        (eq ?^ (aref re-str 0)))
+                                   (substring re-str 1)
+                                 re-str) cands
+                                 :test #'equal)
+                  (and ivy--directory
+                       (cl-position
+                        (concat re-str "/") cands
+                        :test #'equal))))
+            (progn
+              (while (and tail (null idx))
+                ;; Compare with eq to handle equal duplicates in cands
+                (setq idx (cl-position (pop tail) cands)))
+              (or idx 0)))
+      ivy--index)))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
-  (setq ivy--index 0))
+  0)
 
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
