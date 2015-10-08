@@ -48,10 +48,10 @@
                      :color pink)
   "
 ^^^^^^          ^Yes^     ^No^     ^Maybe^            ^Action^
-^^^^^^^^^^^^^^---------------------------------------------------
-^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %s(if ivy-calling \"on\" \"off\")   _w_/_s_/_a_: %s(ivy-action-name)
-_h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
-^ ^ _j_ ^ ^     _g_o      ^ ^      _<_/_>_: shrink/grow _t_runcate: %`truncate-lines
+^^^^^^^^^^^^^^---------------------------------------------------------------
+^ ^ _k_ ^ ^     _f_ollow  _i_nsert _c_: calling %-3s(if ivy-calling \"on\" \"off\")   _w_/_s_/_a_: %-14s(ivy-action-name)
+_h_ ^+^ _l_     _d_one    _o_ops   _m_: matcher %-27s(if (eq ivy--regex-function 'ivy--regex-fuzzy) \"fuzzy\" \"ivy\")
+^ ^ _j_ ^ ^     _g_o      ^ ^      _<_/_>_: shrink/grow _t_runcate: %-11`truncate-lines
 "
   ;; arrows
   ("h" ivy-beginning-of-buffer)
