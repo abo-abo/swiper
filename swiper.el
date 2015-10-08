@@ -131,10 +131,20 @@
 
 (defvar avy-background)
 (defvar avy-all-windows)
+(defvar avy-style)
+(defvar avy-keys)
 (declare-function avy--regex-candidates "ext:avy")
 (declare-function avy--process "ext:avy")
 (declare-function avy--overlay-post "ext:avy")
 (declare-function avy-action-goto "ext:avy")
+(declare-function avy--done "ext:avy")
+(declare-function avy--make-backgrounds "ext:avy")
+(declare-function avy-window-list "ext:avy")
+(declare-function avy-read "ext:avy")
+(declare-function avy-read-de-bruijn "ext:avy")
+(declare-function avy-tree "ext:avy")
+(declare-function avy-push-mark "ext:avy")
+(declare-function avy--remove-leading-chars "ext:avy")
 
 ;;;###autoload
 (defun swiper-avy ()
