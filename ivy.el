@@ -157,6 +157,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-i") 'ivy-insert-current)
     (define-key map (kbd "C-o") 'hydra-ivy/body)
     (define-key map (kbd "M-o") 'ivy-dispatching-done)
+    (define-key map (kbd "C-M-o") 'ivy-dispatching-call)
     (define-key map (kbd "C-k") 'ivy-kill-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (define-key map (kbd "M-w") 'ivy-kill-ring-save)
@@ -302,12 +303,11 @@ When non-nil, it should contain one %d.")
          (insert ivy-text)
          (ivy--exhibit))))
 
-(defun ivy-dispatching-done ()
-  "Select one of the available actions and call `ivy-done'."
+(defun ivy-read-action ()
+  "Change the action to one of the available ones."
   (interactive)
   (let ((actions (ivy-state-action ivy-last)))
-    (if (null (ivy--actionp actions))
-        (ivy-done)
+    (unless (null (ivy--actionp actions))
       (let* ((hint (concat ivy--current
                            "\n"
                            (mapconcat
@@ -321,14 +321,30 @@ When non-nil, it should contain one %d.")
                             "\n")
                            "\n"))
              (key (string (read-key hint)))
-             (action (assoc key (cdr actions))))
+             (action-idx (cl-position-if
+                          (lambda (x) (equal (car x) key))
+                          (cdr actions))))
         (cond ((string= key ""))
-              ((null action)
+              ((null action-idx)
                (error "%s is not bound" key))
               (t
                (message "")
-               (ivy-set-action (nth 1 action))
-               (ivy-done)))))))
+               (setcar actions (1+ action-idx))
+               (ivy-set-action actions)))))))
+
+(defun ivy-dispatching-done ()
+  "Select one of the available actions and call `ivy-done'."
+  (interactive)
+  (ivy-read-action)
+  (ivy-done))
+
+(defun ivy-dispatching-call ()
+  "Select one of the available actions and call `ivy-call'."
+  (interactive)
+  (let ((actions (copy-sequence (ivy-state-action ivy-last))))
+    (ivy-read-action)
+    (ivy-call)
+    (ivy-set-action actions)))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
