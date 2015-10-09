@@ -1612,7 +1612,10 @@ CANDIDATES are assumed to be static."
          (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
                    (cdr (assoc t ivy-index-functions-alist))
                    #'ivy-recompute-index-zero)))
-    (setq ivy--index (funcall func re-str cands))
+    (setq ivy--index
+          (or (cl-position (nth ivy--index ivy--old-cands)
+                           cands)
+              (funcall func re-str cands)))
     (when (and (or (string= name "")
                    (string= name "^"))
                (not (equal ivy--old-re "")))

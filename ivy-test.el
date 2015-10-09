@@ -68,7 +68,11 @@
            (ivy-with '(let ((ivy-re-builders-alist '((t . ivy--regex-fuzzy))))
                        (ivy-read "pattern: " '("package-list-packages" "something-else")))
                      "plp C-m")
-           "package-list-packages")))
+           "package-list-packages"))
+  (should (equal
+           (ivy-with '(ivy-read "test" '("aaab" "aaac"))
+                     "a C-n <tab> C-m")
+           "aaac")))
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
