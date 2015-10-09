@@ -1786,6 +1786,14 @@ CANDS is a list of strings."
 (defface ivy-virtual '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for matching virtual buffer names.")
 
+(defcustom ivy-virtual-abbreviate 'name
+  "The mode of abbreviation for virtual buffer names."
+  :type '(choice
+          (const :tag "Only name" 'name)
+          (const :tag "Full path" 'full)
+          ;; eventually, uniquify
+          ))
+
 (defun ivy--virtual-buffers ()
   "Adapted from `ido-add-virtual-buffers-to-list'."
   (unless recentf-mode
@@ -1799,7 +1807,10 @@ CANDS is a list of strings."
                            (delq nil (mapcar (lambda (bookmark)
                                                (cdr (assoc 'filename bookmark)))
                                              bookmarks)))))
-      (setq name (file-name-nondirectory head))
+      (setq name
+            (if (eq ivy-virtual-abbreviate 'name)
+                (file-name-nondirectory head)
+              (expand-file-name head)))
       (when (equal name "")
         (setq name (file-name-nondirectory (directory-file-name head))))
       (when (equal name "")
