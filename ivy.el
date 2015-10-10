@@ -252,6 +252,9 @@ When non-nil, it should contain one %d.")
 (defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
 
+(defvar ivy-case-fold-search 'auto
+  "Store the current overriding `case-fold-search'.")
+
 (defvar Info-current-file)
 
 (defmacro ivy-quit-and-run (&rest body)
@@ -1028,6 +1031,7 @@ This is useful for recursive `ivy-read'."
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
     (setq ivy--directory nil)
+    (setq ivy-case-fold-search 'auto)
     (setq ivy--regex-function
           (or re-builder
               (and (functionp collection)
@@ -1558,6 +1562,22 @@ all of the text contained in the minibuffer."
 (eval-after-load 'flx
   '(setq ivy--flx-cache (flx-make-string-cache)))
 
+(defun ivy-toggle-case-fold ()
+  "Toggle the case folding between nil and auto.
+In any completion session, the case folding starts in auto:
+
+- when the input is all lower case, `case-fold-search' is t
+- otherwise it's nil.
+
+You can toggle this to make `case-fold-search' nil regardless of input."
+  (interactive)
+  (setq ivy-case-fold-search
+        (if ivy-case-fold-search
+            nil
+          'auto))
+  ;; reset cache so that the candidate list updates
+  (setq ivy--old-re nil))
+
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
@@ -1568,7 +1588,9 @@ CANDIDATES are assumed to be static."
         ivy--old-cands
       (let* ((re-str (if (listp re) (caar re) re))
              (matcher (ivy-state-matcher ivy-last))
-             (case-fold-search (string= name (downcase name)))
+             (case-fold-search
+              (and ivy-case-fold-search
+                   (string= name (downcase name))))
              (cands (cond
                       (matcher
                        (funcall matcher re candidates))
