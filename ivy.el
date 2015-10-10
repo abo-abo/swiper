@@ -72,11 +72,11 @@
 
 (defcustom ivy-count-format "%-4d "
   "The style of showing the current candidate count for `ivy-read'.
-Set this to nil if you don't want the count.  You can also set it
-to e.g. \"(%d/%d) \" if you want to see both the candidate index
-and the candidate count."
+Set this to \"\" if you don't want the count.  You can also set
+it to e.g. \"(%d/%d) \" if you want to see both the candidate
+index and the candidate count."
   :type '(choice
-          (const :tag "Count disabled" nil)
+          (const :tag "Count disabled" "")
           (const :tag "Count matches" "%-4d ")
           (const :tag "Count matches and show current match" "(%d/%d) ")
           string))
@@ -1111,7 +1111,8 @@ This is useful for recursive `ivy-read'."
           (cond ((string-match "%.*d" prompt)
                  prompt)
                 ((null ivy-count-format)
-                 nil)
+                 (error
+                  "`ivy-count-format' can't be nil. Set it to an empty string instead."))
                 ((string-match "%d.*%d" ivy-count-format)
                  (let ((w (length (number-to-string
                                    (length ivy--all-candidates))))

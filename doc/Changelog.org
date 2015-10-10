@@ -65,7 +65,7 @@ To have this feature, use something like this:
 #+end_src
 See [[https://github.com/abo-abo/swiper/pull/167][#167]].
 
-You can also set this to nil, if you don't want any count, see [[https://github.com/abo-abo/swiper/pull/188][#188]].
+You can also set this to "", if you don't want any count, see [[https://github.com/abo-abo/swiper/pull/188][#188]].
 **** Allow to add additional exit points for any command
 Example for =ivy-switch-to-buffer=:
 #+begin_src elisp
