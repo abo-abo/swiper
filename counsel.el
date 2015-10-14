@@ -590,8 +590,9 @@ Skip some dotfiles unless `ivy-text' requires them."
             :dynamic-collection t
             :history 'counsel-locate-history
             :action (lambda (file)
-                      (when file
-                        (find-file file)))
+                      (with-ivy-window
+                        (when file
+                          (find-file file))))
             :unwind #'counsel-delete-process))
 
 (defun counsel--generic (completion-fn)
