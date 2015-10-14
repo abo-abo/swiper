@@ -316,6 +316,7 @@ there have line numbers. In the buffer, `ivy--regex' should be used."
     ((equal str "")
      "")
     ((equal str "^")
+     (setq ivy--subexps 0)
      ".")
     ((string-match "^\\^" str)
      (setq ivy--old-re "")
