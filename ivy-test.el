@@ -79,9 +79,9 @@
   (should (string= (swiper--re-builder "^")
                    "."))
   (should (string= (swiper--re-builder "^a")
-                   "^[0-9][0-9 ]\\{4\\}\\(a\\)"))
+                   "^ ?\\(a\\)"))
   (should (string= (swiper--re-builder "^a b")
-                   "^[0-9][0-9 ]\\{4\\}\\(a\\).*?\\(b\\)")))
+                   "^ \\(a\\).*?\\(b\\)")))
 
 (ert-deftest ivy--split ()
   (should (equal (ivy--split "King of the who?")
