@@ -1454,6 +1454,7 @@ Insert .* between each char."
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
   (when (memq 'ivy--exhibit post-command-hook)
+    (constrain-to-field nil (point-max))
     (setq ivy-text (ivy--input))
     (if (ivy-state-dynamic-collection ivy-last)
         ;; while-no-input would cause annoying
