@@ -320,12 +320,10 @@ there have line numbers. In the buffer, `ivy--regex' should be used."
     ((string-match "^\\^" str)
      (setq ivy--old-re "")
      (let ((re (ivy--regex-plus (substring str 1))))
-       (format "^[0-9][0-9 ]\\{%d\\}%s"
-               swiper--width
-               (if (zerop ivy--subexps)
-                   (prog1 (format "\\(%s\\)" re)
-                     (setq ivy--subexps 1))
-                 re))))
+       (if (zerop ivy--subexps)
+           (prog1 (format "^ ?\\(%s\\)" re)
+             (setq ivy--subexps 1))
+         (format "^ %s" re))))
     (t
      (ivy--regex-plus str))))
 
