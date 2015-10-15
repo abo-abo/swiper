@@ -500,6 +500,10 @@ Skip some dotfiles unless `ivy-text' requires them."
                  candidates))
         (setq ivy--old-re regexp))))
 
+(defvar counsel--async-time nil
+  "Store the time when a new process was started.
+Or the time of the last minibuffer update.")
+
 (defun counsel--async-command (cmd)
   (let* ((counsel--process " *counsel*")
          (proc (get-process counsel--process))
@@ -512,7 +516,9 @@ Skip some dotfiles unless `ivy-text' requires them."
                 counsel--process
                 counsel--process
                 cmd))
-    (set-process-sentinel proc #'counsel--async-sentinel)))
+    (setq counsel--async-time (current-time))
+    (set-process-sentinel proc #'counsel--async-sentinel)
+    (set-process-filter proc #'counsel--async-filter)))
 
 (defun counsel--async-sentinel (process event)
   (if (string= event "finished\n")
@@ -528,6 +534,24 @@ Skip some dotfiles unless `ivy-text' requires them."
           (setq ivy--all-candidates '("Error"))
           (setq ivy--old-cands ivy--all-candidates)
           (ivy--exhibit)))))
+
+(defun counsel--async-filter (process str)
+  "Receive from PROCESS the output STR.
+Update the minibuffer with the amount of lines collected every
+0.5 seconds since the last update."
+  (with-current-buffer (process-buffer process)
+    (insert str))
+  (let (size)
+    (when (time-less-p
+           ;; 0.5s
+           '(0 0 500000 0)
+           (time-since counsel--async-time))
+      (with-current-buffer (process-buffer process)
+        (goto-char (point-min))
+        (setq size (- (buffer-size) (forward-line (buffer-size)))))
+      (ivy--insert-minibuffer
+       (format "\ncollected: %d" size))
+      (setq counsel--async-time (current-time)))))
 
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
