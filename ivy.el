@@ -1639,6 +1639,9 @@ CANDIDATES are assumed to be static."
                    #'ivy-recompute-index-zero)))
     (setq ivy--index
           (or (and (not (string= name ""))
+                   (not (and (require 'flx nil 'noerror)
+                             (eq ivy--regex-function 'ivy--regex-fuzzy)
+                             (< (length cands) 200)))
                    (cl-position (nth ivy--index ivy--old-cands)
                                 cands))
               (funcall func re-str cands)))
