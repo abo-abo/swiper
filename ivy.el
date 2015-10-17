@@ -108,7 +108,10 @@ This is usually meant as a quick exit out of the minibuffer."
 (defcustom ivy-extra-directories '("../" "./")
   "Add this to the front of the list when completing file names.
 Only \"./\" and \"../\" apply here. They appear in reverse order."
-  :type 'list)
+  :type '(repeat :tag "Dirs"
+          (choice
+           (const :tag "Parent Directory" "../")
+           (const :tag "Current Directory" "./"))))
 
 (defcustom ivy-use-virtual-buffers nil
   "When non-nil, add `recentf-mode' and bookmarks to `ivy-switch-buffer'."
