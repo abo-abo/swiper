@@ -454,7 +454,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (new (try-completion (if startp
                                   (substring postfix 1)
                                 postfix)
-                              (mapcar (lambda (str) (substring str (string-match postfix str)))
+                              (mapcar (lambda (str)
+                                        (let ((i (string-match postfix str)))
+                                          (when i
+                                            (substring str i))))
                                       ivy--old-cands))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
