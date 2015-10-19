@@ -742,10 +742,17 @@ The libraries are offered from `load-path'."
   "Quickly and asynchronously count the amount of git grep REGEX matches.
 When NO-ASYNC is non-nil, do it synchronously."
   (let ((default-directory counsel--git-grep-dir)
-        (cmd (format "git grep -i -c '%s' | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"
-                     (replace-regexp-in-string
-                      "-" "\\\\-"
-                      (replace-regexp-in-string "'" "''" regex))))
+        (cmd
+         (concat
+          (format
+           (replace-regexp-in-string
+            "--full-name" "-c"
+            counsel-git-grep-cmd)
+           ;; "git grep -i -c '%s'"
+           (replace-regexp-in-string
+            "-" "\\\\-"
+            (replace-regexp-in-string "'" "''" regex)))
+          " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
         (counsel-ggc-process " *counsel-gg-count*"))
     (if no-async
         (string-to-number (shell-command-to-string cmd))
