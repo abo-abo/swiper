@@ -72,7 +72,11 @@
   (should (equal
            (ivy-with '(ivy-read "test" '("aaab" "aaac"))
                      "a C-n <tab> C-m")
-           "aaac")))
+           "aaac"))
+  (should (equal
+           (ivy-with '(ivy-read "pattern: " '("can do" "can" "can't do"))
+                     "can C-m")
+           "can")))
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
