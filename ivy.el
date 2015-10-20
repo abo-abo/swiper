@@ -500,7 +500,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
    :unwind (ivy-state-unwind ivy-last)
    :re-builder (ivy-state-re-builder ivy-last)
    :matcher (ivy-state-matcher ivy-last)
-   :dynamic-collection (ivy-state-dynamic-collection ivy-last)))
+   :dynamic-collection (ivy-state-dynamic-collection ivy-last)
+   :caller (ivy-state-caller ivy-last)))
 
 (defvar ivy-calling nil
   "When non-nil, call the current action when `ivy--index' changes.")
