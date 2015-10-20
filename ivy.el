@@ -1657,13 +1657,24 @@ CANDIDATES are assumed to be static."
                    (cdr (assoc t ivy-index-functions-alist))
                    #'ivy-recompute-index-zero)))
     (setq ivy--index
-          (or (and (not (string= name ""))
-                   (not (and (require 'flx nil 'noerror)
-                             (eq ivy--regex-function 'ivy--regex-fuzzy)
-                             (< (length cands) 200)))
-                   (cl-position (nth ivy--index ivy--old-cands)
-                                cands))
-              (funcall func re-str cands)))
+          (or
+           (cl-position (if (and (> (length re-str) 0)
+                                 (eq ?^ (aref re-str 0)))
+                            (substring re-str 1)
+                          re-str) cands
+                          :test #'equal)
+           (and ivy--directory
+                (cl-position
+                 (concat re-str "/") cands
+                 :test #'equal))
+           (and (not (string= name ""))
+                (not (and (require 'flx nil 'noerror)
+                          (eq ivy--regex-function 'ivy--regex-fuzzy)
+                          (< (length cands) 200)))
+
+                (cl-position (nth ivy--index ivy--old-cands)
+                             cands))
+           (funcall func re-str cands)))
     (when (and (or (string= name "")
                    (string= name "^"))
                (not (equal ivy--old-re "")))
@@ -1679,22 +1690,11 @@ CANDIDATES are assumed to be static."
   (let ((tail (nthcdr ivy--index ivy--old-cands))
         idx)
     (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-        (or (and (not (equal re-str ivy--old-re))
-                 (or
-                  (cl-position (if (and (> (length re-str) 0)
-                                        (eq ?^ (aref re-str 0)))
-                                   (substring re-str 1)
-                                 re-str) cands
-                                 :test #'equal)
-                  (and ivy--directory
-                       (cl-position
-                        (concat re-str "/") cands
-                        :test #'equal))))
-            (progn
-              (while (and tail (null idx))
-                ;; Compare with eq to handle equal duplicates in cands
-                (setq idx (cl-position (pop tail) cands)))
-              (or idx 0)))
+        (progn
+          (while (and tail (null idx))
+            ;; Compare with eq to handle equal duplicates in cands
+            (setq idx (cl-position (pop tail) cands)))
+          (or idx 0))
       ivy--index)))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
