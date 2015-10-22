@@ -374,6 +374,9 @@ When ARG is t, exit with current text, ignoring the candidates."
            (ivy-immediate-done))
           ((and ivy--directory
                 (or
+                 (and (file-directory-p ivy-text)
+                      (setq dir (expand-file-name
+                                 ivy-text ivy--directory)))
                  (and
                   (not (string= ivy--current "./"))
                   (cl-plusp ivy--length)
