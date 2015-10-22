@@ -1496,7 +1496,7 @@ Should be run via minibuffer `post-command-hook'."
                               (string-match "\\`[[:alpha:]]:/" default-directory))
                          (ivy--cd (match-string 0 default-directory))
                        (ivy--cd "/")))
-                   (when (string-match "[[:alpha:]]:/" ivy-text)
+                   (when (string-match "[[:alpha:]]:/$" ivy-text)
                      (let ((drive-root (match-string 0 ivy-text)))
                        (when (file-exists-p drive-root)
                          (ivy--cd drive-root)))))
