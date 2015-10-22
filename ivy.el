@@ -859,14 +859,12 @@ buffer order, like `org-refile' or `Man-goto-section'.
 
 The entry associated to t is used for all fall-through cases."
   :type
-  '(alist
-    :key-type (choice
-               (const :tag "All other functions" t)
-               (function :tag "Function"))
-    :value-type (choice
-                 (const :tag "plain sort" string-lessp)
-                 (const :tag "file sort" ivy-sort-file-function-default)
-                 (const :tag "no sort" nil)))
+  '(repeat
+    (cons (symbol :tag "Collection")
+          (choice :tag "Sort"
+           (const :tag "plain sort" string-lessp)
+           (const :tag "file sort" ivy-sort-file-function-default)
+           (const :tag "no sort" nil))))
   :group 'ivy)
 
 (defvar ivy-index-functions-alist
@@ -1840,8 +1838,8 @@ CANDS is a list of strings."
 (defcustom ivy-virtual-abbreviate 'name
   "The mode of abbreviation for virtual buffer names."
   :type '(choice
-          (const :tag "Only name" 'name)
-          (const :tag "Full path" 'full)
+          (const :tag "Only name" name)
+          (const :tag "Full path" full)
           ;; eventually, uniquify
           ))
 
