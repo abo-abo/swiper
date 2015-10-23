@@ -231,12 +231,14 @@
                                  dired-mode
                                  jabber-chat-mode
                                  elfeed-search-mode
+                                 elfeed-show-mode
                                  fundamental-mode
                                  Man-mode
                                  woman-mode
                                  mu4e-view-mode
                                  mu4e-headers-mode
-                                 help-mode)))
+                                 help-mode
+                                 w3m-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
