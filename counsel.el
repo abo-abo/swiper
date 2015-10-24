@@ -333,7 +333,9 @@
                   "git ls-files --full-name --")
                  "\n"
                  t))
-         (action (lambda (x) (find-file x))))
+         (action `(lambda (x)
+                    (let ((default-directory ,default-directory))
+                      (find-file x)))))
     (ivy-read "Find file: " cands
               :action action)))
 
