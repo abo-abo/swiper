@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.5.1
+;; Version: 0.6.0
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 
@@ -61,34 +61,17 @@
   '((t (:inherit isearch-fail)))
   "Face for `swiper' matches modulo 3.")
 
-(defface swiper-minibuffer-match-face-1
-  '((((class color) (background light))
-     :background "#d3d3d3")
-    (((class color) (background dark))
-     :background "#555555"))
-  "The background face for `swiper' minibuffer matches."
-  :group 'function-args-faces)
+(define-obsolete-face-alias 'swiper-minibuffer-match-face-1
+    'ivy-minibuffer-match-face-1 "0.6.0")
 
-(defface swiper-minibuffer-match-face-2
-  '((((class color) (background light))
-     :background "#e99ce8" :weight bold)
-    (((class color) (background dark))
-     :background "#777777" :weight bold))
-  "Face for `swiper' minibuffer matches modulo 1.")
+(define-obsolete-face-alias 'swiper-minibuffer-match-face-2
+    'ivy-minibuffer-match-face-2 "0.6.0")
 
-(defface swiper-minibuffer-match-face-3
-  '((((class color) (background light))
-     :background "#bbbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#7777ff" :weight bold))
-  "Face for `swiper' minibuffer matches modulo 2.")
+(define-obsolete-face-alias 'swiper-minibuffer-match-face-3
+    'ivy-minibuffer-match-face-3 "0.6.0")
 
-(defface swiper-minibuffer-match-face-4
-  '((((class color) (background light))
-     :background "#ffbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#8a498a" :weight bold))
-  "Face for `swiper' minibuffer matches modulo 3.")
+(define-obsolete-face-alias 'swiper-minibuffer-match-face-4
+    'ivy-minibuffer-match-face-4 "0.6.0")
 
 (defface swiper-line-face
   '((t (:inherit highlight)))

@@ -1762,12 +1762,40 @@ This string will be inserted into the minibuffer.")
                s))
      cands "\n")))
 
-(defcustom swiper-minibuffer-faces
-  '(swiper-minibuffer-match-face-1
-    swiper-minibuffer-match-face-2
-    swiper-minibuffer-match-face-3
-    swiper-minibuffer-match-face-4)
-  "List of `swiper' faces for minibuffer group matches.")
+(defface ivy-minibuffer-match-face-1
+  '((((class color) (background light))
+     :background "#d3d3d3")
+    (((class color) (background dark))
+     :background "#555555"))
+  "The background face for `ivy' minibuffer matches.")
+
+(defface ivy-minibuffer-match-face-2
+  '((((class color) (background light))
+     :background "#e99ce8" :weight bold)
+    (((class color) (background dark))
+     :background "#777777" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 1.")
+
+(defface ivy-minibuffer-match-face-3
+  '((((class color) (background light))
+     :background "#bbbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#7777ff" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 2.")
+
+(defface ivy-minibuffer-match-face-4
+  '((((class color) (background light))
+     :background "#ffbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#8a498a" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 3.")
+
+(defcustom ivy-minibuffer-faces
+  '(ivy-minibuffer-match-face-1
+    ivy-minibuffer-match-face-2
+    ivy-minibuffer-match-face-3
+    ivy-minibuffer-match-face-4)
+  "List of `ivy' faces for minibuffer group matches.")
 
 (defun ivy--format-minibuffer-line (str)
   (let ((start 0)
@@ -1782,12 +1810,12 @@ This string will be inserted into the minibuffer.")
           (while (<= i ivy--subexps)
             (let ((face
                    (cond ((zerop ivy--subexps)
-                          (cadr swiper-minibuffer-faces))
+                          (cadr ivy-minibuffer-faces))
                          ((zerop i)
-                          (car swiper-minibuffer-faces))
+                          (car ivy-minibuffer-faces))
                          (t
-                          (nth (1+ (mod (+ i 2) (1- (length swiper-minibuffer-faces))))
-                               swiper-minibuffer-faces)))))
+                          (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                               ivy-minibuffer-faces)))))
               (if (fboundp 'add-face-text-property)
                   (add-face-text-property
                    (match-beginning i)
