@@ -63,7 +63,10 @@
 C1 and C2 are triples of floats in [0.0 1.0] range."
   (apply #'color-rgb-to-hex
          (cl-mapcar
-          colir-compose-method
+          (if (eq (frame-parameter nil 'background-mode) 'dark)
+              ;; this method works nicely for dark themes
+              'colir-compose-soft-light
+            colir-compose-method)
           c1 c2)))
 
 (defun colir-blend-face-background (start end face &optional object)
