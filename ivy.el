@@ -693,16 +693,26 @@ Call the permanent action if possible."
 (defun ivy--cd-maybe ()
   "Check if the current input points to a different directory.
 If so, move to that directory, while keeping only the file name."
+  (require 'ffap)
   (when ivy--directory
-    (let* ((input (expand-file-name (ivy--input)))
-           (file (file-name-nondirectory input))
-           (dir (expand-file-name (file-name-directory input))))
-      (if (string= dir ivy--directory)
+    (let ((input (ivy--input))
+          url)
+      (if (setq url (ffap-url-p input))
           (progn
-            (delete-minibuffer-contents)
-            (insert file))
-        (ivy--cd dir)
-        (insert file)))))
+            (ivy-set-action
+             (lambda (_)
+               (funcall ffap-url-fetcher url)))
+            (setq ivy-exit 'done)
+            (exit-minibuffer))
+        (setq input (expand-file-name input))
+        (let ((file (file-name-nondirectory input))
+              (dir (expand-file-name (file-name-directory input))))
+          (if (string= dir ivy--directory)
+              (progn
+                (delete-minibuffer-contents)
+                (insert file))
+            (ivy--cd dir)
+            (insert file)))))))
 
 (defun ivy--maybe-scroll-history ()
   "If the selected history element has an index, scroll there."
