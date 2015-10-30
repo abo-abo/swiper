@@ -1662,25 +1662,26 @@ CANDIDATES are assumed to be static."
          (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
                    (cdr (assoc t ivy-index-functions-alist))
                    #'ivy-recompute-index-zero)))
-    (setq ivy--index
-          (or
-           (cl-position (if (and (> (length re-str) 0)
-                                 (eq ?^ (aref re-str 0)))
-                            (substring re-str 1)
-                          re-str) cands
-                          :test #'equal)
-           (and ivy--directory
-                (cl-position
-                 (concat re-str "/") cands
-                 :test #'equal))
-           (and (not (string= name ""))
-                (not (and (require 'flx nil 'noerror)
-                          (eq ivy--regex-function 'ivy--regex-fuzzy)
-                          (< (length cands) 200)))
+    (unless (eq this-command 'ivy-resume)
+      (setq ivy--index
+            (or
+             (cl-position (if (and (> (length re-str) 0)
+                                   (eq ?^ (aref re-str 0)))
+                              (substring re-str 1)
+                            re-str) cands
+                            :test #'equal)
+             (and ivy--directory
+                  (cl-position
+                   (concat re-str "/") cands
+                   :test #'equal))
+             (and (not (string= name ""))
+                  (not (and (require 'flx nil 'noerror)
+                            (eq ivy--regex-function 'ivy--regex-fuzzy)
+                            (< (length cands) 200)))
 
-                (cl-position (nth ivy--index ivy--old-cands)
-                             cands))
-           (funcall func re-str cands)))
+                  (cl-position (nth ivy--index ivy--old-cands)
+                               cands))
+             (funcall func re-str cands))))
     (when (and (or (string= name "")
                    (string= name "^"))
                (not (equal ivy--old-re "")))
