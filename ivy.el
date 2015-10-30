@@ -1135,7 +1135,10 @@ This is useful for recursive `ivy-read'."
       (setq ivy--old-cands nil)
       (setq ivy--all-candidates coll))
     (setq ivy-exit nil)
-    (setq ivy--default (or (thing-at-point 'symbol) ""))
+    (setq ivy--default (or
+                        (thing-at-point 'url)
+                        (thing-at-point 'symbol)
+                        ""))
     (setq ivy--prompt
           (cond ((string-match "%.*d" prompt)
                  prompt)
