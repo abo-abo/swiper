@@ -375,7 +375,32 @@
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-l") 'counsel-git-grep-recenter)
+    (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     map))
+
+(defun counsel-git-grep-query-replace ()
+  "Start `query-replace' with string to replace from last search string."
+  (interactive)
+  (if (null (window-minibuffer-p))
+      (user-error
+       "Should only be called in the minibuffer through `counsel-git-grep-map'")
+    (let* ((enable-recursive-minibuffers t)
+           (from (ivy--regex ivy-text))
+           (to (query-replace-read-to from "Query replace" t)))
+      (let (done-buffers)
+        (dolist (cand ivy--old-cands)
+          (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" cand)
+            (with-ivy-window
+              (let ((file-name (match-string-no-properties 1 cand)))
+                (setq file-name (expand-file-name file-name counsel--git-grep-dir))
+                (unless (member file-name done-buffers)
+                  (push file-name done-buffers)
+                  (find-file file-name)
+                  (goto-char (point-min)))
+                (perform-replace from to t t nil))))))
+      (delete-minibuffer-contents)
+      (swiper--cleanup)
+      (exit-minibuffer))))
 
 (defun counsel-git-grep-recenter ()
   (interactive)
