@@ -209,7 +209,9 @@
                                  gnus-summary-mode
                                  gnus-article-mode
                                  gnus-group-mode
-                                 emms-playlist-mode erc-mode
+                                 emms-playlist-mode
+                                 emms-stream-mode
+                                 erc-mode
                                  org-agenda-mode
                                  dired-mode
                                  jabber-chat-mode
