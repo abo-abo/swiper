@@ -37,6 +37,7 @@
 
 ;;; Code:
 (require 'cl-lib)
+(require 'ffap)
 
 ;;* Customization
 (defgroup ivy nil
@@ -693,7 +694,6 @@ Call the permanent action if possible."
 (defun ivy--cd-maybe ()
   "Check if the current input points to a different directory.
 If so, move to that directory, while keeping only the file name."
-  (require 'ffap)
   (when ivy--directory
     (let ((input (ivy--input))
           url)
