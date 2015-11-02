@@ -63,6 +63,10 @@
   '((t (:inherit 'dired-directory)))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
+(defface ivy-modified-buffer
+  '((t :inherit 'default))
+  "Face used by Ivy for highlighting modified file visiting buffers.")
+
 (defface ivy-remote
   '((t (:foreground "#110099")))
   "Face used by Ivy for highlighting remotes in the alternatives.")
@@ -1860,12 +1864,21 @@ CANDS is a list of strings."
            (start (max 0 (min start (- end (1- ivy-height)))))
            (cands (cl-subseq cands start end))
            (index (- ivy--index start)))
-      (when ivy--directory
-        (setq cands (mapcar (lambda (x)
-                              (if (string-match-p "/\\'" x)
-                                  (propertize x 'face 'ivy-subdir)
-                                x))
-                            cands)))
+      (cond (ivy--directory
+             (setq cands (mapcar (lambda (x)
+                                   (if (string-match-p "/\\'" x)
+                                       (propertize x 'face 'ivy-subdir)
+                                     x))
+                                 cands)))
+            ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
+             (setq cands (mapcar (lambda (x)
+                                   (let ((b (get-buffer x)))
+                                     (if (and b
+                                              (buffer-file-name b)
+                                              (buffer-modified-p b))
+                                         (propertize x 'face 'ivy-modified-buffer)
+                                       x)))
+                                 cands))))
       (setq ivy--current (copy-sequence (nth index cands)))
       (setq cands (mapcar
                    #'ivy--format-minibuffer-line
