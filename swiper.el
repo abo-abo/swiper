@@ -175,7 +175,7 @@
          (avy-action-goto (caar candidate)))))))
 
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
-(declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors-core")
+(declare-function multiple-cursors-mode "ext:multiple-cursors-core")
 
 ;;;###autoload
 (defun swiper-mc ()
@@ -191,7 +191,7 @@
              (swiper--action cand)
              (when cands
                (mc/create-fake-cursor-at-point))))
-         (mc/maybe-multiple-cursors-mode)))
+         (multiple-cursors-mode 1)))
       (setq ivy-exit 'done)
       (exit-minibuffer))))
 
