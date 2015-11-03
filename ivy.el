@@ -281,7 +281,7 @@ When non-nil, it should contain one %d.")
   "Execute BODY in the window from which `ivy-read' was called."
   (declare (indent 0)
            (debug t))
-  `(with-selected-window (ivy-state-window ivy-last)
+  `(with-selected-window (ivy--get-window ivy-last)
      ,@body))
 
 (defun ivy--done (text)
@@ -616,6 +616,15 @@ If the input is empty, select the previous history element instead."
       (if (functionp action)
           action
         (cadr (nth (car action) action))))))
+
+(defun ivy--get-window (state)
+  "Get the window from STATE."
+  (let ((window (ivy-state-window state)))
+    (if (window-live-p window)
+        window
+      (if (= (length (window-list)) 1)
+          (selected-window)
+        (next-window )))))
 
 (defun ivy--actionp (x)
   "Return non-nil when X is a list of actions."
