@@ -223,6 +223,7 @@
                                  mu4e-view-mode
                                  mu4e-headers-mode
                                  help-mode
+                                 debbugs-gnu-mode
                                  w3m-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
