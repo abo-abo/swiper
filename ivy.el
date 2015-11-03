@@ -1000,8 +1000,9 @@ RE-BUILDER is a lambda that transforms text into a regex.
 
 MATCHER can completely override matching.
 
-DYNAMIC-COLLECTION is a function to call to update the list of
-candidates with each input.
+DYNAMIC-COLLECTION is a boolean that determines whether to update
+the list of candidates with each input by calling COLLECTION for
+the current input.
 
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It's used in conjunction with COLLECTION to indentify which
@@ -1014,57 +1015,60 @@ customizations should apply to the current completion session."
                   ("o" ,action "default")
                   ,@extra-actions)
               (delete-dups (append action extra-actions))))))
-  (setq ivy-last
-        (make-ivy-state
-         :prompt prompt
-         :collection collection
-         :predicate predicate
-         :require-match require-match
-         :initial-input initial-input
-         :history history
-         :preselect preselect
-         :keymap keymap
-         :update-fn update-fn
-         :sort sort
-         :action action
-         :window (selected-window)
-         :buffer (current-buffer)
-         :unwind unwind
-         :re-builder re-builder
-         :matcher matcher
-         :dynamic-collection dynamic-collection
-         :caller caller))
-  (ivy--reset-state ivy-last)
-  (prog1
-      (unwind-protect
-           (minibuffer-with-setup-hook
-               #'ivy--minibuffer-setup
-             (let* ((hist (or history 'ivy-history))
-                    (minibuffer-completion-table collection)
-                    (minibuffer-completion-predicate predicate)
-                    (resize-mini-windows (cond
-                                           ((display-graphic-p) nil)
-                                           ((null resize-mini-windows) 'grow-only)
-                                           (t resize-mini-windows)))
-                    (res (read-from-minibuffer
-                          prompt
-                          (ivy-state-initial-input ivy-last)
-                          (make-composed-keymap keymap ivy-minibuffer-map)
-                          nil
-                          hist)))
-               (when (eq ivy-exit 'done)
-                 (let ((item (if ivy--directory
-                                 ivy--current
-                               ivy-text)))
-                   (unless (equal item "")
-                     (set hist (cons (propertize item 'ivy-index ivy--index)
-                                     (delete item
-                                             (cdr (symbol-value hist)))))))
-                 res)))
-        (remove-hook 'post-command-hook #'ivy--exhibit)
-        (when (setq unwind (ivy-state-unwind ivy-last))
-          (funcall unwind)))
-    (ivy-call)))
+  (let ((recursive-ivy-last (and (window-minibuffer-p) ivy-last)))
+    (setq ivy-last
+          (make-ivy-state
+           :prompt prompt
+           :collection collection
+           :predicate predicate
+           :require-match require-match
+           :initial-input initial-input
+           :history history
+           :preselect preselect
+           :keymap keymap
+           :update-fn update-fn
+           :sort sort
+           :action action
+           :window (selected-window)
+           :buffer (current-buffer)
+           :unwind unwind
+           :re-builder re-builder
+           :matcher matcher
+           :dynamic-collection dynamic-collection
+           :caller caller))
+    (ivy--reset-state ivy-last)
+    (prog1
+        (unwind-protect
+             (minibuffer-with-setup-hook
+                 #'ivy--minibuffer-setup
+               (let* ((hist (or history 'ivy-history))
+                      (minibuffer-completion-table collection)
+                      (minibuffer-completion-predicate predicate)
+                      (resize-mini-windows (cond
+                                             ((display-graphic-p) nil)
+                                             ((null resize-mini-windows) 'grow-only)
+                                             (t resize-mini-windows)))
+                      (res (read-from-minibuffer
+                            prompt
+                            (ivy-state-initial-input ivy-last)
+                            (make-composed-keymap keymap ivy-minibuffer-map)
+                            nil
+                            hist)))
+                 (when (eq ivy-exit 'done)
+                   (let ((item (if ivy--directory
+                                   ivy--current
+                                 ivy-text)))
+                     (unless (equal item "")
+                       (set hist (cons (propertize item 'ivy-index ivy--index)
+                                       (delete item
+                                               (cdr (symbol-value hist)))))))
+                   res)))
+          (remove-hook 'post-command-hook #'ivy--exhibit)
+          (when (setq unwind (ivy-state-unwind ivy-last))
+            (funcall unwind)))
+      (ivy-call)
+      (when recursive-ivy-last
+        (ivy--reset-state (setq ivy-last recursive-ivy-last))))))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
