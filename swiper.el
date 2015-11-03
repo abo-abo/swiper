@@ -447,18 +447,22 @@ BEG and END, when specified, are the point bounds."
   "Goto line X."
   (if (null x)
       (user-error "No candidates")
-    (goto-char (point-min))
-    (funcall (if swiper-use-visual-line
-                 #'line-move
-               #'forward-line)
-             (1- (read (get-text-property 0 'display x))))
-    (re-search-forward
-     (ivy--regex ivy-text) (line-end-position) t)
-    (swiper--ensure-visible)
-    (when (/= (point) swiper--opoint)
-      (unless (and transient-mark-mode mark-active)
-        (push-mark swiper--opoint t)
-        (message "Mark saved where search started")))))
+    (with-ivy-window
+      (unless (equal (current-buffer)
+                     (ivy-state-buffer ivy-last))
+        (switch-to-buffer (ivy-state-buffer ivy-last)))
+      (goto-char (point-min))
+      (funcall (if swiper-use-visual-line
+                   #'line-move
+                 #'forward-line)
+               (1- (read (get-text-property 0 'display x))))
+      (re-search-forward
+       (ivy--regex ivy-text) (line-end-position) t)
+      (swiper--ensure-visible)
+      (when (/= (point) swiper--opoint)
+        (unless (and transient-mark-mode mark-active)
+          (push-mark swiper--opoint t)
+          (message "Mark saved where search started"))))))
 
 ;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
 (defun swiper-from-isearch ()

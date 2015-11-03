@@ -187,6 +187,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   history preselect keymap update-fn sort
   ;; The window in which `ivy-read' was called
   window
+  ;; The buffer in which `ivy-read' was called
+  buffer
   action
   unwind
   re-builder
@@ -496,25 +498,26 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-resume ()
   "Resume the last completion session."
   (interactive)
-  (ivy-read
-   (ivy-state-prompt ivy-last)
-   (ivy-state-collection ivy-last)
-   :predicate (ivy-state-predicate ivy-last)
-   :require-match (ivy-state-require-match ivy-last)
-   :initial-input ivy-text
-   :history (ivy-state-history ivy-last)
-   :preselect (unless (eq (ivy-state-collection ivy-last)
-                          'read-file-name-internal)
-                ivy--current)
-   :keymap (ivy-state-keymap ivy-last)
-   :update-fn (ivy-state-update-fn ivy-last)
-   :sort (ivy-state-sort ivy-last)
-   :action (ivy-state-action ivy-last)
-   :unwind (ivy-state-unwind ivy-last)
-   :re-builder (ivy-state-re-builder ivy-last)
-   :matcher (ivy-state-matcher ivy-last)
-   :dynamic-collection (ivy-state-dynamic-collection ivy-last)
-   :caller (ivy-state-caller ivy-last)))
+  (with-current-buffer (ivy-state-buffer ivy-last)
+    (ivy-read
+     (ivy-state-prompt ivy-last)
+     (ivy-state-collection ivy-last)
+     :predicate (ivy-state-predicate ivy-last)
+     :require-match (ivy-state-require-match ivy-last)
+     :initial-input ivy-text
+     :history (ivy-state-history ivy-last)
+     :preselect (unless (eq (ivy-state-collection ivy-last)
+                            'read-file-name-internal)
+                  ivy--current)
+     :keymap (ivy-state-keymap ivy-last)
+     :update-fn (ivy-state-update-fn ivy-last)
+     :sort (ivy-state-sort ivy-last)
+     :action (ivy-state-action ivy-last)
+     :unwind (ivy-state-unwind ivy-last)
+     :re-builder (ivy-state-re-builder ivy-last)
+     :matcher (ivy-state-matcher ivy-last)
+     :dynamic-collection (ivy-state-dynamic-collection ivy-last)
+     :caller (ivy-state-caller ivy-last))))
 
 (defvar ivy-calling nil
   "When non-nil, call the current action when `ivy--index' changes.")
@@ -1015,6 +1018,7 @@ customizations should apply to the current completion session."
          :sort sort
          :action action
          :window (selected-window)
+         :buffer (current-buffer)
          :unwind unwind
          :re-builder re-builder
          :matcher matcher
