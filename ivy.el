@@ -190,6 +190,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   window
   ;; The buffer in which `ivy-read' was called
   buffer
+  ;; The value of `ivy-text' to be used by `ivy-occur'
+  text
   action
   unwind
   re-builder
@@ -2095,13 +2097,15 @@ It's possible to have an unlimited amount of *ivy-occur* buffers."
    (let (caller)
      (pop-to-buffer
       (generate-new-buffer
-       (format "*ivy-occur%s*"
+       (format "*ivy-occur%s \"%s\"*"
                (if (setq caller (ivy-state-caller ivy-last))
                    (concat " " (prin1-to-string caller))
-                 ""))))
+                 "")
+               ivy-text)))
      (read-only-mode)
      (setq ivy-occur-action (ivy--get-action ivy-last))
      (setq-local ivy--directory ivy--directory)
+     (setf (ivy-state-text ivy-last) ivy-text)
      (setq ivy-occur-last ivy-last)
      (let ((inhibit-read-only t))
        (erase-buffer)
@@ -2130,11 +2134,15 @@ EVENT gives the mouse position."
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
-  (let ((ivy-last ivy-occur-last))
+  (require 'pulse)
+  (let* ((ivy-last ivy-occur-last)
+         (ivy-text (ivy-state-text ivy-last)))
     (funcall ivy-occur-action
              (buffer-substring
               (+ 4 (line-beginning-position))
-              (line-end-position)))))
+              (line-end-position)))
+    (with-ivy-window
+      (pulse-momentary-highlight-one-line (point)))))
 
 (defun ivy-insert-current ()
   "Make the current candidate into current input.
