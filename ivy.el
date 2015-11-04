@@ -170,6 +170,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (define-key map (kbd "M-w") 'ivy-kill-ring-save)
     (define-key map (kbd "C-'") 'ivy-avy)
+    (define-key map (kbd "C-M-a") 'ivy-read-action)
     (define-key map (kbd "C-c o") 'ivy-occur)
     map)
   "Keymap used in the minibuffer.")
