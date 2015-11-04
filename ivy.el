@@ -2141,13 +2141,14 @@ EVENT gives the mouse position."
          (str (buffer-substring
                (+ 4 (line-beginning-position))
                (line-end-position)))
-         (coll (ivy-state-collection ivy-last)))
-    (funcall ivy-occur-action
-             (if (and (consp coll)
-                      (consp (car coll)))
-                 (cdr (assoc str coll))
-               str))
+         (coll (ivy-state-collection ivy-last))
+         (action ivy-occur-action))
     (with-ivy-window
+      (funcall action
+               (if (and (consp coll)
+                        (consp (car coll)))
+                   (cdr (assoc str coll))
+                 str))
       (pulse-momentary-highlight-one-line (point)))))
 
 (defun ivy-insert-current ()
