@@ -921,7 +921,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
             :action
             '(1
               ("p" helm-rhythmbox-play-song "Play song")
-              ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))))
+              ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
+            :caller 'counsel-rhythmbox))
 
 (defvar counsel-org-tags nil
   "Store the current list of tags.")
