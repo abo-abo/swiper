@@ -241,6 +241,10 @@
  '(("i" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
+(ivy-set-actions
+ 'counsel-M-x
+ '(("d" counsel--find-symbol "definition")))
+
 ;;;###autoload
 (defun counsel-describe-function ()
   "Forward to `describe-function'."
