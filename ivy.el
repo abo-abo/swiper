@@ -627,7 +627,7 @@ If the input is empty, select the previous history element instead."
         window
       (if (= (length (window-list)) 1)
           (selected-window)
-        (next-window )))))
+        (next-window)))))
 
 (defun ivy--actionp (x)
   "Return non-nil when X is a list of actions."
@@ -2136,11 +2136,16 @@ EVENT gives the mouse position."
   (interactive)
   (require 'pulse)
   (let* ((ivy-last ivy-occur-last)
-         (ivy-text (ivy-state-text ivy-last)))
+         (ivy-text (ivy-state-text ivy-last))
+         (str (buffer-substring
+               (+ 4 (line-beginning-position))
+               (line-end-position)))
+         (coll (ivy-state-collection ivy-last)))
     (funcall ivy-occur-action
-             (buffer-substring
-              (+ 4 (line-beginning-position))
-              (line-end-position)))
+             (if (and (consp coll)
+                      (consp (car coll)))
+                 (cdr (assoc str coll))
+               str))
     (with-ivy-window
       (pulse-momentary-highlight-one-line (point)))))
 
