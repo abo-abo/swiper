@@ -395,9 +395,11 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
             (recenter)))
         (swiper--add-overlays re)))))
 
-(defun swiper--add-overlays (re &optional beg end)
+(defun swiper--add-overlays (re &optional beg end wnd)
   "Add overlays for RE regexp in visible part of the current buffer.
-BEG and END, when specified, are the point bounds."
+BEG and END, when specified, are the point bounds.
+WND, when specified is the window."
+  (setq wnd (or wnd (ivy-state-window ivy-last)))
   (let ((ov (if visual-line-mode
                 (make-overlay
                  (save-excursion
@@ -410,7 +412,7 @@ BEG and END, when specified, are the point bounds."
                (line-beginning-position)
                (1+ (line-end-position))))))
     (overlay-put ov 'face 'swiper-line-face)
-    (overlay-put ov 'window (ivy-state-window ivy-last))
+    (overlay-put ov 'window wnd)
     (push ov swiper--overlays)
     (let* ((wh (window-height))
            (beg (or beg (save-excursion
@@ -440,7 +442,7 @@ BEG and END, when specified, are the point bounds."
                                      swiper-faces)))))
                     (push overlay swiper--overlays)
                     (overlay-put overlay 'face face)
-                    (overlay-put overlay 'window (ivy-state-window ivy-last))
+                    (overlay-put overlay 'window wnd)
                     (overlay-put overlay 'priority i)))
                 (cl-incf i)))))))))
 
