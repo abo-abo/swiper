@@ -384,6 +384,11 @@ When ARG is t, exit with current text, ignoring the candidates."
     (cond (arg
            (ivy-immediate-done))
           ((and ivy--directory
+                (equal ivy-text "/sudo::"))
+           (setq dir (concat ivy-text ivy--directory))
+           (ivy--cd dir)
+           (ivy--exhibit))
+          ((and ivy--directory
                 (or
                  (and
                   (not (equal ivy-text ""))
