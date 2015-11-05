@@ -387,7 +387,8 @@ When ARG is t, exit with current text, ignoring the candidates."
                 (or
                  (and
                   (not (equal ivy-text ""))
-                  (file-directory-p ivy-text)
+                  (ignore-errors
+                    (file-directory-p ivy-text))
                   (setq dir (expand-file-name
                              ivy-text ivy--directory)))
                  (and
