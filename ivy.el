@@ -171,7 +171,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
     (define-key map (kbd "M-w") 'ivy-kill-ring-save)
     (define-key map (kbd "C-'") 'ivy-avy)
     (define-key map (kbd "C-M-a") 'ivy-read-action)
-    (define-key map (kbd "C-c o") 'ivy-occur)
+    (define-key map (kbd "C-c C-o") 'ivy-occur)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
