@@ -1,0 +1,542 @@
+\input texinfo    @c -*- texinfo -*-
+@c %**start of header
+@setfilename ./ivy.info
+@settitle Ivy User Manual
+@documentencoding UTF-8
+@documentlanguage en
+@c %**end of header
+
+@copying
+@ifnottex
+This manual is for Ivy version 0.7.0.
+
+Ivy is a completion interface for Emacs. When @code{ivy-mode} is active,
+any time another Elisp code requires completion you'll be able to
+preview the candidates in the minibuffer and select them with both
+simple input and powerful regexps.
+@end ifnottex
+
+Copyright @copyright{} 2015 Free Software Foundation, Inc.
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the license
+is included in the section entitled ``GNU Free Documentation License.''
+
+(a) The FSF's Back-Cover Text is: ``You have the freedom to copy and
+modify this GNU manual.''
+@end quotation
+@end copying
+
+@dircategory Emacs
+@direntry
+* Ivy: (ivy).           Using Ivy for completion.
+@end direntry
+
+@finalout
+@titlepage
+@title Ivy User Manual
+@author Oleh Krehel
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Ivy User Manual
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::
+* Installation::
+* Getting started::
+
+@detailmenu
+--- The Detailed Node Listing ---
+
+Installation
+
+* Installing from ELPA::
+* Installing from the Git repository::
+
+Getting started
+
+* Setting up Ivy global key bindings::
+* Setting up common customizations::
+* Minibuffer bindings::
+* Completion styles::
+
+Minibuffer bindings
+
+* Candidate navigation keys::
+* Candidate selection keys that exit the minibuffer::
+* Candidate selection keys that don't exit the minibuffer::
+* Key bindings that change the minibuffer input::
+* Miscellaneous key bindings::
+* The mini-documentation hydra::
+* Storing the current completion session to a buffer::
+
+Completion styles
+
+* ivy--regex-plus::
+* ivy--regex-ignore-order::
+* ivy--regex-fuzzy::
+
+@end detailmenu
+@end menu
+
+
+
+@node Introduction
+@chapter Introduction
+
+Any time Emacs prompts you for a string, with several choices, Ivy
+allows you to preview and quickly select among these choices.
+
+The key aspects of Ivy are minimalism, simplicity, customizability and
+being discoverable.
+
+@subsubheading Minimalism
+Only the minimal necessary amount of information is
+displayed in the minibuffer. Compared to the default completion,
+additionally the current number of matches is displayed before the
+prompt, and a few candidates are displayed below the input. You can
+customize @code{ivy-length} to adjust the amount of displayed candidates,
+it's 10 by default.
+
+@subsubheading Simplicity
+The minibuffer area should behave as a
+@code{fundamental-mode} buffer as much as possible. For example, unlike the
+default completion, @kbd{SPC} simply inserts a space, instead of being
+bound to @code{minibuffer-complete-word}. Additionally Ivy aims to have
+simple to understand code: everything is stored in easy to examine
+global variables, and no branch-introducing custom macros are used.
+
+@subsubheading Customizability
+Ideally, you should be able to customize your completion session as
+much as possible, with different settings for different completions,
+if you so prefer. For example, you can add your own display function
+to that points to a selected candidate with @code{->}, instead of
+highlighting it with the @code{ivy-current-match} face. It's also possible
+to customize many commands to do different things with the selected
+candidate. For example, when describing functions with
+@code{counsel-decribe-function}, you describe the candidate with @kbd{RET}, but
+can also jump to definition with @kbd{M-o d}. While the @kbd{M-o} prefix isn't
+normally customized, you can bind any following key like @kbd{d} to do
+anything to the selected candidate. This way, it's possible to group
+several functions into one through the completion interface.
+
+@subsubheading Discoverability
+While in the minibuffer, you can press @kbd{C-o} to call
+@code{hydra-ivy/body}. This will expose a large amount of commands
+available in the minibuffer, all annotated with short docstrings.
+
+@node Installation
+@chapter Installation
+
+Ivy can be installed using Emacs' package manager or manually from its
+development repository.
+@menu
+* Installing from ELPA::
+* Installing from the Git repository::
+@end menu
+
+@node Installing from ELPA
+@section Installing from ELPA
+
+If you haven't used Emacs' package manager before, you can read about
+it in the Emacs manual, see @ref{Packages,,,emacs,}.
+
+Ivy is available from both GNU ELPA - the official Emacs package
+repository, and from MELPA - the most popular unofficial Emacs package
+repository.
+
+Your Emacs should be configured to use GNU ELPA automatically.  To
+also add MELPA, use this code:
+
+
+@lisp
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.org/packages/") t)
+@end lisp
+
+After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by
+@kbd{M-x} @code{package-install} @kbd{RET} @code{swiper} @kbd{RET}.
+
+There's a version difference between GELPA and MELPA. GELPA holds the
+latest stable version, while MELPA contains current hourly builds.
+
+@node Installing from the Git repository
+@section Installing from the Git repository
+
+Installing from Git offers advanced users numerous advantages:
+
+@itemize
+@item
+You don't have to wait for MELPA's hourly build to finish to receive
+an update.
+
+@item
+You can update to the current version and revert to an earlier one
+whenever you want.
+
+@item
+You can contribute to the development of Ivy by editing the code and
+sending patches/pull requests.
+@end itemize
+
+@strong{Configuration steps}
+
+Clone the Swiper repository:
+
+@example
+cd ~/git && git clone https://github.com/abo-abo/swiper
+cd swiper && make compile
+@end example
+
+Add this code to your init:
+
+@lisp
+(add-to-list 'load-path "~/git/swiper/")
+(require 'ivy)
+@end lisp
+
+To update the code use:
+
+@example
+git pull
+make
+@end example
+
+@node Getting started
+@chapter Getting started
+
+This section describes the most common configuration steps.  First of
+all, to get Ivy completion everywhere, use:
+
+
+@lisp
+(ivy-mode 1)
+@end lisp
+
+You can also toggle @code{ivy-mode} on and off with @kbd{M-x} @code{ivy-mode}. This
+is the minimal necessary step to get Ivy working.
+@menu
+* Setting up Ivy global key bindings::
+* Setting up common customizations::
+* Minibuffer bindings::
+* Completion styles::
+@end menu
+
+@node Setting up Ivy global key bindings
+@section Setting up Ivy global key bindings
+
+These are the recommended mnemonic (and otherwise) key bindings:
+@subsubheading Ivy-improved versions of standard commands
+
+@lisp
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-load-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+@end lisp
+@subsubheading Ivy-based interfaces to great shell and system tools
+
+@lisp
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+@end lisp
+@subsubheading Other useful commands
+The @code{ivy-resume} command allows to resume the last Ivy-based
+completion.
+
+@lisp
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+@end lisp
+
+@node Setting up common customizations
+@section Setting up common customizations
+
+Here are some basic customizations that a new user might be interested
+in, in no particular order:
+
+@lisp
+(setq ivy-use-virtual-buffers t)
+(setq ivy-height 10)
+(setq ivy-display-style 'fancy)
+(setq ivy-count-format "(%d/%d) ")
+@end lisp
+
+You can examine them more closely by looking at the documentation of
+these variables.
+
+@node Minibuffer bindings
+@section Minibuffer bindings
+
+Most of Ivy's minibuffer bindings are defined in @code{ivy-minibuffer-map}
+keymap.  Some commands, like @code{swiper} or @code{counsel-M-x} pass an
+additional keymap through the @code{keymap} argument to @code{ivy-read}.  The
+additional bindings will be described in each command's section.  This
+section describes the most useful default key bindings.
+@menu
+* Candidate navigation keys::
+* Candidate selection keys that exit the minibuffer::
+* Candidate selection keys that don't exit the minibuffer::
+* Key bindings that change the minibuffer input::
+* Miscellaneous key bindings::
+* The mini-documentation hydra::
+* Storing the current completion session to a buffer::
+@end menu
+
+@node Candidate navigation keys
+@subsection Candidate navigation keys
+
+The most basic navigation keys are @kbd{C-n} (@code{ivy-next-line}) and @kbd{C-p}
+(@code{ivy-previous-line}), they select the next and the previous candidate
+respectively. By default, they don't wrap-around after reaching the
+first or the last candidate. I you'd like to change this, customize
+@code{ivy-wrap}.
+
+Next, @kbd{M-<} (@code{ivy-beginning-of-buffer}) and @kbd{M->}
+(@code{ivy-end-of-buffer}) will select the first and the last candidate
+respectively.
+
+Additionally, @kbd{C-v} (@code{ivy-scroll-up-command}) and @kbd{M-v}
+(@code{ivy-scroll-down-command}) allow you to scroll by whole candidate
+screen, which has the size @code{ivy-height}, 10 by default.
+
+@node Candidate selection keys that exit the minibuffer
+@subsection Candidate selection keys that exit the minibuffer
+
+When you've finally selected a candidate you like, you'll want to do
+something with it. In Ivy's terms it's called "calling an action",
+which can also be combined with exiting the minibuffer and thus
+finishing completion. Note that unlike with the default completion,
+exiting the minibuffer is optional, because you might want to call an
+action or actions for several candidates and not just one.
+
+The most basic binding is @kbd{C-m} or @kbd{RET} (@code{ivy-done}). It calls the
+action and exits the minibuffer.
+
+The second important binding is @kbd{C-j} (@code{ivy-alt-done}). It's no
+different from @code{ivy-done}, except when completing file names.  In that
+case pressing @kbd{C-j} on a directory will offer completion for that
+directory, while @kbd{C-m} will select that directory and exit the
+minibuffer.
+
+Another binding, which may be familiar is @kbd{TAB}
+(@code{ivy-partial-or-done}). It will attempt to do partial completion:
+extend the current input as much as possible, according to the
+candidates that currently match. Pressing @kbd{TAB TAB} is equivalent to
+@kbd{C-j}.
+
+With all above bindings, the action is called for the @emph{currently
+selected} candidate.  But what if the input you want isn't in the
+collection, but still matches one of the candidates?  Pressing either
+@kbd{C-m}, or @kbd{C-j} would call the action for that selected candidate,
+which isn't what you wanted to do.  Use @kbd{C-M-j} (@code{ivy-immediate-done})
+to call the action for @emph{the current input} instead of @emph{the current
+candidate}. Common uses of @kbd{C-M-j} are with @code{find-file} and
+@code{dired-create-directory}: the new name might match the already
+existing files or directories.
+
+The penultimate key binding from the set that exits the minibuffer is
+@kbd{M-o} (@code{ivy-dispatching-done}).  In case the current completion has
+more than one action to choose from to act on the selected candidate,
+@kbd{M-o} will allow you to select and call that action. In case there's
+only one action, @kbd{M-o} does the same and @kbd{C-m}.
+
+And the final binding is @kbd{C-'} (@code{ivy-avy}).
+It allows to select a visible candidate faster than e.g. @kbd{C-n C-n C-n C-n C-m}.
+
+@node Candidate selection keys that don't exit the minibuffer
+@subsection Candidate selection keys that don't exit the minibuffer
+
+The bindings that don't exit the minibuffer are usually constructed by
+adding the meta key to the other version.
+
+@kbd{C-M-m} (@code{ivy-call}) is the non-exiting version of @kbd{C-m}. Suppose you
+have a @code{counsel-describe-function} completion session, you've narrowed
+the candidate list significantly, say to 5 candidates, and you want to
+describe the second and the fourth candidates.  With the default
+completion you would probably describe the second candidate, then
+call @code{describe-function} again, recall history with @kbd{M-p} and edit it
+to match the forth candidate and exit once more. With Ivy, you can
+press @kbd{C-n} to select the second candidate, @kbd{C-M-m} to describe it,
+@kbd{C-n C-n} to skip to the fourth candidate and @kbd{C-m} to describe it and
+exit the minibuffer.
+
+Alternatively, you could select the second candidate with @kbd{C-m}, then
+resume completion with @code{ivy-resume}. That will bring up the completion
+session in a state as if you hadn't exited: the input will be the
+same, and the second candidate will still be selected. Then you could
+once again select the fourth one with @kbd{C-n C-n C-m}.
+
+@kbd{C-M-o} (@code{ivy-dispatching-call}) is a non-exiting version of @kbd{M-o}.
+It might be useful for instance in @code{counsel-rhythmbox}: use @kbd{C-M-o e}
+to enqueue the selected candidate, and @kbd{C-n C-m} to play the next
+one. Here, @code{play} is the default action, and @code{enqueue} is an extra
+action bound to @kbd{e}.
+
+@kbd{C-M-n} (@code{ivy-next-line-and-call}) is a combination of @kbd{C-n} and
+@kbd{C-M-m}.  @kbd{C-M-p} (@code{ivy-previous-line-and-call}) is a combination of
+@kbd{C-p} and @kbd{C-M-m}.  Both can be used to call the action many
+times. For instance to open a lot of files in the current directory
+with @code{counsel-find-file}, press and hold @kbd{C-M-n}.  Same for cycling
+matches in @code{counsel-git-grep} / @code{counsel-ag} / @code{counsel-locate}.
+
+@node Key bindings that change the minibuffer input
+@subsection Key bindings that change the minibuffer input
+
+@kbd{M-p} (@code{ivy-previous-history-element}) and @kbd{M-n}
+(@code{ivy-next-history-element}) allow to cycle a command's history.  A
+new entry is added to the history each time an action is called on a
+candidate. Additionally, @kbd{M-n} has a special behavior when it's the
+first command (i.e. there's no history element to scroll down to): in
+that case URL or symbol at point is inserted into the minibuffer.
+
+@kbd{M-i} (@code{ivy-insert-current}) will insert the current candidate into
+the minibuffer.  It's especially useful for copying files to a
+slightly different name: press @kbd{M-i} to insert the original, modify it
+slightly and @kbd{C-m}.
+
+@kbd{M-j} (@code{ivy-yank-word}) will insert the subword at point into the
+minibuffer.  This is the closest thing to @kbd{C-s C-w} with
+@code{isearch}. It's not bound to @kbd{C-w} because @kbd{C-w} calls @code{kill-region} -
+a pretty useful editing function.
+
+@kbd{S-SPC} (@code{ivy-restrict-to-matches}) will delete all current input. In
+addition it will reset the candidates collection to the one that was
+active at the moment of calling. This allows to narrow the candidate
+list in tiers if necessary.
+
+@kbd{C-r} (@code{ivy-reverse-i-search}) works in a similar way to @kbd{C-r} bash:
+it opens a recursive completion session with the history elements as
+candidates. Once finished, that history element is inserted into the
+minibuffer.
+
+@node Miscellaneous key bindings
+@subsection Miscellaneous key bindings
+
+@kbd{M-w} (@code{ivy-kill-ring-save}) will work as regular @code{kill-ring-save}
+when the region is active, otherwise it will copy all selected
+candidates to the kill ring.
+
+@node The mini-documentation hydra
+@subsection The mini-documentation hydra
+
+@kbd{C-o} (@code{hydra-ivy/body}) is a prefix to a multitude of shortcuts.  For
+example: @kbd{C-n C-n C-n C-n} is equivalent to @kbd{C-o jjjj}.  When @kbd{C-o} is
+toggled on, you can no longer enter text into the minibuffer. If you
+want to resume entering text, press @kbd{C-o} or @kbd{i}.
+
+It serves several purposes:
+
+@itemize
+@item
+It can be more efficient in terms of shorter bindings.
+
+@item
+It contains less popular bindings, like @kbd{<} and @kbd{>} for adjusting
+the height of the minibuffer.
+
+@item
+It describes the current completion state, like the case folding and
+the current action.
+@end itemize
+
+@node Storing the current completion session to a buffer
+@subsection Storing the current completion session to a buffer
+
+@kbd{C-c C-o} (@code{ivy-occur}) will store the current candidates into a new
+buffer.  Pressing @kbd{RET} or @kbd{mouse-1} in that buffer will result in the
+appropriate action being called on the selected candidate.  You can
+have as many of these buffers as you like, and they will be named
+appropriately to show what they do, e.g @code{*ivy-occur
+cousnel-describe-variable "function$*}.
+
+@node Completion styles
+@section Completion styles
+
+The completion in Ivy is customizable through regex builder functions.
+The default settings start out at:
+
+@lisp
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-plus)))
+@end lisp
+
+Which means that @code{ivy--regex-plus} is used for all collections. Here's
+how to use another re-builder specifically for file name completion:
+
+@lisp
+(setq ivy-re-builders-alist
+      '((read-file-name-internal . ivy--regex-fuzzy)
+        (t . ivy--regex-plus)))
+@end lisp
+
+These two and other styles of re-builders will be described below.
+@menu
+* ivy--regex-plus::
+* ivy--regex-ignore-order::
+* ivy--regex-fuzzy::
+@end menu
+
+@node ivy--regex-plus
+@subsection ivy--regex-plus
+
+The default completion method in Ivy is represented by the
+@code{ivy--regex-plus} function. For this function, the matching is done by
+splitting the input by spaces and rebuilding it into a regex.
+
+So "for example" is transformed into "\.*\", which
+means to match "for", followed by wildcard, followed by "example".
+You get used to how this works very fast since each part is
+highlighted with a different face in the minibuffer.
+
+If you need to match literal spaces, input that amount of spaces plus
+one, e.g. input two spaces to match one, three to match two etc.
+
+Regexp negation is also supported and is done by entering words that
+you don't want to match after a "!". For example "define key ! ivy
+quit" will first select everything that matches "define.*key", then
+remove everything that matches "ivy" and everything that matches
+"quit".
+
+Other than spaces being translated into ".*" and "!" starting a
+negation group, the minibuffer input is treated as a regular regexp,
+so you can simply input things like "^", "$", "" or "[a-z]".
+
+@node ivy--regex-ignore-order
+@subsection ivy--regex-ignore-order
+
+This works similarly to @code{ivy--regex-plus} except the order of the
+parts doesn't matter any more.  For instance, the input "for example"
+will match "example test for".
+
+@node ivy--regex-fuzzy
+@subsection ivy--regex-fuzzy
+
+This method splits each character separately, so "for" is translated
+into "f.*o.*r". This means it might result in a huge amount of
+matches.  To manage this amount of matches somehow, you can install
+the @code{flx} package which will automatically be used by Ivy to do the
+candidate scoring. If you've used @code{ido-flx} before, it's almost the
+same.
+
+@bye
