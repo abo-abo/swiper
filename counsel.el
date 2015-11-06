@@ -830,6 +830,20 @@ CMD is a command name."
 (declare-function smex-update "ext:smex")
 (declare-function smex-rank "ext:smex")
 
+(defun counsel--M-x-prompt ()
+  "M-x plus the string representation of `current-prefix-arg'."
+  (if (not current-prefix-arg)
+      "M-x "
+    (concat
+     (if (eq current-prefix-arg '-)
+         "- "
+       (if (integerp current-prefix-arg)
+           (format "%d " current-prefix-arg)
+         (if (= (car current-prefix-arg) 4)
+             "C-u "
+           (format "%d " (car current-prefix-arg)))))
+     "M-x ")))
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
@@ -856,7 +870,7 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
       (setq cands smex-ido-cache)
       (setq pred nil)
       (setq sort nil))
-    (ivy-read "M-x " cands
+    (ivy-read (counsel--M-x-prompt) cands
               :predicate pred
               :require-match t
               :history 'extended-command-history
