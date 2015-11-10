@@ -394,8 +394,10 @@ When ARG is t, exit with current text, ignoring the candidates."
                   (not (equal ivy-text ""))
                   (ignore-errors
                     (file-directory-p
-                     (setq dir (expand-file-name
-                                ivy-text ivy--directory)))))
+                     (setq dir
+                           (file-name-as-directory
+                            (expand-file-name
+                             ivy-text ivy--directory))))))
                  (and
                   (not (string= ivy--current "./"))
                   (cl-plusp ivy--length)
