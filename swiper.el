@@ -93,6 +93,7 @@
     (define-key map (kbd "C-l") 'swiper-recenter-top-bottom)
     (define-key map (kbd "C-'") 'swiper-avy)
     (define-key map (kbd "C-7") 'swiper-mc)
+    (define-key map (kbd "C-c C-f") 'swiper-toggle-face-matching)
     map)
   "Keymap for swiper.")
 
@@ -319,11 +320,16 @@ there have line numbers. In the buffer, `ivy--regex' should be used."
 (defvar swiper-history nil
   "History for `swiper'.")
 
+(defvar swiper-invocation-face nil
+  "The face at the point of invocation of `swiper'.")
+
 (defun swiper--ivy (&optional initial-input)
   "`isearch' with an overview using `ivy'.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--init)
+  (setq swiper-invocation-face
+        (plist-get (text-properties-at (point)) 'face))
   (let ((candidates (swiper--candidates))
         (preselect (buffer-substring-no-properties
                     (line-beginning-position)
@@ -345,6 +351,33 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
          :caller 'swiper)
       (when (null ivy-exit)
         (goto-char swiper--opoint)))))
+
+(defun swiper-toggle-face-matching ()
+  "Toggle matching only the candidates with `swiper-invocation-face'."
+  (interactive)
+  (setf (ivy-state-matcher ivy-last)
+        (if (ivy-state-matcher ivy-last)
+            nil
+          #'swiper--face-matcher))
+  (setq ivy--old-re nil))
+
+(defun swiper--face-matcher (regexp candidates)
+  "Return REGEXP-matching CANDIDATES.
+Matched candidates should have `swiper-invocation-face'."
+  (cl-remove-if-not
+   (lambda (x)
+     (and
+      (string-match regexp x)
+      (let ((s (match-string 0 x))
+            (i 0))
+        (while (and (< i (length s))
+                    (text-property-any
+                     i (1+ i)
+                     'face swiper-invocation-face
+                     s))
+          (cl-incf i))
+        (eq i (length s)))))
+   candidates))
 
 (defun swiper--ensure-visible ()
   "Remove overlays hiding point."
