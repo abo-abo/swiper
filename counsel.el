@@ -170,7 +170,8 @@
 
 (defun counsel--find-symbol (x)
   "Find symbol definition that corresponds to string X."
-  (ring-insert find-tag-marker-ring (point-marker))
+  (with-no-warnings
+    (ring-insert find-tag-marker-ring (point-marker)))
   (let ((full-name (get-text-property 0 'full-name x)))
     (if full-name
         (find-library full-name)
