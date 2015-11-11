@@ -2188,7 +2188,14 @@ It's possible to have an unlimited amount of *ivy-occur* buffers."
         (do-grep (eq (ivy-state-caller ivy-last) 'counsel-git-grep)))
     (with-current-buffer buffer
       (if do-grep
-          (ivy-occur-grep-mode)
+          (progn
+            (setq ivy--old-cands
+                  (split-string
+                   (shell-command-to-string
+                    (format counsel-git-grep-cmd ivy--old-re))
+                   "\n"
+                   t))
+            (ivy-occur-grep-mode))
         (ivy-occur-mode))
       (setf (ivy-state-text ivy-last) ivy-text)
       (setq ivy-occur-last ivy-last)
