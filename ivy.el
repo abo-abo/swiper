@@ -360,9 +360,10 @@ When non-nil, it should contain one %d.")
   "Select one of the available actions and call `ivy-call'."
   (interactive)
   (let ((actions (copy-sequence (ivy-state-action ivy-last))))
-    (ivy-read-action)
-    (ivy-call)
-    (ivy-set-action actions)))
+    (unwind-protect
+         (when (ivy-read-action)
+           (ivy-call))
+      (ivy-set-action actions))))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
