@@ -2147,6 +2147,7 @@ buffer would modify `ivy-last'.")
     (define-key map (kbd "g") 'ivy-occur-press)
     (define-key map (kbd "a") 'ivy-occur-read-action)
     (define-key map (kbd "o") 'ivy-occur-dispatch)
+    (define-key map (kbd "q") 'quit-window)
     map)
   "Keymap for Ivy Occur mode.")
 
