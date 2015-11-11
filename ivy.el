@@ -281,6 +281,15 @@ When non-nil, it should contain one %d.")
                     ,@body))
      (minibuffer-keyboard-quit)))
 
+(defun ivy-exit-with-action (action)
+  "Quit the minibuffer and call ACTION afterwards."
+  (ivy-set-action
+   `(lambda (x)
+      (funcall ,action x)
+      (ivy-set-action ',(ivy-state-action ivy-last))))
+  (setq ivy-exit 'done)
+  (exit-minibuffer))
+
 (defmacro with-ivy-window (&rest body)
   "Execute BODY in the window from which `ivy-read' was called."
   (declare (indent 0)
@@ -2080,96 +2089,6 @@ If the region is active, forward to `kill-ring-save' instead."
       ivy--old-cands
       "\n"))))
 
-(defvar-local ivy-occur-action nil
-  "Function to call for each line in *ivy-occur* buffer.")
-
-(defvar-local ivy-occur-last nil
-  "Buffer-local value of `ivy-last'.")
-
-(defvar ivy-occur-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'ivy-occur-click)
-    (define-key map (kbd "RET") 'ivy-occur-press)
-    map)
-  "Keymap used in *ivy-occur* buffers.")
-
-(defun ivy-occur ()
-  "Stop completion and put the current matches into a new buffer.
-
-The new buffer will also remember the current action.
-
-While in the *ivy-occur* buffer, selecting a cadidate with RET or
-a mouse click will call the action for that candidate.
-
-It's possible to have an unlimited amount of *ivy-occur* buffers."
-  (interactive)
-  (ivy-quit-and-run
-   (let (caller)
-     (pop-to-buffer
-      (generate-new-buffer
-       (format "*ivy-occur%s \"%s\"*"
-               (if (setq caller (ivy-state-caller ivy-last))
-                   (concat " " (prin1-to-string caller))
-                 "")
-               ivy-text)))
-     (read-only-mode)
-     (setq ivy-occur-action (ivy--get-action ivy-last))
-     (setq-local ivy--directory ivy--directory)
-     (setf (ivy-state-text ivy-last) ivy-text)
-     (setq ivy-occur-last ivy-last)
-     (let ((inhibit-read-only t))
-       (erase-buffer)
-       (insert (format "%d candidates:\n" (length ivy--old-cands)))
-       (dolist (cand ivy--old-cands)
-         (let ((str (concat "    " cand)))
-           (add-text-properties
-            0 (length str)
-            `(mouse-face
-              highlight
-              help-echo "mouse-1: call ivy-action"
-              keymap ,ivy-occur-map)
-            str)
-           (insert str "\n")))))))
-
-(defun ivy-occur-click (event)
-  "Execute action for the current candidate.
-EVENT gives the mouse position."
-  (interactive "e")
-  (let ((window (posn-window (event-end event)))
-        (pos (posn-point (event-end event))))
-    (with-current-buffer (window-buffer window)
-      (goto-char pos)
-      (ivy-occur-press))))
-
-(defun ivy-occur-press ()
-  "Execute action for the current candidate."
-  (interactive)
-  (require 'pulse)
-  (let* ((ivy-last ivy-occur-last)
-         (ivy-text (ivy-state-text ivy-last))
-         (str (buffer-substring
-               (+ 4 (line-beginning-position))
-               (line-end-position)))
-         (coll (ivy-state-collection ivy-last))
-         (action ivy-occur-action)
-         (ivy-exit 'done))
-    (with-ivy-window
-      (funcall action
-               (if (and (consp coll)
-                        (consp (car coll)))
-                   (cdr (assoc str coll))
-                 str))
-      (if (memq (ivy-state-caller ivy-last)
-                '(swiper counsel-git-grep))
-          (with-current-buffer (window-buffer (selected-window))
-            (swiper--add-overlays
-             (ivy--regex ivy-text)
-             (line-beginning-position)
-             (line-end-position)
-             (selected-window))
-            (run-at-time 1 nil 'swiper--cleanup))
-        (pulse-momentary-highlight-one-line (point))))))
-
 (defun ivy-insert-current ()
   "Make the current candidate into current input.
 Don't finish completion."
@@ -2210,6 +2129,160 @@ The selected history element will be inserted into the minibufer."
   (delete-minibuffer-contents)
   (setq ivy--all-candidates
         (ivy--filter ivy-text ivy--all-candidates)))
+
+;;* Occur
+(defvar-local ivy-occur-last nil
+  "Buffer-local value of `ivy-last'.
+Can't re-use `ivy-last' because using e.g. `swiper' in the same
+buffer would modify `ivy-last'.")
+
+(defvar ivy-occur-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'ivy-occur-click)
+    (define-key map (kbd "RET") 'ivy-occur-press)
+    (define-key map (kbd "j") 'next-line)
+    (define-key map (kbd "k") 'previous-line)
+    (define-key map (kbd "h") 'backward-char)
+    (define-key map (kbd "l") 'forward-char)
+    (define-key map (kbd "g") 'ivy-occur-press)
+    (define-key map (kbd "a") 'ivy-occur-read-action)
+    (define-key map (kbd "o") 'ivy-occur-dispatch)
+    map)
+  "Keymap for Ivy Occur mode.")
+
+(define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
+  "Major mode for output from \\[ivy-occur].
+
+\\{ivy-occur-mode-map}")
+
+(defvar ivy-occur-grep-mode-map
+  (let ((map (copy-keymap ivy-occur-mode-map)))
+    (define-key map (kbd "C-x C-q") 'ivy-wgrep-change-to-wgrep-mode)
+    map)
+  "Keymap for Ivy Occur Grep mode.")
+
+(define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
+  "Major mode for output from \\[ivy-occur].
+
+\\{ivy-occur-grep-mode-map}")
+
+(defun ivy-occur ()
+  "Stop completion and put the current matches into a new buffer.
+
+The new buffer will also remember the current action(s).
+
+While in the *ivy-occur* buffer, selecting a cadidate with RET or
+a mouse click will call the appropriate action for that candidate.
+
+It's possible to have an unlimited amount of *ivy-occur* buffers."
+  (interactive)
+  (let ((buffer
+         (generate-new-buffer
+          (format "*ivy-occur%s \"%s\"*"
+                  (let (caller)
+                    (if (setq caller (ivy-state-caller ivy-last))
+                        (concat " " (prin1-to-string caller))
+                      ""))
+                  ivy-text)))
+        (do-grep (eq (ivy-state-caller ivy-last) 'counsel-git-grep)))
+    (with-current-buffer buffer
+      (if do-grep
+          (ivy-occur-grep-mode)
+        (ivy-occur-mode))
+      (setf (ivy-state-text ivy-last) ivy-text)
+      (setq ivy-occur-last ivy-last)
+      (setq-local ivy--directory ivy--directory)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (when do-grep
+          ;; Need precise number of header lines for `wgrep' to work.
+          (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                          default-directory)))
+        (insert (format "%d candidates:\n" (length ivy--old-cands)))
+        (dolist (cand ivy--old-cands)
+          (let ((str (if do-grep
+                         (concat "./" cand)
+                       (concat "    " cand))))
+            (add-text-properties
+             0 (length str)
+             `(mouse-face
+               highlight
+               help-echo "mouse-1: call ivy-action")
+             str)
+            (insert str "\n")))))
+    (ivy-exit-with-action
+     `(lambda (_) (pop-to-buffer ,buffer)))))
+
+(declare-function wgrep-change-to-wgrep-mode "ext:wgrep")
+
+(defun ivy-wgrep-change-to-wgrep-mode ()
+  "Forward to `wgrep-change-to-wgrep-mode'."
+  (interactive)
+  (if (require 'wgrep nil 'noerror)
+      (wgrep-change-to-wgrep-mode)
+    (error "Package wgrep isn't installed")))
+
+(defun ivy-occur-read-action ()
+  "Select one of the available actions as the current one."
+  (interactive)
+  (let ((ivy-last ivy-occur-last))
+    (ivy-read-action)))
+
+(defun ivy-occur-dispatch ()
+  "Call one of the available actions on the current item."
+  (interactive)
+  (let* ((state-action (ivy-state-action ivy-occur-last))
+         (actions (if (symbolp state-action)
+                      state-action
+                    (copy-sequence state-action))))
+    (unwind-protect
+         (progn
+           (ivy-occur-read-action)
+           (ivy-occur-press))
+      (setf (ivy-state-action ivy-occur-last) actions))))
+
+(defun ivy-occur-click (event)
+  "Execute action for the current candidate.
+EVENT gives the mouse position."
+  (interactive "e")
+  (let ((window (posn-window (event-end event)))
+        (pos (posn-point (event-end event))))
+    (with-current-buffer (window-buffer window)
+      (goto-char pos)
+      (ivy-occur-press))))
+
+(defun ivy-occur-press ()
+  "Execute action for the current candidate."
+  (interactive)
+  (require 'pulse)
+  (when (save-excursion
+          (beginning-of-line)
+          (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
+    (let* ((ivy-last ivy-occur-last)
+           (ivy-text (ivy-state-text ivy-last))
+           (str (buffer-substring
+                 (match-beginning 1)
+                 (match-end 1)))
+           (coll (ivy-state-collection ivy-last))
+           (action (ivy--get-action ivy-last))
+           (ivy-exit 'done))
+      (with-ivy-window
+        (funcall action
+                 (if (and (consp coll)
+                          (consp (car coll)))
+                     (cdr (assoc str coll))
+                   str))
+        (if (memq (ivy-state-caller ivy-last)
+                  '(swiper counsel-git-grep))
+            (with-current-buffer (window-buffer (selected-window))
+              (swiper--cleanup)
+              (swiper--add-overlays
+               (ivy--regex ivy-text)
+               (line-beginning-position)
+               (line-end-position)
+               (selected-window))
+              (run-at-time 0.5 nil 'swiper--cleanup))
+          (pulse-momentary-highlight-one-line (point)))))))
 
 (provide 'ivy)
 
