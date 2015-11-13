@@ -295,11 +295,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defvar swiper--len 0
   "The last length of input for which an anchoring was made.")
 
+(declare-function evil-jumper--set-jump "ext:evil-jumper")
+
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
   (setq swiper--opoint (point))
   (setq swiper--len 0)
-  (setq swiper--anchor (line-number-at-pos)))
+  (setq swiper--anchor (line-number-at-pos))
+  (when (bound-and-true-p evil-jumper-mode)
+    (evil-jumper--set-jump)))
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.

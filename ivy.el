@@ -2167,6 +2167,8 @@ buffer would modify `ivy-last'.")
 
 \\{ivy-occur-grep-mode-map}")
 
+(defvar counsel-git-grep-cmd)
+
 (defun ivy-occur ()
   "Stop completion and put the current matches into a new buffer.
 
