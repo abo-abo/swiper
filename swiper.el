@@ -228,6 +228,7 @@
                                  occur-mode
                                  occur-edit-mode
                                  bongo-mode
+                                 eww-mode
                                  w3m-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
