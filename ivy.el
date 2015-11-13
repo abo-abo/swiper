@@ -911,7 +911,9 @@ For each entry, nil means no sorting.  It's very useful to turn
 off the sorting for functions that have candidates in the natural
 buffer order, like `org-refile' or `Man-goto-section'.
 
-The entry associated to t is used for all fall-through cases."
+The entry associated to t is used for all fall-through cases.
+
+See also `ivy-sort-max-size'."
   :type
   '(alist
     :key-type (choice
