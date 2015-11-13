@@ -1726,6 +1726,15 @@ not matched collection functions.
 The alist VAL is a sorting function with the signature of
 `ivy--prefix-sort'.")
 
+(defun ivy--sort-files-by-date (_name candidates)
+  "Re-soft CANDIDATES according to file modification date."
+  (let ((default-directory ivy--directory))
+    (cl-sort candidates
+             (lambda (f1 f2)
+               (time-less-p
+                (nth 5 (file-attributes f2))
+                (nth 5 (file-attributes f1)))))))
+
 (defun ivy--sort (name candidates)
   "Re-sort CANDIDATES according to NAME.
 All CANDIDATES are assumed to match NAME."
