@@ -1663,6 +1663,10 @@ You can toggle this to make `case-fold-search' nil regardless of input."
   ;; reset cache so that the candidate list updates
   (setq ivy--old-re nil))
 
+(defcustom ivy-prefix-sort nil
+  "When non-nil, put prefix matches ahead of the other matches."
+  :type 'boolean)
+
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
@@ -1710,10 +1714,28 @@ CANDIDATES are assumed to be static."
                          res)))))
         (ivy--recompute-index name re-str cands)
         (setq ivy--old-re (if cands re-str ""))
-        (when (and (require 'flx nil 'noerror)
-                   (eq ivy--regex-function 'ivy--regex-fuzzy))
-          (setq cands (ivy--flx-sort name cands)))
+        (if (and (require 'flx nil 'noerror)
+                 (eq ivy--regex-function 'ivy--regex-fuzzy))
+            (setq cands (ivy--flx-sort name cands))
+          (when ivy-prefix-sort
+            (setq cands (ivy--prefix-sort name cands))))
         (setq ivy--old-cands cands)))))
+
+(defun ivy--prefix-sort (name candidates)
+  "Re-sort CANDIDATES.
+Prefix matches to NAME are put ahead of the list."
+  (if (or (string-match "^\\^" name) (string= name ""))
+      candidates
+    (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
+          res-prefix
+          res-noprefix)
+      (dolist (s candidates)
+        (if (string-match re-prefix s)
+            (push s res-prefix)
+          (push s res-noprefix)))
+      (nconc
+       (nreverse res-prefix)
+       (nreverse res-noprefix)))))
 
 (defun ivy--recompute-index (name re-str cands)
   (let* ((caller (ivy-state-caller ivy-last))
