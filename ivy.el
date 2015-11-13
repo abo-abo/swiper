@@ -1663,10 +1663,6 @@ You can toggle this to make `case-fold-search' nil regardless of input."
   ;; reset cache so that the candidate list updates
   (setq ivy--old-re nil))
 
-(defcustom ivy-prefix-sort nil
-  "When non-nil, put prefix matches ahead of the other matches."
-  :type 'boolean)
-
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
@@ -1714,12 +1710,37 @@ CANDIDATES are assumed to be static."
                          res)))))
         (ivy--recompute-index name re-str cands)
         (setq ivy--old-re (if cands re-str ""))
-        (if (and (require 'flx nil 'noerror)
-                 (eq ivy--regex-function 'ivy--regex-fuzzy))
-            (setq cands (ivy--flx-sort name cands))
-          (when ivy-prefix-sort
-            (setq cands (ivy--prefix-sort name cands))))
-        (setq ivy--old-cands cands)))))
+        (setq ivy--old-cands (ivy--sort name cands))))))
+
+(defcustom ivy-sort-matches-functions-alist '((t . nil))
+  "An alist of functions used to sort the matching candidates.
+
+This is different from `ivy-sort-functions-alist', which is used
+to sort the whole collection only once.  The functions taken from
+here are instead used on each input change, but they are used
+only on already matching candidates, not on all of them.
+
+The alist KEY is a collection function or t to match previously
+not matched collection functions.
+
+The alist VAL is a sorting function with the signature of
+`ivy--prefix-sort'.")
+
+(defun ivy--sort (name candidates)
+  "Re-sort CANDIDATES according to NAME.
+All CANDIDATES are assumed to match NAME."
+  (let ((key (or (ivy-state-caller ivy-last)
+                 (when (functionp (ivy-state-collection ivy-last))
+                   (ivy-state-collection ivy-last))))
+        fun)
+    (cond ((and (require 'flx nil 'noerror)
+                (eq ivy--regex-function 'ivy--regex-fuzzy))
+           (ivy--flx-sort name candidates))
+          ((setq fun (cdr (or (assoc key ivy-sort-matches-functions-alist)
+                              (assoc t ivy-sort-matches-functions-alist))))
+           (funcall fun name candidates))
+          (t
+           candidates))))
 
 (defun ivy--prefix-sort (name candidates)
   "Re-sort CANDIDATES.
