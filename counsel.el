@@ -646,10 +646,12 @@ Update the minibuffer with the amount of lines collected every
       (delete-process process))))
 
 ;;;###autoload
-(defun counsel-locate ()
-  "Call locate shell command."
+(defun counsel-locate (&optional initial-input)
+  "Call the \"locate\" shell command.
+INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (ivy-read "Locate: " #'counsel-locate-function
+            :initial-input initial-input
             :dynamic-collection t
             :history 'counsel-locate-history
             :action (lambda (file)
