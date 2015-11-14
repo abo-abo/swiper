@@ -264,13 +264,17 @@
           (goto-char (point-min))
           (swiper-font-lock-ensure)
           (while (< (point) (point-max))
-            (let ((str (concat " " (buffer-substring
-                                    (point)
-                                    (if swiper-use-visual-line
-                                        (save-excursion
-                                          (end-of-visual-line)
-                                          (point))
-                                      (line-end-position))))))
+            (let ((str (concat
+                        " "
+                        (replace-regexp-in-string
+                         "\t" "    "
+                         (buffer-substring
+                          (point)
+                          (if swiper-use-visual-line
+                              (save-excursion
+                                (end-of-visual-line)
+                                (point))
+                            (line-end-position)))))))
               (put-text-property 0 1 'display
                                  (format swiper--format-spec
                                          (cl-incf line-number))
