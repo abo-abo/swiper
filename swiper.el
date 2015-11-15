@@ -298,19 +298,11 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy initial-input))
 
-(defvar swiper--anchor nil
-  "A line number to which the search should be anchored.")
-
-(defvar swiper--len 0
-  "The last length of input for which an anchoring was made.")
-
 (declare-function evil-jumper--set-jump "ext:evil-jumper")
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
   (setq swiper--opoint (point))
-  (setq swiper--len 0)
-  (setq swiper--anchor (line-number-at-pos))
   (when (bound-and-true-p evil-jumper-mode)
     (evil-jumper--set-jump)))
 
@@ -348,24 +340,27 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (setq swiper-invocation-face
         (plist-get (text-properties-at (point)) 'face))
   (let ((candidates (swiper--candidates))
-        (preselect (buffer-substring-no-properties
-                    (line-beginning-position)
-                    (line-end-position)))
+        (preselect
+         (if (bound-and-true-p visual-line-mode)
+             (concat " " (buffer-substring-no-properties
+                          (line-beginning-position)
+                          (line-end-position)))
+           (1- (line-number-at-pos))))
         (minibuffer-allow-text-properties t))
     (unwind-protect
-        (ivy-read
-         "Swiper: "
-         candidates
-         :initial-input initial-input
-         :keymap swiper-map
-         :preselect preselect
-         :require-match t
-         :update-fn #'swiper--update-input-ivy
-         :unwind #'swiper--cleanup
-         :action #'swiper--action
-         :re-builder #'swiper--re-builder
-         :history 'swiper-history
-         :caller 'swiper)
+         (ivy-read
+          "Swiper: "
+          candidates
+          :initial-input initial-input
+          :keymap swiper-map
+          :preselect preselect
+          :require-match t
+          :update-fn #'swiper--update-input-ivy
+          :unwind #'swiper--cleanup
+          :action #'swiper--action
+          :re-builder #'swiper--re-builder
+          :history 'swiper-history
+          :caller 'swiper)
       (when (null ivy-exit)
         (goto-char swiper--opoint)))))
 

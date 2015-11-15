@@ -1293,13 +1293,15 @@ When MATCHER is non-nil it's used instead of `cl-remove-if-not'."
                  candidates))))
     (when matcher
       (setq candidates (funcall matcher "" candidates))))
-  (or (cl-position preselect candidates :test #'equal)
-      (and (stringp preselect)
-           (let ((re (regexp-quote preselect)))
-             (cl-position-if
-              (lambda (x)
-                (string-match re x))
-              candidates)))))
+  (cond ((integerp preselect)
+         preselect)
+        ((cl-position preselect candidates :test #'equal))
+        ((stringp preselect)
+         (let ((re (regexp-quote preselect)))
+           (cl-position-if
+            (lambda (x)
+              (string-match re x))
+            candidates)))))
 
 ;;* Implementation
 ;;** Regex
