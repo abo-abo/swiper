@@ -343,8 +343,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (preselect
          (if (bound-and-true-p visual-line-mode)
              (concat " " (buffer-substring-no-properties
-                          (line-beginning-position)
-                          (line-end-position)))
+                          (save-excursion (beginning-of-visual-line) (point))
+                          (save-excursion (end-of-visual-line) (point))))
            (1- (line-number-at-pos))))
         (minibuffer-allow-text-properties t))
     (unwind-protect
