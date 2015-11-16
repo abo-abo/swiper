@@ -342,9 +342,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (let ((candidates (swiper--candidates))
         (preselect
          (if (bound-and-true-p visual-line-mode)
-             (concat " " (buffer-substring-no-properties
-                          (save-excursion (beginning-of-visual-line) (point))
-                          (save-excursion (end-of-visual-line) (point))))
+             (count-screen-lines
+              (point-min)
+              (save-excursion (beginning-of-visual-line) (point)))
            (1- (line-number-at-pos))))
         (minibuffer-allow-text-properties t))
     (unwind-protect
