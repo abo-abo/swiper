@@ -250,10 +250,14 @@
 NUMBERS-WIDTH, when specified, is used for line numbers width
 spec, instead of calculating it as the log of the buffer line
 count."
-  (setq swiper-use-visual-line
-        (and (not (eq major-mode 'org-mode))
-             visual-line-mode
-             (< (buffer-size) 20000)))
+  (if (and visual-line-mode
+           ;; super-slow otherwise
+           (< (buffer-size) 20000))
+      (progn
+        (when (eq major-mode 'org-mode)
+          (outline-show-all))
+        (setq swiper-use-visual-line t))
+    (setq swiper-use-visual-line nil))
   (let ((n-lines (count-lines (point-min) (point-max))))
     (unless (zerop n-lines)
       (setq swiper--width (or numbers-width
@@ -341,7 +345,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (plist-get (text-properties-at (point)) 'face))
   (let ((candidates (swiper--candidates))
         (preselect
-         (if (bound-and-true-p visual-line-mode)
+         (if swiper-use-visual-line
              (count-screen-lines
               (point-min)
               (save-excursion (beginning-of-visual-line) (point)))
