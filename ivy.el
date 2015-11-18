@@ -1222,7 +1222,7 @@ This is useful for recursive `ivy-read'."
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
-                              history def _inherit-input-method)
+                            history def _inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This is an interface that conforms to `completing-read', so that
@@ -1238,25 +1238,41 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
-  (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-            collection
-            :predicate predicate
-            :require-match require-match
-            :initial-input (if (consp initial-input)
-                               (car initial-input)
-                             (if (and (stringp initial-input)
-                                      (string-match "\\+" initial-input))
-                                 (replace-regexp-in-string
-                                  "\\+" "\\\\+" initial-input)
-                               initial-input))
-            :preselect (if (listp def) (car def) def)
-            :history history
-            :keymap nil
-            :sort
-            (let ((sort (assoc this-command ivy-sort-functions-alist)))
-              (if sort
-                  (cdr sort)
-                t))))
+  ;; according to the documentation of completing-read, the history may be a
+  ;; symbol or a cons (ffap gives a list also). In the later case, the help asks
+  ;; to set the initial-input accordingly to position in the cdr of history.
+  (let ((initial-input initial-input))
+    (when (or
+           (consp history)
+           (listp history))
+      ;; update the initial-input value according to the histpos
+      (when (cdr history)
+        (setq initial-input
+              (nth
+               (1- (cdr history))
+               (symbol-value (car history))
+               )))
+      ;; update the history according to the histvar
+      (setq history (car history)))
+    (ivy-read (replace-regexp-in-string "%" "%%" prompt)
+              collection
+              :predicate predicate
+              :require-match require-match
+              :initial-input (if (consp initial-input)
+                                 (car initial-input)
+                               (if (and (stringp initial-input)
+                                        (string-match "\\+" initial-input))
+                                   (replace-regexp-in-string
+                                    "\\+" "\\\\+" initial-input)
+                                 initial-input))
+              :preselect (if (listp def) (car def) def)
+              :history history
+              :keymap nil
+              :sort
+              (let ((sort (assoc this-command ivy-sort-functions-alist)))
+                (if sort
+                    (cdr sort)
+                  t)))))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
