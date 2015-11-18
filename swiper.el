@@ -105,14 +105,13 @@
     (let* ((enable-recursive-minibuffers t)
            (from (ivy--regex ivy-text))
            (to (query-replace-read-to from "Query replace" t)))
-      (delete-minibuffer-contents)
-      (ivy-set-action (lambda (_)
-                        (with-ivy-window
-                          (move-beginning-of-line 1)
-                          (perform-replace from to
-                                           t t nil))))
       (swiper--cleanup)
-      (exit-minibuffer))))
+      (ivy-exit-with-action
+       (lambda (_)
+         (with-ivy-window
+           (move-beginning-of-line 1)
+           (perform-replace from to
+                            t t nil)))))))
 
 (defvar avy-background)
 (defvar avy-all-windows)
@@ -185,16 +184,14 @@
     (error "multiple-cursors isn't installed"))
   (let ((cands (nreverse ivy--old-cands)))
     (unless (string= ivy-text "")
-      (ivy-set-action
+      (ivy-exit-with-action
        (lambda (_)
          (let (cand)
            (while (setq cand (pop cands))
              (swiper--action cand)
              (when cands
                (mc/create-fake-cursor-at-point))))
-         (multiple-cursors-mode 1)))
-      (setq ivy-exit 'done)
-      (exit-minibuffer))))
+         (multiple-cursors-mode 1))))))
 
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG)."

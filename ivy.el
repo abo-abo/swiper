@@ -285,7 +285,7 @@ When non-nil, it should contain one %d.")
   "Quit the minibuffer and call ACTION afterwards."
   (ivy-set-action
    `(lambda (x)
-      (funcall ,action x)
+      (funcall ',action x)
       (ivy-set-action ',(ivy-state-action ivy-last))))
   (setq ivy-exit 'done)
   (exit-minibuffer))
@@ -736,12 +736,9 @@ If so, move to that directory, while keeping only the file name."
     (let ((input (ivy--input))
           url)
       (if (setq url (ffap-url-p input))
-          (progn
-            (ivy-set-action
-             (lambda (_)
-               (funcall ffap-url-fetcher url)))
-            (setq ivy-exit 'done)
-            (exit-minibuffer))
+          (ivy-exit-with-action
+           (lambda (_)
+             (funcall ffap-url-fetcher url)))
         (setq input (expand-file-name input))
         (let ((file (file-name-nondirectory input))
               (dir (expand-file-name (file-name-directory input))))

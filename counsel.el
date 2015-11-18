@@ -159,14 +159,12 @@
 (defun counsel-find-symbol ()
   "Jump to the definition of the current symbol."
   (interactive)
-  (ivy-set-action #'counsel--find-symbol)
-  (ivy-done))
+  (ivy-exit-with-action #'counsel--find-symbol))
 
 (defun counsel--info-lookup-symbol ()
   "Lookup the current symbol in the info docs."
   (interactive)
-  (ivy-set-action #'counsel-info-lookup-symbol)
-  (ivy-done))
+  (ivy-exit-with-action #'counsel-info-lookup-symbol))
 
 (defun counsel--find-symbol (x)
   "Find symbol definition that corresponds to string X."
@@ -392,7 +390,7 @@
     (let* ((enable-recursive-minibuffers t)
            (from (ivy--regex ivy-text))
            (to (query-replace-read-to from "Query replace" t)))
-      (ivy-set-action
+      (ivy-exit-with-action
        (lambda (_)
          (let (done-buffers)
            (dolist (cand ivy--old-cands)
@@ -404,9 +402,7 @@
                      (push file-name done-buffers)
                      (find-file file-name)
                      (goto-char (point-min)))
-                   (perform-replace from to t t nil))))))))
-      (setq ivy-exit 'done)
-      (exit-minibuffer))))
+                   (perform-replace from to t t nil)))))))))))
 
 (defun counsel-git-grep-recenter ()
   (interactive)
