@@ -1238,6 +1238,12 @@ DEF is the default value.
 _INHERIT-INPUT-METHOD is ignored for now.
 
 The history, defaults and input-method arguments are ignored for now."
+  ;; See the doc of `completing-read'.
+  (when (consp history)
+    (when (numberp (cdr history))
+      (setq initial-input (nth (cdr history)
+                               (symbol-value (car history)))))
+    (setq history (car history)))
   (ivy-read (replace-regexp-in-string "%" "%%" prompt)
             collection
             :predicate predicate
