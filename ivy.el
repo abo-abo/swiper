@@ -435,9 +435,13 @@ When ARG is t, exit with current text, ignoring the candidates."
            (ivy-done))
           ((and ivy--directory
                 (or (and (equal ivy--directory "/")
-                         (string-match
-                          "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                          ivy-text))
+                         (cond ((string-match
+                                 "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                                 ivy-text))
+                               ((string-match
+                                 "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                                 ivy--current)
+                                (setq ivy-text ivy--current))))
                     (string-match
                      "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                      ivy-text)))
