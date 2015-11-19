@@ -393,31 +393,69 @@ When ARG is t, exit with current text, ignoring the candidates."
   (let (dir)
     (cond (arg
            (ivy-immediate-done))
-          ((and ivy--directory
-                (equal ivy-text "/sudo::"))
-           (setq dir (concat ivy-text ivy--directory))
-           (ivy--cd dir)
-           (ivy--exhibit))
-          ((and ivy--directory
-                (or
-                 (and
-                  (not (equal ivy-text ""))
-                  (ignore-errors
-                    (file-directory-p
-                     (setq dir
-                           (file-name-as-directory
-                            (expand-file-name
-                             ivy-text ivy--directory))))))
-                 (and
-                  (not (string= ivy--current "./"))
-                  (cl-plusp ivy--length)
-                  (ignore-errors
-                    (file-directory-p
-                     (setq dir (file-name-as-directory
-                                (expand-file-name
-                                 ivy--current ivy--directory))))))))
-           (ivy--cd dir)
-           (ivy--exhibit))
+          (ivy--directory
+           (cond
+             ((equal ivy-text "/sudo::")
+              (setq dir (concat ivy-text ivy--directory))
+              (ivy--cd dir)
+              (ivy--exhibit))
+             ((or
+               (and
+                (not (equal ivy-text ""))
+                (ignore-errors
+                  (file-directory-p
+                   (setq dir
+                         (file-name-as-directory
+                          (expand-file-name
+                           ivy-text ivy--directory))))))
+               (and
+                (not (string= ivy--current "./"))
+                (cl-plusp ivy--length)
+                (ignore-errors
+                  (file-directory-p
+                   (setq dir (file-name-as-directory
+                              (expand-file-name
+                               ivy--current ivy--directory)))))))
+              (ivy--cd dir)
+              (ivy--exhibit))
+             ((or (and (equal ivy--directory "/")
+                       (string-match "\\`[^/]+:.*:.*\\'" ivy-text))
+                  (string-match "\\`/[^/]+:.*:.*\\'" ivy-text))
+              (ivy-done))
+             ((or (and (equal ivy--directory "/")
+                       (cond ((string-match
+                               "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                               ivy-text))
+                             ((string-match
+                               "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                               ivy--current)
+                              (setq ivy-text ivy--current))))
+                  (string-match
+                   "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                   ivy-text))
+              (let ((method (match-string 1 ivy-text))
+                    (user (match-string 2 ivy-text))
+                    (rest (match-string 3 ivy-text))
+                    res)
+                (require 'tramp)
+                (dolist (x (tramp-get-completion-function method))
+                  (setq res (append res (funcall (car x) (cadr x)))))
+                (setq res (delq nil res))
+                (when user
+                  (dolist (x res)
+                    (setcar x user)))
+                (setq res (cl-delete-duplicates res :test #'equal))
+                (let* ((old-ivy-last ivy-last)
+                       (enable-recursive-minibuffers t)
+                       (host (ivy-read "Find File: "
+                                       (mapcar #'ivy-build-tramp-name res)
+                                       :initial-input rest)))
+                  (setq ivy-last old-ivy-last)
+                  (when host
+                    (setq ivy--directory "/")
+                    (ivy--cd (concat "/" method ":" host ":"))))))
+             (t
+              (ivy-done))))
           ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
            (if (or (equal ivy--current "(./)")
                    (equal ivy--current "(../)"))
@@ -428,44 +466,6 @@ When ARG is t, exit with current text, ignoring the candidates."
                                      (expand-file-name x ivy--directory)
                                      "Top"))))
              (ivy-done)))
-          ((and ivy--directory
-                (or (and (equal ivy--directory "/")
-                         (string-match "\\`[^/]+:.*:.*\\'" ivy-text))
-                    (string-match "\\`/[^/]+:.*:.*\\'" ivy-text)))
-           (ivy-done))
-          ((and ivy--directory
-                (or (and (equal ivy--directory "/")
-                         (cond ((string-match
-                                 "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                                 ivy-text))
-                               ((string-match
-                                 "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                                 ivy--current)
-                                (setq ivy-text ivy--current))))
-                    (string-match
-                     "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                     ivy-text)))
-           (let ((method (match-string 1 ivy-text))
-                 (user (match-string 2 ivy-text))
-                 (rest (match-string 3 ivy-text))
-                 res)
-             (require 'tramp)
-             (dolist (x (tramp-get-completion-function method))
-               (setq res (append res (funcall (car x) (cadr x)))))
-             (setq res (delq nil res))
-             (when user
-               (dolist (x res)
-                 (setcar x user)))
-             (setq res (cl-delete-duplicates res :test #'equal))
-             (let* ((old-ivy-last ivy-last)
-                    (enable-recursive-minibuffers t)
-                    (host (ivy-read "Find File: "
-                                    (mapcar #'ivy-build-tramp-name res)
-                                    :initial-input rest)))
-               (setq ivy-last old-ivy-last)
-               (when host
-                 (setq ivy--directory "/")
-                 (ivy--cd (concat "/" method ":" host ":"))))))
           (t
            (ivy-done)))))
 
