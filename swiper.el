@@ -241,6 +241,8 @@
 (defvar swiper-use-visual-line nil
   "When non-nil, use `line-move' instead of `forward-line'.")
 
+(declare-function outline-show-all "outline")
+
 (defun swiper--candidates (&optional numbers-width)
   "Return a list of this buffer lines.
 
