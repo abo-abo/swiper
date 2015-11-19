@@ -411,9 +411,11 @@ When ARG is t, exit with current text, ignoring the candidates."
                  (and
                   (not (string= ivy--current "./"))
                   (cl-plusp ivy--length)
-                  (file-directory-p
-                   (setq dir (expand-file-name
-                              ivy--current ivy--directory))))))
+                  (ignore-errors
+                    (file-directory-p
+                     (setq dir (file-name-as-directory
+                                (expand-file-name
+                                 ivy--current ivy--directory))))))))
            (ivy--cd dir)
            (ivy--exhibit))
           ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
@@ -427,12 +429,18 @@ When ARG is t, exit with current text, ignoring the candidates."
                                      "Top"))))
              (ivy-done)))
           ((and ivy--directory
-                (string-match "\\`/[^/]+:.*:.*\\'" ivy-text))
+                (or (and (equal ivy--directory "/")
+                         (string-match "\\`[^/]+:.*:.*\\'" ivy-text))
+                    (string-match "\\`/[^/]+:.*:.*\\'" ivy-text)))
            (ivy-done))
           ((and ivy--directory
-                (string-match
-                 "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                 ivy-text))
+                (or (and (equal ivy--directory "/")
+                         (string-match
+                          "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                          ivy-text))
+                    (string-match
+                     "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                     ivy-text)))
            (let ((method (match-string 1 ivy-text))
                  (user (match-string 2 ivy-text))
                  (rest (match-string 3 ivy-text))
@@ -466,13 +474,16 @@ When ARG is t, exit with current text, ignoring the candidates."
 If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (if (and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
-           (string-match "\\`/" ivy-text))
+           (or (and (equal ivy--directory "/")
+                    (string-match "\\`[^/]+:.*\\'" ivy-text))
+               (string-match "\\`/" ivy-text)))
       (let ((default-directory ivy--directory))
         (minibuffer-complete)
         (setq ivy-text (ivy--input))
-        (when (and (file-directory-p ivy-text)
-                   (= ivy--length 1))
-          (ivy--cd (expand-file-name ivy-text))))
+        (when (file-directory-p
+               (expand-file-name ivy-text ivy--directory))
+          (ivy--cd (file-name-as-directory
+                    (expand-file-name ivy-text ivy--directory)))))
     (or (ivy-partial)
         (when (or (eq this-command last-command)
                   (eq ivy--length 1))
