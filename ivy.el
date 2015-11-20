@@ -1121,8 +1121,7 @@ This is useful for recursive `ivy-read'."
         (re-builder (ivy-state-re-builder state))
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
-        (require-match (ivy-state-require-match state))
-        (matcher (ivy-state-matcher state)))
+        (require-match (ivy-state-require-match state)))
     (unless initial-input
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
@@ -1199,11 +1198,14 @@ This is useful for recursive `ivy-read'."
                         (and dynamic-collection
                              ivy--index)
                         (and preselect
-                             (ivy--preselect-index
-                              coll initial-input preselect matcher))
+                             (ivy--preselect-index preselect coll))
                         0))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
+      (when initial-input
+        ;; Needed for anchor to work
+        (setq ivy--old-cands coll)
+        (setq ivy--old-cands (ivy--filter initial-input coll)))
       (setq ivy--all-candidates coll))
     (setq ivy-exit nil)
     (setq ivy--default (or
@@ -1300,21 +1302,8 @@ Minibuffer bindings:
       (setq completing-read-function 'ivy-completing-read)
     (setq completing-read-function 'completing-read-default)))
 
-(defun ivy--preselect-index (candidates initial-input preselect matcher)
-  "Return the index in CANDIDATES filtered by INITIAL-INPUT for PRESELECT.
-When MATCHER is non-nil it's used instead of `cl-remove-if-not'."
-  (if initial-input
-      (progn
-        (setq initial-input (ivy--regex-plus initial-input))
-        (setq candidates
-              (if matcher
-                  (funcall matcher initial-input candidates)
-                (cl-remove-if-not
-                 (lambda (x)
-                   (string-match initial-input x))
-                 candidates))))
-    (when matcher
-      (setq candidates (funcall matcher "" candidates))))
+(defun ivy--preselect-index (preselect candidates)
+  "Return the index of PRESELECT in CANDIDATES."
   (cond ((integerp preselect)
          preselect)
         ((cl-position preselect candidates :test #'equal))
@@ -1821,10 +1810,8 @@ Prefix matches to NAME are put ahead of the list."
                (not (equal ivy--old-re "")))
       (setq ivy--index
             (or (ivy--preselect-index
-                 cands
-                 nil
                  (ivy-state-preselect ivy-last)
-                 nil)
+                 cands)
                 ivy--index)))))
 
 (defun ivy-recompute-index-swiper (_re-str cands)
