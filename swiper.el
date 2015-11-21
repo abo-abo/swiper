@@ -254,6 +254,7 @@ count."
            (< (buffer-size) 20000))
       (progn
         (when (eq major-mode 'org-mode)
+          (require 'outline)
           (outline-show-all))
         (setq swiper-use-visual-line t))
     (setq swiper-use-visual-line nil))
