@@ -1594,8 +1594,9 @@ Should be run via minibuffer `post-command-hook'."
                        (ivy--buffer-list "" ivy-use-virtual-buffers)))
                (setq ivy--old-re nil))))
       (ivy--insert-minibuffer
-       (ivy--format
-        (ivy--filter ivy-text ivy--all-candidates)))
+       (with-current-buffer (ivy-state-buffer ivy-last)
+         (ivy--format
+          (ivy--filter ivy-text ivy--all-candidates))))
       (setq ivy--old-text ivy-text))))
 
 (defun ivy--insert-minibuffer (text)
@@ -1823,7 +1824,17 @@ Prefix matches to NAME are put ahead of the list."
             ;; Compare with eq to handle equal duplicates in cands
             (setq idx (cl-position (pop tail) cands)))
           (or idx 0))
-      ivy--index)))
+      (if ivy--old-cands
+          ivy--index
+        ;; already in ivy-state-buffer
+        (let ((n (line-number-at-pos))
+              (res 0)
+              (i 0))
+          (dolist (c cands)
+            (when (eq n (read (get-text-property 0 'display c)))
+              (setq res i))
+            (cl-incf i))
+          res)))))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
   0)
