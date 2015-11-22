@@ -513,8 +513,9 @@ WND, when specified is the window."
       (swiper--ensure-visible)
       (when (/= (point) swiper--opoint)
         (unless (and transient-mark-mode mark-active)
-          (push-mark swiper--opoint t)
-          (message "Mark saved where search started"))))))
+          (when (eq ivy-exit 'done)
+            (push-mark swiper--opoint t)
+            (message "Mark saved where search started")))))))
 
 ;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
 (defun swiper-from-isearch ()
