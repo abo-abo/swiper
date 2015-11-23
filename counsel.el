@@ -1104,7 +1104,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format "ag --noheading --nocolor %S" regex))
+       (format "ag --vimgrep %S" regex))
       nil)))
 
 (defun counsel-ag (&optional initial-input initial-directory)
