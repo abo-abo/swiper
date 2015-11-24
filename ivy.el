@@ -1382,7 +1382,16 @@ When GREEDY is non-nil, join words in a greedy way."
 
 (defun ivy--regex-ignore-order (str)
   "Re-build regex from STR by splitting it on spaces.
-Ignore the order of each group."
+Ignore the order of each group.
+
+ATTENTION: This is a proof of concept and may not work as you
+expect. It will match as many groups as there are in the STR, but
+won't make sure that the matches are distinct. For instance, if
+you type 'foo bar', anything that contains 'foo' and 'bar', 'bar'
+and 'foo' will be matched, but also anything that contains 'foo'
+twice or 'bar' twice. If you want to find all candidates containing 'foo' and
+'bar' in any order, consider using `ivy-restrict-to-matches' instead.
+"
   (let* ((subs (split-string str " +" t))
          (len (length subs)))
     (cl-case len
