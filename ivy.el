@@ -539,6 +539,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-resume ()
   "Resume the last completion session."
   (interactive)
+  (when (eq (ivy-state-caller ivy-last) 'swiper)
+    (switch-to-buffer (ivy-state-buffer ivy-last)))
   (with-current-buffer (ivy-state-buffer ivy-last)
     (ivy-read
      (ivy-state-prompt ivy-last)
