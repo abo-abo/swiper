@@ -1194,19 +1194,23 @@ This is useful for recursive `ivy-read'."
                       (cl-find-if (lambda (x) (string-match re x))
                                   coll)))
           (setq coll (cons preselect coll))))
-      (setq ivy--index (or
-                        (and dynamic-collection
-                             ivy--index)
-                        (and preselect
-                             (ivy--preselect-index preselect coll))
-                        0))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
       (when initial-input
         ;; Needed for anchor to work
         (setq ivy--old-cands coll)
         (setq ivy--old-cands (ivy--filter initial-input coll)))
-      (setq ivy--all-candidates coll))
+      (setq ivy--all-candidates coll)
+      (setq ivy--index (or
+                        (and dynamic-collection
+                             ivy--index)
+                        (and preselect
+                             (ivy--preselect-index
+                              preselect
+                              (if initial-input
+                                  ivy--old-cands
+                                coll)))
+                        0)))
     (setq ivy-exit nil)
     (setq ivy--default (or
                         (thing-at-point 'url)
