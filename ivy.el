@@ -947,6 +947,7 @@ See also `ivy-sort-max-size'."
   '((swiper . ivy-recompute-index-swiper)
     (swiper-multi . ivy-recompute-index-swiper)
     (counsel-git-grep . ivy-recompute-index-swiper)
+    (counsel-grep . ivy-recompute-index-swiper-async)
     (t . ivy-recompute-index-zero))
   "An alist of index recomputing functions for each collection function.
 When the input changes, calling the appropriate function will
@@ -1192,6 +1193,7 @@ This is useful for recursive `ivy-read'."
       (when preselect
         (unless (or (and require-match
                          (not (eq collection 'internal-complete-buffer)))
+                    dynamic-collection
                     (let ((re (regexp-quote preselect)))
                       (cl-find-if (lambda (x) (string-match re x))
                                   coll)))
@@ -1850,6 +1852,18 @@ Prefix matches to NAME are put ahead of the list."
               (setq res i))
             (cl-incf i))
           res)))))
+
+(defun ivy-recompute-index-swiper-async (_re-str cands)
+  (let ((tail (nthcdr ivy--index ivy--old-cands))
+        idx)
+    (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+        (progn
+          (while (and tail (null idx))
+            ;; Compare with `equal', since the collection is re-created
+            ;; each time with `split-string'
+            (setq idx (cl-position (pop tail) cands :test #'equal)))
+          (or idx 0))
+      ivy--index)))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
   0)
