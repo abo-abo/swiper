@@ -833,8 +833,8 @@ CAND-PAIR is (command-name . extra-info)."
         cand-pair
       (cons command-name
             (if extra-info
-                (format "%s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
-              (format "(%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
+                (format " %s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
+              (format " (%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
 
 (defvar smex-initialized-p)
 (defvar smex-ido-cache)

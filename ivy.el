@@ -1909,48 +1909,50 @@ This string will be inserted into the minibuffer."
                                     (- (length str) 3))) "...")
     str))
 
-(defun ivy-format-function-default (cand-pairs)
-  "Transform CAND-PAIRS into a string for minibuffer."
+(defun ivy--format-function-generic (selected-fn other-fn cand-pairs separator)
+  "Transform CAND-PAIRS into a string for minibuffer.
+SELECTED-FN and OTHER-FN each take two string arguments.
+SEPARATOR is used to join the candidates."
   (let ((i -1))
     (mapconcat
      (lambda (pair)
-       (let ((stub (car pair))
+       (let ((str (car pair))
              (extra (cdr pair))
              (curr (eq (cl-incf i) ivy--index)))
-         (when curr
-           (ivy--add-face stub 'ivy-current-match))
-         (if extra (format "%s %s" stub extra) stub)))
-     cand-pairs "\n")))
+         (if curr
+             (funcall selected-fn str extra)
+           (funcall other-fn str extra))))
+     cand-pairs
+     separator)))
+
+(defun ivy-format-function-default (cand-pairs)
+  "Transform CAND-PAIRS into a string for minibuffer."
+  (ivy--format-function-generic
+   (lambda (str extra)
+     (concat (ivy--add-face str 'ivy-current-match) extra))
+   #'concat
+   cand-pairs
+   "\n"))
 
 (defun ivy-format-function-arrow (cand-pairs)
   "Transform CAND-PAIRS into a string for minibuffer."
-  (let ((i -1))
-    (mapconcat
-     (lambda (pair)
-       (let ((stub (car pair))
-             (extra (cdr pair))
-             (curr (eq (cl-incf i) ivy--index)))
-         (when curr
-           (ivy--add-face stub 'ivy-current-match))
-         (concat (if curr "> " "  ")
-                 (if extra (format "%s %s" stub extra) stub))))
-     cand-pairs "\n")))
+  (ivy--format-function-generic
+   (lambda (str extra)
+     (concat "> " (ivy--add-face str 'ivy-current-match) extra))
+   (lambda (str extra)
+     (concat "  " str extra))
+   cand-pairs
+   "\n"))
 
 (defun ivy-format-function-line (cand-pairs)
   "Transform CAND-PAIRS into a string for minibuffer."
-  (let ((i -1))
-    (mapconcat
-     (lambda (pair)
-       (let* ((stub (car pair))
-              (extra (cdr pair))
-              (curr (eq (cl-incf i) ivy--index))
-              (line (if extra
-                        (format "%s %s\n" stub extra)
-                      (concat stub "\n"))))
-         (when curr
-           (ivy--add-face line 'ivy-current-match))
-         line))
-     cand-pairs "")))
+  (ivy--format-function-generic
+   (lambda (str extra)
+     (ivy--add-face (concat str extra "\n") 'ivy-current-match))
+   (lambda (str extra)
+     (concat str extra "\n"))
+   cand-pairs
+   ""))
 
 (defface ivy-minibuffer-match-face-1
   '((((class color) (background light))
