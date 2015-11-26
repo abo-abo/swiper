@@ -822,15 +822,19 @@ When NO-ASYNC is non-nil, do it synchronously."
                (when (= 0 (cl-incf counsel-gg-state))
                  (ivy--exhibit)))))))))
 
-(defun counsel--M-x-transformer (cmd)
-  "Add a binding to CMD if it's bound in the current window.
-CMD is a command name."
-  (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
+(defun counsel--M-x-transformer (cand-pair)
+  "Add a binding to CAND-PAIR cdr if the car is bound in the current window.
+CAND-PAIR is (command-name . extra-info)."
+  (let* ((command-name (car cand-pair))
+         (extra-info (cdr cand-pair))
+         (binding (substitute-command-keys (format "\\[%s]" command-name))))
     (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
     (if (string-match "^M-x" binding)
-        cmd
-      (format "%s (%s)" cmd
-              (propertize binding 'face 'font-lock-keyword-face)))))
+        cand-pair
+      (cons command-name
+            (if extra-info
+                (format "%s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
+              (format "(%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
 
 (defvar smex-initialized-p)
 (defvar smex-ido-cache)
@@ -863,11 +867,11 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
                                     ivy-initial-inputs-alist))))
   (let* ((store ivy-format-function)
          (ivy-format-function
-          (lambda (cands)
+          (lambda (cand-pairs)
             (funcall
              store
              (with-ivy-window
-               (mapcar #'counsel--M-x-transformer cands)))))
+               (mapcar #'counsel--M-x-transformer cand-pairs)))))
          (cands obarray)
          (pred 'commandp)
          (sort t))
