@@ -294,3 +294,298 @@ Use this command to exit the minibuffer choosing not the current
 candidate, but the current text.  Bound to ~C-M-j~ or ~C-u C-j~.
 
 See [[https://github.com/abo-abo/swiper/pull/183][#183]].
+
+* 0.7.0
+** Fixes
+*** Fix :dynamic-collection not being sorted
+*** When :initial-input contains a plus, escape it
+See [[https://github.com/abo-abo/swiper/issues/195][#195]].
+*** Set line-spacing to 0 in the minibuffer
+See [[https://github.com/abo-abo/swiper/issues/198][#198]].
+*** Enlarge the minibuffer window if the candidate list doesn't fit
+See [[https://github.com/abo-abo/swiper/issues/198][#198]] and [[https://github.com/abo-abo/swiper/issues/161][#161]] and [[https://github.com/abo-abo/swiper/issues/220][#220]].
+*** Fix minibuffer collapsing to one line
+See [[https://github.com/abo-abo/swiper/issues/237][#237]], [[https://github.com/abo-abo/swiper/issues/229][#229]] and [[https://github.com/abo-abo/swiper/issues/77][#77]].
+*** Use minibuffer-allow-text-properties
+Allows =ivy-read= to return a propertized string.
+*** Improve ~C-g~ out of a long-running async process
+Use =counsel-delete-process= as =:unwind=.
+*** Don't regexp-quote :preselect
+See [[https://github.com/abo-abo/swiper/issues/245][#245]].
+*** Fix ivy-partial for fuzzy completion
+See [[https://github.com/abo-abo/swiper/issues/266][#266]].
+*** ivy-resume should pass :caller
+See [[https://github.com/abo-abo/swiper/issues/245][#245]].
+*** Fix the regression in perfect match logic
+See [[https://github.com/abo-abo/swiper/issues/270][#270]].
+*** Fix pasting file paths on Windows
+*** ~C-j~ should no stop completion for a pasted file path
+*** ~C-M-j~ should use =ivy--directory=
+When completing file names, expand the file name properly.
+See [[https://github.com/abo-abo/swiper/issues/275][#275]].
+*** Use a specific blend method for dark themes
+See [[https://github.com/abo-abo/swiper/issues/278][#278]].
+*** Fix one-off bug in =ivy-scroll-up-command= and =ivy-scroll-down-command=
+*** ~M-o~ shouldn't set the action permanently
+So now it's possible to e.g. =counsel-describe-function= -> ~M-o d~ ->
+=ivy-resume= -> ~M-o o~ -> =ivy-resume= -> ~M-o i~.
+*** Fix swiper preselect issue with similar or identical lines
+See [[https://github.com/abo-abo/swiper/issues/290][#290]].
+*** Make ivy-completing-read handle history as cons
+See [[https://github.com/abo-abo/swiper/issues/295][#295]].
+*** Perform string-match in the original buffer
+The syntax for whitespace, separators etc. is different for modes.  See [[https://github.com/abo-abo/swiper/issues/298][#298]].
+** New Features
+*** =swiper=
+**** Make line numbers into display properties
+Each candidate is now a single space plus the original string.  The
+display property of the single space holds the line number. This means
+that it's no longer possible to match line numbers in queries, which
+is a good thing if you're searching for numbers.
+**** Extend =swiper-font-lock-ensure=
+Add =mu4e-view-mode=, =mu4e-headers-mode=, =help-mode=,
+=elfeed-show-mode=, =emms-stream-mode=, =debbugs-gnu-mode=,
+=occur-mode=, =occur-edit-mode=, =bongo-mode=, =eww-mode=.
+**** Add support for =evil-jumper/backward=
+See [[https://github.com/abo-abo/swiper/issues/268][#268]].
+**** Make compatible with =visual-line-mode=
+=swiper= will split the lines when =visual-line-mode= is on.  This is
+convenient for small buffers. For large buffers, it can be very slow,
+since =visual-line-mode= is slow.
+See [[https://github.com/abo-abo/swiper/issues/227][#227]].
+**** Add =swiper-toggle-face-matching=
+Bound to ~C-c C-f~.
+At each start of =swiper=, the face at point will be stored.
+Use this command to toggle matching only the candidates with that face.
+See [[https://github.com/abo-abo/swiper/issues/288][#288]].
+**** =push-mark= only if exited the minibuffer
+~C-M-n~ and ~C-M-p~ will no longer push mark and annoy with messages.
+**** =ivy-resume= should restore the buffer for =swiper=
+See [[https://github.com/abo-abo/swiper/issues/302][#302]].
+*** =ivy=
+**** Add manual
+In the current state, the manual covers the most basic topics, like
+the minibuffer key bindings and the regexp builders.
+**** Make <left> and <right> behave as in fundamental-mode
+**** Truncate minibuffer prompts longer than window-width
+See [[https://github.com/abo-abo/swiper/issues/240][#240]].
+**** ~C-M-n~ should not leave the minibuffer
+Make sure that the minibuffer window remains selected as long as the
+completion hasn't finished.  For example, ~<f1> f~ to call
+=counsel-describe-function=, input "forward" and spam ~C-M-n~ to read
+the doc for each function that starts with "forward". The =*Help*=
+window popup would move the window focus, but this change moves it
+back to the minibuffer.
+**** Add =flx= sorting
+See [[https://github.com/abo-abo/swiper/issues/207][#207]].
+Since flx is costly, move the caching to an earlier point. This means
+immediate return for when the input hasn't changed, i.e. for ~C-n~ or
+~C-p~. When =flx= is installed, and =(eq ivy--regex-function 'ivy--regex-fuzzy)=
+for current function (through =ivy-re-builders-alist=), then sort the final candidates with
+=ivy--flx-sort=.
+
+In the worst case, when some error pops up, return the same list. In
+the best case sort the =cands= that all match =name= by closeness to
+=name=.
+
+How to use:
+1. Have =flx= installed - =(require 'flx)= should succeed.
+2. Configure =ivy-re-builders-alist= appropriately to use =ivy--regex-fuzzy=.
+
+For example:
+
+#+begin_src elisp
+(setq ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+#+end_src
+**** Support hash tables
+Since =all-completions= also works for hash tables, no reason not to support them.
+**** Improve documentation of =ivy-count-format=
+Now possible to set it with Customize.
+**** Add =ivy-index-functions-alist=
+Customize this to decide how the index, i.e. the currently selected
+candidate, is updated with new input.
+For example, one strategy is not reset it to 0 after each change.
+
+Another strategy, used for =swiper=, is to try to select the first
+appropriate candidate after (inclusive) the first previously selected
+candidate. This way, if you're typing something that matches what is
+currently selected, the selection won't change.
+
+See [[https://github.com/abo-abo/swiper/issues/253][#253]].
+**** Add =ivy-virtual-abbreviate=
+The mode of abbreviation for virtual buffer names.
+**** Add =ivy-case-fold-search=
+Used to override =case-fold-search=. See [[https://github.com/abo-abo/swiper/issues/259][#259]].
+**** Add feedback for long-running async processes
+Each time 0.5s pass after the last input, if the external process
+hasn't finished yet, update minibuffer with the amount of candidates
+collected so far. This is useful to see that long running commands
+like =counsel-locate= or =counsel-ag= (when in a very large directory)
+aren't stuck.
+**** Promote =ivy-extra-directories= to defcustom
+**** Promote =ivy-sort-function-alist= to defcustom
+**** ~M-n~ should prefer url at point to symbol at point
+**** ~C-x C-f M-n~ calls =ffap-url-fetcher= when at URL
+**** Highlight modified file buffers with =ivy-modified-buffer= face
+This new face is blank by default, but you can use e.g.:
+#+begin_src elisp
+(custom-set-faces
+ '(ivy-modified-buffer ((t (:background "#ff7777")))))
+#+end_src
+**** Work with =enable-recursive-minibuffers=
+Store the old =ivy-last= in case =ivy-read= is called while inside the
+minibuffer.  Restore it after =ivy-call=.
+**** Allow user-specified matched candidate sorting
+New defcustom =ivy-sort-matches-functions-alist=.
+See [[https://github.com/abo-abo/swiper/issues/269][#269]] [[https://github.com/abo-abo/swiper/issues/265][#265]] [[https://github.com/abo-abo/swiper/issues/213][#213]].
+
+By default, Ivy doesn't sort the matched candidates, they remain in
+the same order as in the original collection. This option is the
+default, since it's fast and simple.
+
+A small problem with this approach is that we usually want prefix
+matches to be displayed first. One solution to this is to input "^" to
+see only the prefix matches.
+
+Now, another solution is to can set:
+#+begin_src elisp
+(setq ivy-sort-matches-functions-alist
+      '((t . ivy--prefix-sort)))
+#+end_src
+
+Here's another example of using this defcustom:
+#+begin_src elisp
+(add-to-list
+     'ivy-sort-matches-functions-alist
+     '(read-file-name-internal . ivy--sort-files-by-date))
+#+end_src
+
+After this, during file name completion, most recently changed files
+will be ahead.
+**** =ivy-display-style=
+Adds fancy highlighting to the minibuffer.
+See [[https://github.com/abo-abo/swiper/issues/212][#212]], [[https://github.com/abo-abo/swiper/issues/217][#217]], .
+*** =ivy-hydra=
+**** Bind ~t~ to =toggle-truncate-lines=
+See [[https://github.com/abo-abo/swiper/issues/214][#214]].
+**** Bind ~a~ to =ivy-read-action=
+*** =ivy-switch-buffer=
+**** Make ~M-o r~ rename the buffer instead of switching.
+See [[https://github.com/abo-abo/swiper/issues/233][#233]].
+*** =counsel-locate=
+**** Allow customizing locate options
+See =counsel-locate-options=.
+The current setting is:
+#+begin_src elisp
+(setq counsel-locate-options '("-i" "--regex"))
+#+end_src
+**** Support OSX
+Use =open= instead of =xdg-open=.  Modify =counsel-locate-options= for
+OSX, since there =locate= doesn't support =--regex=.
+**** Use single quotes for the regex
+See [[https://github.com/abo-abo/swiper/issues/194][#194]].
+**** Add initial-input argument
+See [[https://github.com/abo-abo/swiper/issues/289][#289]].
+*** =counsel-org-tag=
+**** Now works in agenda
+See [[https://github.com/abo-abo/swiper/issues/200][#200]].
+*** =counsel-unicode-char=
+**** Add own history
+*** =counsel-M-x=
+**** Add "definition" action
+Use ~M-o d~ to jump to definition.
+**** Show =current-prefix-arg= in the prompt
+See [[https://github.com/abo-abo/swiper/issues/287][#287]].
+*** =counsel-find-file=
+**** Input '/sudo::' goes to current directory instead of root's home
+See [[https://github.com/abo-abo/swiper/issues/283][#283]].
+**** Fix directory validity check
+See [[https://github.com/abo-abo/swiper/issues/283][#283]] [[https://github.com/abo-abo/swiper/issues/284][#284]].
+**** Improve TRAMP support
+Selecting items after ~//~ now works properly.
+*** =counsel-git-grep=
+**** Use prefix arg to specify the shell command.
+Remember to use ~M-i~ to insert the current candidate into the
+minibuffer.
+
+See [[https://github.com/abo-abo/swiper/issues/244][#244]].
+**** Allow =counsel-git-grep= -> =ivy-occur= -> =wgrep=
+Using ~C-c C-o~ (=ivy-occur=) while in =counsel-git-grep= will produce
+a =wgrep=-compatible buffer.
+**** =ivy-occur= gives full candidates
+This means that the =" | head -n 200"= speed-up isn't used and full
+candidates are returned.
+*** =counsel--find-symbol=
+**** Allow to jump back with pop-tag-mark
+Using ~C-.~ in:
+
+- =counsel-describe-function=
+- =counsel-describe-variable=
+- =counsel-load-library=
+
+will change the current buffer. The buffer and point can be restored
+with ~M-*~ (=pop-tag-mark=).
+
+I also recommend this binding:
+
+#+begin_src elisp
+(global-set-key (kbd "M-,") 'pop-tag-mark)
+#+end_src
+**** Resolve the name clash better
+When the symbol is both bound and fbound, prefer the fbound one,
+unless the =:caller= is =counsel-describe-variable=.
+*** =counsel-ag=
+**** Add =initial-directory=
+Support alternative initial directory which helps other packages call
+this function with their unique starting directory.
+**** Fix on Windows
+Using the "--vimgrep" argument improves things.
+** New Commands
+*** =ivy-occur=
+Bound to ~C-c C-o~. Store the current completion session to its own
+buffer.  You can have an unlimited amount of these buffers.
+*** =ivy-avy=
+Bound to ~C-'~.
+
+Speeds up selecting a candidate that's currently visible in the minibuffer.
+*** =ivy-kill-ring-save=
+Bound to ~M-w~.
+
+When the region is active, call =kill-ring-save=.  Otherwise, store
+all selected candidates to the kill ring.
+*** =ivy-dispatching-call=
+Bound to ~C-M-o~.
+
+This is a non-exiting version of ~M-o~ (=ivy-dispatching-done=).
+*** =ivy-read-action=
+Bound to ~C-M-a~. Select the current action. Don't call it yet.
+*** =swiper-multi=
+Use =swiper= in multiple buffers.
+See [[https://github.com/abo-abo/swiper/issues/182][#182]].
+
+Basic usage tips for selecting multiple buffers:
+
+- Use ~C-M-m~ (=ivy-call=) to add or remove one more buffer without exiting.
+- Use ~C-m~ (=ivy-done=) to add one last buffer.
+- Or use ~C-M-j~ (=ivy-immediate-done=) to finish without adding more buffers.
+- Hold ~C-M-n~ (=ivy-next-line-and-call=) to add a lot of buffers at once.
+*** =swiper-mc=
+Open multiple cursors at all selected candidates.
+*** =swiper-all=
+New command to launch =swiper= for all open file buffers.  Note that
+this can be excruciatingly slow if you don't clean up your buffer list
+often.
+*** =counsel-grep=
+This is essentially =swiper= for huge files. It's not as smooth as
+=swiper= for small files, but has a faster startup and faster matching
+for files that measure in megabytes.
+*** =counsel-git-grep-query-replace=
+Bound to ~M-q~. Perform =query-replace= on all matches in all buffers.
+*** =counsel-jedi=
+Complete Python symbols using Jedi.
+*** =counsel-cl=
+Complete Common Lisp symbols using SLIME.
+*** =counsel-yank-pop=
+Give completion for inserting from the kill ring.
+See =counsel-yank-pop-truncate= defcustom and [[https://github.com/abo-abo/swiper/issues/218][#218]].
