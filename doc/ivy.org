@@ -211,7 +211,7 @@ Recommended key bindings are:
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 #+end_src
 
-** minibuffer key bindings
+** Minibuffer key bindings
 
 Ivy includes several minibuffer bindings, which are defined in the
 =ivy-minibuffer-map= keymap variable. The most frequently used ones
@@ -394,8 +394,8 @@ The default is:
 #+end_src
 
 The default =ivy--regex-plus= narrowing is always invoked unless
-specified otherwise. For example, file name completion can have its
-own custom completion function:
+specified otherwise. For example, file name completion may have a
+custom completion function:
 #+begin_src elisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
