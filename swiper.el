@@ -226,6 +226,7 @@
                                  occur-edit-mode
                                  bongo-mode
                                  eww-mode
+                                 twittering-mode
                                  w3m-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
@@ -284,6 +285,8 @@ count."
                                 (end-of-visual-line)
                                 (point))
                             (line-end-position)))))))
+              (when (eq major-mode 'twittering-mode)
+                (remove-text-properties 0 (length str) '(field) str))
               (put-text-property 0 1 'display
                                  (format swiper--format-spec
                                          (cl-incf line-number))
