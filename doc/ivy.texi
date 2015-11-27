@@ -78,13 +78,13 @@ Getting started
 Key bindings
 
 * Global key bindings::
-* minibuffer key bindings::
+* Minibuffer key bindings::
 
-minibuffer key bindings
+Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -113,10 +113,10 @@ Ivy strives for minimalism, simplicity, customizability and
 discoverability.
 
 @subsubheading Minimalism
-Uncluttered minibuffer is minimalism. Ivy shows completion
-defaults, number of matches, and 10 candidate matches below the input
-line. Customize @verb{~ivy-length~} to adjust the number of candidate matches
-displayed in the minibuffer.
+Uncluttered minibuffer is minimalism. Ivy shows the completion
+defaults, the number of matches, and 10 candidate matches below the
+input line. Customize @verb{~ivy-length~} to adjust the number of candidate
+matches displayed in the minibuffer.
 
 @subsubheading Simplicity
 Simplicity is about Ivy's behavior in the minibuffer. It is also about
@@ -258,7 +258,7 @@ documentation.
 
 @menu
 * Global key bindings::
-* minibuffer key bindings::
+* Minibuffer key bindings::
 @end menu
 
 @node Global key bindings
@@ -293,8 +293,8 @@ Recommended key bindings are:
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 @end lisp
 
-@node minibuffer key bindings
-@section minibuffer key bindings
+@node Minibuffer key bindings
+@section Minibuffer key bindings
 
 Ivy includes several minibuffer bindings, which are defined in the
 @verb{~ivy-minibuffer-map~} keymap variable. The most frequently used ones
@@ -305,8 +305,8 @@ are described here.
 under their respective commands.
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -511,8 +511,8 @@ The default is:
 @end lisp
 
 The default @verb{~ivy--regex-plus~} narrowing is always invoked unless
-specified otherwise. For example, file name completion can have its
-own custom completion function:
+specified otherwise. For example, file name completion may have a
+custom completion function:
 
 @lisp
 (setq ivy-re-builders-alist

@@ -53,11 +53,11 @@
 
 (defface ivy-confirm-face
   '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
-  "Face used by Ivy for confirmation prompt.")
+  "Face used by Ivy for a confirmation prompt.")
 
 (defface ivy-match-required-face
   '((t :foreground "red" :inherit minibuffer-prompt))
-  "Face used by Ivy for match required prompt.")
+  "Face used by Ivy for a match required prompt.")
 
 (defface ivy-subdir
   '((t (:inherit 'dired-directory)))
@@ -65,7 +65,7 @@
 
 (defface ivy-modified-buffer
   '((t :inherit 'default))
-  "Face used by Ivy for highlighting those buffers visiting files.")
+  "Face used by Ivy for highlighting modified file visiting buffers.")
 
 (defface ivy-remote
   '((t (:foreground "#110099")))
@@ -76,9 +76,9 @@
   :type 'integer)
 
 (defcustom ivy-count-format "%-4d "
-  "The style to use for displying the current candidate count for
-`ivy-read'. Set style to \"\" to suppress counts visiblity. Set
-style to \"(%d/%d) \" to display both the index and the count."
+  "The style to use for displaying the current candidate count for `ivy-read'.
+Set this to \"\" to suppress the count visibility.
+Set this to \"(%d/%d) \" to display both the index and the count."
   :type '(choice
           (const :tag "Count disabled" "")
           (const :tag "Count matches" "%-4d ")
@@ -86,7 +86,7 @@ style to \"(%d/%d) \" to display both the index and the count."
           string))
 
 (defcustom ivy-wrap nil
-  "Wrap around after the first and last candidate."
+  "When non-nil, wrap around after the first and the last candidate."
   :type 'boolean)
 
 (defcustom ivy-display-style (unless (version< emacs-version "24.5") 'fancy)
@@ -105,8 +105,8 @@ earlier versions of Emacs."
           (const :tag "Fancy" fancy)))
 
 (defcustom ivy-on-del-error-function 'minibuffer-keyboard-quit
-  "The handler for when `ivy-backward-delete-char' throws --
-usually a quick exit out of the minibuffer."
+  "The handler for when `ivy-backward-delete-char' throws.
+Usually a quick exit out of the minibuffer."
   :type 'function)
 
 (defcustom ivy-extra-directories '("../" "./")
@@ -201,7 +201,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   caller)
 
 (defvar ivy-last nil
-  "The last parameter passed to `ivy-read'.
+  "The last parameters passed to `ivy-read'.
 
 This should eventually become a stack so that you could use
 `ivy-read' recursively.")
@@ -213,10 +213,10 @@ This should eventually become a stack so that you could use
   "History list of candidates entered in the minibuffer.
 
 Maximum length of the history list is determined by the value
-of `history-length'")
+of `history-length'.")
 
 (defvar ivy--directory nil
-  "Current directory to use when completing file names.")
+  "Current directory when completing file names.")
 
 (defvar ivy--length 0
   "Store the amount of viable candidates.")
@@ -231,7 +231,8 @@ of `history-length'")
   "Store the index of the current candidate.")
 
 (defvar ivy-exit nil
-  "Store 'done if the completion was successfully selected, otherwise store nil.")
+  "Store 'done if the completion was successfully selected.
+Otherwise, store nil.")
 
 (defvar ivy--all-candidates nil
   "Store the candidates passed to `ivy-read'.")
@@ -869,10 +870,10 @@ On error (read-only), call `ivy-on-del-error-function'."
   '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
 
 (defun ivy-avy ()
-  "Jump to a current ivy candidate."
+  "Jump to one of the current ivy candidates."
   (interactive)
   (unless (require 'avy nil 'noerror)
-    (error "Avy package is not installed"))
+    (error "Package avy isn't installed"))
   (let* ((avy-all-windows nil)
          (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
                        avy-keys))
@@ -1031,12 +1032,12 @@ UPDATE-FN is called each time the current candidate(s) is changed.
 
 When SORT is t, use `ivy-sort-functions-alist' for sorting.
 
-ACTION is a lambda function call after selecting a result. It
+ACTION is a lambda function to call after selecting a result. It
 takes a single string argument.
 
-UNWIND is a lambda function call before exiting.
+UNWIND is a lambda function to call before exiting.
 
-RE-BUILDER is a lambda function call to transform text into a
+RE-BUILDER is a lambda function to call to transform text into a
 regex pattern.
 
 MATCHER is to override matching.
@@ -1044,7 +1045,7 @@ MATCHER is to override matching.
 DYNAMIC-COLLECTION is a boolean to specify if the list of
 candidates is updated after each input by calling COLLECTION.
 
-CALLER is symbol to uniquely identify the caller to `ivy-read'.
+CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
   (let ((extra-actions (plist-get ivy--actions-list this-command)))
@@ -1245,8 +1246,8 @@ This is useful for recursive `ivy-read'."
 
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
-                                   &optional predicate require-match initial-input
-                                   history def _inherit-input-method)
+                            &optional predicate require-match initial-input
+                              history def _inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This interface conforms to `completing-read' and can be used for
@@ -1257,7 +1258,7 @@ COLLECTION can be a list of strings, an alist, an obarray or a hash table.
 PREDICATE limits completion to a subset of COLLECTION.
 REQUIRE-MATCH is specified with a boolean value.  See `completing-read'.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
-_HISTORY is currently ignored.
+HISTORY is a list of previously selected inputs.
 DEF is the default value.
 _INHERIT-INPUT-METHOD is currently ignored."
 
@@ -1308,7 +1309,7 @@ Minibuffer bindings:
     (setq completing-read-function 'completing-read-default)))
 
 (defun ivy--preselect-index (preselect candidates)
-  "Return the index of PRESELECT from CANDIDATES."
+  "Return the index of PRESELECT in CANDIDATES."
   (cond ((integerp preselect)
          preselect)
         ((cl-position preselect candidates :test #'equal))
@@ -1326,9 +1327,9 @@ Minibuffer bindings:
   "Store pre-computed regex.")
 
 (defun ivy--split (str)
-  "Split STR into a list by single space characters.
-If any remaining consequtive spaces, stick left. This allows for
-\"quote\" N spaces by inputting N+1 spaces."
+  "Split STR into a list by single spaces.
+The remaining spaces stick to their left.
+This allows to \"quote\" N spaces by inputting N+1 spaces."
   (let ((len (length str))
         start0
         (start1 0)
@@ -1392,7 +1393,7 @@ Ignore the order of each group.
 ATTENTION: This is just a proof of concept and may not work as
 expected. Besides ignoring the order of the tokens where 'foo'
 and 'bar', 'bar' and 'foo' are matched, it also matches multiple
-occurances of 'foo' and 'bar'. To ignore the sort order and avoid
+occurrences of 'foo' and 'bar'. To ignore the sort order and avoid
 multiple matches, use `ivy-restrict-to-matches' instead.
 "
   (let* ((subs (split-string str " +" t))
@@ -1531,7 +1532,7 @@ Insert .* between each char."
         (constrain-to-field nil (point-max))))))
 
 (defun ivy--set-match-props (str match props)
-  "Set STR text proprties that match MATCH to PROPS."
+  "Set STR text properties that match MATCH to PROPS."
   (when (string-match match str)
     (set-text-properties
      (match-beginning 0)
@@ -1738,14 +1739,12 @@ CANDIDATES are assumed to be static."
         (setq ivy--old-cands (ivy--sort name cands))))))
 
 (defcustom ivy-sort-matches-functions-alist '((t . nil))
-  "An alist of functions for sorting after each input change.
+  "An alist of functions used to sort the matching candidates.
 
-These functions are for sorting matching list of candidates after
-each input change.  Sorting is applied repeatedly to the matching
-candidates if the list changes after each input change.
-
-`ivy-sort-functions-alist', on the other hand, sorts the whole
-collection of candidates only once.
+This is different from `ivy-sort-functions-alist', which is used
+to sort the whole collection only once.  The functions taken from
+here are instead used on each input change, but they are used
+only on already matching candidates, not on all of them.
 
 The alist KEY is a collection function or t to match previously
 not matched collection functions.
@@ -2238,7 +2237,7 @@ Don't finish completion."
 
 (defun ivy-reverse-i-search ()
   "Enter a recursive `ivy-read' session using the current history.
-The selected history element will be inserted into the minibufer."
+The selected history element will be inserted into the minibuffer."
   (interactive)
   (let ((enable-recursive-minibuffers t)
         (history (symbol-value (ivy-state-history ivy-last)))
@@ -2299,11 +2298,11 @@ buffer would modify `ivy-last'.")
 (defvar counsel-git-grep-cmd)
 
 (defun ivy-occur ()
-  "Stops completion and puts the current matches into a new buffer.
+  "Stop completion and put the current matches into a new buffer.
 
 The new buffer remembers current action(s).
 
-While in the *ivy-occur* buffer, selecting a cadidate with RET or
+While in the *ivy-occur* buffer, selecting a candidate with RET or
 a mouse click will call the appropriate action for that candidate.
 
 There is no limit on the number of *ivy-occur* buffers."
