@@ -1056,7 +1056,7 @@ customizations apply to the current completion session."
                   ("o" ,action "default")
                   ,@extra-actions)
               (delete-dups (append action extra-actions))))))
-  (let ((recursive-ivy-last (and (window-minibuffer-p) ivy-last)))
+  (let ((recursive-ivy-last ivy-last))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1114,7 +1114,7 @@ customizations apply to the current completion session."
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
-  (let ((prompt (ivy-state-prompt state))
+  (let ((prompt (or (ivy-state-prompt state) ""))
         (collection (ivy-state-collection state))
         (predicate (ivy-state-predicate state))
         (history (ivy-state-history state))
