@@ -353,22 +353,24 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
               (point-min)
               (save-excursion (beginning-of-visual-line) (point)))
            (1- (line-number-at-pos))))
-        (minibuffer-allow-text-properties t))
+        (minibuffer-allow-text-properties t)
+        res)
     (unwind-protect
-         (ivy-read
-          "Swiper: "
-          candidates
-          :initial-input initial-input
-          :keymap swiper-map
-          :preselect preselect
-          :require-match t
-          :update-fn #'swiper--update-input-ivy
-          :unwind #'swiper--cleanup
-          :action #'swiper--action
-          :re-builder #'swiper--re-builder
-          :history 'swiper-history
-          :caller 'swiper)
-      (when (null ivy-exit)
+         (setq res
+               (ivy-read
+                "Swiper: "
+                candidates
+                :initial-input initial-input
+                :keymap swiper-map
+                :preselect preselect
+                :require-match t
+                :update-fn #'swiper--update-input-ivy
+                :unwind #'swiper--cleanup
+                :action #'swiper--action
+                :re-builder #'swiper--re-builder
+                :history 'swiper-history
+                :caller 'swiper))
+      (unless res
         (goto-char swiper--opoint)))))
 
 (defun swiper-toggle-face-matching ()
