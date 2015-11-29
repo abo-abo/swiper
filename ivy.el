@@ -1056,7 +1056,7 @@ customizations apply to the current completion session."
                   ("o" ,action "default")
                   ,@extra-actions)
               (delete-dups (append action extra-actions))))))
-  (let ((recursive-ivy-last ivy-last))
+  (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
