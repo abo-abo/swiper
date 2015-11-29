@@ -256,7 +256,9 @@ count."
       (progn
         (when (eq major-mode 'org-mode)
           (require 'outline)
-          (outline-show-all))
+          (if (fboundp 'outline-show-all)
+              (outline-show-all)
+            (show-all)))
         (setq swiper-use-visual-line t))
     (setq swiper-use-visual-line nil))
   (let ((n-lines (count-lines (point-min) (point-max))))
