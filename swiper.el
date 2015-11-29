@@ -280,12 +280,16 @@ count."
                         " "
                         (replace-regexp-in-string
                          "\t" "    "
-                         (buffer-substring
-                          (point)
-                          (if swiper-use-visual-line
+                         (if swiper-use-visual-line
+                             (buffer-substring
+                              (save-excursion
+                                (beginning-of-visual-line)
+                                (point))
                               (save-excursion
                                 (end-of-visual-line)
-                                (point))
+                                (point)))
+                           (buffer-substring
+                            (point)
                             (line-end-position)))))))
               (when (eq major-mode 'twittering-mode)
                 (remove-text-properties 0 (length str) '(field) str))
