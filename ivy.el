@@ -44,12 +44,44 @@
   "Incremental vertical completion."
   :group 'convenience)
 
+(defgroup ivy-faces nil
+  "Font-lock faces for `ivy'."
+  :group 'ivy)
+
 (defface ivy-current-match
   '((((class color) (background light))
      :background "#1a4b77" :foreground "white")
     (((class color) (background dark))
      :background "#65a7e2" :foreground "black"))
-  "Face used by Ivy for highlighting first match.")
+  "Face used by Ivy for highlighting the current match.")
+
+(defface ivy-minibuffer-match-face-1
+  '((((class color) (background light))
+     :background "#d3d3d3")
+    (((class color) (background dark))
+     :background "#555555"))
+  "The background face for `ivy' minibuffer matches.")
+
+(defface ivy-minibuffer-match-face-2
+  '((((class color) (background light))
+     :background "#e99ce8" :weight bold)
+    (((class color) (background dark))
+     :background "#777777" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 1.")
+
+(defface ivy-minibuffer-match-face-3
+  '((((class color) (background light))
+     :background "#bbbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#7777ff" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 2.")
+
+(defface ivy-minibuffer-match-face-4
+  '((((class color) (background light))
+     :background "#ffbbff" :weight bold)
+    (((class color) (background dark))
+     :background "#8a498a" :weight bold))
+  "Face for `ivy' minibuffer matches modulo 3.")
 
 (defface ivy-confirm-face
   '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
@@ -58,6 +90,8 @@
 (defface ivy-match-required-face
   '((t :foreground "red" :inherit minibuffer-prompt))
   "Face used by Ivy for a match required prompt.")
+
+(setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defface ivy-subdir
   '((t (:inherit 'dired-directory)))
@@ -70,6 +104,10 @@
 (defface ivy-remote
   '((t (:foreground "#110099")))
   "Face used by Ivy for highlighting remotes in the alternatives.")
+
+(defface ivy-virtual
+  '((t :inherit font-lock-builtin-face))
+  "Face used by Ivy for matching virtual buffer names.")
 
 (defcustom ivy-height 10
   "Number of lines for the minibuffer window."
@@ -1953,34 +1991,6 @@ SEPARATOR is used to join the candidates."
    cand-pairs
    ""))
 
-(defface ivy-minibuffer-match-face-1
-  '((((class color) (background light))
-     :background "#d3d3d3")
-    (((class color) (background dark))
-     :background "#555555"))
-  "The background face for `ivy' minibuffer matches.")
-
-(defface ivy-minibuffer-match-face-2
-  '((((class color) (background light))
-     :background "#e99ce8" :weight bold)
-    (((class color) (background dark))
-     :background "#777777" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 1.")
-
-(defface ivy-minibuffer-match-face-3
-  '((((class color) (background light))
-     :background "#bbbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#7777ff" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 2.")
-
-(defface ivy-minibuffer-match-face-4
-  '((((class color) (background light))
-     :background "#ffbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#8a498a" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 3.")
-
 (defcustom ivy-minibuffer-faces
   '(ivy-minibuffer-match-face-1
     ivy-minibuffer-match-face-2
@@ -2065,9 +2075,6 @@ CANDS is a list of strings."
   "Store the virtual buffers alist.")
 
 (defvar recentf-list)
-
-(defface ivy-virtual '((t :inherit font-lock-builtin-face))
-  "Face used by Ivy for matching virtual buffer names.")
 
 (defcustom ivy-virtual-abbreviate 'name
   "The mode of abbreviation for virtual buffer names."
