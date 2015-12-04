@@ -1161,7 +1161,8 @@ This is useful for recursive `ivy-read'."
         (re-builder (ivy-state-re-builder state))
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
-        (require-match (ivy-state-require-match state)))
+        (require-match (ivy-state-require-match state))
+        (caller (ivy-state-caller state)))
     (unless initial-input
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
@@ -1171,6 +1172,8 @@ This is useful for recursive `ivy-read'."
           (or re-builder
               (and (functionp collection)
                    (cdr (assoc collection ivy-re-builders-alist)))
+              (and caller
+                   (cdr (assoc caller ivy-re-builders-alist)))
               (cdr (assoc t ivy-re-builders-alist))
               'ivy--regex))
     (setq ivy--subexps 0)

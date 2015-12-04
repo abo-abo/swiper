@@ -896,7 +896,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
                   (command-execute (intern cmd) 'record)))
               :sort sort
               :keymap counsel-describe-map
-              :initial-input initial-input)))
+              :initial-input initial-input
+              :caller 'counsel-M-x)))
 
 (declare-function powerline-reset "ext:powerline")
 
