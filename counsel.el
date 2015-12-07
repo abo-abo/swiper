@@ -966,7 +966,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defvar org-indent-indentation-per-level)
 (defvar org-tags-column)
 (declare-function org-get-tags-string "org")
-(declare-function org-move-to-column "org")
+(declare-function org-move-to-column "org-compat")
 
 (defun counsel-org-change-tags (tags)
   (let ((current (org-get-tags-string))
@@ -1215,6 +1215,38 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                           (find-file file-name)
                           (unless (string-match "pdf$" x)
                             (swiper ivy-text)))))))
+
+(defvar tmm-km-list nil)
+(declare-function tmm-get-keymap "tmm")
+(declare-function tmm--completion-table "tmm")
+(declare-function tmm-get-keybind "tmm")
+
+(defun counsel-tmm-prompt (menu)
+  "Select and call an item from the MENU keymap."
+  (let (out
+        choice
+        chosen-string)
+    (setq tmm-km-list nil)
+    (map-keymap (lambda (k v) (tmm-get-keymap (cons k v))) menu)
+    (setq tmm-km-list (nreverse tmm-km-list))
+    (setq out (ivy-read "Menu bar: " (tmm--completion-table tmm-km-list)
+                        :require-match t
+                        :sort nil))
+    (setq choice (cdr (assoc out tmm-km-list)))
+    (setq chosen-string (car choice))
+    (setq choice (cdr choice))
+    (cond ((keymapp choice)
+           (counsel-tmm-prompt choice))
+          ((and choice chosen-string)
+           (setq last-command-event chosen-string)
+           (call-interactively choice)))))
+
+(defun counsel-tmm ()
+  "Text-mode emulation of looking and choosing from a menubar."
+  (interactive)
+  (require 'tmm)
+  (run-hooks 'menu-bar-update-hook)
+  (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
 (defcustom counsel-yank-pop-truncate nil
   "When non-nil, truncate the display of long strings."
