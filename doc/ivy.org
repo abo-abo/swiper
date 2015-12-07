@@ -11,7 +11,9 @@
 
 #+OPTIONS: H:6 num:6 toc:4
 #+STARTUP: indent
-
+* Macros                                                                              :noexport:
+#+MACRO: defopt #+TEXINFO: @defopt $1
+#+MACRO: endopt #+TEXINFO: @end defopt
 * Copying
 :PROPERTIES:
 :COPYING:  t
@@ -223,19 +225,25 @@ under their respective commands.
 
 *** Key bindings for navigation
 
-- ~C-n~ (=ivy-next-line=) select next candidate
-- ~C-p~ (=ivy-previous-line=) selects previous candidate
+- ~C-n~ (=ivy-next-line=) selects the next candidate
+- ~C-p~ (=ivy-previous-line=) selects the previous candidate
 - ~M-<~ (=ivy-beginning-of-buffer=) selects the first candidate
 - ~M->~ (=ivy-end-of-buffer=) selects the last candidate
-- ~C-v~ (=ivy-scroll-up-command=) scrolls up by 10 lines
-- ~M-v~ (=ivy-scroll-down-command=) scrolls down by 10 lines
+- ~C-v~ (=ivy-scroll-up-command=) scrolls up by =ivy-height= lines
+- ~M-v~ (=ivy-scroll-down-command=) scrolls down by =ivy-height= lines
 
-To get the wrap-around behavior of ~C-n~ and ~C-p~ to cycle past the
-last and first candidates, change the default (=ivy-wrap nil=) to
-(=ivy-warp t=).
+{{{defopt(ivy-wrap)}}}
+This user option allows to get the wrap-around behavior for ~C-n~ and
+~C-p~.  When set to =t=, =ivy-next-line= and =ivy-previous-line= will
+cycle past the last and the first candidates respectively.
 
-Adjust scroll size through the variable =ivy-height=, which by default
-is set to 10.
+This behavior is off by default.
+{{{endopt}}}
+
+{{{defopt(ivy-height)}}}
+Use this variable to adjust the minibuffer height, and therefore the
+scroll size for ~C-v~ and ~M-v~.
+{{{endopt}}}
 
 *** Key bindings for single selection, action, then exit minibuffer
 
