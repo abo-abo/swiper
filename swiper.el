@@ -227,6 +227,7 @@
                                  bongo-mode
                                  eww-mode
                                  twittering-mode
+                                 vc-dir-mode
                                  w3m-mode)))
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
