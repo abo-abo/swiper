@@ -62,6 +62,7 @@ modify this GNU manual.''
 * Getting started::
 * Key bindings::
 * Completion styles::
+* Variable Index::
 
 @detailmenu
 --- The Detailed Node Listing ---
@@ -581,5 +582,10 @@ for "for" returns all "f.*o.*r" matches, resulting in a large number
 of hits.  Yet some searches need these extra hits. Ivy sorts such
 large lists using @code{flx} package's scoring mechanism, if it's
 installed.
+
+@node Variable Index
+@chapter Variable Index
+
+@printindex vr
 
 @bye

@@ -469,3 +469,8 @@ for "for" returns all "f.*o.*r" matches, resulting in a large number
 of hits.  Yet some searches need these extra hits. Ivy sorts such
 large lists using =flx= package's scoring mechanism, if it's
 installed.
+
+* Variable Index
+#+BEGIN_TEXINFO
+@printindex vr
+#+END_TEXINFO
