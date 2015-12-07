@@ -345,7 +345,7 @@ is a good thing if you're searching for numbers.
 **** Extend =swiper-font-lock-ensure=
 Add =mu4e-view-mode=, =mu4e-headers-mode=, =help-mode=,
 =elfeed-show-mode=, =emms-stream-mode=, =debbugs-gnu-mode=,
-=occur-mode=, =occur-edit-mode=, =bongo-mode=, =eww-mode=.
+=occur-mode=, =occur-edit-mode=, =bongo-mode=, =eww-mode=, =vc-dir-mode=.
 **** Add support for =evil-jumper/backward=
 See [[https://github.com/abo-abo/swiper/issues/268][#268]].
 **** Make compatible with =visual-line-mode=
@@ -362,6 +362,31 @@ See [[https://github.com/abo-abo/swiper/issues/288][#288]].
 ~C-M-n~ and ~C-M-p~ will no longer push mark and annoy with messages.
 **** =ivy-resume= should restore the buffer for =swiper=
 See [[https://github.com/abo-abo/swiper/issues/302][#302]].
+**** Enable recursive =swiper= calls
+While you =swiper= buffer-1, you can switch out of the minibuffer into
+buffer-2 and call =swiper= again.  Exiting the second minibuffer will
+restore the first minibuffer.
+
+To use this, you need to enable recursive minibuffers.
+#+begin_src elisp
+(setq enable-recursive-minibuffers t)
+#+end_src
+
+It's also useful to indicate the current depth:
+
+#+begin_src elisp
+(minibuffer-depth-indicate-mode 1)
+#+end_src
+
+See [[https://github.com/abo-abo/swiper/issues/309][#309]].
+**** Fix for =twittering-mode=
+The =field= text property is now removed before inserting text into
+the minibuffer. This fixes the =swiper= problems with
+=twittering-mode=. See [[https://github.com/abo-abo/swiper/issues/310][#310]].
+
+
+
+
 *** =ivy=
 **** Add manual
 In the current state, the manual covers the most basic topics, like
