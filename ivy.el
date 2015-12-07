@@ -1292,7 +1292,7 @@ This is useful for recursive `ivy-read'."
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
-                              history def _inherit-input-method)
+                              history def inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This interface conforms to `completing-read' and can be used for
@@ -1305,33 +1305,37 @@ REQUIRE-MATCH is specified with a boolean value.  See `completing-read'.
 INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
 HISTORY is a list of previously selected inputs.
 DEF is the default value.
-_INHERIT-INPUT-METHOD is currently ignored."
-
-  ;; See the doc of `completing-read'.
-  (when (consp history)
-    (when (numberp (cdr history))
-      (setq initial-input (nth (1- (cdr history))
-                               (symbol-value (car history)))))
-    (setq history (car history)))
-  (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-            collection
-            :predicate predicate
-            :require-match require-match
-            :initial-input (if (consp initial-input)
-                               (car initial-input)
-                             (if (and (stringp initial-input)
-                                      (string-match "\\+" initial-input))
-                                 (replace-regexp-in-string
-                                  "\\+" "\\\\+" initial-input)
-                               initial-input))
-            :preselect (if (listp def) (car def) def)
-            :history history
-            :keymap nil
-            :sort
-            (let ((sort (assoc this-command ivy-sort-functions-alist)))
-              (if sort
-                  (cdr sort)
-                t))))
+INHERIT-INPUT-METHOD is currently ignored."
+  (if (memq this-command '(tmm-menubar tmm-shortcut))
+      (completing-read-default prompt collection
+                               predicate require-match
+                               initial-input history
+                               def inherit-input-method)
+    ;; See the doc of `completing-read'.
+    (when (consp history)
+      (when (numberp (cdr history))
+        (setq initial-input (nth (1- (cdr history))
+                                 (symbol-value (car history)))))
+      (setq history (car history)))
+    (ivy-read (replace-regexp-in-string "%" "%%" prompt)
+              collection
+              :predicate predicate
+              :require-match require-match
+              :initial-input (if (consp initial-input)
+                                 (car initial-input)
+                               (if (and (stringp initial-input)
+                                        (string-match "\\+" initial-input))
+                                   (replace-regexp-in-string
+                                    "\\+" "\\\\+" initial-input)
+                                 initial-input))
+              :preselect (if (listp def) (car def) def)
+              :history history
+              :keymap nil
+              :sort
+              (let ((sort (assoc this-command ivy-sort-functions-alist)))
+                (if sort
+                    (cdr sort)
+                  t)))))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
