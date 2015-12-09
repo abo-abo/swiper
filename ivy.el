@@ -699,12 +699,14 @@ If the input is empty, select the previous history element instead."
 
 (defun ivy--get-window (state)
   "Get the window from STATE."
-  (let ((window (ivy-state-window state)))
-    (if (window-live-p window)
-        window
-      (if (= (length (window-list)) 1)
-          (selected-window)
-        (next-window)))))
+  (if (ivy-state-p state)
+      (let ((window (ivy-state-window state)))
+        (if (window-live-p window)
+            window
+          (if (= (length (window-list)) 1)
+              (selected-window)
+            (next-window))))
+    (selected-window)))
 
 (defun ivy--actionp (x)
   "Return non-nil when X is a list of actions."
