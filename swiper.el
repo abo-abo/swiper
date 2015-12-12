@@ -315,8 +315,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (declare-function evil-jumper--set-jump "ext:evil-jumper")
 
+(defvar swiper--current-line nil)
+(defvar swiper--current-match-start nil)
+
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
+  (setq swiper--current-line nil)
+  (setq swiper--current-match-start nil)
   (setq swiper--opoint (point))
   (when (bound-and-true-p evil-jumper-mode)
     (evil-jumper--set-jump)))
@@ -440,17 +445,24 @@ Matched candidates should have `swiper-invocation-face'."
                       (string-to-number (match-string 0 str))
                     0)))
         (unless (eq this-command 'ivy-yank-word)
-          (goto-char (point-min))
           (when (cl-plusp num)
-            (goto-char (point-min))
-            (if swiper-use-visual-line
-                (line-move (1- num))
-              (forward-line (1- num)))
+            (unless (if swiper--current-line
+                        (eq swiper--current-line num)
+                      (eq (line-number-at-pos) num))
+              (goto-char (point-min))
+              (if swiper-use-visual-line
+                  (line-move (1- num))
+                (forward-line (1- num))))
             (if (and (equal ivy-text "")
                      (>= swiper--opoint (line-beginning-position))
                      (<= swiper--opoint (line-end-position)))
                 (goto-char swiper--opoint)
-              (re-search-forward re (line-end-position) t))
+              (if (eq swiper--current-line num)
+                  (when swiper--current-match-start
+                    (goto-char swiper--current-match-start))
+                (setq swiper--current-line num))
+              (re-search-forward re (line-end-position) t)
+              (setq swiper--current-match-start (match-beginning 0)))
             (isearch-range-invisible (line-beginning-position)
                                      (line-end-position))
             (unless (and (>= (point) (window-start))
