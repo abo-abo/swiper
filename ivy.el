@@ -1045,6 +1045,11 @@ Directories come first."
         (push dir seq))
       seq)))
 
+(defvar ivy-recursive-restore t
+  "When non-nil, restore the above state when exiting the minibuffer.
+This variable is let-bound to nil by functions that take care of
+the restoring themselves.")
+
 ;;** Entry Point
 (cl-defun ivy-read (prompt collection
                            &key predicate require-match initial-input
@@ -1120,35 +1125,36 @@ customizations apply to the current completion session."
     (ivy--reset-state ivy-last)
     (prog1
         (unwind-protect
-            (minibuffer-with-setup-hook
-                #'ivy--minibuffer-setup
-              (let* ((hist (or history 'ivy-history))
-                     (minibuffer-completion-table collection)
-                     (minibuffer-completion-predicate predicate)
-                     (resize-mini-windows (cond
-                                           ((display-graphic-p) nil)
-                                           ((null resize-mini-windows) 'grow-only)
-                                           (t resize-mini-windows)))
-                     (res (read-from-minibuffer
-                           prompt
-                           (ivy-state-initial-input ivy-last)
-                           (make-composed-keymap keymap ivy-minibuffer-map)
-                           nil
-                           hist)))
-                (when (eq ivy-exit 'done)
-                  (let ((item (if ivy--directory
-                                  ivy--current
-                                ivy-text)))
-                    (unless (equal item "")
-                      (set hist (cons (propertize item 'ivy-index ivy--index)
-                                      (delete item
-                                              (cdr (symbol-value hist)))))))
-                  res)))
+             (minibuffer-with-setup-hook
+                 #'ivy--minibuffer-setup
+               (let* ((hist (or history 'ivy-history))
+                      (minibuffer-completion-table collection)
+                      (minibuffer-completion-predicate predicate)
+                      (resize-mini-windows (cond
+                                             ((display-graphic-p) nil)
+                                             ((null resize-mini-windows) 'grow-only)
+                                             (t resize-mini-windows)))
+                      (res (read-from-minibuffer
+                            prompt
+                            (ivy-state-initial-input ivy-last)
+                            (make-composed-keymap keymap ivy-minibuffer-map)
+                            nil
+                            hist)))
+                 (when (eq ivy-exit 'done)
+                   (let ((item (if ivy--directory
+                                   ivy--current
+                                 ivy-text)))
+                     (unless (equal item "")
+                       (set hist (cons (propertize item 'ivy-index ivy--index)
+                                       (delete item
+                                               (cdr (symbol-value hist)))))))
+                   res)))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind)))
       (ivy-call)
-      (when recursive-ivy-last
+      (when (and recursive-ivy-last
+                 ivy-recursive-restore)
         (ivy--reset-state (setq ivy-last recursive-ivy-last))))))
 
 (defun ivy--reset-state (state)
@@ -1638,10 +1644,10 @@ Should be run via minibuffer `post-command-hook'."
              (if (string-match "/\\'" ivy-text)
                  (if (member ivy-text ivy--all-candidates)
                      (ivy--cd (expand-file-name ivy-text ivy--directory))
-                   (when (string-match "//\\'" ivy-text)
-                     (if (and default-directory
-                              (string-match "\\`[[:alpha:]]:/" default-directory))
-                         (ivy--cd (match-string 0 default-directory))
+                     (when (string-match "//\\'" ivy-text)
+                       (if (and default-directory
+                                (string-match "\\`[[:alpha:]]:/" default-directory))
+                           (ivy--cd (match-string 0 default-directory))
                        (ivy--cd "/")))
                    (when (string-match "[[:alpha:]]:/$" ivy-text)
                      (let ((drive-root (match-string 0 ivy-text)))
@@ -2265,7 +2271,8 @@ The selected history element will be inserted into the minibuffer."
   (interactive)
   (let ((enable-recursive-minibuffers t)
         (history (symbol-value (ivy-state-history ivy-last)))
-        (old-last ivy-last))
+        (old-last ivy-last)
+        (ivy-recursive-restore nil))
     (ivy-read "Reverse-i-search: "
               history
               :action (lambda (x)
