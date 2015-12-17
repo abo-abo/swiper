@@ -1151,7 +1151,10 @@ customizations apply to the current completion session."
                    res)))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
-            (funcall unwind)))
+            (funcall unwind))
+          (unless (eq ivy-exit 'done)
+            (when recursive-ivy-last
+              (ivy--reset-state (setq ivy-last recursive-ivy-last)))))
       (ivy-call)
       (when (and recursive-ivy-last
                  ivy-recursive-restore)
