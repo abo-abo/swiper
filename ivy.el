@@ -2423,6 +2423,9 @@ EVENT gives the mouse position."
       (goto-char pos)
       (ivy-occur-press))))
 
+(declare-function swiper--cleanup "swiper")
+(declare-function swiper--add-overlays "swiper")
+
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
