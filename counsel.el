@@ -1296,6 +1296,32 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (insert (substring-no-properties s))
     (setq counsel-completion-end (point))))
 
+(defun counsel-imenu-get-candidates-from (alist  &optional prefix)
+  "Create a list of (key . value) from ALIST.
+PREFIX is used to create the key."
+  (cl-loop for elm in alist
+           nconc (if (imenu--subalist-p elm)
+                       (counsel-imenu-get-candidates-from
+                        (cl-loop for (e . v) in (cdr elm) collect
+                                 (cons e (if (integerp v) (copy-marker v) v)))
+                        (concat prefix (if prefix ".") (car elm)))
+                   (and (cdr elm) ; bug in imenu, should not be needed.
+                        (setcdr elm (copy-marker (cdr elm))) ; Same as [1].
+                        (list (cons (concat prefix (if prefix ".") (car elm))
+                                    (copy-marker (cdr elm))))))))
+
+;;;###autoload
+(defun counsel-imenu ()
+  "Jump to a buffer position indexed by imenu."
+  (interactive)
+  (let ((imenu-auto-rescan t) items)
+    (unless (featurep 'imenu)
+      (require 'imenu nil t))
+    (setq items (imenu--make-index-alist t))
+    (ivy-read "imenu items:"
+              (counsel-imenu-get-candidates-from (delete (assoc "*Rescan*" items) items))
+              :action (lambda (pos) (goto-char pos)))))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
