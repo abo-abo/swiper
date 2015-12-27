@@ -996,11 +996,18 @@ selected.")
 (defvar ivy-re-builders-alist
   '((t . ivy--regex-plus))
   "An alist of regex building functions for each collection function.
-Each function should take a string and return a valid regex or a
-regex sequence (see below).
 
-The entry associated with t is used for all fall-through cases.
-Possible choices: `ivy--regex', `regexp-quote', `ivy--regex-plus'.
+Each key is (in order of priority):
+1. The actual collection function, e.g. `read-file-name-internal'.
+2. The symbol passed by :caller into `ivy-read'.
+3. `this-command'.
+4. t.
+
+Each value is a function that should take a string and return a
+valid regex or a regex sequence (see below).
+
+Possible choices: `ivy--regex', `regexp-quote',
+`ivy--regex-plus', `ivy--regex-fuzzy'.
 
 If a function returns a list, it should format like this:
 '((\"matching-regexp\" . t) (\"non-matching-regexp\") ...).
@@ -1185,6 +1192,7 @@ This is useful for recursive `ivy-read'."
                    (cdr (assoc collection ivy-re-builders-alist)))
               (and caller
                    (cdr (assoc caller ivy-re-builders-alist)))
+              (cdr (assoc this-command ivy-re-builders-alist))
               (cdr (assoc t ivy-re-builders-alist))
               'ivy--regex))
     (setq ivy--subexps 0)
