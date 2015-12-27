@@ -892,7 +892,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
                 (when (featurep 'smex)
                   (smex-rank (intern cmd)))
                 (let ((prefix-arg current-prefix-arg)
-                      (ivy-format-function store))
+                      (ivy-format-function store)
+                      (this-command (intern cmd)))
                   (command-execute (intern cmd) 'record)))
               :sort sort
               :keymap counsel-describe-map
