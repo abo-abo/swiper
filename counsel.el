@@ -1112,6 +1112,13 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
+(defcustom counsel-ag-base-command "ag --vimgrep %S"
+  "Format string to use in `cousel-ag-function' to construct the
+command. %S will be replaced by the regex string. The default is
+\"ag --vimgrep %S\"."
+  :type 'stringp
+  :group 'ivy)
+
 (defun counsel-ag-function (string &optional _pred &rest _unused)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
@@ -1121,7 +1128,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format "ag --vimgrep %S" regex))
+       (format counsel-ag-base-command regex))
       nil)))
 
 ;;;###autoload
