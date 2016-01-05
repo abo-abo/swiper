@@ -1356,6 +1356,42 @@ INHERIT-INPUT-METHOD is currently ignored."
                     (cdr sort)
                   t)))))
 
+(defvar ivy-completion-beg nil
+  "Completion bounds start.")
+
+(defvar ivy-completion-end nil
+  "Completion bounds end.")
+
+(defun ivy-completion-in-region-action (str)
+  "Insert STR, erasing the previous one.
+The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
+  (when (stringp str)
+    (with-ivy-window
+      (when ivy-completion-beg
+        (delete-region
+         ivy-completion-beg
+         ivy-completion-end))
+      (setq ivy-completion-beg
+            (move-marker (make-marker) (point)))
+      (insert str)
+      (setq ivy-completion-end
+            (move-marker (make-marker) (point))))))
+
+(defun ivy-completion-in-region (start end collection &optional predicate)
+  "An Ivy function suitable for `completion-in-region-function'."
+  (let* ((str (buffer-substring-no-properties start end))
+         (comps (all-completions str collection predicate)))
+    (if (null comps)
+        (message "No matches")
+      (setq ivy-completion-beg start)
+      (setq ivy-completion-end end)
+      (and
+       (ivy-read (format "(%s): " str) comps
+                 :predicate predicate
+                 :action #'ivy-completion-in-region-action
+                 :require-match t)
+       t))))
+
 ;;;###autoload
 (define-minor-mode ivy-mode
   "Toggle Ivy mode on or off.
@@ -1373,8 +1409,11 @@ Minibuffer bindings:
   :keymap ivy-mode-map
   :lighter " ivy"
   (if ivy-mode
-      (setq completing-read-function 'ivy-completing-read)
-    (setq completing-read-function 'completing-read-default)))
+      (progn
+        (setq completing-read-function 'ivy-completing-read)
+        (setq completion-in-region-function 'ivy-completion-in-region))
+    (setq completing-read-function 'completing-read-default)
+    (setq completion-in-region-function 'completion--in-region)))
 
 (defun ivy--preselect-index (preselect candidates)
   "Return the index of PRESELECT in CANDIDATES."

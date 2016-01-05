@@ -35,12 +35,6 @@
 (require 'swiper)
 (require 'etags)
 
-(defvar counsel-completion-beg nil
-  "Completion bounds start.")
-
-(defvar counsel-completion-end nil
-  "Completion bounds end.")
-
 ;;;###autoload
 (defun counsel-el ()
   "Elisp completion at point."
@@ -59,12 +53,12 @@
          symbol-names)
     (if bnd
         (progn
-          (setq counsel-completion-beg
+          (setq ivy-completion-beg
                 (move-marker (make-marker) (car bnd)))
-          (setq counsel-completion-end
+          (setq ivy-completion-end
                 (move-marker (make-marker) (cdr bnd))))
-      (setq counsel-completion-beg nil)
-      (setq counsel-completion-end nil))
+      (setq ivy-completion-beg nil)
+      (setq ivy-completion-end nil))
     (if (string= str "")
         (mapatoms
          (lambda (x)
@@ -80,7 +74,7 @@
     (ivy-read "Symbol name: " symbol-names
               :predicate (and funp #'functionp)
               :initial-input str
-              :action #'counsel--el-action)))
+              :action #'ivy-completion-in-region-action)))
 
 (declare-function slime-symbol-start-pos "ext:slime")
 (declare-function slime-symbol-end-pos "ext:slime")
@@ -90,27 +84,13 @@
 (defun counsel-cl ()
   "Common Lisp completion at point."
   (interactive)
-  (setq counsel-completion-beg (slime-symbol-start-pos))
-  (setq counsel-completion-end (slime-symbol-end-pos))
+  (setq ivy-completion-beg (slime-symbol-start-pos))
+  (setq ivy-completion-end (slime-symbol-end-pos))
   (ivy-read "Symbol name: "
             (car (slime-contextual-completions
-                  counsel-completion-beg
-                  counsel-completion-end))
-            :action #'counsel--el-action))
-
-(defun counsel--el-action (symbol)
-  "Insert SYMBOL, erasing the previous one."
-  (when (stringp symbol)
-    (with-ivy-window
-      (when counsel-completion-beg
-        (delete-region
-         counsel-completion-beg
-         counsel-completion-end))
-      (setq counsel-completion-beg
-            (move-marker (make-marker) (point)))
-      (insert symbol)
-      (setq counsel-completion-end
-            (move-marker (make-marker) (point))))))
+                  ivy-completion-beg
+                  ivy-completion-end))
+            :action #'ivy-completion-in-region-action))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:complete-request "ext:jedi-core")
@@ -122,10 +102,10 @@
   (let ((bnd (bounds-of-thing-at-point 'symbol)))
     (if bnd
         (progn
-          (setq counsel-completion-beg (car bnd))
-          (setq counsel-completion-end (cdr bnd)))
-      (setq counsel-completion-beg nil)
-      (setq counsel-completion-end nil)))
+          (setq ivy-completion-beg (car bnd))
+          (setq ivy-completion-end (cdr bnd)))
+      (setq ivy-completion-beg nil)
+      (setq ivy-completion-end nil)))
   (deferred:sync!
    (jedi:complete-request))
   (ivy-read "Symbol name: " (jedi:ac-direct-matches)
@@ -135,18 +115,18 @@
   "Insert SYMBOL, erasing the previous one."
   (when (stringp symbol)
     (with-ivy-window
-      (when counsel-completion-beg
+      (when ivy-completion-beg
         (delete-region
-         counsel-completion-beg
-         counsel-completion-end))
-      (setq counsel-completion-beg
+         ivy-completion-beg
+         ivy-completion-end))
+      (setq ivy-completion-beg
             (move-marker (make-marker) (point)))
       (insert symbol)
-      (setq counsel-completion-end
+      (setq ivy-completion-end
             (move-marker (make-marker) (point)))
       (when (equal (get-text-property 0 'symbol symbol) "f")
         (insert "()")
-        (setq counsel-completion-end
+        (setq ivy-completion-end
               (move-marker (make-marker) (point)))
         (backward-char 1)))))
 
@@ -304,8 +284,8 @@
   "Insert a Unicode character at point."
   (interactive)
   (let ((minibuffer-allow-text-properties t))
-    (setq counsel-completion-beg (point))
-    (setq counsel-completion-end (point))
+    (setq ivy-completion-beg (point))
+    (setq ivy-completion-end (point))
     (ivy-read "Unicode name: "
               (mapcar (lambda (x)
                         (propertize
@@ -314,10 +294,10 @@
                       (ucs-names))
               :action (lambda (char)
                         (with-ivy-window
-                          (delete-region counsel-completion-beg counsel-completion-end)
-                          (setq counsel-completion-beg (point))
+                          (delete-region ivy-completion-beg ivy-completion-end)
+                          (setq ivy-completion-beg (point))
                           (insert-char (get-text-property 0 'result char))
-                          (setq counsel-completion-end (point))))
+                          (setq ivy-completion-end (point))))
               :history 'counsel-unicode-char-history)))
 
 (declare-function cider-sync-request:complete "ext:cider-client")
@@ -1273,13 +1253,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (if (eq last-command 'yank)
       (progn
-        (setq counsel-completion-end (point))
-        (setq counsel-completion-beg
+        (setq ivy-completion-end (point))
+        (setq ivy-completion-beg
               (save-excursion
                 (search-backward (car kill-ring))
                 (point))))
-    (setq counsel-completion-beg (point))
-    (setq counsel-completion-end (point)))
+    (setq ivy-completion-beg (point))
+    (setq ivy-completion-end (point)))
   (let ((candidates (cl-remove-if
                      (lambda (s)
                        (or (< (length s) 3)
@@ -1306,10 +1286,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-yank-pop-action (s)
   "Insert S into the buffer, overwriting the previous yank."
   (with-ivy-window
-    (delete-region counsel-completion-beg
-                   counsel-completion-end)
+    (delete-region ivy-completion-beg
+                   ivy-completion-end)
     (insert (substring-no-properties s))
-    (setq counsel-completion-end (point))))
+    (setq ivy-completion-end (point))))
 
 (defvar imenu-auto-rescan)
 (declare-function imenu--subalist-p "imenu")
