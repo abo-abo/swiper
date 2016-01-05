@@ -1132,30 +1132,30 @@ customizations apply to the current completion session."
     (ivy--reset-state ivy-last)
     (prog1
         (unwind-protect
-             (minibuffer-with-setup-hook
-                 #'ivy--minibuffer-setup
-               (let* ((hist (or history 'ivy-history))
-                      (minibuffer-completion-table collection)
-                      (minibuffer-completion-predicate predicate)
-                      (resize-mini-windows (cond
-                                             ((display-graphic-p) nil)
-                                             ((null resize-mini-windows) 'grow-only)
-                                             (t resize-mini-windows)))
-                      (res (read-from-minibuffer
-                            prompt
-                            (ivy-state-initial-input ivy-last)
-                            (make-composed-keymap keymap ivy-minibuffer-map)
-                            nil
-                            hist)))
-                 (when (eq ivy-exit 'done)
-                   (let ((item (if ivy--directory
-                                   ivy--current
-                                 ivy-text)))
-                     (unless (equal item "")
-                       (set hist (cons (propertize item 'ivy-index ivy--index)
-                                       (delete item
-                                               (cdr (symbol-value hist)))))))
-                   res)))
+            (minibuffer-with-setup-hook
+                #'ivy--minibuffer-setup
+              (let* ((hist (or history 'ivy-history))
+                     (minibuffer-completion-table collection)
+                     (minibuffer-completion-predicate predicate)
+                     (resize-mini-windows (cond
+                                           ((display-graphic-p) nil)
+                                           ((null resize-mini-windows) 'grow-only)
+                                           (t resize-mini-windows))))
+                (read-from-minibuffer
+                 prompt
+                 (ivy-state-initial-input ivy-last)
+                 (make-composed-keymap keymap ivy-minibuffer-map)
+                 nil
+                 hist)
+                (when (eq ivy-exit 'done)
+                  (let ((item (if ivy--directory
+                                  ivy--current
+                                ivy-text)))
+                    (unless (equal item "")
+                      (set hist (cons (propertize item 'ivy-index ivy--index)
+                                      (delete item
+                                              (cdr (symbol-value hist))))))))
+                ivy--current))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
