@@ -460,11 +460,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel-find-file-map (make-sparse-keymap))
 
 ;;;###autoload
-(defun counsel-find-file ()
-  "Forward to `find-file'."
+(defun counsel-find-file (&optional initial-input)
+  "Forward to `find-file'.
+When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
   (ivy-read "Find file: " 'read-file-name-internal
             :matcher #'counsel--find-file-matcher
+            :initial-input initial-input
             :action
             (lambda (x)
               (with-ivy-window
