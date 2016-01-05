@@ -1380,7 +1380,9 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'."
   (let* ((str (buffer-substring-no-properties start end))
-         (comps (all-completions str collection predicate)))
+         (comps (all-completions str collection predicate))
+         (w (1+ (floor (log (length comps) 10))))
+         (ivy-count-format (format "%%-%dd " w)))
     (if (null comps)
         (message "No matches")
       (setq ivy-completion-beg start)
