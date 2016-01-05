@@ -1100,7 +1100,8 @@ candidates is updated after each input by calling COLLECTION.
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
-  (let ((extra-actions (plist-get ivy--actions-list this-command)))
+  (let ((extra-actions (append (plist-get ivy--actions-list t)
+                               (plist-get ivy--actions-list this-command))))
     (when extra-actions
       (setq action
             (if (functionp action)
