@@ -331,22 +331,29 @@
       #'cl-caddr
       (cider-sync-request:complete str ":same")))))
 
+(defvar counsel--git-dir nil
+  "Store the base git directory.")
+
 ;;;###autoload
 (defun counsel-git ()
   "Find file in the current Git repository."
   (interactive)
-  (let* ((default-directory (locate-dominating-file
-                             default-directory ".git"))
+  (setq counsel--git-dir (expand-file-name
+                          (locate-dominating-file
+                           default-directory ".git")))
+  (let* ((default-directory counsel--git-dir)
          (cands (split-string
                  (shell-command-to-string
                   "git ls-files --full-name --")
                  "\n"
-                 t))
-         (action `(lambda (x)
-                    (let ((default-directory ,default-directory))
-                      (find-file x)))))
+                 t)))
     (ivy-read "Find file: " cands
-              :action action)))
+              :action #'counsel-git-action)))
+
+(defun counsel-git-action (x)
+  (with-ivy-window
+    (let ((default-directory counsel--git-dir))
+      (find-file x))))
 
 (defvar counsel--git-grep-dir nil
   "Store the base git directory.")
