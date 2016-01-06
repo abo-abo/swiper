@@ -1382,19 +1382,19 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'."
   (let* ((str (buffer-substring-no-properties start end))
-         (comps (all-completions str collection predicate))
-         (w (1+ (floor (log (length comps) 10))))
-         (ivy-count-format (format "%%-%dd " w)))
+         (comps (all-completions str collection predicate)))
     (if (null comps)
         (message "No matches")
-      (setq ivy-completion-beg start)
-      (setq ivy-completion-end end)
-      (and
-       (ivy-read (format "(%s): " str) comps
-                 :predicate predicate
-                 :action #'ivy-completion-in-region-action
-                 :require-match t)
-       t))))
+      (let* ((w (1+ (floor (log (length comps) 10))))
+             (ivy-count-format (format "%%-%dd " w)))
+        (setq ivy-completion-beg start)
+        (setq ivy-completion-end end)
+        (and
+         (ivy-read (format "(%s): " str) comps
+                   :predicate predicate
+                   :action #'ivy-completion-in-region-action
+                   :require-match t)
+         t)))))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
