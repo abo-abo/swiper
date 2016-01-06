@@ -2071,6 +2071,13 @@ SEPARATOR is used to join the candidates."
     ivy-minibuffer-match-face-4)
   "List of `ivy' faces for minibuffer group matches.")
 
+(defun ivy-add-face-text-property (start end face str)
+  (if (fboundp 'add-face-text-property)
+      (add-face-text-property
+       start end face nil str)
+    (font-lock-append-text-property
+     start end 'face face str)))
+
 (defun ivy--format-minibuffer-line (str)
   (let ((start 0)
         (str (copy-sequence str)))
@@ -2090,19 +2097,9 @@ SEPARATOR is used to join the candidates."
                          (t
                           (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
                                ivy-minibuffer-faces)))))
-              (if (fboundp 'add-face-text-property)
-                  (add-face-text-property
-                   (match-beginning i)
-                   (match-end i)
-                   face
-                   nil
-                   str)
-                (font-lock-append-text-property
-                 (match-beginning i)
-                 (match-end i)
-                 'face
-                 face
-                 str)))
+              (ivy-add-face-text-property
+               (match-beginning i) (match-end i)
+               face str))
             (cl-incf i)))))
     str))
 
