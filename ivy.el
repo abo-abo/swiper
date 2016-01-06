@@ -1752,7 +1752,10 @@ Should be run via minibuffer `post-command-hook'."
         (let ((text-height (cdr (window-text-pixel-size)))
               (body-height (window-body-height nil t)))
           (when (> text-height body-height)
-            (window-resize nil (- text-height body-height) nil t t)))
+            ;; Note: the size increment needs to be at least frame-char-height,
+            ;; otherwise resizing won't do anything.
+            (let ((delta (max (- text-height body-height) (frame-char-height))))
+              (window-resize nil delta nil t t))))
       (let ((text-height (count-screen-lines))
             (body-height (window-body-height)))
         (when (> text-height body-height)
