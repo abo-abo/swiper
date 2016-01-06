@@ -2004,14 +2004,17 @@ Prefix matches to NAME are put ahead of the list."
             (if cands-with-score
                 (mapcar (lambda (x)
                           (let ((str (copy-sequence (cdr x)))
-                                (i 1))
+                                (i 0)
+                                (last-j -2))
                             (dolist (j (cdar x))
+                              (unless (eq j (1+ last-j))
+                                (cl-incf i))
+                              (setq last-j j)
                               (ivy-add-face-text-property
                                j (1+ j)
                                (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
                                     ivy-minibuffer-faces)
-                               str)
-                              (cl-incf i))
+                               str))
                             str))
                         (sort cands-with-score
                               (lambda (x y)
