@@ -1978,6 +1978,13 @@ Prefix matches to NAME are put ahead of the list."
 (defun ivy-recompute-index-zero (_re-str _cands)
   0)
 
+(defcustom ivy-minibuffer-faces
+  '(ivy-minibuffer-match-face-1
+    ivy-minibuffer-match-face-2
+    ivy-minibuffer-match-face-3
+    ivy-minibuffer-match-face-4)
+  "List of `ivy' faces for minibuffer group matches.")
+
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
@@ -1990,15 +1997,25 @@ Prefix matches to NAME are put ahead of the list."
                   (delq nil
                         (mapcar
                          (lambda (x)
-                           (let ((score (car (flx-score x flx-name ivy--flx-cache))))
+                           (let ((score (flx-score x flx-name ivy--flx-cache)))
                              (and score
                                   (cons score x))))
                          cands))))
             (if cands-with-score
-                (mapcar #'cdr
+                (mapcar (lambda (x)
+                          (let ((str (copy-sequence (cdr x)))
+                                (i 1))
+                            (dolist (j (cdar x))
+                              (ivy-add-face-text-property
+                               j (1+ j)
+                               (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                                    ivy-minibuffer-faces)
+                               str)
+                              (cl-incf i))
+                            str))
                         (sort cands-with-score
                               (lambda (x y)
-                                (> (car x) (car y)))))
+                                (> (caar x) (caar y)))))
               cands))
         cands)
     (error
@@ -2064,13 +2081,6 @@ SEPARATOR is used to join the candidates."
    cand-pairs
    ""))
 
-(defcustom ivy-minibuffer-faces
-  '(ivy-minibuffer-match-face-1
-    ivy-minibuffer-match-face-2
-    ivy-minibuffer-match-face-3
-    ivy-minibuffer-match-face-4)
-  "List of `ivy' faces for minibuffer group matches.")
-
 (defun ivy-add-face-text-property (start end face str)
   (if (fboundp 'add-face-text-property)
       (add-face-text-property
@@ -2081,7 +2091,8 @@ SEPARATOR is used to join the candidates."
 (defun ivy--format-minibuffer-line (str)
   (let ((start 0)
         (str (copy-sequence str)))
-    (when (eq ivy-display-style 'fancy)
+    (when (and (eq ivy-display-style 'fancy)
+               (not (eq ivy--regex-function 'ivy--regex-fuzzy)))
       (unless ivy--old-re
         (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
       (while (and (string-match ivy--old-re str start)
