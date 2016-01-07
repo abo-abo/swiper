@@ -488,10 +488,7 @@ Possible value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\"."
 (defun counsel--find-file-matcher (regexp candidates)
   "Return REGEXP-matching CANDIDATES.
 Skip some dotfiles unless `ivy-text' requires them."
-  (let ((res (cl-remove-if-not
-              (lambda (x)
-                (string-match regexp x))
-              candidates)))
+  (let ((res (ivy--re-filter regexp candidates)))
     (if (or (null counsel-find-file-ignore-regexp)
             (string-match counsel-find-file-ignore-regexp ivy-text))
         res

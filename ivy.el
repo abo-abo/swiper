@@ -1499,30 +1499,15 @@ When GREEDY is non-nil, join words in a greedy way."
 
 (defun ivy--regex-ignore-order (str)
   "Re-build regex from STR by splitting at spaces.
-Ignore the order of each group.
-
-ATTENTION: This is just a proof of concept and may not work as
-expected. Besides ignoring the order of the tokens where 'foo'
-and 'bar', 'bar' and 'foo' are matched, it also matches multiple
-occurrences of 'foo' and 'bar'. To ignore the sort order and avoid
-multiple matches, use `ivy-restrict-to-matches' instead.
-"
+Ignore the order of each group."
   (let* ((subs (split-string str " +" t))
          (len (length subs)))
     (cl-case len
-      (1
-       (setq ivy--subexps 0)
-       (car subs))
+      (0
+       "")
       (t
-       (setq ivy--subexps len)
-       (let ((all (mapconcat #'identity subs "\\|")))
-         (mapconcat
-          (lambda (x)
-            (if (string-match "\\`\\\\(.*\\\\)\\'" x)
-                x
-              (format "\\(%s\\)" x)))
-          (make-list len all)
-          ".*?"))))))
+       (mapcar (lambda (x) (cons x t))
+               subs)))))
 
 (defun ivy--regex-plus (str)
   "Build a regex sequence from STR.
@@ -1534,10 +1519,10 @@ match. Everything after \"!\" should not match."
        "")
       (1
        (if (string-equal (substring str 0 1) "!")
-            (list
-             (cons "" t)
-             (list (ivy--regex (car parts))))
-           (ivy--regex (car parts))))
+           (list
+            (cons "" t)
+            (list (ivy--regex (car parts))))
+         (ivy--regex (car parts))))
       (2
        (let ((res
               (mapcar #'list
@@ -1807,6 +1792,25 @@ You can toggle this to make `case-fold-search' nil regardless of input."
   ;; reset cache so that the candidate list updates
   (setq ivy--old-re nil))
 
+(defun ivy--re-filter (re candidates)
+  "Return all RE matching CANDIDATES.
+RE is a list of cons cells, with a regexp car and a boolean cdr.
+When the cdr is t, the car must match.
+Otherwise, the car must not match."
+  (let ((re-list (if (stringp re) (list (cons re t)) re))
+        (res candidates))
+    (dolist (re re-list)
+      (setq res
+            (ignore-errors
+              (funcall
+               (if (cdr re)
+                   #'cl-remove-if-not
+                 #'cl-remove-if)
+               (let ((re-str (car re)))
+                 (lambda (x) (string-match re-str x)))
+               res))))
+    res))
+
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
@@ -1821,15 +1825,15 @@ CANDIDATES are assumed to be static."
               (and ivy-case-fold-search
                    (string= name (downcase name))))
              (cands (cond
-                     (matcher
-                      (funcall matcher re candidates))
-                     ((and ivy--old-re
-                           (stringp re)
-                           (stringp ivy--old-re)
-                           (not (string-match "\\\\" ivy--old-re))
-                           (not (equal ivy--old-re ""))
-                           (memq (cl-search
-                                  (if (string-match "\\\\)\\'" ivy--old-re)
+                      (matcher
+                       (funcall matcher re candidates))
+                      ((and ivy--old-re
+                            (stringp re)
+                            (stringp ivy--old-re)
+                            (not (string-match "\\\\" ivy--old-re))
+                            (not (equal ivy--old-re ""))
+                            (memq (cl-search
+                                   (if (string-match "\\\\)\\'" ivy--old-re)
                                        (substring ivy--old-re 0 -2)
                                      ivy--old-re)
                                    re)
@@ -1839,21 +1843,14 @@ CANDIDATES are assumed to be static."
                           (lambda (x) (string-match re x))
                           ivy--old-cands)))
                       (t
-                       (let ((re-list (if (stringp re) (list (cons re t)) re))
-                             (res candidates))
-                         (dolist (re re-list)
-                           (setq res
-                                 (ignore-errors
-                                   (funcall
-                                    (if (cdr re)
-                                        #'cl-remove-if-not
-                                      #'cl-remove-if)
-                                    (let ((re-str (car re)))
-                                      (lambda (x) (string-match re-str x)))
-                                    res))))
-                         res)))))
+                       (ivy--re-filter re candidates)))))
         (ivy--recompute-index name re-str cands)
-        (setq ivy--old-re (if cands re-str ""))
+        (setq ivy--old-re
+              (if (eq ivy--regex-function 'ivy--regex-ignore-order)
+                  re
+                (if cands
+                    re-str
+                  "")))
         (setq ivy--old-cands (ivy--sort name cands))))))
 
 (defcustom ivy-sort-matches-functions-alist '((t . nil))
@@ -2097,27 +2094,38 @@ SEPARATOR is used to join the candidates."
 (defun ivy--format-minibuffer-line (str)
   (let ((start 0)
         (str (copy-sequence str)))
-    (when (and (eq ivy-display-style 'fancy)
-               (not (eq ivy--regex-function 'ivy--regex-fuzzy)))
-      (unless ivy--old-re
-        (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-      (while (and (string-match ivy--old-re str start)
-                  (> (- (match-end 0) (match-beginning 0)) 0))
-        (setq start (match-end 0))
-        (let ((i 0))
-          (while (<= i ivy--subexps)
-            (let ((face
-                   (cond ((zerop ivy--subexps)
-                          (cadr ivy-minibuffer-faces))
-                         ((zerop i)
-                          (car ivy-minibuffer-faces))
-                         (t
-                          (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                               ivy-minibuffer-faces)))))
-              (ivy-add-face-text-property
-               (match-beginning i) (match-end i)
-               face str))
-            (cl-incf i)))))
+    (cond ((eq ivy--regex-function 'ivy--regex-ignore-order)
+           (when (consp ivy--old-re)
+             (let ((i 1))
+               (dolist (re ivy--old-re)
+                 (when (string-match (car re) str)
+                   (ivy-add-face-text-property
+                    (match-beginning 0) (match-end 0)
+                    (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                         ivy-minibuffer-faces)
+                    str))
+                 (cl-incf i)))))
+          ((and (eq ivy-display-style 'fancy)
+                (not (eq ivy--regex-function 'ivy--regex-fuzzy)))
+           (unless ivy--old-re
+             (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
+           (while (and (string-match ivy--old-re str start)
+                       (> (- (match-end 0) (match-beginning 0)) 0))
+             (setq start (match-end 0))
+             (let ((i 0))
+               (while (<= i ivy--subexps)
+                 (let ((face
+                        (cond ((zerop ivy--subexps)
+                               (cadr ivy-minibuffer-faces))
+                              ((zerop i)
+                               (car ivy-minibuffer-faces))
+                              (t
+                               (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                                    ivy-minibuffer-faces)))))
+                   (ivy-add-face-text-property
+                    (match-beginning i) (match-end i)
+                    face str))
+                 (cl-incf i))))))
     str))
 
 (defun ivy--format (cands)
