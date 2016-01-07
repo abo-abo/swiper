@@ -2429,7 +2429,10 @@ There is no limit on the number of *ivy-occur* buffers."
             (setq ivy--old-cands
                   (split-string
                    (shell-command-to-string
-                    (format counsel-git-grep-cmd ivy--old-re))
+                    (format counsel-git-grep-cmd
+                            (if (stringp ivy--old-re)
+                                ivy--old-re
+                              (caar ivy--old-re))))
                    "\n"
                    t))
             (ivy-occur-grep-mode))
