@@ -1401,19 +1401,21 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
     (if (null comps)
         (message "No matches")
       (nconc comps nil)
-      (let* ((w (1+ (floor (log (length comps) 10))))
-             (ivy-count-format (and ivy-count-format
-                                    (format "%%-%dd " w))))
-        (setq ivy-completion-beg (- end (ivy-completion-common-length (car comps))))
-        (setq ivy-completion-end end)
-        (and
-         (ivy-read (format "(%s): " str)
-                   ;; remove 'completions-first-difference face
-                   (mapcar #'substring-no-properties comps)
-                   :predicate predicate
-                   :action #'ivy-completion-in-region-action
-                   :require-match t)
-         t)))))
+      (setq ivy-completion-beg (- end (ivy-completion-common-length (car comps))))
+      (setq ivy-completion-end end)
+      (if (null (cdr comps))
+          (ivy-completion-in-region-action (car comps))
+        (let* ((w (1+ (floor (log (length comps) 10))))
+               (ivy-count-format (and ivy-count-format
+                                      (format "%%-%dd " w))))
+          (and
+           (ivy-read (format "(%s): " str)
+                     ;; remove 'completions-first-difference face
+                     (mapcar #'substring-no-properties comps)
+                     :predicate predicate
+                     :action #'ivy-completion-in-region-action
+                     :require-match t)
+           t))))))
 
 ;;;###autoload
 (define-minor-mode ivy-mode
