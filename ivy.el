@@ -1379,18 +1379,37 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
       (setq ivy-completion-end
             (move-marker (make-marker) (point))))))
 
+(defun ivy-completion-common-length (str)
+  "Return the length of the first 'completions-common-part face in STR."
+  (let ((pos 0)
+        (len (length str)))
+    (while (and (<= pos len)
+                (let ((prop (get-text-property pos 'face str)))
+                  (not (eq 'completions-common-part
+                           (if (listp prop) (car prop) prop)))))
+      (setq pos (1+ pos)))
+    (if (< pos len)
+        (or (next-single-property-change pos 'face str) len)
+      0)))
+
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'."
-  (let* ((str (buffer-substring-no-properties start end))
-         (comps (all-completions str collection predicate)))
+  (let* ((enable-recursive-minibuffers t)
+         (str (buffer-substring-no-properties start end))
+         (comps
+          (completion-all-completions str collection predicate (- end start))))
     (if (null comps)
         (message "No matches")
+      (nconc comps nil)
       (let* ((w (1+ (floor (log (length comps) 10))))
-             (ivy-count-format (format "%%-%dd " w)))
-        (setq ivy-completion-beg start)
+             (ivy-count-format (and ivy-count-format
+                                    (format "%%-%dd " w))))
+        (setq ivy-completion-beg (- end (ivy-completion-common-length (car comps))))
         (setq ivy-completion-end end)
         (and
-         (ivy-read (format "(%s): " str) comps
+         (ivy-read (format "(%s): " str)
+                   ;; remove 'completions-first-difference face
+                   (mapcar #'substring-no-properties comps)
                    :predicate predicate
                    :action #'ivy-completion-in-region-action
                    :require-match t)
