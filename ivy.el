@@ -1404,7 +1404,11 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
       (setq ivy-completion-beg (- end (ivy-completion-common-length (car comps))))
       (setq ivy-completion-end end)
       (if (null (cdr comps))
-          (ivy-completion-in-region-action (car comps))
+          (progn
+            (setf (ivy-state-window ivy-last) (selected-window))
+            (ivy-completion-in-region-action
+             (substring-no-properties
+              (car comps))))
         (let* ((w (1+ (floor (log (length comps) 10))))
                (ivy-count-format (and ivy-count-format
                                       (format "%%-%dd " w))))
