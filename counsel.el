@@ -560,7 +560,9 @@ Or the time of the last minibuffer update.")
               (ivy--recompute-index
                ivy-text re ivy--all-candidates)))
           (setq ivy--old-cands ivy--all-candidates))
-        (ivy--exhibit))
+        (if (null ivy--all-candidates)
+            (ivy--insert-minibuffer "")
+          (ivy--exhibit)))
     (if (string= event "exited abnormally with code 1\n")
         (progn
           (setq ivy--all-candidates '("Error"))
