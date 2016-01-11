@@ -554,10 +554,11 @@ Or the time of the last minibuffer update.")
                          (ivy-state-preselect ivy-last)
                          ivy--all-candidates)
                         0))
-            (ivy--recompute-index
-             ivy-text
-             (funcall ivy--regex-function ivy-text)
-             ivy--all-candidates))
+            (let ((re (funcall ivy--regex-function ivy-text)))
+              (unless (stringp re)
+                (setq re (caar re)))
+              (ivy--recompute-index
+               ivy-text re ivy--all-candidates)))
           (setq ivy--old-cands ivy--all-candidates))
         (ivy--exhibit))
     (if (string= event "exited abnormally with code 1\n")
