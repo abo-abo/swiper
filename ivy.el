@@ -500,7 +500,7 @@ When ARG is t, exit with current text, ignoring the candidates."
          (setq res (cl-delete-duplicates res :test #'equal))
          (let* ((old-ivy-last ivy-last)
                 (enable-recursive-minibuffers t)
-                (host (ivy-read "Find File: "
+                (host (ivy-read "user@host: "
                                 (mapcar #'ivy-build-tramp-name res)
                                 :initial-input rest)))
            (setq ivy-last old-ivy-last)
@@ -1708,10 +1708,10 @@ Should be run via minibuffer `post-command-hook'."
              (if (string-match "/\\'" ivy-text)
                  (if (member ivy-text ivy--all-candidates)
                      (ivy--cd (expand-file-name ivy-text ivy--directory))
-                     (when (string-match "//\\'" ivy-text)
-                       (if (and default-directory
-                                (string-match "\\`[[:alpha:]]:/" default-directory))
-                           (ivy--cd (match-string 0 default-directory))
+                   (when (string-match "//\\'" ivy-text)
+                     (if (and default-directory
+                              (string-match "\\`[[:alpha:]]:/" default-directory))
+                         (ivy--cd (match-string 0 default-directory))
                        (ivy--cd "/")))
                    (when (string-match "[[:alpha:]]:/$" ivy-text)
                      (let ((drive-root (match-string 0 ivy-text)))
