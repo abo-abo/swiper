@@ -199,38 +199,46 @@
   (with-ivy-window
     (recenter-top-bottom arg)))
 
+(defvar swiper-font-lock-exclude
+  '(package-menu-mode
+    gnus-summary-mode
+    gnus-article-mode
+    gnus-group-mode
+    emms-playlist-mode
+    emms-stream-mode
+    erc-mode
+    org-agenda-mode
+    dired-mode
+    jabber-chat-mode
+    elfeed-search-mode
+    elfeed-show-mode
+    fundamental-mode
+    Man-mode
+    woman-mode
+    mu4e-view-mode
+    mu4e-headers-mode
+    help-mode
+    debbugs-gnu-mode
+    occur-mode
+    occur-edit-mode
+    bongo-mode
+    bongo-library-mode
+    bongo-playlist-mode
+    eww-mode
+    twittering-mode
+    vc-dir-mode
+    w3m-mode)
+  "List of major-modes that are incompatible with font-lock-ensure.")
+
+(defun swiper-font-lock-ensure-p ()
+  "Return non-nil if we should font-lock-ensure."
+  (or (derived-mode-p 'magit-mode)
+              (bound-and-true-p magit-blame-mode)
+              (memq major-mode swiper-font-lock-exclude)))
+
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
-  (unless (or (derived-mode-p 'magit-mode)
-              (bound-and-true-p magit-blame-mode)
-              (memq major-mode '(package-menu-mode
-                                 gnus-summary-mode
-                                 gnus-article-mode
-                                 gnus-group-mode
-                                 emms-playlist-mode
-                                 emms-stream-mode
-                                 erc-mode
-                                 org-agenda-mode
-                                 dired-mode
-                                 jabber-chat-mode
-                                 elfeed-search-mode
-                                 elfeed-show-mode
-                                 fundamental-mode
-                                 Man-mode
-                                 woman-mode
-                                 mu4e-view-mode
-                                 mu4e-headers-mode
-                                 help-mode
-                                 debbugs-gnu-mode
-                                 occur-mode
-                                 occur-edit-mode
-                                 bongo-mode
-                                 bongo-library-mode
-                                 bongo-playlist-mode
-                                 eww-mode
-                                 twittering-mode
-                                 vc-dir-mode
-                                 w3m-mode)))
+  (unless (swiper-font-lock-ensure-p)
     (unless (> (buffer-size) 100000)
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
