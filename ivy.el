@@ -372,7 +372,9 @@ When non-nil, it should contain at least one %d.")
   (interactive)
   (let ((actions (ivy-state-action ivy-last)))
     (unless (null (ivy--actionp actions))
-      (let* ((hint (concat ivy--current
+      (let* ((hint (concat (if (eq this-command 'ivy-read-action)
+                               "Select action: "
+                             ivy--current)
                            "\n"
                            (mapconcat
                             (lambda (x)
