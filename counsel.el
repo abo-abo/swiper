@@ -457,7 +457,20 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (declare-function ffap-guesser "ffap")
 
-(defvar counsel-find-file-map (make-sparse-keymap))
+(defvar counsel-find-file-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-DEL") 'counsel-up-directory)
+    (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
+    map))
+
+(defun counsel-up-directory ()
+  "Go to the parent directory preselecting the current one."
+  (interactive)
+  (let ((dir-file-name
+         (directory-file-name (expand-file-name ivy--directory))))
+    (ivy--cd (file-name-directory dir-file-name))
+    (setf (ivy-state-preselect ivy-last)
+          (file-name-as-directory (file-name-nondirectory dir-file-name)))))
 
 ;;;###autoload
 (defun counsel-find-file (&optional initial-input)
