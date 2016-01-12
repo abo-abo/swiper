@@ -1534,26 +1534,42 @@ Ignore the order of each group."
        (mapcar (lambda (x) (cons x t))
                subs)))))
 
+(defun ivy--regex-normalize (regex &optional discard)
+  "If regex is a list, only adjust its discard part. If it is a
+string, return a list of cons out of it. The discard argument
+indicate whether the matched candidates should be discarded or
+not."
+  (if (listp regex)
+      (mapcar
+       (lambda (part)
+         (cons (car part) (not discard))
+         )
+       regex)
+    (list (cons regex (not discard)))
+    )
+  )
+
 (defun ivy--regex-plus (str)
   "Build a regex sequence from STR.
 Spaces are wild card characters, everything before \"!\" should
 match. Everything after \"!\" should not match."
-  (let ((parts (split-string str "!" t)))
+  (let (
+        (parts (split-string str "!" t))
+        (regex '()))
     (cl-case (length parts)
       (0
        "")
       (1
-       (if (string-equal (substring str 0 1) "!")
-           (list
-            (cons "" t)
-            (list (ivy--regex (car parts))))
-         (ivy--regex (car parts))))
+       (let ((discard (string-equal (substring str 0 1) "!")))
+         (ivy--regex-normalize (ivy--regex (car parts)) discard)))
       (2
-       (let ((res
-              (mapcar #'list
-                      (split-string (cadr parts) " " t))))
-         (cons (cons (ivy--regex (car parts)) t)
-               res)))
+       (append
+        (ivy--regex-normalize
+         (ivy--regex (car parts))
+         nil)
+        (ivy--regex-normalize
+         (ivy--regex (cadr parts))
+         t)))
       (t (error "Unexpected: use only one !")))))
 
 (defun ivy--regex-fuzzy (str)
