@@ -1522,7 +1522,7 @@ When GREEDY is non-nil, join words in a greedy way."
                             ".*?")))))
                     ivy--regex-hash)))))
 
-(defun ivy--regex-ignore-order (str)
+(defun ivy--regex-ignore-order--part (str &optional discard)
   "Re-build regex from STR by splitting at spaces.
 Ignore the order of each group."
   (let* ((subs (split-string str " +" t))
@@ -1531,8 +1531,27 @@ Ignore the order of each group."
       (0
        "")
       (t
-       (mapcar (lambda (x) (cons x t))
+       (mapcar (lambda (x) (cons x (not discard)))
                subs)))))
+
+(defun ivy--regex-ignore-order (str)
+  "Re-build regex from STR by splitting at spaces.
+Ignore the order of each group. Everything before \"!\" should
+match. Everything after \"!\" should not match."
+  (let ((parts (split-string str "!" t)))
+    (cl-case (length parts)
+      (0
+       "")
+      (1
+       (if (string= (substring str 0 1) "!")
+           (list (cons "" t)
+                 (ivy--regex-ignore-order--part (car parts) t))
+         (ivy--regex-ignore-order--part (car parts))))
+      (2
+       (append
+        (ivy--regex-ignore-order--part (car parts))
+        (ivy--regex-ignore-order--part (cadr parts) t)))
+      (t (error "Unexpected: use only one !")))))
 
 (defun ivy--regex-plus (str)
   "Build a regex sequence from STR.
