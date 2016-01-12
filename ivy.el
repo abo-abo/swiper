@@ -1545,8 +1545,7 @@ match. Everything after \"!\" should not match."
       (1
        (if (string-equal (substring str 0 1) "!")
            (list
-            (cons "" t)
-            (list (ivy--regex (car parts))))
+            (cons (ivy--regex (car parts)) nil))
          (ivy--regex (car parts))))
       (2
        (let ((res
