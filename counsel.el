@@ -596,9 +596,12 @@ Update the minibuffer with the amount of lines collected every
            (time-since counsel--async-time))
       (with-current-buffer (process-buffer process)
         (goto-char (point-min))
-        (setq size (- (buffer-size) (forward-line (buffer-size)))))
-      (ivy--insert-minibuffer
-       (format "\ncollected: %d" size))
+        (setq size (- (buffer-size) (forward-line (buffer-size))))
+        (setq ivy--all-candidates
+              (split-string (buffer-string) "\n" t)))
+      (let ((ivy--prompt (format "%d++ ag:" size)))
+        (ivy--insert-minibuffer
+         (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
 (defun counsel-locate-action-extern (x)
