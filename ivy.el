@@ -1543,17 +1543,14 @@ match. Everything after \"!\" should not match."
       (0
        "")
       (1
-       (if (string-equal (substring str 0 1) "!")
-           (list
-            (cons "" t)
-            (list (ivy--regex (car parts))))
+       (if (string= (substring str 0 1) "!")
+           (list (cons "" t)
+                 (list (ivy--regex (car parts))))
          (ivy--regex (car parts))))
       (2
-       (let ((res
-              (mapcar #'list
-                      (split-string (cadr parts) " " t))))
-         (cons (cons (ivy--regex (car parts)) t)
-               res)))
+       (cons
+        (cons (ivy--regex (car parts)) t)
+        (mapcar #'list (split-string (cadr parts) " " t))))
       (t (error "Unexpected: use only one !")))))
 
 (defun ivy--regex-fuzzy (str)
