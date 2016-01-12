@@ -227,6 +227,7 @@
     eww-mode
     twittering-mode
     vc-dir-mode
+    rcirc-mode
     w3m-mode)
   "List of major-modes that are incompatible with font-lock-ensure.")
 
