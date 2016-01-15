@@ -1964,10 +1964,10 @@ Prefix matches to NAME are put ahead of the list."
     (unless (eq this-command 'ivy-resume)
       (setq ivy--index
             (or
-             (cl-position (if (and (> (length re-str) 0)
-                                   (eq ?^ (aref re-str 0)))
-                              (substring re-str 1)
-                            re-str) cands
+             (cl-position (if (and (> (length name) 0)
+                                   (eq ?^ (aref name 0)))
+                              (substring name 1)
+                            name) cands
                             :test #'equal)
              (and ivy--directory
                   (cl-position
