@@ -2033,11 +2033,16 @@ Prefix matches to NAME are put ahead of the list."
     ivy-minibuffer-match-face-4)
   "List of `ivy' faces for minibuffer group matches.")
 
+(defvar ivy-flx-limit 200
+  "Used to conditionally turn off flx sorting.
+When the amount of matching candidates is larger than this
+number, no sorting will be done.")
+
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
       (if (and cands
-               (< (length cands) 200))
+               (< (length cands) ivy-flx-limit))
           (let* ((flx-name (if (string-match "^\\^" name)
                                (substring name 1)
                              name))
