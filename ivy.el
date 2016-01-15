@@ -1406,7 +1406,8 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
       (setq ivy-completion-beg (- end (ivy-completion-common-length (car comps))))
       (setq ivy-completion-end end)
       (if (null (cdr comps))
-          (progn
+          (if (string= str (car comps))
+              (message "Sole match")
             (setf (ivy-state-window ivy-last) (selected-window))
             (ivy-completion-in-region-action
              (substring-no-properties
