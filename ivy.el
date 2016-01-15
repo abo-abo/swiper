@@ -1412,10 +1412,14 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
              (substring-no-properties
               (car comps))))
         (let* ((w (1+ (floor (log (length comps) 10))))
-               (ivy-count-format (and ivy-count-format
-                                      (format "%%-%dd " w))))
+               (ivy-count-format (if (string= ivy-count-format "")
+                                     ivy-count-format
+                                   (format "%%-%dd " w)))
+               (prompt (format "(%s): " str)))
           (and
-           (ivy-read (format "(%s): " str)
+           (ivy-read (if (string= ivy-count-format "")
+                         prompt
+                       (replace-regexp-in-string "%" "%%" prompt))
                      ;; remove 'completions-first-difference face
                      (mapcar #'substring-no-properties comps)
                      :predicate predicate
