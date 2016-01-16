@@ -1410,6 +1410,17 @@ Describe the selected candidate."
  '(("d" counsel-descbinds-action-find "definition")
    ("i" counsel-descbinds-action-info "info")))
 
+;;;###autoload
+(defun counsel-bookmarks ()
+  "Show a list of bookmarks.
+Navigates to the selected candidate."
+  (interactive)
+  (ivy-read "Bookmarks: " (bookmark-all-names)
+            :action (lambda (bookmark)
+                      (with-ivy-window
+                        (let ((loc (bookmark-location bookmark)))
+                          (find-file loc))))))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
