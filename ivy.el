@@ -1593,6 +1593,14 @@ Insert .* between each char."
         (setq ivy--subexps (length (match-string 2 str))))
     str))
 
+(defcustom ivy-fixed-height-minibuffer nil
+  "When non nil, fix the height of the minibuffer during ivy
+completion at `ivy-height'. This effectively sets the minimum
+height at this level and tries to ensure that it does not change
+depending on the number of candidates."
+  :group 'ivy
+  :type 'boolean)
+
 ;;** Rest
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
@@ -1603,6 +1611,8 @@ Insert .* between each char."
   (when (display-graphic-p)
     (setq truncate-lines t))
   (setq-local max-mini-window-height ivy-height)
+  (when ivy-fixed-height-minibuffer
+    (set-window-text-height (selected-window) ivy-height))
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
   ;; show completions with empty input
   (ivy--exhibit))
