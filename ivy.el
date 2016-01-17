@@ -238,7 +238,7 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   dynamic-collection
   caller)
 
-(defvar ivy-last nil
+(defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
 
 This should eventually become a stack so that you could use
