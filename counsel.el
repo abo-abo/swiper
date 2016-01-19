@@ -1257,11 +1257,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (setq last-command-event chosen-string)
            (call-interactively choice)))))
 
+(defvar tmm-table-undef)
 (defun counsel-tmm ()
   "Text-mode emulation of looking and choosing from a menubar."
   (interactive)
   (require 'tmm)
   (run-hooks 'menu-bar-update-hook)
+  (setq tmm-table-undef nil)
   (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
 (defcustom counsel-yank-pop-truncate nil
