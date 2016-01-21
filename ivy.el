@@ -1061,9 +1061,10 @@ the restoring themselves.")
 
 ;;** Entry Point
 (cl-defun ivy-read (prompt collection
-                           &key predicate require-match initial-input
-                           history preselect keymap update-fn sort
-                           action unwind re-builder matcher dynamic-collection caller)
+                    &key
+                      predicate require-match initial-input
+                      history preselect keymap update-fn sort
+                      action unwind re-builder matcher dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a format string, normally ending in a colon and a
@@ -1135,30 +1136,30 @@ customizations apply to the current completion session."
     (ivy--reset-state ivy-last)
     (prog1
         (unwind-protect
-            (minibuffer-with-setup-hook
-                #'ivy--minibuffer-setup
-              (let* ((hist (or history 'ivy-history))
-                     (minibuffer-completion-table collection)
-                     (minibuffer-completion-predicate predicate)
-                     (resize-mini-windows (cond
-                                           ((display-graphic-p) nil)
-                                           ((null resize-mini-windows) 'grow-only)
-                                           (t resize-mini-windows))))
-                (read-from-minibuffer
-                 prompt
-                 (ivy-state-initial-input ivy-last)
-                 (make-composed-keymap keymap ivy-minibuffer-map)
-                 nil
-                 hist)
-                (when (eq ivy-exit 'done)
-                  (let ((item (if ivy--directory
-                                  ivy--current
-                                ivy-text)))
-                    (unless (equal item "")
-                      (set hist (cons (propertize item 'ivy-index ivy--index)
-                                      (delete item
-                                              (cdr (symbol-value hist))))))))
-                ivy--current))
+             (minibuffer-with-setup-hook
+                 #'ivy--minibuffer-setup
+               (let* ((hist (or history 'ivy-history))
+                      (minibuffer-completion-table collection)
+                      (minibuffer-completion-predicate predicate)
+                      (resize-mini-windows (cond
+                                             ((display-graphic-p) nil)
+                                             ((null resize-mini-windows) 'grow-only)
+                                             (t resize-mini-windows))))
+                 (read-from-minibuffer
+                  prompt
+                  (ivy-state-initial-input ivy-last)
+                  (make-composed-keymap keymap ivy-minibuffer-map)
+                  nil
+                  hist)
+                 (when (eq ivy-exit 'done)
+                   (let ((item (if ivy--directory
+                                   ivy--current
+                                 ivy-text)))
+                     (unless (equal item "")
+                       (set hist (cons (propertize item 'ivy-index ivy--index)
+                                       (delete item
+                                               (cdr (symbol-value hist))))))))
+                 ivy--current))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
@@ -1624,7 +1625,7 @@ Insert .* between each char."
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
     (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
-                                          counsel-find-symbol))
+                                 counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
       (if (string-match "\\(.*\\): \\'" ivy--prompt)

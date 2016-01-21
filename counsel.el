@@ -1412,6 +1412,31 @@ Describe the selected candidate."
  '(("d" counsel-descbinds-action-find "definition")
    ("i" counsel-descbinds-action-info "info")))
 
+(defun counsel-list-processes-action-delete (x)
+  (delete-process x)
+  (setf (ivy-state-collection ivy-last)
+        (setq ivy--all-candidates
+              (delete x ivy--all-candidates))))
+
+(defun counsel-list-processes-action-switch (x)
+  (if (get-buffer x)
+      (switch-to-buffer x)
+    (message "Process %s doesn't have a buffer" x)))
+
+;;;###autoload
+(defun counsel-list-processes ()
+  "Offer completion for `process-list'
+The default action deletes the selected process.
+An extra action allows to switch to the process buffer."
+  (interactive)
+  (list-processes--refresh)
+  (ivy-read "Process: " (mapcar #'process-name (process-list))
+            :require-match t
+            :action
+            '(1
+              ("o" counsel-list-processes-action-delete "kill")
+              ("s" counsel-list-processes-action-switch "switch"))))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
