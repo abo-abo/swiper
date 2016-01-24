@@ -492,6 +492,29 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :history 'file-name-history
             :keymap counsel-find-file-map))
 
+(defun counsel-github-url-p ()
+  "Return a Github issue URL at point."
+  (when (and (looking-at "#[0-9]+")
+             (or
+              (eq (vc-backend (buffer-file-name)) 'Git)
+              (memq major-mode '(magit-commit-mode))))
+    (let ((url (match-string-no-properties 0))
+          (origin (shell-command-to-string
+                   "git remote get-url origin"))
+          user repo)
+      (cond ((string-match "\\`git@github.com:\\([^/]+\\)/\\(.*\\)\\.git$"
+                           origin)
+             (setq user (match-string 1 origin))
+             (setq repo (match-string 2 origin)))
+            ((string-match "\\`https://github.com/\\([^/]+\\)/\\(.*\\)$"
+                           origin)
+             (setq user (match-string 1 origin))
+             (setq repo (match-string 2 origin))))
+      (when user
+        (setq url (format "https://github.com/%s/%s/issues/%s"
+                          user repo (substring url 1)))))))
+(add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
+
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
 These files are un-ignored if `ivy-text' matches them.
