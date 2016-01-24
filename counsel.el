@@ -683,7 +683,7 @@ Update the minibuffer with the amount of lines collected every
     "\\\\(" "("
     str)))
 
-(defun counsel-locate-function (str &rest _u)
+(defun counsel-locate-function (str)
   (if (< (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
@@ -1166,7 +1166,7 @@ command. %S will be replaced by the regex string. The default is
   :type 'stringp
   :group 'ivy)
 
-(defun counsel-ag-function (string &optional _pred &rest _unused)
+(defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)
@@ -1214,7 +1214,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                       (swiper--cleanup))
             :caller 'counsel-grep))
 
-(defun counsel-grep-function (string &optional _pred &rest _unused)
+(defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)
@@ -1238,7 +1238,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text)))))))
 
-(defun counsel-recoll-function (string &optional _pred &rest _unused)
+(defun counsel-recoll-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)

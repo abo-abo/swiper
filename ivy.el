@@ -1245,6 +1245,8 @@ This is useful for recursive `ivy-read'."
                  (setq initial-input nil))))
             ((eq collection 'internal-complete-buffer)
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers)))
+            (dynamic-collection
+             (setq coll (funcall collection ivy-text)))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
