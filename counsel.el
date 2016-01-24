@@ -515,6 +515,21 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
                           user repo (substring url 1)))))))
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 
+(defun counsel-emacs-url-p ()
+  "Return a Debbugs issue URL at point."
+  (when (and (looking-at "#[0-9]+")
+             (or
+              (eq (vc-backend (buffer-file-name)) 'Git)
+              (memq major-mode '(magit-commit-mode))))
+    (let ((url (match-string-no-properties 0))
+          (origin (shell-command-to-string
+                   "git remote get-url origin")))
+      (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
+        (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
+                (substring url 1))))))
+
+(add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
+
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
 These files are un-ignored if `ivy-text' matches them.
