@@ -492,42 +492,43 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :history 'file-name-history
             :keymap counsel-find-file-map))
 
+(defun counsel-at-git-issue-p ()
+  "Whe point is at an issue in a Git-versioned file, return the issue string."
+  (and (looking-at "#[0-9]+")
+       (or
+        (eq (vc-backend (buffer-file-name)) 'Git)
+        (memq major-mode '(magit-commit-mode)))
+       (match-string-no-properties 0)))
+
 (defun counsel-github-url-p ()
   "Return a Github issue URL at point."
-  (when (and (looking-at "#[0-9]+")
-             (or
-              (eq (vc-backend (buffer-file-name)) 'Git)
-              (memq major-mode '(magit-commit-mode))))
-    (let ((url (match-string-no-properties 0))
-          (origin (shell-command-to-string
-                   "git remote get-url origin"))
-          user repo)
-      (cond ((string-match "\\`git@github.com:\\([^/]+\\)/\\(.*\\)\\.git$"
-                           origin)
-             (setq user (match-string 1 origin))
-             (setq repo (match-string 2 origin)))
-            ((string-match "\\`https://github.com/\\([^/]+\\)/\\(.*\\)$"
-                           origin)
-             (setq user (match-string 1 origin))
-             (setq repo (match-string 2 origin))))
-      (when user
-        (setq url (format "https://github.com/%s/%s/issues/%s"
-                          user repo (substring url 1)))))))
+  (let ((url (counsel-at-git-issue-p)))
+    (when url
+      (let ((origin (shell-command-to-string
+                     "git remote get-url origin"))
+            user repo)
+        (cond ((string-match "\\`git@github.com:\\([^/]+\\)/\\(.*\\)\\.git$"
+                             origin)
+               (setq user (match-string 1 origin))
+               (setq repo (match-string 2 origin)))
+              ((string-match "\\`https://github.com/\\([^/]+\\)/\\(.*\\)$"
+                             origin)
+               (setq user (match-string 1 origin))
+               (setq repo (match-string 2 origin))))
+        (when user
+          (setq url (format "https://github.com/%s/%s/issues/%s"
+                            user repo (substring url 1))))))))
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 
 (defun counsel-emacs-url-p ()
   "Return a Debbugs issue URL at point."
-  (when (and (looking-at "#[0-9]+")
-             (or
-              (eq (vc-backend (buffer-file-name)) 'Git)
-              (memq major-mode '(magit-commit-mode))))
-    (let ((url (match-string-no-properties 0))
-          (origin (shell-command-to-string
-                   "git remote get-url origin")))
-      (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
-        (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
-                (substring url 1))))))
-
+  (let ((url (counsel-at-git-issue-p)))
+    (when url
+      (let ((origin (shell-command-to-string
+                     "git remote get-url origin")))
+        (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
+          (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
+                  (substring url 1)))))))
 (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
 
 (defcustom counsel-find-file-ignore-regexp nil
