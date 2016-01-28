@@ -1321,9 +1321,47 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (setq tmm-table-undef nil)
   (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
-(defcustom counsel-yank-pop-truncate nil
+(defcustom counsel-yank-pop-truncate-radius 2
   "When non-nil, truncate the display of long strings."
+  :type 'integer
   :group 'ivy)
+
+(defun counsel--yank-pop-truncate (str)
+  (condition-case nil
+      (let* ((lines (split-string str "\n" t))
+             (n (length lines))
+             (first-match (cl-position-if
+                           (lambda (s) (string-match ivy--old-re s))
+                           lines))
+             (beg (max 0 (- first-match
+                            counsel-yank-pop-truncate-radius)))
+             (end (min n (+ first-match
+                            counsel-yank-pop-truncate-radius
+                            1)))
+             (seq (cl-subseq lines beg end)))
+        (if (null first-match)
+            (error "Could not match %s" str)
+          (when (> beg 0)
+            (setcar seq (concat "[...] " (car seq))))
+          (when (< end n)
+            (setcar (last seq)
+                    (concat (car (last seq)) " [...]")))
+          (mapconcat #'identity seq "\n")))
+    (error str)))
+
+(defun counsel--yank-pop-format-function (cand-pairs)
+  (ivy--format-function-generic
+   (lambda (str _extra)
+     (mapconcat
+      (lambda (s)
+        (ivy--add-face s 'ivy-current-match))
+      (split-string
+       (counsel--yank-pop-truncate str) "\n" t)
+      "\n"))
+   (lambda (str _extra)
+     (counsel--yank-pop-truncate str))
+   cand-pairs
+   "\n"))
 
 ;;;###autoload
 (defun counsel-yank-pop ()
@@ -1343,23 +1381,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                        (or (< (length s) 3)
                            (string-match "\\`[\n[:blank:]]+\\'" s)))
                      (delete-dups kill-ring))))
-    (when counsel-yank-pop-truncate
-      (setq candidates
-            (mapcar (lambda (s)
-                      (if (string-match "\\`\\(.*\n.*\n.*\n.*\\)\n" s)
-                          (progn
-                            (let ((s (copy-sequence s)))
-                              (put-text-property
-                               (match-end 1)
-                               (length s)
-                               'display
-                               " [...]"
-                               s)
-                              s))
-                        s))
-                    candidates)))
-    (ivy-read "kill-ring: " candidates
-              :action 'counsel-yank-pop-action)))
+    (let ((ivy-format-function #'counsel--yank-pop-format-function)
+          (ivy-height 5))
+      (ivy-read "kill-ring: " candidates
+                :action 'counsel-yank-pop-action))))
 
 (defun counsel-yank-pop-action (s)
   "Insert S into the buffer, overwriting the previous yank."
