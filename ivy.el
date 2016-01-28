@@ -215,7 +215,10 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
 
 (defvar ivy-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap switch-to-buffer] 'ivy-switch-buffer)
+    (define-key map [remap switch-to-buffer]
+      'ivy-switch-buffer)
+    (define-key map [remap switch-to-buffer-other-window]
+      'ivy-switch-buffer-other-window)
     map)
   "Keymap for `ivy-mode'.")
 
@@ -2353,6 +2356,15 @@ BUFFER may be a string or nil."
                 :preselect (buffer-name (other-buffer (current-buffer)))
                 :action #'ivy--switch-buffer-action
                 :keymap ivy-switch-buffer-map))))
+
+;;;###autoload
+(defun ivy-switch-buffer-other-window ()
+  "Switch to another buffer in another window."
+  (interactive)
+  (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
+            :preselect (buffer-name (other-buffer (current-buffer)))
+            :action #'ivy--switch-buffer-other-window-action
+            :keymap ivy-switch-buffer-map))
 
 ;;;###autoload
 (defun ivy-recentf ()
