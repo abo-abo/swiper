@@ -1119,11 +1119,14 @@ customizations apply to the current completion session."
                                (plist-get ivy--actions-list this-command))))
     (when extra-actions
       (setq action
-            (if (functionp action)
-                `(1
-                  ("o" ,action "default")
-                  ,@extra-actions)
-              (delete-dups (append action extra-actions))))))
+            (cond ((functionp action)
+                   `(1
+                     ("o" ,action "default")
+                     ,@extra-actions))
+                  ((null action)
+                   (cons 1 extra-actions))
+                  (t
+                   (delete-dups (append action extra-actions)))))))
   (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last)))
     (setq ivy-last
           (make-ivy-state
