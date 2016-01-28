@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper)
+[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper) [![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
 
 ## Swiper
 
