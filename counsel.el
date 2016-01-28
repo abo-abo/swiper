@@ -973,6 +973,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defvar rhythmbox-library)
 (declare-function rhythmbox-load-library "ext:helm-rhythmbox")
 (declare-function dbus-call-method "dbus")
+(declare-function dbus-get-property "dbus")
 (declare-function rhythmbox-song-uri "ext:helm-rhythmbox")
 (declare-function helm-rhythmbox-candidates "ext:helm-rhythmbox")
 
@@ -987,6 +988,20 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (defvar counsel-rhythmbox-history nil
   "History for `counsel-rhythmbox'.")
 
+(defun counsel-rhythmbox-current-song ()
+  "Return the currently playing song title."
+  (ignore-errors
+    (let* ((entry (dbus-get-property
+                   :session
+                   "org.mpris.MediaPlayer2.rhythmbox"
+                   "/org/mpris/MediaPlayer2"
+                   "org.mpris.MediaPlayer2.Player"
+                   "Metadata"))
+           (artist (caar (cadr (assoc "xesam:artist" entry))))
+           (album (cl-caadr (assoc "xesam:album" entry)))
+           (title (cl-caadr (assoc "xesam:title" entry))))
+      (format "%s - %s - %s" artist album title))))
+
 ;;;###autoload
 (defun counsel-rhythmbox ()
   "Choose a song from the Rhythmbox library to play or enqueue."
@@ -1000,6 +1015,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (ivy-read "Rhythmbox: "
             (helm-rhythmbox-candidates)
             :history 'counsel-rhythmbox-history
+            :preselect (counsel-rhythmbox-current-song)
             :action
             '(1
               ("p" helm-rhythmbox-play-song "Play song")
