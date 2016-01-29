@@ -1457,6 +1457,10 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
                      :require-match t)
            t))))))
 
+(defcustom ivy-do-completion-in-region t
+  "When non-nil `ivy-mode' will set `completion-in-region-function'."
+  :type 'boolean)
+
 ;;;###autoload
 (define-minor-mode ivy-mode
   "Toggle Ivy mode on or off.
@@ -1476,7 +1480,8 @@ Minibuffer bindings:
   (if ivy-mode
       (progn
         (setq completing-read-function 'ivy-completing-read)
-        (setq completion-in-region-function 'ivy-completion-in-region))
+        (when ivy-do-completion-in-region
+          (setq completion-in-region-function 'ivy-completion-in-region)))
     (setq completing-read-function 'completing-read-default)
     (setq completion-in-region-function 'completion--in-region)))
 
