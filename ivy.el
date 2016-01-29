@@ -743,24 +743,35 @@ If the input is empty, select the previous history element instead."
                 (nth 2 (nth (car action) action)))
       "[1/1] default")))
 
+(defvar ivy-inhibit-action nil
+  "When non-nil, `ivy-call' does nothing.
+
+Example use:
+
+    (let* ((ivy-inhibit-action t)
+          (str (counsel-locate \"lispy.el\")))
+     ;; do whatever with str - the corresponding file will not be opened
+     )")
+
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
-  (let ((action (ivy--get-action ivy-last)))
-    (when action
-      (let* ((collection (ivy-state-collection ivy-last))
-             (x (if (and (consp collection)
-                         (consp (car collection)))
-                    (cdr (assoc ivy--current collection))
-                  (if (equal ivy--current "")
-                      ivy-text
-                    ivy--current))))
-        (prog1 (funcall action x)
-          (unless (or (eq ivy-exit 'done)
-                      (equal (selected-window)
-                             (active-minibuffer-window))
-                      (null (active-minibuffer-window)))
-            (select-window (active-minibuffer-window))))))))
+  (unless ivy-inhibit-action
+    (let ((action (ivy--get-action ivy-last)))
+      (when action
+        (let* ((collection (ivy-state-collection ivy-last))
+               (x (if (and (consp collection)
+                           (consp (car collection)))
+                      (cdr (assoc ivy--current collection))
+                    (if (equal ivy--current "")
+                        ivy-text
+                      ivy--current))))
+          (prog1 (funcall action x)
+            (unless (or (eq ivy-exit 'done)
+                        (equal (selected-window)
+                               (active-minibuffer-window))
+                        (null (active-minibuffer-window)))
+              (select-window (active-minibuffer-window)))))))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
