@@ -2285,21 +2285,31 @@ CANDS is a list of strings."
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
+(defcustom ivy-ignore-buffers nil
+  "List of regexps matching buffer names to ignore."
+  :type '(repeat regexp))
+
 (defun ivy--buffer-list (str &optional virtual)
   "Return the buffers that match STR.
 When VIRTUAL is non-nil, add virtual buffers."
-  (delete-dups
-   (append
-    (mapcar
-     (lambda (x)
-       (if (with-current-buffer x
-             (file-remote-p
-              (abbreviate-file-name default-directory)))
-           (propertize x 'face 'ivy-remote)
-         x))
-     (all-completions str 'internal-complete-buffer))
-    (and virtual
-         (ivy--virtual-buffers)))))
+  (cl-remove-if
+   (lambda (buf)
+     (cl-find-if
+      (lambda (regexp)
+        (string-match regexp buf))
+      ivy-ignore-buffers))
+   (delete-dups
+    (append
+     (mapcar
+      (lambda (x)
+        (if (with-current-buffer x
+              (file-remote-p
+               (abbreviate-file-name default-directory)))
+            (propertize x 'face 'ivy-remote)
+          x))
+      (all-completions str 'internal-complete-buffer))
+     (and virtual
+          (ivy--virtual-buffers))))))
 
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
