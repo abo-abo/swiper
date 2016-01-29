@@ -1405,13 +1405,15 @@ PREFIX is used to create the key."
                (if (imenu--subalist-p elm)
                    (counsel-imenu-get-candidates-from
                     (cl-loop for (e . v) in (cdr elm) collect
-                         (cons e (if (integerp v) (copy-marker v) v)))
+                             (cons e (if (integerp v) (copy-marker v) v)))
+                    ;; pass the prefix to next recursive call
                     (concat prefix (if prefix ".") (car elm)))
-                 (list
-                  (cons (concat prefix (if prefix ".") (car elm))
-                        (if (overlayp (cdr elm))
-                            (overlay-start (cdr elm))
-                          (cdr elm))))))
+                 (let ((key (concat prefix (if prefix ".") (car elm))))
+                   (list (cons key
+                               ;; create a imenu candidate here
+                               (cons key (if (overlayp (cdr elm))
+                                             (overlay-start (cdr elm))
+                                           (cdr elm))))))))
              alist))
 
 ;;;###autoload
@@ -1424,9 +1426,11 @@ PREFIX is used to create the key."
          (items (imenu--make-index-alist t))
          (items (delete (assoc "*Rescan*" items) items)))
     (ivy-read "imenu items:" (counsel-imenu-get-candidates-from items)
-              :action (lambda (pos)
+              :action (lambda (candidate)
                         (with-ivy-window
-                          (goto-char pos))))))
+                          ;; In org-mode, (imenu candidate) will expand child node
+                          ;; after jump to the candidate position
+                          (imenu candidate))))))
 
 (defun counsel--descbinds-cands ()
   (let ((buffer (current-buffer))
