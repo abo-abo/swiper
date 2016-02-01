@@ -1522,6 +1522,24 @@ An extra action allows to switch to the process buffer."
               ("o" counsel-list-processes-action-delete "kill")
               ("s" counsel-list-processes-action-switch "switch"))))
 
+(defun counsel-git-stash-kill-action (x)
+  (when (string-match "\\([^:]+\\):" x)
+    (kill-new (message (format "git stash apply %s" (match-string 1 x))))))
+
+;;;###autoload
+(defun counsel-git-stash ()
+  "Search through all available git stashes."
+  (interactive)
+  (let ((dir (locate-dominating-file default-directory ".git")))
+    (if (null dir)
+        (error "Not in a git repository")
+      (let ((cands (split-string (shell-command-to-string
+                                  "IFS=$'\n'
+for i in `git stash list --format=\"%gd\"`; do
+    git stash show -p $i | grep -H --label=\"$i\" \"$1\"
+done") "\n" t)))
+        (ivy-read "git stash: " cands
+                  :action 'counsel-git-stash-kill-action)))))
 (provide 'counsel)
 
 ;;; counsel.el ends here
