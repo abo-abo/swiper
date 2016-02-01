@@ -1312,10 +1312,16 @@ This is useful for recursive `ivy-read'."
                                   coll)))
                           0))))
     (setq ivy-exit nil)
-    (setq ivy--default (or
-                        (thing-at-point 'url)
-                        (thing-at-point 'symbol)
-                        ""))
+    (setq ivy--default
+          (if (region-active-p)
+              (prog1 (buffer-substring
+                      (region-beginning)
+                      (region-end))
+                (deactivate-mark))
+            (or
+             (thing-at-point 'url)
+             (thing-at-point 'symbol)
+             "")))
     (setq ivy--prompt
           (cond ((string-match "%.*d" prompt)
                  prompt)
