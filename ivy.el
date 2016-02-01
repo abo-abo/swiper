@@ -167,6 +167,33 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd actions)))
 
+(defvar ivy--sources-list nil
+  "A list of extra sources per command.")
+
+(defun ivy-set-sources (cmd sources)
+  "Attach to CMD a list of extra SOURCES.
+
+Each static source is a function that takes no argument and
+returns a list of strings.
+
+The '(original-source) determines the position of the original
+dynamic source.
+
+Extra dynamic sources aren't supported yet.
+
+Example:
+
+    (defun small-recentf ()
+      (cl-subseq recentf-list 0 20))
+
+    (ivy-set-sources
+     'counsel-locate
+     '((small-recentf)
+       (original-source)))
+"
+  (setq ivy--sources-list
+        (plist-put ivy--sources-list cmd sources)))
+
 ;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
@@ -277,6 +304,18 @@ Otherwise, store nil.")
 
 (defvar ivy--all-candidates nil
   "Store the candidates passed to `ivy-read'.")
+
+(defvar ivy--extra-candidates '((original-source))
+  "Store candidates added by the extra sources.
+
+This is an internal-use alist. Each key is a function name, or
+original-source (which represents where the current dynamic
+candidates should go).
+
+Each value is an evaluation of the function, in case of static
+sources. These values will subsequently be filtered on `ivy-text'.
+
+This variable is set by `ivy-read' and used by `ivy--set-candidates'.")
 
 (defvar ivy--default nil
   "Default initial input.")
@@ -1138,6 +1177,20 @@ customizations apply to the current completion session."
                    (cons 1 extra-actions))
                   (t
                    (delete-dups (append action extra-actions)))))))
+  (let ((extra-sources (plist-get ivy--sources-list caller)))
+    (if extra-sources
+        (progn
+          (setq ivy--extra-candidates nil)
+          (dolist (source extra-sources)
+            (cond ((equal source '(original-source))
+                   (setq ivy--extra-candidates
+                         (cons source ivy--extra-candidates)))
+                  ((null (cdr source))
+                   (setq ivy--extra-candidates
+                         (cons
+                          (list (car source) (funcall (car source)))
+                          ivy--extra-candidates))))))
+      (setq ivy--extra-candidates '((original-source)))))
   (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last)))
     (setq ivy-last
           (make-ivy-state
@@ -1940,6 +1993,20 @@ CANDIDATES are assumed to be static."
                     re-str
                   "")))
         (setq ivy--old-cands (ivy--sort name cands))))))
+
+(defun ivy--set-candidates (x)
+  "Update `ivy--all-candidates' with X."
+  (let (res)
+    (dolist (source ivy--extra-candidates)
+      (if (equal source '(original-source))
+          (if (null res)
+              (setq res x)
+            (setq res (append x res)))
+        (setq ivy--old-re nil)
+        (setq res (append
+                   (ivy--filter ivy-text (cadr source))
+                   res))))
+    (setq ivy--all-candidates res)))
 
 (defcustom ivy-sort-matches-functions-alist '((t . nil))
   "An alist of functions used to sort the matching candidates.

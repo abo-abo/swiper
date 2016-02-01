@@ -598,9 +598,9 @@ Or the time of the last minibuffer update.")
   (if (string= event "finished\n")
       (progn
         (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates
-                (ivy--sort-maybe
-                 (split-string (buffer-string) "\n" t)))
+          (ivy--set-candidates
+           (ivy--sort-maybe
+            (split-string (buffer-string) "\n" t)))
           (if (null ivy--old-cands)
               (setq ivy--index
                     (or (ivy--preselect-index
@@ -636,8 +636,8 @@ Update the minibuffer with the amount of lines collected every
       (with-current-buffer (process-buffer process)
         (goto-char (point-min))
         (setq size (- (buffer-size) (forward-line (buffer-size))))
-        (setq ivy--all-candidates
-              (split-string (buffer-string) "\n" t)))
+        (ivy--set-candidates
+         (split-string (buffer-string) "\n" t)))
       (let ((ivy--prompt (format
                           (concat "%d++ " (ivy-state-prompt ivy-last))
                           size)))
@@ -711,7 +711,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                       (with-ivy-window
                         (when file
                           (find-file file))))
-            :unwind #'counsel-delete-process))
+            :unwind #'counsel-delete-process
+            :caller 'counsel-locate))
 
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
