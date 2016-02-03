@@ -28,7 +28,14 @@ completion, including file and buffer names, will be done with Ivy.
 ## Installation
 
 You can install the package from MELPA / GNU ELPA.
-Here is some typical configuration:
+
+## Documentation
+
+If you install from MELPA, you'll automatically get an `(ivy)` Info node. The source file for the Info page is [here](https://github.com/abo-abo/swiper/blob/master/doc/ivy.org).
+
+Additionally, there's some information on [the wiki](https://github.com/abo-abo/swiper/wiki).
+
+Finally, here's a small configuration example:
 
 ```elisp
 (ivy-mode 1)
