@@ -1321,7 +1321,8 @@ This is useful for recursive `ivy-read'."
                  (byte-code-function-p collection)
                  (vectorp collection)
                  (and (consp collection) (listp (car collection)))
-                 (hash-table-p collection))
+                 (hash-table-p collection)
+                 (and (listp collection) (symbolp (car collection))))
              (setq coll (all-completions "" collection predicate)))
             (t
              (setq coll collection)))
