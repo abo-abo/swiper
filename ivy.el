@@ -1368,10 +1368,9 @@ This is useful for recursive `ivy-read'."
     (setq ivy-exit nil)
     (setq ivy--default
           (if (region-active-p)
-              (prog1 (buffer-substring
-                      (region-beginning)
-                      (region-end))
-                (deactivate-mark))
+              (buffer-substring
+               (region-beginning)
+               (region-end))
             (or
              (thing-at-point 'url)
              (thing-at-point 'symbol)
