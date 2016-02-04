@@ -1540,6 +1540,54 @@ for i in `git stash list --format=\"%gd\"`; do
 done") "\n" t)))
         (ivy-read "git stash: " cands
                   :action 'counsel-git-stash-kill-action)))))
+
+;;;###autoload
+(defun counsel-enable-minor-mode ()
+  (interactive)
+  (ivy-read "Minor modes" minor-mode-list
+            :action '(lambda (mode) (funcall (intern mode)))))
+
+;;;###autoload
+(defun counsel-disable-minor-mode ()
+  (interactive)
+  (let (active-minor-modes)
+    (mapc (lambda (mode) (condition-case nil
+                             (if (and (symbolp mode) (symbol-value mode))
+                                 (add-to-list 'active-minor-modes mode))
+                           (error nil)))
+          minor-mode-list)
+    (ivy-read "Minor modes" active-minor-modes
+              :action '(lambda (mode) (funcall (intern mode) -1)))))
+
+(defun counsel-list-major-modes ()
+  "Returns list of potential major mode names.
+From Tobias Zawada (http://stackoverflow.com/questions/5536304/emacs-stock-major-modes-list)"
+  (let (l)
+    (mapatoms #'(lambda (f) (and
+                        (commandp f)
+                        (string-match "-mode$" (symbol-name f))
+                        ;; auto-loaded
+                        (or (and (autoloadp (symbol-function f))
+                              (let ((doc (documentation f)))
+                                (when doc
+                                  (and
+                                   (let ((docSplit (help-split-fundoc doc f)))
+                                     (and docSplit ;; car is argument list
+                                        (null (cdr (read (car docSplit)))))) ;; major mode starters have no arguments
+                                   (if (string-match "[mM]inor" doc) ;; If the doc contains "minor"...
+                                       (string-match "[mM]ajor" doc) ;; it should also contain "major".
+                                     t) ;; else we cannot decide therefrom
+                                   ))))
+                           (null (help-function-arglist f)))
+                        (setq l (cons (symbol-name f) l)))))
+    l))
+
+;;;###autoload
+(defun counsel-switch-major-mode ()
+  (interactive)
+  (let ((major-modes (counsel-list-major-modes)))
+    (ivy-read "Major modes" major-modes
+              :action '(lambda (mode) (funcall (intern mode))))))
 (provide 'counsel)
 
 ;;; counsel.el ends here
