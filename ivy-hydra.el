@@ -53,11 +53,11 @@
 (defhydra hydra-ivy (:hint nil
                      :color pink)
   "
-^^^^^^          ^Yes^    ^^      ^No^     ^Maybe^            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^Action^               ^
-^^^^^^^^^^^^^^^----------------------------------------------^^^^^^^^^^^^^^^^^^^^^^^^^^^^^-----------------------
-^ ^ _k_ ^ ^     _f_ollow occ_u_r _i_nsert _c_: calling %-5s(if ivy-calling \"on\" \"off\") _w_/_s_/_a_: %-14s(ivy-action-name)
-_h_ ^+^ _l_     _d_one      ^ ^  _o_ops   _m_: matcher %-5s(ivy--matcher-desc)^^^^^^^^^^^^ _C_ase-fold: %-10`ivy-case-fold-search
-^ ^ _j_ ^ ^     _g_o        ^ ^  ^ ^      _<_/_>_: shrink/grow^^^^^^^^^^^^^^^^^^^^^^^^^^^^ _t_runcate: %-11`truncate-lines
+^ ^ ^ ^ ^ ^ | ^Call^      ^ ^  | ^Cancel^ | ^Options^ | Action _w_/_s_/_a_: %-14s(ivy-action-name)
+^-^-^-^-^-^-+-^-^---------^-^--+-^-^------+-^-^-------+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------------------------
+^ ^ _k_ ^ ^ | _f_ollow occ_u_r | _i_nsert | _c_: calling %-5s(if ivy-calling \"on\" \"off\") _C_ase-fold: %-10`ivy-case-fold-search
+_h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)^^^^^^^^^^^^ _t_runcate: %-11`truncate-lines
+^ ^ _j_ ^ ^ | _g_o        ^ ^  | ^ ^      | _<_/_>_: shrink/grow^^^^^^^^^^^^^^^^^^^^^^^^^^^^ _D_efinition of this menu
 "
   ;; arrows
   ("h" ivy-beginning-of-buffer)
@@ -83,7 +83,10 @@ _h_ ^+^ _l_     _d_one      ^ ^  _o_ops   _m_: matcher %-5s(ivy--matcher-desc)^^
   ("a" ivy-read-action)
   ("t" (setq truncate-lines (not truncate-lines)))
   ("C" ivy-toggle-case-fold)
-  ("u" ivy-occur :exit t))
+  ("u" ivy-occur :exit t)
+  ("D" (ivy-exit-with-action
+        (lambda (_) (find-function 'hydra-ivy/body)))
+       :exit t))
 
 (provide 'ivy-hydra)
 

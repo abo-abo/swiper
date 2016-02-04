@@ -236,6 +236,7 @@ Example:
     (define-key map (kbd "C-'") 'ivy-avy)
     (define-key map (kbd "C-M-a") 'ivy-read-action)
     (define-key map (kbd "C-c C-o") 'ivy-occur)
+    (define-key map (kbd "C-h m") 'ivy-help)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -2715,6 +2716,29 @@ EVENT gives the mouse position."
                (selected-window))
               (run-at-time 0.5 nil 'swiper--cleanup))
           (pulse-momentary-highlight-one-line (point)))))))
+
+(defvar ivy-help-file (expand-file-name
+                       "doc/ivy-help.org"
+                       (file-name-directory load-file-name))
+  "The file for `ivy-help'.")
+
+(defun ivy-help ()
+  "Help for `ivy'."
+  (interactive)
+  (let ((buf (get-buffer "*Ivy Help*")))
+    (unless buf
+      (setq buf (get-buffer-create "*Ivy Help*"))
+      (with-current-buffer buf
+        (insert-file-contents ivy-help-file)
+        (org-mode)
+        (view-mode)
+        (goto-char (point-min))))
+    (if (eq this-command 'ivy-help)
+        (switch-to-buffer buf)
+      (with-ivy-window
+        (pop-to-buffer buf)))
+    (view-mode)
+    (goto-char (point-min))))
 
 (provide 'ivy)
 

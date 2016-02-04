@@ -153,17 +153,17 @@
                                 (forward-line))
                               cands)))))
            (candidate (unwind-protect
-                          (prog2
-                              (avy--make-backgrounds
-                               (append (avy-window-list)
-                                       (list  (ivy-state-window ivy-last))))
-                              (if (eq avy-style 'de-bruijn)
-                                  (avy-read-de-bruijn
-                                   candidates avy-keys)
-                                (avy-read (avy-tree candidates avy-keys)
-                                          #'avy--overlay-post
-                                          #'avy--remove-leading-chars))
-                            (avy-push-mark))
+                           (prog2
+                               (avy--make-backgrounds
+                                (append (avy-window-list)
+                                        (list (ivy-state-window ivy-last))))
+                               (if (eq avy-style 'de-bruijn)
+                                   (avy-read-de-bruijn
+                                    candidates avy-keys)
+                                 (avy-read (avy-tree candidates avy-keys)
+                                           #'avy--overlay-post
+                                           #'avy--remove-leading-chars))
+                             (avy-push-mark))
                         (avy--done))))
       (if (window-minibuffer-p (cdr candidate))
           (progn

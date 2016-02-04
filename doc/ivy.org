@@ -274,9 +274,7 @@ when applying multiple actions. Multiple actions and multiple
 selections as covered in the next section of this manual.
 
 ~TAB~ (=ivy-partial-or-done=) attempts partial completion, extending
-current input as much as possible.
-
-~TAB TAB~ is the same as ~C-j~.
+current input as much as possible. ~TAB TAB~ is the same as ~C-j~.
 
 ~C-M-j~ (=ivy-immediate-done=) is useful when there is no match for
 the given input. Or there is an incorrect partial match. ~C-M-j~ with
@@ -290,7 +288,7 @@ on the /current input/.
 #+BEGIN_TEXINFO
 Invoking avy completion with @kbd{C-'} (@code{ivy-avy}).
 #+END_TEXINFO
-~C-`~ uses avy's visible jump mechanism, which can further reduce
+~C-'~ uses avy's visible jump mechanism, which can further reduce
 Ivy's line-by-line scrolling that requires multiple ~C-n~ or ~C-p~
 keystrokes.
 
@@ -330,7 +328,7 @@ action on each successive element of the list.
 the same as above except that it moves through the list in the other
 direction.
 
-*** Key bindings that alter minibuffer input
+*** Key bindings that alter the minibuffer input
 
 ~M-n~ (=ivy-next-history-element=) and ~M-p~
 (=ivy-previous-history-element=) cycle through the Ivy command
@@ -343,9 +341,9 @@ minibuffer. Useful for copying and renaming files, for example: ~M-i~
 to insert the original file name string, edit it, and then ~C-m~ to
 complete the renaming.
 
-~M-j~ (=ivy-yank-word=) inserts sub-word at point into minibuffer. This
-is similar to ~C-s C-w~ with =isearch=. Ivy reserves ~C-w~ for
-=kill-region=.
+~M-j~ (=ivy-yank-word=) inserts the sub-word at point into the
+minibuffer. This is similar to ~C-s C-w~ with =isearch=. Ivy reserves
+~C-w~ for =kill-region=.
 
 ~S-SPC~ (=ivy-restrict-to-matches=) deletes the current input, and
 resets the candidates list to the currently restricted matches. This
