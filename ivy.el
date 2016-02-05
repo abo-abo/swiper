@@ -1874,19 +1874,20 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
-  (with-selected-window (minibuffer-window)
-    (if (fboundp 'window-text-pixel-size)
-        (let ((text-height (cdr (window-text-pixel-size)))
-              (body-height (window-body-height nil t)))
+  (unless (frame-root-window-p (minibuffer-window))
+    (with-selected-window (minibuffer-window)
+      (if (fboundp 'window-text-pixel-size)
+          (let ((text-height (cdr (window-text-pixel-size)))
+                (body-height (window-body-height nil t)))
+            (when (> text-height body-height)
+              ;; Note: the size increment needs to be at least frame-char-height,
+              ;; otherwise resizing won't do anything.
+              (let ((delta (max (- text-height body-height) (frame-char-height))))
+                (window-resize nil delta nil t t))))
+        (let ((text-height (count-screen-lines))
+              (body-height (window-body-height)))
           (when (> text-height body-height)
-            ;; Note: the size increment needs to be at least frame-char-height,
-            ;; otherwise resizing won't do anything.
-            (let ((delta (max (- text-height body-height) (frame-char-height))))
-              (window-resize nil delta nil t t))))
-      (let ((text-height (count-screen-lines))
-            (body-height (window-body-height)))
-        (when (> text-height body-height)
-          (window-resize nil (- text-height body-height) nil t))))))
+            (window-resize nil (- text-height body-height) nil t)))))))
 
 (declare-function colir-blend-face-background "ext:colir")
 
