@@ -2718,9 +2718,14 @@ EVENT gives the mouse position."
               (run-at-time 0.5 nil 'swiper--cleanup))
           (pulse-momentary-highlight-one-line (point)))))))
 
-(defvar ivy-help-file (expand-file-name
-                       "doc/ivy-help.org"
-                       (file-name-directory load-file-name))
+(defvar ivy-help-file (let ((default-directory
+                             (if load-file-name
+                                 (file-name-directory load-file-name)
+                               default-directory)))
+                        (if (file-exists-p "ivy-help.org")
+                            (expand-file-name "ivy-help.org")
+                          (if (file-exists-p "doc/ivy-help.org")
+                              (expand-file-name "doc/ivy-help.org"))))
   "The file for `ivy-help'.")
 
 (defun ivy-help ()
