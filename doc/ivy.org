@@ -1,40 +1,46 @@
 #+TITLE: Ivy User Manual
 #+AUTHOR: Oleh Krehel
 #+EMAIL: ohwoeowho@gmail.com
-#+DATE: 2015
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Ivy: (ivy).
 #+TEXINFO_DIR_DESC: Using Ivy for completion.
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
+#+SETUPFILE: ~/git/org-html-themes/setup/theme-readtheorg.setup
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+#+EXPORT_FILE_NAME: index.html
 
 #+OPTIONS: H:6 num:6 toc:4
 #+STARTUP: indent
 * Macros                                                                              :noexport:
 #+MACRO: defopt #+TEXINFO: @defopt $1
 #+MACRO: endopt #+TEXINFO: @end defopt
+* Setup                                                                               :noexport:
+#+BEGIN_SRC elisp :exports results :results silent
+(add-to-list 'load-path default-directory)
+(require 'ivy-ox)
+#+END_SRC
 * Copying
 :PROPERTIES:
 :COPYING:  t
+:CUSTOM_ID: copying
 :END:
-
-#+BEGIN_TEXINFO
-@ifnottex
+#+TEXINFO: @ifnottex
 Ivy manual, version 0.7.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
 variables, functions, etc. Completion entails listing, sorting,
 filtering, previewing, and applying actions on selected items. When
-active, @code{ivy-mode} completes the selection process by narrowing
+active, =ivy-mode= completes the selection process by narrowing
 available choices while previewing in the minibuffer. Selecting the
 final candidate is either through simple keyboard character inputs or
-through powerful regular expressions. @end ifnottex
+through powerful regular expressions.
+#+TEXINFO: @end ifnottex
 
-Copyright @copyright{} 2015 Free Software Foundation, Inc.
+Copyright (C) 2015 Free Software Foundation, Inc.
 
-@quotation
+#+BEGIN_QUOTE
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.3 or
 any later version published by the Free Software Foundation; with no
@@ -44,10 +50,13 @@ is included in the section entitled ``GNU Free Documentation License.''
 
 (a) The FSF's Back-Cover Text is: ``You have the freedom to copy and
 modify this GNU manual.''
-@end quotation
-#+END_TEXINFO
+#+END_QUOTE
 
+#+HTML: <a href="https://github.com/abo-abo/swiper/blob/master/doc/ivy.org">This manual source</a>
 * Introduction
+:PROPERTIES:
+:CUSTOM_ID: introduction
+:END:
 Ivy is for quick and easy selection from a list. When Emacs prompts
 for a string from a list of several possible choices, Ivy springs into
 action to assist in narrowing and picking the right string from a vast
@@ -56,17 +65,13 @@ number of choices.
 Ivy strives for minimalism, simplicity, customizability and
 discoverability.
 
-#+BEGIN_TEXINFO
-@subsubheading Minimalism
-#+END_TEXINFO
+- Minimalism ::
 Uncluttered minibuffer is minimalism. Ivy shows the completion
 defaults, the number of matches, and 10 candidate matches below the
 input line. Customize =ivy-length= to adjust the number of candidate
 matches displayed in the minibuffer.
 
-#+BEGIN_TEXINFO
-@subsubheading Simplicity
-#+END_TEXINFO
+- Simplicity ::
 Simplicity is about Ivy's behavior in the minibuffer. It is also about
 the code interface to extend Ivy's functionality. The minibuffer area
 behaves as close to =fundamental-mode= as possible. ~SPC~ inserts a
@@ -75,9 +80,7 @@ space, for example, instead of being bound to the more complex
 variables; avoids needless complications with branch-introducing
 custom macros.
 
-#+BEGIN_TEXINFO
-@subsubheading Customizability
-#+END_TEXINFO
+- Customizability ::
 Customizability is about being able to use different methods and
 interfaces of completion to tailor the selection process. For example,
 adding a custom display function that points to a selected candidate
@@ -88,9 +91,7 @@ after the candidate function is selected. ~RET~ uses
 jumps to that function's definition in the code. The ~M-o~ prefix can
 be uniformly used with characters like ~d~ to group similar actions.
 
-#+BEGIN_TEXINFO
-@subsubheading Discoverability
-#+END_TEXINFO
+- Discoverability ::
 Ivy displays easily discoverable commands through the hydra facility.
 ~C-o~ in the minibuffer displays a hydra menu. It opens up within an
 expanded minibuffer area. Each menu item comes with short
@@ -101,11 +102,17 @@ discoverability minimizes exiting Ivy interface for documentation
 look-ups.
 
 * Installation
+:PROPERTIES:
+:CUSTOM_ID: installation
+:END:
 
 Install Ivy automatically through Emacs's package manager, or manually
 from Ivy's development repository.
 
 ** Installing from Emacs Package Manager
+:PROPERTIES:
+:CUSTOM_ID: installing-from-emacs-package-manager
+:END:
 
 ~M-x~ =package-install= ~RET~ =swiper= ~RET~
 
@@ -129,6 +136,9 @@ After this do ~M-x~ =package-refresh-contents= ~RET~, followed by
 For package manager details, see [[info:emacs#Packages]].
 
 ** Installing from the Git repository
+:PROPERTIES:
+:CUSTOM_ID: installing-from-the-git-repository
+:END:
 
 Why install from Git?
 
@@ -157,8 +167,10 @@ make
 #+end_src
 
 * Getting started
-
-First enable Ivy completion everywhere:
+:PROPERTIES:
+:CUSTOM_ID: getting-started
+:END:
+First, enable Ivy completion everywhere:
 
 #+begin_src elisp
 (ivy-mode 1)
@@ -166,6 +178,9 @@ First enable Ivy completion everywhere:
 
 Note: =ivy-mode= can be toggled on and off with ~M-x~ =ivy-mode=.
 ** Basic customization
+:PROPERTIES:
+:CUSTOM_ID: basic-customization
+:END:
 Here are some basic settings particularly useful for new Ivy
 users:
 #+begin_src elisp
@@ -179,12 +194,16 @@ For additional customizations, refer to =M-x describe-variable=
 documentation.
 
 * Key bindings
+:PROPERTIES:
+:CUSTOM_ID: key-bindings
+:END:
 ** Global key bindings
+:PROPERTIES:
+:CUSTOM_ID: global-key-bindings
+:END:
+The recommended key bindings are:
 
-Recommended key bindings are:
-#+BEGIN_TEXINFO
-@subsubheading Ivy-based interface to standard commands
-#+END_TEXINFO
+- Ivy-based interface to standard commands ::
 #+begin_src elisp
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "M-x") 'counsel-M-x)
@@ -195,9 +214,8 @@ Recommended key bindings are:
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 #+end_src
-#+BEGIN_TEXINFO
-@subsubheading Ivy-based interface to shell and system tools
-#+END_TEXINFO
+
+- Ivy-based interface to shell and system tools ::
 #+begin_src elisp
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
@@ -205,15 +223,17 @@ Recommended key bindings are:
 (global-set-key (kbd "C-x l") 'counsel-locate)
 (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
 #+end_src
-#+BEGIN_TEXINFO
-@subsubheading Ivy-resume and other commands
-#+END_TEXINFO
+
+- Ivy-resume and other commands ::
 =ivy-resume= resumes the last Ivy-based completion.
 #+begin_src elisp
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 #+end_src
 
 ** Minibuffer key bindings
+:PROPERTIES:
+:CUSTOM_ID: minibuffer-key-bindings
+:END:
 
 Ivy includes several minibuffer bindings, which are defined in the
 =ivy-minibuffer-map= keymap variable. The most frequently used ones
@@ -224,6 +244,9 @@ are described here.
 under their respective commands.
 
 *** Key bindings for navigation
+:PROPERTIES:
+:CUSTOM_ID: key-bindings-for-navigation
+:END:
 
 - ~C-n~ (=ivy-next-line=) selects the next candidate
 - ~C-p~ (=ivy-previous-line=) selects the previous candidate
@@ -246,6 +269,9 @@ scroll size for ~C-v~ and ~M-v~.
 {{{endopt}}}
 
 *** Key bindings for single selection, action, then exit minibuffer
+:PROPERTIES:
+:CUSTOM_ID: key-bindings-for-single-selection-action-then-exit-minibuffer
+:END:
 
 Ivy can offer several actions from which to choose which action to
 run. This "calling an action" operates on the selected candidate. For
@@ -285,14 +311,14 @@ current input to create a new directory with =dired-create-directory=.
 an action on the /currently selected/ candidate and calling an action
 on the /current input/.
 
-#+BEGIN_TEXINFO
-Invoking avy completion with @kbd{C-'} (@code{ivy-avy}).
-#+END_TEXINFO
-~C-'~ uses avy's visible jump mechanism, which can further reduce
-Ivy's line-by-line scrolling that requires multiple ~C-n~ or ~C-p~
-keystrokes.
+~C-'~ (=ivy-avy=) uses avy's visible jump mechanism, which can further
+reduce Ivy's line-by-line scrolling that requires multiple ~C-n~ or
+~C-p~ keystrokes.
 
 *** Key bindings for multiple selections and actions, keep minibuffer open
+:PROPERTIES:
+:CUSTOM_ID: key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open
+:END:
 
 For repeatedly applying multiple actions or acting on multiple
 candidates, Ivy does not close the minibuffer between commands. It
@@ -329,6 +355,9 @@ the same as above except that it moves through the list in the other
 direction.
 
 *** Key bindings that alter the minibuffer input
+:PROPERTIES:
+:CUSTOM_ID: key-bindings-that-alter-the-minibuffer-input
+:END:
 
 ~M-n~ (=ivy-next-history-element=) and ~M-p~
 (=ivy-previous-history-element=) cycle through the Ivy command
@@ -355,11 +384,17 @@ completion, the selected candidate string is inserted into the
 minibuffer.
 
 *** Other key bindings
+:PROPERTIES:
+:CUSTOM_ID: other-key-bindings
+:END:
 
 ~M-w~ (=ivy-kill-ring-save=) copies selected candidates to the kill
 ring; when the region is active, copies active region.
 
 *** Hydra in the minibuffer
+:PROPERTIES:
+:CUSTOM_ID: hydra-in-the-minibuffer
+:END:
 
 ~C-o~ (=hydra-ivy/body=) invokes Hydra menus with key shortcuts.
 
@@ -375,6 +410,9 @@ bindings:
 Minibuffer editing is disabled when Hydra is active.
 
 *** Saving the current completion session to a buffer
+:PROPERTIES:
+:CUSTOM_ID: saving-the-current-completion-session-to-a-buffer
+:END:
 
 ~C-c C-o~ (=ivy-occur=) saves the current candidates to a new buffer;
 the list is active in the new buffer.
@@ -389,6 +427,9 @@ descriptive names, for example: =*ivy-occur counsel-describe-variable
 "function$*=.
 
 * Completion styles
+:PROPERTIES:
+:CUSTOM_ID: completion-styles
+:END:
 
 Ivy's completion functions rely on the highly configurable regex
 builder.
@@ -414,6 +455,9 @@ flexibility, Ivy operates within a consistent and uniform interface.
 The main regex-builders currently in Ivy are:
 
 ** ivy--regex-plus
+:PROPERTIES:
+:CUSTOM_ID: ivy--regex-plus
+:END:
 
 =ivy--regex-plus= is Ivy's default completion method.
 
@@ -421,54 +465,57 @@ The main regex-builders currently in Ivy are:
 rebuilding it into a regex.
 
 As the search string is typed in Ivy's minibuffer, it is transformed
-into proper regex syntax. If the string is "for example", it is
+into proper regex syntax. If the string is ="for example"=, it is
 transformed into
 
-#+BEGIN_EXAMPLE
+#+begin_src elisp
 "\\(for\\).*\\(example\\)"
-#+END_EXAMPLE
+#+end_src
 
-which in regex terminology matches "for" followed by a wild card and
-then "example". Note how Ivy uses the space character to build
-wild cards. For literal white space matching in Ivy, use an extra space:
-to match one space type two spaces, to match two spaces type three
+which in regex terminology matches ="for"= followed by a wild card and
+then ="example"=. Note how Ivy uses the space character to build wild
+cards. For literal white space matching in Ivy, use an extra space: to
+match one space type two spaces, to match two spaces type three
 spaces, and so on.
 
 As Ivy transforms typed characters into regex strings, it provides an
 intuitive feedback through font highlights.
 
-Ivy supports regexp negation with "!". For example, "define key ! ivy
-quit" first selects everything matching "define.*key", then removes
-everything matching "ivy", and finally removes everything matching
-"quit". What remains is the final result set of the negation regexp.
+Ivy supports regexp negation with ="!"=. 
+For example, ="define key ! ivy quit"= first selects everything
+matching ="define.*key"=, then removes everything matching ="ivy"=,
+and finally removes everything matching ="quit"=. What remains is the
+final result set of the negation regexp.
 
-#+BEGIN_EXAMPLE
-Standard regexp identifiers work:
-
-"^", "$", "\b" or "[a-z]"
-#+END_EXAMPLE
-
-Since Ivy treats minibuffer input as a regexp, standard regexp
-identifiers work as usual. The exceptions are spaces, which
-translate to ".*", and "!" that signal the beginning of a negation
-group.
+Since Ivy treats minibuffer input as a regexp, the standard regexp
+identifiers work: ="^"=, ="$"=, ="\b"= or ="[a-z]"=. The exceptions
+are spaces, which translate to =".*"=, and ="!"= that signal the
+beginning of a negation group.
 
 ** ivy--regex-ignore-order
+:PROPERTIES:
+:CUSTOM_ID: ivy--regex-ignore-order
+:END:
 
 =ivy--regex-ignore-order= ignores the order of regexp tokens when
-searching for matching candidates. For instance, the input "for
-example" will match "example test for". Otherwise =ivy--regex-plus=
-normal behavior is to honor the order of regexp tokens.
+searching for matching candidates. For instance, the input 
+="for example"= will match ="example test for"=. 
 
 ** ivy--regex-fuzzy
+:PROPERTIES:
+:CUSTOM_ID: ivy--regex-fuzzy
+:END:
 
 =ivy--regex-fuzzy= splits each character with a wild card. Searching
-for "for" returns all "f.*o.*r" matches, resulting in a large number
-of hits.  Yet some searches need these extra hits. Ivy sorts such
-large lists using =flx= package's scoring mechanism, if it's
+for ="for"= returns all ="f.*o.*r"= matches, resulting in a large
+number of hits.  Yet some searches need these extra hits. Ivy sorts
+such large lists using =flx= package's scoring mechanism, if it's
 installed.
 
 * Variable Index
-#+BEGIN_TEXINFO
-@printindex vr
-#+END_TEXINFO
+:PROPERTIES:
+:INDEX:    vr
+:CUSTOM_ID: variable-index
+:END:
+
+

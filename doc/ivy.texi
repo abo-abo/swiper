@@ -17,9 +17,10 @@ filtering, previewing, and applying actions on selected items. When
 active, @code{ivy-mode} completes the selection process by narrowing
 available choices while previewing in the minibuffer. Selecting the
 final candidate is either through simple keyboard character inputs or
-through powerful regular expressions. @end ifnottex
+through powerful regular expressions.
+@end ifnottex
 
-Copyright @copyright{} 2015 Free Software Foundation, Inc.
+Copyright (C) 2015 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -84,9 +85,9 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
-* Key bindings that alter minibuffer input::
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
 * Saving the current completion session to a buffer::
@@ -168,7 +169,6 @@ command.
 For current hourly builds, use the MELPA archives. See the code below
 for adding MELPA to the list of package archives:
 
-
 @lisp
 (require 'package)
 (add-to-list 'package-archives
@@ -197,21 +197,18 @@ Contribute to Ivy's development; send patches; pull requests
 @strong{Configuration steps}
 
 First clone the Swiper repository:
-
 @example
 cd ~/git && git clone https://github.com/abo-abo/swiper
 cd swiper && make compile
 @end example
 
 Then add this to Emacs init:
-
 @lisp
 (add-to-list 'load-path "~/git/swiper/")
 (require 'ivy)
 @end lisp
 
 To update the code:
-
 @example
 git pull
 make
@@ -220,8 +217,7 @@ make
 @node Getting started
 @chapter Getting started
 
-First enable Ivy completion everywhere:
-
+First, enable Ivy completion everywhere:
 
 @lisp
 (ivy-mode 1)
@@ -237,7 +233,6 @@ Note: @code{ivy-mode} can be toggled on and off with @kbd{M-x} @code{ivy-mode}.
 
 Here are some basic settings particularly useful for new Ivy
 users:
-
 @lisp
 (setq ivy-use-virtual-buffers t)
 (setq ivy-height 10)
@@ -259,9 +254,9 @@ documentation.
 @node Global key bindings
 @section Global key bindings
 
-Recommended key bindings are:
-@subsubheading Ivy-based interface to standard commands
+The recommended key bindings are:
 
+@subsubheading Ivy-based interface to standard commands
 @lisp
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "M-x") 'counsel-M-x)
@@ -272,8 +267,8 @@ Recommended key bindings are:
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 @end lisp
-@subsubheading Ivy-based interface to shell and system tools
 
+@subsubheading Ivy-based interface to shell and system tools
 @lisp
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
@@ -281,9 +276,9 @@ Recommended key bindings are:
 (global-set-key (kbd "C-x l") 'counsel-locate)
 (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
 @end lisp
+
 @subsubheading Ivy-resume and other commands
 @code{ivy-resume} resumes the last Ivy-based completion.
-
 @lisp
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 @end lisp
@@ -300,9 +295,9 @@ are described here.
 under their respective commands.
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
-* Key bindings that alter minibuffer input::
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
 * Saving the current completion session to a buffer::
@@ -369,9 +364,7 @@ when applying multiple actions. Multiple actions and multiple
 selections as covered in the next section of this manual.
 
 @kbd{TAB} (@code{ivy-partial-or-done}) attempts partial completion, extending
-current input as much as possible.
-
-@kbd{TAB TAB} is the same as @kbd{C-j}.
+current input as much as possible. @kbd{TAB TAB} is the same as @kbd{C-j}.
 
 @kbd{C-M-j} (@code{ivy-immediate-done}) is useful when there is no match for
 the given input. Or there is an incorrect partial match. @kbd{C-M-j} with
@@ -382,10 +375,9 @@ current input to create a new directory with @code{dired-create-directory}.
 an action on the @emph{currently selected} candidate and calling an action
 on the @emph{current input}.
 
-Invoking avy completion with @kbd{C-'} (@code{ivy-avy}).
-@kbd{C-`} uses avy's visible jump mechanism, which can further reduce
-Ivy's line-by-line scrolling that requires multiple @kbd{C-n} or @kbd{C-p}
-keystrokes.
+@kbd{C-'} (@code{ivy-avy}) uses avy's visible jump mechanism, which can further
+reduce Ivy's line-by-line scrolling that requires multiple @kbd{C-n} or
+@kbd{C-p} keystrokes.
 
 @node Key bindings for multiple selections and actions keep minibuffer open
 @subsection Key bindings for multiple selections and actions, keep minibuffer open
@@ -424,8 +416,8 @@ action on each successive element of the list.
 the same as above except that it moves through the list in the other
 direction.
 
-@node Key bindings that alter minibuffer input
-@subsection Key bindings that alter minibuffer input
+@node Key bindings that alter the minibuffer input
+@subsection Key bindings that alter the minibuffer input
 
 @kbd{M-n} (@code{ivy-next-history-element}) and @kbd{M-p}
 (@code{ivy-previous-history-element}) cycle through the Ivy command
@@ -438,9 +430,9 @@ minibuffer. Useful for copying and renaming files, for example: @kbd{M-i}
 to insert the original file name string, edit it, and then @kbd{C-m} to
 complete the renaming.
 
-@kbd{M-j} (@code{ivy-yank-word}) inserts sub-word at point into minibuffer. This
-is similar to @kbd{C-s C-w} with @code{isearch}. Ivy reserves @kbd{C-w} for
-@code{kill-region}.
+@kbd{M-j} (@code{ivy-yank-word}) inserts the sub-word at point into the
+minibuffer. This is similar to @kbd{C-s C-w} with @code{isearch}. Ivy reserves
+@kbd{C-w} for @code{kill-region}.
 
 @kbd{S-SPC} (@code{ivy-restrict-to-matches}) deletes the current input, and
 resets the candidates list to the currently restricted matches. This
@@ -499,7 +491,6 @@ Ivy's completion functions rely on the highly configurable regex
 builder.
 
 The default is:
-
 @lisp
 (setq ivy-re-builders-alist
       '((t . ivy--regex-plus)))
@@ -508,7 +499,6 @@ The default is:
 The default @code{ivy--regex-plus} narrowing is always invoked unless
 specified otherwise. For example, file name completion may have a
 custom completion function:
-
 @lisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
@@ -534,57 +524,51 @@ The main regex-builders currently in Ivy are:
 rebuilding it into a regex.
 
 As the search string is typed in Ivy's minibuffer, it is transformed
-into proper regex syntax. If the string is "for example", it is
+into proper regex syntax. If the string is @code{"for example"}, it is
 transformed into
 
-@verbatim
+@lisp
 "\\(for\\).*\\(example\\)"
-@end verbatim
+@end lisp
 
-which in regex terminology matches "for" followed by a wild card and
-then "example". Note how Ivy uses the space character to build
-wild cards. For literal white space matching in Ivy, use an extra space:
-to match one space type two spaces, to match two spaces type three
+which in regex terminology matches @code{"for"} followed by a wild card and
+then @code{"example"}. Note how Ivy uses the space character to build wild
+cards. For literal white space matching in Ivy, use an extra space: to
+match one space type two spaces, to match two spaces type three
 spaces, and so on.
 
 As Ivy transforms typed characters into regex strings, it provides an
 intuitive feedback through font highlights.
 
-Ivy supports regexp negation with "!". For example, "define key ! ivy
-quit" first selects everything matching "define.*key", then removes
-everything matching "ivy", and finally removes everything matching
-"quit". What remains is the final result set of the negation regexp.
+Ivy supports regexp negation with @code{"!"}. 
+For example, @code{"define key ! ivy quit"} first selects everything
+matching @code{"define.*key"}, then removes everything matching @code{"ivy"},
+and finally removes everything matching @code{"quit"}. What remains is the
+final result set of the negation regexp.
 
-@verbatim
-Standard regexp identifiers work:
-
-"^", "$", "\b" or "[a-z]"
-@end verbatim
-
-Since Ivy treats minibuffer input as a regexp, standard regexp
-identifiers work as usual. The exceptions are spaces, which
-translate to ".*", and "!" that signal the beginning of a negation
-group.
+Since Ivy treats minibuffer input as a regexp, the standard regexp
+identifiers work: @code{"^"}, @code{"$"}, @code{"\b"} or @code{"[a-z]"}. The exceptions
+are spaces, which translate to @code{".*"}, and @code{"!"} that signal the
+beginning of a negation group.
 
 @node ivy--regex-ignore-order
 @section ivy--regex-ignore-order
 
 @code{ivy--regex-ignore-order} ignores the order of regexp tokens when
-searching for matching candidates. For instance, the input "for
-example" will match "example test for". Otherwise @code{ivy--regex-plus}
-normal behavior is to honor the order of regexp tokens.
+searching for matching candidates. For instance, the input 
+@code{"for example"} will match @code{"example test for"}. 
 
 @node ivy--regex-fuzzy
 @section ivy--regex-fuzzy
 
 @code{ivy--regex-fuzzy} splits each character with a wild card. Searching
-for "for" returns all "f.*o.*r" matches, resulting in a large number
-of hits.  Yet some searches need these extra hits. Ivy sorts such
-large lists using @code{flx} package's scoring mechanism, if it's
+for @code{"for"} returns all @code{"f.*o.*r"} matches, resulting in a large
+number of hits.  Yet some searches need these extra hits. Ivy sorts
+such large lists using @code{flx} package's scoring mechanism, if it's
 installed.
 
 @node Variable Index
-@chapter Variable Index
+@unnumbered Variable Index
 
 @printindex vr
 
