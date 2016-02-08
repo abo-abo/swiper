@@ -236,6 +236,7 @@ Example:
     (define-key map (kbd "C-'") 'ivy-avy)
     (define-key map (kbd "C-M-a") 'ivy-read-action)
     (define-key map (kbd "C-c C-o") 'ivy-occur)
+    (define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
     (define-key map (kbd "C-h m") 'ivy-help)
     map)
   "Keymap used in the minibuffer.")
@@ -317,6 +318,9 @@ Each value is an evaluation of the function, in case of static
 sources. These values will subsequently be filtered on `ivy-text'.
 
 This variable is set by `ivy-read' and used by `ivy--set-candidates'.")
+
+(defvar ivy-use-ignore t
+  "Store policy for user-configured candidate filtering.")
 
 (defvar ivy--default nil
   "Default initial input.")
@@ -733,6 +737,13 @@ If the input is empty, select the previous history element instead."
   (interactive)
   (when (setq ivy-calling (not ivy-calling))
     (ivy-call)))
+
+(defun ivy-toggle-ignore ()
+  "Toggle user-configured candidate filtering."
+  (interactive)
+  (setq ivy-use-ignore (null ivy-use-ignore))
+  ;; invalidate cache
+  (setq ivy--old-cands nil))
 
 (defun ivy--get-action (state)
   "Get the action function from STATE."
@@ -1285,6 +1296,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--full-length nil)
     (setq ivy-text "")
     (setq ivy-calling nil)
+    (setq ivy-use-ignore t)
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -2383,24 +2395,18 @@ CANDS is a list of strings."
 (defun ivy--buffer-list (str &optional virtual)
   "Return the buffers that match STR.
 When VIRTUAL is non-nil, add virtual buffers."
-  (cl-remove-if
-   (lambda (buf)
-     (cl-find-if
-      (lambda (regexp)
-        (string-match regexp buf))
-      ivy-ignore-buffers))
-   (delete-dups
-    (append
-     (mapcar
-      (lambda (x)
-        (if (with-current-buffer x
-              (file-remote-p
-               (abbreviate-file-name default-directory)))
-            (propertize x 'face 'ivy-remote)
-          x))
-      (all-completions str 'internal-complete-buffer))
-     (and virtual
-          (ivy--virtual-buffers))))))
+  (delete-dups
+   (append
+    (mapcar
+     (lambda (x)
+       (if (with-current-buffer x
+             (file-remote-p
+              (abbreviate-file-name default-directory)))
+           (propertize x 'face 'ivy-remote)
+         x))
+     (all-completions str 'internal-complete-buffer))
+    (and virtual
+         (ivy--virtual-buffers)))))
 
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
@@ -2449,6 +2455,22 @@ BUFFER may be a string or nil."
     ivy--rename-buffer-action
     "rename")))
 
+(defun ivy--switch-buffer-matcher (regexp candidates)
+  "Return REGEXP-matching CANDIDATES.
+Skip buffers that match `ivy-ignore-buffers'."
+  (let ((res (ivy--re-filter regexp candidates)))
+    (if (or (null ivy-use-ignore)
+            (null ivy-ignore-buffers))
+        res
+      (or (cl-remove-if
+           (lambda (buf)
+             (cl-find-if
+              (lambda (regexp)
+                (string-match regexp buf))
+              ivy-ignore-buffers))
+           res)
+          res))))
+
 ;;;###autoload
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
@@ -2457,6 +2479,7 @@ BUFFER may be a string or nil."
       (call-interactively 'switch-to-buffer)
     (let ((this-command 'ivy-switch-buffer))
       (ivy-read "Switch to buffer: " 'internal-complete-buffer
+                :matcher #'ivy--switch-buffer-matcher
                 :preselect (buffer-name (other-buffer (current-buffer)))
                 :action #'ivy--switch-buffer-action
                 :keymap ivy-switch-buffer-map))))
