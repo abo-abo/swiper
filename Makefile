@@ -1,5 +1,3 @@
-index.html: ../doc/ivy.org
-	emacs -batch -l init.el $^ -f org-html-export-to-html
+index.html: ../doc/ivy.org Makefile init.el
+	emacs -Q -l init.el $< -f doexport
 	mv ../doc/ivy.html $@
-
-

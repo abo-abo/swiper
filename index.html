@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-08 Mon 16:33 -->
+<!-- 2016-02-08 Mon 16:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -332,9 +332,9 @@ for adding MELPA to the list of package archives:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="font-weight: bold;">require</span> '<span style="font-weight: bold; text-decoration: underline;">package</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">package</span>)
 (add-to-list 'package-archives
-             '(<span style="font-style: italic;">"melpa"</span> . <span style="font-style: italic;">"http://melpa.org/packages/"</span>))
+             '(<span style="color: #2A00FF;">"melpa"</span> . <span style="color: #2A00FF;">"http://melpa.org/packages/"</span>))
 </pre>
 </div>
 
@@ -371,8 +371,8 @@ First clone the Swiper repository:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-sh"><span style="font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
-<span style="font-weight: bold;">cd</span> swiper &amp;&amp; make compile
+<pre class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
+<span style="color: #7F0055; font-weight: bold;">cd</span> swiper &amp;&amp; make compile
 </pre>
 </div>
 
@@ -381,8 +381,8 @@ Then add this to Emacs init:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(add-to-list 'load-path <span style="font-style: italic;">"~/git/swiper/"</span>)
-(<span style="font-weight: bold;">require</span> '<span style="font-weight: bold; text-decoration: underline;">ivy</span>)
+<pre class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
+(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ivy</span>)
 </pre>
 </div>
 
@@ -425,10 +425,10 @@ users:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
-(<span style="font-weight: bold;">setq</span> ivy-height 10)
-(<span style="font-weight: bold;">setq</span> ivy-display-style 'fancy)
-(<span style="font-weight: bold;">setq</span> ivy-count-format <span style="font-style: italic;">"(%d/%d) "</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-height 10)
+(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-display-style 'fancy)
+(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
 </pre>
 </div>
 
@@ -456,14 +456,14 @@ The recommended key bindings are:
 </dl>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-s"</span>) 'swiper)
-(global-set-key (kbd <span style="font-style: italic;">"M-x"</span>) 'counsel-M-x)
-(global-set-key (kbd <span style="font-style: italic;">"C-x C-f"</span>) 'counsel-find-file)
-(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; f"</span>) 'counsel-describe-function)
-(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; v"</span>) 'counsel-describe-variable)
-(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; l"</span>) 'counsel-load-library)
-(global-set-key (kbd <span style="font-style: italic;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
-(global-set-key (kbd <span style="font-style: italic;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
+(global-set-key (kbd <span style="color: #2A00FF;">"M-x"</span>) 'counsel-M-x)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-x C-f"</span>) 'counsel-find-file)
+(global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; f"</span>) 'counsel-describe-function)
+(global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; v"</span>) 'counsel-describe-variable)
+(global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; l"</span>) 'counsel-load-library)
+(global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
+(global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
 </pre>
 </div>
 
@@ -472,11 +472,11 @@ The recommended key bindings are:
 </dl>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-c g"</span>) 'counsel-git)
-(global-set-key (kbd <span style="font-style: italic;">"C-c j"</span>) 'counsel-git-grep)
-(global-set-key (kbd <span style="font-style: italic;">"C-c k"</span>) 'counsel-ag)
-(global-set-key (kbd <span style="font-style: italic;">"C-x l"</span>) 'counsel-locate)
-(global-set-key (kbd <span style="font-style: italic;">"C-S-o"</span>) 'counsel-rhythmbox)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-c j"</span>) 'counsel-git-grep)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-c k"</span>) 'counsel-ag)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-x l"</span>) 'counsel-locate)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-S-o"</span>) 'counsel-rhythmbox)
 </pre>
 </div>
 
@@ -488,7 +488,7 @@ The recommended key bindings are:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-c C-r"</span>) 'ivy-resume)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
 </pre>
 </div>
 </div>
@@ -775,7 +775,7 @@ The default is:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-re-builders-alist
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((t . ivy--regex-plus)))
 </pre>
 </div>
@@ -787,7 +787,7 @@ custom completion function:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-re-builders-alist
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
 </pre>
@@ -892,7 +892,7 @@ installed.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Oleh Krehel</p>
-<p class="date">Created: 2016-02-08 Mon 16:33</p>
+<p class="date">Created: 2016-02-08 Mon 16:58</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
