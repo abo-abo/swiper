@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-08 Mon 17:15 -->
+<!-- 2016-02-08 Mon 17:31 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -732,19 +732,21 @@ rebuilding it into a regex.
 
 <p>
 As the search string is typed in Ivy's minibuffer, it is transformed
-into proper regex syntax. If the string is "for example", it is
+into proper regex syntax. If the string is <code>"for example"</code>, it is
 transformed into
 </p>
 
-<pre class="example">
-"\\(for\\).*\\(example\\)"
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">for</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">.*</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">example</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">"</span>
 </pre>
+</div>
 
 <p>
-which in regex terminology matches "for" followed by a wild card and
-then "example". Note how Ivy uses the space character to build
-wild cards. For literal white space matching in Ivy, use an extra space:
-to match one space type two spaces, to match two spaces type three
+which in regex terminology matches <code>"for"</code> followed by a wild card and
+then <code>"example"</code>. Note how Ivy uses the space character to build wild
+cards. For literal white space matching in Ivy, use an extra space: to
+match one space type two spaces, to match two spaces type three
 spaces, and so on.
 </p>
 
@@ -754,23 +756,18 @@ intuitive feedback through font highlights.
 </p>
 
 <p>
-Ivy supports regexp negation with "!". For example, "define key ! ivy
-quit" first selects everything matching "define.*key", then removes
-everything matching "ivy", and finally removes everything matching
-"quit". What remains is the final result set of the negation regexp.
+Ivy supports regexp negation with <code>"!"</code>. 
+For example, <code>"define key ! ivy quit"</code> first selects everything
+matching <code>"define.*key"</code>, then removes everything matching <code>"ivy"</code>,
+and finally removes everything matching <code>"quit"</code>. What remains is the
+final result set of the negation regexp.
 </p>
 
-<pre class="example">
-Standard regexp identifiers work:
-
-"^", "$", "\b" or "[a-z]"
-</pre>
-
 <p>
-Since Ivy treats minibuffer input as a regexp, standard regexp
-identifiers work as usual. The exceptions are spaces, which
-translate to ".*", and "!" that signal the beginning of a negation
-group.
+Since Ivy treats minibuffer input as a regexp, the standard regexp
+identifiers work: <code>"^"</code>, <code>"$"</code>, <code>"\b"</code> or <code>"[a-z]"</code>. The exceptions
+are spaces, which translate to <code>".*"</code>, and <code>"!"</code> that signal the
+beginning of a negation group.
 </p>
 </div>
 </div>
@@ -780,9 +777,8 @@ group.
 <div class="outline-text-3" id="text-ivy--regex-ignore-order">
 <p>
 <code>ivy--regex-ignore-order</code> ignores the order of regexp tokens when
-searching for matching candidates. For instance, the input "for
-example" will match "example test for". Otherwise <code>ivy--regex-plus</code>
-normal behavior is to honor the order of regexp tokens.
+searching for matching candidates. For instance, the input 
+<code>"for example"</code> will match <code>"example test for"</code>. 
 </p>
 </div>
 </div>
@@ -792,9 +788,9 @@ normal behavior is to honor the order of regexp tokens.
 <div class="outline-text-3" id="text-ivy--regex-fuzzy">
 <p>
 <code>ivy--regex-fuzzy</code> splits each character with a wild card. Searching
-for "for" returns all "f.*o.*r" matches, resulting in a large number
-of hits.  Yet some searches need these extra hits. Ivy sorts such
-large lists using <code>flx</code> package's scoring mechanism, if it's
+for <code>"for"</code> returns all <code>"f.*o.*r"</code> matches, resulting in a large
+number of hits.  Yet some searches need these extra hits. Ivy sorts
+such large lists using <code>flx</code> package's scoring mechanism, if it's
 installed.
 </p>
 </div>
