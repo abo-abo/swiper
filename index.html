@@ -1,0 +1,899 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2016-02-08 Mon 16:33 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ivy User Manual</title>
+<meta name="generator" content="Org-mode" />
+<meta name="author" content="Oleh Krehel" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+<link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Ivy User Manual</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#copying">1. Copying</a></li>
+<li><a href="#introduction">2. Introduction</a></li>
+<li><a href="#installation">3. Installation</a>
+<ul>
+<li><a href="#installing-from-emacs-package-manager">3.1. Installing from Emacs Package Manager</a></li>
+<li><a href="#installing-from-the-git-repository">3.2. Installing from the Git repository</a></li>
+</ul>
+</li>
+<li><a href="#getting-started">4. Getting started</a>
+<ul>
+<li><a href="#basic-customization">4.1. Basic customization</a></li>
+</ul>
+</li>
+<li><a href="#key-bindings">5. Key bindings</a>
+<ul>
+<li><a href="#global-key-bindings">5.1. Global key bindings</a></li>
+<li><a href="#minibuffer-key-bindings">5.2. Minibuffer key bindings</a>
+<ul>
+<li><a href="#key-bindings-for-navigation">5.2.1. Key bindings for navigation</a></li>
+<li><a href="#key-bindings-for-single-selection-action-then-exit-minibuffer">5.2.2. Key bindings for single selection, action, then exit minibuffer</a></li>
+<li><a href="#key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open">5.2.3. Key bindings for multiple selections and actions, keep minibuffer open</a></li>
+<li><a href="#key-bindings-that-alter-the-minibuffer-input">5.2.4. Key bindings that alter the minibuffer input</a></li>
+<li><a href="#other-key-bindings">5.2.5. Other key bindings</a></li>
+<li><a href="#hydra-in-the-minibuffer">5.2.6. Hydra in the minibuffer</a></li>
+<li><a href="#saving-the-current-completion-session-to-a-buffer">5.2.7. Saving the current completion session to a buffer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#completion-styles">6. Completion styles</a>
+<ul>
+<li><a href="#ivy--regex-plus">6.1. ivy&#x2013;regex-plus</a></li>
+<li><a href="#ivy--regex-ignore-order">6.2. ivy&#x2013;regex-ignore-order</a></li>
+<li><a href="#ivy--regex-fuzzy">6.3. ivy&#x2013;regex-fuzzy</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline22">7. Variable Index</a></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline1" class="outline-2">
+<h2 id="copying"><a id="orgheadline1"></a><span class="section-number-2">1</span> Copying</h2>
+<div class="outline-text-2" id="text-copying">
+<p>
+Ivy manual, version 0.7.0
+</p>
+
+<p>
+Ivy is an interactive interface for completion in Emacs. Emacs uses
+completion mechanism in a variety of contexts: code, menus, commands,
+variables, functions, etc. Completion entails listing, sorting,
+filtering, previewing, and applying actions on selected items. When
+active, <code>ivy-mode</code> completes the selection process by narrowing
+available choices while previewing in the minibuffer. Selecting the
+final candidate is either through simple keyboard character inputs or
+through powerful regular expressions.
+</p>
+<p>
+Copyright (C) 2015 Free Software Foundation, Inc.
+</p>
+
+<blockquote>
+<p>
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
+and with the Back-Cover Texts as in (a) below.  A copy of the license
+is included in the section entitled ``GNU Free Documentation License.''
+</p>
+
+<p>
+(a) The FSF's Back-Cover Text is: ``You have the freedom to copy and
+modify this GNU manual.''
+</p>
+</blockquote>
+</div>
+</div>
+<div id="outline-container-orgheadline2" class="outline-2">
+<h2 id="introduction"><a id="orgheadline2"></a><span class="section-number-2">2</span> Introduction</h2>
+<div class="outline-text-2" id="text-introduction">
+<p>
+Ivy is for quick and easy selection from a list. When Emacs prompts
+for a string from a list of several possible choices, Ivy springs into
+action to assist in narrowing and picking the right string from a vast
+number of choices.asdf
+</p>
+
+<p>
+Ivy strives for minimalism, simplicity, customizability and
+discoverability.
+</p>
+
+<dl class="org-dl">
+<dt>Minimalism</dt><dd></dd>
+</dl>
+<p>
+Uncluttered minibuffer is minimalism. Ivy shows the completion
+defaults, the number of matches, and 10 candidate matches below the
+input line. Customize <code>ivy-length</code> to adjust the number of candidate
+matches displayed in the minibuffer.
+</p>
+
+<dl class="org-dl">
+<dt>Simplicity</dt><dd></dd>
+</dl>
+<p>
+Simplicity is about Ivy's behavior in the minibuffer. It is also about
+the code interface to extend Ivy's functionality. The minibuffer area
+behaves as close to <code>fundamental-mode</code> as possible. <code>SPC</code> inserts a
+space, for example, instead of being bound to the more complex
+<code>minibuffer-complete-word</code>. Ivy's code uses easy-to-examine global
+variables; avoids needless complications with branch-introducing
+custom macros.
+</p>
+
+<dl class="org-dl">
+<dt>Customizability</dt><dd></dd>
+</dl>
+<p>
+Customizability is about being able to use different methods and
+interfaces of completion to tailor the selection process. For example,
+adding a custom display function that points to a selected candidate
+with <code>-&gt;</code>, instead of highlighting the selected candidate with the
+<code>ivy-current-match</code> face. Or take the customization of actions, say
+after the candidate function is selected. <code>RET</code> uses
+<code>counsel-describe-function</code> to describe the function, whereas <code>M-o d</code>
+jumps to that function's definition in the code. The <code>M-o</code> prefix can
+be uniformly used with characters like <code>d</code> to group similar actions.
+</p>
+
+<dl class="org-dl">
+<dt>Discoverability</dt><dd></dd>
+</dl>
+<p>
+Ivy displays easily discoverable commands through the hydra facility.
+<code>C-o</code> in the minibuffer displays a hydra menu. It opens up within an
+expanded minibuffer area. Each menu item comes with short
+documentation strings and highlighted one-key completions. So
+discovering even seldom used keys is simply a matter of <code>C-o</code> in the
+minibuffer while in the midst of the Ivy interaction. This
+discoverability minimizes exiting Ivy interface for documentation
+look-ups.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline5" class="outline-2">
+<h2 id="installation"><a id="orgheadline5"></a><span class="section-number-2">3</span> Installation</h2>
+<div class="outline-text-2" id="text-installation">
+<p>
+Install Ivy automatically through Emacs's package manager, or manually
+from Ivy's development repository.
+</p>
+</div>
+
+<div id="outline-container-orgheadline3" class="outline-3">
+<h3 id="installing-from-emacs-package-manager"><a id="orgheadline3"></a><span class="section-number-3">3.1</span> Installing from Emacs Package Manager</h3>
+<div class="outline-text-3" id="text-installing-from-emacs-package-manager">
+<p>
+<code>M-x</code> <code>package-install</code> <code>RET</code> <code>swiper</code> <code>RET</code>
+</p>
+
+<p>
+Ivy is installed as part of <code>swiper</code> package. <code>swiper</code> is available
+from two different package archives, GNU ELPA and MELPA. For the
+latest stable version, use the GNU ELPA archives using the above M-x
+command.
+</p>
+
+<p>
+For current hourly builds, use the MELPA archives. See the code below
+for adding MELPA to the list of package archives:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="font-weight: bold;">require</span> '<span style="font-weight: bold; text-decoration: underline;">package</span>)
+(add-to-list 'package-archives
+             '(<span style="font-style: italic;">"melpa"</span> . <span style="font-style: italic;">"http://melpa.org/packages/"</span>))
+</pre>
+</div>
+
+<p>
+After this do <code>M-x</code> <code>package-refresh-contents</code> <code>RET</code>, followed by
+<code>M-x</code> <code>package-install</code> <code>RET</code> <code>swiper</code> <code>RET</code>.
+</p>
+
+<p>
+For package manager details, see <a href="emacs.html#Packages">emacs#Packages</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline4" class="outline-3">
+<h3 id="installing-from-the-git-repository"><a id="orgheadline4"></a><span class="section-number-3">3.2</span> Installing from the Git repository</h3>
+<div class="outline-text-3" id="text-installing-from-the-git-repository">
+<p>
+Why install from Git?
+</p>
+
+<ul class="org-ul">
+<li>No need to wait for MELPA's hourly builds</li>
+<li>Easy to revert to previous versions</li>
+<li>Contribute to Ivy's development; send patches; pull requests</li>
+</ul>
+
+<p>
+<b>Configuration steps</b>
+</p>
+
+<p>
+First clone the Swiper repository:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh"><span style="font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
+<span style="font-weight: bold;">cd</span> swiper &amp;&amp; make compile
+</pre>
+</div>
+
+<p>
+Then add this to Emacs init:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(add-to-list 'load-path <span style="font-style: italic;">"~/git/swiper/"</span>)
+(<span style="font-weight: bold;">require</span> '<span style="font-weight: bold; text-decoration: underline;">ivy</span>)
+</pre>
+</div>
+
+<p>
+To update the code:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-sh">git pull
+make
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline7" class="outline-2">
+<h2 id="getting-started"><a id="orgheadline7"></a><span class="section-number-2">4</span> Getting started</h2>
+<div class="outline-text-2" id="text-getting-started">
+<p>
+First, enable Ivy completion everywhere:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-mode 1)
+</pre>
+</div>
+
+<p>
+Note: <code>ivy-mode</code> can be toggled on and off with <code>M-x</code> <code>ivy-mode</code>.
+</p>
+</div>
+<div id="outline-container-orgheadline6" class="outline-3">
+<h3 id="basic-customization"><a id="orgheadline6"></a><span class="section-number-3">4.1</span> Basic customization</h3>
+<div class="outline-text-3" id="text-basic-customization">
+<p>
+Here are some basic settings particularly useful for new Ivy
+users:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+(<span style="font-weight: bold;">setq</span> ivy-height 10)
+(<span style="font-weight: bold;">setq</span> ivy-display-style 'fancy)
+(<span style="font-weight: bold;">setq</span> ivy-count-format <span style="font-style: italic;">"(%d/%d) "</span>)
+</pre>
+</div>
+
+<p>
+For additional customizations, refer to <code>M-x describe-variable</code>
+documentation.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline17" class="outline-2">
+<h2 id="key-bindings"><a id="orgheadline17"></a><span class="section-number-2">5</span> Key bindings</h2>
+<div class="outline-text-2" id="text-key-bindings">
+</div>
+<div id="outline-container-orgheadline8" class="outline-3">
+<h3 id="global-key-bindings"><a id="orgheadline8"></a><span class="section-number-3">5.1</span> Global key bindings</h3>
+<div class="outline-text-3" id="text-global-key-bindings">
+<p>
+The recommended key bindings are:
+</p>
+
+<dl class="org-dl">
+<dt>Ivy-based interface to standard commands</dt><dd></dd>
+</dl>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-s"</span>) 'swiper)
+(global-set-key (kbd <span style="font-style: italic;">"M-x"</span>) 'counsel-M-x)
+(global-set-key (kbd <span style="font-style: italic;">"C-x C-f"</span>) 'counsel-find-file)
+(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; f"</span>) 'counsel-describe-function)
+(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; v"</span>) 'counsel-describe-variable)
+(global-set-key (kbd <span style="font-style: italic;">"&lt;f1&gt; l"</span>) 'counsel-load-library)
+(global-set-key (kbd <span style="font-style: italic;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
+(global-set-key (kbd <span style="font-style: italic;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>Ivy-based interface to shell and system tools</dt><dd></dd>
+</dl>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-c g"</span>) 'counsel-git)
+(global-set-key (kbd <span style="font-style: italic;">"C-c j"</span>) 'counsel-git-grep)
+(global-set-key (kbd <span style="font-style: italic;">"C-c k"</span>) 'counsel-ag)
+(global-set-key (kbd <span style="font-style: italic;">"C-x l"</span>) 'counsel-locate)
+(global-set-key (kbd <span style="font-style: italic;">"C-S-o"</span>) 'counsel-rhythmbox)
+</pre>
+</div>
+
+<dl class="org-dl">
+<dt>Ivy-resume and other commands</dt><dd></dd>
+</dl>
+<p>
+<code>ivy-resume</code> resumes the last Ivy-based completion.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(global-set-key (kbd <span style="font-style: italic;">"C-c C-r"</span>) 'ivy-resume)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline16" class="outline-3">
+<h3 id="minibuffer-key-bindings"><a id="orgheadline16"></a><span class="section-number-3">5.2</span> Minibuffer key bindings</h3>
+<div class="outline-text-3" id="text-minibuffer-key-bindings">
+<p>
+Ivy includes several minibuffer bindings, which are defined in the
+<code>ivy-minibuffer-map</code> keymap variable. The most frequently used ones
+are described here.
+</p>
+
+<p>
+<code>swiper</code> or <code>counsel-M-x</code> add more through the <code>keymap</code> argument to
+<code>ivy-read</code>. These keys, also active in the minibuffer, are described
+under their respective commands.
+</p>
+</div>
+
+<div id="outline-container-orgheadline9" class="outline-4">
+<h4 id="key-bindings-for-navigation"><a id="orgheadline9"></a><span class="section-number-4">5.2.1</span> Key bindings for navigation</h4>
+<div class="outline-text-4" id="text-key-bindings-for-navigation">
+<ul class="org-ul">
+<li><code>C-n</code> (<code>ivy-next-line</code>) selects the next candidate</li>
+<li><code>C-p</code> (<code>ivy-previous-line</code>) selects the previous candidate</li>
+<li><code>M-&lt;</code> (<code>ivy-beginning-of-buffer</code>) selects the first candidate</li>
+<li><code>M-&gt;</code> (<code>ivy-end-of-buffer</code>) selects the last candidate</li>
+<li><code>C-v</code> (<code>ivy-scroll-up-command</code>) scrolls up by <code>ivy-height</code> lines</li>
+<li><code>M-v</code> (<code>ivy-scroll-down-command</code>) scrolls down by <code>ivy-height</code> lines</li>
+</ul>
+
+<p>
+This user option allows to get the wrap-around behavior for <code>C-n</code> and
+<code>C-p</code>.  When set to <code>t</code>, <code>ivy-next-line</code> and <code>ivy-previous-line</code> will
+cycle past the last and the first candidates respectively.
+</p>
+
+<p>
+This behavior is off by default.
+</p>
+<p>
+Use this variable to adjust the minibuffer height, and therefore the
+scroll size for <code>C-v</code> and <code>M-v</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline10" class="outline-4">
+<h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><a id="orgheadline10"></a><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
+<div class="outline-text-4" id="text-key-bindings-for-single-selection-action-then-exit-minibuffer">
+<p>
+Ivy can offer several actions from which to choose which action to
+run. This "calling an action" operates on the selected candidate. For
+example, when viewing a list of files, one action could open it for
+editing, one to view it, another to invoke a special function, and so
+on. Custom actions can be added to this interface. The precise action
+to call on the selected candidate can be delayed until after the
+narrowing is completed. No need to exit the interface if unsure which
+action to run. This delayed flexibility and customization of actions
+extends usability of lists in Emacs.
+</p>
+
+<p>
+<code>C-m</code> or <code>RET</code> (<code>ivy-done</code>) calls the default action and exits the
+minibuffer.
+</p>
+
+<p>
+<code>M-o</code> (<code>ivy-dispatching-done</code>) presents all available valid actions
+from which to choose. When there is only one action available, there
+is no difference between <code>M-o</code> and <code>C-m</code>.
+</p>
+
+<p>
+<code>C-j</code> (<code>ivy-alt-done</code>) calls the alternate action, such as completing
+a directory name in a file list whereas <code>C-m</code> will select that directory
+and exit the minibuffer.
+</p>
+
+<p>
+Exiting the minibuffer also closes the Ivy window (as specified by
+<code>ivy-height</code>). This closing and exiting sequence is conveniently off
+when applying multiple actions. Multiple actions and multiple
+selections as covered in the next section of this manual.
+</p>
+
+<p>
+<code>TAB</code> (<code>ivy-partial-or-done</code>) attempts partial completion, extending
+current input as much as possible. <code>TAB TAB</code> is the same as <code>C-j</code>.
+</p>
+
+<p>
+<code>C-M-j</code> (<code>ivy-immediate-done</code>) is useful when there is no match for
+the given input. Or there is an incorrect partial match. <code>C-M-j</code> with
+<code>find-file</code> lists ignores the partial match and instead takes the
+current input to create a new directory with <code>dired-create-directory</code>.
+</p>
+
+<p>
+<code>ivy-immediate-done</code> illustrates how Ivy distinguishes between calling
+an action on the <i>currently selected</i> candidate and calling an action
+on the <i>current input</i>.
+</p>
+
+<p>
+<code>C-'</code> (<code>ivy-avy</code>) uses avy's visible jump mechanism, which can further
+reduce Ivy's line-by-line scrolling that requires multiple <code>C-n</code> or
+<code>C-p</code> keystrokes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline11" class="outline-4">
+<h4 id="key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open"><a id="orgheadline11"></a><span class="section-number-4">5.2.3</span> Key bindings for multiple selections and actions, keep minibuffer open</h4>
+<div class="outline-text-4" id="text-key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open">
+<p>
+For repeatedly applying multiple actions or acting on multiple
+candidates, Ivy does not close the minibuffer between commands. It
+keeps the minibuffer open for applying subsequent actions.
+</p>
+
+<p>
+Adding an extra meta key to the normal key chord invokes the special
+version of the regular commands that enables applying multiple
+actions.
+</p>
+
+<p>
+<code>C-M-m</code> (<code>ivy-call</code>) is the non-exiting version of the default action,
+<code>C-m</code> (<code>ivy-done</code>). Instead of closing the minibuffer, <code>C-M-m</code> allows
+selecting another candidate or another action. For example, <code>C-M-m</code> on
+functions list invokes <code>describe-function</code>. When combined with <code>C-n</code>,
+function descriptions can be invoked quickly in succession.
+</p>
+
+<p>
+<code>RET</code> exits the minibuffer.
+</p>
+
+<p>
+<code>ivy-resume</code> recalls the state of the completion session just before
+its last exit. Useful after an accidental <code>C-m</code> (<code>ivy-done</code>).
+</p>
+
+<p>
+<code>C-M-o</code> (<code>ivy-dispatching-call</code>) is a non-exiting version of <code>M-o</code>
+(<code>ivy-dispatching-done</code>) that can accumulate candidates into a queue.
+For example, for playback in <code>counsel-rhythmbox</code>, <code>C-M-o e</code> en-queues
+the selected candidate, and <code>C-n C-m</code> plays the next one in the queue.
+</p>
+
+<p>
+<code>C-M-n</code> (<code>ivy-next-line-and-call</code>) combines <code>C-n</code> and <code>C-M-m</code>. Applies
+an action and moves to next line. Comes in handy when opening multiple
+files from <code>counsel-find-file</code>, <code>counsel-git-grep</code>, <code>counsel-ag</code>, or
+<code>counsel-locate</code> lists. Just hold <code>C-M-n</code> for rapid-fire default
+action on each successive element of the list.
+</p>
+
+<p>
+<code>C-M-p</code> (<code>ivy-previous-line-and-call</code>) combines <code>C-p</code> and <code>C-M-m</code>. Is
+the same as above except that it moves through the list in the other
+direction.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline12" class="outline-4">
+<h4 id="key-bindings-that-alter-the-minibuffer-input"><a id="orgheadline12"></a><span class="section-number-4">5.2.4</span> Key bindings that alter the minibuffer input</h4>
+<div class="outline-text-4" id="text-key-bindings-that-alter-the-minibuffer-input">
+<p>
+<code>M-n</code> (<code>ivy-next-history-element</code>) and <code>M-p</code>
+(<code>ivy-previous-history-element</code>) cycle through the Ivy command
+history. Ivy updates an internal history list after each action. When
+this history list is empty, <code>M-n</code> inserts symbol (or URL) at point
+into the minibuffer.
+</p>
+
+<p>
+<code>M-i</code> (<code>ivy-insert-current</code>) inserts the current candidate into the
+minibuffer. Useful for copying and renaming files, for example: <code>M-i</code>
+to insert the original file name string, edit it, and then <code>C-m</code> to
+complete the renaming.
+</p>
+
+<p>
+<code>M-j</code> (<code>ivy-yank-word</code>) inserts the sub-word at point into the
+minibuffer. This is similar to <code>C-s C-w</code> with <code>isearch</code>. Ivy reserves
+<code>C-w</code> for <code>kill-region</code>.
+</p>
+
+<p>
+<code>S-SPC</code> (<code>ivy-restrict-to-matches</code>) deletes the current input, and
+resets the candidates list to the currently restricted matches. This
+is how Ivy provides narrowing in successive tiers.
+</p>
+
+<p>
+<code>C-r</code> (<code>ivy-reverse-i-search</code>) works just like <code>C-r</code> at bash command
+prompt, where the completion candidates are the history items. Upon
+completion, the selected candidate string is inserted into the
+minibuffer.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline13" class="outline-4">
+<h4 id="other-key-bindings"><a id="orgheadline13"></a><span class="section-number-4">5.2.5</span> Other key bindings</h4>
+<div class="outline-text-4" id="text-other-key-bindings">
+<p>
+<code>M-w</code> (<code>ivy-kill-ring-save</code>) copies selected candidates to the kill
+ring; when the region is active, copies active region.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline14" class="outline-4">
+<h4 id="hydra-in-the-minibuffer"><a id="orgheadline14"></a><span class="section-number-4">5.2.6</span> Hydra in the minibuffer</h4>
+<div class="outline-text-4" id="text-hydra-in-the-minibuffer">
+<p>
+<code>C-o</code> (<code>hydra-ivy/body</code>) invokes Hydra menus with key shortcuts.
+</p>
+
+<p>
+<code>C-o</code> or <code>i</code> resumes editing.
+</p>
+
+<p>
+Hydra reduces key strokes, for example: <code>C-n C-n C-n C-n</code> is <code>C-o
+jjjj</code> in Hydra. Hydra has other benefits besides certain shorter key
+bindings:
+</p>
+<ul class="org-ul">
+<li><code>&lt;</code> and <code>&gt;</code> to adjust height of minibuffer,</li>
+<li>describes the current completion state, such as case folding and the
+current action.</li>
+</ul>
+
+<p>
+Minibuffer editing is disabled when Hydra is active.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline15" class="outline-4">
+<h4 id="saving-the-current-completion-session-to-a-buffer"><a id="orgheadline15"></a><span class="section-number-4">5.2.7</span> Saving the current completion session to a buffer</h4>
+<div class="outline-text-4" id="text-saving-the-current-completion-session-to-a-buffer">
+<p>
+<code>C-c C-o</code> (<code>ivy-occur</code>) saves the current candidates to a new buffer;
+the list is active in the new buffer.
+</p>
+
+<p>
+<code>RET</code> or <code>mouse-1</code> in the new buffer calls the appropriate action on
+the selected candidate.
+</p>
+
+<p>
+Ivy has no limit on the number of active buffers like these.
+</p>
+
+<p>
+Ivy takes care of making these buffer names unique. It applies
+descriptive names, for example: <code>*ivy-occur counsel-describe-variable
+"function$*</code>.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline21" class="outline-2">
+<h2 id="completion-styles"><a id="orgheadline21"></a><span class="section-number-2">6</span> Completion styles</h2>
+<div class="outline-text-2" id="text-completion-styles">
+<p>
+Ivy's completion functions rely on the highly configurable regex
+builder.
+</p>
+
+<p>
+The default is:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-re-builders-alist
+      '((t . ivy--regex-plus)))
+</pre>
+</div>
+
+<p>
+The default <code>ivy--regex-plus</code> narrowing is always invoked unless
+specified otherwise. For example, file name completion may have a
+custom completion function:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="font-weight: bold;">setq</span> ivy-re-builders-alist
+      '((read-file-name-internal . ivy--regex-fuzzy)
+        (t . ivy--regex-plus)))
+</pre>
+</div>
+
+<p>
+Ivy's flexibility extends to using different styles of completion
+mechanics (regex-builders) for different types of lists. Despite this
+flexibility, Ivy operates within a consistent and uniform interface.
+The main regex-builders currently in Ivy are:
+</p>
+</div>
+
+<div id="outline-container-orgheadline18" class="outline-3">
+<h3 id="ivy--regex-plus"><a id="orgheadline18"></a><span class="section-number-3">6.1</span> ivy&#x2013;regex-plus</h3>
+<div class="outline-text-3" id="text-ivy--regex-plus">
+<p>
+<code>ivy--regex-plus</code> is Ivy's default completion method.
+</p>
+
+<p>
+<code>ivy--regex-plus</code> matches by splitting the input by spaces and
+rebuilding it into a regex.
+</p>
+
+<p>
+As the search string is typed in Ivy's minibuffer, it is transformed
+into proper regex syntax. If the string is "for example", it is
+transformed into
+</p>
+
+<pre class="example">
+"\\(for\\).*\\(example\\)"
+</pre>
+
+<p>
+which in regex terminology matches "for" followed by a wild card and
+then "example". Note how Ivy uses the space character to build
+wild cards. For literal white space matching in Ivy, use an extra space:
+to match one space type two spaces, to match two spaces type three
+spaces, and so on.
+</p>
+
+<p>
+As Ivy transforms typed characters into regex strings, it provides an
+intuitive feedback through font highlights.
+</p>
+
+<p>
+Ivy supports regexp negation with "!". For example, "define key ! ivy
+quit" first selects everything matching "define.*key", then removes
+everything matching "ivy", and finally removes everything matching
+"quit". What remains is the final result set of the negation regexp.
+</p>
+
+<pre class="example">
+Standard regexp identifiers work:
+
+"^", "$", "\b" or "[a-z]"
+</pre>
+
+<p>
+Since Ivy treats minibuffer input as a regexp, standard regexp
+identifiers work as usual. The exceptions are spaces, which
+translate to ".*", and "!" that signal the beginning of a negation
+group.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline19" class="outline-3">
+<h3 id="ivy--regex-ignore-order"><a id="orgheadline19"></a><span class="section-number-3">6.2</span> ivy&#x2013;regex-ignore-order</h3>
+<div class="outline-text-3" id="text-ivy--regex-ignore-order">
+<p>
+<code>ivy--regex-ignore-order</code> ignores the order of regexp tokens when
+searching for matching candidates. For instance, the input "for
+example" will match "example test for". Otherwise <code>ivy--regex-plus</code>
+normal behavior is to honor the order of regexp tokens.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline20" class="outline-3">
+<h3 id="ivy--regex-fuzzy"><a id="orgheadline20"></a><span class="section-number-3">6.3</span> ivy&#x2013;regex-fuzzy</h3>
+<div class="outline-text-3" id="text-ivy--regex-fuzzy">
+<p>
+<code>ivy--regex-fuzzy</code> splits each character with a wild card. Searching
+for "for" returns all "f.*o.*r" matches, resulting in a large number
+of hits.  Yet some searches need these extra hits. Ivy sorts such
+large lists using <code>flx</code> package's scoring mechanism, if it's
+installed.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline22" class="outline-2">
+<h2 id="orgheadline22"><span class="section-number-2">7</span> Variable Index</h2>
+<div class="outline-text-2" id="text-7">
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Oleh Krehel</p>
+<p class="date">Created: 2016-02-08 Mon 16:33</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
