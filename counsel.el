@@ -542,13 +542,15 @@ Possible value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\"."
   "Return REGEXP-matching CANDIDATES.
 Skip some dotfiles unless `ivy-text' requires them."
   (let ((res (ivy--re-filter regexp candidates)))
-    (if (or (null counsel-find-file-ignore-regexp)
+    (if (or (null ivy-use-ignore)
+            (null counsel-find-file-ignore-regexp)
             (string-match counsel-find-file-ignore-regexp ivy-text))
         res
-      (cl-remove-if
-       (lambda (x)
-         (string-match counsel-find-file-ignore-regexp x))
-       res))))
+      (or (cl-remove-if
+           (lambda (x)
+             (string-match counsel-find-file-ignore-regexp x))
+           res)
+          res))))
 
 (defun counsel-git-grep-matcher (regexp candidates)
   (or (and (equal regexp ivy--old-re)
