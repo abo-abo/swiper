@@ -2651,7 +2651,8 @@ There is no limit on the number of *ivy-occur* buffers."
         (when do-grep
           ;; Need precise number of header lines for `wgrep' to work.
           (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                          default-directory)))
+                          (setq default-directory
+                                counsel--git-grep-dir))))
         (insert (format "%d candidates:\n" (length ivy--old-cands)))
         (dolist (cand ivy--old-cands)
           (let ((str (if do-grep
