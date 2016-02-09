@@ -555,7 +555,11 @@ WND, when specified is the window."
         (unless (and transient-mark-mode mark-active)
           (when (eq ivy-exit 'done)
             (push-mark swiper--opoint t)
-            (message "Mark saved where search started")))))))
+            (message "Mark saved where search started"))))
+      (add-to-history
+       'regexp-search-ring
+       (ivy--regex ivy-text)
+       regexp-search-ring-max))))
 
 ;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
 (defun swiper-from-isearch ()
