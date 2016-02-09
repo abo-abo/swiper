@@ -669,7 +669,13 @@ In case =ivy--regex-fuzzy= isn't your current regexp builder, you
 toggle it during completion with ~C-o m~.
 
 * Customization
+:PROPERTIES:
+:CUSTOM_ID: customization
+:END:
 ** Faces
+:PROPERTIES:
+:CUSTOM_ID: faces
+:END:
 - =ivy-current-match= ::
      Highlights the currently selected candidate.
 - =ivy-minibuffer-match-face-1= ::
@@ -726,6 +732,9 @@ toggle it during completion with ~C-o m~.
      (setq ivy-use-virtual-buffers t)
      #+end_src
 ** Defcustoms
+:PROPERTIES:
+:CUSTOM_ID: defcustoms
+:END:
 - User Option =ivy-count-format= ::
      A string that describes how to show the number of candidates and
      possibly the current candidate in the prompt.
@@ -764,7 +773,13 @@ toggle it during completion with ~C-o m~.
      you invoke the completion by mistake.
 
 ** Actions
+:PROPERTIES:
+:CUSTOM_ID: actions
+:END:
 *** What are actions?
+:PROPERTIES:
+:CUSTOM_ID: what-are-actions?
+:END:
 An action is a function of a single argument that gets called after
 you select a candidate during completion. The selected candidate is
 passed to this function as a string argument.
@@ -785,6 +800,9 @@ passed to this function as a string argument.
      #+end_src
 
 *** How can different actions be called?
+:PROPERTIES:
+:CUSTOM_ID: how-can-different-actions-be-called?
+:END:
 - ~C-m~ (=ivy-done=) calls the current/default action.
 - ~M-o~ (=ivy-dispatching-done=) selects among all actions, calls it
   and exits.
@@ -792,6 +810,9 @@ passed to this function as a string argument.
   and doesn't exit.
 
 *** How can the action list be modified?
+:PROPERTIES:
+:CUSTOM_ID: how-can-the-action-list-be-modified?
+:END:
 Currently, you can append any amount of your own actions to the
 default list of actions. This can be done either for a specific
 command, or for all commands at once.
@@ -802,6 +823,9 @@ designated for the default command. This way, ~M-o o~ should be always
 equivalent to ~C-m~.
 
 *** Example - add two actions to each command
+:PROPERTIES:
+:CUSTOM_ID: example---add-two-actions-to-each-command
+:END:
 The first action inserts the current candidate into the Ivy window -
 the window from which =ivy-read= was called.
 
@@ -825,6 +849,9 @@ Now in any completion session you can access =ivy-yank-action= with
 ~M-o y~ and =ivy-copy-to-buffer-action= with ~M-o i~.
 
 **** How to undo adding the two actions
+:PROPERTIES:
+:CUSTOM_ID: how-to-undo-adding-the-two-actions
+:END:
 =ivy-set-actions= simply modifies the internal dict with new data, so
 you can set the extra actions list to =nil= by assigning =nil= value
 to the =t= key:
@@ -834,6 +861,9 @@ to the =t= key:
 #+end_src
 
 **** How to add actions to a specific command
+:PROPERTIES:
+:CUSTOM_ID: how-to-add-actions-to-a-specific-command
+:END:
 Use the command name as the key:
 
 #+begin_src elisp
@@ -844,6 +874,9 @@ Use the command name as the key:
 #+end_src
 
 *** Example - define a new command with several actions
+:PROPERTIES:
+:CUSTOM_ID: example---define-a-new-command-with-several-actions
+:END:
 #+begin_src elisp
 (defun my-action-1 (x)
   (message "action-1: %s" x))
@@ -867,6 +900,9 @@ Here, the number determines the index of the default action.  For each
 action, the strings are used to describe it during the selection.
 
 **** Testing out the above function with =ivy-occur=
+:PROPERTIES:
+:CUSTOM_ID: testing-out-the-above-function-with-ivy-occur
+:END:
 To examine each action with each candidate in a key-efficient way, try:
 
 - Call =my-command-with-3-actions=.
@@ -877,6 +913,9 @@ To examine each action with each candidate in a key-efficient way, try:
 - Press ~j~ to move to the next candidate
 - ...
 ** Packages
+:PROPERTIES:
+:CUSTOM_ID: packages
+:END:
 - =org-mode= ::
      With the most recent version, =org-mode= will obey
      =completing-read-function= (which =ivy-mode= sets), so it should
@@ -905,7 +944,13 @@ To examine each action with each candidate in a key-efficient way, try:
      #+end_src
 
 * Commands
+:PROPERTIES:
+:CUSTOM_ID: commands
+:END:
 ** File Name Completion
+:PROPERTIES:
+:CUSTOM_ID: file-name-completion
+:END:
 Since file name completion is so essential, ivy has a few extra
 bindings that work here.
 
@@ -960,6 +1005,9 @@ bindings that work here.
      the file was opened. It also works well with TRAMP.
 
 ** Buffer Name Completion
+:PROPERTIES:
+:CUSTOM_ID: buffer-name-completion
+:END:
 - User Option =ivy-use-virtual-buffers= ::
      When non-nil, add =recentf-mode= and bookmarks to =ivy-switch-buffer=.
 
@@ -973,6 +1021,9 @@ bindings that work here.
      highlighted with the =ivy-virtual= face, and selecting them will
      open the corresponding file.
 ** Counsel commands
+:PROPERTIES:
+:CUSTOM_ID: counsel-commands
+:END:
 The main advantage of using =counsel-= functions over their basic
 equivalents with =ivy-mode= enabled are the following:
 
@@ -984,6 +1035,9 @@ equivalents with =ivy-mode= enabled are the following:
    =counsel-find-file-map=, instead of just customizing
    =ivy-minibuffer-map= that applies to all completion sessions.
 * API
+:PROPERTIES:
+:CUSTOM_ID: api
+:END:
 The main (and only) entry point is =ivy-read= function. It has only
 two required arguments and many optional arguments that you can pass
 by key. Although the =:action= argument is optional, it's very
@@ -992,6 +1046,9 @@ to the default completion) like multi-actions, non-exiting actions,
 =ivy-occur= and =ivy-resume= will not be possible.
 
 ** Required arguments for =ivy-read=
+:PROPERTIES:
+:CUSTOM_ID: required-arguments-for-ivy-read
+:END:
 - =prompt= ::
      A format string normally ending in a colon and a space.
 
@@ -1006,6 +1063,9 @@ to the default completion) like multi-actions, non-exiting actions,
      =all-completions=.
 
 ** Optional arguments for =ivy-read=
+:PROPERTIES:
+:CUSTOM_ID: optional-arguments-for-ivy-read
+:END:
 - =predicate= ::
      A function to filter the initial collection with, compatible with =all-completions=.
 - =require-match= ::
@@ -1066,6 +1126,9 @@ to the default completion) like multi-actions, non-exiting actions,
      =ivy-read=.  This is useful in all kinds of customization
      scenarios.
 ** Example - =counsel-describe-function=
+:PROPERTIES:
+:CUSTOM_ID: example---counsel-describe-function
+:END:
 This is a typical example of a function with a non-async collection:
 all the strings in the collection are known before the user does any
 input.
@@ -1125,6 +1188,9 @@ Here are the interesting features of the above function, in the order that they 
   examine =this-command=. But =this-command= would be modified if
   another command called =counsel-describe-function=.
 ** Example - =counsel-locate=
+:PROPERTIES:
+:CUSTOM_ID: example---counsel-locate
+:END:
 This is a typical example of a function with an async collection.
 Since we can't pre-compute all the collection items valid for an empty
 input and store them in the memory, the collection function is called
