@@ -12,14 +12,29 @@
 
 #+OPTIONS: H:6 num:6 toc:4
 #+STARTUP: indent
-* Macros                                                                              :noexport:
-#+MACRO: defopt #+TEXINFO: @defopt $1
-#+MACRO: endopt #+TEXINFO: @end defopt
 * Setup                                                                               :noexport:
 #+BEGIN_SRC elisp :exports results :results silent
 (add-to-list 'load-path default-directory)
 (require 'ivy-ox)
 #+END_SRC
+* Writing this manual                                                                 :noexport:
+For highlighting a section without introducing a new subheading use
+definition lists. The definition list "owns" the following text if the
+text is indented by 5 spaces. Use ~C-q~ to indent these
+paragraphs. New paragraphs can also be started, as long as they have
+the 5 spaces indent.
+
+For declaring a =@defopt= section for =defcustom= or =defvar=, also
+use definition lists. They need to have the following form in order to
+be recognized in the texinfo export:
+
+#+BEGIN_EXAMPLE
+User Option =ivy-wrap= ::
+#+END_EXAMPLE
+
+To name each heading, set its =CUSTOM_ID= property. This can be done
+easily with =worf='s ~C-u L~.
+
 * Copying
 :PROPERTIES:
 :COPYING:  t
@@ -66,40 +81,41 @@ Ivy strives for minimalism, simplicity, customizability and
 discoverability.
 
 - Minimalism ::
-Uncluttered minibuffer is minimalism. Ivy shows the completion
-defaults, the number of matches, and 10 candidate matches below the
-input line. Customize =ivy-length= to adjust the number of candidate
-matches displayed in the minibuffer.
+     Uncluttered minibuffer is minimalism. Ivy shows the completion
+     defaults, the number of matches, and 10 candidate matches below
+     the input line. Customize =ivy-length= to adjust the number of
+     candidate matches displayed in the minibuffer.
 
 - Simplicity ::
-Simplicity is about Ivy's behavior in the minibuffer. It is also about
-the code interface to extend Ivy's functionality. The minibuffer area
-behaves as close to =fundamental-mode= as possible. ~SPC~ inserts a
-space, for example, instead of being bound to the more complex
-=minibuffer-complete-word=. Ivy's code uses easy-to-examine global
-variables; avoids needless complications with branch-introducing
-custom macros.
+     Simplicity is about Ivy's behavior in the minibuffer. It is also
+     about the code interface to extend Ivy's functionality. The
+     minibuffer area behaves as close to =fundamental-mode= as
+     possible. ~SPC~ inserts a space, for example, instead of being
+     bound to the more complex =minibuffer-complete-word=. Ivy's code
+     uses easy-to-examine global variables; avoids needless
+     complications with branch-introducing custom macros.
 
 - Customizability ::
-Customizability is about being able to use different methods and
-interfaces of completion to tailor the selection process. For example,
-adding a custom display function that points to a selected candidate
-with =->=, instead of highlighting the selected candidate with the
-=ivy-current-match= face. Or take the customization of actions, say
-after the candidate function is selected. ~RET~ uses
-=counsel-describe-function= to describe the function, whereas ~M-o d~
-jumps to that function's definition in the code. The ~M-o~ prefix can
-be uniformly used with characters like ~d~ to group similar actions.
+     Customizability is about being able to use different methods and
+     interfaces of completion to tailor the selection process. For
+     example, adding a custom display function that points to a
+     selected candidate with =->=, instead of highlighting the
+     selected candidate with the =ivy-current-match= face. Or take the
+     customization of actions, say after the candidate function is
+     selected. ~RET~ uses =counsel-describe-function= to describe the
+     function, whereas ~M-o d~ jumps to that function's definition in
+     the code. The ~M-o~ prefix can be uniformly used with characters
+     like ~d~ to group similar actions.
 
 - Discoverability ::
-Ivy displays easily discoverable commands through the hydra facility.
-~C-o~ in the minibuffer displays a hydra menu. It opens up within an
-expanded minibuffer area. Each menu item comes with short
-documentation strings and highlighted one-key completions. So
-discovering even seldom used keys is simply a matter of ~C-o~ in the
-minibuffer while in the midst of the Ivy interaction. This
-discoverability minimizes exiting Ivy interface for documentation
-look-ups.
+     Ivy displays easily discoverable commands through the hydra
+     facility.  ~C-o~ in the minibuffer displays a hydra menu. It
+     opens up within an expanded minibuffer area. Each menu item comes
+     with short documentation strings and highlighted one-key
+     completions. So discovering even seldom used keys is simply a
+     matter of ~C-o~ in the minibuffer while in the midst of the Ivy
+     interaction. This discoverability minimizes exiting Ivy interface
+     for documentation look-ups.
 
 * Installation
 :PROPERTIES:
@@ -255,18 +271,19 @@ under their respective commands.
 - ~C-v~ (=ivy-scroll-up-command=) scrolls up by =ivy-height= lines
 - ~M-v~ (=ivy-scroll-down-command=) scrolls down by =ivy-height= lines
 
-{{{defopt(ivy-wrap)}}}
-This user option allows to get the wrap-around behavior for ~C-n~ and
-~C-p~.  When set to =t=, =ivy-next-line= and =ivy-previous-line= will
-cycle past the last and the first candidates respectively.
 
-This behavior is off by default.
-{{{endopt}}}
+- User Option =ivy-wrap= ::
+    This user option allows to get the wrap-around behavior for ~C-n~
+    and ~C-p~.  When set to =t=, =ivy-next-line= and
+    =ivy-previous-line= will cycle past the last and the first
+    candidates respectively.
 
-{{{defopt(ivy-height)}}}
-Use this variable to adjust the minibuffer height, and therefore the
-scroll size for ~C-v~ and ~M-v~.
-{{{endopt}}}
+    This behavior is off by default.
+
+- User Option =ivy-height= ::
+    Use this variable to adjust the minibuffer height, and therefore
+    the scroll size for ~C-v~ and ~M-v~.
+
 
 *** Key bindings for single selection, action, then exit minibuffer
 :PROPERTIES:
@@ -283,37 +300,36 @@ narrowing is completed. No need to exit the interface if unsure which
 action to run. This delayed flexibility and customization of actions
 extends usability of lists in Emacs.
 
-~C-m~ or ~RET~ (=ivy-done=) calls the default action and exits the
-minibuffer.
+- ~C-m~ or ~RET~ (=ivy-done=) ::
+     Calls the default action and exits the minibuffer.
 
-~M-o~ (=ivy-dispatching-done=) presents all available valid actions
-from which to choose. When there is only one action available, there
-is no difference between ~M-o~ and ~C-m~.
+- ~M-o~ (=ivy-dispatching-done=) ::
+     Presents all available valid actions from which to choose. When
+     there is only one action available, there is no difference
+     between ~M-o~ and ~C-m~.
 
-~C-j~ (=ivy-alt-done=) calls the alternate action, such as completing
-a directory name in a file list whereas ~C-m~ will select that directory
-and exit the minibuffer.
+- ~C-j~ (=ivy-alt-done=) ::
+     When completing file names, selects the current directory
+     candidate and starts a new completion session there. Otherwise,
+     it's the same as =ivy-done=.
 
-Exiting the minibuffer also closes the Ivy window (as specified by
-=ivy-height=). This closing and exiting sequence is conveniently off
-when applying multiple actions. Multiple actions and multiple
-selections as covered in the next section of this manual.
+- ~TAB~ (=ivy-partial-or-done=) ::
+     Attempts partial completion, extending current input as much as
+     possible. ~TAB TAB~ is the same as ~C-j~.
 
-~TAB~ (=ivy-partial-or-done=) attempts partial completion, extending
-current input as much as possible. ~TAB TAB~ is the same as ~C-j~.
+- ~C-M-j~ (=ivy-immediate-done=) ::
+     Exits with /the current input/ instead of /the current candidate/
+     (like other commands).
 
-~C-M-j~ (=ivy-immediate-done=) is useful when there is no match for
-the given input. Or there is an incorrect partial match. ~C-M-j~ with
-=find-file= lists ignores the partial match and instead takes the
-current input to create a new directory with =dired-create-directory=.
+     This is useful e.g. when you call =find-file= to create a new
+     file, but the desired name matches an existing file. In that
+     case, using ~C-j~ would select that existing file, which isn't
+     what you want - use this command instead.
 
-=ivy-immediate-done= illustrates how Ivy distinguishes between calling
-an action on the /currently selected/ candidate and calling an action
-on the /current input/.
-
-~C-'~ (=ivy-avy=) uses avy's visible jump mechanism, which can further
-reduce Ivy's line-by-line scrolling that requires multiple ~C-n~ or
-~C-p~ keystrokes.
+- ~C-'~ (=ivy-avy=) ::
+     Uses avy to select one of the candidates on the current candidate
+     page.  This can often be faster than multiple ~C-n~ or ~C-p~
+     keystrokes followed by ~C-m~.
 
 *** Key bindings for multiple selections and actions, keep minibuffer open
 :PROPERTIES:
@@ -328,97 +344,182 @@ Adding an extra meta key to the normal key chord invokes the special
 version of the regular commands that enables applying multiple
 actions.
 
-~C-M-m~ (=ivy-call=) is the non-exiting version of the default action,
-~C-m~ (=ivy-done=). Instead of closing the minibuffer, ~C-M-m~ allows
-selecting another candidate or another action. For example, ~C-M-m~ on
-functions list invokes =describe-function=. When combined with ~C-n~,
-function descriptions can be invoked quickly in succession.
+- ~C-M-m~ (=ivy-call=) ::
+     Is the non-exiting version of ~C-m~ (=ivy-done=).
 
-~RET~ exits the minibuffer.
+     Instead of closing the minibuffer, ~C-M-m~ allows selecting
+     another candidate or another action. For example, ~C-M-m~ on
+     functions list invokes =describe-function=. When combined with
+     ~C-n~, function descriptions can be invoked quickly in
+     succession.
 
-=ivy-resume= recalls the state of the completion session just before
-its last exit. Useful after an accidental ~C-m~ (=ivy-done=).
+- ~C-M-o~ (=ivy-dispatching-call=) ::
+     Is the non-exiting version of ~M-o~ (=ivy-dispatching-done=).
 
-~C-M-o~ (=ivy-dispatching-call=) is a non-exiting version of ~M-o~
-(=ivy-dispatching-done=) that can accumulate candidates into a queue.
-For example, for playback in =counsel-rhythmbox=, ~C-M-o e~ en-queues
-the selected candidate, and ~C-n C-m~ plays the next one in the queue.
+     For example, during the =counsel-rhythmbox= completion, press
+     ~C-M-o e~ to en-queue the selected candidate, followed by ~C-n
+     C-m~ to play the next candidate - the current action reverts to
+     the default one after ~C-M-o~.
 
-~C-M-n~ (=ivy-next-line-and-call=) combines ~C-n~ and ~C-M-m~. Applies
-an action and moves to next line. Comes in handy when opening multiple
-files from =counsel-find-file=, =counsel-git-grep=, =counsel-ag=, or
-=counsel-locate= lists. Just hold ~C-M-n~ for rapid-fire default
-action on each successive element of the list.
+- ~C-M-n~ (=ivy-next-line-and-call=) ::
+     Combines ~C-n~ and ~C-M-m~. Applies an action and moves to next
+     line.
 
-~C-M-p~ (=ivy-previous-line-and-call=) combines ~C-p~ and ~C-M-m~. Is
-the same as above except that it moves through the list in the other
-direction.
+     Comes in handy when opening multiple files from
+     =counsel-find-file=, =counsel-git-grep=, =counsel-ag=, or
+     =counsel-locate= lists. Just hold ~C-M-n~ for rapid-fire default
+     action on each successive element of the list.
+
+- ~C-M-p~ (=ivy-previous-line-and-call=) ::
+     Combines ~C-p~ and ~C-M-m~.
+
+     Similar to the above except it moves through the list in the
+     other direction.
+
+- =ivy-resume= ::
+     Recalls the state of the completion session just before its last exit.
+
+     Useful after an accidental ~C-m~ (=ivy-done=).
 
 *** Key bindings that alter the minibuffer input
 :PROPERTIES:
 :CUSTOM_ID: key-bindings-that-alter-the-minibuffer-input
 :END:
 
-~M-n~ (=ivy-next-history-element=) and ~M-p~
-(=ivy-previous-history-element=) cycle through the Ivy command
-history. Ivy updates an internal history list after each action. When
-this history list is empty, ~M-n~ inserts symbol (or URL) at point
-into the minibuffer.
+- ~M-n~ (=ivy-next-history-element=) ::
+     Cycles forward through the Ivy command history.
 
-~M-i~ (=ivy-insert-current=) inserts the current candidate into the
-minibuffer. Useful for copying and renaming files, for example: ~M-i~
-to insert the original file name string, edit it, and then ~C-m~ to
-complete the renaming.
+     Ivy updates an internal history list after each action. When this
+     history list is empty, ~M-n~ inserts symbol (or URL) at point
+     into the minibuffer.
 
-~M-j~ (=ivy-yank-word=) inserts the sub-word at point into the
-minibuffer. This is similar to ~C-s C-w~ with =isearch=. Ivy reserves
-~C-w~ for =kill-region=.
+- ~M-p~ (=ivy-previous-history-element=) ::
+     Cycles forward through the Ivy command history.
 
-~S-SPC~ (=ivy-restrict-to-matches=) deletes the current input, and
-resets the candidates list to the currently restricted matches. This
-is how Ivy provides narrowing in successive tiers.
+- ~M-i~ (=ivy-insert-current=) ::
+     Inserts the current candidate into the minibuffer.
 
-~C-r~ (=ivy-reverse-i-search=) works just like ~C-r~ at bash command
-prompt, where the completion candidates are the history items. Upon
-completion, the selected candidate string is inserted into the
-minibuffer.
+     Useful for copying and renaming files, for example: ~M-i~ to
+     insert the original file name string, edit it, and then ~C-m~ to
+     complete the renaming.
+
+- ~M-j~ (=ivy-yank-word=) ::
+     Inserts the sub-word at point into the minibuffer.
+
+     This is similar to ~C-s C-w~ with =isearch=. Ivy reserves ~C-w~
+     for =kill-region=.
+
+- ~S-SPC~ (=ivy-restrict-to-matches=) ::
+     Deletes the current input, and resets the candidates list to the
+     currently restricted matches.
+
+     This is how Ivy provides narrowing in successive tiers.
+
+- ~C-r~ (=ivy-reverse-i-search=) ::
+     Starts a recursive completion session through the command's
+     history.
+
+     This works just like ~C-r~ at the bash command prompt, where the
+     completion candidates are the history items. Upon completion, the
+     selected candidate string is inserted into the minibuffer.
 
 *** Other key bindings
 :PROPERTIES:
 :CUSTOM_ID: other-key-bindings
 :END:
 
-~M-w~ (=ivy-kill-ring-save=) copies selected candidates to the kill
-ring; when the region is active, copies active region.
+- ~M-w~ (=ivy-kill-ring-save=) ::
+     Copies selected candidates to the kill ring.
+
+     When the region is active, copies active region instead.
 
 *** Hydra in the minibuffer
 :PROPERTIES:
 :CUSTOM_ID: hydra-in-the-minibuffer
 :END:
 
-~C-o~ (=hydra-ivy/body=) invokes Hydra menus with key shortcuts.
+- ~C-o~ (=hydra-ivy/body=) ::
+     Invokes the hydra menu with short key bindings.
 
-~C-o~ or ~i~ resumes editing.
+Minibuffer editing is disabled when Hydra is active. Instead, you get
+short aliases for the common commands:
+
+| Short | Normal    | Command name              |
+|-------+-----------+---------------------------|
+| ~o~   | ~C-g~     | =keyboard-escape-quit=    |
+| ~j~   | ~C-n~     | =ivy-next-line=           |
+| ~k~   | ~C-p~     | =ivy-previous-line=       |
+| ~h~   | ~M-<~     | =ivy-beginning-of-buffer= |
+| ~l~   | ~M->~     | =ivy-end-of-buffer=       |
+| ~d~   | ~C-m~     | =ivy-done=                |
+| ~f~   | ~C-j~     | =ivy-alt-done=            |
+| ~g~   | ~C-M-m~   | =ivy-call=                |
+| ~u~   | ~C-c C-o~ | =ivy-occur=               |
 
 Hydra reduces key strokes, for example: ~C-n C-n C-n C-n~ is ~C-o
-jjjj~ in Hydra. Hydra has other benefits besides certain shorter key
-bindings:
-- ~<~ and ~>~ to adjust height of minibuffer,
-- describes the current completion state, such as case folding and the
-  current action.
+jjjj~ in Hydra.
 
-Minibuffer editing is disabled when Hydra is active.
+Additionally, you get access to the folowing commands that are
+normally not bound:
+
+- ~c~ (=ivy-toggle-calling=) ::
+     Toggle calling the action after each candidate change. This
+     effectively modifies ~j~ to ~jg~, ~k~ to ~kg~ etc.
+
+- ~m~ (=ivy-toggle-fuzzy=) ::
+     Toggle the current regexp matcher.
+
+- ~>~ (=ivy-minibuffer-grow=) ::
+     Increase =ivy-height= for the current minibuffer.
+
+- ~<~ (=ivy-minibuffer-shrink=) ::
+     Decrease =ivy-height= for the current minibuffer.
+
+- ~w~ (=ivy-prev-action=) ::
+     Select the previous action.
+
+- ~s~ (=ivy-next-action=) ::
+     Select the next action.
+
+- ~a~ (=ivy-read-action=) ::
+     Use a menu to select an action.
+
+- ~C~ (=ivy-toggle-case-fold=) ::
+     Toggle case folding (matching both upper and lower case
+     characters with lower case input).
 
 *** Saving the current completion session to a buffer
 :PROPERTIES:
 :CUSTOM_ID: saving-the-current-completion-session-to-a-buffer
 :END:
 
-~C-c C-o~ (=ivy-occur=) saves the current candidates to a new buffer;
-the list is active in the new buffer.
+- ~C-c C-o~ (=ivy-occur=) ::
+     Saves the current candidates to a new buffer and exits
+     completion.
 
-~RET~ or ~mouse-1~ in the new buffer calls the appropriate action on
-the selected candidate.
+The new buffer is read-only and has a few useful bindings defined.
+
+- ~RET~ or ~j~ (=ivy-occur-press=) ::
+     Call the current action on the selected candidate.
+
+- ~mouse-1~ (=ivy-occur-click=) ::
+     Call the current action on the selected candidate.
+
+- ~j~ (=next-line=) ::
+     Move to next line.
+
+- ~k~ (=previous-line=) ::
+     Move to previous line.
+
+- ~a~ (=ivy-occur-read-action=) ::
+     Read an action and make it current for this buffer.
+
+- ~o~ (=ivy-occur-dispatch=) ::
+     Read an action and call it on the selected candidate.
+
+- ~q~ (=quit-window=) ::
+     Bury the current buffer.
+
 
 Ivy has no limit on the number of active buffers like these.
 
@@ -481,7 +582,7 @@ spaces, and so on.
 As Ivy transforms typed characters into regex strings, it provides an
 intuitive feedback through font highlights.
 
-Ivy supports regexp negation with ="!"=. 
+Ivy supports regexp negation with ="!"=.
 For example, ="define key ! ivy quit"= first selects everything
 matching ="define.*key"=, then removes everything matching ="ivy"=,
 and finally removes everything matching ="quit"=. What remains is the
@@ -498,8 +599,8 @@ beginning of a negation group.
 :END:
 
 =ivy--regex-ignore-order= ignores the order of regexp tokens when
-searching for matching candidates. For instance, the input 
-="for example"= will match ="example test for"=. 
+searching for matching candidates. For instance, the input
+="for example"= will match ="example test for"=.
 
 ** ivy--regex-fuzzy
 :PROPERTIES:
@@ -517,5 +618,3 @@ installed.
 :INDEX:    vr
 :CUSTOM_ID: variable-index
 :END:
-
-

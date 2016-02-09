@@ -123,8 +123,13 @@ contextual information."
                       (t "table"))))
     (if (equal list-type "table")
         (mapconcat (lambda (s)
-                     (concat "@subsubheading" s))
-                   (split-string (substring-no-properties contents) "^@item" t)
+                     (if (string-match "\\`User Option @code{\\(.*\\)}$" s)
+                         (format "@defopt %s\n%s\n@end defopt\n"
+                                 (match-string-no-properties 1 s)
+                                 (string-trim
+                                  (substring s (1+ (match-end 1)))))
+                       (concat "@subsubheading " s)))
+                   (split-string (substring-no-properties contents) "^@item " t)
                    "\n")
       (format "@%s\n%s@end %s"
               (if (eq type 'descriptive) (concat list-type " " indic) list-type)
