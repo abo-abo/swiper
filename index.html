@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-08 Mon 17:31 -->
+<!-- 2016-02-09 Tue 10:17 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -157,7 +157,7 @@ modify this GNU manual.''
 Ivy is for quick and easy selection from a list. When Emacs prompts
 for a string from a list of several possible choices, Ivy springs into
 action to assist in narrowing and picking the right string from a vast
-number of choices.asdf
+number of choices.
 </p>
 
 <p>
@@ -166,56 +166,39 @@ discoverability.
 </p>
 
 <dl class="org-dl">
-<dt>Minimalism</dt><dd></dd>
-</dl>
-<p>
-Uncluttered minibuffer is minimalism. Ivy shows the completion
-defaults, the number of matches, and 10 candidate matches below the
-input line. Customize <code>ivy-length</code> to adjust the number of candidate
-matches displayed in the minibuffer.
-</p>
+<dt>Minimalism</dt><dd>Uncluttered minibuffer is minimalism. Ivy shows the completion
+defaults, the number of matches, and 10 candidate matches below
+the input line. Customize <code>ivy-length</code> to adjust the number of
+candidate matches displayed in the minibuffer.</dd>
 
-<dl class="org-dl">
-<dt>Simplicity</dt><dd></dd>
-</dl>
-<p>
-Simplicity is about Ivy's behavior in the minibuffer. It is also about
-the code interface to extend Ivy's functionality. The minibuffer area
-behaves as close to <code>fundamental-mode</code> as possible. <kbd>SPC</kbd> inserts a
-space, for example, instead of being bound to the more complex
-<code>minibuffer-complete-word</code>. Ivy's code uses easy-to-examine global
-variables; avoids needless complications with branch-introducing
-custom macros.
-</p>
+<dt>Simplicity</dt><dd>Simplicity is about Ivy's behavior in the minibuffer. It is also
+about the code interface to extend Ivy's functionality. The
+minibuffer area behaves as close to <code>fundamental-mode</code> as
+possible. <kbd>SPC</kbd> inserts a space, for example, instead of being
+bound to the more complex <code>minibuffer-complete-word</code>. Ivy's code
+uses easy-to-examine global variables; avoids needless
+complications with branch-introducing custom macros.</dd>
 
-<dl class="org-dl">
-<dt>Customizability</dt><dd></dd>
-</dl>
-<p>
-Customizability is about being able to use different methods and
-interfaces of completion to tailor the selection process. For example,
-adding a custom display function that points to a selected candidate
-with <code>-&gt;</code>, instead of highlighting the selected candidate with the
-<code>ivy-current-match</code> face. Or take the customization of actions, say
-after the candidate function is selected. <kbd>RET</kbd> uses
-<code>counsel-describe-function</code> to describe the function, whereas <kbd>M-o d</kbd>
-jumps to that function's definition in the code. The <kbd>M-o</kbd> prefix can
-be uniformly used with characters like <kbd>d</kbd> to group similar actions.
-</p>
+<dt>Customizability</dt><dd>Customizability is about being able to use different methods and
+interfaces of completion to tailor the selection process. For
+example, adding a custom display function that points to a
+selected candidate with <code>-&gt;</code>, instead of highlighting the
+selected candidate with the <code>ivy-current-match</code> face. Or take the
+customization of actions, say after the candidate function is
+selected. <kbd>RET</kbd> uses <code>counsel-describe-function</code> to describe the
+function, whereas <kbd>M-o d</kbd> jumps to that function's definition in
+the code. The <kbd>M-o</kbd> prefix can be uniformly used with characters
+like <kbd>d</kbd> to group similar actions.</dd>
 
-<dl class="org-dl">
-<dt>Discoverability</dt><dd></dd>
+<dt>Discoverability</dt><dd>Ivy displays easily discoverable commands through the hydra
+facility.  <kbd>C-o</kbd> in the minibuffer displays a hydra menu. It
+opens up within an expanded minibuffer area. Each menu item comes
+with short documentation strings and highlighted one-key
+completions. So discovering even seldom used keys is simply a
+matter of <kbd>C-o</kbd> in the minibuffer while in the midst of the Ivy
+interaction. This discoverability minimizes exiting Ivy interface
+for documentation look-ups.</dd>
 </dl>
-<p>
-Ivy displays easily discoverable commands through the hydra facility.
-<kbd>C-o</kbd> in the minibuffer displays a hydra menu. It opens up within an
-expanded minibuffer area. Each menu item comes with short
-documentation strings and highlighted one-key completions. So
-discovering even seldom used keys is simply a matter of <kbd>C-o</kbd> in the
-minibuffer while in the midst of the Ivy interaction. This
-discoverability minimizes exiting Ivy interface for documentation
-look-ups.
-</p>
 </div>
 </div>
 
@@ -439,21 +422,25 @@ under their respective commands.
 <li><kbd>M-v</kbd> (<code>ivy-scroll-down-command</code>) scrolls down by <code>ivy-height</code> lines</li>
 </ul>
 
-<p>
-This user option allows to get the wrap-around behavior for <kbd>C-n</kbd> and
-<kbd>C-p</kbd>.  When set to <code>t</code>, <code>ivy-next-line</code> and <code>ivy-previous-line</code> will
-cycle past the last and the first candidates respectively.
+
+<dl class="org-dl">
+<dt>User Option <code>ivy-wrap</code></dt><dd><p>
+    This user option allows to get the wrap-around behavior for <kbd>C-n</kbd>
+and <kbd>C-p</kbd>.  When set to <code>t</code>, <code>ivy-next-line</code> and
+<code>ivy-previous-line</code> will cycle past the last and the first
+candidates respectively.
 </p>
 
 <p>
 This behavior is off by default.
-</p>
-<p>
-Use this variable to adjust the minibuffer height, and therefore the
-scroll size for <kbd>C-v</kbd> and <kbd>M-v</kbd>.
-</p>
+</p></dd>
+
+<dt>User Option <code>ivy-height</code></dt><dd>Use this variable to adjust the minibuffer height, and therefore
+the scroll size for <kbd>C-v</kbd> and <kbd>M-v</kbd>.</dd>
+</dl>
 </div>
 </div>
+
 
 <div id="outline-container-orgheadline10" class="outline-4">
 <h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><a id="orgheadline10"></a><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
@@ -470,53 +457,36 @@ action to run. This delayed flexibility and customization of actions
 extends usability of lists in Emacs.
 </p>
 
-<p>
-<kbd>C-m</kbd> or <kbd>RET</kbd> (<code>ivy-done</code>) calls the default action and exits the
-minibuffer.
+<dl class="org-dl">
+<dt><kbd>C-m</kbd> or <kbd>RET</kbd> (<code>ivy-done</code>)</dt><dd>Calls the default action and exits the minibuffer.</dd>
+
+<dt><kbd>M-o</kbd> (<code>ivy-dispatching-done</code>)</dt><dd>Presents all available valid actions from which to choose. When
+there is only one action available, there is no difference
+between <kbd>M-o</kbd> and <kbd>C-m</kbd>.</dd>
+
+<dt><kbd>C-j</kbd> (<code>ivy-alt-done</code>)</dt><dd>When completing file names, selects the current directory
+candidate and starts a new completion session there. Otherwise,
+it's the same as <code>ivy-done</code>.</dd>
+
+<dt><kbd>TAB</kbd> (<code>ivy-partial-or-done</code>)</dt><dd>Attempts partial completion, extending current input as much as
+possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd>.</dd>
+
+<dt><kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>)</dt><dd><p>
+     Exits with <i>the current input</i> instead of <i>the current candidate</i>
+(like other commands).
 </p>
 
 <p>
-<kbd>M-o</kbd> (<code>ivy-dispatching-done</code>) presents all available valid actions
-from which to choose. When there is only one action available, there
-is no difference between <kbd>M-o</kbd> and <kbd>C-m</kbd>.
-</p>
+This is useful e.g. when you call <code>find-file</code> to create a new
+file, but the desired name matches an existing file. In that
+case, using <kbd>C-j</kbd> would select that existing file, which isn't
+what you want - use this command instead.
+</p></dd>
 
-<p>
-<kbd>C-j</kbd> (<code>ivy-alt-done</code>) calls the alternate action, such as completing
-a directory name in a file list whereas <kbd>C-m</kbd> will select that directory
-and exit the minibuffer.
-</p>
-
-<p>
-Exiting the minibuffer also closes the Ivy window (as specified by
-<code>ivy-height</code>). This closing and exiting sequence is conveniently off
-when applying multiple actions. Multiple actions and multiple
-selections as covered in the next section of this manual.
-</p>
-
-<p>
-<kbd>TAB</kbd> (<code>ivy-partial-or-done</code>) attempts partial completion, extending
-current input as much as possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd>.
-</p>
-
-<p>
-<kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>) is useful when there is no match for
-the given input. Or there is an incorrect partial match. <kbd>C-M-j</kbd> with
-<code>find-file</code> lists ignores the partial match and instead takes the
-current input to create a new directory with <code>dired-create-directory</code>.
-</p>
-
-<p>
-<code>ivy-immediate-done</code> illustrates how Ivy distinguishes between calling
-an action on the <i>currently selected</i> candidate and calling an action
-on the <i>current input</i>.
-</p>
-
-<p>
-<kbd>C-'</kbd> (<code>ivy-avy</code>) uses avy's visible jump mechanism, which can further
-reduce Ivy's line-by-line scrolling that requires multiple <kbd>C-n</kbd> or
-<kbd>C-p</kbd> keystrokes.
-</p>
+<dt><kbd>C-'</kbd> (<code>ivy-avy</code>)</dt><dd>Uses avy to select one of the candidates on the current candidate
+page.  This can often be faster than multiple <kbd>C-n</kbd> or <kbd>C-p</kbd>
+keystrokes followed by <kbd>C-m</kbd>.</dd>
+</dl>
 </div>
 </div>
 
@@ -535,135 +505,281 @@ version of the regular commands that enables applying multiple
 actions.
 </p>
 
-<p>
-<kbd>C-M-m</kbd> (<code>ivy-call</code>) is the non-exiting version of the default action,
-<kbd>C-m</kbd> (<code>ivy-done</code>). Instead of closing the minibuffer, <kbd>C-M-m</kbd> allows
-selecting another candidate or another action. For example, <kbd>C-M-m</kbd> on
-functions list invokes <code>describe-function</code>. When combined with <kbd>C-n</kbd>,
-function descriptions can be invoked quickly in succession.
+<dl class="org-dl">
+<dt><kbd>C-M-m</kbd> (<code>ivy-call</code>)</dt><dd><p>
+     Is the non-exiting version of <kbd>C-m</kbd> (<code>ivy-done</code>).
 </p>
 
 <p>
-<kbd>RET</kbd> exits the minibuffer.
+Instead of closing the minibuffer, <kbd>C-M-m</kbd> allows selecting
+another candidate or another action. For example, <kbd>C-M-m</kbd> on
+functions list invokes <code>describe-function</code>. When combined with
+<kbd>C-n</kbd>, function descriptions can be invoked quickly in
+succession.
+</p></dd>
+
+<dt><kbd>C-M-o</kbd> (<code>ivy-dispatching-call</code>)</dt><dd><p>
+     Is the non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
 </p>
 
 <p>
-<code>ivy-resume</code> recalls the state of the completion session just before
-its last exit. Useful after an accidental <kbd>C-m</kbd> (<code>ivy-done</code>).
+For example, during the <code>counsel-rhythmbox</code> completion, press
+<kbd>C-M-o e</kbd> to en-queue the selected candidate, followed by <kbd>C-n
+     C-m</kbd> to play the next candidate - the current action reverts to
+the default one after <kbd>C-M-o</kbd>.
+</p></dd>
+
+<dt><kbd>C-M-n</kbd> (<code>ivy-next-line-and-call</code>)</dt><dd><p>
+     Combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies an action and moves to next
+line.
 </p>
 
 <p>
-<kbd>C-M-o</kbd> (<code>ivy-dispatching-call</code>) is a non-exiting version of <kbd>M-o</kbd>
-(<code>ivy-dispatching-done</code>) that can accumulate candidates into a queue.
-For example, for playback in <code>counsel-rhythmbox</code>, <kbd>C-M-o e</kbd> en-queues
-the selected candidate, and <kbd>C-n C-m</kbd> plays the next one in the queue.
-</p>
-
-<p>
-<kbd>C-M-n</kbd> (<code>ivy-next-line-and-call</code>) combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies
-an action and moves to next line. Comes in handy when opening multiple
-files from <code>counsel-find-file</code>, <code>counsel-git-grep</code>, <code>counsel-ag</code>, or
+Comes in handy when opening multiple files from
+<code>counsel-find-file</code>, <code>counsel-git-grep</code>, <code>counsel-ag</code>, or
 <code>counsel-locate</code> lists. Just hold <kbd>C-M-n</kbd> for rapid-fire default
 action on each successive element of the list.
+</p></dd>
+
+<dt><kbd>C-M-p</kbd> (<code>ivy-previous-line-and-call</code>)</dt><dd><p>
+     Combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>.
 </p>
 
 <p>
-<kbd>C-M-p</kbd> (<code>ivy-previous-line-and-call</code>) combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>. Is
-the same as above except that it moves through the list in the other
-direction.
+Similar to the above except it moves through the list in the
+other direction.
+</p></dd>
+
+<dt><code>ivy-resume</code></dt><dd><p>
+     Recalls the state of the completion session just before its last exit.
 </p>
+
+<p>
+Useful after an accidental <kbd>C-m</kbd> (<code>ivy-done</code>).
+</p></dd>
+</dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline12" class="outline-4">
 <h4 id="key-bindings-that-alter-the-minibuffer-input"><a id="orgheadline12"></a><span class="section-number-4">5.2.4</span> Key bindings that alter the minibuffer input</h4>
 <div class="outline-text-4" id="text-key-bindings-that-alter-the-minibuffer-input">
+<dl class="org-dl">
+<dt><kbd>M-n</kbd> (<code>ivy-next-history-element</code>)</dt><dd><p>
+     Cycles forward through the Ivy command history.
+</p>
+
 <p>
-<kbd>M-n</kbd> (<code>ivy-next-history-element</code>) and <kbd>M-p</kbd>
-(<code>ivy-previous-history-element</code>) cycle through the Ivy command
-history. Ivy updates an internal history list after each action. When
-this history list is empty, <kbd>M-n</kbd> inserts symbol (or URL) at point
+Ivy updates an internal history list after each action. When this
+history list is empty, <kbd>M-n</kbd> inserts symbol (or URL) at point
 into the minibuffer.
+</p></dd>
+
+<dt><kbd>M-p</kbd> (<code>ivy-previous-history-element</code>)</dt><dd>Cycles forward through the Ivy command history.</dd>
+
+<dt><kbd>M-i</kbd> (<code>ivy-insert-current</code>)</dt><dd><p>
+     Inserts the current candidate into the minibuffer.
 </p>
 
 <p>
-<kbd>M-i</kbd> (<code>ivy-insert-current</code>) inserts the current candidate into the
-minibuffer. Useful for copying and renaming files, for example: <kbd>M-i</kbd>
-to insert the original file name string, edit it, and then <kbd>C-m</kbd> to
+Useful for copying and renaming files, for example: <kbd>M-i</kbd> to
+insert the original file name string, edit it, and then <kbd>C-m</kbd> to
 complete the renaming.
+</p></dd>
+
+<dt><kbd>M-j</kbd> (<code>ivy-yank-word</code>)</dt><dd><p>
+     Inserts the sub-word at point into the minibuffer.
 </p>
 
 <p>
-<kbd>M-j</kbd> (<code>ivy-yank-word</code>) inserts the sub-word at point into the
-minibuffer. This is similar to <kbd>C-s C-w</kbd> with <code>isearch</code>. Ivy reserves
-<kbd>C-w</kbd> for <code>kill-region</code>.
+This is similar to <kbd>C-s C-w</kbd> with <code>isearch</code>. Ivy reserves <kbd>C-w</kbd>
+for <code>kill-region</code>.
+</p></dd>
+
+<dt><kbd>S-SPC</kbd> (<code>ivy-restrict-to-matches</code>)</dt><dd><p>
+     Deletes the current input, and resets the candidates list to the
+currently restricted matches.
 </p>
 
 <p>
-<kbd>S-SPC</kbd> (<code>ivy-restrict-to-matches</code>) deletes the current input, and
-resets the candidates list to the currently restricted matches. This
-is how Ivy provides narrowing in successive tiers.
+This is how Ivy provides narrowing in successive tiers.
+</p></dd>
+
+<dt><kbd>C-r</kbd> (<code>ivy-reverse-i-search</code>)</dt><dd><p>
+     Starts a recursive completion session through the command's
+history.
 </p>
 
 <p>
-<kbd>C-r</kbd> (<code>ivy-reverse-i-search</code>) works just like <kbd>C-r</kbd> at bash command
-prompt, where the completion candidates are the history items. Upon
-completion, the selected candidate string is inserted into the
-minibuffer.
-</p>
+This works just like <kbd>C-r</kbd> at the bash command prompt, where the
+completion candidates are the history items. Upon completion, the
+selected candidate string is inserted into the minibuffer.
+</p></dd>
+</dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline13" class="outline-4">
 <h4 id="other-key-bindings"><a id="orgheadline13"></a><span class="section-number-4">5.2.5</span> Other key bindings</h4>
 <div class="outline-text-4" id="text-other-key-bindings">
-<p>
-<kbd>M-w</kbd> (<code>ivy-kill-ring-save</code>) copies selected candidates to the kill
-ring; when the region is active, copies active region.
+<dl class="org-dl">
+<dt><kbd>M-w</kbd> (<code>ivy-kill-ring-save</code>)</dt><dd><p>
+     Copies selected candidates to the kill ring.
 </p>
+
+<p>
+When the region is active, copies active region instead.
+</p></dd>
+</dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline14" class="outline-4">
 <h4 id="hydra-in-the-minibuffer"><a id="orgheadline14"></a><span class="section-number-4">5.2.6</span> Hydra in the minibuffer</h4>
 <div class="outline-text-4" id="text-hydra-in-the-minibuffer">
-<p>
-<kbd>C-o</kbd> (<code>hydra-ivy/body</code>) invokes Hydra menus with key shortcuts.
-</p>
+<dl class="org-dl">
+<dt><kbd>C-o</kbd> (<code>hydra-ivy/body</code>)</dt><dd>Invokes the hydra menu with short key bindings.</dd>
+</dl>
 
 <p>
-<kbd>C-o</kbd> or <kbd>i</kbd> resumes editing.
+Minibuffer editing is disabled when Hydra is active. Instead, you get
+short aliases for the common commands:
 </p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">Short</th>
+<th scope="col" class="org-left">Normal</th>
+<th scope="col" class="org-left">Command name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><kbd>o</kbd></td>
+<td class="org-left"><kbd>C-g</kbd></td>
+<td class="org-left"><code>keyboard-escape-quit</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>j</kbd></td>
+<td class="org-left"><kbd>C-n</kbd></td>
+<td class="org-left"><code>ivy-next-line</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>k</kbd></td>
+<td class="org-left"><kbd>C-p</kbd></td>
+<td class="org-left"><code>ivy-previous-line</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>h</kbd></td>
+<td class="org-left"><kbd>M-&lt;</kbd></td>
+<td class="org-left"><code>ivy-beginning-of-buffer</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>l</kbd></td>
+<td class="org-left"><kbd>M-&gt;</kbd></td>
+<td class="org-left"><code>ivy-end-of-buffer</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>d</kbd></td>
+<td class="org-left"><kbd>C-m</kbd></td>
+<td class="org-left"><code>ivy-done</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>f</kbd></td>
+<td class="org-left"><kbd>C-j</kbd></td>
+<td class="org-left"><code>ivy-alt-done</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>g</kbd></td>
+<td class="org-left"><kbd>C-M-m</kbd></td>
+<td class="org-left"><code>ivy-call</code></td>
+</tr>
+
+<tr>
+<td class="org-left"><kbd>u</kbd></td>
+<td class="org-left"><kbd>C-c C-o</kbd></td>
+<td class="org-left"><code>ivy-occur</code></td>
+</tr>
+</tbody>
+</table>
 
 <p>
 Hydra reduces key strokes, for example: <kbd>C-n C-n C-n C-n</kbd> is <kbd>C-o
-jjjj</kbd> in Hydra. Hydra has other benefits besides certain shorter key
-bindings:
+jjjj</kbd> in Hydra.
 </p>
-<ul class="org-ul">
-<li><kbd>&lt;</kbd> and <kbd>&gt;</kbd> to adjust height of minibuffer,</li>
-<li>describes the current completion state, such as case folding and the
-current action.</li>
-</ul>
 
 <p>
-Minibuffer editing is disabled when Hydra is active.
+Additionally, you get access to the folowing commands that are
+normally not bound:
 </p>
+
+<dl class="org-dl">
+<dt><kbd>c</kbd> (<code>ivy-toggle-calling</code>)</dt><dd>Toggle calling the action after each candidate change. This
+effectively modifies <kbd>j</kbd> to <kbd>jg</kbd>, <kbd>k</kbd> to <kbd>kg</kbd> etc.</dd>
+
+<dt><kbd>m</kbd> (<code>ivy-toggle-fuzzy</code>)</dt><dd>Toggle the current regexp matcher.</dd>
+
+<dt><kbd>&gt;</kbd> (<code>ivy-minibuffer-grow</code>)</dt><dd>Increase <code>ivy-height</code> for the current minibuffer.</dd>
+
+<dt><kbd>&lt;</kbd> (<code>ivy-minibuffer-shrink</code>)</dt><dd>Decrease <code>ivy-height</code> for the current minibuffer.</dd>
+
+<dt><kbd>w</kbd> (<code>ivy-prev-action</code>)</dt><dd>Select the previous action.</dd>
+
+<dt><kbd>s</kbd> (<code>ivy-next-action</code>)</dt><dd>Select the next action.</dd>
+
+<dt><kbd>a</kbd> (<code>ivy-read-action</code>)</dt><dd>Use a menu to select an action.</dd>
+
+<dt><kbd>C</kbd> (<code>ivy-toggle-case-fold</code>)</dt><dd>Toggle case folding (matching both upper and lower case
+characters with lower case input).</dd>
+</dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline15" class="outline-4">
 <h4 id="saving-the-current-completion-session-to-a-buffer"><a id="orgheadline15"></a><span class="section-number-4">5.2.7</span> Saving the current completion session to a buffer</h4>
 <div class="outline-text-4" id="text-saving-the-current-completion-session-to-a-buffer">
-<p>
-<kbd>C-c C-o</kbd> (<code>ivy-occur</code>) saves the current candidates to a new buffer;
-the list is active in the new buffer.
-</p>
+<dl class="org-dl">
+<dt><kbd>C-c C-o</kbd> (<code>ivy-occur</code>)</dt><dd>Saves the current candidates to a new buffer and exits
+completion.</dd>
+</dl>
 
 <p>
-<kbd>RET</kbd> or <kbd>mouse-1</kbd> in the new buffer calls the appropriate action on
-the selected candidate.
+The new buffer is read-only and has a few useful bindings defined.
 </p>
+
+<dl class="org-dl">
+<dt><kbd>RET</kbd> or <kbd>j</kbd> (<code>ivy-occur-press</code>)</dt><dd>Call the current action on the selected candidate.</dd>
+
+<dt><kbd>mouse-1</kbd> (<code>ivy-occur-click</code>)</dt><dd>Call the current action on the selected candidate.</dd>
+
+<dt><kbd>j</kbd> (<code>next-line</code>)</dt><dd>Move to next line.</dd>
+
+<dt><kbd>k</kbd> (<code>previous-line</code>)</dt><dd>Move to previous line.</dd>
+
+<dt><kbd>a</kbd> (<code>ivy-occur-read-action</code>)</dt><dd>Read an action and make it current for this buffer.</dd>
+
+<dt><kbd>o</kbd> (<code>ivy-occur-dispatch</code>)</dt><dd>Read an action and call it on the selected candidate.</dd>
+
+<dt><kbd>q</kbd> (<code>quit-window</code>)</dt><dd>Bury the current buffer.</dd>
+</dl>
+
 
 <p>
 Ivy has no limit on the number of active buffers like these.
@@ -756,7 +872,7 @@ intuitive feedback through font highlights.
 </p>
 
 <p>
-Ivy supports regexp negation with <code>"!"</code>. 
+Ivy supports regexp negation with <code>"!"</code>.
 For example, <code>"define key ! ivy quit"</code> first selects everything
 matching <code>"define.*key"</code>, then removes everything matching <code>"ivy"</code>,
 and finally removes everything matching <code>"quit"</code>. What remains is the
@@ -777,8 +893,8 @@ beginning of a negation group.
 <div class="outline-text-3" id="text-ivy--regex-ignore-order">
 <p>
 <code>ivy--regex-ignore-order</code> ignores the order of regexp tokens when
-searching for matching candidates. For instance, the input 
-<code>"for example"</code> will match <code>"example test for"</code>. 
+searching for matching candidates. For instance, the input
+<code>"for example"</code> will match <code>"example test for"</code>.
 </p>
 </div>
 </div>
