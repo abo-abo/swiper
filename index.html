@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-09 Tue 10:17 -->
+<!-- 2016-02-09 Tue 17:42 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -106,7 +106,47 @@ for the JavaScript code in this tag.
 <li><a href="#ivy--regex-fuzzy">6.3. ivy&#x2013;regex-fuzzy</a></li>
 </ul>
 </li>
-<li><a href="#variable-index">7. Variable Index</a></li>
+<li><a href="#orgheadline34">7. Customization</a>
+<ul>
+<li><a href="#orgheadline22">7.1. Faces</a></li>
+<li><a href="#orgheadline23">7.2. Defcustoms</a></li>
+<li><a href="#orgheadline32">7.3. Actions</a>
+<ul>
+<li><a href="#orgheadline24">7.3.1. What are actions?</a></li>
+<li><a href="#orgheadline25">7.3.2. How can different actions be called?</a></li>
+<li><a href="#orgheadline26">7.3.3. How can the action list be modified?</a></li>
+<li><a href="#orgheadline29">7.3.4. Example - add two actions to each command</a>
+<ul>
+<li><a href="#orgheadline27">7.3.4.1. How to undo adding the two actions</a></li>
+<li><a href="#orgheadline28">7.3.4.2. How to add actions to a specific command</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline31">7.3.5. Example - define a new command with several actions</a>
+<ul>
+<li><a href="#orgheadline30">7.3.5.1. Testing out the above function with <code>ivy-occur</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgheadline33">7.4. Packages</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline38">8. Commands</a>
+<ul>
+<li><a href="#orgheadline35">8.1. File Name Completion</a></li>
+<li><a href="#orgheadline36">8.2. Buffer Name Completion</a></li>
+<li><a href="#orgheadline37">8.3. Counsel commands</a></li>
+</ul>
+</li>
+<li><a href="#orgheadline43">9. API</a>
+<ul>
+<li><a href="#orgheadline39">9.1. Required arguments for <code>ivy-read</code></a></li>
+<li><a href="#orgheadline40">9.2. Optional arguments for <code>ivy-read</code></a></li>
+<li><a href="#orgheadline41">9.3. Example - <code>counsel-describe-function</code></a></li>
+<li><a href="#orgheadline42">9.4. Example - <code>counsel-locate</code></a></li>
+</ul>
+</li>
+<li><a href="#variable-index">10. Variable Index</a></li>
 </ul>
 </div>
 </div>
@@ -209,6 +249,13 @@ for documentation look-ups.</dd>
 Install Ivy automatically through Emacs's package manager, or manually
 from Ivy's development repository.
 </p>
+
+<p>
+Ivy should run fine on a typical Emacs bundled in your OS's package
+manager, the oldest of which is Emacs 24.3.1.  However, the faces
+display will work much better for Emacs 24.5.1, which is the latest
+stable version.
+</p>
 </div>
 
 <div id="outline-container-orgheadline3" class="outline-3">
@@ -252,23 +299,20 @@ For package manager details, see <a href="emacs.html#Packages">emacs#Packages</a
 <div id="outline-container-orgheadline4" class="outline-3">
 <h3 id="installing-from-the-git-repository"><a id="orgheadline4"></a><span class="section-number-3">3.2</span> Installing from the Git repository</h3>
 <div class="outline-text-3" id="text-installing-from-the-git-repository">
-<p>
-Why install from Git?
-</p>
-
-<ul class="org-ul">
+<dl class="org-dl">
+<dt>Why install from Git?</dt><dd><ul class="org-ul">
 <li>No need to wait for MELPA's hourly builds</li>
 <li>Easy to revert to previous versions</li>
 <li>Contribute to Ivy's development; send patches; pull requests</li>
-</ul>
+</ul></dd>
+</dl>
 
-<p>
-<b>Configuration steps</b>
+
+<dl class="org-dl">
+<dt>Configuration steps</dt><dd><p>
+     First clone the Swiper repository:
 </p>
 
-<p>
-First clone the Swiper repository:
-</p>
 <div class="org-src-container">
 
 <pre class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
@@ -279,6 +323,7 @@ First clone the Swiper repository:
 <p>
 Then add this to Emacs init:
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
@@ -289,12 +334,14 @@ Then add this to Emacs init:
 <p>
 To update the code:
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-sh">git pull
 make
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 </div>
@@ -320,9 +367,9 @@ Note: <code>ivy-mode</code> can be toggled on and off with <kbd>M-x</kbd> <code>
 <h3 id="basic-customization"><a id="orgheadline6"></a><span class="section-number-3">4.1</span> Basic customization</h3>
 <div class="outline-text-3" id="text-basic-customization">
 <p>
-Here are some basic settings particularly useful for new Ivy
-users:
+Here are some basic settings particularly useful for new Ivy users:
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
@@ -352,9 +399,7 @@ The recommended key bindings are:
 </p>
 
 <dl class="org-dl">
-<dt>Ivy-based interface to standard commands</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>Ivy-based interface to standard commands</dt><dd><div class="org-src-container">
 
 <pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
 (global-set-key (kbd <span style="color: #2A00FF;">"M-x"</span>) 'counsel-M-x)
@@ -365,12 +410,9 @@ The recommended key bindings are:
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
 </pre>
-</div>
+</div></dd>
 
-<dl class="org-dl">
-<dt>Ivy-based interface to shell and system tools</dt><dd></dd>
-</dl>
-<div class="org-src-container">
+<dt>Ivy-based interface to shell and system tools</dt><dd><div class="org-src-container">
 
 <pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c j"</span>) 'counsel-git-grep)
@@ -378,19 +420,18 @@ The recommended key bindings are:
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x l"</span>) 'counsel-locate)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-S-o"</span>) 'counsel-rhythmbox)
 </pre>
-</div>
+</div></dd>
 
-<dl class="org-dl">
-<dt>Ivy-resume and other commands</dt><dd></dd>
-</dl>
-<p>
-<code>ivy-resume</code> resumes the last Ivy-based completion.
+<dt>Ivy-resume and other commands</dt><dd><p>
+     <code>ivy-resume</code> resumes the last Ivy-based completion.
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
 </pre>
-</div>
+</div></dd>
+</dl>
 </div>
 </div>
 
@@ -407,6 +448,14 @@ are described here.
 <code>swiper</code> or <code>counsel-M-x</code> add more through the <code>keymap</code> argument to
 <code>ivy-read</code>. These keys, also active in the minibuffer, are described
 under their respective commands.
+</p>
+
+<p>
+An important idea behind <code>ivy-minibuffer-map</code>, unlike
+e.g. <code>isearch-mode-map</code> or Ido keymap is that the minibuffer is a
+fully capable editing area: bindings like <kbd>C-a</kbd>, <kbd>C-f</kbd>, <kbd>M-d</kbd>,
+<kbd>M-DEL</kbd>, <kbd>M-b</kbd>, <kbd>M-w</kbd>, <kbd>C-k</kbd>, <kbd>C-y</kbd> all work as if you were in a
+<code>fundamental-mode</code> buffer.
 </p>
 </div>
 
@@ -441,7 +490,6 @@ the scroll size for <kbd>C-v</kbd> and <kbd>M-v</kbd>.</dd>
 </div>
 </div>
 
-
 <div id="outline-container-orgheadline10" class="outline-4">
 <h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><a id="orgheadline10"></a><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
 <div class="outline-text-4" id="text-key-bindings-for-single-selection-action-then-exit-minibuffer">
@@ -468,8 +516,26 @@ between <kbd>M-o</kbd> and <kbd>C-m</kbd>.</dd>
 candidate and starts a new completion session there. Otherwise,
 it's the same as <code>ivy-done</code>.</dd>
 
-<dt><kbd>TAB</kbd> (<code>ivy-partial-or-done</code>)</dt><dd>Attempts partial completion, extending current input as much as
-possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd>.</dd>
+<dt><kbd>TAB</kbd> (<code>ivy-partial-or-done</code>)</dt><dd><p>
+     Attempts partial completion, extending current input as much as
+possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd>.
+</p>
+
+<p>
+Example ERT test:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(should
+ (equal (ivy-with
+         '(<span style="color: #7F0055; font-weight: bold;">progn</span>
+           (ivy-read <span style="color: #2A00FF;">"Test: "</span> '(<span style="color: #2A00FF;">"can do"</span> <span style="color: #2A00FF;">"can't, sorry"</span> <span style="color: #2A00FF;">"other"</span>))
+           ivy-text)
+         <span style="color: #2A00FF;">"c &lt;tab&gt;"</span>)
+        <span style="color: #2A00FF;">"can"</span>))
+</pre>
+</div></dd>
 
 <dt><kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>)</dt><dd><p>
      Exits with <i>the current input</i> instead of <i>the current candidate</i>
@@ -799,13 +865,32 @@ descriptive names, for example: <code>*ivy-occur counsel-describe-variable
 <h2 id="completion-styles"><a id="orgheadline21"></a><span class="section-number-2">6</span> Completion styles</h2>
 <div class="outline-text-2" id="text-completion-styles">
 <p>
-Ivy's completion functions rely on the highly configurable regex
-builder.
+Ivy's completion functions rely on a regex builder - a function that
+transforms a string input to a string regex. All current candidates
+simply have to match this regex. Each collection can be assigned its
+own regex builder by customizing <code>ivy-re-builders-alist</code>.
+</p>
+
+<p>
+The keys of this alist are collection names, and the values are one of:
+</p>
+<ul class="org-ul">
+<li><code>ivy--regex</code></li>
+<li><code>ivy--regex-plus</code></li>
+<li><code>ivy--regex-ignore-order</code></li>
+<li><code>ivy--regex-fuzzy</code></li>
+<li><code>regexp-quote</code></li>
+</ul>
+
+<p>
+There's also a catch-all key <code>t</code> that applies to all collections that
+don't have their own key.
 </p>
 
 <p>
 The default is:
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
@@ -814,10 +899,10 @@ The default is:
 </div>
 
 <p>
-The default <code>ivy--regex-plus</code> narrowing is always invoked unless
-specified otherwise. For example, file name completion may have a
-custom completion function:
+For example, here is how to assign a custom regex builder to file name
+completion:
 </p>
+
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
@@ -827,11 +912,23 @@ custom completion function:
 </div>
 
 <p>
-Ivy's flexibility extends to using different styles of completion
-mechanics (regex-builders) for different types of lists. Despite this
-flexibility, Ivy operates within a consistent and uniform interface.
-The main regex-builders currently in Ivy are:
+Here, <code>read-file-name-internal</code> is a function passed as the second
+argument to <code>completing-read</code> when completing file names.
 </p>
+
+<p>
+The regex builder resolution is a follows, in order of priority:
+</p>
+<ol class="org-ol">
+<li><code>re-builder</code> argument passed to <code>ivy-read</code>.</li>
+<li><code>collection</code> argument passed to <code>ivy-read</code> is a function and has an
+entry on <code>ivy-re-builders-alist</code>.</li>
+<li><code>caller</code> argument passed to <code>ivy-read</code> has an entry on
+<code>ivy-re-builders-alist</code>.</li>
+<li><code>this-command</code> has an entry on <code>ivy-re-builders-alist</code>.</li>
+<li><code>t</code> has an entry on <code>ivy-re-builders-alist</code>.</li>
+<li><code>ivy--regex</code>.</li>
+</ol>
 </div>
 
 <div id="outline-container-orgheadline18" class="outline-3">
@@ -909,12 +1006,775 @@ number of hits.  Yet some searches need these extra hits. Ivy sorts
 such large lists using <code>flx</code> package's scoring mechanism, if it's
 installed.
 </p>
+
+<p>
+In case <code>ivy--regex-fuzzy</code> isn't your current regexp builder, you
+toggle it during completion with <kbd>C-o m</kbd>.
+</p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgheadline22" class="outline-2">
-<h2 id="variable-index"><a id="orgheadline22"></a><span class="section-number-2">7</span> Variable Index</h2>
+<div id="outline-container-orgheadline34" class="outline-2">
+<h2 id="orgheadline34"><span class="section-number-2">7</span> Customization</h2>
+<div class="outline-text-2" id="text-7">
+</div><div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="orgheadline22"><span class="section-number-3">7.1</span> Faces</h3>
+<div class="outline-text-3" id="text-7-1">
+<dl class="org-dl">
+<dt><code>ivy-current-match</code></dt><dd>Highlights the currently selected candidate.</dd>
+<dt><code>ivy-minibuffer-match-face-1</code></dt><dd>Highlights the background of the match.</dd>
+<dt><code>ivy-minibuffer-match-face-2</code></dt><dd>Highlights the first (modulo 3) matched group.</dd>
+<dt><code>ivy-minibuffer-match-face-3</code></dt><dd>Highlights the second (modulo 3) matched group.</dd>
+<dt><code>ivy-minibuffer-match-face-4</code></dt><dd>Highlights the third (modulo 3) matched group.</dd>
+<dt><code>ivy-confirm-face</code></dt><dd><p>
+     Highlights the "(confirm)" part of the prompt.
+</p>
+
+<p>
+Used in conjunction with the built-in
+<code>confirm-nonexistent-file-or-buffer</code> defcustom.  When you set
+this variable to <code>t</code>, you'll have to confirm non-existent files
+and buffer with another <kbd>RET</kbd> in <code>ivy-mode</code>.
+</p>
+
+<p>
+This face will be used to highlight the confirmation prompt.
+</p>
+
+<p>
+For example, use this setting:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> confirm-nonexistent-file-or-buffer t)
+</pre>
+</div>
+
+<p>
+Then call <code>find-file</code>, enter "eldorado" and press <kbd>RET</kbd> - the
+prompt will be appended with "(confirm)". Press <kbd>RET</kbd> once more
+to confirm, or any key to continue the completion.
+</p></dd>
+<dt><code>ivy-match-required-face</code></dt><dd><p>
+     Highlights the "(match required)" part of the prompt.
+</p>
+
+<p>
+Sometimes, the Emacs functions that call completion specify to it
+that a match is required, i.e. you can't just type in some random
+stuff - you have to select one of the candidates given to you.
+In that case, <code>ivy-mode</code> will appropriately change the prompt.
+</p>
+
+<p>
+For example, call <code>describe-variable</code>, enter "waldo" and press
+<kbd>RET</kbd> - the prompt will be appended with "(match required)".
+Press any key and the prompt warning will disappear.
+</p></dd>
+<dt><code>ivy-subdir</code></dt><dd>Highlights directories when completing file names.</dd>
+<dt><code>ivy-remote</code></dt><dd>Highlights remote files when completing file names.</dd>
+<dt><code>ivy-virtual</code></dt><dd><p>
+     Highlights virtual buffers when completing buffer names.
+</p>
+
+<p>
+Virtual buffers correspond to your bookmarks and the <code>recentf</code>
+list.
+</p>
+
+<p>
+Enable the virtual buffers like this:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline23" class="outline-3">
+<h3 id="orgheadline23"><span class="section-number-3">7.2</span> Defcustoms</h3>
+<div class="outline-text-3" id="text-7-2">
+<dl class="org-dl">
+<dt>User Option <code>ivy-count-format</code></dt><dd><p>
+     A string that describes how to show the number of candidates and
+possibly the current candidate in the prompt.
+</p>
+
+<p>
+By default, the number of matching candidates will be shown as an
+integer with padding on the right.
+</p>
+
+<p>
+To disable showing the number of candidates:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">""</span>)
+</pre>
+</div>
+
+<p>
+To show the current candidate, in addition to the number of candidates:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
+</pre>
+</div>
+
+<p>
+This variable uses <code>format</code>-style switches, see the documentation
+of <code>format</code> for more info.
+</p></dd>
+
+<dt>User Option <code>ivy-display-style</code></dt><dd><p>
+     Decides how to highlight the candidates in the minibuffer.
+</p>
+
+<p>
+The default setting is <code>'fancy</code> and it's available only for Emacs
+versions 24.5 or newer.
+</p>
+
+<p>
+Set this to <code>nil</code> to get a more plain minibuffer.
+</p></dd>
+
+<dt>User Option <code>ivy-on-del-error-function</code></dt><dd><p>
+     Decides what to do when <kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>)
+throws.
+</p>
+
+<p>
+The default behavior is to quit the completion - this is handy if
+you invoke the completion by mistake.
+</p></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline32" class="outline-3">
+<h3 id="orgheadline32"><span class="section-number-3">7.3</span> Actions</h3>
+<div class="outline-text-3" id="text-7-3">
+</div><div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="orgheadline24"><span class="section-number-4">7.3.1</span> What are actions?</h4>
+<div class="outline-text-4" id="text-7-3-1">
+<p>
+An action is a function of a single argument that gets called after
+you select a candidate during completion. The selected candidate is
+passed to this function as a string argument.
+</p>
+
+<dl class="org-dl">
+<dt>Window context when calling an action</dt><dd><p>
+     Currently, the action is executed in the minibuffer window
+context. This means e.g. that if you call <code>insert</code> the text will
+be inserted into the minibuffer.
+</p>
+
+<p>
+If you want to execute the action in the initial window from
+which the completion started, use the <code>with-ivy-window</code> wrapper
+macro.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
+  (with-ivy-window
+    (insert x)))
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline25" class="outline-4">
+<h4 id="orgheadline25"><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
+<div class="outline-text-4" id="text-7-3-2">
+<ul class="org-ul">
+<li><kbd>C-m</kbd> (<code>ivy-done</code>) calls the current/default action.</li>
+<li><kbd>M-o</kbd> (<code>ivy-dispatching-done</code>) selects among all actions, calls it
+and exits.</li>
+<li><kbd>C-M-o</kbd> (<code>ivy-dispatching-call</code>) selects among all actions, calls it
+and doesn't exit.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-orgheadline26" class="outline-4">
+<h4 id="orgheadline26"><span class="section-number-4">7.3.3</span> How can the action list be modified?</h4>
+<div class="outline-text-4" id="text-7-3-3">
+<p>
+Currently, you can append any amount of your own actions to the
+default list of actions. This can be done either for a specific
+command, or for all commands at once.
+</p>
+
+<p>
+Usually, the command has only one default action. The convention is to
+use single letters when selecting a command, and the letter <kbd>o</kbd> is
+designated for the default command. This way, <kbd>M-o o</kbd> should be always
+equivalent to <kbd>C-m</kbd>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgheadline29" class="outline-4">
+<h4 id="orgheadline29"><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
+<div class="outline-text-4" id="text-7-3-4">
+<p>
+The first action inserts the current candidate into the Ivy window -
+the window from which <code>ivy-read</code> was called.
+</p>
+
+<p>
+The second action copies the current candidate to the kill ring.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-yank-action</span> (x)
+  (kill-new x))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-copy-to-buffer-action</span> (x)
+  (with-ivy-window
+    (insert x)))
+
+(ivy-set-actions
+ t
+ '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
+   (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
+</pre>
+</div>
+
+<p>
+Now in any completion session you can access <code>ivy-yank-action</code> with
+<kbd>M-o y</kbd> and <code>ivy-copy-to-buffer-action</code> with <kbd>M-o i</kbd>.
+</p>
+</div>
+
+<div id="outline-container-orgheadline27" class="outline-5">
+<h5 id="orgheadline27"><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
+<div class="outline-text-5" id="text-7-3-4-1">
+<p>
+<code>ivy-set-actions</code> simply modifies the internal dict with new data, so
+you can set the extra actions list to <code>nil</code> by assigning <code>nil</code> value
+to the <code>t</code> key:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-set-actions t nil)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline28" class="outline-5">
+<h5 id="orgheadline28"><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
+<div class="outline-text-5" id="text-7-3-4-2">
+<p>
+Use the command name as the key:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-set-actions
+ 'swiper
+ '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
+   (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline31" class="outline-4">
+<h4 id="orgheadline31"><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
+<div class="outline-text-4" id="text-7-3-5">
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
+  (message <span style="color: #2A00FF;">"action-1: %s"</span> x))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-2</span> (x)
+  (message <span style="color: #2A00FF;">"action-2: %s"</span> x))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-3</span> (x)
+  (message <span style="color: #2A00FF;">"action-3: %s"</span> x))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-command-with-3-actions</span> ()
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (ivy-read <span style="color: #2A00FF;">"test: "</span> '(<span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"bar"</span> <span style="color: #2A00FF;">"baz"</span>)
+            <span style="color: #7F0055; font-weight: bold;">:action</span> '(1
+                      (<span style="color: #2A00FF;">"o"</span> my-action-1 <span style="color: #2A00FF;">"action 1"</span>)
+                      (<span style="color: #2A00FF;">"j"</span> my-action-2 <span style="color: #2A00FF;">"action 2"</span>)
+                      (<span style="color: #2A00FF;">"k"</span> my-action-3 <span style="color: #2A00FF;">"action 3"</span>))))
+</pre>
+</div>
+
+<p>
+Here, the number determines the index of the default action.  For each
+action, the strings are used to describe it during the selection.
+</p>
+</div>
+
+<div id="outline-container-orgheadline30" class="outline-5">
+<h5 id="orgheadline30"><span class="section-number-5">7.3.5.1</span> Testing out the above function with <code>ivy-occur</code></h5>
+<div class="outline-text-5" id="text-7-3-5-1">
+<p>
+To examine each action with each candidate in a key-efficient way, try:
+</p>
+
+<ul class="org-ul">
+<li>Call <code>my-command-with-3-actions</code>.</li>
+<li>Press <kbd>C-c C-o</kbd> to close the completion and move to an ivy-occur buffer.</li>
+<li>Press <kbd>kkk</kbd> to move to the first candidate, since you're likely at the end of the buffer.</li>
+<li>Press <kbd>oo</kbd> to call the first action.</li>
+<li>Press <kbd>oj</kbd> and <kbd>ok</kbd> to call the second and the third actions.</li>
+<li>Press <kbd>j</kbd> to move to the next candidate</li>
+<li>&#x2026;</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline33" class="outline-3">
+<h3 id="orgheadline33"><span class="section-number-3">7.4</span> Packages</h3>
+<div class="outline-text-3" id="text-7-4">
+<dl class="org-dl">
+<dt><code>org-mode</code></dt><dd>With the most recent version, <code>org-mode</code> will obey
+<code>completing-read-function</code> (which <code>ivy-mode</code> sets), so it should
+work by default.  If you try it for refiling to headings with
+similar names, you'll really notice how much better <code>ivy-mode</code> is
+at it.</dd>
+<dt><code>magit</code></dt><dd><p>
+     This setting is needed to use ivy completion:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> magit-completing-read-function 'ivy-completing-read)
+</pre>
+</div></dd>
+<dt><code>find-file-in-project</code></dt><dd>Will use ivy by default if it's available.</dd>
+<dt><code>projectile</code></dt><dd><p>
+     This setting is needed to use ivy completion:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> projectile-completion-system 'ivy)
+</pre>
+</div></dd>
+<dt><code>helm-make</code></dt><dd><p>
+     This setting is needed to use ivy completion:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> helm-make-completion-method 'ivy)
+</pre>
+</div></dd>
+</dl>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline38" class="outline-2">
+<h2 id="orgheadline38"><span class="section-number-2">8</span> Commands</h2>
+<div class="outline-text-2" id="text-8">
+</div><div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="orgheadline35"><span class="section-number-3">8.1</span> File Name Completion</h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+Since file name completion is so essential, ivy has a few extra
+bindings that work here.
+</p>
+
+<dl class="org-dl">
+<dt><kbd>C-j</kbd> (<code>ivy-alt-done</code>)</dt><dd>Use on a directory to restart the completion from that
+directory. Use it on a file or <code>./</code> to exit the completion with
+the selected candidate.</dd>
+<dt><kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>)</dt><dd>When completing file names, and the current input is empty,
+restart the completion in the parent directory.</dd>
+<dt><kbd>//</kbd> (<code>self-insert-command</code>)</dt><dd>Switch to the root directory.</dd>
+<dt><kbd>~</kbd> (<code>self-insert-command</code>)</dt><dd>Switch to the home directory.</dd>
+<dt><kbd>/</kbd> (<code>self-insert-command</code>)</dt><dd>If the current input is precisely an existing directory, switch
+the completion to that directory.</dd>
+<dt><kbd>M-q</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
+     Toggle between your input being a regexp and not.
+</p>
+
+<p>
+Since file names tend to include <code>.</code>, which matches any char in
+regexp mode, you might want to switch to matching literally.
+</p></dd>
+
+<dt>User Option <code>ivy-extra-directories</code></dt><dd><p>
+     Decide if you want to see <code>../</code> and <code>./</code> during file name
+completion.
+</p>
+
+<p>
+You might want to remove <code>../</code>, since selecting it is the same as
+<kbd>DEL</kbd>. On the other hand, having it around makes it possible to
+navigate anywhere with only <kbd>C-n</kbd>, <kbd>C-p</kbd> and <kbd>C-j</kbd>.
+</p>
+
+<p>
+Similarly, <code>./</code> can be removed as well.
+</p></dd>
+
+<dt>Using TRAMP</dt><dd><p>
+     Completion for TRAMP is supported in a peculiar way. From any
+directory, with the empty input, inputting <code>/ssh:</code> and pressing
+<kbd>C-j</kbd> (or <kbd>RET</kbd> which is the same thing) will give you a
+completion for host and user names.
+</p>
+
+<p>
+You can also input <code>/ssh:user@</code> to get domain completion with
+user name already selected.
+</p>
+
+<p>
+Described above is a recommended and simple method of
+interaction. If you find it lacking, you can still use <kbd>C-i</kbd>,
+which does largely the same as the default completion does.
+</p></dd>
+
+<dt>History</dt><dd>The history works with <kbd>M-p</kbd>, <kbd>M-n</kbd>, and <kbd>C-r</kbd>, as in all other
+completion sessions.  A custom history code was implemented for
+file name completion. This code will cycle you through all
+previous files that you opened, including the input with which
+the file was opened. It also works well with TRAMP.</dd>
+</dl>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+<div id="outline-container-orgheadline36" class="outline-3">
+<h3 id="orgheadline36"><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
+<div class="outline-text-3" id="text-8-2">
+<dl class="org-dl">
+<dt>User Option <code>ivy-use-virtual-buffers</code></dt><dd><p>
+     When non-nil, add <code>recentf-mode</code> and bookmarks to <code>ivy-switch-buffer</code>.
+</p>
+
+<p>
+If you add this to your setup:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</pre>
+</div>
+<p>
+when using <code>ivy-switch-buffer</code> additional buffers will be
+appended to your live buffer list. These buffers will be
+highlighted with the <code>ivy-virtual</code> face, and selecting them will
+open the corresponding file.
+</p></dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline37" class="outline-3">
+<h3 id="orgheadline37"><span class="section-number-3">8.3</span> Counsel commands</h3>
+<div class="outline-text-3" id="text-8-3">
+<p>
+The main advantage of using <code>counsel-</code> functions over their basic
+equivalents with <code>ivy-mode</code> enabled are the following:
+</p>
+
+<ol class="org-ol">
+<li>You can use everything related to multi-actions and non-exiting actions.</li>
+<li>You can use <code>ivy-resume</code> to resume your last completion session.</li>
+<li>You can customize them further with <code>ivy-set-actions</code>, <code>ivy-re-builders-alist</code>.</li>
+<li>You can customize their individual keymaps, like
+<code>counsel-describe-map</code>, <code>counsel-git-grep-map</code>, or
+<code>counsel-find-file-map</code>, instead of just customizing
+<code>ivy-minibuffer-map</code> that applies to all completion sessions.</li>
+</ol>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline43" class="outline-2">
+<h2 id="orgheadline43"><span class="section-number-2">9</span> API</h2>
+<div class="outline-text-2" id="text-9">
+<p>
+The main (and only) entry point is <code>ivy-read</code> function. It has only
+two required arguments and many optional arguments that you can pass
+by key. Although the <code>:action</code> argument is optional, it's very
+recommended that you use it, otherwise the extra features (as compared
+to the default completion) like multi-actions, non-exiting actions,
+<code>ivy-occur</code> and <code>ivy-resume</code> will not be possible.
+</p>
+</div>
+
+<div id="outline-container-orgheadline39" class="outline-3">
+<h3 id="orgheadline39"><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
+<div class="outline-text-3" id="text-9-1">
+<dl class="org-dl">
+<dt><code>prompt</code></dt><dd><p>
+     A format string normally ending in a colon and a space.
+</p>
+
+<p>
+<code>%d</code> anywhere in the string is replaced by the current number of
+matching candidates. To use a literal <code>%</code> character, escape it as
+<code>%%</code>. See also <code>ivy-count-format</code>.
+</p></dd>
+
+<dt><code>collection</code></dt><dd><p>
+     Either a list of strings, a function, an alist or a hash table.
+</p>
+
+<p>
+In case it's a function, it has to be compatible with
+<code>all-completions</code>.
+</p></dd>
+</dl>
+</div>
+</div>
+
+<div id="outline-container-orgheadline40" class="outline-3">
+<h3 id="orgheadline40"><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
+<div class="outline-text-3" id="text-9-2">
+<dl class="org-dl">
+<dt><code>predicate</code></dt><dd>A function to filter the initial collection with, compatible with <code>all-completions</code>.</dd>
+<dt><code>require-match</code></dt><dd>When non-nil, don't let the user exit with a custom input - it
+must match one of the candidates.</dd>
+<dt><code>initial-input</code></dt><dd>A string to be initially inserted into the minibuffer. This
+argument is included for compatibility with
+<code>completing-read</code>. Consider using the <code>preselect</code> argument
+instead - it's often superior.</dd>
+<dt><code>history</code></dt><dd>A symbol name to store the history. See <code>completing-read</code>.</dd>
+<dt><code>preselect</code></dt><dd><p>
+     When it's a string, make the first candidate matching this string
+initially selected.
+</p>
+
+<p>
+When it's an integer, make the candidate with that index
+initially selected.
+</p>
+
+<p>
+Every time the input becomes empty, the item corresponding to to
+<code>preselect</code> is selected.
+</p></dd>
+<dt><code>keymap</code></dt><dd>A keymap to be composed with <code>ivy-minibuffer-map</code>. This keymap
+has priority over <code>ivy-minibuffer-map</code> and can be modified at any
+later stage.</dd>
+<dt><code>update-fn</code></dt><dd>A function to call each time the current candidate is changed.
+This function takes no arguments and is called in the
+minibuffer's <code>post-command-hook</code>. See <code>swiper</code> for an example
+usage.</dd>
+<dt><code>sort</code></dt><dd>When non-nil, use <code>ivy-sort-functions-alist</code> to sort the given
+collection. The collection will not be sorted when it's larger
+than <code>ivy-sort-max-size</code>.</dd>
+<dt><code>action</code></dt><dd>A function to call after a result is selected. Takes a single
+string argument.</dd>
+<dt><code>unwind</code></dt><dd>A function with no arguments to call before exiting
+completion. This function is called even if the completion is
+interrupted with e.g. <kbd>C-g</kbd>. See <code>swiper</code> for an example usage.</dd>
+<dt><code>re-builder</code></dt><dd>A function that takes a string and returns a corresponding regex.
+See the section on completion styles.</dd>
+<dt><code>matcher</code></dt><dd>A function that takes a regex and a list of strings and returns a
+list of strings that "match" the regex. Normally a
+straightforward function is used. Use this argument to really
+fine-tune the matching process. See <code>counsel-find-file</code> for an
+example usage.</dd>
+<dt><code>dynamic-collection</code></dt><dd>When non-nil, <code>collection</code> will be used to dynamically generate
+the candidates each time the input changes, instead of being used
+once statically with <code>all-completions</code> to generate a list of
+strings. See <code>counsel-locate</code> for an example usage.</dd>
+<dt><code>caller</code></dt><dd>A symbol to uniquely identify the function that called
+<code>ivy-read</code>.  This is useful in all kinds of customization
+scenarios.</dd>
+</dl>
+</div>
+</div>
+<div id="outline-container-orgheadline41" class="outline-3">
+<h3 id="orgheadline41"><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
+<div class="outline-text-3" id="text-9-3">
+<p>
+This is a typical example of a function with a non-async collection:
+all the strings in the collection are known before the user does any
+input.
+</p>
+
+<p>
+Note that only the first two arguments (and the <code>action</code>) are really
+important - the rest is just fine-tuning and could be omitted.
+</p>
+
+<p>
+The <code>action</code> argument could also be omitted - but then <code>ivy-read</code>
+would no nothing except returning the string result, which you could
+later use yourself. However, it's recommended that you use the
+<code>action</code> argument.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-describe-function</span> ()
+  <span style="color: #2A00FF;">"Forward to `</span><span style="color: #110099;">describe-function</span><span style="color: #2A00FF;">'."</span>
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (ivy-read <span style="color: #2A00FF;">"Describe function: "</span>
+            (<span style="color: #7F0055; font-weight: bold;">let</span> (cands)
+              (mapatoms
+               (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+                 (<span style="color: #7F0055; font-weight: bold;">when</span> (fboundp x)
+                   (<span style="color: #7F0055; font-weight: bold;">push</span> (symbol-name x) cands))))
+              cands)
+            <span style="color: #7F0055; font-weight: bold;">:keymap</span> counsel-describe-map
+            <span style="color: #7F0055; font-weight: bold;">:preselect</span> (counsel-symbol-at-point)
+            <span style="color: #7F0055; font-weight: bold;">:history</span> 'counsel-describe-symbol-history
+            <span style="color: #7F0055; font-weight: bold;">:require-match</span> t
+            <span style="color: #7F0055; font-weight: bold;">:sort</span> t
+            <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+                      (describe-function
+                       (intern x)))
+            <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-describe-function))
+</pre>
+</div>
+
+<p>
+Here are the interesting features of the above function, in the order that they appear:
+</p>
+
+<ul class="org-ul">
+<li>The <code>prompt</code> argument is a simple string ending in ": ".</li>
+<li>The <code>collection</code> argument evaluates to a (large) list of strings.</li>
+<li>The <code>keymap</code> argument allows for a custom keymap to supplement <code>ivy-minibuffer-map</code>.</li>
+<li>The <code>history</code> argument ensures that the command has its own history,
+and doesn't need to share the common history <code>ivy-history</code> that all
+commands without their own history share.</li>
+<li>The <code>require-match</code> is set to <code>t</code>, since it doesn't make sense to
+call <code>describe-function</code> on an un-interned symbol.</li>
+<li>The <code>sort</code> argument is set to <code>t</code>, since it's usually useful to have
+functions with similar names be close to each other in the candidate
+list. However, after loading many packages the collection often
+exceeds the default value of <code>ivy-sort-max-size</code> (30000). The user
+can customize this variable to decide which is more important: the
+sorting or the completion start-up time.</li>
+<li>The <code>action</code> argument calls <code>describe-function</code> on the interned
+selected candidate.</li>
+<li>The <code>caller</code> argument identifies this completion session. This is
+important, since with the collection being a list of strings and not
+a function name, the only other way for <code>ivy-read</code> to identify
+"who's calling" and to apply the appropriate customizations is to
+examine <code>this-command</code>. But <code>this-command</code> would be modified if
+another command called <code>counsel-describe-function</code>.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline42" class="outline-3">
+<h3 id="orgheadline42"><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
+<div class="outline-text-3" id="text-9-4">
+<p>
+This is a typical example of a function with an async collection.
+Since we can't pre-compute all the collection items valid for an empty
+input and store them in the memory, the collection function is called
+each time the user updates the input.  However, while the returned
+list of strings is used immediately (usually it's something like
+<code>'("please wait...")</code>), it's expected of the collection function to
+make a call to <code>start-process</code> and update the minibuffer text at some
+point when the process is finished.
+</p>
+
+<p>
+Async collections are a good fit for long-running shell commands, like
+<code>locate</code>. As soon as there is enough input, a new process is started
+and the old process is killed (since the old input is no longer
+relevant). The user can either type more or wait for the already
+running process to finish and update the minibuffer.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
+      (counsel-more-chars 3)
+    (counsel--async-command
+     (format <span style="color: #2A00FF;">"locate %s '</span><span style="color: #110099;">%s</span><span style="color: #2A00FF;">'"</span>
+             (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
+             (counsel-unquote-regex-parens
+              (ivy--regex str))))
+    '(<span style="color: #2A00FF;">""</span> <span style="color: #2A00FF;">"working..."</span>)))
+
+<span style="color: #3F7F5F;">;;;</span><span style="color: #3F7F5F;">###</span><span style="color: #FF0000;">autoload</span>
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate</span> (<span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> initial-input)
+  <span style="color: #2A00FF;">"Call the \"locate\" shell command.</span>
+<span style="color: #2A00FF;">INITIAL-INPUT can be given as the initial minibuffer input."</span>
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (ivy-read <span style="color: #2A00FF;">"Locate: "</span> #'counsel-locate-function
+            <span style="color: #7F0055; font-weight: bold;">:initial-input</span> initial-input
+            <span style="color: #7F0055; font-weight: bold;">:dynamic-collection</span> t
+            <span style="color: #7F0055; font-weight: bold;">:history</span> 'counsel-locate-history
+            <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (file)
+                      (with-ivy-window
+                        (<span style="color: #7F0055; font-weight: bold;">when</span> file
+                          (find-file file))))
+            <span style="color: #7F0055; font-weight: bold;">:unwind</span> #'counsel-delete-process
+            <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-locate))
+</pre>
+</div>
+
+<p>
+Here are the interesting features of the above functions, in the order
+that they appear:
+</p>
+
+<ul class="org-ul">
+<li><code>counsel-locate-function</code> takes a string argument and returns a list
+of strings. Note that it's not compatible with <code>all-completions</code>,
+but since we're not using that here, might as well use one argument
+instead of three.</li>
+<li><code>counsel-more-chars</code> is a simple function that returns e.g.
+<code>'("2 chars more")</code> asking the user for more input.</li>
+<li><code>counsel--async-command</code> is a very easy API simplification that
+takes a single string argument suitable for
+<code>shell-command-to-string</code>. So you could prototype your function as
+non-async using <code>shell-command-to-string</code> and <code>split-string</code> to
+produce a collection, then decide that you want async and simply swap in
+<code>counsel--async-command</code>.</li>
+<li><code>counsel-locate</code> is an interactive function with optional <code>initial-input</code>.</li>
+<li><code>#'counsel-locate-function</code> is passed as the <code>collection</code> argument.</li>
+<li><code>dynamic-collection</code> argument is set to t, since we have an async collection.</li>
+<li><code>action</code> argument uses <code>with-ivy-window</code> wrapper, since we want to open the
+selected file in the same window from which <code>counsel-locate</code> was
+called.</li>
+<li><code>unwind</code> argument is set to <code>#'counsel-delete-process</code>: when we press <kbd>C-g</kbd>
+we want to kill the running process created by
+<code>counsel--async-command</code>.</li>
+<li><code>caller</code> argument identifies this command for easier customization.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgheadline44" class="outline-2">
+<h2 id="variable-index"><a id="orgheadline44"></a><span class="section-number-2">10</span> Variable Index</h2>
 <div class="outline-text-2" id="text-variable-index">
 </div>
 </div>
