@@ -67,21 +67,21 @@
      :background "#e99ce8" :weight bold)
     (((class color) (background dark))
      :background "#777777" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 1.")
+  "Face for `ivy' minibuffer matches numbered 1 modulo 3.")
 
 (defface ivy-minibuffer-match-face-3
   '((((class color) (background light))
      :background "#bbbbff" :weight bold)
     (((class color) (background dark))
      :background "#7777ff" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 2.")
+  "Face for `ivy' minibuffer matches numbered 2 modulo 3.")
 
 (defface ivy-minibuffer-match-face-4
   '((((class color) (background light))
      :background "#ffbbff" :weight bold)
     (((class color) (background dark))
      :background "#8a498a" :weight bold))
-  "Face for `ivy' minibuffer matches modulo 3.")
+  "Face for `ivy' minibuffer matches numbered 3 modulo 3.")
 
 (defface ivy-confirm-face
   '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
