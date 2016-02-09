@@ -778,7 +778,7 @@ toggle it during completion with ~C-o m~.
 :END:
 *** What are actions?
 :PROPERTIES:
-:CUSTOM_ID: what-are-actions?
+:CUSTOM_ID: what-are-actions
 :END:
 An action is a function of a single argument that gets called after
 you select a candidate during completion. The selected candidate is
@@ -801,7 +801,7 @@ passed to this function as a string argument.
 
 *** How can different actions be called?
 :PROPERTIES:
-:CUSTOM_ID: how-can-different-actions-be-called?
+:CUSTOM_ID: how-can-different-actions-be-called
 :END:
 - ~C-m~ (=ivy-done=) calls the current/default action.
 - ~M-o~ (=ivy-dispatching-done=) selects among all actions, calls it
@@ -811,7 +811,7 @@ passed to this function as a string argument.
 
 *** How can the action list be modified?
 :PROPERTIES:
-:CUSTOM_ID: how-can-the-action-list-be-modified?
+:CUSTOM_ID: how-can-the-action-list-be-modified
 :END:
 Currently, you can append any amount of your own actions to the
 default list of actions. This can be done either for a specific
