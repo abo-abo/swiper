@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-09 Tue 17:42 -->
+<!-- 2016-02-09 Tue 17:53 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -106,44 +106,44 @@ for the JavaScript code in this tag.
 <li><a href="#ivy--regex-fuzzy">6.3. ivy&#x2013;regex-fuzzy</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline34">7. Customization</a>
+<li><a href="#customization">7. Customization</a>
 <ul>
-<li><a href="#orgheadline22">7.1. Faces</a></li>
-<li><a href="#orgheadline23">7.2. Defcustoms</a></li>
-<li><a href="#orgheadline32">7.3. Actions</a>
+<li><a href="#faces">7.1. Faces</a></li>
+<li><a href="#defcustoms">7.2. Defcustoms</a></li>
+<li><a href="#actions">7.3. Actions</a>
 <ul>
-<li><a href="#orgheadline24">7.3.1. What are actions?</a></li>
-<li><a href="#orgheadline25">7.3.2. How can different actions be called?</a></li>
-<li><a href="#orgheadline26">7.3.3. How can the action list be modified?</a></li>
-<li><a href="#orgheadline29">7.3.4. Example - add two actions to each command</a>
+<li><a href="#what-are-actions?">7.3.1. What are actions?</a></li>
+<li><a href="#how-can-different-actions-be-called?">7.3.2. How can different actions be called?</a></li>
+<li><a href="#how-can-the-action-list-be-modified?">7.3.3. How can the action list be modified?</a></li>
+<li><a href="#example---add-two-actions-to-each-command">7.3.4. Example - add two actions to each command</a>
 <ul>
-<li><a href="#orgheadline27">7.3.4.1. How to undo adding the two actions</a></li>
-<li><a href="#orgheadline28">7.3.4.2. How to add actions to a specific command</a></li>
+<li><a href="#how-to-undo-adding-the-two-actions">7.3.4.1. How to undo adding the two actions</a></li>
+<li><a href="#how-to-add-actions-to-a-specific-command">7.3.4.2. How to add actions to a specific command</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline31">7.3.5. Example - define a new command with several actions</a>
+<li><a href="#example---define-a-new-command-with-several-actions">7.3.5. Example - define a new command with several actions</a>
 <ul>
-<li><a href="#orgheadline30">7.3.5.1. Testing out the above function with <code>ivy-occur</code></a></li>
+<li><a href="#testing-out-the-above-function-with-ivy-occur">7.3.5.1. Testing out the above function with <code>ivy-occur</code></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#orgheadline33">7.4. Packages</a></li>
+<li><a href="#packages">7.4. Packages</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline38">8. Commands</a>
+<li><a href="#commands">8. Commands</a>
 <ul>
-<li><a href="#orgheadline35">8.1. File Name Completion</a></li>
-<li><a href="#orgheadline36">8.2. Buffer Name Completion</a></li>
-<li><a href="#orgheadline37">8.3. Counsel commands</a></li>
+<li><a href="#file-name-completion">8.1. File Name Completion</a></li>
+<li><a href="#buffer-name-completion">8.2. Buffer Name Completion</a></li>
+<li><a href="#counsel-commands">8.3. Counsel commands</a></li>
 </ul>
 </li>
-<li><a href="#orgheadline43">9. API</a>
+<li><a href="#api">9. API</a>
 <ul>
-<li><a href="#orgheadline39">9.1. Required arguments for <code>ivy-read</code></a></li>
-<li><a href="#orgheadline40">9.2. Optional arguments for <code>ivy-read</code></a></li>
-<li><a href="#orgheadline41">9.3. Example - <code>counsel-describe-function</code></a></li>
-<li><a href="#orgheadline42">9.4. Example - <code>counsel-locate</code></a></li>
+<li><a href="#required-arguments-for-ivy-read">9.1. Required arguments for <code>ivy-read</code></a></li>
+<li><a href="#optional-arguments-for-ivy-read">9.2. Optional arguments for <code>ivy-read</code></a></li>
+<li><a href="#example---counsel-describe-function">9.3. Example - <code>counsel-describe-function</code></a></li>
+<li><a href="#example---counsel-locate">9.4. Example - <code>counsel-locate</code></a></li>
 </ul>
 </li>
 <li><a href="#variable-index">10. Variable Index</a></li>
@@ -1016,11 +1016,12 @@ toggle it during completion with <kbd>C-o m</kbd>.
 </div>
 
 <div id="outline-container-orgheadline34" class="outline-2">
-<h2 id="orgheadline34"><span class="section-number-2">7</span> Customization</h2>
-<div class="outline-text-2" id="text-7">
-</div><div id="outline-container-orgheadline22" class="outline-3">
-<h3 id="orgheadline22"><span class="section-number-3">7.1</span> Faces</h3>
-<div class="outline-text-3" id="text-7-1">
+<h2 id="customization"><a id="orgheadline34"></a><span class="section-number-2">7</span> Customization</h2>
+<div class="outline-text-2" id="text-customization">
+</div>
+<div id="outline-container-orgheadline22" class="outline-3">
+<h3 id="faces"><a id="orgheadline22"></a><span class="section-number-3">7.1</span> Faces</h3>
+<div class="outline-text-3" id="text-faces">
 <dl class="org-dl">
 <dt><code>ivy-current-match</code></dt><dd>Highlights the currently selected candidate.</dd>
 <dt><code>ivy-minibuffer-match-face-1</code></dt><dd>Highlights the background of the match.</dd>
@@ -1097,8 +1098,8 @@ Enable the virtual buffers like this:
 </div>
 </div>
 <div id="outline-container-orgheadline23" class="outline-3">
-<h3 id="orgheadline23"><span class="section-number-3">7.2</span> Defcustoms</h3>
-<div class="outline-text-3" id="text-7-2">
+<h3 id="defcustoms"><a id="orgheadline23"></a><span class="section-number-3">7.2</span> Defcustoms</h3>
+<div class="outline-text-3" id="text-defcustoms">
 <dl class="org-dl">
 <dt>User Option <code>ivy-count-format</code></dt><dd><p>
      A string that describes how to show the number of candidates and
@@ -1162,11 +1163,12 @@ you invoke the completion by mistake.
 </div>
 
 <div id="outline-container-orgheadline32" class="outline-3">
-<h3 id="orgheadline32"><span class="section-number-3">7.3</span> Actions</h3>
-<div class="outline-text-3" id="text-7-3">
-</div><div id="outline-container-orgheadline24" class="outline-4">
-<h4 id="orgheadline24"><span class="section-number-4">7.3.1</span> What are actions?</h4>
-<div class="outline-text-4" id="text-7-3-1">
+<h3 id="actions"><a id="orgheadline32"></a><span class="section-number-3">7.3</span> Actions</h3>
+<div class="outline-text-3" id="text-actions">
+</div>
+<div id="outline-container-orgheadline24" class="outline-4">
+<h4 id="what-are-actions?"><a id="orgheadline24"></a><span class="section-number-4">7.3.1</span> What are actions?</h4>
+<div class="outline-text-4" id="text-what-are-actions?">
 <p>
 An action is a function of a single argument that gets called after
 you select a candidate during completion. The selected candidate is
@@ -1198,8 +1200,8 @@ macro.
 </div>
 
 <div id="outline-container-orgheadline25" class="outline-4">
-<h4 id="orgheadline25"><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
-<div class="outline-text-4" id="text-7-3-2">
+<h4 id="how-can-different-actions-be-called?"><a id="orgheadline25"></a><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
+<div class="outline-text-4" id="text-how-can-different-actions-be-called?">
 <ul class="org-ul">
 <li><kbd>C-m</kbd> (<code>ivy-done</code>) calls the current/default action.</li>
 <li><kbd>M-o</kbd> (<code>ivy-dispatching-done</code>) selects among all actions, calls it
@@ -1211,8 +1213,8 @@ and doesn't exit.</li>
 </div>
 
 <div id="outline-container-orgheadline26" class="outline-4">
-<h4 id="orgheadline26"><span class="section-number-4">7.3.3</span> How can the action list be modified?</h4>
-<div class="outline-text-4" id="text-7-3-3">
+<h4 id="how-can-the-action-list-be-modified?"><a id="orgheadline26"></a><span class="section-number-4">7.3.3</span> How can the action list be modified?</h4>
+<div class="outline-text-4" id="text-how-can-the-action-list-be-modified?">
 <p>
 Currently, you can append any amount of your own actions to the
 default list of actions. This can be done either for a specific
@@ -1229,8 +1231,8 @@ equivalent to <kbd>C-m</kbd>.
 </div>
 
 <div id="outline-container-orgheadline29" class="outline-4">
-<h4 id="orgheadline29"><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
-<div class="outline-text-4" id="text-7-3-4">
+<h4 id="example---add-two-actions-to-each-command"><a id="orgheadline29"></a><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
+<div class="outline-text-4" id="text-example---add-two-actions-to-each-command">
 <p>
 The first action inserts the current candidate into the Ivy window -
 the window from which <code>ivy-read</code> was called.
@@ -1263,8 +1265,8 @@ Now in any completion session you can access <code>ivy-yank-action</code> with
 </div>
 
 <div id="outline-container-orgheadline27" class="outline-5">
-<h5 id="orgheadline27"><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
-<div class="outline-text-5" id="text-7-3-4-1">
+<h5 id="how-to-undo-adding-the-two-actions"><a id="orgheadline27"></a><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
+<div class="outline-text-5" id="text-how-to-undo-adding-the-two-actions">
 <p>
 <code>ivy-set-actions</code> simply modifies the internal dict with new data, so
 you can set the extra actions list to <code>nil</code> by assigning <code>nil</code> value
@@ -1280,8 +1282,8 @@ to the <code>t</code> key:
 </div>
 
 <div id="outline-container-orgheadline28" class="outline-5">
-<h5 id="orgheadline28"><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
-<div class="outline-text-5" id="text-7-3-4-2">
+<h5 id="how-to-add-actions-to-a-specific-command"><a id="orgheadline28"></a><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
+<div class="outline-text-5" id="text-how-to-add-actions-to-a-specific-command">
 <p>
 Use the command name as the key:
 </p>
@@ -1299,8 +1301,8 @@ Use the command name as the key:
 </div>
 
 <div id="outline-container-orgheadline31" class="outline-4">
-<h4 id="orgheadline31"><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
-<div class="outline-text-4" id="text-7-3-5">
+<h4 id="example---define-a-new-command-with-several-actions"><a id="orgheadline31"></a><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
+<div class="outline-text-4" id="text-example---define-a-new-command-with-several-actions">
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
@@ -1329,8 +1331,8 @@ action, the strings are used to describe it during the selection.
 </div>
 
 <div id="outline-container-orgheadline30" class="outline-5">
-<h5 id="orgheadline30"><span class="section-number-5">7.3.5.1</span> Testing out the above function with <code>ivy-occur</code></h5>
-<div class="outline-text-5" id="text-7-3-5-1">
+<h5 id="testing-out-the-above-function-with-ivy-occur"><a id="orgheadline30"></a><span class="section-number-5">7.3.5.1</span> Testing out the above function with <code>ivy-occur</code></h5>
+<div class="outline-text-5" id="text-testing-out-the-above-function-with-ivy-occur">
 <p>
 To examine each action with each candidate in a key-efficient way, try:
 </p>
@@ -1349,8 +1351,8 @@ To examine each action with each candidate in a key-efficient way, try:
 </div>
 </div>
 <div id="outline-container-orgheadline33" class="outline-3">
-<h3 id="orgheadline33"><span class="section-number-3">7.4</span> Packages</h3>
-<div class="outline-text-3" id="text-7-4">
+<h3 id="packages"><a id="orgheadline33"></a><span class="section-number-3">7.4</span> Packages</h3>
+<div class="outline-text-3" id="text-packages">
 <dl class="org-dl">
 <dt><code>org-mode</code></dt><dd>With the most recent version, <code>org-mode</code> will obey
 <code>completing-read-function</code> (which <code>ivy-mode</code> sets), so it should
@@ -1391,11 +1393,12 @@ at it.</dd>
 </div>
 
 <div id="outline-container-orgheadline38" class="outline-2">
-<h2 id="orgheadline38"><span class="section-number-2">8</span> Commands</h2>
-<div class="outline-text-2" id="text-8">
-</div><div id="outline-container-orgheadline35" class="outline-3">
-<h3 id="orgheadline35"><span class="section-number-3">8.1</span> File Name Completion</h3>
-<div class="outline-text-3" id="text-8-1">
+<h2 id="commands"><a id="orgheadline38"></a><span class="section-number-2">8</span> Commands</h2>
+<div class="outline-text-2" id="text-commands">
+</div>
+<div id="outline-container-orgheadline35" class="outline-3">
+<h3 id="file-name-completion"><a id="orgheadline35"></a><span class="section-number-3">8.1</span> File Name Completion</h3>
+<div class="outline-text-3" id="text-file-name-completion">
 <p>
 Since file name completion is so essential, ivy has a few extra
 bindings that work here.
@@ -1462,17 +1465,9 @@ the file was opened. It also works well with TRAMP.</dd>
 </div>
 </div>
 
-
-
-
-
-
-
-
-
 <div id="outline-container-orgheadline36" class="outline-3">
-<h3 id="orgheadline36"><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
-<div class="outline-text-3" id="text-8-2">
+<h3 id="buffer-name-completion"><a id="orgheadline36"></a><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
+<div class="outline-text-3" id="text-buffer-name-completion">
 <dl class="org-dl">
 <dt>User Option <code>ivy-use-virtual-buffers</code></dt><dd><p>
      When non-nil, add <code>recentf-mode</code> and bookmarks to <code>ivy-switch-buffer</code>.
@@ -1497,8 +1492,8 @@ open the corresponding file.
 </div>
 </div>
 <div id="outline-container-orgheadline37" class="outline-3">
-<h3 id="orgheadline37"><span class="section-number-3">8.3</span> Counsel commands</h3>
-<div class="outline-text-3" id="text-8-3">
+<h3 id="counsel-commands"><a id="orgheadline37"></a><span class="section-number-3">8.3</span> Counsel commands</h3>
+<div class="outline-text-3" id="text-counsel-commands">
 <p>
 The main advantage of using <code>counsel-</code> functions over their basic
 equivalents with <code>ivy-mode</code> enabled are the following:
@@ -1517,8 +1512,8 @@ equivalents with <code>ivy-mode</code> enabled are the following:
 </div>
 </div>
 <div id="outline-container-orgheadline43" class="outline-2">
-<h2 id="orgheadline43"><span class="section-number-2">9</span> API</h2>
-<div class="outline-text-2" id="text-9">
+<h2 id="api"><a id="orgheadline43"></a><span class="section-number-2">9</span> API</h2>
+<div class="outline-text-2" id="text-api">
 <p>
 The main (and only) entry point is <code>ivy-read</code> function. It has only
 two required arguments and many optional arguments that you can pass
@@ -1530,8 +1525,8 @@ to the default completion) like multi-actions, non-exiting actions,
 </div>
 
 <div id="outline-container-orgheadline39" class="outline-3">
-<h3 id="orgheadline39"><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
-<div class="outline-text-3" id="text-9-1">
+<h3 id="required-arguments-for-ivy-read"><a id="orgheadline39"></a><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
+<div class="outline-text-3" id="text-required-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>prompt</code></dt><dd><p>
      A format string normally ending in a colon and a space.
@@ -1556,8 +1551,8 @@ In case it's a function, it has to be compatible with
 </div>
 
 <div id="outline-container-orgheadline40" class="outline-3">
-<h3 id="orgheadline40"><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
-<div class="outline-text-3" id="text-9-2">
+<h3 id="optional-arguments-for-ivy-read"><a id="orgheadline40"></a><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
+<div class="outline-text-3" id="text-optional-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>predicate</code></dt><dd>A function to filter the initial collection with, compatible with <code>all-completions</code>.</dd>
 <dt><code>require-match</code></dt><dd>When non-nil, don't let the user exit with a custom input - it
@@ -1614,8 +1609,8 @@ scenarios.</dd>
 </div>
 </div>
 <div id="outline-container-orgheadline41" class="outline-3">
-<h3 id="orgheadline41"><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
-<div class="outline-text-3" id="text-9-3">
+<h3 id="example---counsel-describe-function"><a id="orgheadline41"></a><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
+<div class="outline-text-3" id="text-example---counsel-describe-function">
 <p>
 This is a typical example of a function with a non-async collection:
 all the strings in the collection are known before the user does any
@@ -1689,8 +1684,8 @@ another command called <code>counsel-describe-function</code>.</li>
 </div>
 </div>
 <div id="outline-container-orgheadline42" class="outline-3">
-<h3 id="orgheadline42"><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
-<div class="outline-text-3" id="text-9-4">
+<h3 id="example---counsel-locate"><a id="orgheadline42"></a><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
+<div class="outline-text-3" id="text-example---counsel-locate">
 <p>
 This is a typical example of a function with an async collection.
 Since we can't pre-compute all the collection items valid for an empty
