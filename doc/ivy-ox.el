@@ -123,12 +123,18 @@ contextual information."
                       (t "table"))))
     (if (equal list-type "table")
         (mapconcat (lambda (s)
-                     (if (string-match "\\`User Option @code{\\(.*\\)}$" s)
-                         (format "@defopt %s\n%s\n@end defopt\n"
-                                 (match-string-no-properties 1 s)
-                                 (string-trim
-                                  (substring s (1+ (match-end 1)))))
-                       (concat "@subsubheading " s)))
+                     (cond ((string-match "\\`User Option @code{\\(.*\\)}$" s)
+                            (format "@defopt %s\n%s\n@end defopt\n"
+                                    (match-string-no-properties 1 s)
+                                    (string-trim
+                                     (substring s (1+ (match-end 1))))))
+                           ((string-match "\\(.*\\)$" s)
+                            (format "@subsubheading %s\n@indentedblock\n%s\n@end indentedblock"
+                                    (match-string 1 s)
+                                    (string-trim
+                                     (substring s (1+ (match-end 1))))))
+                           (t
+                            (concat "@subsubheading " s))))
                    (split-string (substring-no-properties contents) "^@item " t)
                    "\n")
       (format "@%s\n%s@end %s"

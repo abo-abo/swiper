@@ -63,6 +63,9 @@ modify this GNU manual.''
 * Getting started::
 * Key bindings::
 * Completion styles::
+* Customization::
+* Commands::
+* API::
 * Variable Index::
 
 @detailmenu
@@ -96,6 +99,42 @@ Completion styles
 * ivy--regex-plus::
 * ivy--regex-ignore-order::
 * ivy--regex-fuzzy::
+
+Customization
+
+* Faces::
+* Defcustoms::
+* Actions::
+* Packages::
+
+Actions
+
+* What are actions?::
+* How can different actions be called?::
+* How can the action list be modified?::
+* Example - add two actions to each command::
+* Example - define a new command with several actions::
+
+Example - add two actions to each command
+
+* How to undo adding the two actions::
+* How to add actions to a specific command::
+
+Example - define a new command with several actions
+
+* Testing out the above function with @code{ivy-occur}::
+Commands
+
+* File Name Completion::
+* Buffer Name Completion::
+* Counsel commands::
+
+API
+
+* Required arguments for @code{ivy-read}::
+* Optional arguments for @code{ivy-read}::
+* Example - @code{counsel-describe-function}::
+* Example - @code{counsel-locate}::
 @end detailmenu
 @end menu
 
@@ -111,24 +150,25 @@ Ivy strives for minimalism, simplicity, customizability and
 discoverability.
 
 @subsubheading Minimalism
-     Uncluttered minibuffer is minimalism. Ivy shows the completion
+@indentedblock
+Uncluttered minibuffer is minimalism. Ivy shows the completion
 defaults, the number of matches, and 10 candidate matches below
 the input line. Customize @code{ivy-length} to adjust the number of
 candidate matches displayed in the minibuffer.
-
-
+@end indentedblock
 @subsubheading Simplicity
-     Simplicity is about Ivy's behavior in the minibuffer. It is also
+@indentedblock
+Simplicity is about Ivy's behavior in the minibuffer. It is also
 about the code interface to extend Ivy's functionality. The
 minibuffer area behaves as close to @code{fundamental-mode} as
 possible. @kbd{SPC} inserts a space, for example, instead of being
 bound to the more complex @code{minibuffer-complete-word}. Ivy's code
 uses easy-to-examine global variables; avoids needless
 complications with branch-introducing custom macros.
-
-
+@end indentedblock
 @subsubheading Customizability
-     Customizability is about being able to use different methods and
+@indentedblock
+Customizability is about being able to use different methods and
 interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
 selected candidate with @code{->}, instead of highlighting the
@@ -138,10 +178,10 @@ selected. @kbd{RET} uses @code{counsel-describe-function} to describe the
 function, whereas @kbd{M-o d} jumps to that function's definition in
 the code. The @kbd{M-o} prefix can be uniformly used with characters
 like @kbd{d} to group similar actions.
-
-
+@end indentedblock
 @subsubheading Discoverability
-     Ivy displays easily discoverable commands through the hydra
+@indentedblock
+Ivy displays easily discoverable commands through the hydra
 facility.  @kbd{C-o} in the minibuffer displays a hydra menu. It
 opens up within an expanded minibuffer area. Each menu item comes
 with short documentation strings and highlighted one-key
@@ -149,12 +189,18 @@ completions. So discovering even seldom used keys is simply a
 matter of @kbd{C-o} in the minibuffer while in the midst of the Ivy
 interaction. This discoverability minimizes exiting Ivy interface
 for documentation look-ups.
+@end indentedblock
 
 @node Installation
 @chapter Installation
 
 Install Ivy automatically through Emacs's package manager, or manually
 from Ivy's development repository.
+
+Ivy should run fine on a typical Emacs bundled in your OS's package
+manager, the oldest of which is Emacs 24.3.1.  However, the faces
+display will work much better for Emacs 24.5.1, which is the latest
+stable version.
 @menu
 * Installing from Emacs Package Manager::
 * Installing from the Git repository::
@@ -187,8 +233,8 @@ For package manager details, see @ref{Packages,,,emacs,}.
 @node Installing from the Git repository
 @section Installing from the Git repository
 
-Why install from Git?
-
+@subsubheading Why install from Git?
+@indentedblock
 @itemize
 @item
 No need to wait for MELPA's hourly builds
@@ -197,26 +243,32 @@ Easy to revert to previous versions
 @item
 Contribute to Ivy's development; send patches; pull requests
 @end itemize
+@end indentedblock
 
-@strong{Configuration steps}
 
+@subsubheading Configuration steps
+@indentedblock
 First clone the Swiper repository:
+
 @example
 cd ~/git && git clone https://github.com/abo-abo/swiper
 cd swiper && make compile
 @end example
 
 Then add this to Emacs init:
+
 @lisp
 (add-to-list 'load-path "~/git/swiper/")
 (require 'ivy)
 @end lisp
 
 To update the code:
+
 @example
 git pull
 make
 @end example
+@end indentedblock
 
 @node Getting started
 @chapter Getting started
@@ -235,8 +287,8 @@ Note: @code{ivy-mode} can be toggled on and off with @kbd{M-x} @code{ivy-mode}.
 @node Basic customization
 @section Basic customization
 
-Here are some basic settings particularly useful for new Ivy
-users:
+Here are some basic settings particularly useful for new Ivy users:
+
 @lisp
 (setq ivy-use-virtual-buffers t)
 (setq ivy-height 10)
@@ -261,6 +313,7 @@ documentation.
 The recommended key bindings are:
 
 @subsubheading Ivy-based interface to standard commands
+@indentedblock
 @lisp
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "M-x") 'counsel-M-x)
@@ -271,8 +324,9 @@ The recommended key bindings are:
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 @end lisp
-
+@end indentedblock
 @subsubheading Ivy-based interface to shell and system tools
+@indentedblock
 @lisp
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
@@ -280,12 +334,15 @@ The recommended key bindings are:
 (global-set-key (kbd "C-x l") 'counsel-locate)
 (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
 @end lisp
-
+@end indentedblock
 @subsubheading Ivy-resume and other commands
+@indentedblock
 @code{ivy-resume} resumes the last Ivy-based completion.
+
 @lisp
 (global-set-key (kbd "C-c C-r") 'ivy-resume)
 @end lisp
+@end indentedblock
 
 @node Minibuffer key bindings
 @section Minibuffer key bindings
@@ -297,6 +354,12 @@ are described here.
 @code{swiper} or @code{counsel-M-x} add more through the @code{keymap} argument to
 @code{ivy-read}. These keys, also active in the minibuffer, are described
 under their respective commands.
+
+An important idea behind @code{ivy-minibuffer-map}, unlike
+e.g. @code{isearch-mode-map} or Ido keymap is that the minibuffer is a
+fully capable editing area: bindings like @kbd{C-a}, @kbd{C-f}, @kbd{M-d},
+@kbd{M-DEL}, @kbd{M-b}, @kbd{M-w}, @kbd{C-k}, @kbd{C-y} all work as if you were in a
+@code{fundamental-mode} buffer.
 @menu
 * Key bindings for navigation::
 * Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
@@ -354,40 +417,54 @@ action to run. This delayed flexibility and customization of actions
 extends usability of lists in Emacs.
 
 @subsubheading @kbd{C-m} or @kbd{RET} (@code{ivy-done})
-     Calls the default action and exits the minibuffer.
-
-
+@indentedblock
+Calls the default action and exits the minibuffer.
+@end indentedblock
 @subsubheading @kbd{M-o} (@code{ivy-dispatching-done})
-     Presents all available valid actions from which to choose. When
+@indentedblock
+Presents all available valid actions from which to choose. When
 there is only one action available, there is no difference
 between @kbd{M-o} and @kbd{C-m}.
-
-
+@end indentedblock
 @subsubheading @kbd{C-j} (@code{ivy-alt-done})
-     When completing file names, selects the current directory
+@indentedblock
+When completing file names, selects the current directory
 candidate and starts a new completion session there. Otherwise,
 it's the same as @code{ivy-done}.
-
-
+@end indentedblock
 @subsubheading @kbd{TAB} (@code{ivy-partial-or-done})
-     Attempts partial completion, extending current input as much as
+@indentedblock
+Attempts partial completion, extending current input as much as
 possible. @kbd{TAB TAB} is the same as @kbd{C-j}.
 
+Example ERT test:
 
+@lisp
+(should
+ (equal (ivy-with
+         '(progn
+           (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+           ivy-text)
+         "c <tab>")
+        "can"))
+@end lisp
+@end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
-     Exits with @emph{the current input} instead of @emph{the current candidate}
+@indentedblock
+Exits with @emph{the current input} instead of @emph{the current candidate}
 (like other commands).
 
 This is useful e.g. when you call @code{find-file} to create a new
 file, but the desired name matches an existing file. In that
 case, using @kbd{C-j} would select that existing file, which isn't
 what you want - use this command instead.
-
-
+@end indentedblock
 @subsubheading @kbd{C-'} (@code{ivy-avy})
-     Uses avy to select one of the candidates on the current candidate
+@indentedblock
+Uses avy to select one of the candidates on the current candidate
 page.  This can often be faster than multiple @kbd{C-n} or @kbd{C-p}
 keystrokes followed by @kbd{C-m}.
+@end indentedblock
 
 @node Key bindings for multiple selections and actions keep minibuffer open
 @subsection Key bindings for multiple selections and actions, keep minibuffer open
@@ -401,104 +478,112 @@ version of the regular commands that enables applying multiple
 actions.
 
 @subsubheading @kbd{C-M-m} (@code{ivy-call})
-     Is the non-exiting version of @kbd{C-m} (@code{ivy-done}).
+@indentedblock
+Is the non-exiting version of @kbd{C-m} (@code{ivy-done}).
 
 Instead of closing the minibuffer, @kbd{C-M-m} allows selecting
 another candidate or another action. For example, @kbd{C-M-m} on
 functions list invokes @code{describe-function}. When combined with
 @kbd{C-n}, function descriptions can be invoked quickly in
 succession.
-
-
+@end indentedblock
 @subsubheading @kbd{C-M-o} (@code{ivy-dispatching-call})
-     Is the non-exiting version of @kbd{M-o} (@code{ivy-dispatching-done}).
+@indentedblock
+Is the non-exiting version of @kbd{M-o} (@code{ivy-dispatching-done}).
 
 For example, during the @code{counsel-rhythmbox} completion, press
 @kbd{C-M-o e} to en-queue the selected candidate, followed by @kbd{C-n
      C-m} to play the next candidate - the current action reverts to
 the default one after @kbd{C-M-o}.
-
-
+@end indentedblock
 @subsubheading @kbd{C-M-n} (@code{ivy-next-line-and-call})
-     Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
+@indentedblock
+Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
 line.
 
 Comes in handy when opening multiple files from
 @code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag}, or
 @code{counsel-locate} lists. Just hold @kbd{C-M-n} for rapid-fire default
 action on each successive element of the list.
-
-
+@end indentedblock
 @subsubheading @kbd{C-M-p} (@code{ivy-previous-line-and-call})
-     Combines @kbd{C-p} and @kbd{C-M-m}.
+@indentedblock
+Combines @kbd{C-p} and @kbd{C-M-m}.
 
 Similar to the above except it moves through the list in the
 other direction.
-
-
+@end indentedblock
 @subsubheading @code{ivy-resume}
-     Recalls the state of the completion session just before its last exit.
+@indentedblock
+Recalls the state of the completion session just before its last exit.
 
 Useful after an accidental @kbd{C-m} (@code{ivy-done}).
+@end indentedblock
 
 @node Key bindings that alter the minibuffer input
 @subsection Key bindings that alter the minibuffer input
 
 @subsubheading @kbd{M-n} (@code{ivy-next-history-element})
-     Cycles forward through the Ivy command history.
+@indentedblock
+Cycles forward through the Ivy command history.
 
 Ivy updates an internal history list after each action. When this
 history list is empty, @kbd{M-n} inserts symbol (or URL) at point
 into the minibuffer.
-
-
+@end indentedblock
 @subsubheading @kbd{M-p} (@code{ivy-previous-history-element})
-     Cycles forward through the Ivy command history.
-
-
+@indentedblock
+Cycles forward through the Ivy command history.
+@end indentedblock
 @subsubheading @kbd{M-i} (@code{ivy-insert-current})
-     Inserts the current candidate into the minibuffer.
+@indentedblock
+Inserts the current candidate into the minibuffer.
 
 Useful for copying and renaming files, for example: @kbd{M-i} to
 insert the original file name string, edit it, and then @kbd{C-m} to
 complete the renaming.
-
-
+@end indentedblock
 @subsubheading @kbd{M-j} (@code{ivy-yank-word})
-     Inserts the sub-word at point into the minibuffer.
+@indentedblock
+Inserts the sub-word at point into the minibuffer.
 
 This is similar to @kbd{C-s C-w} with @code{isearch}. Ivy reserves @kbd{C-w}
 for @code{kill-region}.
-
-
+@end indentedblock
 @subsubheading @kbd{S-SPC} (@code{ivy-restrict-to-matches})
-     Deletes the current input, and resets the candidates list to the
+@indentedblock
+Deletes the current input, and resets the candidates list to the
 currently restricted matches.
 
 This is how Ivy provides narrowing in successive tiers.
-
-
+@end indentedblock
 @subsubheading @kbd{C-r} (@code{ivy-reverse-i-search})
-     Starts a recursive completion session through the command's
+@indentedblock
+Starts a recursive completion session through the command's
 history.
 
 This works just like @kbd{C-r} at the bash command prompt, where the
 completion candidates are the history items. Upon completion, the
 selected candidate string is inserted into the minibuffer.
+@end indentedblock
 
 @node Other key bindings
 @subsection Other key bindings
 
 @subsubheading @kbd{M-w} (@code{ivy-kill-ring-save})
-     Copies selected candidates to the kill ring.
+@indentedblock
+Copies selected candidates to the kill ring.
 
 When the region is active, copies active region instead.
+@end indentedblock
 
 @node Hydra in the minibuffer
 @subsection Hydra in the minibuffer
 
 @subsubheading @kbd{C-o} (@code{hydra-ivy/body})
-     Invokes the hydra menu with short key bindings.
+@indentedblock
+Invokes the hydra menu with short key bindings.
+@end indentedblock
 
 Minibuffer editing is disabled when Hydra is active. Instead, you get
 short aliases for the common commands:
@@ -543,73 +628,79 @@ Additionally, you get access to the folowing commands that are
 normally not bound:
 
 @subsubheading @kbd{c} (@code{ivy-toggle-calling})
-     Toggle calling the action after each candidate change. This
+@indentedblock
+Toggle calling the action after each candidate change. This
 effectively modifies @kbd{j} to @kbd{jg}, @kbd{k} to @kbd{kg} etc.
-
-
+@end indentedblock
 @subsubheading @kbd{m} (@code{ivy-toggle-fuzzy})
-     Toggle the current regexp matcher.
-
-
+@indentedblock
+Toggle the current regexp matcher.
+@end indentedblock
 @subsubheading @kbd{>} (@code{ivy-minibuffer-grow})
-     Increase @code{ivy-height} for the current minibuffer.
-
-
+@indentedblock
+Increase @code{ivy-height} for the current minibuffer.
+@end indentedblock
 @subsubheading @kbd{<} (@code{ivy-minibuffer-shrink})
-     Decrease @code{ivy-height} for the current minibuffer.
-
-
+@indentedblock
+Decrease @code{ivy-height} for the current minibuffer.
+@end indentedblock
 @subsubheading @kbd{w} (@code{ivy-prev-action})
-     Select the previous action.
-
-
+@indentedblock
+Select the previous action.
+@end indentedblock
 @subsubheading @kbd{s} (@code{ivy-next-action})
-     Select the next action.
-
-
+@indentedblock
+Select the next action.
+@end indentedblock
 @subsubheading @kbd{a} (@code{ivy-read-action})
-     Use a menu to select an action.
-
-
+@indentedblock
+Use a menu to select an action.
+@end indentedblock
 @subsubheading @kbd{C} (@code{ivy-toggle-case-fold})
-     Toggle case folding (matching both upper and lower case
+@indentedblock
+Toggle case folding (matching both upper and lower case
 characters with lower case input).
+@end indentedblock
 
 @node Saving the current completion session to a buffer
 @subsection Saving the current completion session to a buffer
 
 @subsubheading @kbd{C-c C-o} (@code{ivy-occur})
-     Saves the current candidates to a new buffer and exits
+@indentedblock
+Saves the current candidates to a new buffer and exits
 completion.
+@end indentedblock
 
 The new buffer is read-only and has a few useful bindings defined.
 
 @subsubheading @kbd{RET} or @kbd{j} (@code{ivy-occur-press})
-     Call the current action on the selected candidate.
-
-
+@indentedblock
+Call the current action on the selected candidate.
+@end indentedblock
 @subsubheading @kbd{mouse-1} (@code{ivy-occur-click})
-     Call the current action on the selected candidate.
-
-
+@indentedblock
+Call the current action on the selected candidate.
+@end indentedblock
 @subsubheading @kbd{j} (@code{next-line})
-     Move to next line.
-
-
+@indentedblock
+Move to next line.
+@end indentedblock
 @subsubheading @kbd{k} (@code{previous-line})
-     Move to previous line.
-
-
+@indentedblock
+Move to previous line.
+@end indentedblock
 @subsubheading @kbd{a} (@code{ivy-occur-read-action})
-     Read an action and make it current for this buffer.
-
-
+@indentedblock
+Read an action and make it current for this buffer.
+@end indentedblock
 @subsubheading @kbd{o} (@code{ivy-occur-dispatch})
-     Read an action and call it on the selected candidate.
-
-
+@indentedblock
+Read an action and call it on the selected candidate.
+@end indentedblock
 @subsubheading @kbd{q} (@code{quit-window})
-     Bury the current buffer.
+@indentedblock
+Bury the current buffer.
+@end indentedblock
 
 
 Ivy has no limit on the number of active buffers like these.
@@ -621,28 +712,64 @@ descriptive names, for example: @code{*ivy-occur counsel-describe-variable
 @node Completion styles
 @chapter Completion styles
 
-Ivy's completion functions rely on the highly configurable regex
-builder.
+Ivy's completion functions rely on a regex builder - a function that
+transforms a string input to a string regex. All current candidates
+simply have to match this regex. Each collection can be assigned its
+own regex builder by customizing @code{ivy-re-builders-alist}.
+
+The keys of this alist are collection names, and the values are one of:
+@itemize
+@item
+@code{ivy--regex}
+@item
+@code{ivy--regex-plus}
+@item
+@code{ivy--regex-ignore-order}
+@item
+@code{ivy--regex-fuzzy}
+@item
+@code{regexp-quote}
+@end itemize
+
+There's also a catch-all key @code{t} that applies to all collections that
+don't have their own key.
 
 The default is:
+
 @lisp
 (setq ivy-re-builders-alist
       '((t . ivy--regex-plus)))
 @end lisp
 
-The default @code{ivy--regex-plus} narrowing is always invoked unless
-specified otherwise. For example, file name completion may have a
-custom completion function:
+For example, here is how to assign a custom regex builder to file name
+completion:
+
 @lisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
 @end lisp
 
-Ivy's flexibility extends to using different styles of completion
-mechanics (regex-builders) for different types of lists. Despite this
-flexibility, Ivy operates within a consistent and uniform interface.
-The main regex-builders currently in Ivy are:
+Here, @code{read-file-name-internal} is a function passed as the second
+argument to @code{completing-read} when completing file names.
+
+The regex builder resolution is a follows, in order of priority:
+@enumerate
+@item
+@code{re-builder} argument passed to @code{ivy-read}.
+@item
+@code{collection} argument passed to @code{ivy-read} is a function and has an
+entry on @code{ivy-re-builders-alist}.
+@item
+@code{caller} argument passed to @code{ivy-read} has an entry on
+@code{ivy-re-builders-alist}.
+@item
+@code{this-command} has an entry on @code{ivy-re-builders-alist}.
+@item
+@code{t} has an entry on @code{ivy-re-builders-alist}.
+@item
+@code{ivy--regex}.
+@end enumerate
 @menu
 * ivy--regex-plus::
 * ivy--regex-ignore-order::
@@ -700,6 +827,742 @@ for @code{"for"} returns all @code{"f.*o.*r"} matches, resulting in a large
 number of hits.  Yet some searches need these extra hits. Ivy sorts
 such large lists using @code{flx} package's scoring mechanism, if it's
 installed.
+
+In case @code{ivy--regex-fuzzy} isn't your current regexp builder, you
+toggle it during completion with @kbd{C-o m}.
+
+@node Customization
+@chapter Customization
+
+@menu
+* Faces::
+* Defcustoms::
+* Actions::
+* Packages::
+@end menu
+
+@node Faces
+@section Faces
+
+@subsubheading @code{ivy-current-match}
+@indentedblock
+Highlights the currently selected candidate.
+@end indentedblock
+@subsubheading @code{ivy-minibuffer-match-face-1}
+@indentedblock
+Highlights the background of the match.
+@end indentedblock
+@subsubheading @code{ivy-minibuffer-match-face-2}
+@indentedblock
+Highlights the first (modulo 3) matched group.
+@end indentedblock
+@subsubheading @code{ivy-minibuffer-match-face-3}
+@indentedblock
+Highlights the second (modulo 3) matched group.
+@end indentedblock
+@subsubheading @code{ivy-minibuffer-match-face-4}
+@indentedblock
+Highlights the third (modulo 3) matched group.
+@end indentedblock
+@subsubheading @code{ivy-confirm-face}
+@indentedblock
+Highlights the "(confirm)" part of the prompt.
+
+Used in conjunction with the built-in
+@code{confirm-nonexistent-file-or-buffer} defcustom.  When you set
+this variable to @code{t}, you'll have to confirm non-existent files
+and buffer with another @kbd{RET} in @code{ivy-mode}.
+
+This face will be used to highlight the confirmation prompt.
+
+For example, use this setting:
+
+@lisp
+(setq confirm-nonexistent-file-or-buffer t)
+@end lisp
+
+Then call @code{find-file}, enter "eldorado" and press @kbd{RET} - the
+prompt will be appended with "(confirm)". Press @kbd{RET} once more
+to confirm, or any key to continue the completion.
+@end indentedblock
+@subsubheading @code{ivy-match-required-face}
+@indentedblock
+Highlights the "(match required)" part of the prompt.
+
+Sometimes, the Emacs functions that call completion specify to it
+that a match is required, i.e. you can't just type in some random
+stuff - you have to select one of the candidates given to you.
+In that case, @code{ivy-mode} will appropriately change the prompt.
+
+For example, call @code{describe-variable}, enter "waldo" and press
+@kbd{RET} - the prompt will be appended with "(match required)".
+Press any key and the prompt warning will disappear.
+@end indentedblock
+@subsubheading @code{ivy-subdir}
+@indentedblock
+Highlights directories when completing file names.
+@end indentedblock
+@subsubheading @code{ivy-remote}
+@indentedblock
+Highlights remote files when completing file names.
+@end indentedblock
+@subsubheading @code{ivy-virtual}
+@indentedblock
+Highlights virtual buffers when completing buffer names.
+
+Virtual buffers correspond to your bookmarks and the @code{recentf}
+list.
+
+Enable the virtual buffers like this:
+
+@lisp
+(setq ivy-use-virtual-buffers t)
+@end lisp
+@end indentedblock
+
+@node Defcustoms
+@section Defcustoms
+
+@defopt ivy-count-format
+A string that describes how to show the number of candidates and
+possibly the current candidate in the prompt.
+
+By default, the number of matching candidates will be shown as an
+integer with padding on the right.
+
+To disable showing the number of candidates:
+
+@lisp
+(setq ivy-count-format "")
+@end lisp
+
+To show the current candidate, in addition to the number of candidates:
+
+@lisp
+(setq ivy-count-format "(%d/%d) ")
+@end lisp
+
+This variable uses @code{format}-style switches, see the documentation
+of @code{format} for more info.
+@end defopt
+
+@defopt ivy-display-style
+Decides how to highlight the candidates in the minibuffer.
+
+The default setting is @code{'fancy} and it's available only for Emacs
+versions 24.5 or newer.
+
+Set this to @code{nil} to get a more plain minibuffer.
+@end defopt
+
+@defopt ivy-on-del-error-function
+Decides what to do when @kbd{DEL} (@code{ivy-backward-delete-char})
+throws.
+
+The default behavior is to quit the completion - this is handy if
+you invoke the completion by mistake.
+@end defopt
+
+@node Actions
+@section Actions
+
+@menu
+* What are actions?::
+* How can different actions be called?::
+* How can the action list be modified?::
+* Example - add two actions to each command::
+* Example - define a new command with several actions::
+@end menu
+
+@node What are actions?
+@subsection What are actions?
+
+An action is a function of a single argument that gets called after
+you select a candidate during completion. The selected candidate is
+passed to this function as a string argument.
+
+@subsubheading Window context when calling an action
+@indentedblock
+Currently, the action is executed in the minibuffer window
+context. This means e.g. that if you call @code{insert} the text will
+be inserted into the minibuffer.
+
+If you want to execute the action in the initial window from
+which the completion started, use the @code{with-ivy-window} wrapper
+macro.
+
+@lisp
+(defun ivy-insert-action (x)
+  (with-ivy-window
+    (insert x)))
+@end lisp
+@end indentedblock
+
+@node How can different actions be called?
+@subsection How can different actions be called?
+
+@itemize
+@item
+@kbd{C-m} (@code{ivy-done}) calls the current/default action.
+@item
+@kbd{M-o} (@code{ivy-dispatching-done}) selects among all actions, calls it
+and exits.
+@item
+@kbd{C-M-o} (@code{ivy-dispatching-call}) selects among all actions, calls it
+and doesn't exit.
+@end itemize
+
+@node How can the action list be modified?
+@subsection How can the action list be modified?
+
+Currently, you can append any amount of your own actions to the
+default list of actions. This can be done either for a specific
+command, or for all commands at once.
+
+Usually, the command has only one default action. The convention is to
+use single letters when selecting a command, and the letter @kbd{o} is
+designated for the default command. This way, @kbd{M-o o} should be always
+equivalent to @kbd{C-m}.
+
+@node Example - add two actions to each command
+@subsection Example - add two actions to each command
+
+The first action inserts the current candidate into the Ivy window -
+the window from which @code{ivy-read} was called.
+
+The second action copies the current candidate to the kill ring.
+
+@lisp
+(defun ivy-yank-action (x)
+  (kill-new x))
+
+(defun ivy-copy-to-buffer-action (x)
+  (with-ivy-window
+    (insert x)))
+
+(ivy-set-actions
+ t
+ '(("i" ivy-copy-to-buffer-action "insert")
+   ("y" ivy-yank-action "yank")))
+@end lisp
+
+Now in any completion session you can access @code{ivy-yank-action} with
+@kbd{M-o y} and @code{ivy-copy-to-buffer-action} with @kbd{M-o i}.
+@menu
+* How to undo adding the two actions::
+* How to add actions to a specific command::
+@end menu
+
+@node How to undo adding the two actions
+@subsubsection How to undo adding the two actions
+
+@code{ivy-set-actions} simply modifies the internal dict with new data, so
+you can set the extra actions list to @code{nil} by assigning @code{nil} value
+to the @code{t} key:
+
+@lisp
+(ivy-set-actions t nil)
+@end lisp
+
+@node How to add actions to a specific command
+@subsubsection How to add actions to a specific command
+
+Use the command name as the key:
+
+@lisp
+(ivy-set-actions
+ 'swiper
+ '(("i" ivy-copy-to-buffer-action "insert")
+   ("y" ivy-yank-action "yank")))
+@end lisp
+
+@node Example - define a new command with several actions
+@subsection Example - define a new command with several actions
+
+@lisp
+(defun my-action-1 (x)
+  (message "action-1: %s" x))
+
+(defun my-action-2 (x)
+  (message "action-2: %s" x))
+
+(defun my-action-3 (x)
+  (message "action-3: %s" x))
+
+(defun my-command-with-3-actions ()
+  (interactive)
+  (ivy-read "test: " '("foo" "bar" "baz")
+            :action '(1
+                      ("o" my-action-1 "action 1")
+                      ("j" my-action-2 "action 2")
+                      ("k" my-action-3 "action 3"))))
+@end lisp
+
+Here, the number determines the index of the default action.  For each
+action, the strings are used to describe it during the selection.
+@menu
+* Testing out the above function with @code{ivy-occur}::
+@end menu
+
+@node Testing out the above function with @code{ivy-occur}
+@subsubsection Testing out the above function with @code{ivy-occur}
+
+To examine each action with each candidate in a key-efficient way, try:
+
+@itemize
+@item
+Call @code{my-command-with-3-actions}.
+@item
+Press @kbd{C-c C-o} to close the completion and move to an ivy-occur buffer.
+@item
+Press @kbd{kkk} to move to the first candidate, since you're likely at the end of the buffer.
+@item
+Press @kbd{oo} to call the first action.
+@item
+Press @kbd{oj} and @kbd{ok} to call the second and the third actions.
+@item
+Press @kbd{j} to move to the next candidate
+@item
+@dots{}
+@end itemize
+
+@node Packages
+@section Packages
+
+@subsubheading @code{org-mode}
+@indentedblock
+With the most recent version, @code{org-mode} will obey
+@code{completing-read-function} (which @code{ivy-mode} sets), so it should
+work by default.  If you try it for refiling to headings with
+similar names, you'll really notice how much better @code{ivy-mode} is
+at it.
+@end indentedblock
+@subsubheading @code{magit}
+@indentedblock
+This setting is needed to use ivy completion:
+
+@lisp
+(setq magit-completing-read-function 'ivy-completing-read)
+@end lisp
+@end indentedblock
+@subsubheading @code{find-file-in-project}
+@indentedblock
+Will use ivy by default if it's available.
+@end indentedblock
+@subsubheading @code{projectile}
+@indentedblock
+This setting is needed to use ivy completion:
+
+@lisp
+(setq projectile-completion-system 'ivy)
+@end lisp
+@end indentedblock
+@subsubheading @code{helm-make}
+@indentedblock
+This setting is needed to use ivy completion:
+
+@lisp
+(setq helm-make-completion-method 'ivy)
+@end lisp
+@end indentedblock
+
+@node Commands
+@chapter Commands
+
+@menu
+* File Name Completion::
+* Buffer Name Completion::
+* Counsel commands::
+@end menu
+
+@node File Name Completion
+@section File Name Completion
+
+Since file name completion is so essential, ivy has a few extra
+bindings that work here.
+
+@subsubheading @kbd{C-j} (@code{ivy-alt-done})
+@indentedblock
+Use on a directory to restart the completion from that
+directory. Use it on a file or @code{./} to exit the completion with
+the selected candidate.
+@end indentedblock
+@subsubheading @kbd{DEL} (@code{ivy-backward-delete-char})
+@indentedblock
+When completing file names, and the current input is empty,
+restart the completion in the parent directory.
+@end indentedblock
+@subsubheading @kbd{//} (@code{self-insert-command})
+@indentedblock
+Switch to the root directory.
+@end indentedblock
+@subsubheading @kbd{~} (@code{self-insert-command})
+@indentedblock
+Switch to the home directory.
+@end indentedblock
+@subsubheading @kbd{/} (@code{self-insert-command})
+@indentedblock
+If the current input is precisely an existing directory, switch
+the completion to that directory.
+@end indentedblock
+@subsubheading @kbd{M-q} (@code{ivy-toggle-regexp-quote})
+@indentedblock
+Toggle between your input being a regexp and not.
+
+Since file names tend to include @code{.}, which matches any char in
+regexp mode, you might want to switch to matching literally.
+@end indentedblock
+@defopt ivy-extra-directories
+Decide if you want to see @code{../} and @code{./} during file name
+completion.
+
+You might want to remove @code{../}, since selecting it is the same as
+@kbd{DEL}. On the other hand, having it around makes it possible to
+navigate anywhere with only @kbd{C-n}, @kbd{C-p} and @kbd{C-j}.
+
+Similarly, @code{./} can be removed as well.
+@end defopt
+
+@subsubheading Using TRAMP
+@indentedblock
+Completion for TRAMP is supported in a peculiar way. From any
+directory, with the empty input, inputting @code{/ssh:} and pressing
+@kbd{C-j} (or @kbd{RET} which is the same thing) will give you a
+completion for host and user names.
+
+You can also input @code{/ssh:user@@} to get domain completion with
+user name already selected.
+
+Described above is a recommended and simple method of
+interaction. If you find it lacking, you can still use @kbd{C-i},
+which does largely the same as the default completion does.
+@end indentedblock
+@subsubheading History
+@indentedblock
+The history works with @kbd{M-p}, @kbd{M-n}, and @kbd{C-r}, as in all other
+completion sessions.  A custom history code was implemented for
+file name completion. This code will cycle you through all
+previous files that you opened, including the input with which
+the file was opened. It also works well with TRAMP.
+@end indentedblock
+
+@node Buffer Name Completion
+@section Buffer Name Completion
+
+@defopt ivy-use-virtual-buffers
+When non-nil, add @code{recentf-mode} and bookmarks to @code{ivy-switch-buffer}.
+
+If you add this to your setup:
+
+@lisp
+(setq ivy-use-virtual-buffers t)
+@end lisp
+when using @code{ivy-switch-buffer} additional buffers will be
+appended to your live buffer list. These buffers will be
+highlighted with the @code{ivy-virtual} face, and selecting them will
+open the corresponding file.
+@end defopt
+
+@node Counsel commands
+@section Counsel commands
+
+The main advantage of using @code{counsel-} functions over their basic
+equivalents with @code{ivy-mode} enabled are the following:
+
+@enumerate
+@item
+You can use everything related to multi-actions and non-exiting actions.
+@item
+You can use @code{ivy-resume} to resume your last completion session.
+@item
+You can customize them further with @code{ivy-set-actions}, @code{ivy-re-builders-alist}.
+@item
+You can customize their individual keymaps, like
+@code{counsel-describe-map}, @code{counsel-git-grep-map}, or
+@code{counsel-find-file-map}, instead of just customizing
+@code{ivy-minibuffer-map} that applies to all completion sessions.
+@end enumerate
+
+@node API
+@chapter API
+
+The main (and only) entry point is @code{ivy-read} function. It has only
+two required arguments and many optional arguments that you can pass
+by key. Although the @code{:action} argument is optional, it's very
+recommended that you use it, otherwise the extra features (as compared
+to the default completion) like multi-actions, non-exiting actions,
+@code{ivy-occur} and @code{ivy-resume} will not be possible.
+@menu
+* Required arguments for @code{ivy-read}::
+* Optional arguments for @code{ivy-read}::
+* Example - @code{counsel-describe-function}::
+* Example - @code{counsel-locate}::
+@end menu
+
+@node Required arguments for @code{ivy-read}
+@section Required arguments for @code{ivy-read}
+
+@subsubheading @code{prompt}
+@indentedblock
+A format string normally ending in a colon and a space.
+
+@code{%d} anywhere in the string is replaced by the current number of
+matching candidates. To use a literal @code{%} character, escape it as
+@code{%%}. See also @code{ivy-count-format}.
+@end indentedblock
+@subsubheading @code{collection}
+@indentedblock
+Either a list of strings, a function, an alist or a hash table.
+
+In case it's a function, it has to be compatible with
+@code{all-completions}.
+@end indentedblock
+
+@node Optional arguments for @code{ivy-read}
+@section Optional arguments for @code{ivy-read}
+
+@subsubheading @code{predicate}
+@indentedblock
+A function to filter the initial collection with, compatible with @code{all-completions}.
+@end indentedblock
+@subsubheading @code{require-match}
+@indentedblock
+When non-nil, don't let the user exit with a custom input - it
+must match one of the candidates.
+@end indentedblock
+@subsubheading @code{initial-input}
+@indentedblock
+A string to be initially inserted into the minibuffer. This
+argument is included for compatibility with
+@code{completing-read}. Consider using the @code{preselect} argument
+instead - it's often superior.
+@end indentedblock
+@subsubheading @code{history}
+@indentedblock
+A symbol name to store the history. See @code{completing-read}.
+@end indentedblock
+@subsubheading @code{preselect}
+@indentedblock
+When it's a string, make the first candidate matching this string
+initially selected.
+
+When it's an integer, make the candidate with that index
+initially selected.
+
+Every time the input becomes empty, the item corresponding to to
+@code{preselect} is selected.
+@end indentedblock
+@subsubheading @code{keymap}
+@indentedblock
+A keymap to be composed with @code{ivy-minibuffer-map}. This keymap
+has priority over @code{ivy-minibuffer-map} and can be modified at any
+later stage.
+@end indentedblock
+@subsubheading @code{update-fn}
+@indentedblock
+A function to call each time the current candidate is changed.
+This function takes no arguments and is called in the
+minibuffer's @code{post-command-hook}. See @code{swiper} for an example
+usage.
+@end indentedblock
+@subsubheading @code{sort}
+@indentedblock
+When non-nil, use @code{ivy-sort-functions-alist} to sort the given
+collection. The collection will not be sorted when it's larger
+than @code{ivy-sort-max-size}.
+@end indentedblock
+@subsubheading @code{action}
+@indentedblock
+A function to call after a result is selected. Takes a single
+string argument.
+@end indentedblock
+@subsubheading @code{unwind}
+@indentedblock
+A function with no arguments to call before exiting
+completion. This function is called even if the completion is
+interrupted with e.g. @kbd{C-g}. See @code{swiper} for an example usage.
+@end indentedblock
+@subsubheading @code{re-builder}
+@indentedblock
+A function that takes a string and returns a corresponding regex.
+See the section on completion styles.
+@end indentedblock
+@subsubheading @code{matcher}
+@indentedblock
+A function that takes a regex and a list of strings and returns a
+list of strings that "match" the regex. Normally a
+straightforward function is used. Use this argument to really
+fine-tune the matching process. See @code{counsel-find-file} for an
+example usage.
+@end indentedblock
+@subsubheading @code{dynamic-collection}
+@indentedblock
+When non-nil, @code{collection} will be used to dynamically generate
+the candidates each time the input changes, instead of being used
+once statically with @code{all-completions} to generate a list of
+strings. See @code{counsel-locate} for an example usage.
+@end indentedblock
+@subsubheading @code{caller}
+@indentedblock
+A symbol to uniquely identify the function that called
+@code{ivy-read}.  This is useful in all kinds of customization
+scenarios.
+@end indentedblock
+
+@node Example - @code{counsel-describe-function}
+@section Example - @code{counsel-describe-function}
+
+This is a typical example of a function with a non-async collection:
+all the strings in the collection are known before the user does any
+input.
+
+Note that only the first two arguments (and the @code{action}) are really
+important - the rest is just fine-tuning and could be omitted.
+
+The @code{action} argument could also be omitted - but then @code{ivy-read}
+would no nothing except returning the string result, which you could
+later use yourself. However, it's recommended that you use the
+@code{action} argument.
+
+@lisp
+(defun counsel-describe-function ()
+  "Forward to `describe-function'."
+  (interactive)
+  (ivy-read "Describe function: "
+            (let (cands)
+              (mapatoms
+               (lambda (x)
+                 (when (fboundp x)
+                   (push (symbol-name x) cands))))
+              cands)
+            :keymap counsel-describe-map
+            :preselect (counsel-symbol-at-point)
+            :history 'counsel-describe-symbol-history
+            :require-match t
+            :sort t
+            :action (lambda (x)
+                      (describe-function
+                       (intern x)))
+            :caller 'counsel-describe-function))
+@end lisp
+
+Here are the interesting features of the above function, in the order that they appear:
+
+@itemize
+@item
+The @code{prompt} argument is a simple string ending in ": ".
+@item
+The @code{collection} argument evaluates to a (large) list of strings.
+@item
+The @code{keymap} argument allows for a custom keymap to supplement @code{ivy-minibuffer-map}.
+@item
+The @code{history} argument ensures that the command has its own history,
+and doesn't need to share the common history @code{ivy-history} that all
+commands without their own history share.
+@item
+The @code{require-match} is set to @code{t}, since it doesn't make sense to
+call @code{describe-function} on an un-interned symbol.
+@item
+The @code{sort} argument is set to @code{t}, since it's usually useful to have
+functions with similar names be close to each other in the candidate
+list. However, after loading many packages the collection often
+exceeds the default value of @code{ivy-sort-max-size} (30000). The user
+can customize this variable to decide which is more important: the
+sorting or the completion start-up time.
+@item
+The @code{action} argument calls @code{describe-function} on the interned
+selected candidate.
+@item
+The @code{caller} argument identifies this completion session. This is
+important, since with the collection being a list of strings and not
+a function name, the only other way for @code{ivy-read} to identify
+"who's calling" and to apply the appropriate customizations is to
+examine @code{this-command}. But @code{this-command} would be modified if
+another command called @code{counsel-describe-function}.
+@end itemize
+
+@node Example - @code{counsel-locate}
+@section Example - @code{counsel-locate}
+
+This is a typical example of a function with an async collection.
+Since we can't pre-compute all the collection items valid for an empty
+input and store them in the memory, the collection function is called
+each time the user updates the input.  However, while the returned
+list of strings is used immediately (usually it's something like
+@code{'("please wait...")}), it's expected of the collection function to
+make a call to @code{start-process} and update the minibuffer text at some
+point when the process is finished.
+
+Async collections are a good fit for long-running shell commands, like
+@code{locate}. As soon as there is enough input, a new process is started
+and the old process is killed (since the old input is no longer
+relevant). The user can either type more or wait for the already
+running process to finish and update the minibuffer.
+
+@lisp
+(defun counsel-locate-function (str)
+  (if (< (length str) 3)
+      (counsel-more-chars 3)
+    (counsel--async-command
+     (format "locate %s '%s'"
+             (mapconcat #'identity counsel-locate-options " ")
+             (counsel-unquote-regex-parens
+              (ivy--regex str))))
+    '("" "working...")))
+
+;;;###autoload
+(defun counsel-locate (&optional initial-input)
+  "Call the \"locate\" shell command.
+INITIAL-INPUT can be given as the initial minibuffer input."
+  (interactive)
+  (ivy-read "Locate: " #'counsel-locate-function
+            :initial-input initial-input
+            :dynamic-collection t
+            :history 'counsel-locate-history
+            :action (lambda (file)
+                      (with-ivy-window
+                        (when file
+                          (find-file file))))
+            :unwind #'counsel-delete-process
+            :caller 'counsel-locate))
+@end lisp
+
+Here are the interesting features of the above functions, in the order
+that they appear:
+
+@itemize
+@item
+@code{counsel-locate-function} takes a string argument and returns a list
+of strings. Note that it's not compatible with @code{all-completions},
+but since we're not using that here, might as well use one argument
+instead of three.
+@item
+@code{counsel-more-chars} is a simple function that returns e.g.
+@code{'("2 chars more")} asking the user for more input.
+@item
+@code{counsel--async-command} is a very easy API simplification that
+takes a single string argument suitable for
+@code{shell-command-to-string}. So you could prototype your function as
+non-async using @code{shell-command-to-string} and @code{split-string} to
+produce a collection, then decide that you want async and simply swap in
+@code{counsel--async-command}.
+@item
+@code{counsel-locate} is an interactive function with optional @code{initial-input}.
+@item
+@code{#'counsel-locate-function} is passed as the @code{collection} argument.
+@item
+@code{dynamic-collection} argument is set to t, since we have an async collection.
+@item
+@code{action} argument uses @code{with-ivy-window} wrapper, since we want to open the
+selected file in the same window from which @code{counsel-locate} was
+called.
+@item
+@code{unwind} argument is set to @code{#'counsel-delete-process}: when we press @kbd{C-g}
+we want to kill the running process created by
+@code{counsel--async-command}.
+@item
+@code{caller} argument identifies this command for easier customization.
+@end itemize
 
 @node Variable Index
 @unnumbered Variable Index
