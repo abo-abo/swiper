@@ -2485,9 +2485,9 @@ CANDS is a list of strings."
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
-(defcustom ivy-ignore-buffers nil
-  "List of regexps matching buffer names to ignore."
-  :type '(repeat regexp))
+(defcustom ivy-ignore-buffers '("\\` ")
+  "List of regexps or functions matching buffer names to ignore."
+  :type '(repeat (choice regexp function)))
 
 (defun ivy--buffer-list (str &optional virtual)
   "Return the buffers that match STR.
@@ -2562,8 +2562,10 @@ Skip buffers that match `ivy-ignore-buffers'."
       (or (cl-remove-if
            (lambda (buf)
              (cl-find-if
-              (lambda (regexp)
-                (string-match regexp buf))
+              (lambda (f-or-r)
+                (if (functionp f-or-r)
+                    (funcall ff buf)
+                  (string-match-p f-or-r buf)))
               ivy-ignore-buffers))
            res)
           res))))
