@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-09 Tue 17:53 -->
+<!-- 2016-02-09 Tue 17:58 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -112,9 +112,9 @@ for the JavaScript code in this tag.
 <li><a href="#defcustoms">7.2. Defcustoms</a></li>
 <li><a href="#actions">7.3. Actions</a>
 <ul>
-<li><a href="#what-are-actions?">7.3.1. What are actions?</a></li>
-<li><a href="#how-can-different-actions-be-called?">7.3.2. How can different actions be called?</a></li>
-<li><a href="#how-can-the-action-list-be-modified?">7.3.3. How can the action list be modified?</a></li>
+<li><a href="#what-are-actions">7.3.1. What are actions?</a></li>
+<li><a href="#how-can-different-actions-be-called">7.3.2. How can different actions be called?</a></li>
+<li><a href="#how-can-the-action-list-be-modified">7.3.3. How can the action list be modified?</a></li>
 <li><a href="#example---add-two-actions-to-each-command">7.3.4. Example - add two actions to each command</a>
 <ul>
 <li><a href="#how-to-undo-adding-the-two-actions">7.3.4.1. How to undo adding the two actions</a></li>
@@ -1167,8 +1167,8 @@ you invoke the completion by mistake.
 <div class="outline-text-3" id="text-actions">
 </div>
 <div id="outline-container-orgheadline24" class="outline-4">
-<h4 id="what-are-actions?"><a id="orgheadline24"></a><span class="section-number-4">7.3.1</span> What are actions?</h4>
-<div class="outline-text-4" id="text-what-are-actions?">
+<h4 id="what-are-actions"><a id="orgheadline24"></a><span class="section-number-4">7.3.1</span> What are actions?</h4>
+<div class="outline-text-4" id="text-what-are-actions">
 <p>
 An action is a function of a single argument that gets called after
 you select a candidate during completion. The selected candidate is
@@ -1200,8 +1200,8 @@ macro.
 </div>
 
 <div id="outline-container-orgheadline25" class="outline-4">
-<h4 id="how-can-different-actions-be-called?"><a id="orgheadline25"></a><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
-<div class="outline-text-4" id="text-how-can-different-actions-be-called?">
+<h4 id="how-can-different-actions-be-called"><a id="orgheadline25"></a><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
+<div class="outline-text-4" id="text-how-can-different-actions-be-called">
 <ul class="org-ul">
 <li><kbd>C-m</kbd> (<code>ivy-done</code>) calls the current/default action.</li>
 <li><kbd>M-o</kbd> (<code>ivy-dispatching-done</code>) selects among all actions, calls it
@@ -1213,8 +1213,8 @@ and doesn't exit.</li>
 </div>
 
 <div id="outline-container-orgheadline26" class="outline-4">
-<h4 id="how-can-the-action-list-be-modified?"><a id="orgheadline26"></a><span class="section-number-4">7.3.3</span> How can the action list be modified?</h4>
-<div class="outline-text-4" id="text-how-can-the-action-list-be-modified?">
+<h4 id="how-can-the-action-list-be-modified"><a id="orgheadline26"></a><span class="section-number-4">7.3.3</span> How can the action list be modified?</h4>
+<div class="outline-text-4" id="text-how-can-the-action-list-be-modified">
 <p>
 Currently, you can append any amount of your own actions to the
 default list of actions. This can be done either for a specific
