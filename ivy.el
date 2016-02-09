@@ -2482,7 +2482,8 @@ Skip buffers that match `ivy-ignore-buffers'."
                 :matcher #'ivy--switch-buffer-matcher
                 :preselect (buffer-name (other-buffer (current-buffer)))
                 :action #'ivy--switch-buffer-action
-                :keymap ivy-switch-buffer-map))))
+                :keymap ivy-switch-buffer-map
+                :caller 'ivy-switch-buffer))))
 
 ;;;###autoload
 (defun ivy-switch-buffer-other-window ()
@@ -2491,7 +2492,8 @@ Skip buffers that match `ivy-ignore-buffers'."
   (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
             :preselect (buffer-name (other-buffer (current-buffer)))
             :action #'ivy--switch-buffer-other-window-action
-            :keymap ivy-switch-buffer-map))
+            :keymap ivy-switch-buffer-map
+            :caller 'ivy-switch-buffer-other-window))
 
 ;;;###autoload
 (defun ivy-recentf ()
@@ -2501,7 +2503,8 @@ Skip buffers that match `ivy-ignore-buffers'."
             :action
             (lambda (f)
               (with-ivy-window
-                (find-file f)))))
+                (find-file f)))
+            :caller 'ivy-recentf))
 
 (defun ivy-yank-word ()
   "Pull next word from buffer into search string."

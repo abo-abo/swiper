@@ -971,7 +971,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (ivy-read "Load custom theme: "
             (mapcar 'symbol-name
                     (custom-available-themes))
-            :action #'counsel--load-theme-action))
+            :action #'counsel--load-theme-action
+            :caller 'counsel-load-theme))
 
 (defvar rhythmbox-library)
 (declare-function rhythmbox-load-library "ext:helm-rhythmbox")
@@ -1164,7 +1165,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
                   (delete-dups
                    (all-completions str 'org-tags-completion-function)))
                 :history 'org-tags-history
-                :action 'counsel-org-tag-action))))
+                :action 'counsel-org-tag-action
+                :caller 'counsel-org-tag))))
 
 ;;;###autoload
 (defun counsel-org-tag-agenda ()
@@ -1210,7 +1212,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :action #'counsel-git-grep-action
             :unwind (lambda ()
                       (counsel-delete-process)
-                      (swiper--cleanup))))
+                      (swiper--cleanup))
+            :caller 'counsel-ag))
 
 ;;;###autoload
 (defun counsel-grep ()
@@ -1288,7 +1291,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                         (let ((file-name (match-string 1 x)))
                           (find-file file-name)
                           (unless (string-match "pdf$" x)
-                            (swiper ivy-text)))))))
+                            (swiper ivy-text)))))
+            :caller 'counsel-recoll))
 
 (defvar tmm-km-list nil)
 (declare-function tmm-get-keymap "tmm")
@@ -1387,7 +1391,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (let ((ivy-format-function #'counsel--yank-pop-format-function)
           (ivy-height 5))
       (ivy-read "kill-ring: " candidates
-                :action 'counsel-yank-pop-action))))
+                :action 'counsel-yank-pop-action
+                :caller 'counsel-yank-pop))))
 
 (defun counsel-yank-pop-action (s)
   "Insert S into the buffer, overwriting the previous yank."
@@ -1433,7 +1438,8 @@ PREFIX is used to create the key."
                         (with-ivy-window
                           ;; In org-mode, (imenu candidate) will expand child node
                           ;; after jump to the candidate position
-                          (imenu candidate))))))
+                          (imenu candidate)))
+              :caller 'counsel-imenu)))
 
 (defun counsel--descbinds-cands ()
   (let ((buffer (current-buffer))
@@ -1491,8 +1497,8 @@ Describe the selected candidate."
   (interactive)
   (ivy-read "Bindings: " (counsel--descbinds-cands)
             :action #'counsel-descbinds-action-describe
-            :caller 'counsel-descbinds
-            :history 'counsel-descbinds-history))
+            :history 'counsel-descbinds-history
+            :caller 'counsel-descbinds))
 
 (ivy-set-actions
  'counsel-descbinds
@@ -1522,7 +1528,8 @@ An extra action allows to switch to the process buffer."
             :action
             '(1
               ("o" counsel-list-processes-action-delete "kill")
-              ("s" counsel-list-processes-action-switch "switch"))))
+              ("s" counsel-list-processes-action-switch "switch"))
+            :caller 'counsel-list-processes))
 
 (defun counsel-git-stash-kill-action (x)
   (when (string-match "\\([^:]+\\):" x)
@@ -1541,7 +1548,9 @@ for i in `git stash list --format=\"%gd\"`; do
     git stash show -p $i | grep -H --label=\"$i\" \"$1\"
 done") "\n" t)))
         (ivy-read "git stash: " cands
-                  :action 'counsel-git-stash-kill-action)))))
+                  :action 'counsel-git-stash-kill-action
+                  :caller 'counsel-git-stash)))))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
