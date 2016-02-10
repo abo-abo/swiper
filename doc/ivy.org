@@ -1137,7 +1137,7 @@ Note that only the first two arguments (and the =action=) are really
 important - the rest is just fine-tuning and could be omitted.
 
 The =action= argument could also be omitted - but then =ivy-read=
-would no nothing except returning the string result, which you could
+would do nothing except returning the string result, which you could
 later use yourself. However, it's recommended that you use the
 =action= argument.
 
@@ -1168,6 +1168,11 @@ Here are the interesting features of the above function, in the order that they 
 - The =prompt= argument is a simple string ending in ": ".
 - The =collection= argument evaluates to a (large) list of strings.
 - The =keymap= argument allows for a custom keymap to supplement =ivy-minibuffer-map=.
+- The =preselect= is provided via =counsel-symbol-at-point=. This way,
+  if the point lies on a symbol or a word, ivy will try to pre-select
+  the first candidate that matches this symbol. If it happens to be
+  the candidate that the user wanted, it can be selected with ~RET~
+  and no need for further input.
 - The =history= argument ensures that the command has its own history,
   and doesn't need to share the common history =ivy-history= that all
   commands without their own history share.

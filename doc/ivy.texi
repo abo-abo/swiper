@@ -88,8 +88,8 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -362,8 +362,8 @@ fully capable editing area: bindings like @kbd{C-a}, @kbd{C-f}, @kbd{M-d},
 @code{fundamental-mode} buffer.
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -1420,7 +1420,7 @@ Note that only the first two arguments (and the @code{action}) are really
 important - the rest is just fine-tuning and could be omitted.
 
 The @code{action} argument could also be omitted - but then @code{ivy-read}
-would no nothing except returning the string result, which you could
+would do nothing except returning the string result, which you could
 later use yourself. However, it's recommended that you use the
 @code{action} argument.
 
@@ -1455,6 +1455,12 @@ The @code{prompt} argument is a simple string ending in ": ".
 The @code{collection} argument evaluates to a (large) list of strings.
 @item
 The @code{keymap} argument allows for a custom keymap to supplement @code{ivy-minibuffer-map}.
+@item
+The @code{preselect} is provided via @code{counsel-symbol-at-point}. This way,
+if the point lies on a symbol or a word, ivy will try to pre-select
+the first candidate that matches this symbol. If it happens to be
+the candidate that the user wanted, it can be selected with @kbd{RET}
+and no need for further input.
 @item
 The @code{history} argument ensures that the command has its own history,
 and doesn't need to share the common history @code{ivy-history} that all
