@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-02-09 Tue 17:58 -->
+<!-- 2016-02-10 Wed 12:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -1624,7 +1624,7 @@ important - the rest is just fine-tuning and could be omitted.
 
 <p>
 The <code>action</code> argument could also be omitted - but then <code>ivy-read</code>
-would no nothing except returning the string result, which you could
+would do nothing except returning the string result, which you could
 later use yourself. However, it's recommended that you use the
 <code>action</code> argument.
 </p>
@@ -1661,6 +1661,11 @@ Here are the interesting features of the above function, in the order that they 
 <li>The <code>prompt</code> argument is a simple string ending in ": ".</li>
 <li>The <code>collection</code> argument evaluates to a (large) list of strings.</li>
 <li>The <code>keymap</code> argument allows for a custom keymap to supplement <code>ivy-minibuffer-map</code>.</li>
+<li>The <code>preselect</code> is provided via <code>counsel-symbol-at-point</code>. This way,
+if the point lies on a symbol or a word, ivy will try to pre-select
+the first candidate that matches this symbol. If it happens to be
+the candidate that the user wanted, it can be selected with <kbd>RET</kbd>
+and no need for further input.</li>
 <li>The <code>history</code> argument ensures that the command has its own history,
 and doesn't need to share the common history <code>ivy-history</code> that all
 commands without their own history share.</li>
