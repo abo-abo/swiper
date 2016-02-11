@@ -505,8 +505,8 @@ Matched candidates should have `swiper-invocation-face'."
                   (when swiper--current-match-start
                     (goto-char swiper--current-match-start))
                 (setq swiper--current-line num))
-              (re-search-forward re (line-end-position) t)
-              (setq swiper--current-match-start (match-beginning 0)))
+              (when (re-search-forward re (line-end-position) t)
+                (setq swiper--current-match-start (match-beginning 0))))
             (isearch-range-invisible (line-beginning-position)
                                      (line-end-position))
             (unless (and (>= (point) (window-start))
