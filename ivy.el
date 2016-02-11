@@ -851,7 +851,17 @@ Call the permanent action if possible."
 (defun ivy-next-history-element (arg)
   "Forward to `next-history-element' with ARG."
   (interactive "p")
-  (next-history-element arg)
+  (if (= minibuffer-history-position 0)
+      (progn
+        (insert ivy--default)
+        (when (and (with-ivy-window (derived-mode-p 'prog-mode))
+                   (> (point) (minibuffer-prompt-end)))
+          (undo-boundary)
+          (insert "\\b")
+          (goto-char (minibuffer-prompt-end))
+          (insert "\\b")
+          (forward-char (+ 2 (length ivy--default)))))
+    (next-history-element arg))
   (ivy--cd-maybe)
   (move-end-of-line 1)
   (ivy--maybe-scroll-history))
