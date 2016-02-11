@@ -451,6 +451,29 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               :history 'counsel-git-grep-history
               :caller 'counsel-git-grep)))
 
+(defun counsel-git-grep-occur ()
+  "Generate a custom occur buffer for `counsel-git-grep'."
+  (ivy-occur-grep-mode)
+  (setq default-directory counsel--git-grep-dir)
+  (let ((cands (split-string
+                (shell-command-to-string
+                 (format counsel-git-grep-cmd
+                         (if (stringp ivy--old-re)
+                             ivy--old-re
+                           (caar ivy--old-re))))
+                "\n"
+                t)))
+    ;; Need precise number of header lines for `wgrep' to work.
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                    default-directory))
+    (insert (format "%d candidates:\n" (length cands)))
+    (ivy--occur-insert-lines
+     (mapcar
+      (lambda (cand) (concat "./" cand))
+      cands))))
+
+(ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
+
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
   :type 'boolean

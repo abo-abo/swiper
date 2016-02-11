@@ -2611,7 +2611,23 @@ buffer would modify `ivy-last'.")
 
 \\{ivy-occur-grep-mode-map}")
 
-(defvar counsel-git-grep-cmd)
+(defvar ivy--occurs-list nil
+  "A list of custom occur generators per command.")
+
+(defun ivy-set-occur (cmd occur)
+  "Assign CMD a custom OCCUR function."
+  (setq ivy--occurs-list
+        (plist-put ivy--occurs-list cmd occur)))
+
+(defun ivy--occur-insert-lines (cands)
+  (dolist (str cands)
+    (add-text-properties
+     0 (length str)
+     `(mouse-face
+       highlight
+       help-echo "mouse-1: call ivy-action")
+     str)
+    (insert str "\n")))
 
 (defun ivy-occur ()
   "Stop completion and put the current matches into a new buffer.
@@ -2623,51 +2639,29 @@ a mouse click will call the appropriate action for that candidate.
 
 There is no limit on the number of *ivy-occur* buffers."
   (interactive)
-  (let ((buffer
-         (generate-new-buffer
-          (format "*ivy-occur%s \"%s\"*"
-                  (let (caller)
-                    (if (setq caller (ivy-state-caller ivy-last))
-                        (concat " " (prin1-to-string caller))
-                      ""))
-                  ivy-text)))
-        (do-grep (eq (ivy-state-caller ivy-last) 'counsel-git-grep)))
+  (let* ((caller (ivy-state-caller ivy-last))
+         (occur-fn (plist-get ivy--occurs-list caller))
+         (buffer
+          (generate-new-buffer
+           (format "*ivy-occur%s \"%s\"*"
+                   (if caller
+                       (concat " " (prin1-to-string caller))
+                     "")
+                   ivy-text))))
     (with-current-buffer buffer
-      (if do-grep
-          (progn
-            (setq ivy--old-cands
-                  (split-string
-                   (shell-command-to-string
-                    (format counsel-git-grep-cmd
-                            (if (stringp ivy--old-re)
-                                ivy--old-re
-                              (caar ivy--old-re))))
-                   "\n"
-                   t))
-            (ivy-occur-grep-mode))
-        (ivy-occur-mode))
-      (setf (ivy-state-text ivy-last) ivy-text)
-      (setq ivy-occur-last ivy-last)
-      (setq-local ivy--directory ivy--directory)
       (let ((inhibit-read-only t))
         (erase-buffer)
-        (when do-grep
-          ;; Need precise number of header lines for `wgrep' to work.
-          (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                          (setq default-directory
-                                counsel--git-grep-dir))))
-        (insert (format "%d candidates:\n" (length ivy--old-cands)))
-        (dolist (cand ivy--old-cands)
-          (let ((str (if do-grep
-                         (concat "./" cand)
-                       (concat "    " cand))))
-            (add-text-properties
-             0 (length str)
-             `(mouse-face
-               highlight
-               help-echo "mouse-1: call ivy-action")
-             str)
-            (insert str "\n")))))
+        (if occur-fn
+            (funcall occur-fn)
+          (ivy-occur-mode)
+          (insert (format "%d candidates:\n" (length ivy--old-cands)))
+          (ivy--occur-insert-lines
+           (mapcar
+            (lambda (cand) (concat "    " cand))
+            ivy--old-cands))))
+      (setf (ivy-state-text ivy-last) ivy-text)
+      (setq ivy-occur-last ivy-last)
+      (setq-local ivy--directory ivy--directory))
     (ivy-exit-with-action
      `(lambda (_) (pop-to-buffer ,buffer)))))
 

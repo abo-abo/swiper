@@ -325,6 +325,36 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy initial-input))
 
+(defun swiper-occur ()
+  "Generate a custom occur buffer for `swiper'."
+  (ivy-occur-grep-mode)
+  (font-lock-mode -1)
+  (let* ((fname (propertize
+                 (with-ivy-window
+                   (file-name-nondirectory
+                    (buffer-file-name)))
+                 'face
+                 'compilation-info))
+         (cands (mapcar
+                 (lambda (s)
+                   (format "%s:%s:%s"
+                           fname
+                           (propertize
+                            (string-trim-right
+                             (get-text-property 0 'display s))
+                            'face 'compilation-line-number)
+                           (substring s 1)))
+                 ivy--old-cands)))
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                    default-directory))
+    (insert (format "%d candidates:\n" (length cands)))
+    (ivy--occur-insert-lines
+     (mapcar
+      (lambda (cand) (concat "./" cand))
+      cands))))
+
+(ivy-set-occur 'swiper 'swiper-occur)
+
 (declare-function evil-jumper--set-jump "ext:evil-jumper")
 
 (defvar swiper--current-line nil)
@@ -537,29 +567,33 @@ WND, when specified is the window."
 
 (defun swiper--action (x)
   "Goto line X."
-  (if (null x)
-      (user-error "No candidates")
-    (with-ivy-window
-      (unless (equal (current-buffer)
-                     (ivy-state-buffer ivy-last))
-        (switch-to-buffer (ivy-state-buffer ivy-last)))
-      (goto-char (point-min))
-      (funcall (if swiper-use-visual-line
-                   #'line-move
-                 #'forward-line)
-               (1- (read (get-text-property 0 'display x))))
-      (re-search-forward
-       (ivy--regex ivy-text) (line-end-position) t)
-      (swiper--ensure-visible)
-      (when (/= (point) swiper--opoint)
-        (unless (and transient-mark-mode mark-active)
-          (when (eq ivy-exit 'done)
-            (push-mark swiper--opoint t)
-            (message "Mark saved where search started"))))
-      (add-to-history
-       'regexp-search-ring
-       (ivy--regex ivy-text)
-       regexp-search-ring-max))))
+  (let ((ln (1- (read (if (memq this-command '(ivy-occur-press))
+                          (when (string-match ":\\([0-9]+\\):.*\\'" x)
+                            (match-string-no-properties 1 x))
+                        (get-text-property 0 'display x)))))
+        (re (ivy--regex ivy-text)))
+    (if (null x)
+        (user-error "No candidates")
+      (with-ivy-window
+        (unless (equal (current-buffer)
+                       (ivy-state-buffer ivy-last))
+          (switch-to-buffer (ivy-state-buffer ivy-last)))
+        (goto-char (point-min))
+        (funcall (if swiper-use-visual-line
+                     #'line-move
+                   #'forward-line)
+                 ln)
+        (re-search-forward re (line-end-position) t)
+        (swiper--ensure-visible)
+        (when (/= (point) swiper--opoint)
+          (unless (and transient-mark-mode mark-active)
+            (when (eq ivy-exit 'done)
+              (push-mark swiper--opoint t)
+              (message "Mark saved where search started"))))
+        (add-to-history
+         'regexp-search-ring
+         re
+         regexp-search-ring-max)))))
 
 ;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
 (defun swiper-from-isearch ()
