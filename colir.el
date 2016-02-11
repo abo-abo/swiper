@@ -77,11 +77,11 @@ Optional argument OBJECT is the string or buffer containing the text.
 See also `font-lock-append-text-property'."
   (let (next prev)
     (while (/= start end)
-      (setq next (next-single-property-change start 'face object end)
-            prev (get-text-property start 'face object))
+      (setq next (next-single-property-change start 'face object end))
+      (setq prev (get-text-property start 'face object))
       (when (listp prev)
         (setq prev (cl-find-if #'atom prev)))
-      (if prev
+      (if (facep prev)
           (let ((background-prev (face-background prev)))
             (progn
               (put-text-property
