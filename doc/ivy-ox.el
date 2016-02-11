@@ -129,10 +129,24 @@ contextual information."
                                     (string-trim
                                      (substring s (1+ (match-end 1))))))
                            ((string-match "\\(.*\\)$" s)
-                            (format "@subsubheading %s\n@indentedblock\n%s\n@end indentedblock"
-                                    (match-string 1 s)
-                                    (string-trim
-                                     (substring s (1+ (match-end 1))))))
+                            (let* ((line (match-string 1 s))
+                                   (body (string-trim
+                                          (substring s (1+ (match-end 1)))))
+                                   (symbol-index
+                                    (if (string-match "@code{\\(\\(?:ivy\\|swiper\\|counsel\\)-[^}]+\\)}" line)
+                                        (format "@vindex %s\n" (match-string 1 line))
+                                      ""))
+                                   (key-index
+                                    (apply #'concat
+                                           (mapcar
+                                            (lambda (s)
+                                              (format "@kindex %s\n" s))
+                                            (iox-extract-kbd line)))))
+                              (format "@subsubheading %s\n%s@indentedblock\n%s\n@end indentedblock"
+                                      line
+                                      (concat symbol-index
+                                              key-index)
+                                      body)))
                            (t
                             (concat "@subsubheading " s))))
                    (split-string (substring-no-properties contents) "^@item " t)
@@ -141,6 +155,14 @@ contextual information."
               (if (eq type 'descriptive) (concat list-type " " indic) list-type)
               contents
               list-type))))
+
+(defun iox-extract-kbd (str)
+  (let ((start 0)
+        res)
+    (while (string-match "@kbd{\\([^}]+\\)}" str start)
+      (setq start (match-end 0))
+      (push (match-string 1 str) res))
+    (nreverse res)))
 
 ;;* ox-html
 (require 'ox-html)
@@ -154,5 +176,18 @@ contextual information."
         (underline . "<span class=\"underline\">%s</span>")
         (verbatim . "<code>%s</code>")))
 (setq org-html-style-default nil)
+
+(defvar ivy-info-dir (file-name-directory
+                      (or load-file-name
+                          (buffer-file-name))))
+
+(defun info-ivy ()
+  (interactive)
+  (let ((buf (get-buffer "*info*")))
+    (when buf
+      (kill-buffer buf)))
+  (Info-find-node
+   (expand-file-name "ivy.info" ivy-info-dir)
+   "Top"))
 
 (provide 'ivy-ox)

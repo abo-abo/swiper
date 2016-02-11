@@ -8,8 +8,6 @@
 #+TEXINFO_DIR_DESC: Using Ivy for completion.
 #+SETUPFILE: ~/git/org-html-themes/setup/theme-readtheorg.setup
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
-#+EXPORT_FILE_NAME: index.html
-
 #+OPTIONS: H:6 num:6 toc:4
 #+STARTUP: indent
 * Setup                                                                               :noexport:
@@ -24,6 +22,13 @@ text is indented by 5 spaces. Use ~C-q~ to indent these
 paragraphs. New paragraphs can also be started, as long as they have
 the 5 spaces indent.
 Definition lists need to be separated from regular lists with two newlines.
+
+Many times, definitions lists like this one are used:
+#+BEGIN_EXAMPLE
+- ~C-M-j~ (=ivy-immediate-done=) ::
+#+END_EXAMPLE
+The code and kbd part of this heading will be recognized and added as
+=@vindex= and =@kindex= appropriately.
 
 For declaring a =@defopt= section for =defcustom= or =defvar=, also
 use definition lists. They need to have the following form in order to
@@ -265,6 +270,7 @@ The recommended key bindings are:
 :CUSTOM_ID: minibuffer-key-bindings
 :END:
 
+#+VINDEX: ivy-minibuffer-map
 Ivy includes several minibuffer bindings, which are defined in the
 =ivy-minibuffer-map= keymap variable. The most frequently used ones
 are described here.
@@ -1269,4 +1275,10 @@ that they appear:
 :PROPERTIES:
 :INDEX:    vr
 :CUSTOM_ID: variable-index
+:END:
+
+* Keystroke Index
+:PROPERTIES:
+:CUSTOM_ID: key-index
+:INDEX:    ky
 :END:

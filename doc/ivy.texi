@@ -67,6 +67,7 @@ modify this GNU manual.''
 * Commands::
 * API::
 * Variable Index::
+* Keystroke Index::
 
 @detailmenu
 --- The Detailed Node Listing ---
@@ -88,8 +89,8 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -347,6 +348,7 @@ The recommended key bindings are:
 @node Minibuffer key bindings
 @section Minibuffer key bindings
 
+@vindex ivy-minibuffer-map
 Ivy includes several minibuffer bindings, which are defined in the
 @code{ivy-minibuffer-map} keymap variable. The most frequently used ones
 are described here.
@@ -362,8 +364,8 @@ fully capable editing area: bindings like @kbd{C-a}, @kbd{C-f}, @kbd{M-d},
 @code{fundamental-mode} buffer.
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -417,22 +419,31 @@ action to run. This delayed flexibility and customization of actions
 extends usability of lists in Emacs.
 
 @subsubheading @kbd{C-m} or @kbd{RET} (@code{ivy-done})
+@vindex ivy-done
+@kindex C-m
+@kindex RET
 @indentedblock
 Calls the default action and exits the minibuffer.
 @end indentedblock
 @subsubheading @kbd{M-o} (@code{ivy-dispatching-done})
+@vindex ivy-dispatching-done
+@kindex M-o
 @indentedblock
 Presents all available valid actions from which to choose. When
 there is only one action available, there is no difference
 between @kbd{M-o} and @kbd{C-m}.
 @end indentedblock
 @subsubheading @kbd{C-j} (@code{ivy-alt-done})
+@vindex ivy-alt-done
+@kindex C-j
 @indentedblock
 When completing file names, selects the current directory
 candidate and starts a new completion session there. Otherwise,
 it's the same as @code{ivy-done}.
 @end indentedblock
 @subsubheading @kbd{TAB} (@code{ivy-partial-or-done})
+@vindex ivy-partial-or-done
+@kindex TAB
 @indentedblock
 Attempts partial completion, extending current input as much as
 possible. @kbd{TAB TAB} is the same as @kbd{C-j}.
@@ -450,6 +461,8 @@ Example ERT test:
 @end lisp
 @end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
+@vindex ivy-immediate-done
+@kindex C-M-j
 @indentedblock
 Exits with @emph{the current input} instead of @emph{the current candidate}
 (like other commands).
@@ -460,6 +473,8 @@ case, using @kbd{C-j} would select that existing file, which isn't
 what you want - use this command instead.
 @end indentedblock
 @subsubheading @kbd{C-'} (@code{ivy-avy})
+@vindex ivy-avy
+@kindex C-'
 @indentedblock
 Uses avy to select one of the candidates on the current candidate
 page.  This can often be faster than multiple @kbd{C-n} or @kbd{C-p}
@@ -478,6 +493,8 @@ version of the regular commands that enables applying multiple
 actions.
 
 @subsubheading @kbd{C-M-m} (@code{ivy-call})
+@vindex ivy-call
+@kindex C-M-m
 @indentedblock
 Is the non-exiting version of @kbd{C-m} (@code{ivy-done}).
 
@@ -488,6 +505,8 @@ functions list invokes @code{describe-function}. When combined with
 succession.
 @end indentedblock
 @subsubheading @kbd{C-M-o} (@code{ivy-dispatching-call})
+@vindex ivy-dispatching-call
+@kindex C-M-o
 @indentedblock
 Is the non-exiting version of @kbd{M-o} (@code{ivy-dispatching-done}).
 
@@ -497,6 +516,8 @@ For example, during the @code{counsel-rhythmbox} completion, press
 the default one after @kbd{C-M-o}.
 @end indentedblock
 @subsubheading @kbd{C-M-n} (@code{ivy-next-line-and-call})
+@vindex ivy-next-line-and-call
+@kindex C-M-n
 @indentedblock
 Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
 line.
@@ -507,6 +528,8 @@ Comes in handy when opening multiple files from
 action on each successive element of the list.
 @end indentedblock
 @subsubheading @kbd{C-M-p} (@code{ivy-previous-line-and-call})
+@vindex ivy-previous-line-and-call
+@kindex C-M-p
 @indentedblock
 Combines @kbd{C-p} and @kbd{C-M-m}.
 
@@ -514,6 +537,7 @@ Similar to the above except it moves through the list in the
 other direction.
 @end indentedblock
 @subsubheading @code{ivy-resume}
+@vindex ivy-resume
 @indentedblock
 Recalls the state of the completion session just before its last exit.
 
@@ -524,6 +548,8 @@ Useful after an accidental @kbd{C-m} (@code{ivy-done}).
 @subsection Key bindings that alter the minibuffer input
 
 @subsubheading @kbd{M-n} (@code{ivy-next-history-element})
+@vindex ivy-next-history-element
+@kindex M-n
 @indentedblock
 Cycles forward through the Ivy command history.
 
@@ -532,10 +558,14 @@ history list is empty, @kbd{M-n} inserts symbol (or URL) at point
 into the minibuffer.
 @end indentedblock
 @subsubheading @kbd{M-p} (@code{ivy-previous-history-element})
+@vindex ivy-previous-history-element
+@kindex M-p
 @indentedblock
 Cycles forward through the Ivy command history.
 @end indentedblock
 @subsubheading @kbd{M-i} (@code{ivy-insert-current})
+@vindex ivy-insert-current
+@kindex M-i
 @indentedblock
 Inserts the current candidate into the minibuffer.
 
@@ -544,6 +574,8 @@ insert the original file name string, edit it, and then @kbd{C-m} to
 complete the renaming.
 @end indentedblock
 @subsubheading @kbd{M-j} (@code{ivy-yank-word})
+@vindex ivy-yank-word
+@kindex M-j
 @indentedblock
 Inserts the sub-word at point into the minibuffer.
 
@@ -551,6 +583,8 @@ This is similar to @kbd{C-s C-w} with @code{isearch}. Ivy reserves @kbd{C-w}
 for @code{kill-region}.
 @end indentedblock
 @subsubheading @kbd{S-SPC} (@code{ivy-restrict-to-matches})
+@vindex ivy-restrict-to-matches
+@kindex S-SPC
 @indentedblock
 Deletes the current input, and resets the candidates list to the
 currently restricted matches.
@@ -558,6 +592,8 @@ currently restricted matches.
 This is how Ivy provides narrowing in successive tiers.
 @end indentedblock
 @subsubheading @kbd{C-r} (@code{ivy-reverse-i-search})
+@vindex ivy-reverse-i-search
+@kindex C-r
 @indentedblock
 Starts a recursive completion session through the command's
 history.
@@ -571,6 +607,8 @@ selected candidate string is inserted into the minibuffer.
 @subsection Other key bindings
 
 @subsubheading @kbd{M-w} (@code{ivy-kill-ring-save})
+@vindex ivy-kill-ring-save
+@kindex M-w
 @indentedblock
 Copies selected candidates to the kill ring.
 
@@ -581,6 +619,7 @@ When the region is active, copies active region instead.
 @subsection Hydra in the minibuffer
 
 @subsubheading @kbd{C-o} (@code{hydra-ivy/body})
+@kindex C-o
 @indentedblock
 Invokes the hydra menu with short key bindings.
 @end indentedblock
@@ -628,35 +667,51 @@ Additionally, you get access to the folowing commands that are
 normally not bound:
 
 @subsubheading @kbd{c} (@code{ivy-toggle-calling})
+@vindex ivy-toggle-calling
+@kindex c
 @indentedblock
 Toggle calling the action after each candidate change. This
 effectively modifies @kbd{j} to @kbd{jg}, @kbd{k} to @kbd{kg} etc.
 @end indentedblock
 @subsubheading @kbd{m} (@code{ivy-toggle-fuzzy})
+@vindex ivy-toggle-fuzzy
+@kindex m
 @indentedblock
 Toggle the current regexp matcher.
 @end indentedblock
 @subsubheading @kbd{>} (@code{ivy-minibuffer-grow})
+@vindex ivy-minibuffer-grow
+@kindex >
 @indentedblock
 Increase @code{ivy-height} for the current minibuffer.
 @end indentedblock
 @subsubheading @kbd{<} (@code{ivy-minibuffer-shrink})
+@vindex ivy-minibuffer-shrink
+@kindex <
 @indentedblock
 Decrease @code{ivy-height} for the current minibuffer.
 @end indentedblock
 @subsubheading @kbd{w} (@code{ivy-prev-action})
+@vindex ivy-prev-action
+@kindex w
 @indentedblock
 Select the previous action.
 @end indentedblock
 @subsubheading @kbd{s} (@code{ivy-next-action})
+@vindex ivy-next-action
+@kindex s
 @indentedblock
 Select the next action.
 @end indentedblock
 @subsubheading @kbd{a} (@code{ivy-read-action})
+@vindex ivy-read-action
+@kindex a
 @indentedblock
 Use a menu to select an action.
 @end indentedblock
 @subsubheading @kbd{C} (@code{ivy-toggle-case-fold})
+@vindex ivy-toggle-case-fold
+@kindex C
 @indentedblock
 Toggle case folding (matching both upper and lower case
 characters with lower case input).
@@ -666,6 +721,8 @@ characters with lower case input).
 @subsection Saving the current completion session to a buffer
 
 @subsubheading @kbd{C-c C-o} (@code{ivy-occur})
+@vindex ivy-occur
+@kindex C-c C-o
 @indentedblock
 Saves the current candidates to a new buffer and exits
 completion.
@@ -674,30 +731,42 @@ completion.
 The new buffer is read-only and has a few useful bindings defined.
 
 @subsubheading @kbd{RET} or @kbd{j} (@code{ivy-occur-press})
+@vindex ivy-occur-press
+@kindex RET
+@kindex j
 @indentedblock
 Call the current action on the selected candidate.
 @end indentedblock
 @subsubheading @kbd{mouse-1} (@code{ivy-occur-click})
+@vindex ivy-occur-click
+@kindex mouse-1
 @indentedblock
 Call the current action on the selected candidate.
 @end indentedblock
 @subsubheading @kbd{j} (@code{next-line})
+@kindex j
 @indentedblock
 Move to next line.
 @end indentedblock
 @subsubheading @kbd{k} (@code{previous-line})
+@kindex k
 @indentedblock
 Move to previous line.
 @end indentedblock
 @subsubheading @kbd{a} (@code{ivy-occur-read-action})
+@vindex ivy-occur-read-action
+@kindex a
 @indentedblock
 Read an action and make it current for this buffer.
 @end indentedblock
 @subsubheading @kbd{o} (@code{ivy-occur-dispatch})
+@vindex ivy-occur-dispatch
+@kindex o
 @indentedblock
 Read an action and call it on the selected candidate.
 @end indentedblock
 @subsubheading @kbd{q} (@code{quit-window})
+@kindex q
 @indentedblock
 Bury the current buffer.
 @end indentedblock
@@ -845,26 +914,32 @@ toggle it during completion with @kbd{C-o m}.
 @section Faces
 
 @subsubheading @code{ivy-current-match}
+@vindex ivy-current-match
 @indentedblock
 Highlights the currently selected candidate.
 @end indentedblock
 @subsubheading @code{ivy-minibuffer-match-face-1}
+@vindex ivy-minibuffer-match-face-1
 @indentedblock
 Highlights the background of the match.
 @end indentedblock
 @subsubheading @code{ivy-minibuffer-match-face-2}
+@vindex ivy-minibuffer-match-face-2
 @indentedblock
 Highlights the first (modulo 3) matched group.
 @end indentedblock
 @subsubheading @code{ivy-minibuffer-match-face-3}
+@vindex ivy-minibuffer-match-face-3
 @indentedblock
 Highlights the second (modulo 3) matched group.
 @end indentedblock
 @subsubheading @code{ivy-minibuffer-match-face-4}
+@vindex ivy-minibuffer-match-face-4
 @indentedblock
 Highlights the third (modulo 3) matched group.
 @end indentedblock
 @subsubheading @code{ivy-confirm-face}
+@vindex ivy-confirm-face
 @indentedblock
 Highlights the "(confirm)" part of the prompt.
 
@@ -886,6 +961,7 @@ prompt will be appended with "(confirm)". Press @kbd{RET} once more
 to confirm, or any key to continue the completion.
 @end indentedblock
 @subsubheading @code{ivy-match-required-face}
+@vindex ivy-match-required-face
 @indentedblock
 Highlights the "(match required)" part of the prompt.
 
@@ -899,14 +975,17 @@ For example, call @code{describe-variable}, enter "waldo" and press
 Press any key and the prompt warning will disappear.
 @end indentedblock
 @subsubheading @code{ivy-subdir}
+@vindex ivy-subdir
 @indentedblock
 Highlights directories when completing file names.
 @end indentedblock
 @subsubheading @code{ivy-remote}
+@vindex ivy-remote
 @indentedblock
 Highlights remote files when completing file names.
 @end indentedblock
 @subsubheading @code{ivy-virtual}
+@vindex ivy-virtual
 @indentedblock
 Highlights virtual buffers when completing buffer names.
 
@@ -1182,30 +1261,39 @@ Since file name completion is so essential, ivy has a few extra
 bindings that work here.
 
 @subsubheading @kbd{C-j} (@code{ivy-alt-done})
+@vindex ivy-alt-done
+@kindex C-j
 @indentedblock
 Use on a directory to restart the completion from that
 directory. Use it on a file or @code{./} to exit the completion with
 the selected candidate.
 @end indentedblock
 @subsubheading @kbd{DEL} (@code{ivy-backward-delete-char})
+@vindex ivy-backward-delete-char
+@kindex DEL
 @indentedblock
 When completing file names, and the current input is empty,
 restart the completion in the parent directory.
 @end indentedblock
 @subsubheading @kbd{//} (@code{self-insert-command})
+@kindex //
 @indentedblock
 Switch to the root directory.
 @end indentedblock
 @subsubheading @kbd{~} (@code{self-insert-command})
+@kindex ~
 @indentedblock
 Switch to the home directory.
 @end indentedblock
 @subsubheading @kbd{/} (@code{self-insert-command})
+@kindex /
 @indentedblock
 If the current input is precisely an existing directory, switch
 the completion to that directory.
 @end indentedblock
 @subsubheading @kbd{M-q} (@code{ivy-toggle-regexp-quote})
+@vindex ivy-toggle-regexp-quote
+@kindex M-q
 @indentedblock
 Toggle between your input being a regexp and not.
 
@@ -1574,5 +1662,10 @@ we want to kill the running process created by
 @unnumbered Variable Index
 
 @printindex vr
+
+@node Keystroke Index
+@unnumbered Keystroke Index
+
+@printindex ky
 
 @bye
