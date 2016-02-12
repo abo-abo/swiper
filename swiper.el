@@ -372,21 +372,23 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer, since the candidates
 there have line numbers. In the buffer, `ivy--regex' should be used."
-  (cond
-    ((equal str "")
-     "")
-    ((equal str "^")
-     (setq ivy--subexps 0)
-     ".")
-    ((string-match "^\\^" str)
-     (setq ivy--old-re "")
-     (let ((re (ivy--regex-plus (substring str 1))))
-       (if (zerop ivy--subexps)
-           (prog1 (format "^ ?\\(%s\\)" re)
-             (setq ivy--subexps 1))
-         (format "^ %s" re))))
-    (t
-     (ivy--regex-plus str))))
+  (replace-regexp-in-string
+   "\t" "    "
+   (cond
+     ((equal str "")
+      "")
+     ((equal str "^")
+      (setq ivy--subexps 0)
+      ".")
+     ((string-match "^\\^" str)
+      (setq ivy--old-re "")
+      (let ((re (ivy--regex-plus (substring str 1))))
+        (if (zerop ivy--subexps)
+            (prog1 (format "^ ?\\(%s\\)" re)
+              (setq ivy--subexps 1))
+          (format "^ %s" re))))
+     (t
+      (ivy--regex-plus str)))))
 
 (defvar swiper-history nil
   "History for `swiper'.")
