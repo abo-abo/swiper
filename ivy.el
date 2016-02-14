@@ -1197,7 +1197,9 @@ customizations apply to the current completion session."
                      ("o" ,action "default")
                      ,@extra-actions))
                   ((null action)
-                   (cons 1 extra-actions))
+                   `(1
+                     ("o" identity "default")
+                     ,@extra-actions))
                   (t
                    (delete-dups (append action extra-actions)))))))
   (let ((extra-sources (plist-get ivy--sources-list caller)))
