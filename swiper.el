@@ -250,7 +250,7 @@
   "Store the current candidates format spec.")
 
 (defvar swiper--width nil
-  "Store the amount of digits needed for the longest line nubmer.")
+  "Store the number of digits needed for the longest line nubmer.")
 
 (defvar swiper-use-visual-line nil
   "When non-nil, use `line-move' instead of `forward-line'.")
@@ -260,9 +260,8 @@
 (defun swiper--candidates (&optional numbers-width)
   "Return a list of this buffer lines.
 
-NUMBERS-WIDTH, when specified, is used for line numbers width
-spec, instead of calculating it as the log of the buffer line
-count."
+NUMBERS-WIDTH, when specified, is used for width spec of line
+numbers; replaces calculating the width from buffer line count."
   (if (and visual-line-mode
            ;; super-slow otherwise
            (< (buffer-size) 20000))
@@ -370,25 +369,25 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
-This is the regex used in the minibuffer, since the candidates
-there have line numbers. In the buffer, `ivy--regex' should be used."
+This is the regex used in the minibuffer where candidates have
+line numbers. For the buffer, use `ivy--regex' instead."
   (replace-regexp-in-string
    "\t" "    "
    (cond
-     ((equal str "")
-      "")
-     ((equal str "^")
-      (setq ivy--subexps 0)
-      ".")
-     ((string-match "^\\^" str)
-      (setq ivy--old-re "")
-      (let ((re (ivy--regex-plus (substring str 1))))
-        (if (zerop ivy--subexps)
-            (prog1 (format "^ ?\\(%s\\)" re)
-              (setq ivy--subexps 1))
-          (format "^ %s" re))))
-     (t
-      (ivy--regex-plus str)))))
+    ((equal str "")
+     "")
+    ((equal str "^")
+     (setq ivy--subexps 0)
+     ".")
+    ((string-match "^\\^" str)
+     (setq ivy--old-re "")
+     (let ((re (ivy--regex-plus (substring str 1))))
+       (if (zerop ivy--subexps)
+           (prog1 (format "^ ?\\(%s\\)" re)
+             (setq ivy--subexps 1))
+         (format "^ %s" re))))
+    (t
+     (ivy--regex-plus str)))))
 
 (defvar swiper-history nil
   "History for `swiper'.")
