@@ -219,7 +219,7 @@ Here are some basic settings particularly useful for new Ivy users:
 
 If you want, you can go without any customizations at all. The above
 settings are the most bang for the buck in terms of customization.  So
-users that typically don't like customize a lot are advise to look at
+users that typically don't like customize a lot are advised to look at
 these settings first.
 
 For more advanced customizations, refer to =M-x describe-variable=
