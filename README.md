@@ -2,7 +2,7 @@
 
 ## Swiper
 
-Package for GNU Emacs that gives you an overview as you search for a regex
+Package for GNU Emacs that shows an overview during regex searching.
 
 ![swiper.png](http://oremacs.com/download/swiper.png)
 
@@ -17,27 +17,31 @@ There's also a ten minute [video demo](https://www.youtube.com/watch?v=VvnJQpTFV
 
 ## Ivy
 
-Ivy is a generic completion method for Emacs, similar to
-`icomplete-mode`. It aims to be more efficient, more simple, and more
-pleasant to use than the alternatives. It's also highly customizable
-and very small.
+Ivy is a generic completion mechanism for Emacs. While it operates
+similarly to other completion schemes such as `icomplete-mode`, Ivy
+aims to be more efficient, smaller, simpler, and smoother to use yet
+highly customizable.
 
-To try it, just call <kbd>M-x</kbd> `ivy-mode`, and all generic
-completion, including file and buffer names, will be done with Ivy.
+To try Ivy, just call <kbd>M-x</kbd> `ivy-mode`. This will enable
+generic Ivy completion, including specific completion for file and
+buffer names.
 
 ## Installation
 
-You can install the package from MELPA / GNU ELPA.
+Install the `swiper` package from MELPA / GNU ELPA.
 
 ## Documentation
 
 ### Manual
-If you install from MELPA, you'll automatically get an `(ivy)` Info node.
+The manual is available as [HTML](http://oremacs.com/swiper/).
 
-The same information is also available in [HTML](http://oremacs.com/swiper/).  The source file for the Info page is [here](https://github.com/abo-abo/swiper/blob/master/doc/ivy.org).
+After installing from MELPA, the manual is also available through the `(ivy)` Info node.
+
+The source file for the Info page is
+[here](https://github.com/abo-abo/swiper/blob/master/doc/ivy.org).
 
 ### Wiki
-Additionally, there's some information on [the wiki](https://github.com/abo-abo/swiper/wiki).
+Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 
 ### Small config example
 ```elisp

@@ -1436,11 +1436,11 @@ This is useful for recursive `ivy-read'."
 This interface conforms to `completing-read' and can be used for
 `completing-read-function'.
 
-PROMPT is a string to prompt with; normally it ends in a colon and a space.
-COLLECTION can be a list of strings, an alist, an obarray or a hash table.
+PROMPT is a string that normally ends in a colon and a space.
+COLLECTION is either a list of strings, an alist, an obarray, or a hash table.
 PREDICATE limits completion to a subset of COLLECTION.
-REQUIRE-MATCH is specified with a boolean value.  See `completing-read'.
-INITIAL-INPUT is a string that can be inserted into the minibuffer initially.
+REQUIRE-MATCH is a boolean value.  See `completing-read'.
+INITIAL-INPUT is a string inserted into the minibuffer initially.
 HISTORY is a list of previously selected inputs.
 DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
@@ -2037,15 +2037,14 @@ CANDIDATES are assumed to be static."
     (setq ivy--all-candidates res)))
 
 (defcustom ivy-sort-matches-functions-alist '((t . nil))
-  "An alist of functions used to sort the matching candidates.
+  "An alist of functions for sorting matching candidates.
 
-This is different from `ivy-sort-functions-alist', which is used
-to sort the whole collection only once.  The functions taken from
-here are instead used on each input change, but they are used
-only on already matching candidates, not on all of them.
+Unlike `ivy-sort-functions-alist', which is used to sort the
+whole collection only once, this alist of functions are used to
+sort only matching candidates after each change in input.
 
-The alist KEY is a collection function or t to match previously
-not matched collection functions.
+The alist KEY is either a collection function or t to match
+previously unmatched collection functions.
 
 The alist VAL is a sorting function with the signature of
 `ivy--prefix-sort'.")
@@ -2172,8 +2171,9 @@ Prefix matches to NAME are put ahead of the list."
 
 (defvar ivy-flx-limit 200
   "Used to conditionally turn off flx sorting.
-When the amount of matching candidates is larger than this
-number, no sorting will be done.")
+
+When the amount of matching candidates exceeds this limit, then
+no sorting is done.")
 
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
