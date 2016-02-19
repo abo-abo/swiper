@@ -213,7 +213,8 @@
                           (setq ivy-completion-end (point))))
               :history 'counsel-unicode-char-history)))
 
-;;* Describe symbol variants
+;;* Elisp symbols
+;;** `counsel-describe-function' and `counsel-describe-variable'
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") #'counsel-find-symbol)
@@ -331,6 +332,7 @@
                          (intern x)))
               :caller 'counsel-describe-function)))
 
+;;** `counsel-info-lookup-symbol'
 (defvar info-lookup-mode)
 (declare-function info-lookup->completions "info-look")
 (declare-function info-lookup->mode-value "info-look")
@@ -361,6 +363,7 @@
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
+;;** `counsel-load-library'
 ;;;###autoload
 (defun counsel-load-library ()
   "Load a selected the Emacs Lisp library.
@@ -409,6 +412,109 @@ The libraries are offered from `load-path'."
                          (get-text-property 0 'full-name x)))
               :keymap counsel-describe-map)))
 
+;;** `counsel-M-x'
+(defun counsel--M-x-transformer (cand-pair)
+  "Add a binding to CAND-PAIR cdr if the car is bound in the current window.
+CAND-PAIR is (command-name . extra-info)."
+  (let* ((command-name (car cand-pair))
+         (extra-info (cdr cand-pair))
+         (binding (substitute-command-keys (format "\\[%s]" command-name))))
+    (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
+    (if (string-match "^M-x" binding)
+        cand-pair
+      (cons command-name
+            (if extra-info
+                (format " %s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
+              (format " (%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
+
+(defvar smex-initialized-p)
+(defvar smex-ido-cache)
+(declare-function smex-initialize "ext:smex")
+(declare-function smex-detect-new-commands "ext:smex")
+(declare-function smex-update "ext:smex")
+(declare-function smex-rank "ext:smex")
+
+(defun counsel--M-x-prompt ()
+  "M-x plus the string representation of `current-prefix-arg'."
+  (if (not current-prefix-arg)
+      "M-x "
+    (concat
+     (if (eq current-prefix-arg '-)
+         "- "
+       (if (integerp current-prefix-arg)
+           (format "%d " current-prefix-arg)
+         (if (= (car current-prefix-arg) 4)
+             "C-u "
+           (format "%d " (car current-prefix-arg)))))
+     "M-x ")))
+
+;;;###autoload
+(defun counsel-M-x (&optional initial-input)
+  "Ivy version of `execute-extended-command'.
+Optional INITIAL-INPUT is the initial input in the minibuffer."
+  (interactive)
+  (unless initial-input
+    (setq initial-input (cdr (assoc this-command
+                                    ivy-initial-inputs-alist))))
+  (let* ((store ivy-format-function)
+         (ivy-format-function
+          (lambda (cand-pairs)
+            (funcall
+             store
+             (with-ivy-window
+               (mapcar #'counsel--M-x-transformer cand-pairs)))))
+         (cands obarray)
+         (pred 'commandp)
+         (sort t))
+    (when (require 'smex nil 'noerror)
+      (unless smex-initialized-p
+        (smex-initialize))
+      (smex-detect-new-commands)
+      (smex-update)
+      (setq cands smex-ido-cache)
+      (setq pred nil)
+      (setq sort nil))
+    (ivy-read (counsel--M-x-prompt) cands
+              :predicate pred
+              :require-match t
+              :history 'extended-command-history
+              :action
+              (lambda (cmd)
+                (when (featurep 'smex)
+                  (smex-rank (intern cmd)))
+                (let ((prefix-arg current-prefix-arg)
+                      (ivy-format-function store)
+                      (this-command (intern cmd)))
+                  (command-execute (intern cmd) 'record)))
+              :sort sort
+              :keymap counsel-describe-map
+              :initial-input initial-input
+              :caller 'counsel-M-x)))
+;;** `counsel-load-theme'
+(declare-function powerline-reset "ext:powerline")
+
+(defun counsel-load-theme-action (x)
+  "Disable current themes and load theme X."
+  (condition-case nil
+      (progn
+        (mapc #'disable-theme custom-enabled-themes)
+        (load-theme (intern x))
+        (when (fboundp 'powerline-reset)
+          (powerline-reset)))
+    (error "Problem loading theme %s" x)))
+
+;;;###autoload
+(defun counsel-load-theme ()
+  "Forward to `load-theme'.
+Usable with `ivy-resume', `ivy-next-line-and-call' and
+`ivy-previous-line-and-call'."
+  (interactive)
+  (ivy-read "Load custom theme: "
+            (mapcar 'symbol-name
+                    (custom-available-themes))
+            :action #'counsel-load-theme-action
+            :caller 'counsel-load-theme))
+
 ;;* Git completion
 ;;** Find file in git project
 (defvar counsel--git-dir nil
@@ -435,7 +541,7 @@ The libraries are offered from `load-path'."
     (let ((default-directory counsel--git-dir))
       (find-file x))))
 
-;;** Grep for a line in git project
+;;** `counsel-git-grep'
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-l") 'counsel-git-grep-recenter)
@@ -542,6 +648,84 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               :unwind #'swiper--cleanup
               :history 'counsel-git-grep-history
               :caller 'counsel-git-grep)))
+
+(defvar counsel-gg-state nil
+  "The current state of candidates / count sync.")
+
+(defun counsel--gg-candidates (regex)
+  "Return git grep candidates for REGEX."
+  (setq counsel-gg-state -2)
+  (counsel--gg-count regex)
+  (let* ((default-directory counsel--git-grep-dir)
+         (counsel-gg-process " *counsel-gg*")
+         (proc (get-process counsel-gg-process))
+         (buff (get-buffer counsel-gg-process)))
+    (when proc
+      (delete-process proc))
+    (when buff
+      (kill-buffer buff))
+    (setq proc (start-process-shell-command
+                counsel-gg-process
+                counsel-gg-process
+                (concat
+                 (format counsel-git-grep-cmd regex)
+                 " | head -n 200")))
+    (set-process-sentinel
+     proc
+     #'counsel--gg-sentinel)))
+
+(defun counsel--gg-sentinel (process event)
+  (if (string= event "finished\n")
+      (progn
+        (with-current-buffer (process-buffer process)
+          (setq ivy--all-candidates
+                (or (split-string (buffer-string) "\n" t)
+                    '("")))
+          (setq ivy--old-cands ivy--all-candidates))
+        (when (= 0 (cl-incf counsel-gg-state))
+          (ivy--exhibit)))
+    (if (string= event "exited abnormally with code 1\n")
+        (progn
+          (setq ivy--all-candidates '("Error"))
+          (setq ivy--old-cands ivy--all-candidates)
+          (ivy--exhibit)))))
+
+(defun counsel--gg-count (regex &optional no-async)
+  "Quickly and asynchronously count the amount of git grep REGEX matches.
+When NO-ASYNC is non-nil, do it synchronously."
+  (let ((default-directory counsel--git-grep-dir)
+        (cmd
+         (concat
+          (format
+           (replace-regexp-in-string
+            "--full-name" "-c"
+            counsel-git-grep-cmd)
+           ;; "git grep -i -c '%s'"
+           (replace-regexp-in-string
+            "-" "\\\\-"
+            (replace-regexp-in-string "'" "''" regex)))
+          " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
+        (counsel-ggc-process " *counsel-gg-count*"))
+    (if no-async
+        (string-to-number (shell-command-to-string cmd))
+      (let ((proc (get-process counsel-ggc-process))
+            (buff (get-buffer counsel-ggc-process)))
+        (when proc
+          (delete-process proc))
+        (when buff
+          (kill-buffer buff))
+        (setq proc (start-process-shell-command
+                    counsel-ggc-process
+                    counsel-ggc-process
+                    cmd))
+        (set-process-sentinel
+         proc
+         #'(lambda (process event)
+             (when (string= event "finished\n")
+               (with-current-buffer (process-buffer process)
+                 (setq ivy--full-length (string-to-number (buffer-string))))
+               (when (= 0 (cl-incf counsel-gg-state))
+                 (ivy--exhibit)))))))))
 
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'."
@@ -832,186 +1016,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))
 
-(defvar counsel-gg-state nil
-  "The current state of candidates / count sync.")
-
-(defun counsel--gg-candidates (regex)
-  "Return git grep candidates for REGEX."
-  (setq counsel-gg-state -2)
-  (counsel--gg-count regex)
-  (let* ((default-directory counsel--git-grep-dir)
-         (counsel-gg-process " *counsel-gg*")
-         (proc (get-process counsel-gg-process))
-         (buff (get-buffer counsel-gg-process)))
-    (when proc
-      (delete-process proc))
-    (when buff
-      (kill-buffer buff))
-    (setq proc (start-process-shell-command
-                counsel-gg-process
-                counsel-gg-process
-                (concat
-                 (format counsel-git-grep-cmd regex)
-                 " | head -n 200")))
-    (set-process-sentinel
-     proc
-     #'counsel--gg-sentinel)))
-
-(defun counsel--gg-sentinel (process event)
-  (if (string= event "finished\n")
-      (progn
-        (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates
-                (or (split-string (buffer-string) "\n" t)
-                    '("")))
-          (setq ivy--old-cands ivy--all-candidates))
-        (when (= 0 (cl-incf counsel-gg-state))
-          (ivy--exhibit)))
-    (if (string= event "exited abnormally with code 1\n")
-        (progn
-          (setq ivy--all-candidates '("Error"))
-          (setq ivy--old-cands ivy--all-candidates)
-          (ivy--exhibit)))))
-
-(defun counsel--gg-count (regex &optional no-async)
-  "Quickly and asynchronously count the amount of git grep REGEX matches.
-When NO-ASYNC is non-nil, do it synchronously."
-  (let ((default-directory counsel--git-grep-dir)
-        (cmd
-         (concat
-          (format
-           (replace-regexp-in-string
-            "--full-name" "-c"
-            counsel-git-grep-cmd)
-           ;; "git grep -i -c '%s'"
-           (replace-regexp-in-string
-            "-" "\\\\-"
-            (replace-regexp-in-string "'" "''" regex)))
-          " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
-        (counsel-ggc-process " *counsel-gg-count*"))
-    (if no-async
-        (string-to-number (shell-command-to-string cmd))
-      (let ((proc (get-process counsel-ggc-process))
-            (buff (get-buffer counsel-ggc-process)))
-        (when proc
-          (delete-process proc))
-        (when buff
-          (kill-buffer buff))
-        (setq proc (start-process-shell-command
-                    counsel-ggc-process
-                    counsel-ggc-process
-                    cmd))
-        (set-process-sentinel
-         proc
-         #'(lambda (process event)
-             (when (string= event "finished\n")
-               (with-current-buffer (process-buffer process)
-                 (setq ivy--full-length (string-to-number (buffer-string))))
-               (when (= 0 (cl-incf counsel-gg-state))
-                 (ivy--exhibit)))))))))
-
-(defun counsel--M-x-transformer (cand-pair)
-  "Add a binding to CAND-PAIR cdr if the car is bound in the current window.
-CAND-PAIR is (command-name . extra-info)."
-  (let* ((command-name (car cand-pair))
-         (extra-info (cdr cand-pair))
-         (binding (substitute-command-keys (format "\\[%s]" command-name))))
-    (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
-    (if (string-match "^M-x" binding)
-        cand-pair
-      (cons command-name
-            (if extra-info
-                (format " %s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
-              (format " (%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
-
-(defvar smex-initialized-p)
-(defvar smex-ido-cache)
-(declare-function smex-initialize "ext:smex")
-(declare-function smex-detect-new-commands "ext:smex")
-(declare-function smex-update "ext:smex")
-(declare-function smex-rank "ext:smex")
-
-(defun counsel--M-x-prompt ()
-  "M-x plus the string representation of `current-prefix-arg'."
-  (if (not current-prefix-arg)
-      "M-x "
-    (concat
-     (if (eq current-prefix-arg '-)
-         "- "
-       (if (integerp current-prefix-arg)
-           (format "%d " current-prefix-arg)
-         (if (= (car current-prefix-arg) 4)
-             "C-u "
-           (format "%d " (car current-prefix-arg)))))
-     "M-x ")))
-
-;;;###autoload
-(defun counsel-M-x (&optional initial-input)
-  "Ivy version of `execute-extended-command'.
-Optional INITIAL-INPUT is the initial input in the minibuffer."
-  (interactive)
-  (unless initial-input
-    (setq initial-input (cdr (assoc this-command
-                                    ivy-initial-inputs-alist))))
-  (let* ((store ivy-format-function)
-         (ivy-format-function
-          (lambda (cand-pairs)
-            (funcall
-             store
-             (with-ivy-window
-               (mapcar #'counsel--M-x-transformer cand-pairs)))))
-         (cands obarray)
-         (pred 'commandp)
-         (sort t))
-    (when (require 'smex nil 'noerror)
-      (unless smex-initialized-p
-        (smex-initialize))
-      (smex-detect-new-commands)
-      (smex-update)
-      (setq cands smex-ido-cache)
-      (setq pred nil)
-      (setq sort nil))
-    (ivy-read (counsel--M-x-prompt) cands
-              :predicate pred
-              :require-match t
-              :history 'extended-command-history
-              :action
-              (lambda (cmd)
-                (when (featurep 'smex)
-                  (smex-rank (intern cmd)))
-                (let ((prefix-arg current-prefix-arg)
-                      (ivy-format-function store)
-                      (this-command (intern cmd)))
-                  (command-execute (intern cmd) 'record)))
-              :sort sort
-              :keymap counsel-describe-map
-              :initial-input initial-input
-              :caller 'counsel-M-x)))
-
-(declare-function powerline-reset "ext:powerline")
-
-(defun counsel--load-theme-action (x)
-  "Disable current themes and load theme X."
-  (condition-case nil
-      (progn
-        (mapc #'disable-theme custom-enabled-themes)
-        (load-theme (intern x))
-        (when (fboundp 'powerline-reset)
-          (powerline-reset)))
-    (error "Problem loading theme %s" x)))
-
-;;;###autoload
-(defun counsel-load-theme ()
-  "Forward to `load-theme'.
-Usable with `ivy-resume', `ivy-next-line-and-call' and
-`ivy-previous-line-and-call'."
-  (interactive)
-  (ivy-read "Load custom theme: "
-            (mapcar 'symbol-name
-                    (custom-available-themes))
-            :action #'counsel--load-theme-action
-            :caller 'counsel-load-theme))
-
+;;* `counsel-rhythmbox'
 (defvar rhythmbox-library)
 (declare-function rhythmbox-load-library "ext:helm-rhythmbox")
 (declare-function dbus-call-method "dbus")
