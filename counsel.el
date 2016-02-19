@@ -40,6 +40,27 @@
   (list ""
         (format "%d chars more" (- n (length ivy-text)))))
 
+(defun counsel-unquote-regex-parens (str)
+  (replace-regexp-in-string
+   "\\\\)" ")"
+   (replace-regexp-in-string
+    "\\\\(" "("
+    str)))
+
+(defun counsel-directory-parent (dir)
+  "Return the directory parent of directory DIR."
+  (concat (file-name-nondirectory
+           (directory-file-name dir)) "/"))
+
+(defun counsel-string-compose (prefix str)
+  "Make PREFIX the display prefix of STR though text properties."
+  (let ((str (copy-sequence str)))
+    (put-text-property
+     0 1 'display
+     (concat prefix (substring str 0 1))
+     str)
+    str))
+
 ;;* Completion at point
 ;;** Elisp
 ;;;###autoload
@@ -141,6 +162,22 @@
 
 ;;** Clojure
 (declare-function cider-sync-request:complete "ext:cider-client")
+(defun counsel--generic (completion-fn)
+  "Complete thing at point with COMPLETION-FN."
+  (let* ((bnd (bounds-of-thing-at-point 'symbol))
+         (str (if bnd
+                  (buffer-substring-no-properties
+                   (car bnd) (cdr bnd))
+                ""))
+         (candidates (funcall completion-fn str))
+         (ivy-height 7)
+         (res (ivy-read (format "pattern (%s): " str)
+                        candidates)))
+    (when (stringp res)
+      (when bnd
+        (delete-region (car bnd) (cdr bnd)))
+      (insert res))))
+
 ;;;###autoload
 (defun counsel-clj ()
   "Clojure completion at point."
@@ -323,6 +360,54 @@
        (list value info-lookup-mode))))
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
+
+;;;###autoload
+(defun counsel-load-library ()
+  "Load a selected the Emacs Lisp library.
+The libraries are offered from `load-path'."
+  (interactive)
+  (let ((dirs load-path)
+        (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
+        (cands (make-hash-table :test #'equal))
+        short-name
+        old-val
+        dir-parent
+        res)
+    (dolist (dir dirs)
+      (when (file-directory-p dir)
+        (dolist (file (file-name-all-completions "" dir))
+          (when (string-match suffix file)
+            (unless (string-match "pkg.elc?$" file)
+              (setq short-name (substring file 0 (match-beginning 0)))
+              (if (setq old-val (gethash short-name cands))
+                  (progn
+                    ;; assume going up directory once will resolve name clash
+                    (setq dir-parent (counsel-directory-parent (cdr old-val)))
+                    (puthash short-name
+                             (cons
+                              (counsel-string-compose dir-parent (car old-val))
+                              (cdr old-val))
+                             cands)
+                    (setq dir-parent (counsel-directory-parent dir))
+                    (puthash (concat dir-parent short-name)
+                             (cons
+                              (propertize
+                               (counsel-string-compose
+                                dir-parent short-name)
+                               'full-name (expand-file-name file dir))
+                              dir)
+                             cands))
+                (puthash short-name
+                         (cons (propertize
+                                short-name
+                                'full-name (expand-file-name file dir))
+                               dir) cands)))))))
+    (maphash (lambda (_k v) (push (car v) res)) cands)
+    (ivy-read "Load library: " (nreverse res)
+              :action (lambda (x)
+                        (load-library
+                         (get-text-property 0 'full-name x)))
+              :keymap counsel-describe-map)))
 
 ;;* Git completion
 ;;** Find file in git project
@@ -611,6 +696,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
 
+;;* Async Utility
 (defvar counsel--async-time nil
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
@@ -682,6 +768,12 @@ Update the minibuffer with the amount of lines collected every
          (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
+(defun counsel-delete-process ()
+  (let ((process (get-process " *counsel*")))
+    (when process
+      (delete-process process))))
+
+;;* Locate
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
   (call-process shell-file-name nil
@@ -713,12 +805,6 @@ Update the minibuffer with the amount of lines collected every
  '(("x" counsel-locate-action-extern "xdg-open")
    ("d" counsel-locate-action-dired "dired")))
 
-(defun counsel-unquote-regex-parens (str)
-  (replace-regexp-in-string
-   "\\\\)" ")"
-   (replace-regexp-in-string
-    "\\\\(" "("
-    str)))
 
 (defun counsel-locate-function (str)
   (if (< (length str) 3)
@@ -729,11 +815,6 @@ Update the minibuffer with the amount of lines collected every
              (counsel-unquote-regex-parens
               (ivy--regex str))))
     '("" "working...")))
-
-(defun counsel-delete-process ()
-  (let ((process (get-process " *counsel*")))
-    (when process
-      (delete-process process))))
 
 ;;;###autoload
 (defun counsel-locate (&optional initial-input)
@@ -750,84 +831,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                           (find-file file))))
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))
-
-(defun counsel--generic (completion-fn)
-  "Complete thing at point with COMPLETION-FN."
-  (let* ((bnd (bounds-of-thing-at-point 'symbol))
-         (str (if bnd
-                  (buffer-substring-no-properties
-                   (car bnd) (cdr bnd))
-                ""))
-         (candidates (funcall completion-fn str))
-         (ivy-height 7)
-         (res (ivy-read (format "pattern (%s): " str)
-                        candidates)))
-    (when (stringp res)
-      (when bnd
-        (delete-region (car bnd) (cdr bnd)))
-      (insert res))))
-
-(defun counsel-directory-parent (dir)
-  "Return the directory parent of directory DIR."
-  (concat (file-name-nondirectory
-           (directory-file-name dir)) "/"))
-
-(defun counsel-string-compose (prefix str)
-  "Make PREFIX the display prefix of STR though text properties."
-  (let ((str (copy-sequence str)))
-    (put-text-property
-     0 1 'display
-     (concat prefix (substring str 0 1))
-     str)
-    str))
-
-;;;###autoload
-(defun counsel-load-library ()
-  "Load a selected the Emacs Lisp library.
-The libraries are offered from `load-path'."
-  (interactive)
-  (let ((dirs load-path)
-        (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
-        (cands (make-hash-table :test #'equal))
-        short-name
-        old-val
-        dir-parent
-        res)
-    (dolist (dir dirs)
-      (when (file-directory-p dir)
-        (dolist (file (file-name-all-completions "" dir))
-          (when (string-match suffix file)
-            (unless (string-match "pkg.elc?$" file)
-              (setq short-name (substring file 0 (match-beginning 0)))
-              (if (setq old-val (gethash short-name cands))
-                  (progn
-                    ;; assume going up directory once will resolve name clash
-                    (setq dir-parent (counsel-directory-parent (cdr old-val)))
-                    (puthash short-name
-                             (cons
-                              (counsel-string-compose dir-parent (car old-val))
-                              (cdr old-val))
-                             cands)
-                    (setq dir-parent (counsel-directory-parent dir))
-                    (puthash (concat dir-parent short-name)
-                             (cons
-                              (propertize
-                               (counsel-string-compose
-                                dir-parent short-name)
-                               'full-name (expand-file-name file dir))
-                              dir)
-                             cands))
-                (puthash short-name
-                         (cons (propertize
-                                short-name
-                                'full-name (expand-file-name file dir))
-                               dir) cands)))))))
-    (maphash (lambda (_k v) (push (car v) res)) cands)
-    (ivy-read "Load library: " (nreverse res)
-              :action (lambda (x)
-                        (load-library
-                         (get-text-property 0 'full-name x)))
-              :keymap counsel-describe-map)))
 
 (defvar counsel-gg-state nil
   "The current state of candidates / count sync.")
