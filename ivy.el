@@ -2656,31 +2656,33 @@ a mouse click will call the appropriate action for that candidate.
 
 There is no limit on the number of *ivy-occur* buffers."
   (interactive)
-  (let* ((caller (ivy-state-caller ivy-last))
-         (occur-fn (plist-get ivy--occurs-list caller))
-         (buffer
-          (generate-new-buffer
-           (format "*ivy-occur%s \"%s\"*"
-                   (if caller
-                       (concat " " (prin1-to-string caller))
-                     "")
-                   ivy-text))))
-    (with-current-buffer buffer
-      (let ((inhibit-read-only t))
-        (erase-buffer)
-        (if occur-fn
-            (funcall occur-fn)
-          (ivy-occur-mode)
-          (insert (format "%d candidates:\n" (length ivy--old-cands)))
-          (ivy--occur-insert-lines
-           (mapcar
-            (lambda (cand) (concat "    " cand))
-            ivy--old-cands))))
-      (setf (ivy-state-text ivy-last) ivy-text)
-      (setq ivy-occur-last ivy-last)
-      (setq-local ivy--directory ivy--directory))
-    (ivy-exit-with-action
-     `(lambda (_) (pop-to-buffer ,buffer)))))
+  (if (not (window-minibuffer-p))
+      (user-error "No completion session is active")
+    (let* ((caller (ivy-state-caller ivy-last))
+           (occur-fn (plist-get ivy--occurs-list caller))
+           (buffer
+            (generate-new-buffer
+             (format "*ivy-occur%s \"%s\"*"
+                     (if caller
+                         (concat " " (prin1-to-string caller))
+                       "")
+                     ivy-text))))
+      (with-current-buffer buffer
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (if occur-fn
+              (funcall occur-fn)
+            (ivy-occur-mode)
+            (insert (format "%d candidates:\n" (length ivy--old-cands)))
+            (ivy--occur-insert-lines
+             (mapcar
+              (lambda (cand) (concat "    " cand))
+              ivy--old-cands))))
+        (setf (ivy-state-text ivy-last) ivy-text)
+        (setq ivy-occur-last ivy-last)
+        (setq-local ivy--directory ivy--directory))
+      (ivy-exit-with-action
+       `(lambda (_) (pop-to-buffer ,buffer))))))
 
 (declare-function wgrep-change-to-wgrep-mode "ext:wgrep")
 
