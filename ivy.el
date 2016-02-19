@@ -1515,6 +1515,7 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
   "An Ivy function suitable for `completion-in-region-function'."
   (let* ((enable-recursive-minibuffers t)
          (str (buffer-substring-no-properties start end))
+         (completion-ignore-case case-fold-search)
          (comps
           (completion-all-completions str collection predicate (- end start))))
     (if (null comps)
