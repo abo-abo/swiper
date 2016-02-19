@@ -4,7 +4,6 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.1.0
 ;; Package-Requires: ((emacs "24.1") (swiper "0.4.0"))
 ;; Keywords: completion, matching
 
@@ -35,6 +34,8 @@
 (require 'swiper)
 (require 'etags)
 
+;;* Completion at point
+;;** Elisp
 ;;;###autoload
 (defun counsel-el ()
   "Elisp completion at point."
@@ -76,6 +77,7 @@
               :initial-input str
               :action #'ivy-completion-in-region-action)))
 
+;;** Common Lisp
 (declare-function slime-symbol-start-pos "ext:slime")
 (declare-function slime-symbol-end-pos "ext:slime")
 (declare-function slime-contextual-completions "ext:slime-c-p-c")
@@ -92,6 +94,7 @@
                   ivy-completion-end))
             :action #'ivy-completion-in-region-action))
 
+;;** Python
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:complete-request "ext:jedi-core")
 (declare-function jedi:ac-direct-matches "ext:jedi")
@@ -130,6 +133,44 @@
               (move-marker (make-marker) (point)))
         (backward-char 1)))))
 
+;;** Clojure
+(declare-function cider-sync-request:complete "ext:cider-client")
+;;;###autoload
+(defun counsel-clj ()
+  "Clojure completion at point."
+  (interactive)
+  (counsel--generic
+   (lambda (str)
+     (mapcar
+      #'cl-caddr
+      (cider-sync-request:complete str ":same")))))
+
+;;** Unicode
+(defvar counsel-unicode-char-history nil
+  "History for `counsel-unicode-char'.")
+
+;;;###autoload
+(defun counsel-unicode-char ()
+  "Insert a Unicode character at point."
+  (interactive)
+  (let ((minibuffer-allow-text-properties t))
+    (setq ivy-completion-beg (point))
+    (setq ivy-completion-end (point))
+    (ivy-read "Unicode name: "
+              (mapcar (lambda (x)
+                        (propertize
+                         (format "% -6X% -60s%c" (cdr x) (car x) (cdr x))
+                         'result (cdr x)))
+                      (ucs-names))
+              :action (lambda (char)
+                        (with-ivy-window
+                          (delete-region ivy-completion-beg ivy-completion-end)
+                          (setq ivy-completion-beg (point))
+                          (insert-char (get-text-property 0 'result char))
+                          (setq ivy-completion-end (point))))
+              :history 'counsel-unicode-char-history)))
+
+;;* Describe symbol variants
 (defvar counsel-describe-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") #'counsel-find-symbol)
@@ -277,41 +318,8 @@
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
-(defvar counsel-unicode-char-history nil
-  "History for `counsel-unicode-char'.")
-
-;;;###autoload
-(defun counsel-unicode-char ()
-  "Insert a Unicode character at point."
-  (interactive)
-  (let ((minibuffer-allow-text-properties t))
-    (setq ivy-completion-beg (point))
-    (setq ivy-completion-end (point))
-    (ivy-read "Unicode name: "
-              (mapcar (lambda (x)
-                        (propertize
-                         (format "% -6X% -60s%c" (cdr x) (car x) (cdr x))
-                         'result (cdr x)))
-                      (ucs-names))
-              :action (lambda (char)
-                        (with-ivy-window
-                          (delete-region ivy-completion-beg ivy-completion-end)
-                          (setq ivy-completion-beg (point))
-                          (insert-char (get-text-property 0 'result char))
-                          (setq ivy-completion-end (point))))
-              :history 'counsel-unicode-char-history)))
-
-(declare-function cider-sync-request:complete "ext:cider-client")
-;;;###autoload
-(defun counsel-clj ()
-  "Clojure completion at point."
-  (interactive)
-  (counsel--generic
-   (lambda (str)
-     (mapcar
-      #'cl-caddr
-      (cider-sync-request:complete str ":same")))))
-
+;;* Git completion
+;;** Find file in git project
 (defvar counsel--git-dir nil
   "Store the base git directory.")
 
@@ -336,6 +344,7 @@
     (let ((default-directory counsel--git-dir))
       (find-file x))))
 
+;;** Grep for a line in git project
 (defvar counsel--git-grep-dir nil
   "Store the base git directory.")
 
