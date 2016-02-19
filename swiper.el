@@ -61,18 +61,6 @@
   '((t (:inherit isearch-fail)))
   "Face for `swiper' matches modulo 3.")
 
-(define-obsolete-face-alias 'swiper-minibuffer-match-face-1
-    'ivy-minibuffer-match-face-1 "0.6.0")
-
-(define-obsolete-face-alias 'swiper-minibuffer-match-face-2
-    'ivy-minibuffer-match-face-2 "0.6.0")
-
-(define-obsolete-face-alias 'swiper-minibuffer-match-face-3
-    'ivy-minibuffer-match-face-3 "0.6.0")
-
-(define-obsolete-face-alias 'swiper-minibuffer-match-face-4
-    'ivy-minibuffer-match-face-4 "0.6.0")
-
 (defface swiper-line-face
   '((t (:inherit highlight)))
   "Face for current `swiper' line.")
