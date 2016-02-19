@@ -515,8 +515,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
             :action #'counsel-load-theme-action
             :caller 'counsel-load-theme))
 
-;;* Git completion
-;;** Find file in git project
+;;* Git
+;;** `counsel-git'
 (defvar counsel--git-dir nil
   "Store the base git directory.")
 
@@ -777,7 +777,27 @@ When NO-ASYNC is non-nil, do it synchronously."
     (counsel-git-grep-action ivy--current)
     (recenter-top-bottom)))
 
-;;* Find file
+;;** `counsel-git-stash'
+(defun counsel-git-stash-kill-action (x)
+  (when (string-match "\\([^:]+\\):" x)
+    (kill-new (message (format "git stash apply %s" (match-string 1 x))))))
+
+;;;###autoload
+(defun counsel-git-stash ()
+  "Search through all available git stashes."
+  (interactive)
+  (let ((dir (locate-dominating-file default-directory ".git")))
+    (if (null dir)
+        (error "Not in a git repository")
+      (let ((cands (split-string (shell-command-to-string
+                                  "IFS=$'\n'
+for i in `git stash list --format=\"%gd\"`; do
+    git stash show -p $i | grep -H --label=\"$i\" \"$1\"
+done") "\n" t)))
+        (ivy-read "git stash: " cands
+                  :action 'counsel-git-stash-kill-action
+                  :caller 'counsel-git-stash)))))
+;;* `counsel-find-file'
 (defvar counsel-find-file-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
@@ -957,7 +977,7 @@ Update the minibuffer with the amount of lines collected every
     (when process
       (delete-process process))))
 
-;;* Locate
+;;* `counsel-locate'
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
   (call-process shell-file-name nil
@@ -1069,6 +1089,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
             :caller 'counsel-rhythmbox))
 
+;;* `counsel-org-tag'
 (defvar counsel-org-tags nil
   "Store the current list of tags.")
 
@@ -1223,6 +1244,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
+;;* `counsel-ag'
 (defcustom counsel-ag-base-command "ag --vimgrep %S"
   "Format string to use in `cousel-ag-function' to construct the
 command. %S will be replaced by the regex string. The default is
@@ -1258,27 +1280,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                       (swiper--cleanup))
             :caller 'counsel-ag))
 
-;;;###autoload
-(defun counsel-grep ()
-  "Grep for a string in the current file."
-  (interactive)
-  (setq counsel--git-grep-dir (buffer-file-name))
-  (ivy-read "grep: " 'counsel-grep-function
-            :dynamic-collection t
-            :preselect (format "%d:%s"
-                               (line-number-at-pos)
-                               (buffer-substring-no-properties
-                                (line-beginning-position)
-                                (line-end-position)))
-            :history 'counsel-git-grep-history
-            :update-fn (lambda ()
-                         (counsel-grep-action ivy--current))
-            :action #'counsel-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-grep))
-
+;;* `counsel-grep'
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
@@ -1303,6 +1305,27 @@ INITIAL-INPUT can be given as the initial minibuffer input."
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text)))))))
 
+;;;###autoload
+(defun counsel-grep ()
+  "Grep for a string in the current file."
+  (interactive)
+  (setq counsel--git-grep-dir (buffer-file-name))
+  (ivy-read "grep: " 'counsel-grep-function
+            :dynamic-collection t
+            :preselect (format "%d:%s"
+                               (line-number-at-pos)
+                               (buffer-substring-no-properties
+                                (line-beginning-position)
+                                (line-end-position)))
+            :history 'counsel-git-grep-history
+            :update-fn (lambda ()
+                         (counsel-grep-action ivy--current))
+            :action #'counsel-grep-action
+            :unwind (lambda ()
+                      (counsel-delete-process)
+                      (swiper--cleanup))
+            :caller 'counsel-grep))
+;;* `counsel-recoll'
 (defun counsel-recoll-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 3)
@@ -1337,6 +1360,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                             (swiper ivy-text)))))
             :caller 'counsel-recoll))
 
+;;* `counsel-tmm'
 (defvar tmm-km-list nil)
 (declare-function tmm-get-keymap "tmm")
 (declare-function tmm--completion-table "tmm")
@@ -1363,6 +1387,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (call-interactively choice)))))
 
 (defvar tmm-table-undef)
+
+;;;###autoload
 (defun counsel-tmm ()
   "Text-mode emulation of looking and choosing from a menubar."
   (interactive)
@@ -1371,6 +1397,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (setq tmm-table-undef nil)
   (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
+;;* `counsel-yank-pop'
 (defcustom counsel-yank-pop-truncate-radius 2
   "When non-nil, truncate the display of long strings."
   :type 'integer
@@ -1413,6 +1440,14 @@ INITIAL-INPUT can be given as the initial minibuffer input."
    cand-pairs
    "\n"))
 
+(defun counsel-yank-pop-action (s)
+  "Insert S into the buffer, overwriting the previous yank."
+  (with-ivy-window
+    (delete-region ivy-completion-beg
+                   ivy-completion-end)
+    (insert (substring-no-properties s))
+    (setq ivy-completion-end (point))))
+
 ;;;###autoload
 (defun counsel-yank-pop ()
   "Ivy replacement for `yank-pop'."
@@ -1437,14 +1472,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 :action 'counsel-yank-pop-action
                 :caller 'counsel-yank-pop))))
 
-(defun counsel-yank-pop-action (s)
-  "Insert S into the buffer, overwriting the previous yank."
-  (with-ivy-window
-    (delete-region ivy-completion-beg
-                   ivy-completion-end)
-    (insert (substring-no-properties s))
-    (setq ivy-completion-end (point))))
-
+;;* `counsel-imenu'
 (defvar imenu-auto-rescan)
 (declare-function imenu--subalist-p "imenu")
 (declare-function imenu--make-index-alist "imenu")
@@ -1456,7 +1484,7 @@ PREFIX is used to create the key."
                (if (imenu--subalist-p elm)
                    (counsel-imenu-get-candidates-from
                     (cl-loop for (e . v) in (cdr elm) collect
-                             (cons e (if (integerp v) (copy-marker v) v)))
+                         (cons e (if (integerp v) (copy-marker v) v)))
                     ;; pass the prefix to next recursive call
                     (concat prefix (if prefix ".") (car elm)))
                  (let ((key (concat prefix (if prefix ".") (car elm))))
@@ -1485,6 +1513,15 @@ PREFIX is used to create the key."
                           ;; after jump to the candidate position
                           (imenu candidate)))
               :caller 'counsel-imenu)))
+
+;;* `counsel-descbinds'
+(ivy-set-actions
+ 'counsel-descbinds
+ '(("d" counsel-descbinds-action-find "definition")
+   ("i" counsel-descbinds-action-info "info")))
+
+(defvar counsel-descbinds-history nil
+  "History for `counsel-descbinds'.")
 
 (defun counsel--descbinds-cands ()
   (let ((buffer (current-buffer))
@@ -1520,9 +1557,6 @@ PREFIX is used to create the key."
         (forward-line 1)))
     (nreverse res)))
 
-(defvar counsel-descbinds-history nil
-  "History for `counsel-descbinds'.")
-
 (defun counsel-descbinds-action-describe (x)
   (let ((cmd (cdr x)))
     (describe-function cmd)))
@@ -1545,11 +1579,7 @@ Describe the selected candidate."
             :history 'counsel-descbinds-history
             :caller 'counsel-descbinds))
 
-(ivy-set-actions
- 'counsel-descbinds
- '(("d" counsel-descbinds-action-find "definition")
-   ("i" counsel-descbinds-action-info "info")))
-
+;;* `counsel-list-processes'
 (defun counsel-list-processes-action-delete (x)
   (delete-process x)
   (setf (ivy-state-collection ivy-last)
@@ -1575,26 +1605,6 @@ An extra action allows to switch to the process buffer."
               ("o" counsel-list-processes-action-delete "kill")
               ("s" counsel-list-processes-action-switch "switch"))
             :caller 'counsel-list-processes))
-
-(defun counsel-git-stash-kill-action (x)
-  (when (string-match "\\([^:]+\\):" x)
-    (kill-new (message (format "git stash apply %s" (match-string 1 x))))))
-
-;;;###autoload
-(defun counsel-git-stash ()
-  "Search through all available git stashes."
-  (interactive)
-  (let ((dir (locate-dominating-file default-directory ".git")))
-    (if (null dir)
-        (error "Not in a git repository")
-      (let ((cands (split-string (shell-command-to-string
-                                  "IFS=$'\n'
-for i in `git stash list --format=\"%gd\"`; do
-    git stash show -p $i | grep -H --label=\"$i\" \"$1\"
-done") "\n" t)))
-        (ivy-read "git stash: " cands
-                  :action 'counsel-git-stash-kill-action
-                  :caller 'counsel-git-stash)))))
 
 (provide 'counsel)
 
