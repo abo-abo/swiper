@@ -978,6 +978,33 @@ Update the minibuffer with the amount of lines collected every
       (delete-process process))))
 
 ;;* `counsel-locate'
+(defcustom counsel-locate-options nil
+  "Command line options for `locate`."
+  :group 'ivy
+  :type '(repeat string))
+
+(make-obsolete-variable 'counsel-locate-options 'counsel-locate-cmd "0.7.0")
+
+(defcustom counsel-locate-cmd (if (eq system-type 'darwin)
+                                  'counsel-locate-cmd-noregex
+                                'counsel-locate-cmd-default)
+  "The function for producing a locate command string from the input.
+
+The function takes a string - the current input, and returns a
+string - the full shell command to run."
+  :group 'ivy
+  :type '(choice
+          (const :tag "Default" counsel-locate-cmd-default)
+          (const :tag "No regex" counsel-locate-cmd-noregex)))
+
+(ivy-set-actions
+ 'counsel-locate
+ '(("x" counsel-locate-action-extern "xdg-open")
+   ("d" counsel-locate-action-dired "dired")))
+
+(defvar counsel-locate-history nil
+  "History for `counsel-locate'.")
+
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
   (call-process shell-file-name nil
@@ -985,39 +1012,31 @@ Update the minibuffer with the amount of lines collected every
                 shell-command-switch
                 (format "%s %s"
                         (if (eq system-type 'darwin)
-                                    "open"
-                                  "xdg-open")
+                            "open"
+                          "xdg-open")
                         (shell-quote-argument x))))
 
 (declare-function dired-jump "dired-x")
+
 (defun counsel-locate-action-dired (x)
   "Use `dired-jump' on X."
   (dired-jump nil x))
 
-(defvar counsel-locate-history nil
-  "History for `counsel-locate'.")
+(defun counsel-locate-cmd-default (input)
+  "Return a shell command based on INPUT."
+  (format "locate -i --regex '%s'"
+          (counsel-unquote-regex-parens
+           (ivy--regex input))))
 
-(defcustom counsel-locate-options (if (eq system-type 'darwin)
-                                      '("-i")
-                                    '("-i" "--regex"))
-  "Command line options for `locate`."
-  :group 'ivy
-  :type  '(repeat string))
+(defun counsel-locate-cmd-noregex (input)
+  "Return a shell command based on INPUT."
+  (format "locate -i '%s'" input))
 
-(ivy-set-actions
- 'counsel-locate
- '(("x" counsel-locate-action-extern "xdg-open")
-   ("d" counsel-locate-action-dired "dired")))
-
-
-(defun counsel-locate-function (str)
-  (if (< (length str) 3)
+(defun counsel-locate-function (input)
+  (if (< (length input) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format "locate %s '%s'"
-             (mapconcat #'identity counsel-locate-options " ")
-             (counsel-unquote-regex-parens
-              (ivy--regex str))))
+     (funcall counsel-locate-cmd input))
     '("" "working...")))
 
 ;;;###autoload
