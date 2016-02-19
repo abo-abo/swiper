@@ -1466,6 +1466,8 @@ PREFIX is used to create the key."
          (items (imenu--make-index-alist t))
          (items (delete (assoc "*Rescan*" items) items)))
     (ivy-read "imenu items:" (counsel-imenu-get-candidates-from items)
+              :preselect (thing-at-point 'symbol)
+              :require-match t
               :action (lambda (candidate)
                         (with-ivy-window
                           ;; In org-mode, (imenu candidate) will expand child node
