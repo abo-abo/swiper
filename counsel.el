@@ -1062,7 +1062,8 @@ string - the full shell command to run."
   :group 'ivy
   :type '(choice
           (const :tag "Default" counsel-locate-cmd-default)
-          (const :tag "No regex" counsel-locate-cmd-noregex)))
+          (const :tag "No regex" counsel-locate-cmd-noregex)
+          (const :tag "mdfind" counsel-locate-cmd-mdfind)))
 
 (ivy-set-actions
  'counsel-locate
@@ -1098,6 +1099,10 @@ string - the full shell command to run."
 (defun counsel-locate-cmd-noregex (input)
   "Return a shell command based on INPUT."
   (format "locate -i '%s'" input))
+  
+(defun counsel-locate-cmd-mdfind (input)
+  "Return a shell command based on INPUT."
+  (format "mdfind -name '%s'" input))
 
 (defun counsel-locate-function (input)
   (if (< (length input) 3)
