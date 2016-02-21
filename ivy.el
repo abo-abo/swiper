@@ -46,7 +46,8 @@
 
 (defgroup ivy-faces nil
   "Font-lock faces for `ivy'."
-  :group 'ivy)
+  :group 'ivy
+  :group 'faces)
 
 (defface ivy-current-match
   '((((class color) (background light))
@@ -91,8 +92,6 @@
   '((t :foreground "red" :inherit minibuffer-prompt))
   "Face used by Ivy for a match required prompt.")
 
-(setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
-
 (defface ivy-subdir
   '((t (:inherit 'dired-directory)))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
@@ -108,6 +107,8 @@
 (defface ivy-virtual
   '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for matching virtual buffer names.")
+
+(setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
   "Number of lines for the minibuffer window."
