@@ -1076,12 +1076,12 @@ See also `ivy-sort-max-size'."
   :type
   '(alist
     :key-type (choice
-               (const :tag "All other functions" t)
-               (symbol :tag "Function"))
+               (const :tag "Fall-through" t)
+               (symbol :tag "Collection"))
     :value-type (choice
-                 (const :tag "plain sort" string-lessp)
-                 (const :tag "file sort" ivy-sort-file-function-default)
-                 (const :tag "no sort" nil)))
+                 (const :tag "Plain sort" string-lessp)
+                 (const :tag "File sort" ivy-sort-file-function-default)
+                 (const :tag "No sort" nil)))
   :group 'ivy)
 
 (defvar ivy-index-functions-alist
@@ -2062,7 +2062,16 @@ The alist KEY is either a collection function or t to match
 previously unmatched collection functions.
 
 The alist VAL is a sorting function with the signature of
-`ivy--prefix-sort'.")
+`ivy--prefix-sort'."
+  :type '(alist
+          :key-type (choice
+                     (const :tag "Fall-through" t)
+                     (symbol :tag "Collection"))
+          :value-type
+          (choice
+           (const :tag "Don't sort" nil)
+           (const :tag "Put prefix matches ahead" 'ivy--prefix-sort)
+           (function :tag "Custom sort function"))))
 
 (defun ivy--sort-files-by-date (_name candidates)
   "Re-soft CANDIDATES according to file modification date."
@@ -2182,7 +2191,14 @@ Prefix matches to NAME are put ahead of the list."
     ivy-minibuffer-match-face-2
     ivy-minibuffer-match-face-3
     ivy-minibuffer-match-face-4)
-  "List of `ivy' faces for minibuffer group matches.")
+  "List of `ivy' faces for minibuffer group matches."
+  :type '(repeat :tag "Faces"
+          (choice
+           (const ivy-minibuffer-match-face-1)
+           (const ivy-minibuffer-match-face-2)
+           (const ivy-minibuffer-match-face-3)
+           (const ivy-minibuffer-match-face-4)
+           (face :tag "Other face"))))
 
 (defvar ivy-flx-limit 200
   "Used to conditionally turn off flx sorting.
