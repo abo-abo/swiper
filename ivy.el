@@ -1592,7 +1592,7 @@ Minibuffer bindings:
          preselect)
         ((cl-position preselect candidates :test #'equal))
         ((stringp preselect)
-         (let ((re (regexp-quote preselect)))
+         (let ((re preselect))
            (cl-position-if
             (lambda (x)
               (string-match re x))
