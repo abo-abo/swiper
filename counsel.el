@@ -961,7 +961,10 @@ done") "\n" t)))
 These files are un-ignored if `ivy-text' matches them.
 The common way to show all files is to start `ivy-text' with a dot.
 Possible value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\"."
-  :group 'ivy)
+  :group 'ivy
+  :type '(choice
+          (const :tag "None" nil)
+          (regexp :tag "Regex")))
 
 (defun counsel--find-file-matcher (regexp candidates)
   "Return REGEXP-matching CANDIDATES.
@@ -1099,7 +1102,7 @@ string - the full shell command to run."
 (defun counsel-locate-cmd-noregex (input)
   "Return a shell command based on INPUT."
   (format "locate -i '%s'" input))
-  
+
 (defun counsel-locate-cmd-mdfind (input)
   "Return a shell command based on INPUT."
   (format "mdfind -name '%s'" input))
