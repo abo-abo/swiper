@@ -312,6 +312,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy initial-input))
 
+(declare-function string-trim-right "subr-x")
+
 (defun swiper-occur ()
   "Generate a custom occur buffer for `swiper'."
   (ivy-occur-grep-mode)
@@ -471,7 +473,9 @@ Matched candidates should have `swiper-invocation-face'."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length ivy--current) 0)
-      (let* ((re (funcall ivy--regex-function ivy-text))
+      (let* ((re (replace-regexp-in-string
+                  "    " "\t"
+                  (funcall ivy--regex-function ivy-text)))
              (re (if (stringp re) re (caar re)))
              (str (get-text-property 0 'display ivy--current))
              (num (if (string-match "^[0-9]+" str)
