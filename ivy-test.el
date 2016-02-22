@@ -100,6 +100,11 @@
                   "and  I  am"
                    "your  king."))))
 
+(ert-deftest ivy--regex ()
+  (should (equal (ivy--regex
+                  "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
+                 "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
+
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
                    "\\(t\\).*\\(m\\).*\\(u\\).*\\(x\\)"))
