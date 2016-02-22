@@ -280,6 +280,20 @@ This should eventually become a stack so that you could use
 (defsubst ivy-set-action (action)
   (setf (ivy-state-action ivy-last) action))
 
+(defun ivy-thing-at-point ()
+  "Return a string that corresponds to the current thing at point."
+  (or
+   (thing-at-point 'url)
+   (let (s)
+     (cond ((stringp (setq s (thing-at-point 'symbol)))
+            (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
+                (match-string 1 s)
+              s))
+           ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
+            (match-string-no-properties 1))
+           (t
+            "")))))
+
 (defvar ivy-history nil
   "History list of candidates entered in the minibuffer.
 
@@ -1401,10 +1415,7 @@ This is useful for recursive `ivy-read'."
               (buffer-substring
                (region-beginning)
                (region-end))
-            (or
-             (thing-at-point 'url)
-             (thing-at-point 'symbol)
-             "")))
+            (ivy-thing-at-point)))
     (setq ivy--prompt
           (cond ((string-match "%.*d" prompt)
                  prompt)

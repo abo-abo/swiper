@@ -342,13 +342,8 @@ Update the minibuffer with the amount of lines collected every
                  (error "Couldn't fild definition of %s"
                         sym))))))))
 
-(defun counsel-symbol-at-point ()
-  "Return current symbol at point as a string."
-  (let ((s (thing-at-point 'symbol)))
-    (and (stringp s)
-         (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
-             (match-string 1 s)
-           s))))
+(define-obsolete-function-alias 'counsel-symbol-at-point
+    'ivy-thing-at-point "0.7.0")
 
 (defun counsel-variable-list ()
   "Return the list of all currently bound variables."
@@ -369,7 +364,7 @@ Update the minibuffer with the amount of lines collected every
      "Describe variable: "
      (counsel-variable-list)
      :keymap counsel-describe-map
-     :preselect (counsel-symbol-at-point)
+     :preselect (ivy-thing-at-point)
      :history 'counsel-describe-symbol-history
      :require-match t
      :sort t
@@ -397,7 +392,7 @@ Update the minibuffer with the amount of lines collected every
                      (push (symbol-name x) cands))))
                 cands)
               :keymap counsel-describe-map
-              :preselect (counsel-symbol-at-point)
+              :preselect (ivy-thing-at-point)
               :history 'counsel-describe-symbol-history
               :require-match t
               :sort t
