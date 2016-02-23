@@ -104,9 +104,9 @@ Or the time of the last minibuffer update.")
         (if (null ivy--all-candidates)
             (ivy--insert-minibuffer "")
           (ivy--exhibit)))
-    (if (string= event "exited abnormally with code 1\n")
+    (if (string-match "exited abnormally with code \\([0-9]+\\)\n" event)
         (progn
-          (setq ivy--all-candidates '("Error"))
+          (setq ivy--all-candidates (list (format "error code %s" (match-string 1 event))))
           (setq ivy--old-cands ivy--all-candidates)
           (ivy--exhibit)))))
 
