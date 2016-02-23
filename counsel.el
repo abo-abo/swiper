@@ -66,7 +66,7 @@
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
 
-(defun counsel--async-command (cmd)
+(defun counsel--async-command (cmd &optional process-sentinel process-filter)
   (let* ((counsel--process " *counsel*")
          (proc (get-process counsel--process))
          (buff (get-buffer counsel--process)))
@@ -79,8 +79,8 @@ Or the time of the last minibuffer update.")
                 counsel--process
                 cmd))
     (setq counsel--async-time (current-time))
-    (set-process-sentinel proc #'counsel--async-sentinel)
-    (set-process-filter proc #'counsel--async-filter)))
+    (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
+    (set-process-filter proc (or process-filter #'counsel--async-filter))))
 
 (defun counsel--async-sentinel (process event)
   (if (string= event "finished\n")
