@@ -310,7 +310,7 @@ numbers; replaces calculating the width from buffer line count."
   "`isearch' with an overview.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
-  (swiper--ivy initial-input))
+  (swiper--ivy (swiper--candidates) initial-input))
 
 (declare-function string-trim-right "subr-x")
 
@@ -385,15 +385,14 @@ line numbers. For the buffer, use `ivy--regex' instead."
 (defvar swiper-invocation-face nil
   "The face at the point of invocation of `swiper'.")
 
-(defun swiper--ivy (&optional initial-input)
-  "`isearch' with an overview using `ivy'.
+(defun swiper--ivy (candidates &optional initial-input)
+  "Select one of CANDIDATES and move there.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--init)
   (setq swiper-invocation-face
         (plist-get (text-properties-at (point)) 'face))
-  (let ((candidates (swiper--candidates))
-        (preselect
+  (let ((preselect
          (if swiper-use-visual-line
              (count-screen-lines
               (point-min)
