@@ -1559,9 +1559,11 @@ PREFIX is used to create the key."
               (delete x ivy--all-candidates))))
 
 (defun counsel-list-processes-action-switch (x)
-  (if (get-buffer x)
-      (switch-to-buffer x)
-    (message "Process %s doesn't have a buffer" x)))
+  (let* ((proc (get-process x))
+         (buf (and proc (process-buffer proc))))
+    (if buf
+        (switch-to-buffer x)
+      (message "Process %s doesn't have a buffer" x))))
 
 ;;;###autoload
 (defun counsel-list-processes ()
