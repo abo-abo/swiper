@@ -229,7 +229,7 @@
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
   (unless (swiper-font-lock-ensure-p)
-    (unless (> (buffer-size) 100000)
+    (unless (or (> (buffer-size) 100000) (null font-lock-mode))
       (if (fboundp 'font-lock-ensure)
           (font-lock-ensure)
         (with-no-warnings (font-lock-fontify-buffer))))))
