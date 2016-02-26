@@ -871,6 +871,7 @@ Call the permanent action if possible."
       (progn
         (insert ivy--default)
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
+                   (not (file-exists-p ivy--default))
                    (> (point) (minibuffer-prompt-end)))
           (undo-boundary)
           (insert "\\_>")
