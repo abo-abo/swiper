@@ -1240,6 +1240,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                           (find-file file-name)
                           (unless (string-match "pdf$" x)
                             (swiper ivy-text)))))
+            :unwind #'counsel-delete-process
             :caller 'counsel-recoll))
 ;;* Misc Emacs
 ;;** `counsel-org-tag'
