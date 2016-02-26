@@ -629,6 +629,8 @@ Run `swiper' for those buffers."
                          (buffer-list)))
             :action 'swiper-multi-action-2
             :unwind #'swiper--cleanup
+            :update-fn (lambda ()
+                         (swiper-multi-action-2 ivy--current))
             :caller 'swiper-multi))
 
 (defun swiper--multi-candidates (buffers)
