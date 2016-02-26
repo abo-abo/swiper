@@ -430,10 +430,14 @@ When non-nil, it should contain at least one %d.")
          (ivy--exhibit))))
 
 (defun ivy-read-action ()
-  "Change the action to one of the available ones."
+  "Change the action to one of the available ones.
+
+Return nil for `minibuffer-keyboard-quit' or wrong key during the
+selection, non-nil otherwise."
   (interactive)
   (let ((actions (ivy-state-action ivy-last)))
-    (unless (null (ivy--actionp actions))
+    (if (null (ivy--actionp actions))
+        t
       (let* ((hint (concat (if (eq this-command 'ivy-read-action)
                                "Select action: "
                              ivy--current)
@@ -448,13 +452,16 @@ When non-nil, it should contain at least one %d.")
                             (cdr actions)
                             "\n")
                            "\n"))
+             (resize-mini-windows 'grow-only)
              (key (string (read-key hint)))
              (action-idx (cl-position-if
                           (lambda (x) (equal (car x) key))
                           (cdr actions))))
-        (cond ((string= key ""))
+        (cond ((string= key "")
+               nil)
               ((null action-idx)
-               (error "%s is not bound" key))
+               (message "%s is not bound" key)
+               nil)
               (t
                (message "")
                (setcar actions (1+ action-idx))
@@ -463,8 +470,8 @@ When non-nil, it should contain at least one %d.")
 (defun ivy-dispatching-done ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
-  (ivy-read-action)
-  (ivy-done))
+  (when (ivy-read-action)
+    (ivy-done)))
 
 (defun ivy-dispatching-call ()
   "Select one of the available actions and call `ivy-call'."
