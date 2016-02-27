@@ -168,6 +168,21 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd actions)))
 
+(defvar ivy--display-transformers-list nil
+  "A list of str->str transformers per command.")
+
+(defun ivy-set-display-transformer (cmd transformer)
+  "Set CMD a displayed candidate TRANSFORMER.
+
+It's a lambda that takes a string one of the candidates in the
+collection and returns a string for display, the same candidate
+plus some extra information.
+
+This lambda is called only on the `ivy-height' candidates that
+are about to be displayed, not on the whole collection."
+  (setq ivy--display-transformers-list
+        (plist-put ivy--display-transformers-list cmd transformer)))
+
 (defvar ivy--sources-list nil
   "A list of extra sources per command.")
 
@@ -269,6 +284,8 @@ Example:
   matcher
   ;; When this is non-nil, call it for each input change to get new candidates
   dynamic-collection
+  ;; A lambda that transforms candidates only for display
+  display-transformer-fn
   caller)
 
 (defvar ivy-last (make-ivy-state)
@@ -1241,7 +1258,8 @@ customizations apply to the current completion session."
                           (list (car source) (funcall (car source)))
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
-  (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last)))
+  (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last))
+        (transformer-fn (plist-get ivy--display-transformers-list caller)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1261,6 +1279,7 @@ customizations apply to the current completion session."
            :re-builder re-builder
            :matcher matcher
            :dynamic-collection dynamic-collection
+           :display-transformer-fn transformer-fn
            :caller caller))
     (ivy--reset-state ivy-last)
     (prog1
@@ -2380,7 +2399,8 @@ CANDS is a list of strings."
            (end (min (+ start (1- ivy-height)) ivy--length))
            (start (max 0 (min start (- end (1- ivy-height)))))
            (cands (cl-subseq cands start end))
-           (index (- ivy--index start)))
+           (index (- ivy--index start))
+           transformer-fn)
       (cond (ivy--directory
              (setq cands (mapcar (lambda (x)
                                    (if (string-match-p "/\\'" x)
@@ -2397,11 +2417,14 @@ CANDS is a list of strings."
                                        x)))
                                  cands))))
       (setq ivy--current (copy-sequence (nth index cands)))
+      (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
+        (with-ivy-window
+          (setq cands (mapcar transformer-fn cands))))
       (let* ((ivy--index index)
-             (cand-pairs (mapcar
-                          (lambda (cand)
-                            (cons (ivy--format-minibuffer-line cand) nil)) cands))
-             (res (concat "\n" (funcall ivy-format-function cand-pairs))))
+             (cands (mapcar
+                     (lambda (cand)
+                       (cons (ivy--format-minibuffer-line cand) nil)) cands))
+             (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
 

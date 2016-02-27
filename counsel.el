@@ -445,19 +445,18 @@ Update the minibuffer with the amount of lines collected every
  'counsel-M-x
  '(("d" counsel--find-symbol "definition")))
 
-(defun counsel--M-x-transformer (cand-pair)
-  "Add a binding to CAND-PAIR cdr if the car is bound in the current window.
-CAND-PAIR is (command-name . extra-info)."
-  (let* ((command-name (car cand-pair))
-         (extra-info (cdr cand-pair))
-         (binding (substitute-command-keys (format "\\[%s]" command-name))))
+(ivy-set-display-transformer
+ 'counsel-M-x
+ 'counsel-M-x-transformer)
+
+(defun counsel-M-x-transformer (cmd)
+  "Return CMD appended with the corresponding binding in the current window."
+  (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
     (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
     (if (string-match "^M-x" binding)
-        cand-pair
-      (cons command-name
-            (if extra-info
-                (format " %s (%s)" extra-info (propertize binding 'face 'font-lock-keyword-face))
-              (format " (%s)" (propertize binding 'face 'font-lock-keyword-face)))))))
+        cmd
+      (format "%s (%s)"
+              cmd (propertize binding 'face 'font-lock-keyword-face)))))
 
 (defvar smex-initialized-p)
 (defvar smex-ido-cache)
@@ -488,14 +487,7 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
   (unless initial-input
     (setq initial-input (cdr (assoc this-command
                                     ivy-initial-inputs-alist))))
-  (let* ((store ivy-format-function)
-         (ivy-format-function
-          (lambda (cand-pairs)
-            (funcall
-             store
-             (with-ivy-window
-               (mapcar #'counsel--M-x-transformer cand-pairs)))))
-         (cands obarray)
+  (let* ((cands obarray)
          (pred 'commandp)
          (sort t))
     (when (require 'smex nil 'noerror)
@@ -515,7 +507,6 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
                 (when (featurep 'smex)
                   (smex-rank (intern cmd)))
                 (let ((prefix-arg current-prefix-arg)
-                      (ivy-format-function store)
                       (this-command (intern cmd)))
                   (command-execute (intern cmd) 'record)))
               :sort sort
