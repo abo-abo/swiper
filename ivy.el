@@ -2333,10 +2333,10 @@ SEPARATOR is used to join the candidates."
 (defun ivy-format-function-line (cands)
   "Transform CAND-PAIRS into a string for minibuffer."
   (ivy--format-function-generic
-   (lambda (str extra)
-     (ivy--add-face (concat str extra "\n") 'ivy-current-match))
-   (lambda (str extra)
-     (concat str extra "\n"))
+   (lambda (str)
+     (ivy--add-face (concat str "\n") 'ivy-current-match))
+   (lambda (str)
+     (concat str "\n"))
    cands
    ""))
 
