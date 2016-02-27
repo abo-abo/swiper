@@ -686,6 +686,7 @@ Describe the selected candidate."
     map))
 
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
+(ivy-set-display-transformer 'counsel-git-grep 'counsel-git-grep-transformer)
 
 (defvar counsel-git-grep-cmd "git --no-pager grep --full-name -n --no-color -i -e %S"
   "Store the command for `counsel-git-grep'.")
@@ -752,6 +753,19 @@ Describe the selected candidate."
                            res)))))
                  candidates))
         (setq ivy--old-re regexp))))
+
+(defun counsel-git-grep-transformer (str)
+  "Higlight file and line number in STR."
+  (when (string-match "\\`\\([^:]+\\):\\([^:]+\\):" str)
+    (set-text-properties (match-beginning 1)
+                         (match-end 1)
+                         '(face compilation-info)
+                         str)
+    (set-text-properties (match-beginning 2)
+                         (match-end 2)
+                         '(face compilation-line-number)
+                         str))
+  str)
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
