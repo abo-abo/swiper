@@ -2387,6 +2387,14 @@ SEPARATOR is used to join the candidates."
                  (cl-incf i))))))
     str))
 
+(ivy-set-display-transformer
+ 'read-file-name-internal 'ivy-read-file-transformer)
+
+(defun ivy-read-file-transformer (str)
+  (if (string-match-p "/\\'" str)
+      (propertize str 'face 'ivy-subdir)
+    str))
+
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
 CANDS is a list of strings."
@@ -2402,12 +2410,6 @@ CANDS is a list of strings."
            (cands (cl-subseq cands start end))
            (index (- ivy--index start))
            transformer-fn)
-      (cond (ivy--directory
-             (setq cands (mapcar (lambda (x)
-                                   (if (string-match-p "/\\'" x)
-                                       (propertize x 'face 'ivy-subdir)
-                                     x))
-                                 cands))))
       (setq ivy--current (copy-sequence (nth index cands)))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
