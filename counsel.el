@@ -250,11 +250,10 @@ Update the minibuffer with the amount of lines collected every
 (declare-function cider-sync-request:complete "ext:cider-client")
 (defun counsel--generic (completion-fn)
   "Complete thing at point with COMPLETION-FN."
-  (let* ((bnd (bounds-of-thing-at-point 'symbol))
-         (str (if bnd
-                  (buffer-substring-no-properties
-                   (car bnd) (cdr bnd))
-                ""))
+  (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
+                  (cons (point) (point))))
+         (str (buffer-substring-no-properties
+               (car bnd) (cdr bnd)))
          (candidates (funcall completion-fn str))
          (ivy-height 7)
          (res (ivy-read (format "pattern (%s): " str)
