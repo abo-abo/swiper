@@ -66,6 +66,9 @@
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
 
+(defvar counsel-async-split-string-re "\n"
+  "Store the regexp for splitting shell command output.")
+
 (defun counsel--async-command (cmd &optional process-sentinel process-filter)
   (let* ((counsel--process " *counsel*")
          (proc (get-process counsel--process))
@@ -88,7 +91,10 @@ Or the time of the last minibuffer update.")
         (with-current-buffer (process-buffer process)
           (ivy--set-candidates
            (ivy--sort-maybe
-            (split-string (buffer-string) "\n" t)))
+            (split-string
+             (buffer-string)
+             counsel-async-split-string-re
+             t)))
           (if (null ivy--old-cands)
               (setq ivy--index
                     (or (ivy--preselect-index
@@ -125,7 +131,10 @@ Update the minibuffer with the amount of lines collected every
         (goto-char (point-min))
         (setq size (- (buffer-size) (forward-line (buffer-size))))
         (ivy--set-candidates
-         (split-string (buffer-string) "\n" t)))
+         (split-string
+          (buffer-string)
+          counsel-async-split-string-re
+          t)))
       (let ((ivy--prompt (format
                           (concat "%d++ " (ivy-state-prompt ivy-last))
                           size)))
