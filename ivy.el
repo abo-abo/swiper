@@ -93,15 +93,15 @@
   "Face used by Ivy for a match required prompt.")
 
 (defface ivy-subdir
-  '((t (:inherit 'dired-directory)))
+  '((t :inherit dired-directory))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
 (defface ivy-modified-buffer
-  '((t :inherit 'default))
+  '((t :inherit default))
   "Face used by Ivy for highlighting modified file visiting buffers.")
 
 (defface ivy-remote
-  '((t (:foreground "#110099")))
+  '((t :foreground "#110099"))
   "Face used by Ivy for highlighting remotes in the alternatives.")
 
 (defface ivy-virtual
