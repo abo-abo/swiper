@@ -934,6 +934,43 @@ done") "\n" t)))
         (ivy-read "git stash: " cands
                   :action 'counsel-git-stash-kill-action
                   :caller 'counsel-git-stash)))))
+;;** `counsel-git-log'
+(defun counsel-git-log-function (input)
+  (if (< (length input) 3)
+      (counsel-more-chars 3)
+    ;; `counsel--yank-pop-format-function' uses this
+    (setq ivy--old-re (funcall ivy--regex-function input))
+    (counsel--async-command
+     ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
+     ;; But it doesn't like the non-greedy ".*?".
+     (format "GIT_PAGER=cat git log --grep '%s'"
+             (replace-regexp-in-string
+              "\\.\\*\\?" ".*"
+              ivy--old-re)))
+    nil))
+
+(defun counsel-git-log-action (x)
+  (message "%S" (kill-new x)))
+
+(defcustom counsel-yank-pop-truncate-radius 2
+  "When non-nil, truncate the display of long strings."
+  :type 'integer
+  :group 'ivy)
+
+;;;###autoload
+(defun counsel-git-log ()
+  "Call the \"git log --grep\" shell command."
+  (interactive)
+  (let ((counsel-async-split-string-re "\ncommit ")
+        (counsel-yank-pop-truncate-radius 5)
+        (ivy-format-function #'counsel--yank-pop-format-function)
+        (ivy-height 4))
+    (ivy-read "Grep log: " #'counsel-git-log-function
+              :dynamic-collection t
+              :action #'counsel-git-log-action
+              :unwind #'counsel-delete-process
+              :caller 'counsel-git-log)))
+
 ;;* File
 ;;** `counsel-find-file'
 (defvar counsel-find-file-map
@@ -1435,11 +1472,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
 ;;** `counsel-yank-pop'
-(defcustom counsel-yank-pop-truncate-radius 2
-  "When non-nil, truncate the display of long strings."
-  :type 'integer
-  :group 'ivy)
-
 (defun counsel--yank-pop-truncate (str)
   (condition-case nil
       (let* ((lines (split-string str "\n" t))
