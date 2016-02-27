@@ -1259,7 +1259,10 @@ customizations apply to the current completion session."
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
   (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last))
-        (transformer-fn (plist-get ivy--display-transformers-list caller)))
+        (transformer-fn
+         (plist-get ivy--display-transformers-list
+                    (or caller (and (functionp collection)
+                                    collection)))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -2404,15 +2407,6 @@ CANDS is a list of strings."
                                    (if (string-match-p "/\\'" x)
                                        (propertize x 'face 'ivy-subdir)
                                      x))
-                                 cands)))
-            ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
-             (setq cands (mapcar (lambda (x)
-                                   (let ((b (get-buffer x)))
-                                     (if (and b
-                                              (buffer-file-name b)
-                                              (buffer-modified-p b))
-                                         (propertize x 'face 'ivy-modified-buffer)
-                                       x)))
                                  cands))))
       (setq ivy--current (copy-sequence (nth index cands)))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
@@ -2554,6 +2548,19 @@ Skip buffers that match `ivy-ignore-buffers'."
               ivy-ignore-buffers))
            res)
           res))))
+
+(ivy-set-display-transformer
+ 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
+(ivy-set-display-transformer
+ 'internal-complete-buffer 'ivy-switch-buffer-transformer)
+
+(defun ivy-switch-buffer-transformer (str)
+  (let ((b (get-buffer str)))
+    (if (and b
+             (buffer-file-name b)
+             (buffer-modified-p b))
+        (propertize str 'face 'ivy-modified-buffer)
+      str)))
 
 ;;;###autoload
 (defun ivy-switch-buffer ()
