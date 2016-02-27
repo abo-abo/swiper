@@ -89,7 +89,7 @@ discoverability.
 - Minimalism ::
      Uncluttered minibuffer is minimalism. Ivy shows the completion
      defaults, the number of matches, and 10 candidate matches below
-     the input line. Customize =ivy-length= to adjust the number of
+     the input line. Customize =ivy-height= to adjust the number of
      candidate matches displayed in the minibuffer.
 
 - Simplicity ::
