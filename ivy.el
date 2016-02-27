@@ -2297,49 +2297,47 @@ This string is inserted into the minibuffer."
                                     (- (length str) 3))) "...")
     str))
 
-(defun ivy--format-function-generic (selected-fn other-fn cand-pairs separator)
+(defun ivy--format-function-generic (selected-fn other-fn strs separator)
   "Transform CAND-PAIRS into a string for minibuffer.
 SELECTED-FN and OTHER-FN each take two string arguments.
 SEPARATOR is used to join the candidates."
   (let ((i -1))
     (mapconcat
-     (lambda (pair)
-       (let ((str (car pair))
-             (extra (cdr pair))
-             (curr (eq (cl-incf i) ivy--index)))
+     (lambda (str)
+       (let ((curr (eq (cl-incf i) ivy--index)))
          (if curr
-             (funcall selected-fn str extra)
-           (funcall other-fn str extra))))
-     cand-pairs
+             (funcall selected-fn str)
+           (funcall other-fn str))))
+     strs
      separator)))
 
-(defun ivy-format-function-default (cand-pairs)
+(defun ivy-format-function-default (cands)
   "Transform CAND-PAIRS into a string for minibuffer."
   (ivy--format-function-generic
-   (lambda (str extra)
-     (concat (ivy--add-face str 'ivy-current-match) extra))
-   #'concat
-   cand-pairs
+   (lambda (str)
+     (ivy--add-face str 'ivy-current-match))
+   #'identity
+   cands
    "\n"))
 
-(defun ivy-format-function-arrow (cand-pairs)
+(defun ivy-format-function-arrow (cands)
   "Transform CAND-PAIRS into a string for minibuffer."
   (ivy--format-function-generic
-   (lambda (str extra)
-     (concat "> " (ivy--add-face str 'ivy-current-match) extra))
-   (lambda (str extra)
-     (concat "  " str extra))
-   cand-pairs
+   (lambda (str)
+     (concat "> " (ivy--add-face str 'ivy-current-match)))
+   (lambda (str)
+     (concat "  " str))
+   cands
    "\n"))
 
-(defun ivy-format-function-line (cand-pairs)
+(defun ivy-format-function-line (cands)
   "Transform CAND-PAIRS into a string for minibuffer."
   (ivy--format-function-generic
    (lambda (str extra)
      (ivy--add-face (concat str extra "\n") 'ivy-current-match))
    (lambda (str extra)
      (concat str extra "\n"))
-   cand-pairs
+   cands
    ""))
 
 (defun ivy-add-face-text-property (start end face str)
@@ -2422,8 +2420,8 @@ CANDS is a list of strings."
           (setq cands (mapcar transformer-fn cands))))
       (let* ((ivy--index index)
              (cands (mapcar
-                     (lambda (cand)
-                       (cons (ivy--format-minibuffer-line cand) nil)) cands))
+                     #'ivy--format-minibuffer-line
+                     cands))
              (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))

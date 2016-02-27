@@ -1465,14 +1465,14 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel--yank-pop-format-function (cand-pairs)
   (ivy--format-function-generic
-   (lambda (str _extra)
+   (lambda (str)
      (mapconcat
       (lambda (s)
         (ivy--add-face s 'ivy-current-match))
       (split-string
        (counsel--yank-pop-truncate str) "\n" t)
       "\n"))
-   (lambda (str _extra)
+   (lambda (str)
      (counsel--yank-pop-truncate str))
    cand-pairs
    "\n"))

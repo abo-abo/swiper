@@ -143,7 +143,7 @@
 
 (ert-deftest ivy--format ()
   (should (string= (let ((ivy--index 10)
-                         (ivy-format-function (lambda (x) (mapconcat (lambda (y) (car y)) x "\n")))
+                         (ivy-format-function (lambda (x) (mapconcat #'identity x "\n")))
                          (cands '("NAME"
                                   "SYNOPSIS"
                                   "DESCRIPTION"
