@@ -885,9 +885,7 @@ When NO-ASYNC is non-nil, do it synchronously."
   (let ((cands (split-string
                 (shell-command-to-string
                  (format counsel-git-grep-cmd
-                         (if (stringp ivy--old-re)
-                             ivy--old-re
-                           (caar ivy--old-re))))
+                         (setq ivy--old-re (ivy--regex ivy-text t))))
                 "\n"
                 t)))
     ;; Need precise number of header lines for `wgrep' to work.
