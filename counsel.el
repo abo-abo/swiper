@@ -1001,12 +1001,20 @@ done") "\n" t)))
 
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
-These files are un-ignored if `ivy-text' matches them.
-The common way to show all files is to start `ivy-text' with a dot.
-Possible value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\"."
+These files are un-ignored if `ivy-text' matches them.  The
+common way to show all files is to start `ivy-text' with a dot.
+
+Example value: \"\\(?:\\`[#.]\\)\\|\\(?:[#~]\\'\\)\". This will hide
+temporary and lock files.
+\\<ivy-minibuffer-map>
+Choosing the dotfiles option, \"\\`\\.\", might be convenient,
+since you can still access the dotfiles if your input starts with
+a dot. The generic way to toggle ignored files is \\[ivy-toggle-ignore],
+but the leading dot is a lot faster."
   :group 'ivy
   :type '(choice
           (const :tag "None" nil)
+          (const :tag "Dotfiles" "\\`\\.")
           (regexp :tag "Regex")))
 
 (defun counsel--find-file-matcher (regexp candidates)
@@ -1015,11 +1023,13 @@ Skip some dotfiles unless `ivy-text' requires them."
   (let ((res (ivy--re-filter regexp candidates)))
     (if (or (null ivy-use-ignore)
             (null counsel-find-file-ignore-regexp)
-            (string-match counsel-find-file-ignore-regexp ivy-text))
+            (string-match "\\`\\." ivy-text))
         res
       (or (cl-remove-if
            (lambda (x)
-             (string-match counsel-find-file-ignore-regexp x))
+             (and
+              (string-match counsel-find-file-ignore-regexp x)
+              (not (member x ivy-extra-directories))))
            res)
           res))))
 
