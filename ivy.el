@@ -2831,7 +2831,6 @@ EVENT gives the mouse position."
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
-  (require 'pulse)
   (when (save-excursion
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
@@ -2858,8 +2857,7 @@ EVENT gives the mouse position."
                (line-beginning-position)
                (line-end-position)
                (selected-window))
-              (run-at-time 0.5 nil 'swiper--cleanup))
-          (pulse-momentary-highlight-one-line (point)))))))
+              (run-at-time 0.5 nil 'swiper--cleanup)))))))
 
 (defvar ivy-help-file (let ((default-directory
                              (if load-file-name
