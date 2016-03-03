@@ -1692,7 +1692,8 @@ An extra action allows to switch to the process buffer."
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (binding
-              '((describe-bindings . counsel-descbinds)
+              '((execute-extended-command . counsel-M-x)
+                (describe-bindings . counsel-descbinds)
                 (describe-function . counsel-describe-function)
                 (describe-variable . counsel-describe-variable)
                 (find-file . counsel-find-file)
