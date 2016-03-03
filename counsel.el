@@ -1189,7 +1189,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Format string to use in `cousel-ag-function' to construct the
 command. %S will be replaced by the regex string. The default is
 \"ag --vimgrep %S\"."
-  :type 'stringp
+  :type 'string
   :group 'ivy)
 
 (defun counsel-ag-function (string)
