@@ -688,8 +688,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
        :dynamic-collection (ivy-state-dynamic-collection ivy-last)
        :caller (ivy-state-caller ivy-last)))))
 
-(defvar-local ivy-calling nil
+(defvar ivy-calling nil
   "When non-nil, call the current action when `ivy--index' changes.")
+(make-variable-buffer-local 'ivy-calling)
 
 (defun ivy-set-index (index)
   "Set `ivy--index' to INDEX."
@@ -2670,10 +2671,11 @@ The selected history element will be inserted into the minibuffer."
         (ivy--filter ivy-text ivy--all-candidates)))
 
 ;;* Occur
-(defvar-local ivy-occur-last nil
+(defvar ivy-occur-last nil
   "Buffer-local value of `ivy-last'.
 Can't re-use `ivy-last' because using e.g. `swiper' in the same
 buffer would modify `ivy-last'.")
+(make-variable-buffer-local 'ivy-occur-last)
 
 (defvar ivy-occur-mode-map
   (let ((map (make-sparse-keymap)))
