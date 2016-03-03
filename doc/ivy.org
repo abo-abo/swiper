@@ -1041,9 +1041,9 @@ equivalents in =ivy-mode= are:
 :PROPERTIES:
 :CUSTOM_ID: api
 :END:
-The main (and only) entry point is =ivy-read= function. It takes two
-required arguments and many optional arguments that can be passed by
-key. The optional =:action= argument is highly recommended for
+The main (and only) entry point is the =ivy-read= function. It takes
+two required arguments and many optional arguments that can be passed
+by a key. The optional =:action= argument is highly recommended for
 features such as multi-actions, non-exiting actions, =ivy-occur= and
 =ivy-resume=.
 
@@ -1132,8 +1132,8 @@ features such as multi-actions, non-exiting actions, =ivy-occur= and
 :CUSTOM_ID: example---counsel-describe-function
 :END:
 This is a typical example of a function with a non-async collection,
-which is a collection where the strings in the collection are known
-prior to any input from the user.
+which is a collection where all the strings in the collection are
+known prior to any input from the user.
 
 Only the first two arguments (along with =action=) are essential - the
 rest of the arguments are for fine-tuning, and could be omitted.

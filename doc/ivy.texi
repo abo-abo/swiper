@@ -1371,9 +1371,9 @@ sessions.
 @node API
 @chapter API
 
-The main (and only) entry point is @code{ivy-read} function. It takes two
-required arguments and many optional arguments that can be passed by
-key. The optional @code{:action} argument is highly recommended for
+The main (and only) entry point is the @code{ivy-read} function. It takes
+two required arguments and many optional arguments that can be passed
+by a key. The optional @code{:action} argument is highly recommended for
 features such as multi-actions, non-exiting actions, @code{ivy-occur} and
 @code{ivy-resume}.
 @menu
@@ -1497,8 +1497,8 @@ Is a symbol that uniquely identifies the function that called
 @section Example - @code{counsel-describe-function}
 
 This is a typical example of a function with a non-async collection,
-which is a collection where the strings in the collection are known
-prior to any input from the user.
+which is a collection where all the strings in the collection are
+known prior to any input from the user.
 
 Only the first two arguments (along with @code{action}) are essential - the
 rest of the arguments are for fine-tuning, and could be omitted.
