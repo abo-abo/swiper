@@ -1688,17 +1688,18 @@ An extra action allows to switch to the process buffer."
               ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
             :caller 'counsel-rhythmbox))
 
+;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (binding
-             '((describe-bindings . counsel-descbinds)
-               (describe-function . counsel-describe-function)
-               (describe-variable . counsel-describe-variable)
-               (find-file         . counsel-find-file)
-               (imenu             . counsel-imenu)
-               (load-library      . counsel-load-library)
-               (load-theme        . counsel-load-theme)
-               (yank-pop          . counsel-yank-pop)))
+              '((describe-bindings . counsel-descbinds)
+                (describe-function . counsel-describe-function)
+                (describe-variable . counsel-describe-variable)
+                (find-file . counsel-find-file)
+                (imenu . counsel-imenu)
+                (load-library . counsel-load-library)
+                (load-theme . counsel-load-theme)
+                (yank-pop . counsel-yank-pop)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'. Remaps built-in functions to counsel
@@ -1714,7 +1715,6 @@ replacements. "
   :global t
   :keymap counsel-mode-map
   :lighter " counsel")
-
 
 (provide 'counsel)
 
