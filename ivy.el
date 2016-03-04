@@ -2876,6 +2876,15 @@ EVENT gives the mouse position."
   (when (save-excursion
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
+    (when (memq (ivy-state-caller ivy-occur-last)
+                '(swiper counsel-git-grep counsel-grep counsel-ag))
+      (let ((window (ivy-state-window ivy-occur-last)))
+        (when (or (null (window-live-p window))
+                  (equal window (selected-window)))
+          (save-selected-window
+            (setf (ivy-state-window ivy-occur-last)
+                  (display-buffer (ivy-state-buffer ivy-occur-last)
+                                  'display-buffer-pop-up-window))))))
     (let* ((ivy-last ivy-occur-last)
            (ivy-text (ivy-state-text ivy-last))
            (str (buffer-substring
