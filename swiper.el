@@ -321,8 +321,10 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (let* ((buffer (ivy-state-buffer ivy-last))
          (fname (propertize
                  (with-ivy-window
-                   (file-name-nondirectory
-                    (buffer-file-name buffer)))
+                   (if (buffer-file-name buffer)
+                       (file-name-nondirectory
+                        (buffer-file-name buffer))
+                     (buffer-name buffer)))
                  'face
                  'compilation-info))
          (cands (mapcar
