@@ -449,7 +449,7 @@ Matched candidates should have `swiper-invocation-face'."
 
 (defun swiper--ensure-visible ()
   "Remove overlays hiding point."
-  (let ((overlays (overlays-at (point)))
+  (let ((overlays (overlays-at (1- (point))))
         ov expose)
     (while (setq ov (pop overlays))
       (if (and (invisible-p (overlay-get ov 'invisible))
