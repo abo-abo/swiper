@@ -2704,33 +2704,6 @@ buffer would modify `ivy-last'.")
     map)
   "Keymap for Ivy Occur mode.")
 
-(defun ivy-occur-revert-buffer ()
-  "Refresh the buffer making it up-to date with the collection.
-
-Currently only works for `swiper'. In that specific case, the
-*ivy-occur* buffer becomes nearly useless as the orignal buffer
-is updated, since the line numbers no longer match.
-
-Calling this function is as if you called `ivy-occur' on the
-updated original buffer."
-  (interactive)
-  (let ((caller (ivy-state-caller ivy-occur-last))
-        (text (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                     (match-string 1 (buffer-name))))
-        (ivy-last ivy-occur-last))
-    (when (eq caller 'swiper)
-      (let ((buffer (ivy-state-buffer ivy-occur-last)))
-        (unless (buffer-live-p buffer)
-          (error "buffer was killed"))
-        (with-current-buffer buffer
-          (setq ivy--old-re nil)
-          (setq ivy--old-cands (ivy--filter text (swiper--candidates))))
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (swiper-occur)
-          (goto-char (point-min))
-          (forward-line 4))))))
-
 (defun ivy-occur-toggle-calling ()
   "Toggle `ivy-calling'."
   (interactive)
@@ -2828,6 +2801,26 @@ There is no limit on the number of *ivy-occur* buffers."
         (setq-local ivy--directory ivy--directory))
       (ivy-exit-with-action
        `(lambda (_) (pop-to-buffer ,buffer))))))
+
+(defun ivy-occur-revert-buffer ()
+  "Refresh the buffer making it up-to date with the collection.
+
+Currently only works for `swiper'. In that specific case, the
+*ivy-occur* buffer becomes nearly useless as the orignal buffer
+is updated, since the line numbers no longer match.
+
+Calling this function is as if you called `ivy-occur' on the
+updated original buffer."
+  (interactive)
+  (let ((caller (ivy-state-caller ivy-occur-last))
+        (ivy-last ivy-occur-last))
+    (when (eq caller 'swiper)
+      (let ((buffer (ivy-state-buffer ivy-occur-last)))
+        (unless (buffer-live-p buffer)
+          (error "buffer was killed"))
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (funcall (plist-get ivy--occurs-list caller) t))))))
 
 (declare-function wgrep-change-to-wgrep-mode "ext:wgrep")
 

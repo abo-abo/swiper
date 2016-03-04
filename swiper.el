@@ -316,13 +316,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (declare-function string-trim-right "subr-x")
 
-(defun swiper-occur ()
+(defun swiper-occur (&optional revert)
   "Generate a custom occur buffer for `swiper'."
-  (let* ((fname (propertize
+  (let* ((buffer (ivy-state-buffer ivy-last))
+         (fname (propertize
                  (with-ivy-window
                    (file-name-nondirectory
-                    (buffer-file-name
-                     (ivy-state-buffer ivy-last))))
+                    (buffer-file-name buffer)))
                  'face
                  'compilation-info))
          (cands (mapcar
@@ -334,7 +334,14 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                              (get-text-property 0 'display s))
                             'face 'compilation-line-number)
                            (substring s 1)))
-                 ivy--old-cands)))
+                 (if (null revert)
+                     ivy--old-cands
+                   (setq ivy--old-re nil)
+                   (ivy--filter
+                    (progn (string-match "\"\\(.*\\)\"" (buffer-name))
+                           (match-string 1 (buffer-name)))
+                    (with-current-buffer buffer
+                      (swiper--candidates)))))))
     (unless (eq major-mode 'ivy-occur-grep-mode)
       (ivy-occur-grep-mode)
       (font-lock-mode -1))
@@ -344,7 +351,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (ivy--occur-insert-lines
      (mapcar
       (lambda (cand) (concat "./" cand))
-      cands))))
+      cands))
+    (goto-char (point-min))
+    (forward-line 4)))
 
 (ivy-set-occur 'swiper 'swiper-occur)
 
