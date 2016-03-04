@@ -69,7 +69,9 @@
                           swiper-match-face-2
                           swiper-match-face-3
                           swiper-match-face-4)
-  "List of `swiper' faces for group matches.")
+  "List of `swiper' faces for group matches."
+  :group 'ivy-faces
+  :type 'list)
 
 (defcustom swiper-min-highlight 2
   "Only highlight matches for regexps at least this long."
@@ -316,12 +318,11 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 (defun swiper-occur ()
   "Generate a custom occur buffer for `swiper'."
-  (ivy-occur-grep-mode)
-  (font-lock-mode -1)
   (let* ((fname (propertize
                  (with-ivy-window
                    (file-name-nondirectory
-                    (buffer-file-name)))
+                    (buffer-file-name
+                     (ivy-state-buffer ivy-last))))
                  'face
                  'compilation-info))
          (cands (mapcar
@@ -334,6 +335,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                             'face 'compilation-line-number)
                            (substring s 1)))
                  ivy--old-cands)))
+    (unless (eq major-mode 'ivy-occur-grep-mode)
+      (ivy-occur-grep-mode)
+      (font-lock-mode -1))
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
     (insert (format "%d candidates:\n" (length cands)))
@@ -559,10 +563,9 @@ WND, when specified is the window."
 
 (defun swiper--action (x)
   "Goto line X."
-  (let ((ln (1- (read (if (memq this-command '(ivy-occur-press))
-                          (when (string-match ":\\([0-9]+\\):.*\\'" x)
-                            (match-string-no-properties 1 x))
-                        (get-text-property 0 'display x)))))
+  (let ((ln (1- (read (or (get-text-property 0 'display x)
+                          (and (string-match ":\\([0-9]+\\):.*\\'" x)
+                               (match-string-no-properties 1 x))))))
         (re (ivy--regex ivy-text)))
     (if (null x)
         (user-error "No candidates")
