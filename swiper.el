@@ -340,11 +340,12 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
                  (if (null revert)
                      ivy--old-cands
                    (setq ivy--old-re nil)
-                   (ivy--filter
-                    (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                           (match-string 1 (buffer-name)))
-                    (with-current-buffer buffer
-                      (swiper--candidates)))))))
+                   (let ((ivy--regex-function 'swiper--re-builder))
+                     (ivy--filter
+                      (progn (string-match "\"\\(.*\\)\"" (buffer-name))
+                             (match-string 1 (buffer-name)))
+                      (with-current-buffer buffer
+                        (swiper--candidates))))))))
     (unless (eq major-mode 'ivy-occur-grep-mode)
       (ivy-occur-grep-mode)
       (font-lock-mode -1))
