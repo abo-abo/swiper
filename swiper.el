@@ -317,7 +317,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (declare-function string-trim-right "subr-x")
 
 (defun swiper-occur (&optional revert)
-  "Generate a custom occur buffer for `swiper'."
+  "Generate a custom occur buffer for `swiper'.
+When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (let* ((buffer (ivy-state-buffer ivy-last))
          (fname (propertize
                  (with-ivy-window
