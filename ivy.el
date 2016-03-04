@@ -218,6 +218,7 @@ Example:
     (define-key map (kbd "C-M-m") 'ivy-call)
     (define-key map (kbd "C-j") 'ivy-alt-done)
     (define-key map (kbd "C-M-j") 'ivy-immediate-done)
+    (define-key map (kbd "<C-return>") 'ivy-immediate-done)
     (define-key map (kbd "TAB") 'ivy-partial-or-done)
     (define-key map (kbd "C-n") 'ivy-next-line)
     (define-key map (kbd "C-p") 'ivy-previous-line)
