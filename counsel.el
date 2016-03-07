@@ -66,10 +66,14 @@
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
 
+(defvar counsel--async-exit-code-alist nil
+  "Associates exit codes with reasons.")
+
 (defvar counsel-async-split-string-re "\n"
   "Store the regexp for splitting shell command output.")
 
-(defun counsel--async-command (cmd &optional process-sentinel process-filter)
+(defun counsel--async-command
+    (cmd &optional process-sentinel process-filter exit-code-alist)
   (let* ((counsel--process " *counsel*")
          (proc (get-process counsel--process))
          (buff (get-buffer counsel--process)))
@@ -82,6 +86,7 @@ Or the time of the last minibuffer update.")
                 counsel--process
                 cmd))
     (setq counsel--async-time (current-time))
+    (setq counsel--async-exit-code-alist exit-code-alist)
     (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
     (set-process-filter proc (or process-filter #'counsel--async-filter))))
 
@@ -112,7 +117,14 @@ Or the time of the last minibuffer update.")
           (ivy--exhibit)))
     (if (string-match "exited abnormally with code \\([0-9]+\\)\n" event)
         (progn
-          (setq ivy--all-candidates (list (format "error code %s" (match-string 1 event))))
+          (setq ivy--all-candidates
+                (list
+                 (if (and counsel--async-exit-code-alist
+                          (assoc-string (match-string 1 event)
+                                        counsel--async-exit-code-alist))
+                     (cdr (assoc-string (match-string 1 event)
+                                        counsel--async-exit-code-alist))
+                   (format "error code %s" (match-string 1 event)))))
           (setq ivy--old-cands ivy--all-candidates)
           (ivy--exhibit)))))
 
@@ -1201,7 +1213,8 @@ command. %S will be replaced by the regex string. The default is
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-ag-base-command (shell-quote-argument regex)))
+       (format counsel-ag-base-command (shell-quote-argument regex))
+       nil nil '(("1" . "No Matches Found")))
       nil)))
 
 ;;;###autoload
