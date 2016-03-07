@@ -683,6 +683,7 @@ Describe the selected candidate."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-l") 'counsel-git-grep-recenter)
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
+    (define-key map (kbd "C-c C-m") 'counsel-git-grep-switch-cmd)
     map))
 
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
@@ -799,6 +800,18 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               :unwind #'swiper--cleanup
               :history 'counsel-git-grep-history
               :caller 'counsel-git-grep)))
+
+(defun counsel-git-grep-switch-cmd ()
+  "Set `counsel-git-grep-cmd' to a different value."
+  (interactive)
+  (setq counsel-git-grep-cmd
+        (ivy-read "cmd: " counsel-git-grep-cmd-history
+                  :history 'counsel-git-grep-cmd-history))
+  (setq counsel-git-grep-cmd-history
+        (delete-dups counsel-git-grep-cmd-history))
+  (unless (ivy-state-dynamic-collection ivy-last)
+    (setq ivy--all-candidates
+          (all-completions "" 'counsel-git-grep-function))))
 
 (defvar counsel-gg-state nil
   "The current state of candidates / count sync.")
