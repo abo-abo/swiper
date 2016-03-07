@@ -1185,7 +1185,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 ;;* Grep
 ;;** `counsel-ag'
-(defcustom counsel-ag-base-command "ag --vimgrep %S"
+(defcustom counsel-ag-base-command "ag --vimgrep %s"
   "Format string to use in `cousel-ag-function' to construct the
 command. %S will be replaced by the regex string. The default is
 \"ag --vimgrep %S\"."
@@ -1201,7 +1201,7 @@ command. %S will be replaced by the regex string. The default is
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-ag-base-command regex))
+       (format counsel-ag-base-command (shell-quote-argument regex)))
       nil)))
 
 ;;;###autoload
