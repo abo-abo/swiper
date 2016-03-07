@@ -66,6 +66,18 @@
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
 
+(defvar counsel--async-exit-code-plist nil
+  "Associates exit codes with reasons.")
+
+(defun counsel-set-async-exit-code (cmd number str)
+  "For CMD, associate NUMBER exit code with STR."
+  (let ((plist (plist-get counsel--async-exit-code-plist cmd)))
+    (setq counsel--async-exit-code-plist
+          (plist-put
+           counsel--async-exit-code-plist
+           cmd
+           (plist-put plist number str)))))
+
 (defvar counsel-async-split-string-re "\n"
   "Store the regexp for splitting shell command output.")
 
@@ -111,8 +123,14 @@ Or the time of the last minibuffer update.")
             (ivy--insert-minibuffer "")
           (ivy--exhibit)))
     (if (string-match "exited abnormally with code \\([0-9]+\\)\n" event)
-        (progn
-          (setq ivy--all-candidates (list (format "error code %s" (match-string 1 event))))
+        (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
+                                           (ivy-state-caller ivy-last)))
+               (exit-num (read (match-string 1 event)))
+               (exit-code (plist-get exit-code-plist exit-num)))
+          (setq ivy--all-candidates
+                (list
+                 (or exit-code
+                     (format "error code %d" exit-num))))
           (setq ivy--old-cands ivy--all-candidates)
           (ivy--exhibit)))))
 
@@ -1139,6 +1157,8 @@ string - the full shell command to run."
  '(("x" counsel-locate-action-extern "xdg-open")
    ("d" counsel-locate-action-dired "dired")))
 
+(counsel-set-async-exit-code 'counsel-locate 1 "Nothing found")
+
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
@@ -1204,6 +1224,8 @@ command. %S will be replaced by the regex string. The default is
 \"ag --vimgrep %S\"."
   :type 'string
   :group 'ivy)
+
+(counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
