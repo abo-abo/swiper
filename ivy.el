@@ -605,9 +605,11 @@ When ARG is t, exit with current text, ignoring the candidates."
 When this directory doesn't exist, return nil."
   (when (stringp file-name)
     (let ((full-name
-           (file-name-as-directory
-            (expand-file-name file-name ivy--directory))))
-      (when (file-directory-p full-name)
+           ;; Ignore host name must not match method "ssh"
+           (ignore-errors
+             (file-name-as-directory
+              (expand-file-name file-name ivy--directory)))))
+      (when (and full-name (file-directory-p full-name))
         full-name))))
 
 (defcustom ivy-tab-space nil
