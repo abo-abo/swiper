@@ -1229,6 +1229,7 @@ command. %S will be replaced by the regex string. The default is
   :group 'ivy)
 
 (counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
+(ivy-set-occur 'counsel-ag 'counsel-ag-occur)
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
@@ -1257,6 +1258,27 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                       (counsel-delete-process)
                       (swiper--cleanup))
             :caller 'counsel-ag))
+
+(defun counsel-ag-occur ()
+  "Generate a custom occur buffer for `counsel-ag'."
+  (ivy-occur-grep-mode)
+  (setq default-directory counsel--git-grep-dir)
+  (let* ((regex (counsel-unquote-regex-parens
+                 (setq ivy--old-re
+                       (ivy--regex ivy-text))))
+         (cands (split-string
+                 (shell-command-to-string
+                  (format counsel-ag-base-command (shell-quote-argument regex)))
+                 "\n"
+                 t)))
+    ;; Need precise number of header lines for `wgrep' to work.
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                    default-directory))
+    (insert (format "%d candidates:\n" (length cands)))
+    (ivy--occur-insert-lines
+     (mapcar
+      (lambda (cand) (concat "./" cand))
+      cands))))
 
 ;;** `counsel-grep'
 (defun counsel-grep-function (string)
