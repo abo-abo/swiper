@@ -98,41 +98,44 @@ Or the time of the last minibuffer update.")
     (set-process-filter proc (or process-filter #'counsel--async-filter))))
 
 (defun counsel--async-sentinel (process event)
-  (if (string= event "finished\n")
-      (progn
-        (with-current-buffer (process-buffer process)
-          (ivy--set-candidates
-           (ivy--sort-maybe
-            (split-string
-             (buffer-string)
-             counsel-async-split-string-re
-             t)))
-          (if (null ivy--old-cands)
-              (setq ivy--index
-                    (or (ivy--preselect-index
-                         (ivy-state-preselect ivy-last)
-                         ivy--all-candidates)
-                        0))
-            (let ((re (funcall ivy--regex-function ivy-text)))
-              (unless (stringp re)
-                (setq re (caar re)))
-              (ivy--recompute-index
-               ivy-text re ivy--all-candidates)))
-          (setq ivy--old-cands ivy--all-candidates))
-        (if (null ivy--all-candidates)
-            (ivy--insert-minibuffer "")
-          (ivy--exhibit)))
-    (if (string-match "exited abnormally with code \\([0-9]+\\)\n" event)
-        (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
-                                           (ivy-state-caller ivy-last)))
-               (exit-num (read (match-string 1 event)))
-               (exit-code (plist-get exit-code-plist exit-num)))
-          (setq ivy--all-candidates
-                (list
-                 (or exit-code
-                     (format "error code %d" exit-num))))
-          (setq ivy--old-cands ivy--all-candidates)
-          (ivy--exhibit)))))
+  (let ((cands
+         (cond ((string= event "finished\n")
+                (with-current-buffer (process-buffer process)
+                  (split-string
+                   (buffer-string)
+                   counsel-async-split-string-re
+                   t)))
+               ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
+                (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
+                                                   (ivy-state-caller ivy-last)))
+                       (exit-num (read (match-string 1 event)))
+                       (exit-code (plist-get exit-code-plist exit-num)))
+                  (list
+                   (or exit-code
+                       (format "error code %d" exit-num))))))))
+    (cond ((string= event "finished\n")
+           (ivy--set-candidates
+            (ivy--sort-maybe
+             cands))
+           (if (null ivy--old-cands)
+               (setq ivy--index
+                     (or (ivy--preselect-index
+                          (ivy-state-preselect ivy-last)
+                          ivy--all-candidates)
+                         0))
+             (let ((re (funcall ivy--regex-function ivy-text)))
+               (unless (stringp re)
+                 (setq re (caar re)))
+               (ivy--recompute-index
+                ivy-text re ivy--all-candidates)))
+           (setq ivy--old-cands ivy--all-candidates)
+           (if (null ivy--all-candidates)
+               (ivy--insert-minibuffer "")
+             (ivy--exhibit)))
+          ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
+           (setq ivy--all-candidates cands)
+           (setq ivy--old-cands ivy--all-candidates)
+           (ivy--exhibit)))))
 
 (defun counsel--async-filter (process str)
   "Receive from PROCESS the output STR.
