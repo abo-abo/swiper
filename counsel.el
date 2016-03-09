@@ -1067,23 +1067,25 @@ Skip some dotfiles unless `ivy-text' requires them."
 (declare-function ffap-guesser "ffap")
 
 ;;;###autoload
-(defun counsel-find-file (&optional initial-input)
+(defun counsel-find-file (&optional initial-input directory)
   "Forward to `find-file'.
-When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
+When INITIAL-INPUT is non-nil, use it in the minibuffer during
+completion. When DIRECTORY is non-nil, start in that directory."
   (interactive)
-  (ivy-read "Find file: " 'read-file-name-internal
-            :matcher #'counsel--find-file-matcher
-            :initial-input initial-input
-            :action
-            (lambda (x)
-              (with-ivy-window
-                (find-file (expand-file-name x ivy--directory))))
-            :preselect (when counsel-find-file-at-point
-                         (require 'ffap)
-                         (ffap-guesser))
-            :require-match 'confirm-after-completion
-            :history 'file-name-history
-            :keymap counsel-find-file-map))
+  (let ((default-directory (or directory default-directory)))
+    (ivy-read "Find file: " 'read-file-name-internal
+	      :matcher #'counsel--find-file-matcher
+	      :initial-input initial-input
+	      :action
+	      (lambda (x)
+		(with-ivy-window
+		  (find-file (expand-file-name x ivy--directory))))
+	      :preselect (when counsel-find-file-at-point
+			   (require 'ffap)
+			   (ffap-guesser))
+	      :require-match 'confirm-after-completion
+	      :history 'file-name-history
+	      :keymap counsel-find-file-map)))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one."
