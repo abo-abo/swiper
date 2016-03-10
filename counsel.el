@@ -179,7 +179,8 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-prompt-function-dir (prompt)
   "Return PROMPT appended with the parent directory."
   (let ((directory counsel--git-grep-dir))
-    (format " [%s]: "
+    (format "%s [%s]: "
+	    prompt
             (let ((dir-list (eshell-split-path directory)))
               (if (> (length dir-list) 3)
 		  (apply #'concat
