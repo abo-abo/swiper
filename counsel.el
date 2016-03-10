@@ -1170,9 +1170,13 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (make-obsolete-variable 'counsel-locate-options 'counsel-locate-cmd "0.7.0")
 
-(defcustom counsel-locate-cmd (if (eq system-type 'darwin)
-                                  'counsel-locate-cmd-noregex
-                                'counsel-locate-cmd-default)
+(defcustom counsel-locate-cmd (cond ((eq system-type 'darwin)
+                                     'counsel-locate-cmd-noregex)
+                                    ((and (eq system-type 'windows-nt)
+                                          (executable-find "es.exe"))
+                                     'counsel-locate-cmd-es)
+                                    (t
+                                     'counsel-locate-cmd-default))
   "The function for producing a locate command string from the input.
 
 The function takes a string - the current input, and returns a
@@ -1181,7 +1185,8 @@ string - the full shell command to run."
   :type '(choice
           (const :tag "Default" counsel-locate-cmd-default)
           (const :tag "No regex" counsel-locate-cmd-noregex)
-          (const :tag "mdfind" counsel-locate-cmd-mdfind)))
+          (const :tag "mdfind" counsel-locate-cmd-mdfind)
+          (const :tag "everything" counsel-locate-cmd-es)))
 
 (ivy-set-actions
  'counsel-locate
@@ -1223,6 +1228,12 @@ string - the full shell command to run."
 (defun counsel-locate-cmd-mdfind (input)
   "Return a shell command based on INPUT."
   (format "mdfind -name '%s'" input))
+
+(defun counsel-locate-cmd-es (input)
+  "Return a shell command based on INPUT."
+  (format "es.exe -i -r %s"
+          (counsel-unquote-regex-parens
+           (ivy--regex input))))
 
 (defun counsel-locate-function (input)
   (if (< (length input) 3)
