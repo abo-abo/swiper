@@ -33,6 +33,7 @@
 
 (require 'swiper)
 (require 'etags)
+(require 'esh-util)
 
 ;;* Utility
 (defun counsel-more-chars (n)
@@ -178,14 +179,13 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-prompt-function-dir (prompt)
   "Return PROMPT appended with the parent directory."
   (let ((directory counsel--git-grep-dir))
-    (format " [%s]: "
-            (let ((dir-list (split-string directory "/")))
+    (format "%s [%s]: "
+	    prompt
+            (let ((dir-list (eshell-split-path directory)))
               (if (> (length dir-list) 3)
-                  (mapconcat
-                   #'identity
-                   (append '("..")
-                           (cl-subseq dir-list (- (length dir-list) 3)))
-                   "/")
+		  (apply #'concat
+			 (append '("...")
+				 (cl-subseq dir-list (- (length dir-list) 3))))
                 directory)))))
 
 (defun counsel-delete-process ()
