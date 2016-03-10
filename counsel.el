@@ -163,6 +163,28 @@ Update the minibuffer with the amount of lines collected every
          (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
+(defcustom counsel-show-root-directory nil
+  "Whether to show the root directory in counsel search
+functions."
+  :type 'boolean
+  :group 'ivy)
+
+(defun counsel--root-directory (directory)
+  "If `counsel-show-root-directory' is non-nil, return string
+with DIRECTORY truncated to the previous two parents. Otherwise
+return an empty string."
+  (if counsel-show-root-directory
+    (format " [%s]"
+	    (let ((dir-list (split-string directory "/")))
+	      (if (> (length dir-list) 3)
+		  (mapconcat
+		   #'identity
+		   (append '("..")
+			   (cl-subseq dir-list (- (length dir-list) 3)))
+		   "/")
+		directory)))
+    ""))
+
 (defun counsel-delete-process ()
   (let ((process (get-process " *counsel*")))
     (when process
@@ -691,8 +713,10 @@ Describe the selected candidate."
                   "git ls-files --full-name --")
                  "\n"
                  t)))
-    (ivy-read "Find file: " cands
-              :action #'counsel-git-action)))
+    (ivy-read (format "Find file%s: "
+		      (counsel--root-directory counsel--git-dir))
+	      cands
+	      :action #'counsel-git-action)))
 
 (defun counsel-git-action (x)
   (with-ivy-window
@@ -812,15 +836,17 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (if (null counsel--git-grep-dir)
       (error "Not in a git repository")
     (setq counsel--git-grep-count (counsel--gg-count "" t))
-    (ivy-read "git grep: " 'counsel-git-grep-function
-              :initial-input initial-input
-              :matcher #'counsel-git-grep-matcher
-              :dynamic-collection (> counsel--git-grep-count 20000)
-              :keymap counsel-git-grep-map
-              :action #'counsel-git-grep-action
-              :unwind #'swiper--cleanup
-              :history 'counsel-git-grep-history
-              :caller 'counsel-git-grep)))
+    (ivy-read (format "git grep%s: "
+		      (counsel--root-directory counsel--git-grep-dir))
+	      'counsel-git-grep-function
+	      :initial-input initial-input
+	      :matcher #'counsel-git-grep-matcher
+	      :dynamic-collection (> counsel--git-grep-count 20000)
+	      :keymap counsel-git-grep-map
+	      :action #'counsel-git-grep-action
+	      :unwind #'swiper--cleanup
+	      :history 'counsel-git-grep-history
+	      :caller 'counsel-git-grep)))
 
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
@@ -1249,15 +1275,17 @@ command. %S will be replaced by the regex string. The default is
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (setq counsel--git-grep-dir (or initial-directory default-directory))
-  (ivy-read "ag: " 'counsel-ag-function
-            :initial-input initial-input
-            :dynamic-collection t
-            :history 'counsel-git-grep-history
-            :action #'counsel-git-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-ag))
+  (ivy-read (format "ag%s: "
+		    (counsel--root-directory counsel--git-grep-dir))
+	    'counsel-ag-function
+	    :initial-input initial-input
+	    :dynamic-collection t
+	    :history 'counsel-git-grep-history
+	    :action #'counsel-git-grep-action
+	    :unwind (lambda ()
+		      (counsel-delete-process)
+		      (swiper--cleanup))
+	    :caller 'counsel-ag))
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
