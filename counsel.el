@@ -1289,7 +1289,10 @@ command. %S will be replaced by the regex string. The default is
 (defun counsel-ag (&optional initial-input initial-directory)
   "Grep for a string in the current directory using ag.
 INITIAL-INPUT can be given as the initial minibuffer input."
-  (interactive)
+  (interactive
+   (list nil
+         (when current-prefix-arg
+           (read-directory-name "ag in directory: "))))
   (setq counsel--git-grep-dir (or initial-directory default-directory))
   (ivy-read (funcall counsel-prompt-function "ag")
             'counsel-ag-function
