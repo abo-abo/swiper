@@ -1722,7 +1722,7 @@ PREFIX is used to create the key."
   (let* ((proc (get-process x))
          (buf (and proc (process-buffer proc))))
     (if buf
-        (switch-to-buffer x)
+        (switch-to-buffer buf)
       (message "Process %s doesn't have a buffer" x))))
 
 ;;;###autoload
