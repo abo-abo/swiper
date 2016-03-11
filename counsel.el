@@ -1114,7 +1114,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
                 (find-file (expand-file-name x ivy--directory))))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
-                         (ffap-guesser))
+                         (let ((f (ffap-guesser)))
+                           (when f (expand-file-name f))))
             :require-match 'confirm-after-completion
             :history 'file-name-history
             :keymap counsel-find-file-map))
