@@ -1056,8 +1056,12 @@ done") "\n" t)))
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
 (ivy-set-actions
- 'counsel-find-file
- '(("f" find-file-other-window "other window")))
+   'counsel-find-file
+   '(("f" find-file-other-window "other window")
+     ("v" view-file "view")
+     ("d" delete-file "delete")
+     ("l" load-file "load")
+     ("b" byte-compile-file "byte compile")))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
