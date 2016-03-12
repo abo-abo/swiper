@@ -1238,7 +1238,7 @@ string - the full shell command to run."
   "Return a shell command based on INPUT."
   (format "es.exe -i -r %s"
           (counsel-unquote-regex-parens
-           (ivy--regex input))))
+           (ivy--regex input t))))
 
 (defun counsel-locate-function (input)
   (if (< (length input) 3)
