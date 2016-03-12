@@ -1486,7 +1486,7 @@ This is useful for recursive `ivy-read'."
                 (ivy--directory
                  prompt)
                 (t
-                 nil)))
+                 prompt)))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
 ;;;###autoload
