@@ -170,23 +170,12 @@ Update the minibuffer with the amount of lines collected every
   '(choice
     (const :tag "Plain" counsel-prompt-function-default)
     (const :tag "Directory" counsel-prompt-function-dir)
-    (function :tag "Custom")))
+    (function :tag "Custom"))
+  :group 'ivy)
 
 (defun counsel-prompt-function-default (prompt)
   "Return PROMPT appended with a semicolon."
   (format "%s: " prompt))
-
-(defun counsel-prompt-function-dir (prompt)
-  "Return PROMPT appended with the parent directory."
-  (let ((directory counsel--git-grep-dir))
-    (format "%s [%s]: "
-            prompt
-            (let ((dir-list (eshell-split-path directory)))
-              (if (> (length dir-list) 3)
-                  (apply #'concat
-                         (append '("...")
-                                 (cl-subseq dir-list (- (length dir-list) 3))))
-                directory)))))
 
 (defun counsel-delete-process ()
   (let ((process (get-process " *counsel*")))
@@ -751,6 +740,18 @@ Describe the selected candidate."
 (defvar counsel-git-grep-cmd-history
   '("git --no-pager grep --full-name -n --no-color -i -e %S")
   "History for `counsel-git-grep' shell commands.")
+
+(defun counsel-prompt-function-dir (prompt)
+  "Return PROMPT appended with the parent directory."
+  (let ((directory counsel--git-grep-dir))
+    (format "%s [%s]: "
+            prompt
+            (let ((dir-list (eshell-split-path directory)))
+              (if (> (length dir-list) 3)
+                  (apply #'concat
+                         (append '("...")
+                                 (cl-subseq dir-list (- (length dir-list) 3))))
+                directory)))))
 
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
