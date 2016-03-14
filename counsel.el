@@ -1340,11 +1340,10 @@ pt using `counsel-ag'."
   :group 'ivy)
 
 ;;;###autoload
-(defun counsel-pt (&optional initial-input initial-directory)
+(defun counsel-pt ()
   "Grep for a string in the current directory using pt.
 This uses `counsel-ag' with `counsel-pt-base-command' replacing
-`counsel-ag-base-command'. INITIAL-INPUT can be given as the
-initial minibuffer input."
+`counsel-ag-base-command'."
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command))
     (call-interactively 'counsel-ag)))
