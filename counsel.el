@@ -1265,15 +1265,16 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 ;;* Grep
 ;;** `counsel-ag'
-(defcustom counsel-ag-base-command "ag --vimgrep %s"
+(defcustom counsel-ag-base-command "ag --nocolor --nogroup %s -- ."
   "Format string to use in `cousel-ag-function' to construct the
 command. %S will be replaced by the regex string. The default is
-\"ag --vimgrep %S\"."
+\"ag --nocolor --nogroup %s -- .\"."
   :type 'string
   :group 'ivy)
 
 (counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
+(ivy-set-display-transformer 'counsel-ag 'counsel-git-grep-transformer)
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
