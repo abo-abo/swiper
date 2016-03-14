@@ -1333,7 +1333,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
       cands))))
 
 ;;** `counsel-pt'
-(defcustom counsel-pt-base-command "pt --nocolor --nogroup %s -- ."
+(defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s -- ."
   "Used to in place of `counsel-ag-base-command' to search with
 pt using `counsel-ag'."
   :type 'string
