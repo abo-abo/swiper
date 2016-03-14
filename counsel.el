@@ -1815,7 +1815,59 @@ An extra action allows to switch to the process buffer."
               ("p" helm-rhythmbox-play-song "Play song")
               ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
             :caller 'counsel-rhythmbox))
+;;** `counsel-linux-app'
+(defvar counsel-linux-apps-alist nil
+  "List of data located in /usr/share/applications.")
 
+(defvar counsel-linux-apps-faulty nil
+  "List of faulty data located in /usr/share/applications.")
+
+(defun counsel-linux-apps-list ()
+  (let ((files
+         (delete
+          ".." (delete
+                "." (file-expand-wildcards "/usr/share/applications/*.desktop")))))
+    (dolist (file (cl-set-difference files (append (mapcar 'car counsel-linux-apps-alist)
+                                                   counsel-linux-apps-faulty)
+                                     :test 'equal))
+      (with-temp-buffer
+        (insert-file-contents (expand-file-name file "/usr/share/applications"))
+        (let (name comment exec)
+          (goto-char (point-min))
+          (if (re-search-forward "^Name=\\(.*\\)$" nil t)
+              (setq name (match-string 1))
+            (error "File %s has no Name" file))
+          (goto-char (point-min))
+          (when (re-search-forward "^Comment=\\(.*\\)$" nil t)
+            (setq comment (match-string 1)))
+          (goto-char (point-min))
+          (when (re-search-forward "^Exec=\\(.*\\)$" nil t)
+            (setq exec (match-string 1)))
+          (if (and exec (not (equal exec "")))
+              (add-to-list
+               'counsel-linux-apps-alist
+               (cons (format "% -45s: %s%s"
+                             (propertize exec 'face 'font-lock-builtin-face)
+                             name
+                             (if comment
+                                 (concat " - " comment)
+                               ""))
+                     file))
+            (add-to-list 'counsel-linux-apps-faulty file))))))
+  counsel-linux-apps-alist)
+
+(defun counsel-linux-app-action (desktop-shortcut)
+  "Launch DESKTOP-SHORTCUT."
+  (call-process-shell-command
+   (format "gtk-launch %s" (file-name-nondirectory desktop-shortcut))))
+
+;;;###autoload
+(defun counsel-linux-app ()
+  "Launch a Linux desktop application, similar to Alt-<F2>."
+  (interactive)
+  (ivy-read "Run a command: " (counsel-linux-apps-list)
+            :action #'counsel-linux-app-action
+            :caller 'counsel-linux-app))
 ;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
