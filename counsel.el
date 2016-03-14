@@ -1295,9 +1295,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive
    (list nil
          (when current-prefix-arg
-           (read-directory-name "ag in directory: "))))
+           (read-directory-name (concat
+                                 (car (split-string counsel-ag-base-command))
+                                 " in directory: ")))))
   (setq counsel--git-grep-dir (or initial-directory default-directory))
-  (ivy-read (funcall counsel-prompt-function "ag")
+  (ivy-read (funcall counsel-prompt-function
+                     (car (split-string counsel-ag-base-command)))
             'counsel-ag-function
             :initial-input initial-input
             :dynamic-collection t
@@ -1328,6 +1331,23 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      (mapcar
       (lambda (cand) (concat "./" cand))
       cands))))
+
+;;** `counsel-pt'
+(defcustom counsel-pt-base-command "pt --nocolor --nogroup %s -- ."
+  "Used to in place of `counsel-ag-base-command' to search with
+pt using `counsel-ag'."
+  :type 'string
+  :group 'ivy)
+
+;;;###autoload
+(defun counsel-pt (&optional initial-input initial-directory)
+  "Grep for a string in the current directory using pt.
+This uses `counsel-ag' with `counsel-pt-base-command' replacing
+`counsel-ag-base-command'. INITIAL-INPUT can be given as the
+initial minibuffer input."
+  (interactive)
+  (let ((counsel-ag-base-command counsel-pt-base-command))
+    (call-interactively 'counsel-ag)))
 
 ;;** `counsel-grep'
 (defun counsel-grep-function (string)
