@@ -426,23 +426,42 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-describe-function ()
   "Forward to `describe-function'."
   (interactive)
-  (let ((enable-recursive-minibuffers t))
-    (ivy-read "Describe function: "
-              (let (cands)
-                (mapatoms
-                 (lambda (x)
-                   (when (fboundp x)
-                     (push (symbol-name x) cands))))
-                cands)
+  (let* ((cands obarray)
+         (pred 'fboundp)
+         (sort t))
+    (when (require 'smex nil 'noerror)
+      (unless smex-initialized-p
+        (smex-initialize))
+      (smex-detect-new-commands)
+      (smex-update)
+      (setq cands nil)
+      (setq pred nil)
+      (setq sort nil)
+      (mapatoms
+       (lambda (x)
+	 ;; only add X to candiate list if it is a function. If it is
+	 ;; also a command it must not be in smex-ido-cache to be
+	 ;; added
+	 (when (and (fboundp x)
+		    (not (and (commandp x) (memq (symbol-name x) smex-ido-cache))))
+	   (push (symbol-name x) cands))))
+      (setq cands (append smex-ido-cache cands)))
+    (ivy-read "Describe function: " cands
               :keymap counsel-describe-map
               :preselect (ivy-thing-at-point)
               :history 'counsel-describe-symbol-history
               :require-match t
-              :sort t
-              :action (lambda (x)
-                        (describe-function
-                         (intern x)))
-              :caller 'counsel-describe-function)))
+              :sort sort
+	      :predicate pred
+	      :action
+              (lambda (cmd)
+                (when (and (featurep 'smex) (commandp cmd))
+                  (smex-rank (intern cmd)))
+                (let ((prefix-arg current-prefix-arg)
+                      (this-command (intern cmd)))
+                  (describe-function (intern cmd))))
+              :sort sort
+	      :caller 'counsel-describe-function)))
 
 ;;** `counsel-info-lookup-symbol'
 (defvar info-lookup-mode)
