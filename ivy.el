@@ -2582,6 +2582,13 @@ Skip buffers that match `ivy-ignore-buffers'."
         (propertize str 'face 'ivy-modified-buffer)
       str)))
 
+(defun ivy-switch-buffer-occur ()
+  "Occur function for `ivy-switch-buffer' that uses `ibuffer'."
+  (let* ((cand-regexp
+          (concat "\\(" (mapconcat #'regexp-quote ivy--old-cands "\\|") "\\)"))
+         (new-qualifier `((name . ,cand-regexp))))
+    (ibuffer nil (buffer-name) new-qualifier)))
+
 ;;;###autoload
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
@@ -2755,6 +2762,9 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Assign CMD a custom OCCUR function."
   (setq ivy--occurs-list
         (plist-put ivy--occurs-list cmd occur)))
+
+(ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
+(ivy-set-occur 'ivy-switch-buffer-other-window 'ivy-switch-buffer-occur)
 
 (defun ivy--occur-insert-lines (cands)
   (dolist (str cands)
