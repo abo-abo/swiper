@@ -2881,7 +2881,8 @@ EVENT gives the mouse position."
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
     (when (memq (ivy-state-caller ivy-occur-last)
-                '(swiper counsel-git-grep counsel-grep counsel-ag))
+                '(swiper counsel-git-grep counsel-grep counsel-ag
+                  counsel-describe-function counsel-describe-variable))
       (let ((window (ivy-state-window ivy-occur-last)))
         (when (or (null (window-live-p window))
                   (equal window (selected-window)))
