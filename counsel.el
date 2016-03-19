@@ -1856,18 +1856,39 @@ An extra action allows to switch to the process buffer."
             (add-to-list 'counsel-linux-apps-faulty file))))))
   counsel-linux-apps-alist)
 
-(defun counsel-linux-app-action (desktop-shortcut)
+(defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
   (call-process-shell-command
    (format "gtk-launch %s" (file-name-nondirectory desktop-shortcut))))
+
+(defun counsel-linux-app-action-file (desktop-shortcut)
+  "Launch DESKTOP-SHORTCUT with a selected file."
+  (let* ((entry (rassoc desktop-shortcut counsel-linux-apps-alist))
+         (short-name (and entry
+                          (string-match "\\([^ ]*\\) " (car entry))
+                          (match-string 1 (car entry))))
+         (file (and short-name
+                    (read-file-name
+                     (format "Run %s on: " short-name)))))
+    (if file
+        (call-process-shell-command
+         (format "gtk-launch %s %s"
+                 (file-name-nondirectory desktop-shortcut)
+                 file))
+      (user-error "cancelled"))))
+
+(ivy-set-actions
+ 'counsel-linux-app
+ '(("f" counsel-linux-app-action-file "run on a file")))
 
 ;;;###autoload
 (defun counsel-linux-app ()
   "Launch a Linux desktop application, similar to Alt-<F2>."
   (interactive)
   (ivy-read "Run a command: " (counsel-linux-apps-list)
-            :action #'counsel-linux-app-action
+            :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
+
 ;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
