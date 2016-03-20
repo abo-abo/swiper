@@ -2319,7 +2319,7 @@ This string is inserted into the minibuffer."
 
 (defun ivy--format-function-generic (selected-fn other-fn strs separator)
   "Transform CAND-PAIRS into a string for minibuffer.
-SELECTED-FN and OTHER-FN each take two string arguments.
+SELECTED-FN and OTHER-FN each take one string argument.
 SEPARATOR is used to join the candidates."
   (let ((i -1))
     (mapconcat
