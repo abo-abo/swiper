@@ -552,14 +552,10 @@ When ARG is t, exit with current text, ignoring the candidates."
        (setq dir (concat ivy-text ivy--directory))
        (ivy--cd dir)
        (ivy--exhibit))
-      ((or
-        (and
-         (not (string= ivy-text ""))
-         (setq dir (ivy-expand-file-if-directory ivy-text)))
-        (and
-         (> ivy--length 0)
-         (not (string= ivy--current "./"))
-         (setq dir (ivy-expand-file-if-directory ivy--current))))
+      ((and
+        (> ivy--length 0)
+        (not (string= ivy--current "./"))
+        (setq dir (ivy-expand-file-if-directory ivy--current)))
        (ivy--cd dir)
        (ivy--exhibit))
       ((or (and (equal ivy--directory "/")
