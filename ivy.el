@@ -2564,7 +2564,7 @@ Skip buffers that match `ivy-ignore-buffers'."
              (cl-find-if
               (lambda (f-or-r)
                 (if (functionp f-or-r)
-                    (funcall ff buf)
+                    (funcall f-or-r buf)
                   (string-match-p f-or-r buf)))
               ivy-ignore-buffers))
            res)
