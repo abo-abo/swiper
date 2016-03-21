@@ -294,8 +294,7 @@ numbers; replaces calculating the width from buffer line count."
                            (buffer-substring
                             (point)
                             (line-end-position)))))))
-              (when (eq major-mode 'twittering-mode)
-                (remove-text-properties 0 (length str) '(field) str))
+              (remove-text-properties 0 (length str) '(field) str)
               (put-text-property 0 1 'display
                                  (format swiper--format-spec
                                          (cl-incf line-number))
