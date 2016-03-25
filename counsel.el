@@ -1371,6 +1371,8 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
         (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
+          (isearch-range-invisible (line-beginning-position)
+                                   (line-end-position))
           (swiper--add-overlays (ivy--regex ivy-text)))))))
 
 ;;;###autoload
@@ -1378,21 +1380,27 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
   "Grep for a string in the current file."
   (interactive)
   (setq counsel--git-grep-dir (buffer-file-name))
-  (ivy-read "grep: " 'counsel-grep-function
-            :dynamic-collection t
-            :preselect (format "%d:%s"
-                               (line-number-at-pos)
-                               (buffer-substring-no-properties
-                                (line-beginning-position)
-                                (line-end-position)))
-            :history 'counsel-git-grep-history
-            :update-fn (lambda ()
-                         (counsel-grep-action ivy--current))
-            :action #'counsel-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-grep))
+  (let ((init-point (point))
+        res)
+    (unwind-protect
+         (setq res (ivy-read "grep: " 'counsel-grep-function
+                             :dynamic-collection t
+                             :preselect (format "%d:%s"
+                                                (line-number-at-pos)
+                                                (buffer-substring-no-properties
+                                                 (line-beginning-position)
+                                                 (line-end-position)))
+                             :history 'counsel-git-grep-history
+                             :update-fn (lambda ()
+                                          (counsel-grep-action ivy--current))
+                             :action #'counsel-grep-action
+                             :unwind (lambda ()
+                                       (counsel-delete-process)
+                                       (swiper--cleanup))
+                             :caller 'counsel-grep))
+      (unless res
+        (goto-char init-point)))))
+
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
   "Grep in the current directory for STRING."
