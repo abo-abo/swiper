@@ -118,15 +118,15 @@ Or the time of the last minibuffer update.")
            (ivy--set-candidates
             (ivy--sort-maybe
              cands))
-           (if (null ivy--old-cands)
-               (setq ivy--index
-                     (or (ivy--preselect-index
-                          (ivy-state-preselect ivy-last)
-                          ivy--all-candidates)
-                         0))
-             (let ((re (funcall ivy--regex-function ivy-text)))
-               (unless (stringp re)
-                 (setq re (caar re)))
+           (let ((re (funcall ivy--regex-function ivy-text)))
+             (unless (stringp re)
+               (setq re (caar re)))
+             (if (null ivy--old-cands)
+                 (unless (setq ivy--index (ivy--preselect-index
+                                           (ivy-state-preselect ivy-last)
+                                           ivy--all-candidates))
+                   (ivy--recompute-index
+                    ivy-text re ivy--all-candidates))
                (ivy--recompute-index
                 ivy-text re ivy--all-candidates)))
            (setq ivy--old-cands ivy--all-candidates)

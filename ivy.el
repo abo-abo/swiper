@@ -2189,7 +2189,7 @@ Prefix matches to NAME are put ahead of the list."
                   (not (and (require 'flx nil 'noerror)
                             (eq ivy--regex-function 'ivy--regex-fuzzy)
                             (< (length cands) 200)))
-
+                  ivy--old-cands
                   (cl-position (nth ivy--index ivy--old-cands)
                                cands))
              (funcall func re-str cands))))
@@ -2226,16 +2226,23 @@ Prefix matches to NAME are put ahead of the list."
           res)))))
 
 (defun ivy-recompute-index-swiper-async (_re-str cands)
-  (let ((tail (nthcdr ivy--index ivy--old-cands))
-        idx)
-    (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-        (progn
-          (while (and tail (null idx))
-            ;; Compare with `equal', since the collection is re-created
-            ;; each time with `split-string'
-            (setq idx (cl-position (pop tail) cands :test #'equal)))
-          (or idx 0))
-      ivy--index)))
+  (if (null ivy--old-cands)
+      (let ((ln (with-ivy-window
+                  (line-number-at-pos))))
+        (or (cl-position-if (lambda (x)
+                              (>= (string-to-number x) ln))
+                            cands)
+            0))
+    (let ((tail (nthcdr ivy--index ivy--old-cands))
+          idx)
+      (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+          (progn
+            (while (and tail (null idx))
+              ;; Compare with `equal', since the collection is re-created
+              ;; each time with `split-string'
+              (setq idx (cl-position (pop tail) cands :test #'equal)))
+            (or idx 0))
+        ivy--index))))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
   0)
