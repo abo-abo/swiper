@@ -1772,11 +1772,11 @@ An extra action allows to switch to the process buffer."
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
-(defvar rhythmbox-library)
-(declare-function rhythmbox-load-library "ext:helm-rhythmbox")
+(defvar helm-rhythmbox-library)
+(declare-function helm-rhythmbox-load-library "ext:helm-rhythmbox")
 (declare-function dbus-call-method "dbus")
 (declare-function dbus-get-property "dbus")
-(declare-function rhythmbox-song-uri "ext:helm-rhythmbox")
+(declare-function helm-rhythmbox-song-uri "ext:helm-rhythmbox")
 (declare-function helm-rhythmbox-candidates "ext:helm-rhythmbox")
 
 (defun counsel-rhythmbox-enqueue-song (song)
@@ -1785,7 +1785,7 @@ An extra action allows to switch to the process buffer."
         (path "/org/gnome/Rhythmbox3/PlayQueue")
         (interface "org.gnome.Rhythmbox3.PlayQueue"))
     (dbus-call-method :session service path interface
-                      "AddToQueue" (rhythmbox-song-uri song))))
+                      "AddToQueue" (helm-rhythmbox-song-uri song))))
 
 (defvar counsel-rhythmbox-history nil
   "History for `counsel-rhythmbox'.")
@@ -1810,9 +1810,9 @@ An extra action allows to switch to the process buffer."
   (interactive)
   (unless (require 'helm-rhythmbox nil t)
     (error "Please install `helm-rhythmbox'"))
-  (unless rhythmbox-library
-    (rhythmbox-load-library)
-    (while (null rhythmbox-library)
+  (unless helm-rhythmbox-library
+    (helm-rhythmbox-load-library)
+    (while (null helm-rhythmbox-library)
       (sit-for 0.1)))
   (ivy-read "Rhythmbox: "
             (helm-rhythmbox-candidates)
