@@ -908,6 +908,7 @@ Call the permanent action if possible."
         (insert ivy--default)
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
                    (not (file-exists-p ivy--default))
+                   (not (ffap-url-p ivy--default))
                    (not (ivy-state-dynamic-collection ivy-last))
                    (> (point) (minibuffer-prompt-end)))
           (undo-boundary)
