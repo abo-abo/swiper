@@ -1351,8 +1351,8 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
 ;;** `counsel-grep'
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
+  (if (< (length string) 2)
+      (counsel-more-chars 2)
     (let ((regex (counsel-unquote-regex-parens
                   (setq ivy--old-re
                         (ivy--regex string)))))
