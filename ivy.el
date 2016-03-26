@@ -1080,9 +1080,10 @@ On error (read-only), call `ivy-on-del-error-function'."
             (avy--process
              (nreverse candidates)
              (avy--style-fn avy-style)))))
-    (ivy-set-index (- (line-number-at-pos candidate) 2))
-    (ivy--exhibit)
-    (ivy-done)))
+    (when (numberp candidate)
+      (ivy-set-index (- (line-number-at-pos candidate) 2))
+      (ivy--exhibit)
+      (ivy-done))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
