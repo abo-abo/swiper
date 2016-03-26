@@ -1361,8 +1361,9 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
       nil)))
 
 (defun counsel-grep-action (x)
-  (when (string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
-    (with-ivy-window
+  (with-ivy-window
+    (swiper--cleanup)
+    (when (string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
       (let ((file-name counsel--git-grep-dir)
             (line-number (match-string-no-properties 1 x)))
         (find-file file-name)
@@ -1372,7 +1373,6 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
         (if (eq ivy-exit 'done)
             (swiper--ensure-visible)
           (unless (eq ivy-exit 'done)
-            (swiper--cleanup)
             (isearch-range-invisible (line-beginning-position)
                                      (line-end-position))
             (swiper--add-overlays (ivy--regex ivy-text))))))))
