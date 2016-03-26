@@ -1529,7 +1529,8 @@ INHERIT-INPUT-METHOD is currently ignored."
               :history history
               :keymap nil
               :sort
-              (let ((sort (assoc this-command ivy-sort-functions-alist)))
+              (let ((sort (or (assoc this-command ivy-sort-functions-alist)
+                              (assoc t ivy-sort-functions-alist))))
                 (if sort
                     (cdr sort)
                   t)))))
