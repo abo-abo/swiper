@@ -1369,11 +1369,13 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
         (goto-char (point-min))
         (forward-line (1- (string-to-number line-number)))
         (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-        (unless (eq ivy-exit 'done)
-          (swiper--cleanup)
-          (isearch-range-invisible (line-beginning-position)
-                                   (line-end-position))
-          (swiper--add-overlays (ivy--regex ivy-text)))))))
+        (if (eq ivy-exit 'done)
+            (swiper--ensure-visible)
+          (unless (eq ivy-exit 'done)
+            (swiper--cleanup)
+            (isearch-range-invisible (line-beginning-position)
+                                     (line-end-position))
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 ;;;###autoload
 (defun counsel-grep ()
