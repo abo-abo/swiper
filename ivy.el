@@ -1096,6 +1096,12 @@ Prioritize directories."
         nil
       (string< x y))))
 
+(defcustom ivy-sort-default t
+  "If non nil, sort collection passed to `ivy-completing-read' by
+default."
+  :group 'ivy
+  :type 'boolean)
+
 (defcustom ivy-sort-functions-alist
   '((read-file-name-internal . ivy-sort-file-function-default)
     (internal-complete-buffer . nil)
@@ -1533,7 +1539,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                               (assoc t ivy-sort-functions-alist))))
                 (if sort
                     (cdr sort)
-                  t)))))
+                  ivy-sort-default)))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
