@@ -1772,6 +1772,36 @@ An extra action allows to switch to the process buffer."
               ("s" counsel-list-processes-action-switch "switch"))
             :caller 'counsel-list-processes))
 
+;;** `counsel-ace-link'
+(defun counsel-ace-link ()
+  "Use Ivy completion for `ace-link'."
+  (interactive)
+  (let (collection action)
+    (cond ((eq major-mode 'Info-mode)
+           (setq collection 'ace-link--info-collect)
+           (setq action 'ace-link--info-action))
+          ((eq major-mode 'help-mode)
+           (setq collection 'ace-link--help-collect)
+           (setq action 'ace-link--help-action))
+          ((eq major-mode 'woman-mode)
+           (setq collection 'ace-link--woman-collect)
+           (setq action 'ace-link--woman-action))
+          ((eq major-mode 'eww-mode)
+           (setq collection 'ace-link--eww-collect)
+           (setq action 'ace-link--eww-action))
+          ((eq major-mode 'compilation-mode)
+           (setq collection 'ace-link--eww-collect)
+           (setq action 'ace-link--compilation-action))
+          ((eq major-mode 'org-mode)
+           (setq collection 'ace-link--org-collect)
+           (setq action 'ace-link--org-action)))
+    (if (null collection)
+        (error "%S is not supported" major-mode)
+      (ivy-read "Ace-Link: " (funcall collection)
+                :action action
+                :require-match t
+                :caller 'counsel-ace-link))))
+
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
 (defvar helm-rhythmbox-library)
