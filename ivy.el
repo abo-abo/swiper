@@ -124,6 +124,10 @@ Set this to \"(%d/%d) \" to display both the index and the count."
           (const :tag "Count matches and show current match" "(%d/%d) ")
           string))
 
+(defcustom ivy-add-newline-after-prompt nil
+  "When non-nil, add a newline after the `ivy-read' prompt."
+  :type 'boolean)
+
 (defcustom ivy-wrap nil
   "When non-nil, wrap around after the first and the last candidate."
   :type 'boolean)
@@ -1856,6 +1860,8 @@ depending on the number of candidates."
                  (window-width))
               (setq n-str (concat n-str "\n" d-str))
             (setq n-str (concat n-str d-str)))
+          (when ivy-add-newline-after-prompt
+            (setq n-str (concat n-str "\n")))
           (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
             (while (string-match regex n-str)
               (setq n-str (replace-match (concat (match-string 1 n-str) "\n") nil t n-str 1))))
