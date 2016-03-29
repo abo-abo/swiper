@@ -478,7 +478,8 @@ Update the minibuffer with the amount of lines collected every
 ;;** `counsel-M-x'
 (ivy-set-actions
  'counsel-M-x
- '(("d" counsel--find-symbol "definition")))
+ '(("d" counsel--find-symbol "definition")
+   ("h" (lambda (x) (describe-function (intern x))) "help")))
 
 (ivy-set-display-transformer
  'counsel-M-x
