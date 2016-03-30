@@ -1120,7 +1120,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
                            (when f (expand-file-name f))))
             :require-match 'confirm-after-completion
             :history 'file-name-history
-            :keymap counsel-find-file-map))
+            :keymap counsel-find-file-map
+            :caller 'counsel-find-file))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one."
