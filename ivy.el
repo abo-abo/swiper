@@ -1429,6 +1429,7 @@ This is useful for recursive `ivy-read'."
             (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
                      (<= (length coll) ivy-sort-max-size))
                 (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
+      (setq coll (ivy--set-candidates coll))
       (when preselect
         (unless (or (and require-match
                          (not (eq collection 'internal-complete-buffer)))
