@@ -2422,6 +2422,8 @@ SEPARATOR is used to join the candidates."
     str))
 
 (ivy-set-display-transformer
+ 'counsel-find-file 'ivy-read-file-transformer)
+(ivy-set-display-transformer
  'read-file-name-internal 'ivy-read-file-transformer)
 
 (defun ivy-read-file-transformer (str)
