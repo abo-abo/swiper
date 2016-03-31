@@ -94,7 +94,13 @@
       (user-error "Should only be called in the minibuffer through `swiper-map'")
     (let* ((enable-recursive-minibuffers t)
            (from (ivy--regex ivy-text))
-           (to (query-replace-read-to from "Query replace" t)))
+           (to (minibuffer-with-setup-hook
+                   (lambda ()
+                     (setq minibuffer-default
+                           (if (string-match "\\`\\\\_<\\(.*\\)\\\\_>\\'" ivy-text)
+                               (match-string 1 ivy-text)
+                             ivy-text)))
+                 (read-from-minibuffer (format "Query replace %s with: " from)))))
       (swiper--cleanup)
       (ivy-exit-with-action
        (lambda (_)
