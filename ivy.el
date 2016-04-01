@@ -1283,9 +1283,7 @@ customizations apply to the current completion session."
         (transformer-fn
          (plist-get ivy--display-transformers-list
                     (or caller (and (functionp collection)
-                                    collection))))
-        (original-action (and (consp action)
-                              (copy-sequence action))))
+                                    collection)))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1341,8 +1339,6 @@ customizations apply to the current completion session."
             (when recursive-ivy-last
               (ivy--reset-state (setq ivy-last recursive-ivy-last)))))
       (ivy-call)
-      (when original-action
-        (setf (ivy-state-action ivy-last) original-action))
       (when (and recursive-ivy-last
                  ivy-recursive-restore)
         (ivy--reset-state (setq ivy-last recursive-ivy-last))))))
