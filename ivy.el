@@ -911,6 +911,7 @@ Call the permanent action if possible."
       (progn
         (insert ivy--default)
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
+                   (eq (ivy-state-caller ivy-last) 'swiper)
                    (not (file-exists-p ivy--default))
                    (not (ffap-url-p ivy--default))
                    (not (ivy-state-dynamic-collection ivy-last))
