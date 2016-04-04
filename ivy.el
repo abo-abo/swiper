@@ -305,7 +305,8 @@ This should eventually become a stack so that you could use
   "Return a string that corresponds to the current thing at point."
   (or
    (thing-at-point 'url)
-   (ffap-file-at-point)
+   (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+        (ffap-file-at-point))
    (let (s)
      (cond ((stringp (setq s (thing-at-point 'symbol)))
             (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
