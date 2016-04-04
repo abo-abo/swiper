@@ -42,11 +42,25 @@
         (format "%d chars more" (- n (length ivy-text)))))
 
 (defun counsel-unquote-regex-parens (str)
-  (replace-regexp-in-string
-   "\\\\)" ")"
-   (replace-regexp-in-string
-    "\\\\(" "("
-    str)))
+  (let ((start 0)
+        ms)
+    (while (setq start (string-match "\\\\)\\|\\\\(\\|[()]" str start))
+      (setq ms (match-string-no-properties 0 str))
+      (cond ((equal ms "\\(")
+             (setq str (replace-match "(" nil t str))
+             (setq start (+ start 1)))
+            ((equal ms "\\)")
+             (setq str (replace-match ")" nil t str))
+             (setq start (+ start 1)))
+            ((equal ms "(")
+             (setq str (replace-match "\\(" nil t str))
+             (setq start (+ start 2)))
+            ((equal ms ")")
+             (setq str (replace-match "\\)" nil t str))
+             (setq start (+ start 2)))
+            (t
+             (error "unexpected"))))
+    str))
 
 (defun counsel-directory-parent (dir)
   "Return the directory parent of directory DIR."
@@ -1359,7 +1373,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format "grep -nP --ignore-case '%s' %s" regex counsel--git-grep-dir))
+       (format "grep -nE --ignore-case \"%s\" %s" regex counsel--git-grep-dir))
       nil)))
 
 (defun counsel-grep-action (x)

@@ -170,4 +170,7 @@
 (ert-deftest counsel-unquote-regex-parens ()
   (should (equal (counsel-unquote-regex-parens
                   (ivy--regex "foo bar"))
-                 "(foo).*?(bar)")))
+                 "(foo).*?(bar)"))
+  (should (equal (counsel-unquote-regex-parens
+                  (ivy--regex "(foo bar"))
+                 "(\\(foo).*?(bar)")))
