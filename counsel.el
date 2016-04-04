@@ -707,6 +707,12 @@ Describe the selected candidate."
 (defvar counsel--git-dir nil
   "Store the base git directory.")
 
+(ivy-set-actions
+ 'counsel-git
+ '(("j"
+    find-file-other-window
+    "other")))
+
 ;;;###autoload
 (defun counsel-git ()
   "Find file in the current Git repository."
