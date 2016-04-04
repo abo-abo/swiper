@@ -1797,6 +1797,7 @@ depending on the number of candidates."
   (set (make-local-variable 'minibuffer-default-add-function)
        (lambda ()
          (list ivy--default)))
+  (set (make-local-variable 'inhibit-field-text-motion) nil)
   (when (display-graphic-p)
     (setq truncate-lines t))
   (setq-local max-mini-window-height ivy-height)
