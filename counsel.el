@@ -963,9 +963,11 @@ When NO-ASYNC is non-nil, do it synchronously."
                  (ivy--exhibit)))))))))
 
 (defun counsel-git-grep-occur ()
-  "Generate a custom occur buffer for `counsel-git-grep'."
-  (ivy-occur-grep-mode)
-  (setq default-directory counsel--git-grep-dir)
+  "Generate a custom occur buffer for `counsel-git-grep'.
+When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode)
+    (setq default-directory counsel--git-grep-dir))
   (let ((cands (split-string
                 (shell-command-to-string
                  (format counsel-git-grep-cmd
