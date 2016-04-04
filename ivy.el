@@ -2853,7 +2853,7 @@ updated original buffer."
              (let ((inhibit-read-only t))
                (erase-buffer)
                (funcall (plist-get ivy--occurs-list caller) t))))
-          ((memq caller '(counsel-git-grep counsel-grep))
+          ((memq caller '(counsel-git-grep counsel-grep counsel-ag))
            (let ((inhibit-read-only t))
              (erase-buffer)
              (funcall (plist-get ivy--occurs-list caller)))))))

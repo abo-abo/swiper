@@ -1337,11 +1337,14 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
-  (ivy-occur-grep-mode)
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode))
   (setq default-directory counsel--git-grep-dir)
   (let* ((regex (counsel-unquote-regex-parens
                  (setq ivy--old-re
-                       (ivy--regex ivy-text))))
+                       (ivy--regex
+                        (progn (string-match "\"\\(.*\\)\"" (buffer-name))
+                               (match-string 1 (buffer-name)))))))
          (cands (split-string
                  (shell-command-to-string
                   (format counsel-ag-base-command (shell-quote-argument regex)))
