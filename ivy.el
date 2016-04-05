@@ -1410,7 +1410,7 @@ This is useful for recursive `ivy-read'."
                             (not (equal (ivy--get-action ivy-last) 'identity)))
                  (setq initial-input nil))))
             ((eq collection 'internal-complete-buffer)
-             (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers)))
+             (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
             ((or (functionp collection)
@@ -2508,7 +2508,7 @@ CANDS is a list of strings."
   "List of regexps or functions matching buffer names to ignore."
   :type '(repeat (choice regexp function)))
 
-(defun ivy--buffer-list (str &optional virtual)
+(defun ivy--buffer-list (str &optional virtual predicate)
   "Return the buffers that match STR.
 When VIRTUAL is non-nil, add virtual buffers."
   (delete-dups
@@ -2520,7 +2520,7 @@ When VIRTUAL is non-nil, add virtual buffers."
               (abbreviate-file-name default-directory)))
            (propertize x 'face 'ivy-remote)
          x))
-     (all-completions str 'internal-complete-buffer))
+     (all-completions str 'internal-complete-buffer predicate))
     (and virtual
          (ivy--virtual-buffers)))))
 
