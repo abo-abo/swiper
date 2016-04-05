@@ -1289,6 +1289,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 ;;* Grep
 ;;** `counsel-ag'
+(defvar counsel-ag-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-l") 'counsel-git-grep-recenter)
+    (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
+    map))
+
 (defcustom counsel-ag-base-command "ag --nocolor --nogroup %s -- ."
   "Format string to use in `cousel-ag-function' to construct the
 command. %S will be replaced by the regex string. The default is
@@ -1328,6 +1334,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             'counsel-ag-function
             :initial-input initial-input
             :dynamic-collection t
+            :keymap counsel-ag-map
             :history 'counsel-git-grep-history
             :action #'counsel-git-grep-action
             :unwind (lambda ()
