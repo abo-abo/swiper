@@ -2242,10 +2242,13 @@ Prefix matches to NAME are put ahead of the list."
   (if (null ivy--old-cands)
       (let ((ln (with-ivy-window
                   (line-number-at-pos))))
-        (or (cl-position-if (lambda (x)
-                              (>= (string-to-number x) ln))
-                            cands)
-            0))
+        (or
+         ;; closest to current line going forwards
+         (cl-position-if (lambda (x)
+                           (>= (string-to-number x) ln))
+                         cands)
+         ;; closest to current line going backwards
+         (1- (length cands))))
     (let ((tail (nthcdr ivy--index ivy--old-cands))
           idx)
       (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
