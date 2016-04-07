@@ -147,6 +147,16 @@ earlier versions of Emacs."
           (const :tag "Plain" nil)
           (const :tag "Fancy" fancy)))
 
+(defcustom ivy-action-display-style nil
+  "The style for formatting the `ivy-read-action' minibuffer.
+
+By default, the available actions are simply displayed on separate lines.
+
+The hydra display style instead uses a hydra-style docstring which can be customized globally or per command (see `ivy-set-action-hint' for details). This style requires the hydra package to be installed."
+  :type '(choice
+          (const :tag "Plain" nil)
+          (const :tag "Hydra" hydra)))
+
 (defcustom ivy-on-del-error-function 'minibuffer-keyboard-quit
   "The handler for when `ivy-backward-delete-char' throws.
 Usually a quick exit out of the minibuffer."
@@ -171,6 +181,22 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   "Set CMD extra exit points to ACTIONS."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd actions)))
+
+(defvar ivy--action-hints-list nil
+  "A list of hydra-style action hints per command.")
+
+(defun ivy-set-action-hint (cmd hint)
+  "Set the HINT for CMD's action prompt.
+
+HINT must be either a hydra-style docstring (it will be passed to `hydra--format' with the available actions as heads) or a function that take as argument the action list (as returned by `ivy-state-action') and returns such a string.
+
+This list is only used if `ivy-action-display-style' is set to 'hydra. The hint is then determined by (in order of priority):
+1. The symbol passed by :caller into `ivy-read'.
+2. `this-command'.
+3. t.
+4. A hard-coded default string mimicking the default display style."
+  (setq ivy--action-hints-list
+        (plist-put ivy--action-hints-list cmd hint)))
 
 (defvar ivy--display-transformers-list nil
   "A list of str->str transformers per command.")
@@ -259,6 +285,7 @@ Example:
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
+(autoload 'ivy-hydra--make-action-hint "ivy-hydra" "" t)
 
 (defvar ivy-mode-map
   (let ((map (make-sparse-keymap)))
@@ -475,15 +502,17 @@ selection, non-nil otherwise."
                                "Select action: "
                              ivy--current)
                            "\n"
-                           (mapconcat
-                            (lambda (x)
-                              (format "%s: %s"
-                                      (propertize
-                                       (car x)
-                                       'face 'font-lock-builtin-face)
-                                      (nth 2 x)))
-                            (cdr actions)
-                            "\n")
+                           (if (eq ivy-action-display-style 'hydra)
+                               (ivy-hydra--make-action-hint actions)
+                             (mapconcat
+                              (lambda (x)
+                                (format "%s: %s"
+                                        (propertize
+                                         (car x)
+                                         'face 'font-lock-builtin-face)
+                                        (nth 2 x)))
+                              (cdr actions)
+                              "\n"))
                            "\n"))
              (resize-mini-windows 'grow-only)
              (key (string (read-key hint)))
