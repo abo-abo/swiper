@@ -228,7 +228,7 @@ Example:
     (define-key map (kbd "C-s") 'ivy-next-line-or-history)
     (define-key map (kbd "C-r") 'ivy-reverse-i-search)
     (define-key map (kbd "SPC") 'self-insert-command)
-    (define-key map (kbd "DEL") 'ivy-backward-delete-char)
+    (define-key map [remap delete-backward-char] 'ivy-backward-delete-char)
     (define-key map [remap backward-kill-word] 'ivy-backward-kill-word)
     (define-key map [remap delete-char] 'ivy-delete-char)
     (define-key map [remap forward-char] 'ivy-forward-char)
