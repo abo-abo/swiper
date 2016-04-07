@@ -1869,6 +1869,12 @@ An extra action allows to switch to the process buffer."
                 :action action
                 :require-match t
                 :caller 'counsel-ace-link))))
+;;** `counsel-expression-history'
+;;;###autoload
+(defun counsel-expression-history ()
+  (interactive)
+  (ivy-read "Expr: " (delete-dups read-expression-history)
+            :action #'insert))
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'

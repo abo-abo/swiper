@@ -62,6 +62,7 @@ Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 (global-set-key (kbd "C-c k") 'counsel-ag)
 (global-set-key (kbd "C-x l") 'counsel-locate)
 (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
 ```
 
 ## Contributing
