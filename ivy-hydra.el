@@ -88,6 +88,28 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
         (lambda (_) (find-function 'hydra-ivy/body)))
        :exit t))
 
+(defun ivy-hydra--make-action-hint (actions)
+  "Generate a hydra-style hint for `ivy-read-action'."
+  (let ((docstring (or (plist-get ivy--action-hints-list (ivy-state-caller ivy-last))
+                       (plist-get ivy--action-hints-list this-command)
+                       (plist-get ivy--action-hints-list t)
+                       (lambda (actions)
+                         (mapconcat (lambda (x)
+                                      (format "\n_%s_: %s" (car x) (nth 2 x)))
+                                    (cdr actions)
+                                    "")))))
+    (eval (hydra--format "hydra-ivy-actions" '(:hint nil :exit t :foreign-keys nil)
+                         (cond
+                          ((stringp docstring)
+                           docstring)
+                          ((functionp docstring)
+                           (funcall docstring actions))
+                          (t
+                           (user-error "Cannot generate action hint")))
+                         (mapcar (lambda (x)
+                                   `(,(car x) nil))
+                                 (cdr actions))))))
+
 (provide 'ivy-hydra)
 
 ;;; ivy-hydra.el ends here
