@@ -1383,7 +1383,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
     (call-interactively 'counsel-ag)))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE --ignore-case \"%s\" %s"
+(defcustom counsel-grep-base-command "grep -nE \"%s\" %s"
   "Format string to use in `cousel-grep-function' to construct
 the command."
   :type 'string
