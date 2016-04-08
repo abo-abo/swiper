@@ -466,6 +466,28 @@ When non-nil, it should contain at least one %d.")
          (insert ivy-text)
          (ivy--exhibit))))
 
+(defvar ivy-read-action-format-function 'ivy-read-action-format-default
+  "Function used to transform the actions list into a docstring.")
+
+(defun ivy-read-action-format-default (actions)
+  "Create a docstring from ACTIONS.
+
+ACTIONS is a list. Each list item is a list of 3 items:
+key (a string), cmd and doc (a string)."
+  (format "%s\n%s\n"
+          (if (eq this-command 'ivy-read-action)
+              "Select action: "
+            ivy--current)
+          (mapconcat
+           (lambda (x)
+             (format "%s: %s"
+                     (propertize
+                      (car x)
+                      'face 'ivy-action)
+                     (nth 2 x)))
+           actions
+           "\n")))
+
 (defun ivy-read-action ()
   "Change the action to one of the available ones.
 
@@ -475,20 +497,7 @@ selection, non-nil otherwise."
   (let ((actions (ivy-state-action ivy-last)))
     (if (null (ivy--actionp actions))
         t
-      (let* ((hint (concat (if (eq this-command 'ivy-read-action)
-                               "Select action: "
-                             ivy--current)
-                           "\n"
-                           (mapconcat
-                            (lambda (x)
-                              (format "%s: %s"
-                                      (propertize
-                                       (car x)
-                                       'face 'ivy-action)
-                                      (nth 2 x)))
-                            (cdr actions)
-                            "\n")
-                           "\n"))
+      (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
              (resize-mini-windows 'grow-only)
              (key (string (read-key hint)))
              (action-idx (cl-position-if
