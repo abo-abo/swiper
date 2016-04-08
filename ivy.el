@@ -108,6 +108,10 @@
   '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for matching virtual buffer names.")
 
+(defface ivy-action
+  '((t :inherit font-lock-builtin-face))
+  "Face used by Ivy for displaying keys in `ivy-read-action'.")
+
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
@@ -480,7 +484,7 @@ selection, non-nil otherwise."
                               (format "%s: %s"
                                       (propertize
                                        (car x)
-                                       'face 'font-lock-builtin-face)
+                                       'face 'ivy-action)
                                       (nth 2 x)))
                             (cdr actions)
                             "\n")
