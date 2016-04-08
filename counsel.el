@@ -1873,8 +1873,9 @@ An extra action allows to switch to the process buffer."
 ;;;###autoload
 (defun counsel-expression-history ()
   (interactive)
-  (ivy-read "Expr: " (delete-dups read-expression-history)
-            :action #'insert))
+  (let ((enable-recursive-minibuffers t))
+    (ivy-read "Expr: " (delete-dups read-expression-history)
+              :action #'insert)))
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
