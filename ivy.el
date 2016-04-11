@@ -2538,6 +2538,67 @@ When VIRTUAL is non-nil, add virtual buffers."
     (and virtual
          (ivy--virtual-buffers)))))
 
+(defvar ivy-views (and nil
+                       `(("ivy + *scratch* {}"
+                          (vert
+                           (file ,(expand-file-name "ivy.el"))
+                           (buffer "*scratch*")))
+                         ("swiper + *scratch* {}"
+                          (horz
+                           (file ,(expand-file-name "swiper.el"))
+                           (buffer "*scratch*")))))
+  "Store window configurations selectable by `ivy-switch-buffer'.
+
+The default value is given as an example.
+
+Each element is a list of (NAME TREE). NAME is a string, it's
+recommended to end it with a distinctive snippet e.g. \"{}\" so
+that it's easy to distinguish the window configurations.
+
+TREE is a nested list with the following valid cars:
+- vert: split the window vertically
+- horz: split the window horizontally
+- file: open the specified file
+- buffer: open the specified buffer
+
+TREE can be nested multiple times to have mulitple window splits.")
+
+(defun ivy-source-views ()
+  (mapcar #'car ivy-views))
+
+(ivy-set-sources
+ 'ivy-switch-buffer
+ '((original-source)
+   (ivy-source-views)))
+
+(defun ivy-set-view-recur (view)
+  (cond ((eq (car view) 'vert)
+         (let ((wnd1 (selected-window))
+               (wnd2 (split-window-vertically)))
+           (with-selected-window wnd1
+             (ivy-set-view-recur (nth 1 view)))
+           (with-selected-window wnd2
+             (ivy-set-view-recur (nth 2 view)))))
+        ((eq (car view) 'horz)
+         (let ((wnd1 (selected-window))
+               (wnd2 (split-window-horizontally)))
+           (with-selected-window wnd1
+             (ivy-set-view-recur (nth 1 view)))
+           (with-selected-window wnd2
+             (ivy-set-view-recur (nth 2 view)))))
+        ((eq (car view) 'file)
+         (let* ((name (cadr view))
+                (virtual (assoc name ivy--virtual-buffers))
+                buffer)
+           (cond ((setq buffer (get-buffer name))
+                  (switch-to-buffer buffer nil 'force-same-window))
+                 (virtual
+                  (find-file (cdr virtual)))
+                 ((file-exists-p name)
+                  (find-file name)))))
+        ((eq (car view) 'buffer)
+         (switch-to-buffer (cadr view)))))
+
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
 BUFFER may be a string or nil."
@@ -2545,12 +2606,17 @@ BUFFER may be a string or nil."
     (if (zerop (length buffer))
         (switch-to-buffer
          ivy-text nil 'force-same-window)
-      (let ((virtual (assoc buffer ivy--virtual-buffers)))
-        (if (and virtual
-                 (not (get-buffer buffer)))
-            (find-file (cdr virtual))
-          (switch-to-buffer
-           buffer nil 'force-same-window))))))
+      (let ((virtual (assoc buffer ivy--virtual-buffers))
+            (view (assoc buffer ivy-views)))
+        (cond ((and virtual
+                    (not (get-buffer buffer)))
+               (find-file (cdr virtual)))
+              (view
+               (delete-other-windows)
+               (ivy-set-view-recur (cadr view)))
+              (t
+               (switch-to-buffer
+                buffer nil 'force-same-window)))))))
 
 (defun ivy--switch-buffer-other-window-action (buffer)
   "Switch to BUFFER in other window.
