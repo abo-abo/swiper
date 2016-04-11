@@ -2912,6 +2912,7 @@ EVENT gives the mouse position."
 
 (declare-function swiper--cleanup "swiper")
 (declare-function swiper--add-overlays "swiper")
+(defvar ivy-occur-timer nil)
 
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
@@ -2944,7 +2945,7 @@ EVENT gives the mouse position."
                      (cdr (assoc str coll))
                    str))
         (if (memq (ivy-state-caller ivy-last)
-                  '(swiper counsel-git-grep))
+                  '(swiper counsel-git-grep counsel-grep))
             (with-current-buffer (window-buffer (selected-window))
               (swiper--cleanup)
               (swiper--add-overlays
@@ -2952,7 +2953,9 @@ EVENT gives the mouse position."
                (line-beginning-position)
                (line-end-position)
                (selected-window))
-              (run-at-time 0.5 nil 'swiper--cleanup)))))))
+              (when (timerp ivy-occur-timer)
+                (cancel-timer ivy-occur-timer))
+              (setq ivy-occur-timer (run-at-time 1.0 nil 'swiper--cleanup))))))))
 
 (defvar ivy-help-file (let ((default-directory
                              (if load-file-name
