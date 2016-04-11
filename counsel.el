@@ -81,6 +81,14 @@
   "Store the time when a new process was started.
 Or the time of the last minibuffer update.")
 
+(defvar counsel--async-start nil
+  "Store the time when a new process was started.
+Or the time of the last minibuffer update.")
+
+(defvar counsel--async-duration nil
+  "Store the time in seconds between starting a process and
+  receiving all candidates.")
+
 (defvar counsel--async-exit-code-plist nil
   "Associates exit codes with reasons.")
 
@@ -108,7 +116,8 @@ Or the time of the last minibuffer update.")
                 counsel--process
                 counsel--process
                 cmd))
-    (setq counsel--async-time (current-time))
+    (setq counsel--async-start
+          (setq counsel--async-time (current-time)))
     (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
     (set-process-filter proc (or process-filter #'counsel--async-filter))))
 
@@ -132,6 +141,8 @@ Or the time of the last minibuffer update.")
            (ivy--set-candidates
             (ivy--sort-maybe
              cands))
+           (setq counsel--async-duration
+                 (time-to-seconds (time-since counsel--async-start)))
            (let ((re (funcall ivy--regex-function ivy-text)))
              (unless (stringp re)
                (setq re (caar re)))
