@@ -2597,7 +2597,9 @@ TREE can be nested multiple times to have mulitple window splits.")
                  ((file-exists-p name)
                   (find-file name)))))
         ((eq (car view) 'buffer)
-         (switch-to-buffer (cadr view)))))
+         (switch-to-buffer (cadr view)))
+        ((eq (car view) 'sexp)
+         (eval (cadr view)))))
 
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
