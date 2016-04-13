@@ -1896,7 +1896,8 @@ And insert it into the minibuffer. Useful during
     (ivy-read "Expr: " (delete-dups read-expression-history)
               :action #'insert)))
 
-(defun browse-history (elements)
+;;** `counsel-esh-history'
+(defun counsel--browse-history (elements)
   "Use Ivy to navigate through ELEMENTS."
   (setq ivy-completion-beg (point))
   (setq ivy-completion-end (point))
@@ -1905,17 +1906,23 @@ And insert it into the minibuffer. Useful during
              (ring-elements elements))
             :action #'ivy-completion-in-region-action))
 
+(defvar eshell-history-ring)
+
 ;;;###autoload
 (defun counsel-esh-history ()
   "Browse Eshell history."
   (interactive)
-  (browse-history eshell-history-ring))
+  (require 'em-hist)
+  (counsel--browse-history eshell-history-ring))
+
+(defvar comint-input-ring)
 
 ;;;###autoload
 (defun counsel-shell-history ()
   "Browse shell history."
   (interactive)
-  (browse-history comint-input-ring))
+  (require 'comint)
+  (counsel--browse-history comint-input-ring))
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
