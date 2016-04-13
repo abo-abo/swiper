@@ -1680,19 +1680,27 @@ This allows to \"quote\" N spaces by inputting N+1 spaces."
         match-len)
     (while (and (string-match " +" str start1)
                 (< start1 len))
-      (setq match-len (- (match-end 0) (match-beginning 0)))
-      (if (= match-len 1)
+      (if (and (> (match-beginning 0) 2)
+               (string= "[^" (substring
+                              str
+                              (- (match-beginning 0) 2)
+                              (match-beginning 0))))
           (progn
-            (when start0
-              (setq start1 start0)
-              (setq start0 nil))
-            (push (substring str start1 (match-beginning 0)) res)
-            (setq start1 (match-end 0)))
-        (setq str (replace-match
-                   (make-string (1- match-len) ?\ )
-                   nil nil str))
-        (setq start0 (or start0 start1))
-        (setq start1 (1- (match-end 0)))))
+            (setq start1 (match-end 0))
+            (setq start0 0))
+        (setq match-len (- (match-end 0) (match-beginning 0)))
+        (if (= match-len 1)
+            (progn
+              (when start0
+                (setq start1 start0)
+                (setq start0 nil))
+              (push (substring str start1 (match-beginning 0)) res)
+              (setq start1 (match-end 0)))
+          (setq str (replace-match
+                     (make-string (1- match-len) ?\ )
+                     nil nil str))
+          (setq start0 (or start0 start1))
+          (setq start1 (1- (match-end 0))))))
     (if start0
         (push (substring str start0) res)
       (setq s (substring str start1))

@@ -107,8 +107,10 @@
                  '("Who are" "the Brittons?")))
   (should (equal (ivy--split "We're  all  Britons and   I   am your   king.")
                  '("We're all Britons"
-                  "and  I  am"
-                   "your  king."))))
+                   "and  I  am"
+                   "your  king.")))
+  (should (equal (ivy--split "^[^ ]") '("^[^ ]")))
+  (should (equal (ivy--split "^[^ ] bar") '("^[^ ]" "bar"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
