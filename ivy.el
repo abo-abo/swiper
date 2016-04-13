@@ -2424,23 +2424,24 @@ SEPARATOR is used to join the candidates."
                 (not (eq ivy--regex-function 'ivy--regex-fuzzy)))
            (unless ivy--old-re
              (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-           (while (and (string-match ivy--old-re str start)
-                       (> (- (match-end 0) (match-beginning 0)) 0))
-             (setq start (match-end 0))
-             (let ((i 0))
-               (while (<= i ivy--subexps)
-                 (let ((face
-                        (cond ((zerop ivy--subexps)
-                               (cadr ivy-minibuffer-faces))
-                              ((zerop i)
-                               (car ivy-minibuffer-faces))
-                              (t
-                               (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                                    ivy-minibuffer-faces)))))
-                   (ivy-add-face-text-property
-                    (match-beginning i) (match-end i)
-                    face str))
-                 (cl-incf i))))))
+           (ignore-errors
+             (while (and (string-match ivy--old-re str start)
+                         (> (- (match-end 0) (match-beginning 0)) 0))
+               (setq start (match-end 0))
+               (let ((i 0))
+                 (while (<= i ivy--subexps)
+                   (let ((face
+                          (cond ((zerop ivy--subexps)
+                                 (cadr ivy-minibuffer-faces))
+                                ((zerop i)
+                                 (car ivy-minibuffer-faces))
+                                (t
+                                 (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                                      ivy-minibuffer-faces)))))
+                     (ivy-add-face-text-property
+                      (match-beginning i) (match-end i)
+                      face str))
+                   (cl-incf i)))))))
     str))
 
 (ivy-set-display-transformer
