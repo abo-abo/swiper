@@ -1411,6 +1411,8 @@ the command."
        (format counsel-grep-base-command regex counsel--git-grep-dir))
       nil)))
 
+(defvar counsel-grep-last-line nil)
+
 (defun counsel-grep-action (x)
   (with-ivy-window
     (swiper--cleanup)
@@ -1424,8 +1426,13 @@ the command."
                    (setq line-number (match-string-no-properties 2 x)))
                   (t nil))
         (find-file file-name)
-        (goto-char (point-min))
-        (forward-line (1- (string-to-number line-number)))
+        (setq line-number (string-to-number line-number))
+        (if (null counsel-grep-last-line)
+            (progn
+              (goto-char (point-min))
+              (forward-line (1- (setq counsel-grep-last-line line-number))))
+          (forward-line (- line-number counsel-grep-last-line))
+          (setq counsel-grep-last-line line-number))
         (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
         (if (eq ivy-exit 'done)
             (swiper--ensure-visible)
@@ -1465,6 +1472,7 @@ the command."
 (defun counsel-grep ()
   "Grep for a string in the current file."
   (interactive)
+  (setq counsel-grep-last-line nil)
   (setq counsel--git-grep-dir (buffer-file-name))
   (let ((init-point (point))
         res)
