@@ -141,6 +141,7 @@ Or the time of the last minibuffer update.")
            (ivy--set-candidates
             (ivy--sort-maybe
              cands))
+           (setq counsel-grep-last-line nil)
            (setq counsel--async-duration
                  (time-to-seconds (time-since counsel--async-start)))
            (let ((re (funcall ivy--regex-function ivy-text)))
