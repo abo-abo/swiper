@@ -121,6 +121,8 @@ Or the time of the last minibuffer update.")
     (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
     (set-process-filter proc (or process-filter #'counsel--async-filter))))
 
+(defvar counsel-grep-last-line nil)
+
 (defun counsel--async-sentinel (process event)
   (let ((cands
          (cond ((string= event "finished\n")
@@ -1411,8 +1413,6 @@ the command."
       (counsel--async-command
        (format counsel-grep-base-command regex counsel--git-grep-dir))
       nil)))
-
-(defvar counsel-grep-last-line nil)
 
 (defun counsel-grep-action (x)
   (with-ivy-window
