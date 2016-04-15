@@ -1496,6 +1496,28 @@ the command."
       (unless res
         (goto-char init-point)))))
 
+;;** `counsel-grep-or-swiper'
+(defcustom counsel-grep-swiper-limit 300000
+  "When the buffer is larger than this, use `counsel-grep' instead of `swiper'."
+  :type 'integer
+  :group 'ivy)
+
+;;;###autoload
+(defun counsel-grep-or-swiper ()
+  "Call `swiper' for small buffers and `counsel-grep' for large ones."
+  (interactive)
+  (if (and (buffer-file-name)
+           (not (ignore-errors
+                  (file-remote-p (buffer-file-name))))
+           (> (buffer-size)
+              (if (eq major-mode 'org-mode)
+                  (/ counsel-grep-swiper-limit 4)
+                counsel-grep-swiper-limit)))
+      (progn
+        (save-buffer)
+        (counsel-grep))
+    (swiper--ivy (swiper--candidates))))
+
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
   "Grep in the current directory for STRING."
