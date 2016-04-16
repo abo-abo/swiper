@@ -1400,11 +1400,11 @@ This is useful for recursive `ivy-read'."
                                 :test #'equal)))
                (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
-             (setq ivy--directory
-                   (if (file-directory-p initial-input)
-                       (prog1 initial-input
-                         (setq initial-input nil))
-                     default-directory))
+             (if (and initial-input (file-directory-p initial-input))
+                 (progn
+                   (setq ivy--directory initial-input)
+                   (setq initial-input nil))
+               (setq ivy--directory default-directory))
              (require 'dired)
              (when preselect
                (let ((preselect-directory (file-name-directory preselect)))
