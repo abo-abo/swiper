@@ -457,7 +457,10 @@ When non-nil, it should contain at least one %d.")
   "Exit the minibuffer with the selected candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (cond ((> ivy--length 0)
+  (cond ((or (> ivy--length 0)
+             ;; the action from `ivy-dispatching-done' may not need a
+             ;; candidate at all
+             (eq this-command 'ivy-dispatching-done))
          (ivy--done ivy--current))
         ((memq (ivy-state-collection ivy-last)
                '(read-file-name-internal internal-complete-buffer))
