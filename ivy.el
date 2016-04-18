@@ -1944,6 +1944,25 @@ depending on the number of candidates."
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
 
+(defun ivy--magic-file-slash ()
+  (cond ((member ivy-text ivy--all-candidates)
+         (ivy--cd (expand-file-name ivy-text ivy--directory)))
+        ((string-match "//\\'" ivy-text)
+         (if (and default-directory
+                  (string-match "\\`[[:alpha:]]:/" default-directory))
+             (ivy--cd (match-string 0 default-directory))
+           (ivy--cd "/")))
+        ((string-match "[[:alpha:]]:/\\'" ivy-text)
+         (let ((drive-root (match-string 0 ivy-text)))
+           (when (file-exists-p drive-root)
+             (ivy--cd drive-root))))
+        ((and (or (> ivy--index 0)
+                  (= ivy--length 1)
+                  (not (string= ivy-text "/")))
+              (let ((default-directory ivy--directory))
+                (file-directory-p ivy--current)))
+         (ivy--cd (expand-file-name ivy--current ivy--directory)))))
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -1966,17 +1985,7 @@ Should be run via minibuffer `post-command-hook'."
              (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
              (if (string-match "/\\'" ivy-text)
-                 (if (member ivy-text ivy--all-candidates)
-                     (ivy--cd (expand-file-name ivy-text ivy--directory))
-                   (when (string-match "//\\'" ivy-text)
-                     (if (and default-directory
-                              (string-match "\\`[[:alpha:]]:/" default-directory))
-                         (ivy--cd (match-string 0 default-directory))
-                       (ivy--cd "/")))
-                   (when (string-match "[[:alpha:]]:/$" ivy-text)
-                     (let ((drive-root (match-string 0 ivy-text)))
-                       (when (file-exists-p drive-root)
-                         (ivy--cd drive-root)))))
+                 (ivy--magic-file-slash)
                (if (string-match "\\`~\\'" ivy-text)
                    (ivy--cd (expand-file-name "~/")))))
             ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
