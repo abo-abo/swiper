@@ -359,8 +359,17 @@ sources. These values will subsequently be filtered on `ivy-text'.
 
 This variable is set by `ivy-read' and used by `ivy--set-candidates'.")
 
+(defcustom ivy-use-ignore-default t
+  "The default policy for user-configured candidate filtering."
+  :type '(choice
+          (const :tag "Ignore ignored always" always)
+          (const :tag "Ignore ignored when others exist" t)
+          (const :tag "Don't ignore" nil)))
+
 (defvar ivy-use-ignore t
-  "Store policy for user-configured candidate filtering.")
+  "Store policy for user-configured candidate filtering.
+This may be changed dynamically by `ivy-toggle-ignore'.
+Use `ivy-use-ignore-default' for a permanent configuration.")
 
 (defvar ivy--default nil
   "Default initial input.")
@@ -808,7 +817,10 @@ If the input is empty, select the previous history element instead."
 (defun ivy-toggle-ignore ()
   "Toggle user-configured candidate filtering."
   (interactive)
-  (setq ivy-use-ignore (null ivy-use-ignore))
+  (setq ivy-use-ignore
+        (if ivy-use-ignore
+            nil
+          (or ivy-use-ignore-default t)))
   ;; invalidate cache
   (setq ivy--old-cands nil))
 
@@ -1389,7 +1401,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--full-length nil)
     (setq ivy-text "")
     (setq ivy-calling nil)
-    (setq ivy-use-ignore t)
+    (setq ivy-use-ignore ivy-use-ignore-default)
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -2682,7 +2694,8 @@ Skip buffers that match `ivy-ignore-buffers'."
                   (string-match-p f-or-r buf)))
               ivy-ignore-buffers))
            res)
-          res))))
+          (and (eq ivy-use-ignore t)
+               res)))))
 
 (ivy-set-display-transformer
  'ivy-switch-buffer 'ivy-switch-buffer-transformer)
