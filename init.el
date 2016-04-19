@@ -7,6 +7,11 @@
 (require 'eclipse-theme)
 (require 'htmlize)
 
+(setq org-confirm-babel-evaluate nil)
+
+(defun org-export-get-reference (_datum _info)
+  "orgheadline")
+
 (defun doexport ()
   (interactive)
   (org-html-export-to-html)
