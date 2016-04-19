@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-04-19 Tue 16:25 -->
+<!-- 2016-04-19 Tue 16:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -1565,7 +1565,9 @@ If a function, then it has to be compatible with
 <div class="outline-text-3" id="text-optional-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>predicate</code></dt><dd>Is a function to filter the initial collection. It has to be
-compatible with <code>all-completions</code>.</dd>
+compatible with <code>all-completions</code>. Tip: most of the time, it's
+simpler to just apply this filter to the <code>collection</code> argument
+itself, e.g. <code>(cl-remove-if-not predicate collection)</code>.</dd>
 <dt><code>require-match</code></dt><dd>When set to a non-nil value, input must match one of the
 candidates. Custom input is not accepted.</dd>
 <dt><code>initial-input</code></dt><dd><p>
