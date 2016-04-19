@@ -1070,7 +1070,9 @@ features such as multi-actions, non-exiting actions, =ivy-occur= and
 :END:
 - =predicate= ::
      Is a function to filter the initial collection. It has to be
-     compatible with =all-completions=.
+     compatible with =all-completions=. Tip: most of the time, it's
+     simpler to just apply this filter to the =collection= argument
+     itself, e.g. =(cl-remove-if-not predicate collection)=.
 - =require-match= ::
      When set to a non-nil value, input must match one of the
      candidates. Custom input is not accepted.

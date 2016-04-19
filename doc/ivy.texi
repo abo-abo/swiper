@@ -1408,7 +1408,9 @@ If a function, then it has to be compatible with
 @subsubheading @code{predicate}
 @indentedblock
 Is a function to filter the initial collection. It has to be
-compatible with @code{all-completions}.
+compatible with @code{all-completions}. Tip: most of the time, it's
+simpler to just apply this filter to the @code{collection} argument
+itself, e.g. @code{(cl-remove-if-not predicate collection)}.
 @end indentedblock
 @subsubheading @code{require-match}
 @indentedblock
