@@ -1963,7 +1963,10 @@ depending on the number of candidates."
                   (= ivy--length 1)
                   (not (string= ivy-text "/")))
               (let ((default-directory ivy--directory))
-                (file-directory-p ivy--current)))
+                (and
+                 (not (equal ivy--current ""))
+                 (file-directory-p ivy--current)
+                 (file-exists-p ivy--current))))
          (ivy--cd (expand-file-name ivy--current ivy--directory)))))
 
 (defun ivy--exhibit ()
