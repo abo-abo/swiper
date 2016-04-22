@@ -893,12 +893,13 @@ Example use:
     (let ((action (ivy--get-action ivy-last)))
       (when action
         (let* ((collection (ivy-state-collection ivy-last))
-               (x (if (and (consp collection)
-                           (consp (car collection)))
-                      (cdr (assoc ivy--current collection))
-                    (if (equal ivy--current "")
-                        ivy-text
-                      ivy--current))))
+               (x (cond ((and (consp collection)
+                              (consp (car collection))
+                              (cdr (assoc ivy--current collection))))
+                        ((equal ivy--current "")
+                         ivy-text)
+                        (t
+                         ivy--current))))
           (prog1 (funcall action x)
             (unless (or (eq ivy-exit 'done)
                         (equal (selected-window)
