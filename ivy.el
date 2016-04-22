@@ -2440,7 +2440,8 @@ SEPARATOR is used to join the candidates."
 
 (defun ivy--format-minibuffer-line (str)
   (let ((start
-         (if (and (memq (ivy-state-caller ivy-last) '(counsel-git-grep))
+         (if (and (memq (ivy-state-caller ivy-last)
+                        '(counsel-git-grep counsel-ag counsel-pt))
                   (string-match "^[^:]+:[^:]+:" str))
              (match-end 0)
            0))
