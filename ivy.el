@@ -2438,7 +2438,11 @@ SEPARATOR is used to join the candidates."
      start end 'face face str)))
 
 (defun ivy--format-minibuffer-line (str)
-  (let ((start 0)
+  (let ((start
+         (if (and (memq (ivy-state-caller ivy-last) '(counsel-git-grep))
+                  (string-match "^[^:]+:[^:]+:" str))
+             (match-end 0)
+           0))
         (str (copy-sequence str)))
     (cond ((eq ivy--regex-function 'ivy--regex-ignore-order)
            (when (consp ivy--old-re)
