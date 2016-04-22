@@ -79,6 +79,24 @@
                      "a C-n <tab> C-m")
            "aaac"))
   (should (equal
+           (ivy-with '(ivy-read "test" '(("foo" . "bar")))
+                     "asdf C-m")
+           "asdf"))
+  (should (equal
+           (ivy-with
+            '(with-output-to-string
+              (ivy-read "test" '(("foo" . "bar"))
+               :action (lambda (x) (prin1 x))))
+            "f C-m")
+           "\"bar\""))
+  (should (equal
+           (ivy-with
+            '(with-output-to-string
+              (ivy-read "test" '(("foo" . "bar"))
+               :action (lambda (x) (prin1 x))))
+            "asdf C-m")
+           "\"asdf\""))
+  (should (equal
            (ivy-with '(ivy-read "pattern: " '("can do" "can" "can't do"))
                      "can C-m")
            "can")))
