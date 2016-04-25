@@ -18,3 +18,8 @@ kbd {
     line-height:1.4;
     white-space:nowrap;
 }
+
+hr {
+    border-top:3px double
+
+}

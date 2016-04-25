@@ -16,3 +16,16 @@
   (interactive)
   (org-html-export-to-html)
   (kill-emacs))
+
+(defun add-hlines ()
+  (interactive)
+  (goto-char (point-min))
+  (while (re-search-forward "^\\*\\{3,\\}" nil t)
+    (cond ((save-excursion
+             (beginning-of-line 0)
+             (looking-at "\\*\\{2,\\}")))
+          ((looking-back "-----\n\\*+"))
+          (t
+           (end-of-line 0)
+           (insert "\n-----")
+           (forward-line 2)))))
