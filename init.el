@@ -29,3 +29,36 @@
            (end-of-line 0)
            (insert "\n-----")
            (forward-line 2)))))
+
+(defun add-custom-id ()
+  (interactive)
+  (goto-char (point-min))
+  (when (looking-at "^\\* \\([0-9]+\\.[0-9]+\\.[0-9]+\\)")
+    (let ((release (replace-regexp-in-string
+                    "\\." "-" (match-string-no-properties 1)))
+          (unique-ids nil)
+          (chapter nil))
+      (while (re-search-forward "^\\*\\{2,3\\}" nil t)
+        (let* ((el (org-element-at-point))
+               (name (org-element-property :raw-value el))
+               (id (concat release
+                           (if chapter
+                               (concat "-" chapter "-")
+                             "-")
+                           (mapconcat (lambda (s)
+                                        (replace-regexp-in-string "[=~'()<>\\\"]" "" s))
+                                      (split-string (downcase name) " ")
+                                      "-"))))
+          (when (< (org-element-property :level el) 4)
+            (cond ((string= name "Fixes")
+                   (setq chapter "fx"))
+                  ((string= name "New Features")
+                   (setq chapter "nf"))
+                  ((string= name "New Commands")
+                   (setq chapter "nc")))
+            (if (member id unique-ids)
+                (message "warning: duplicate id: %s" id)
+              (push id unique-ids))
+            (org-set-property "CUSTOM_ID" id)))))))
+
+
