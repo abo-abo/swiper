@@ -1,0 +1,3841 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2016-04-25 Mon 12:26 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title></title>
+<meta name="generator" content="Org-mode" />
+<meta name="author" content="oleh" />
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+<link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#0.6.0">0.6.0</a>
+<ul>
+<li><a href="#orgcb326e5">Fixes</a>
+<ul>
+<li><a href="#orge9794c6"><code>swiper-avy</code> should use only the current window</a></li>
+<li><a href="#org8f6e284">fix wrap-around for <code>ivy-next-line</code></a></li>
+<li><a href="#orgbf3a8fc"><code>swiper-avy</code> should do nothing for empty input</a></li>
+<li><a href="#orgf633e21"><code>ivy-alt-done</code> should require TRAMP if necessary</a></li>
+<li><a href="#orgaab0a76"><code>swiper-query-replace</code> shouldn't miss the first occurrence</a></li>
+<li><a href="#org90164d0"><code>swiper</code> should not deactivate mark</a></li>
+<li><a href="#org8197d28"><code>ivy-mode</code> should not switch to TRAMP for certain input</a></li>
+<li><a href="#org44ccc3a"><code>counsel-find-file</code> should work better with TRAMP</a></li>
+<li><a href="#org238e98e"><code>counsel-find-file</code> supports Windows drive letters</a></li>
+<li><a href="#org9fd267"><code>counsel-file-file</code> should work better with files that contain "~"</a></li>
+<li><a href="#org29c75b0"><code>counsel-M-x</code> should respect <code>ivy-format-function</code></a></li>
+<li><a href="#org10366ae"><code>counsel-git-grep</code> should position better on exit</a></li>
+<li><a href="#orgf35e713"><code>ivy-mode</code> should re-scale text to minibuffer height</a></li>
+<li><a href="#org313e3df"><code>counsel-unicode-char</code> should use action-style call</a></li>
+<li><a href="#orge50dae5"><code>ivy-read</code> should allow % in prompt string</a></li>
+<li><a href="#orge0def7"><code>ivy-call</code> should execute in proper window</a></li>
+</ul>
+</li>
+<li><a href="#org38050ee">New Features</a>
+<ul>
+<li><a href="#orgae2f7b1"><code>ivy-mode</code></a>
+<ul>
+<li><a href="#orgbf3fb63">Open an Info file on the file system</a></li>
+<li><a href="#orga59f721">Account for <code>minibuffer-depth-indication-mode</code></a></li>
+<li><a href="#orgdbec70b">Add fuzzy matching function</a></li>
+<li><a href="#org8d01bc5"><code>case-fold-search</code> optimization</a></li>
+<li><a href="#org963857d">Allow to see the candidate index a la <code>anzu</code> via <code>ivy-count-format</code></a></li>
+<li><a href="#org83c1050">Allow to add additional exit points for any command</a></li>
+</ul>
+</li>
+<li><a href="#org1a742c0"><code>counsel-describe-function</code> and <code>counsel-decribe-variable</code></a>
+<ul>
+<li><a href="#org3540563">Add a binding to look up the symbol in info</a></li>
+<li><a href="#org5c4b320">Handle symbol-at-point better in non-Elisp buffers</a></li>
+</ul>
+</li>
+<li><a href="#orge7d6d84"><code>ivy-switch-buffer</code></a>
+<ul>
+<li><a href="#org939dfa7">New face <code>ivy-virtual</code></a></li>
+<li><a href="#org437a486">Deal better with invisible buffers</a></li>
+<li><a href="#orge267605">Add custom keymap</a></li>
+<li><a href="#org633fb38">Add extra actions</a></li>
+</ul>
+</li>
+<li><a href="#org719d77b"><code>counsel-git-grep</code></a>
+<ul>
+<li><a href="#orgefbaa63">Add Async</a></li>
+<li><a href="#orgba61e0e">Own history variable</a></li>
+</ul>
+</li>
+<li><a href="#org98994c3"><code>swiper</code></a>
+<ul>
+<li><a href="#org8e08e54">Own history variable</a></li>
+</ul>
+</li>
+<li><a href="#org236c78c"><code>counsel-el</code></a>
+<ul>
+<li><a href="#orgea1ddd9">Switch to action-style call</a></li>
+</ul>
+</li>
+<li><a href="#org53f713d"><code>counsel-locate</code></a>
+<ul>
+<li><a href="#orgafb5d21">Add Async</a></li>
+<li><a href="#org83bf413">Add extra actions</a></li>
+<li><a href="#org17b08fa">Add own history</a></li>
+</ul>
+</li>
+<li><a href="#orgf27fabc">API</a>
+<ul>
+<li><a href="#org561a62">Add :matcher</a></li>
+<li><a href="#org1db8500">Allow to customize the initial input for all commands</a></li>
+<li><a href="#orge9eb2ec"><code>ivy-sort-functions-alist</code> should also examine <code>this-command</code></a></li>
+<li><a href="#orgcfab850">:dynamic-collection is now a boolean</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgc5dfeae">New Commands</a>
+<ul>
+<li><a href="#org35beaf6"><code>ivy-call</code></a></li>
+<li><a href="#orga684b83"><code>counsel-find-file</code></a></li>
+<li><a href="#org3634f2d"><code>ivy-recentf</code></a></li>
+<li><a href="#org8d8b0d2"><code>ivy-yank-word</code></a></li>
+<li><a href="#org1eaf1fa"><code>counsel-M-x</code></a></li>
+<li><a href="#org8c20bc9"><code>hydra-ivy</code></a></li>
+<li><a href="#org7210fce"><code>ivy-toggle-calling</code></a></li>
+<li><a href="#org1cc8fae"><code>ivy-insert-current</code></a></li>
+<li><a href="#orgfdbf0db"><code>counsel-load-theme</code></a></li>
+<li><a href="#org65ac1d3"><code>ivy-reverse-i-search</code></a></li>
+<li><a href="#org4d6d103"><code>counsel-rhythmbox</code></a></li>
+<li><a href="#org451ca1d"><code>ivy-dispatching-done</code></a></li>
+<li><a href="#org710edc4"><code>counsel-org-tag</code></a></li>
+<li><a href="#orgc6389ea"><code>counsel-org-tag-agenda</code></a></li>
+<li><a href="#org9ee413"><code>counsel-ag</code></a></li>
+<li><a href="#org17836b"><code>counsel-recoll</code></a></li>
+<li><a href="#orgb9457b7"><code>swiper-from-isearch</code></a></li>
+<li><a href="#org484397e"><code>ivy-immediate-done</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#0.7.0">0.7.0</a>
+<ul>
+<li><a href="#orgd330676">Fixes</a>
+<ul>
+<li><a href="#orgba026a">Fix :dynamic-collection not being sorted</a></li>
+<li><a href="#org8bb7fee">When :initial-input contains a plus, escape it</a></li>
+<li><a href="#orgf532042">Set line-spacing to 0 in the minibuffer</a></li>
+<li><a href="#org9f1103d">Enlarge the minibuffer window if the candidate list doesn't fit</a></li>
+<li><a href="#org51a90ce">Fix minibuffer collapsing to one line</a></li>
+<li><a href="#org4ca7d56">Use minibuffer-allow-text-properties</a></li>
+<li><a href="#org21270b2">Improve <kbd>C-g</kbd> out of a long-running async process</a></li>
+<li><a href="#org315c521">Don't regexp-quote :preselect</a></li>
+<li><a href="#orga73d945">Fix ivy-partial for fuzzy completion</a></li>
+<li><a href="#org356a7ee">ivy-resume should pass :caller</a></li>
+<li><a href="#org5cb0bfa">Fix the regression in perfect match logic</a></li>
+<li><a href="#orgca1fbd1">Fix pasting file paths on Windows</a></li>
+<li><a href="#org93cbb5b"><kbd>C-j</kbd> should no stop completion for a pasted file path</a></li>
+<li><a href="#org18c2a57"><kbd>C-M-j</kbd> should use <code>ivy--directory</code></a></li>
+<li><a href="#org5d13401">Use a specific blend method for dark themes</a></li>
+<li><a href="#org66dd4c6">Fix one-off bug in <code>ivy-scroll-up-command</code> and <code>ivy-scroll-down-command</code></a></li>
+<li><a href="#orgffe3472"><kbd>M-o</kbd> shouldn't set the action permanently</a></li>
+<li><a href="#org8467cb8">Fix swiper preselect issue with similar or identical lines</a></li>
+<li><a href="#org6f690f1">Make ivy-completing-read handle history as cons</a></li>
+<li><a href="#orgeba27eb">Perform string-match in the original buffer</a></li>
+</ul>
+</li>
+<li><a href="#org4cfd15d">New Features</a>
+<ul>
+<li><a href="#orgb9e1d7a"><code>swiper</code></a>
+<ul>
+<li><a href="#orgf8a044">Make line numbers into display properties</a></li>
+<li><a href="#org82a5750">Extend <code>swiper-font-lock-ensure</code></a></li>
+<li><a href="#orga4ab932">Add support for <code>evil-jumper/backward</code></a></li>
+<li><a href="#orga62615b">Make compatible with <code>visual-line-mode</code></a></li>
+<li><a href="#orgd1268aa">Add <code>swiper-toggle-face-matching</code></a></li>
+<li><a href="#org820da74"><code>push-mark</code> only if exited the minibuffer</a></li>
+<li><a href="#orgb205919"><code>ivy-resume</code> should restore the buffer for <code>swiper</code></a></li>
+<li><a href="#org1f3deda">Enable recursive <code>swiper</code> calls</a></li>
+<li><a href="#org6536514">Fix for <code>twittering-mode</code></a></li>
+</ul>
+</li>
+<li><a href="#org68050a6"><code>ivy</code></a>
+<ul>
+<li><a href="#orgf197cb5">Add manual</a></li>
+<li><a href="#org1338f69">Make &lt;left&gt; and &lt;right&gt; behave as in fundamental-mode</a></li>
+<li><a href="#orgc8d4ec9">Truncate minibuffer prompts longer than window-width</a></li>
+<li><a href="#org39c5d96"><kbd>C-M-n</kbd> should not leave the minibuffer</a></li>
+<li><a href="#org6a36ab0">Add <code>flx</code> sorting</a></li>
+<li><a href="#org5edb8a3">Support hash tables</a></li>
+<li><a href="#org85cf3a1">Improve documentation of <code>ivy-count-format</code></a></li>
+<li><a href="#org242e90b">Add <code>ivy-index-functions-alist</code></a></li>
+<li><a href="#org9170f45">Add <code>ivy-virtual-abbreviate</code></a></li>
+<li><a href="#orgd1d8f22">Add <code>ivy-case-fold-search</code></a></li>
+<li><a href="#org6421f27">Add feedback for long-running async processes</a></li>
+<li><a href="#org94fb227">Promote <code>ivy-extra-directories</code> to defcustom</a></li>
+<li><a href="#org467b5d7">Promote <code>ivy-sort-function-alist</code> to defcustom</a></li>
+<li><a href="#orgbb24d8d"><kbd>M-n</kbd> should prefer url at point to symbol at point</a></li>
+<li><a href="#org4792f7f"><kbd>C-x C-f M-n</kbd> calls <code>ffap-url-fetcher</code> when at URL</a></li>
+<li><a href="#org1b8e6b8">Highlight modified file buffers with <code>ivy-modified-buffer</code> face</a></li>
+<li><a href="#org4005dbe">Work with <code>enable-recursive-minibuffers</code></a></li>
+<li><a href="#orge6b0d19">Allow user-specified matched candidate sorting</a></li>
+<li><a href="#orgebc681b"><code>ivy-display-style</code></a></li>
+</ul>
+</li>
+<li><a href="#org8137437"><code>ivy-hydra</code></a>
+<ul>
+<li><a href="#org86c7c82">Bind <kbd>t</kbd> to <code>toggle-truncate-lines</code></a></li>
+<li><a href="#orge5104bc">Bind <kbd>a</kbd> to <code>ivy-read-action</code></a></li>
+</ul>
+</li>
+<li><a href="#orgc3a7b88"><code>ivy-switch-buffer</code></a>
+<ul>
+<li><a href="#org7953cd6">Make <kbd>M-o r</kbd> rename the buffer instead of switching.</a></li>
+</ul>
+</li>
+<li><a href="#orgf6aaec0"><code>counsel-locate</code></a>
+<ul>
+<li><a href="#org37dd2e6">Allow customizing locate options</a></li>
+<li><a href="#org1fa37fa">Support OSX</a></li>
+<li><a href="#org2be58ee">Use single quotes for the regex</a></li>
+<li><a href="#org2856d72">Add initial-input argument</a></li>
+</ul>
+</li>
+<li><a href="#org2064f8a"><code>counsel-org-tag</code></a>
+<ul>
+<li><a href="#org451da24">Now works in agenda</a></li>
+</ul>
+</li>
+<li><a href="#orgd6b8d0"><code>counsel-unicode-char</code></a>
+<ul>
+<li><a href="#org12b92ba">Add own history</a></li>
+</ul>
+</li>
+<li><a href="#org8e032fd"><code>counsel-M-x</code></a>
+<ul>
+<li><a href="#org54de841">Add "definition" action</a></li>
+<li><a href="#org191a79d">Show <code>current-prefix-arg</code> in the prompt</a></li>
+</ul>
+</li>
+<li><a href="#org62d286f"><code>counsel-find-file</code></a>
+<ul>
+<li><a href="#org429e2e3">Input '/sudo::' goes to current directory instead of root's home</a></li>
+<li><a href="#orgdf49adc">Fix directory validity check</a></li>
+<li><a href="#org1ffa1f7">Improve TRAMP support</a></li>
+</ul>
+</li>
+<li><a href="#org7b74311"><code>counsel-git-grep</code></a>
+<ul>
+<li><a href="#org901722b">Use prefix arg to specify the shell command.</a></li>
+<li><a href="#orge4c9602">Allow <code>counsel-git-grep</code> -&gt; <code>ivy-occur</code> -&gt; <code>wgrep</code></a></li>
+<li><a href="#orgb25e49c"><code>ivy-occur</code> gives full candidates</a></li>
+</ul>
+</li>
+<li><a href="#orgf0c6e57"><code>counsel--find-symbol</code></a>
+<ul>
+<li><a href="#org1841a7f">Allow to jump back with pop-tag-mark</a></li>
+<li><a href="#org1598d96">Resolve the name clash better</a></li>
+</ul>
+</li>
+<li><a href="#orge0fbd94"><code>counsel-ag</code></a>
+<ul>
+<li><a href="#orge3f76ce">Add <code>initial-directory</code></a></li>
+<li><a href="#org8f930f6">Fix on Windows</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#orgef053fb">New Commands</a>
+<ul>
+<li><a href="#org16d4e7e"><code>ivy-occur</code></a></li>
+<li><a href="#orgbeb2d13"><code>ivy-avy</code></a></li>
+<li><a href="#org564d8b9"><code>ivy-kill-ring-save</code></a></li>
+<li><a href="#orgce6a07f"><code>ivy-dispatching-call</code></a></li>
+<li><a href="#orgc6b1240"><code>ivy-read-action</code></a></li>
+<li><a href="#org1fcefd9"><code>swiper-multi</code></a></li>
+<li><a href="#orgdcddc17"><code>swiper-mc</code></a></li>
+<li><a href="#org99fed3b"><code>swiper-all</code></a></li>
+<li><a href="#org8f14f53"><code>counsel-grep</code></a></li>
+<li><a href="#org75d603d"><code>counsel-git-grep-query-replace</code></a></li>
+<li><a href="#org5ff5677"><code>counsel-jedi</code></a></li>
+<li><a href="#orgeddc5aa"><code>counsel-cl</code></a></li>
+<li><a href="#org5180468"><code>counsel-yank-pop</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#0.8.0">0.8.0</a>
+<ul>
+<li><a href="#package-rename">Package rename</a></li>
+<li><a href="#org87615c4">Documentation</a></li>
+<li><a href="#org9851367">Fixes</a>
+<ul>
+<li><a href="#orge5a4a8">ivy-read</a>
+<ul>
+<li><a href="#orgc09ff53">Fix recursive minibuffer exit with <kbd>C-g</kbd></a></li>
+<li><a href="#org174dc5e">Ensure the return result</a></li>
+<li><a href="#orgfd9cef1">Properly support matching ignoring order</a></li>
+<li><a href="#orgcc44ad1">Insert intermediate candidates during async completions</a></li>
+<li><a href="#org4fad5dd">Initialize <code>ivy-last</code> to empty state</a></li>
+<li><a href="#orgf545814">Fix extra actions for <code>completing-read</code></a></li>
+<li><a href="#org8e937c2">Support a list of symbols as collection</a></li>
+<li><a href="#org9c115c1">Define <code>setq-local</code> and <code>defvar-local</code> unless defined</a></li>
+<li><a href="#orgfe556e7">Make <kbd>M-o</kbd> not modify the action</a></li>
+<li><a href="#org33d0def">Make sure user keybindings are respected</a></li>
+<li><a href="#org7d4d1ea">Fix <code>read-file-name</code> with a specified dir</a></li>
+<li><a href="#orgaa7c545">Don't highlight the match in the file part</a></li>
+<li><a href="#orgb6780e2">Add a few tests for alists</a></li>
+</ul>
+</li>
+<li><a href="#org650a6e5">ivy-occur</a>
+<ul>
+<li><a href="#org8183005">Fix <code>default-directory</code></a></li>
+</ul>
+</li>
+<li><a href="#org1e11b77">ivy&#x2013;resize-minibuffer-to-fit</a>
+<ul>
+<li><a href="#org46d0798">Fix for small delta</a></li>
+<li><a href="#org42f227e">Check <code>frame-root-window-p</code></a></li>
+</ul>
+</li>
+<li><a href="#org7ead59a">ivy-completing-read</a>
+<ul>
+<li><a href="#org4cf15a3">Use <code>completing-read-default</code> for tmm</a></li>
+</ul>
+</li>
+<li><a href="#orgb8b411b">ivy&#x2013;regex-plus</a>
+<ul>
+<li><a href="#org160664f">Recognize ! at the beginning of the str</a></li>
+<li><a href="#org68186ba">Prettify a bit</a></li>
+<li><a href="#org2df0910">Don't consider <code>\\(?...\)</code> a group</a></li>
+</ul>
+</li>
+<li><a href="#org9072db3">ivy&#x2013;get-window</a>
+<ul>
+<li><a href="#org700b95e">Always return a valid window</a></li>
+</ul>
+</li>
+<li><a href="#org100ff5a">ivy&#x2013;recompute-index</a>
+<ul>
+<li><a href="#orgd64b438">Update <code>cl-position</code> logic</a></li>
+</ul>
+</li>
+<li><a href="#org50310b4">ivy-reverse-i-search</a>
+<ul>
+<li><a href="#orgca55065">Fix due to recursive update</a></li>
+</ul>
+</li>
+<li><a href="#org310eff4">ivy&#x2013;reset-state</a>
+<ul>
+<li><a href="#org5096003">Don't null <code>initial-input</code></a></li>
+<li><a href="#org17adaf6">Don't deactivate region</a></li>
+</ul>
+</li>
+<li><a href="#org31c46fa">ivy-completion-in-region</a>
+<ul>
+<li><a href="#org9cdb2d">Use <code>completion-all-completions</code></a></li>
+<li><a href="#org7748bf0">Optimize for 1 candidate</a></li>
+<li><a href="#org7799a61">Add feedback for 1 candidate</a></li>
+<li><a href="#org7936cd7">Bind <code>completion-ignore-case</code></a></li>
+</ul>
+</li>
+<li><a href="#org43218a9">ivy-read-action</a>
+<ul>
+<li><a href="#org56fe8e8">Give enough minibuffer space</a></li>
+<li><a href="#org41e3e98">Allow to customize the action hint formatter</a></li>
+</ul>
+</li>
+<li><a href="#orgb26e5d0">ivy-count-format</a>
+<ul>
+<li><a href="#org1cdd3b0">Fix for nil value</a></li>
+</ul>
+</li>
+<li><a href="#orga4ced1d">ivy-switch-buffer</a>
+<ul>
+<li><a href="#orgbfe0c72">Don't fall back to <code>switch-to-buffer</code></a></li>
+</ul>
+</li>
+<li><a href="#org4cbe7c2">ivy-next-history-element</a>
+<ul>
+<li><a href="#orged0f96b">No "\\_&lt;" for dynamic-collection</a></li>
+</ul>
+</li>
+<li><a href="#org58f07e4">ivy-occur-press</a>
+<ul>
+<li><a href="#org2bd320">Pulse no longer</a></li>
+</ul>
+</li>
+<li><a href="#orgcebabe">ivy-resume</a>
+<ul>
+<li><a href="#org6253138">Add a guard against null <code>:action</code></a></li>
+</ul>
+</li>
+<li><a href="#org932edf7">ivy-avy</a>
+<ul>
+<li><a href="#org97cd64a">Make <kbd>C-g</kbd> cancel gracefully</a></li>
+</ul>
+</li>
+<li><a href="#orgad4ad74">ivy-dispatching-done</a></li>
+<li><a href="#org51c5095">swiper</a>
+<ul>
+<li><a href="#orgc0a018b">Improve for multiple occurrences on one line</a></li>
+<li><a href="#orge81e0c3">Fix "backward" search</a></li>
+<li><a href="#org674fd8f">Return point</a></li>
+<li><a href="#org70a4d7c">Update <code>regexp-search-ring</code></a></li>
+<li><a href="#orgb19611d">Always remove '(field) text property</a></li>
+</ul>
+</li>
+<li><a href="#org8e46cb4">swiper-font-lock-ensure</a>
+<ul>
+<li><a href="#orgb47a4ac">Add modes</a></li>
+<li><a href="#orgda9d93b">Don't fail when font-lock is off</a></li>
+</ul>
+</li>
+<li><a href="#org4dca47f">swiper&#x2013;multi-candidates</a>
+<ul>
+<li><a href="#org13f0344">Add check for <code>make-string</code></a></li>
+</ul>
+</li>
+<li><a href="#org3e4ab6d">counsel&#x2013;async-sentinel</a>
+<ul>
+<li><a href="#org9db4e0f">Fix issue with <code>ivy--regex-ignore-order</code></a></li>
+<li><a href="#orgfec3314">Re-display when no cands</a></li>
+<li><a href="#org1219fd2">Recognize error codes other than 1</a></li>
+</ul>
+</li>
+<li><a href="#orgc5bc02">consel-git</a>
+<ul>
+<li><a href="#org2e63c10">Fix window selection.</a></li>
+</ul>
+</li>
+<li><a href="#orgfb1000d">counsel-recoll</a>
+<ul>
+<li><a href="#org65aa2ff">Add <code>:unwind</code></a></li>
+</ul>
+</li>
+<li><a href="#orgd8344cc">compilation warnings</a></li>
+</ul>
+</li>
+<li><a href="#org7a8bf6a">New Features</a>
+<ul>
+<li><a href="#org93074ca">ivy-read</a>
+<ul>
+<li><a href="#orgf637520">Use <code>flx</code> for highlighting fuzzy matches</a></li>
+<li><a href="#orgd1f024f">Simplify the signature for <code>:dynamic-collection</code> functions</a></li>
+<li><a href="#org147548d">Modify <kbd>M-n</kbd> prediction when region is active</a></li>
+<li><a href="#org50fef3d">Allow to compose collections</a></li>
+<li><a href="#org688fb2">Improve documentation UI</a></li>
+<li><a href="#org8f188c6">Add ignore pattern toggling</a></li>
+</ul>
+</li>
+<li><a href="#org14de4ad">ivy-mode</a>
+<ul>
+<li><a href="#org7f37d6e">Set <code>completion-in-region-function</code></a></li>
+<li><a href="#org8f1cb95">Improve <kbd>M-n</kbd> for <code>'read-file-name-internal</code></a></li>
+</ul>
+</li>
+<li><a href="#org703c8fa">ivy-set-occur</a>
+<ul>
+<li><a href="#org484d70d"><code>ivy-switch-buffer</code></a></li>
+</ul>
+</li>
+<li><a href="#org49c1ec4">ivy-occur-mode</a>
+<ul>
+<li><a href="#orge6ec491">New commands on <kbd>j</kbd>, <kbd>k</kbd>, <kbd>c</kbd></a></li>
+<li><a href="#org918f282">New command <code>ivy-occur-revert-buffer</code> on <kbd>g</kbd></a></li>
+<li><a href="#org9489b6c">Improve the feedback for <kbd>j</kbd> and <kbd>k</kbd></a></li>
+</ul>
+</li>
+<li><a href="#org8096d26">ivy-re-builders-alist</a>
+<ul>
+<li><a href="#orga665969">Allow <code>this-command</code> to be a key</a></li>
+</ul>
+</li>
+<li><a href="#orgeca7c47">ivy-set-actions</a>
+<ul>
+<li><a href="#org3fdbf51">Call with <code>t</code> to affect all commands</a></li>
+</ul>
+</li>
+<li><a href="#orgcba8a19">ivy-faces</a></li>
+<li><a href="#org2387f07">ivy-flx-limit</a></li>
+<li><a href="#org90a9526">ivy-ignore-buffers</a></li>
+<li><a href="#org5c8a5aa">ivy-inhibit-action</a></li>
+<li><a href="#orgc68214d">ivy-do-completion-in-region</a></li>
+<li><a href="#orge91e4f1">ivy-fixed-height-minibuffer</a></li>
+<li><a href="#org3526a34">ivy-set-display-transformer</a></li>
+<li><a href="#orgfeb1d75">ivy-ignore-buffers</a></li>
+<li><a href="#org514105d">ivy-add-newline-after-prompt</a></li>
+<li><a href="#orgf85fb8b">ivy-switch-buffer</a>
+<ul>
+<li><a href="#org8cbc052">Add virtual views</a></li>
+</ul>
+</li>
+<li><a href="#orgea0510e">ivy-use-ignore-default</a></li>
+<li><a href="#org850366">swiper</a>
+<ul>
+<li><a href="#orgf488e4f">Improve <code>swiper-query-replace</code></a></li>
+</ul>
+</li>
+<li><a href="#org3d8dc5e">swiper-font-lock-exclude</a></li>
+<li><a href="#org68375e0">swiper-all</a>
+<ul>
+<li><a href="#org7f6dd53">New auto-updates position</a></li>
+</ul>
+</li>
+<li><a href="#org39da7a7">counsel-mode</a>
+<ul>
+<li><a href="#org9591a15">Allow use of describe-prefix-bindings</a></li>
+</ul>
+</li>
+<li><a href="#org7b72f60">counsel-find-file</a>
+<ul>
+<li><a href="#org94a6b39">Add <code>initial-input</code></a></li>
+<li><a href="#org9468bb1">Change tramp prompt from "Find File: " to "user@host: "</a></li>
+<li><a href="#orgaea0136">Bind <code>counsel-up-directory</code> to <kbd>C-DEL</kbd></a></li>
+<li><a href="#org8da33b4">Customize <code>M-n</code> action</a></li>
+<li><a href="#orge983beb">Can un-ignore dotfiles with a leading dot input</a></li>
+<li><a href="#org3e8c431">Bind <kbd>M-o f</kbd> to <code>find-file-other-window</code></a></li>
+<li><a href="#orgccebede">Correctly expand file name at point</a></li>
+<li><a href="#orgea6e58c">Add display transformer</a></li>
+<li><a href="#orgeb360b2">Add magic slash that changes the directory</a></li>
+</ul>
+</li>
+<li><a href="#org1229a06">counsel-git-grep</a>
+<ul>
+<li><a href="#org96a41c2">Bind <kbd>C-c C-m</kbd> to <code>counsel-git-grep-switch-cmd</code></a></li>
+</ul>
+</li>
+<li><a href="#org9b9634a">counsel-locate</a>
+<ul>
+<li><a href="#orgcb9119b">counsel-locate-cmd</a></li>
+<li><a href="#orgaeb4feb">counsel-locate-cmd-mdfind</a></li>
+<li><a href="#orgd20c4fa">counsel-locate-cmd-es</a></li>
+</ul>
+</li>
+<li><a href="#org6e5ef8e">counsel-yank-pop</a>
+<ul>
+<li><a href="#org713a8b">Truncate during display</a></li>
+</ul>
+</li>
+<li><a href="#orgae14618">counsel-unicode-char</a></li>
+<li><a href="#orgce4f665">counsel-rhythmbox</a>
+<ul>
+<li><a href="#org66040b8">Preselect the current song</a></li>
+</ul>
+</li>
+<li><a href="#orgd2dccb6">counsel-ag</a>
+<ul>
+<li><a href="#orgf1af31c"><code>counsel-ag-base-command</code></a></li>
+<li><a href="#org1571e72">Add dir prompt for <kbd>C-u</kbd></a></li>
+<li><a href="#org1e8d7e9">Add <code>counsel-ag-map</code></a></li>
+</ul>
+</li>
+<li><a href="#org56ada59">counsel-async-split-string-re</a></li>
+<li><a href="#org85e606c">counsel&#x2013;async-cmd</a>
+<ul>
+<li><a href="#org25368b3">Add optional exit-code table</a></li>
+</ul>
+</li>
+<li><a href="#orgc75c56d">counsel-prompt-function</a></li>
+<li><a href="#org2a72044">counsel-grep</a>
+<ul>
+<li><a href="#org87ba05b">Reveal outlines</a></li>
+<li><a href="#org4d0af8d">Should pick candidates closest to point</a></li>
+<li><a href="#org5136701">Speed up x40 times</a></li>
+</ul>
+</li>
+<li><a href="#org2db7341">counsel-M-x</a>
+<ul>
+<li><a href="#orgaf41b62">Add help action</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#org8b4cb79">New Commands</a>
+<ul>
+<li><a href="#org9b5ebc7"><code>counsel-tmm</code></a></li>
+<li><a href="#orgd780b4e"><code>counsel-imenu</code></a></li>
+<li><a href="#org731ae15"><code>counsel-decbinds</code></a></li>
+<li><a href="#org2c8ae53"><code>counsel-list-processes</code></a></li>
+<li><a href="#orgc5b8bd1"><code>ivy-switch-buffer-other-window</code></a></li>
+<li><a href="#orgba7c15b"><code>counsel-git-stash</code></a></li>
+<li><a href="#org9295f8d"><code>counsel-git-log</code></a></li>
+<li><a href="#orgb0b6461"><code>counsel-pt</code></a></li>
+<li><a href="#org1447929"><code>counsel-linux-app</code></a></li>
+<li><a href="#orgea039a2"><code>counsel-ace-link</code></a></li>
+<li><a href="#org24edf5b"><code>counsel-esh-history</code></a></li>
+<li><a href="#orgb721388"><code>counsel-shell-history</code></a></li>
+<li><a href="#orgee7e5ed"><code>counsel-grep-or-swiper</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org9601fc" class="outline-2">
+<h2 id="0.6.0"><a id="org9601fc"></a>0.6.0</h2>
+<div class="outline-text-2" id="text-0.6.0">
+</div>
+<div id="outline-container-orgcb326e5" class="outline-3">
+<h3 id="orgcb326e5">Fixes</h3>
+<div class="outline-text-3" id="text-orgcb326e5">
+</div><div id="outline-container-orge9794c6" class="outline-4">
+<h4 id="orge9794c6"><code>swiper-avy</code> should use only the current window</h4>
+<div class="outline-text-4" id="text-orge9794c6">
+<p>
+Not all windows. See <a href="https://github.com/abo-abo/swiper/issues/117">#117</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8f6e284" class="outline-4">
+<h4 id="org8f6e284">fix wrap-around for <code>ivy-next-line</code></h4>
+<div class="outline-text-4" id="text-org8f6e284">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/118">#118</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgbf3a8fc" class="outline-4">
+<h4 id="orgbf3a8fc"><code>swiper-avy</code> should do nothing for empty input</h4>
+<div class="outline-text-4" id="text-orgbf3a8fc">
+<p>
+See <a href="https://github.com/abo-abo/avy/issues/50">#50</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf633e21" class="outline-4">
+<h4 id="orgf633e21"><code>ivy-alt-done</code> should require TRAMP if necessary</h4>
+<div class="outline-text-4" id="text-orgf633e21">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/145">#145</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgaab0a76" class="outline-4">
+<h4 id="orgaab0a76"><code>swiper-query-replace</code> shouldn't miss the first occurrence</h4>
+<div class="outline-text-4" id="text-orgaab0a76">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/144">#144</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org90164d0" class="outline-4">
+<h4 id="org90164d0"><code>swiper</code> should not deactivate mark</h4>
+</div>
+<div id="outline-container-org8197d28" class="outline-4">
+<h4 id="org8197d28"><code>ivy-mode</code> should not switch to TRAMP for certain input</h4>
+<div class="outline-text-4" id="text-org8197d28">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/145">#145</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org44ccc3a" class="outline-4">
+<h4 id="org44ccc3a"><code>counsel-find-file</code> should work better with TRAMP</h4>
+<div class="outline-text-4" id="text-org44ccc3a">
+<p>
+"/ssh:foo" should not be cut off
+See <a href="https://github.com/abo-abo/swiper/pull/145">#145</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org238e98e" class="outline-4">
+<h4 id="org238e98e"><code>counsel-find-file</code> supports Windows drive letters</h4>
+<div class="outline-text-4" id="text-org238e98e">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/155">#155</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9fd267" class="outline-4">
+<h4 id="org9fd267"><code>counsel-file-file</code> should work better with files that contain "~"</h4>
+<div class="outline-text-4" id="text-org9fd267">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/157">#157</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org29c75b0" class="outline-4">
+<h4 id="org29c75b0"><code>counsel-M-x</code> should respect <code>ivy-format-function</code></h4>
+<div class="outline-text-4" id="text-org29c75b0">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/150">#150</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org10366ae" class="outline-4">
+<h4 id="org10366ae"><code>counsel-git-grep</code> should position better on exit</h4>
+<div class="outline-text-4" id="text-org10366ae">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/153">#153</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf35e713" class="outline-4">
+<h4 id="orgf35e713"><code>ivy-mode</code> should re-scale text to minibuffer height</h4>
+<div class="outline-text-4" id="text-orgf35e713">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/151">#151</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org313e3df" class="outline-4">
+<h4 id="org313e3df"><code>counsel-unicode-char</code> should use action-style call</h4>
+<div class="outline-text-4" id="text-org313e3df">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/160">#160</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge50dae5" class="outline-4">
+<h4 id="orge50dae5"><code>ivy-read</code> should allow % in prompt string</h4>
+<div class="outline-text-4" id="text-orge50dae5">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/171">#171</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge0def7" class="outline-4">
+<h4 id="orge0def7"><code>ivy-call</code> should execute in proper window</h4>
+<div class="outline-text-4" id="text-orge0def7">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/176">#176</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org38050ee" class="outline-3">
+<h3 id="org38050ee">New Features</h3>
+<div class="outline-text-3" id="text-org38050ee">
+</div><div id="outline-container-orgae2f7b1" class="outline-4">
+<h4 id="orgae2f7b1"><code>ivy-mode</code></h4>
+<div class="outline-text-4" id="text-orgae2f7b1">
+</div><div id="outline-container-orgbf3fb63" class="outline-5">
+<h5 id="orgbf3fb63">Open an Info file on the file system</h5>
+<div class="outline-text-5" id="text-orgbf3fb63">
+<p>
+When in <code>Info-mode</code>, press <kbd>g</kbd> and select either "(./)" or "(../)" to
+switch to file name completion. That file will be opened with Info.
+</p>
+</div>
+</div>
+<div id="outline-container-orga59f721" class="outline-5">
+<h5 id="orga59f721">Account for <code>minibuffer-depth-indication-mode</code></h5>
+<div class="outline-text-5" id="text-orga59f721">
+<p>
+If you have <code>minibuffer-depth-indication-mode</code> on, the minibuffer
+prompt will indicate the current depth.
+See <a href="https://github.com/abo-abo/swiper/pull/134">#134</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgdbec70b" class="outline-5">
+<h5 id="orgdbec70b">Add fuzzy matching function</h5>
+<div class="outline-text-5" id="text-orgdbec70b">
+<p>
+To enable fuzzy matching, set your <code>ivy-re-builders-alist</code> accordingly:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+</pre>
+</div>
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/136">#136</a>.
+</p>
+
+<p>
+See also <a href="https://github.com/abo-abo/swiper/pull/142">#142</a> for toggling fuzzy matching with <kbd>C-o m</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8d01bc5" class="outline-5">
+<h5 id="org8d01bc5"><code>case-fold-search</code> optimization</h5>
+<div class="outline-text-5" id="text-org8d01bc5">
+<p>
+Bind case-fold-search to t when the input is all lower-case:
+</p>
+
+<ul class="org-ul">
+<li>input "the" matches both "the" and "The".</li>
+<li>input "The" matches only "The".</li>
+</ul>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/166">#166</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org963857d" class="outline-5">
+<h5 id="org963857d">Allow to see the candidate index a la <code>anzu</code> via <code>ivy-count-format</code></h5>
+<div class="outline-text-5" id="text-org963857d">
+<p>
+To have this feature, use something like this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
+</pre>
+</div>
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/167">#167</a>.
+</p>
+
+<p>
+You can also set this to "", if you don't want any count, see <a href="https://github.com/abo-abo/swiper/pull/188">#188</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org83c1050" class="outline-5">
+<h5 id="org83c1050">Allow to add additional exit points for any command</h5>
+<div class="outline-text-5" id="text-org83c1050">
+<p>
+Example for <code>ivy-switch-to-buffer</code>:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-set-actions
+ 'ivy-switch-buffer
+ '((<span style="color: #2A00FF;">"k"</span>
+    (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+      (kill-buffer x)
+      (ivy--reset-state ivy-last))
+    <span style="color: #2A00FF;">"kill"</span>)
+   (<span style="color: #2A00FF;">"j"</span>
+    ivy--switch-buffer-other-window-action
+    <span style="color: #2A00FF;">"other"</span>)))
+</pre>
+</div>
+
+<p>
+After this:
+</p>
+
+<ul class="org-ul">
+<li>use <kbd>M-o k</kbd> to kill a buffer</li>
+<li>use <kbd>M-o j</kbd> to switch to a buffer in other window</li>
+</ul>
+
+<p>
+You can always use <kbd>M-o o</kbd> to access the default action. When there is
+only one action, <kbd>M-o</kbd> does the same as <kbd>C-m</kbd>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/164">#164</a>.
+</p>
+</div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+<div id="outline-container-org1a742c0" class="outline-4">
+<h4 id="org1a742c0"><code>counsel-describe-function</code> and <code>counsel-decribe-variable</code></h4>
+<div class="outline-text-4" id="text-org1a742c0">
+</div><div id="outline-container-org3540563" class="outline-5">
+<h5 id="org3540563">Add a binding to look up the symbol in info</h5>
+<div class="outline-text-5" id="text-org3540563">
+<p>
+Press <kbd>C-,</kbd> to look up the symbol in info, instead of the default
+describe action.
+See <a href="https://github.com/abo-abo/swiper/pull/121">#121</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org5c4b320" class="outline-5">
+<h5 id="org5c4b320">Handle symbol-at-point better in non-Elisp buffers</h5>
+<div class="outline-text-5" id="text-org5c4b320">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/126">#126</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orge7d6d84" class="outline-4">
+<h4 id="orge7d6d84"><code>ivy-switch-buffer</code></h4>
+<div class="outline-text-4" id="text-orge7d6d84">
+</div><div id="outline-container-org939dfa7" class="outline-5">
+<h5 id="org939dfa7">New face <code>ivy-virtual</code></h5>
+<div class="outline-text-5" id="text-org939dfa7">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/129">#129</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org437a486" class="outline-5">
+<h5 id="org437a486">Deal better with invisible buffers</h5>
+<div class="outline-text-5" id="text-org437a486">
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/135">#135</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge267605" class="outline-5">
+<h5 id="orge267605">Add custom keymap</h5>
+<div class="outline-text-5" id="text-orge267605">
+<p>
+You can customize <code>ivy-switch-buffer-map</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/164">#164</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org633fb38" class="outline-5">
+<h5 id="org633fb38">Add extra actions</h5>
+<div class="outline-text-5" id="text-org633fb38">
+<p>
+Add a <code>kill-buffer</code> action, and <code>switch-to-buffer-other-window</code> action.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org719d77b" class="outline-4">
+<h4 id="org719d77b"><code>counsel-git-grep</code></h4>
+<div class="outline-text-4" id="text-org719d77b">
+</div><div id="outline-container-orgefbaa63" class="outline-5">
+<h5 id="orgefbaa63">Add Async</h5>
+<div class="outline-text-5" id="text-orgefbaa63">
+<p>
+Make it fully async: the process <code>git grep</code> will be killed and
+restarted on new input. This results in almost no keyboard delay.
+</p>
+</div>
+</div>
+<div id="outline-container-orgba61e0e" class="outline-5">
+<h5 id="orgba61e0e">Own history variable</h5>
+</div>
+</div>
+<div id="outline-container-org98994c3" class="outline-4">
+<h4 id="org98994c3"><code>swiper</code></h4>
+<div class="outline-text-4" id="text-org98994c3">
+</div><div id="outline-container-org8e08e54" class="outline-5">
+<h5 id="org8e08e54">Own history variable</h5>
+<div class="outline-text-5" id="text-org8e08e54">
+<p>
+Having own history variable allows to get more use of <kbd>M-p</kbd>, <kbd>M-n</kbd> and <kbd>C-r</kbd>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org236c78c" class="outline-4">
+<h4 id="org236c78c"><code>counsel-el</code></h4>
+<div class="outline-text-4" id="text-org236c78c">
+</div><div id="outline-container-orgea1ddd9" class="outline-5">
+<h5 id="orgea1ddd9">Switch to action-style call</h5>
+<div class="outline-text-5" id="text-orgea1ddd9">
+<p>
+This allows to make use of <kbd>C-M-n</kbd> and <kbd>C-M-p</kbd>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org53f713d" class="outline-4">
+<h4 id="org53f713d"><code>counsel-locate</code></h4>
+<div class="outline-text-4" id="text-org53f713d">
+</div><div id="outline-container-orgafb5d21" class="outline-5">
+<h5 id="orgafb5d21">Add Async</h5>
+</div>
+<div id="outline-container-org83bf413" class="outline-5">
+<h5 id="org83bf413">Add extra actions</h5>
+<div class="outline-text-5" id="text-org83bf413">
+<p>
+In addition to the default action of opening a file add:
+</p>
+
+<ul class="org-ul">
+<li><code>xdg-open</code> action</li>
+<li><code>dired</code> action</li>
+</ul>
+
+<p>
+Press <kbd>M-o</kbd> or <kbd>C-o</kbd> to access these actions.
+</p>
+</div>
+</div>
+<div id="outline-container-org17b08fa" class="outline-5">
+<h5 id="org17b08fa">Add own history</h5>
+</div>
+</div>
+
+<div id="outline-container-orgf27fabc" class="outline-4">
+<h4 id="orgf27fabc">API</h4>
+<div class="outline-text-4" id="text-orgf27fabc">
+</div><div id="outline-container-org561a62" class="outline-5">
+<h5 id="org561a62">Add :matcher</h5>
+<div class="outline-text-5" id="text-org561a62">
+<p>
+A matcher is a function that accepts a regexp and a list of candidates
+and returns the filtered list of candidates.
+</p>
+
+<p>
+The default matcher is basically <code>cl-remove-if-not</code> + <code>string-match</code>.
+If you'd like to customize this, pass your own matcher.
+</p>
+
+<p>
+See <code>counsel-git-grep-matcher</code> for an example.
+</p>
+</div>
+</div>
+<div id="outline-container-org1db8500" class="outline-5">
+<h5 id="org1db8500">Allow to customize the initial input for all commands</h5>
+<div class="outline-text-5" id="text-org1db8500">
+<p>
+Customize <code>ivy-initial-inputs-alist</code> for this.
+See <a href="https://github.com/abo-abo/swiper/pull/140">#140</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge9eb2ec" class="outline-5">
+<h5 id="orge9eb2ec"><code>ivy-sort-functions-alist</code> should also examine <code>this-command</code></h5>
+</div>
+<div id="outline-container-orgcfab850" class="outline-5">
+<h5 id="orgcfab850">:dynamic-collection is now a boolean</h5>
+<div class="outline-text-5" id="text-orgcfab850">
+<p>
+Pass the collection function as the second var instead.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgc5dfeae" class="outline-3">
+<h3 id="orgc5dfeae">New Commands</h3>
+<div class="outline-text-3" id="text-orgc5dfeae">
+</div><div id="outline-container-org35beaf6" class="outline-4">
+<h4 id="org35beaf6"><code>ivy-call</code></h4>
+<div class="outline-text-4" id="text-org35beaf6">
+<p>
+Execute the current action for the current candidate without exiting
+the minibuffer.  Bound to <kbd>C-M-m</kbd> or <kbd>M-RET</kbd> or <kbd>C-o g</kbd>.
+</p>
+</div>
+</div>
+
+
+<div id="outline-container-orga684b83" class="outline-4">
+<h4 id="orga684b83"><code>counsel-find-file</code></h4>
+<div class="outline-text-4" id="text-orga684b83">
+<p>
+Forward to <code>find-file</code> with Ivy completion.
+</p>
+
+<p>
+<code>ivy-next-line-and-call</code> as well as <code>ivy-resume</code> should work for this command.
+</p>
+
+<p>
+The variable <code>counsel-find-file-ignore-regexp</code> allows to ignore
+certain files, like dot files.  Input a leading dot to see all files.
+</p>
+
+<p>
+The variable <code>counsel-find-file-at-point</code> allows to automatically use
+<code>ffap</code>.  You also can do it manually with <kbd>M-n</kbd> when the point is on a file name.
+</p>
+
+<p>
+The variable <code>counsel-find-file-map</code> allows to customize the
+minibuffer key bindings for this command.
+</p>
+
+<p>
+Recommended binding:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-x C-f"</span>) 'counsel-find-file)
+</pre>
+</div>
+
+<p>
+You can peek at files with <kbd>C-M-n</kbd> and <kbd>C-M-p</kbd>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/122">#122</a> and <a href="https://github.com/abo-abo/swiper/issues/123">#123</a>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/152">#152</a> about <kbd>M-n</kbd>, <kbd>M-p</kbd> and <kbd>M-i</kbd> switching directories when necessary.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3634f2d" class="outline-4">
+<h4 id="org3634f2d"><code>ivy-recentf</code></h4>
+<div class="outline-text-4" id="text-org3634f2d">
+<p>
+Find a file on <code>recentf-list</code>.
+</p>
+
+<p>
+Note that if your set <code>ivy-use-virtual-buffers</code>, <code>recentf-list</code> is
+merged into candidates list for <code>ivy-switch-buffer</code>. But if you want
+it separately, you can use this command.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/124">#124</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8d8b0d2" class="outline-4">
+<h4 id="org8d8b0d2"><code>ivy-yank-word</code></h4>
+<div class="outline-text-4" id="text-org8d8b0d2">
+<p>
+Add word at point to minibuffer input.
+</p>
+
+<p>
+This is similar to what <kbd>C-w</kbd> does for <code>isearch</code>.  However it's bound
+to <kbd>M-j</kbd> instead of <kbd>C-w</kbd>, since <kbd>C-w</kbd> is bound to <code>kill-region</code> - a
+useful command.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/125">#125</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org1eaf1fa" class="outline-4">
+<h4 id="org1eaf1fa"><code>counsel-M-x</code></h4>
+<div class="outline-text-4" id="text-org1eaf1fa">
+<p>
+Forward to <code>execute-extended-command</code> with Ivy completion.
+The candidate list will also display the key binding for each bound command.
+</p>
+
+<p>
+This command will piggyback on <code>smex</code> for sorting, if <code>smex</code> is installed.
+</p>
+
+<p>
+Use <code>counsel-M-x-initial-input</code> to customize the initial input for
+this command.  By default, it's "^" - the regex character that
+indicates beginning of string.  This results in much faster matching,
+since you usually type the command name from the start.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/136">#136</a> and <a href="https://github.com/abo-abo/swiper/pull/138">#138</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org8c20bc9" class="outline-4">
+<h4 id="org8c20bc9"><code>hydra-ivy</code></h4>
+<div class="outline-text-4" id="text-org8c20bc9">
+<p>
+Press <kbd>C-o</kbd> to toggle the Hydra for Ivy.
+It gives access to shorter bindings and many customizable options.
+</p>
+
+<p>
+Use <kbd>C-o &gt;</kbd> to grow the minibuffer.
+Use <kbd>C-o &lt;</kbd> to shrink the minibuffer.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/151">#151</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7210fce" class="outline-4">
+<h4 id="org7210fce"><code>ivy-toggle-calling</code></h4>
+<div class="outline-text-4" id="text-org7210fce">
+<p>
+Toggle executing the current action each time a new candidate is selected.
+</p>
+
+<p>
+This command is bound to <kbd>C-o c</kbd>.
+</p>
+
+<p>
+To explain how this is useful: <kbd>C-M-m C-M-f C-M-f C-M-f</kbd>  is equivalent to <kbd>C-o cjjj</kbd>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org1cc8fae" class="outline-4">
+<h4 id="org1cc8fae"><code>ivy-insert-current</code></h4>
+<div class="outline-text-4" id="text-org1cc8fae">
+<p>
+Inserts the current candidate into the minibuffer.
+</p>
+
+<p>
+Press <kbd>M-i</kbd> if you want something close to the current candidate. You
+can follow up with an edit and select.
+</p>
+
+<p>
+I find this very useful when creating new files with a similar name to
+the existing file: <kbd>C-x C-f M-i</kbd> + a bit of editing is very fast.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/141">#141</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgfdbf0db" class="outline-4">
+<h4 id="orgfdbf0db"><code>counsel-load-theme</code></h4>
+<div class="outline-text-4" id="text-orgfdbf0db">
+<p>
+Forward to <code>load-theme</code> with Ivy completion. Allows to rapidly try themes (e.g. with <kbd>C-M-n</kbd>).
+</p>
+</div>
+</div>
+
+<div id="outline-container-org65ac1d3" class="outline-4">
+<h4 id="org65ac1d3"><code>ivy-reverse-i-search</code></h4>
+<div class="outline-text-4" id="text-org65ac1d3">
+<p>
+Allow to recursively match history with <kbd>C-r</kbd>.
+</p>
+
+<p>
+I like this command from bash shell. The usual way to search through
+history is with <kbd>M-p</kbd> and <kbd>M-n</kbd>.  Using <code>ivy-reverse-i-search</code> will
+open a recursive completion session with the current history as the
+candidates.
+</p>
+</div>
+</div>
+<div id="outline-container-org4d6d103" class="outline-4">
+<h4 id="org4d6d103"><code>counsel-rhythmbox</code></h4>
+<div class="outline-text-4" id="text-org4d6d103">
+<p>
+<a href="http://oremacs.com/2015/07/09/counsel-rhythmbox/">Control Rhythmbox from Emacs.</a>
+</p>
+</div>
+</div>
+<div id="outline-container-org451ca1d" class="outline-4">
+<h4 id="org451ca1d"><code>ivy-dispatching-done</code></h4>
+<div class="outline-text-4" id="text-org451ca1d">
+<p>
+Select an action for the current candidate and execute it. Bound to <kbd>M-o</kbd>.
+</p>
+
+<p>
+Some commands that support <kbd>M-o</kbd>:
+</p>
+
+<ul class="org-ul">
+<li><code>counsel-rhythmbox</code></li>
+<li><code>counsel-describe-function</code></li>
+<li><code>counsel-describe-variable</code></li>
+<li><code>ivy-switch-buffer</code></li>
+<li><code>counsel-locate</code></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-org710edc4" class="outline-4">
+<h4 id="org710edc4"><code>counsel-org-tag</code></h4>
+<div class="outline-text-4" id="text-org710edc4">
+<p>
+Forward to <code>org-set-tags</code> with Ivy completion.
+</p>
+
+<p>
+Selecting any tag each time will toggle it on/off.
+The current list of selected tags will be displayed in the prompt.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/177">#177</a> and <a href="https://github.com/abo-abo/swiper/pull/91">#91</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgc6389ea" class="outline-4">
+<h4 id="orgc6389ea"><code>counsel-org-tag-agenda</code></h4>
+<div class="outline-text-4" id="text-orgc6389ea">
+<p>
+Forward to <code>org-agenda-set-tags</code> with Ivy completion.
+See <a href="https://github.com/abo-abo/swiper/pull/177">#177</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org9ee413" class="outline-4">
+<h4 id="org9ee413"><code>counsel-ag</code></h4>
+<div class="outline-text-4" id="text-org9ee413">
+<p>
+Interactively <code>ag</code> using Ivy completion.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org17836b" class="outline-4">
+<h4 id="org17836b"><code>counsel-recoll</code></h4>
+<div class="outline-text-4" id="text-org17836b">
+<p>
+Use <code>recoll</code> with Ivy completion.
+See <a href="http://oremacs.com/2015/07/27/counsel-recoll/">Using Recoll desktop search database with Emacs</a>.
+</p>
+
+<p>
+Install recoll with <code>sudo apt-get install recoll</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-orgb9457b7" class="outline-4">
+<h4 id="orgb9457b7"><code>swiper-from-isearch</code></h4>
+<div class="outline-text-4" id="text-orgb9457b7">
+<p>
+Start <code>swiper</code> from the current <code>isearch</code> input.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org484397e" class="outline-4">
+<h4 id="org484397e"><code>ivy-immediate-done</code></h4>
+<div class="outline-text-4" id="text-org484397e">
+<p>
+Use this command to exit the minibuffer choosing not the current
+candidate, but the current text.  Bound to <kbd>C-M-j</kbd> or <kbd>C-u C-j</kbd>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/pull/183">#183</a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgac388ba" class="outline-2">
+<h2 id="0.7.0"><a id="orgac388ba"></a>0.7.0</h2>
+<div class="outline-text-2" id="text-0.7.0">
+</div>
+<div id="outline-container-orgd330676" class="outline-3">
+<h3 id="orgd330676">Fixes</h3>
+<div class="outline-text-3" id="text-orgd330676">
+</div><div id="outline-container-orgba026a" class="outline-4">
+<h4 id="orgba026a">Fix :dynamic-collection not being sorted</h4>
+</div>
+<div id="outline-container-org8bb7fee" class="outline-4">
+<h4 id="org8bb7fee">When :initial-input contains a plus, escape it</h4>
+<div class="outline-text-4" id="text-org8bb7fee">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/195">#195</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf532042" class="outline-4">
+<h4 id="orgf532042">Set line-spacing to 0 in the minibuffer</h4>
+<div class="outline-text-4" id="text-orgf532042">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/198">#198</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9f1103d" class="outline-4">
+<h4 id="org9f1103d">Enlarge the minibuffer window if the candidate list doesn't fit</h4>
+<div class="outline-text-4" id="text-org9f1103d">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/198">#198</a> and <a href="https://github.com/abo-abo/swiper/issues/161">#161</a> and <a href="https://github.com/abo-abo/swiper/issues/220">#220</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org51a90ce" class="outline-4">
+<h4 id="org51a90ce">Fix minibuffer collapsing to one line</h4>
+<div class="outline-text-4" id="text-org51a90ce">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/237">#237</a>, <a href="https://github.com/abo-abo/swiper/issues/229">#229</a> and <a href="https://github.com/abo-abo/swiper/issues/77">#77</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org4ca7d56" class="outline-4">
+<h4 id="org4ca7d56">Use minibuffer-allow-text-properties</h4>
+<div class="outline-text-4" id="text-org4ca7d56">
+<p>
+Allows <code>ivy-read</code> to return a propertized string.
+</p>
+</div>
+</div>
+<div id="outline-container-org21270b2" class="outline-4">
+<h4 id="org21270b2">Improve <kbd>C-g</kbd> out of a long-running async process</h4>
+<div class="outline-text-4" id="text-org21270b2">
+<p>
+Use <code>counsel-delete-process</code> as <code>:unwind</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org315c521" class="outline-4">
+<h4 id="org315c521">Don't regexp-quote :preselect</h4>
+<div class="outline-text-4" id="text-org315c521">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/245">#245</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orga73d945" class="outline-4">
+<h4 id="orga73d945">Fix ivy-partial for fuzzy completion</h4>
+<div class="outline-text-4" id="text-orga73d945">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/266">#266</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org356a7ee" class="outline-4">
+<h4 id="org356a7ee">ivy-resume should pass :caller</h4>
+<div class="outline-text-4" id="text-org356a7ee">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/245">#245</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org5cb0bfa" class="outline-4">
+<h4 id="org5cb0bfa">Fix the regression in perfect match logic</h4>
+<div class="outline-text-4" id="text-org5cb0bfa">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/270">#270</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgca1fbd1" class="outline-4">
+<h4 id="orgca1fbd1">Fix pasting file paths on Windows</h4>
+</div>
+<div id="outline-container-org93cbb5b" class="outline-4">
+<h4 id="org93cbb5b"><kbd>C-j</kbd> should no stop completion for a pasted file path</h4>
+</div>
+<div id="outline-container-org18c2a57" class="outline-4">
+<h4 id="org18c2a57"><kbd>C-M-j</kbd> should use <code>ivy--directory</code></h4>
+<div class="outline-text-4" id="text-org18c2a57">
+<p>
+When completing file names, expand the file name properly.
+See <a href="https://github.com/abo-abo/swiper/issues/275">#275</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org5d13401" class="outline-4">
+<h4 id="org5d13401">Use a specific blend method for dark themes</h4>
+<div class="outline-text-4" id="text-org5d13401">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/278">#278</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org66dd4c6" class="outline-4">
+<h4 id="org66dd4c6">Fix one-off bug in <code>ivy-scroll-up-command</code> and <code>ivy-scroll-down-command</code></h4>
+</div>
+<div id="outline-container-orgffe3472" class="outline-4">
+<h4 id="orgffe3472"><kbd>M-o</kbd> shouldn't set the action permanently</h4>
+<div class="outline-text-4" id="text-orgffe3472">
+<p>
+So now it's possible to e.g. <code>counsel-describe-function</code> -&gt; <kbd>M-o d</kbd> -&gt;
+<code>ivy-resume</code> -&gt; <kbd>M-o o</kbd> -&gt; <code>ivy-resume</code> -&gt; <kbd>M-o i</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8467cb8" class="outline-4">
+<h4 id="org8467cb8">Fix swiper preselect issue with similar or identical lines</h4>
+<div class="outline-text-4" id="text-org8467cb8">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/290">#290</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org6f690f1" class="outline-4">
+<h4 id="org6f690f1">Make ivy-completing-read handle history as cons</h4>
+<div class="outline-text-4" id="text-org6f690f1">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/295">#295</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgeba27eb" class="outline-4">
+<h4 id="orgeba27eb">Perform string-match in the original buffer</h4>
+<div class="outline-text-4" id="text-orgeba27eb">
+<p>
+The syntax for whitespace, separators etc. is different for modes.  See <a href="https://github.com/abo-abo/swiper/issues/298">#298</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4cfd15d" class="outline-3">
+<h3 id="org4cfd15d">New Features</h3>
+<div class="outline-text-3" id="text-org4cfd15d">
+</div><div id="outline-container-orgb9e1d7a" class="outline-4">
+<h4 id="orgb9e1d7a"><code>swiper</code></h4>
+<div class="outline-text-4" id="text-orgb9e1d7a">
+</div><div id="outline-container-orgf8a044" class="outline-5">
+<h5 id="orgf8a044">Make line numbers into display properties</h5>
+<div class="outline-text-5" id="text-orgf8a044">
+<p>
+Each candidate is now a single space plus the original string.  The
+display property of the single space holds the line number. This means
+that it's no longer possible to match line numbers in queries, which
+is a good thing if you're searching for numbers.
+</p>
+</div>
+</div>
+<div id="outline-container-org82a5750" class="outline-5">
+<h5 id="org82a5750">Extend <code>swiper-font-lock-ensure</code></h5>
+<div class="outline-text-5" id="text-org82a5750">
+<p>
+Add <code>mu4e-view-mode</code>, <code>mu4e-headers-mode</code>, <code>help-mode</code>,
+<code>elfeed-show-mode</code>, <code>emms-stream-mode</code>, <code>debbugs-gnu-mode</code>,
+<code>occur-mode</code>, <code>occur-edit-mode</code>, <code>bongo-mode</code>, <code>eww-mode</code>, <code>vc-dir-mode</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-orga4ab932" class="outline-5">
+<h5 id="orga4ab932">Add support for <code>evil-jumper/backward</code></h5>
+<div class="outline-text-5" id="text-orga4ab932">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/268">#268</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orga62615b" class="outline-5">
+<h5 id="orga62615b">Make compatible with <code>visual-line-mode</code></h5>
+<div class="outline-text-5" id="text-orga62615b">
+<p>
+<code>swiper</code> will split the lines when <code>visual-line-mode</code> is on.  This is
+convenient for small buffers. For large buffers, it can be very slow,
+since <code>visual-line-mode</code> is slow.
+See <a href="https://github.com/abo-abo/swiper/issues/227">#227</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd1268aa" class="outline-5">
+<h5 id="orgd1268aa">Add <code>swiper-toggle-face-matching</code></h5>
+<div class="outline-text-5" id="text-orgd1268aa">
+<p>
+Bound to <kbd>C-c C-f</kbd>.
+At each start of <code>swiper</code>, the face at point will be stored.
+Use this command to toggle matching only the candidates with that face.
+See <a href="https://github.com/abo-abo/swiper/issues/288">#288</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org820da74" class="outline-5">
+<h5 id="org820da74"><code>push-mark</code> only if exited the minibuffer</h5>
+<div class="outline-text-5" id="text-org820da74">
+<p>
+<kbd>C-M-n</kbd> and <kbd>C-M-p</kbd> will no longer push mark and annoy with messages.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb205919" class="outline-5">
+<h5 id="orgb205919"><code>ivy-resume</code> should restore the buffer for <code>swiper</code></h5>
+<div class="outline-text-5" id="text-orgb205919">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/302">#302</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org1f3deda" class="outline-5">
+<h5 id="org1f3deda">Enable recursive <code>swiper</code> calls</h5>
+<div class="outline-text-5" id="text-org1f3deda">
+<p>
+While you <code>swiper</code> buffer-1, you can switch out of the minibuffer into
+buffer-2 and call <code>swiper</code> again.  Exiting the second minibuffer will
+restore the first minibuffer.
+</p>
+
+<p>
+To use this, you need to enable recursive minibuffers.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> enable-recursive-minibuffers t)
+</pre>
+</div>
+
+<p>
+It's also useful to indicate the current depth:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(minibuffer-depth-indicate-mode 1)
+</pre>
+</div>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/309">#309</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org6536514" class="outline-5">
+<h5 id="org6536514">Fix for <code>twittering-mode</code></h5>
+<div class="outline-text-5" id="text-org6536514">
+<p>
+The <code>field</code> text property is now removed before inserting text into
+the minibuffer. This fixes the <code>swiper</code> problems with
+<code>twittering-mode</code>. See <a href="https://github.com/abo-abo/swiper/issues/310">#310</a>.
+</p>
+</div>
+</div>
+</div>
+
+
+
+
+<div id="outline-container-org68050a6" class="outline-4">
+<h4 id="org68050a6"><code>ivy</code></h4>
+<div class="outline-text-4" id="text-org68050a6">
+</div><div id="outline-container-orgf197cb5" class="outline-5">
+<h5 id="orgf197cb5">Add manual</h5>
+<div class="outline-text-5" id="text-orgf197cb5">
+<p>
+In the current state, the manual covers the most basic topics, like
+the minibuffer key bindings and the regexp builders.
+</p>
+</div>
+</div>
+<div id="outline-container-org1338f69" class="outline-5">
+<h5 id="org1338f69">Make &lt;left&gt; and &lt;right&gt; behave as in fundamental-mode</h5>
+</div>
+<div id="outline-container-orgc8d4ec9" class="outline-5">
+<h5 id="orgc8d4ec9">Truncate minibuffer prompts longer than window-width</h5>
+<div class="outline-text-5" id="text-orgc8d4ec9">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/240">#240</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org39c5d96" class="outline-5">
+<h5 id="org39c5d96"><kbd>C-M-n</kbd> should not leave the minibuffer</h5>
+<div class="outline-text-5" id="text-org39c5d96">
+<p>
+Make sure that the minibuffer window remains selected as long as the
+completion hasn't finished.  For example, <kbd>&lt;f1&gt; f</kbd> to call
+<code>counsel-describe-function</code>, input "forward" and spam <kbd>C-M-n</kbd> to read
+the doc for each function that starts with "forward". The <code>*Help*</code>
+window popup would move the window focus, but this change moves it
+back to the minibuffer.
+</p>
+</div>
+</div>
+<div id="outline-container-org6a36ab0" class="outline-5">
+<h5 id="org6a36ab0">Add <code>flx</code> sorting</h5>
+<div class="outline-text-5" id="text-org6a36ab0">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/207">#207</a>.
+Since flx is costly, move the caching to an earlier point. This means
+immediate return for when the input hasn't changed, i.e. for <kbd>C-n</kbd> or
+<kbd>C-p</kbd>. When <code>flx</code> is installed, and <code>(eq ivy--regex-function 'ivy--regex-fuzzy)</code>
+for current function (through <code>ivy-re-builders-alist</code>), then sort the final candidates with
+<code>ivy--flx-sort</code>.
+</p>
+
+<p>
+In the worst case, when some error pops up, return the same list. In
+the best case sort the <code>cands</code> that all match <code>name</code> by closeness to
+<code>name</code>.
+</p>
+
+<p>
+How to use:
+</p>
+<ol class="org-ol">
+<li>Have <code>flx</code> installed - <code>(require 'flx)</code> should succeed.</li>
+<li>Configure <code>ivy-re-builders-alist</code> appropriately to use <code>ivy--regex-fuzzy</code>.</li>
+</ol>
+
+<p>
+For example:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
+      '((t . ivy--regex-fuzzy)))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org5edb8a3" class="outline-5">
+<h5 id="org5edb8a3">Support hash tables</h5>
+<div class="outline-text-5" id="text-org5edb8a3">
+<p>
+Since <code>all-completions</code> also works for hash tables, no reason not to support them.
+</p>
+</div>
+</div>
+<div id="outline-container-org85cf3a1" class="outline-5">
+<h5 id="org85cf3a1">Improve documentation of <code>ivy-count-format</code></h5>
+<div class="outline-text-5" id="text-org85cf3a1">
+<p>
+Now possible to set it with Customize.
+</p>
+</div>
+</div>
+<div id="outline-container-org242e90b" class="outline-5">
+<h5 id="org242e90b">Add <code>ivy-index-functions-alist</code></h5>
+<div class="outline-text-5" id="text-org242e90b">
+<p>
+Customize this to decide how the index, i.e. the currently selected
+candidate, is updated with new input.
+For example, one strategy is not reset it to 0 after each change.
+</p>
+
+<p>
+Another strategy, used for <code>swiper</code>, is to try to select the first
+appropriate candidate after (inclusive) the first previously selected
+candidate. This way, if you're typing something that matches what is
+currently selected, the selection won't change.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/253">#253</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9170f45" class="outline-5">
+<h5 id="org9170f45">Add <code>ivy-virtual-abbreviate</code></h5>
+<div class="outline-text-5" id="text-org9170f45">
+<p>
+The mode of abbreviation for virtual buffer names.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd1d8f22" class="outline-5">
+<h5 id="orgd1d8f22">Add <code>ivy-case-fold-search</code></h5>
+<div class="outline-text-5" id="text-orgd1d8f22">
+<p>
+Used to override <code>case-fold-search</code>. See <a href="https://github.com/abo-abo/swiper/issues/259">#259</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org6421f27" class="outline-5">
+<h5 id="org6421f27">Add feedback for long-running async processes</h5>
+<div class="outline-text-5" id="text-org6421f27">
+<p>
+Each time 0.5s pass after the last input, if the external process
+hasn't finished yet, update minibuffer with the amount of candidates
+collected so far. This is useful to see that long running commands
+like <code>counsel-locate</code> or <code>counsel-ag</code> (when in a very large directory)
+aren't stuck.
+</p>
+</div>
+</div>
+<div id="outline-container-org94fb227" class="outline-5">
+<h5 id="org94fb227">Promote <code>ivy-extra-directories</code> to defcustom</h5>
+</div>
+<div id="outline-container-org467b5d7" class="outline-5">
+<h5 id="org467b5d7">Promote <code>ivy-sort-function-alist</code> to defcustom</h5>
+</div>
+<div id="outline-container-orgbb24d8d" class="outline-5">
+<h5 id="orgbb24d8d"><kbd>M-n</kbd> should prefer url at point to symbol at point</h5>
+</div>
+<div id="outline-container-org4792f7f" class="outline-5">
+<h5 id="org4792f7f"><kbd>C-x C-f M-n</kbd> calls <code>ffap-url-fetcher</code> when at URL</h5>
+</div>
+<div id="outline-container-org1b8e6b8" class="outline-5">
+<h5 id="org1b8e6b8">Highlight modified file buffers with <code>ivy-modified-buffer</code> face</h5>
+<div class="outline-text-5" id="text-org1b8e6b8">
+<p>
+This new face is blank by default, but you can use e.g.:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(custom-set-faces
+ '(ivy-modified-buffer ((t (<span style="color: #7F0055; font-weight: bold;">:background</span> <span style="color: #2A00FF;">"#ff7777"</span>)))))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org4005dbe" class="outline-5">
+<h5 id="org4005dbe">Work with <code>enable-recursive-minibuffers</code></h5>
+<div class="outline-text-5" id="text-org4005dbe">
+<p>
+Store the old <code>ivy-last</code> in case <code>ivy-read</code> is called while inside the
+minibuffer.  Restore it after <code>ivy-call</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge6b0d19" class="outline-5">
+<h5 id="orge6b0d19">Allow user-specified matched candidate sorting</h5>
+<div class="outline-text-5" id="text-orge6b0d19">
+<p>
+New defcustom <code>ivy-sort-matches-functions-alist</code>.
+See <a href="https://github.com/abo-abo/swiper/issues/269">#269</a> <a href="https://github.com/abo-abo/swiper/issues/265">#265</a> <a href="https://github.com/abo-abo/swiper/issues/213">#213</a>.
+</p>
+
+<p>
+By default, Ivy doesn't sort the matched candidates, they remain in
+the same order as in the original collection. This option is the
+default, since it's fast and simple.
+</p>
+
+<p>
+A small problem with this approach is that we usually want prefix
+matches to be displayed first. One solution to this is to input "^" to
+see only the prefix matches.
+</p>
+
+<p>
+Now, another solution is to can set:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-sort-matches-functions-alist
+      '((t . ivy--prefix-sort)))
+</pre>
+</div>
+
+<p>
+Here's another example of using this defcustom:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(add-to-list
+     'ivy-sort-matches-functions-alist
+     '(read-file-name-internal . ivy--sort-files-by-date))
+</pre>
+</div>
+
+<p>
+After this, during file name completion, most recently changed files
+will be ahead.
+</p>
+</div>
+</div>
+<div id="outline-container-orgebc681b" class="outline-5">
+<h5 id="orgebc681b"><code>ivy-display-style</code></h5>
+<div class="outline-text-5" id="text-orgebc681b">
+<p>
+Adds fancy highlighting to the minibuffer.
+See <a href="https://github.com/abo-abo/swiper/issues/212">#212</a>, <a href="https://github.com/abo-abo/swiper/issues/217">#217</a>, .
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org8137437" class="outline-4">
+<h4 id="org8137437"><code>ivy-hydra</code></h4>
+<div class="outline-text-4" id="text-org8137437">
+</div><div id="outline-container-org86c7c82" class="outline-5">
+<h5 id="org86c7c82">Bind <kbd>t</kbd> to <code>toggle-truncate-lines</code></h5>
+<div class="outline-text-5" id="text-org86c7c82">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/214">#214</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge5104bc" class="outline-5">
+<h5 id="orge5104bc">Bind <kbd>a</kbd> to <code>ivy-read-action</code></h5>
+</div>
+</div>
+<div id="outline-container-orgc3a7b88" class="outline-4">
+<h4 id="orgc3a7b88"><code>ivy-switch-buffer</code></h4>
+<div class="outline-text-4" id="text-orgc3a7b88">
+</div><div id="outline-container-org7953cd6" class="outline-5">
+<h5 id="org7953cd6">Make <kbd>M-o r</kbd> rename the buffer instead of switching.</h5>
+<div class="outline-text-5" id="text-org7953cd6">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/233">#233</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf6aaec0" class="outline-4">
+<h4 id="orgf6aaec0"><code>counsel-locate</code></h4>
+<div class="outline-text-4" id="text-orgf6aaec0">
+</div><div id="outline-container-org37dd2e6" class="outline-5">
+<h5 id="org37dd2e6">Allow customizing locate options</h5>
+<div class="outline-text-5" id="text-org37dd2e6">
+<p>
+See <code>counsel-locate-options</code>.
+The current setting is:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> counsel-locate-options '(<span style="color: #2A00FF;">"-i"</span> <span style="color: #2A00FF;">"--regex"</span>))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1fa37fa" class="outline-5">
+<h5 id="org1fa37fa">Support OSX</h5>
+<div class="outline-text-5" id="text-org1fa37fa">
+<p>
+Use <code>open</code> instead of <code>xdg-open</code>.  Modify <code>counsel-locate-options</code> for
+OSX, since there <code>locate</code> doesn't support <code>--regex</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org2be58ee" class="outline-5">
+<h5 id="org2be58ee">Use single quotes for the regex</h5>
+<div class="outline-text-5" id="text-org2be58ee">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/194">#194</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org2856d72" class="outline-5">
+<h5 id="org2856d72">Add initial-input argument</h5>
+<div class="outline-text-5" id="text-org2856d72">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/289">#289</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org2064f8a" class="outline-4">
+<h4 id="org2064f8a"><code>counsel-org-tag</code></h4>
+<div class="outline-text-4" id="text-org2064f8a">
+</div><div id="outline-container-org451da24" class="outline-5">
+<h5 id="org451da24">Now works in agenda</h5>
+<div class="outline-text-5" id="text-org451da24">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/200">#200</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd6b8d0" class="outline-4">
+<h4 id="orgd6b8d0"><code>counsel-unicode-char</code></h4>
+<div class="outline-text-4" id="text-orgd6b8d0">
+</div><div id="outline-container-org12b92ba" class="outline-5">
+<h5 id="org12b92ba">Add own history</h5>
+</div>
+</div>
+<div id="outline-container-org8e032fd" class="outline-4">
+<h4 id="org8e032fd"><code>counsel-M-x</code></h4>
+<div class="outline-text-4" id="text-org8e032fd">
+</div><div id="outline-container-org54de841" class="outline-5">
+<h5 id="org54de841">Add "definition" action</h5>
+<div class="outline-text-5" id="text-org54de841">
+<p>
+Use <kbd>M-o d</kbd> to jump to definition.
+</p>
+</div>
+</div>
+<div id="outline-container-org191a79d" class="outline-5">
+<h5 id="org191a79d">Show <code>current-prefix-arg</code> in the prompt</h5>
+<div class="outline-text-5" id="text-org191a79d">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/287">#287</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org62d286f" class="outline-4">
+<h4 id="org62d286f"><code>counsel-find-file</code></h4>
+<div class="outline-text-4" id="text-org62d286f">
+</div><div id="outline-container-org429e2e3" class="outline-5">
+<h5 id="org429e2e3">Input '/sudo::' goes to current directory instead of root's home</h5>
+<div class="outline-text-5" id="text-org429e2e3">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/283">#283</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgdf49adc" class="outline-5">
+<h5 id="orgdf49adc">Fix directory validity check</h5>
+<div class="outline-text-5" id="text-orgdf49adc">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/283">#283</a> <a href="https://github.com/abo-abo/swiper/issues/284">#284</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org1ffa1f7" class="outline-5">
+<h5 id="org1ffa1f7">Improve TRAMP support</h5>
+<div class="outline-text-5" id="text-org1ffa1f7">
+<p>
+Selecting items after <kbd>//</kbd> now works properly.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b74311" class="outline-4">
+<h4 id="org7b74311"><code>counsel-git-grep</code></h4>
+<div class="outline-text-4" id="text-org7b74311">
+</div><div id="outline-container-org901722b" class="outline-5">
+<h5 id="org901722b">Use prefix arg to specify the shell command.</h5>
+<div class="outline-text-5" id="text-org901722b">
+<p>
+Remember to use <kbd>M-i</kbd> to insert the current candidate into the
+minibuffer.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/244">#244</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge4c9602" class="outline-5">
+<h5 id="orge4c9602">Allow <code>counsel-git-grep</code> -&gt; <code>ivy-occur</code> -&gt; <code>wgrep</code></h5>
+<div class="outline-text-5" id="text-orge4c9602">
+<p>
+Using <kbd>C-c C-o</kbd> (<code>ivy-occur</code>) while in <code>counsel-git-grep</code> will produce
+a <code>wgrep</code>-compatible buffer.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb25e49c" class="outline-5">
+<h5 id="orgb25e49c"><code>ivy-occur</code> gives full candidates</h5>
+<div class="outline-text-5" id="text-orgb25e49c">
+<p>
+This means that the <code>" | head -n 200"</code> speed-up isn't used and full
+candidates are returned.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgf0c6e57" class="outline-4">
+<h4 id="orgf0c6e57"><code>counsel--find-symbol</code></h4>
+<div class="outline-text-4" id="text-orgf0c6e57">
+</div><div id="outline-container-org1841a7f" class="outline-5">
+<h5 id="org1841a7f">Allow to jump back with pop-tag-mark</h5>
+<div class="outline-text-5" id="text-org1841a7f">
+<p>
+Using <kbd>C-.</kbd> in:
+</p>
+
+<ul class="org-ul">
+<li><code>counsel-describe-function</code></li>
+<li><code>counsel-describe-variable</code></li>
+<li><code>counsel-load-library</code></li>
+</ul>
+
+<p>
+will change the current buffer. The buffer and point can be restored
+with <kbd>M-*</kbd> (<code>pop-tag-mark</code>).
+</p>
+
+<p>
+I also recommend this binding:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"M-,"</span>) 'pop-tag-mark)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org1598d96" class="outline-5">
+<h5 id="org1598d96">Resolve the name clash better</h5>
+<div class="outline-text-5" id="text-org1598d96">
+<p>
+When the symbol is both bound and fbound, prefer the fbound one,
+unless the <code>:caller</code> is <code>counsel-describe-variable</code>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orge0fbd94" class="outline-4">
+<h4 id="orge0fbd94"><code>counsel-ag</code></h4>
+<div class="outline-text-4" id="text-orge0fbd94">
+</div><div id="outline-container-orge3f76ce" class="outline-5">
+<h5 id="orge3f76ce">Add <code>initial-directory</code></h5>
+<div class="outline-text-5" id="text-orge3f76ce">
+<p>
+Support alternative initial directory which helps other packages call
+this function with their unique starting directory.
+</p>
+</div>
+</div>
+<div id="outline-container-org8f930f6" class="outline-5">
+<h5 id="org8f930f6">Fix on Windows</h5>
+<div class="outline-text-5" id="text-org8f930f6">
+<p>
+Using the "&#x2013;vimgrep" argument improves things.
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgef053fb" class="outline-3">
+<h3 id="orgef053fb">New Commands</h3>
+<div class="outline-text-3" id="text-orgef053fb">
+</div><div id="outline-container-org16d4e7e" class="outline-4">
+<h4 id="org16d4e7e"><code>ivy-occur</code></h4>
+<div class="outline-text-4" id="text-org16d4e7e">
+<p>
+Bound to <kbd>C-c C-o</kbd>. Store the current completion session to its own
+buffer.  You can have an unlimited amount of these buffers.
+</p>
+</div>
+</div>
+<div id="outline-container-orgbeb2d13" class="outline-4">
+<h4 id="orgbeb2d13"><code>ivy-avy</code></h4>
+<div class="outline-text-4" id="text-orgbeb2d13">
+<p>
+Bound to <kbd>C-'</kbd>.
+</p>
+
+<p>
+Speeds up selecting a candidate that's currently visible in the minibuffer.
+</p>
+</div>
+</div>
+<div id="outline-container-org564d8b9" class="outline-4">
+<h4 id="org564d8b9"><code>ivy-kill-ring-save</code></h4>
+<div class="outline-text-4" id="text-org564d8b9">
+<p>
+Bound to <kbd>M-w</kbd>.
+</p>
+
+<p>
+When the region is active, call <code>kill-ring-save</code>.  Otherwise, store
+all selected candidates to the kill ring.
+</p>
+</div>
+</div>
+<div id="outline-container-orgce6a07f" class="outline-4">
+<h4 id="orgce6a07f"><code>ivy-dispatching-call</code></h4>
+<div class="outline-text-4" id="text-orgce6a07f">
+<p>
+Bound to <kbd>C-M-o</kbd>.
+</p>
+
+<p>
+This is a non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
+</p>
+</div>
+</div>
+<div id="outline-container-orgc6b1240" class="outline-4">
+<h4 id="orgc6b1240"><code>ivy-read-action</code></h4>
+<div class="outline-text-4" id="text-orgc6b1240">
+<p>
+Bound to <kbd>C-M-a</kbd>. Select the current action. Don't call it yet.
+</p>
+</div>
+</div>
+<div id="outline-container-org1fcefd9" class="outline-4">
+<h4 id="org1fcefd9"><code>swiper-multi</code></h4>
+<div class="outline-text-4" id="text-org1fcefd9">
+<p>
+Use <code>swiper</code> in multiple buffers.
+See <a href="https://github.com/abo-abo/swiper/issues/182">#182</a>.
+</p>
+
+<p>
+Basic usage tips for selecting multiple buffers:
+</p>
+
+<ul class="org-ul">
+<li>Use <kbd>C-M-m</kbd> (<code>ivy-call</code>) to add or remove one more buffer without exiting.</li>
+<li>Use <kbd>C-m</kbd> (<code>ivy-done</code>) to add one last buffer.</li>
+<li>Or use <kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>) to finish without adding more buffers.</li>
+<li>Hold <kbd>C-M-n</kbd> (<code>ivy-next-line-and-call</code>) to add a lot of buffers at once.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgdcddc17" class="outline-4">
+<h4 id="orgdcddc17"><code>swiper-mc</code></h4>
+<div class="outline-text-4" id="text-orgdcddc17">
+<p>
+Open multiple cursors at all selected candidates.
+</p>
+</div>
+</div>
+<div id="outline-container-org99fed3b" class="outline-4">
+<h4 id="org99fed3b"><code>swiper-all</code></h4>
+<div class="outline-text-4" id="text-org99fed3b">
+<p>
+New command to launch <code>swiper</code> for all open file buffers.  Note that
+this can be excruciatingly slow if you don't clean up your buffer list
+often.
+</p>
+</div>
+</div>
+<div id="outline-container-org8f14f53" class="outline-4">
+<h4 id="org8f14f53"><code>counsel-grep</code></h4>
+<div class="outline-text-4" id="text-org8f14f53">
+<p>
+This is essentially <code>swiper</code> for huge files. It's not as smooth as
+<code>swiper</code> for small files, but has a faster startup and faster matching
+for files that measure in megabytes.
+</p>
+</div>
+</div>
+<div id="outline-container-org75d603d" class="outline-4">
+<h4 id="org75d603d"><code>counsel-git-grep-query-replace</code></h4>
+<div class="outline-text-4" id="text-org75d603d">
+<p>
+Bound to <kbd>M-q</kbd>. Perform <code>query-replace</code> on all matches in all buffers.
+</p>
+</div>
+</div>
+<div id="outline-container-org5ff5677" class="outline-4">
+<h4 id="org5ff5677"><code>counsel-jedi</code></h4>
+<div class="outline-text-4" id="text-org5ff5677">
+<p>
+Complete Python symbols using Jedi.
+</p>
+</div>
+</div>
+<div id="outline-container-orgeddc5aa" class="outline-4">
+<h4 id="orgeddc5aa"><code>counsel-cl</code></h4>
+<div class="outline-text-4" id="text-orgeddc5aa">
+<p>
+Complete Common Lisp symbols using SLIME.
+</p>
+</div>
+</div>
+<div id="outline-container-org5180468" class="outline-4">
+<h4 id="org5180468"><code>counsel-yank-pop</code></h4>
+<div class="outline-text-4" id="text-org5180468">
+<p>
+Give completion for inserting from the kill ring.
+See <code>counsel-yank-pop-truncate</code> defcustom and <a href="https://github.com/abo-abo/swiper/issues/218">#218</a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3ea6f2c" class="outline-2">
+<h2 id="0.8.0"><a id="org3ea6f2c"></a>0.8.0</h2>
+<div class="outline-text-2" id="text-0.8.0">
+</div>
+<div id="outline-container-orgb5d2b5e" class="outline-3">
+<h3 id="package-rename"><a id="orgb5d2b5e"></a>Package rename</h3>
+<div class="outline-text-3" id="text-package-rename">
+<p>
+Due to popular demand, <code>swiper-0.7.0</code> is succeeded by <code>ivy-0.8.0</code> in GNU
+ELPA. The contents of the package don't change, only the name. Make
+sure to remove the <code>~/.emacs.d/elpa/swiper-0.7.0</code> directory if you
+have it and <kbd>M-x</kbd> <code>package-install ivy</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org87615c4" class="outline-3">
+<h3 id="org87615c4">Documentation</h3>
+<div class="outline-text-3" id="text-org87615c4">
+<p>
+HTML documentation is available at <a href="http://oremacs.com/swiper/">http://oremacs.com/swiper/</a>.
+</p>
+
+<p>
+Texinfo documentation is in doc/ivy.texi.
+</p>
+
+<p>
+The HTML file shouldn't be in this repository to avoid bloat, instead
+it's in the gh-pages branch at
+<a href="https://github.com/abo-abo/swiper/tree/gh-pages">https://github.com/abo-abo/swiper/tree/gh-pages</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9851367" class="outline-3">
+<h3 id="org9851367">Fixes</h3>
+<div class="outline-text-3" id="text-org9851367">
+</div><div id="outline-container-orge5a4a8" class="outline-4">
+<h4 id="orge5a4a8">ivy-read</h4>
+<div class="outline-text-4" id="text-orge5a4a8">
+</div><div id="outline-container-orgc09ff53" class="outline-5">
+<h5 id="orgc09ff53">Fix recursive minibuffer exit with <kbd>C-g</kbd></h5>
+<div class="outline-text-5" id="text-orgc09ff53">
+<p>
+Make it so e.g. <kbd>C-h f C-h v C-g</kbd> goes back to the <code>describe-function</code> selection.
+</p>
+</div>
+</div>
+<div id="outline-container-org174dc5e" class="outline-5">
+<h5 id="org174dc5e">Ensure the return result</h5>
+<div class="outline-text-5" id="text-org174dc5e">
+<p>
+In some cases, <code>read-from-minibuffer</code> will return the whole minibuffer
+contents (i.e. all available candidates). Return <code>ivy--current</code> instead.
+</p>
+</div>
+</div>
+<div id="outline-container-orgfd9cef1" class="outline-5">
+<h5 id="orgfd9cef1">Properly support matching ignoring order</h5>
+<div class="outline-text-5" id="text-orgfd9cef1">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/296">#296</a> and <a href="https://github.com/abo-abo/swiper/issues/329">#329</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgcc44ad1" class="outline-5">
+<h5 id="orgcc44ad1">Insert intermediate candidates during async completions</h5>
+<div class="outline-text-5" id="text-orgcc44ad1">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/340">#340</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org4fad5dd" class="outline-5">
+<h5 id="org4fad5dd">Initialize <code>ivy-last</code> to empty state</h5>
+<div class="outline-text-5" id="text-org4fad5dd">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/352">#352</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf545814" class="outline-5">
+<h5 id="orgf545814">Fix extra actions for <code>completing-read</code></h5>
+<div class="outline-text-5" id="text-orgf545814">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/337">#337</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8e937c2" class="outline-5">
+<h5 id="org8e937c2">Support a list of symbols as collection</h5>
+<div class="outline-text-5" id="text-org8e937c2">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/375">#375</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9c115c1" class="outline-5">
+<h5 id="org9c115c1">Define <code>setq-local</code> and <code>defvar-local</code> unless defined</h5>
+<div class="outline-text-5" id="text-org9c115c1">
+<p>
+With this commit, Ivy works on emacs-24.2.
+See <a href="https://github.com/abo-abo/swiper/issues/415">#415</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgfe556e7" class="outline-5">
+<h5 id="orgfe556e7">Make <kbd>M-o</kbd> not modify the action</h5>
+<div class="outline-text-5" id="text-orgfe556e7">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/454">#454</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org33d0def" class="outline-5">
+<h5 id="org33d0def">Make sure user keybindings are respected</h5>
+<div class="outline-text-5" id="text-org33d0def">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/466">#466</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org7d4d1ea" class="outline-5">
+<h5 id="org7d4d1ea">Fix <code>read-file-name</code> with a specified dir</h5>
+<div class="outline-text-5" id="text-org7d4d1ea">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/475">#475</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgaa7c545" class="outline-5">
+<h5 id="orgaa7c545">Don't highlight the match in the file part</h5>
+<div class="outline-text-5" id="text-orgaa7c545">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/483">#483</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb6780e2" class="outline-5">
+<h5 id="orgb6780e2">Add a few tests for alists</h5>
+</div>
+</div>
+<div id="outline-container-org650a6e5" class="outline-4">
+<h4 id="org650a6e5">ivy-occur</h4>
+<div class="outline-text-4" id="text-org650a6e5">
+</div><div id="outline-container-org8183005" class="outline-5">
+<h5 id="org8183005">Fix <code>default-directory</code></h5>
+<div class="outline-text-5" id="text-org8183005">
+<p>
+This way, <code>next-error</code> etc will work properly.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1e11b77" class="outline-4">
+<h4 id="org1e11b77">ivy&#x2013;resize-minibuffer-to-fit</h4>
+<div class="outline-text-4" id="text-org1e11b77">
+</div><div id="outline-container-org46d0798" class="outline-5">
+<h5 id="org46d0798">Fix for small delta</h5>
+<div class="outline-text-5" id="text-org46d0798">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/339">#339</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org42f227e" class="outline-5">
+<h5 id="org42f227e">Check <code>frame-root-window-p</code></h5>
+<div class="outline-text-5" id="text-org42f227e">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/380">#380</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7ead59a" class="outline-4">
+<h4 id="org7ead59a">ivy-completing-read</h4>
+<div class="outline-text-4" id="text-org7ead59a">
+</div><div id="outline-container-org4cf15a3" class="outline-5">
+<h5 id="org4cf15a3">Use <code>completing-read-default</code> for tmm</h5>
+<div class="outline-text-5" id="text-org4cf15a3">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/316">#316</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb8b411b" class="outline-4">
+<h4 id="orgb8b411b">ivy&#x2013;regex-plus</h4>
+<div class="outline-text-4" id="text-orgb8b411b">
+</div><div id="outline-container-org160664f" class="outline-5">
+<h5 id="org160664f">Recognize ! at the beginning of the str</h5>
+<div class="outline-text-5" id="text-org160664f">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/318">#318</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org68186ba" class="outline-5">
+<h5 id="org68186ba">Prettify a bit</h5>
+<div class="outline-text-5" id="text-org68186ba">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/344">#344</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org2df0910" class="outline-5">
+<h5 id="org2df0910">Don't consider <code>\\(?...\)</code> a group</h5>
+<div class="outline-text-5" id="text-org2df0910">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/393">#393</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9072db3" class="outline-4">
+<h4 id="org9072db3">ivy&#x2013;get-window</h4>
+<div class="outline-text-4" id="text-org9072db3">
+</div><div id="outline-container-org700b95e" class="outline-5">
+<h5 id="org700b95e">Always return a valid window</h5>
+<div class="outline-text-5" id="text-org700b95e">
+<p>
+Even if <code>state</code> is invalid.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org100ff5a" class="outline-4">
+<h4 id="org100ff5a">ivy&#x2013;recompute-index</h4>
+<div class="outline-text-4" id="text-org100ff5a">
+</div><div id="outline-container-orgd64b438" class="outline-5">
+<h5 id="orgd64b438">Update <code>cl-position</code> logic</h5>
+<div class="outline-text-5" id="text-orgd64b438">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/207">#207</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org50310b4" class="outline-4">
+<h4 id="org50310b4">ivy-reverse-i-search</h4>
+<div class="outline-text-4" id="text-org50310b4">
+</div><div id="outline-container-orgca55065" class="outline-5">
+<h5 id="orgca55065">Fix due to recursive update</h5>
+<div class="outline-text-5" id="text-orgca55065">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/323">#323</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org310eff4" class="outline-4">
+<h4 id="org310eff4">ivy&#x2013;reset-state</h4>
+<div class="outline-text-4" id="text-org310eff4">
+</div><div id="outline-container-org5096003" class="outline-5">
+<h5 id="org5096003">Don't null <code>initial-input</code></h5>
+<div class="outline-text-5" id="text-org5096003">
+<p>
+This is specifically for <code>'read-file-name-internal</code> collection.  The
+input needs to be set to nil for e.g. <code>rgrep</code>, which supplies the
+<b>absolute</b> path as <code>initial-input</code>, resulting in a mess.
+</p>
+
+<p>
+For now, don't set input to nil if <code>:action</code> was passed to <code>ivy-read</code>.
+See <a href="https://github.com/abo-abo/swiper/issues/336">#336</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org17adaf6" class="outline-5">
+<h5 id="org17adaf6">Don't deactivate region</h5>
+<div class="outline-text-5" id="text-org17adaf6">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/377">#377</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org31c46fa" class="outline-4">
+<h4 id="org31c46fa">ivy-completion-in-region</h4>
+<div class="outline-text-4" id="text-org31c46fa">
+</div><div id="outline-container-org9cdb2d" class="outline-5">
+<h5 id="org9cdb2d">Use <code>completion-all-completions</code></h5>
+<div class="outline-text-5" id="text-org9cdb2d">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/341">#341</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org7748bf0" class="outline-5">
+<h5 id="org7748bf0">Optimize for 1 candidate</h5>
+<div class="outline-text-5" id="text-org7748bf0">
+<p>
+When there's only one candidate, call the action immediately.
+</p>
+</div>
+</div>
+<div id="outline-container-org7799a61" class="outline-5">
+<h5 id="org7799a61">Add feedback for 1 candidate</h5>
+<div class="outline-text-5" id="text-org7799a61">
+<p>
+When the sole completion is the same as the input, notify the user.
+See <a href="https://github.com/abo-abo/swiper/issues/350">#350</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org7936cd7" class="outline-5">
+<h5 id="org7936cd7">Bind <code>completion-ignore-case</code></h5>
+<div class="outline-text-5" id="text-org7936cd7">
+<p>
+It's convenient to have it the same value as <code>case-fold-search</code>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org43218a9" class="outline-4">
+<h4 id="org43218a9">ivy-read-action</h4>
+<div class="outline-text-4" id="text-org43218a9">
+</div><div id="outline-container-org56fe8e8" class="outline-5">
+<h5 id="org56fe8e8">Give enough minibuffer space</h5>
+<div class="outline-text-5" id="text-org56fe8e8">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/402">#402</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org41e3e98" class="outline-5">
+<h5 id="org41e3e98">Allow to customize the action hint formatter</h5>
+<div class="outline-text-5" id="text-org41e3e98">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/469">#469</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgb26e5d0" class="outline-4">
+<h4 id="orgb26e5d0">ivy-count-format</h4>
+<div class="outline-text-4" id="text-orgb26e5d0">
+</div><div id="outline-container-org1cdd3b0" class="outline-5">
+<h5 id="org1cdd3b0">Fix for nil value</h5>
+<div class="outline-text-5" id="text-org1cdd3b0">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/349">#349</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orga4ced1d" class="outline-4">
+<h4 id="orga4ced1d">ivy-switch-buffer</h4>
+<div class="outline-text-4" id="text-orga4ced1d">
+</div><div id="outline-container-orgbfe0c72" class="outline-5">
+<h5 id="orgbfe0c72">Don't fall back to <code>switch-to-buffer</code></h5>
+<div class="outline-text-5" id="text-orgbfe0c72">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/410">#410</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4cbe7c2" class="outline-4">
+<h4 id="org4cbe7c2">ivy-next-history-element</h4>
+<div class="outline-text-4" id="text-org4cbe7c2">
+</div><div id="outline-container-orged0f96b" class="outline-5">
+<h5 id="orged0f96b">No "\\_&lt;" for dynamic-collection</h5>
+<div class="outline-text-5" id="text-orged0f96b">
+<p>
+"\\_&lt;" regex is Emacs-specific and should only be done if
+<code>:dynamic-collection</code> is nil.  It is nil for <code>counsel-git-grep</code> with
+repositories &lt; 20000 lines, but non-nil for larger ones.
+</p>
+
+<p>
+Fixes <a href="https://github.com/abo-abo/swiper/issues/409">#409</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org58f07e4" class="outline-4">
+<h4 id="org58f07e4">ivy-occur-press</h4>
+<div class="outline-text-4" id="text-org58f07e4">
+</div><div id="outline-container-org2bd320" class="outline-5">
+<h5 id="org2bd320">Pulse no longer</h5>
+<div class="outline-text-5" id="text-org2bd320">
+<p>
+Repeated pulses within a short time span resulted in horrible window
+flickering.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcebabe" class="outline-4">
+<h4 id="orgcebabe">ivy-resume</h4>
+<div class="outline-text-4" id="text-orgcebabe">
+</div><div id="outline-container-org6253138" class="outline-5">
+<h5 id="org6253138">Add a guard against null <code>:action</code></h5>
+</div>
+</div>
+<div id="outline-container-org932edf7" class="outline-4">
+<h4 id="org932edf7">ivy-avy</h4>
+<div class="outline-text-4" id="text-org932edf7">
+</div><div id="outline-container-org97cd64a" class="outline-5">
+<h5 id="org97cd64a">Make <kbd>C-g</kbd> cancel gracefully</h5>
+<div class="outline-text-5" id="text-org97cd64a">
+<p>
+See abo-abo/avy<a href="https://github.com/abo-abo/swiper/issues/140">#140</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgad4ad74" class="outline-4">
+<h4 id="orgad4ad74">ivy-dispatching-done</h4>
+<div class="outline-text-4" id="text-orgad4ad74">
+<p>
+Allow to exit with no candidates.
+</p>
+</div>
+</div>
+<div id="outline-container-org51c5095" class="outline-4">
+<h4 id="org51c5095">swiper</h4>
+<div class="outline-text-4" id="text-org51c5095">
+</div><div id="outline-container-orgc0a018b" class="outline-5">
+<h5 id="orgc0a018b">Improve for multiple occurrences on one line</h5>
+<div class="outline-text-5" id="text-orgc0a018b">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/314">#314</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge81e0c3" class="outline-5">
+<h5 id="orge81e0c3">Fix "backward" search</h5>
+<div class="outline-text-5" id="text-orge81e0c3">
+<p>
+When none of the previous candidates after the point match the current
+input, instead of returning 0, return the index of the last matching
+candidate.  This is a good choice, because that candidate is the
+closest to the point of the initial search start.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/319">#319</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org674fd8f" class="outline-5">
+<h5 id="org674fd8f">Return point</h5>
+<div class="outline-text-5" id="text-org674fd8f">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/370">#370</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org70a4d7c" class="outline-5">
+<h5 id="org70a4d7c">Update <code>regexp-search-ring</code></h5>
+<div class="outline-text-5" id="text-org70a4d7c">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/89">#89</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb19611d" class="outline-5">
+<h5 id="orgb19611d">Always remove '(field) text property</h5>
+<div class="outline-text-5" id="text-orgb19611d">
+<p>
+Allows to search better in modes for shell interaction.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org8e46cb4" class="outline-4">
+<h4 id="org8e46cb4">swiper-font-lock-ensure</h4>
+<div class="outline-text-4" id="text-org8e46cb4">
+</div><div id="outline-container-orgb47a4ac" class="outline-5">
+<h5 id="orgb47a4ac">Add modes</h5>
+<div class="outline-text-5" id="text-orgb47a4ac">
+<p>
+Add bongo-library-mode, bongo-playlist-mode, sauron-mode.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/19">#19</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgda9d93b" class="outline-5">
+<h5 id="orgda9d93b">Don't fail when font-lock is off</h5>
+<div class="outline-text-5" id="text-orgda9d93b">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/400">#400</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org4dca47f" class="outline-4">
+<h4 id="org4dca47f">swiper&#x2013;multi-candidates</h4>
+<div class="outline-text-4" id="text-org4dca47f">
+</div><div id="outline-container-org13f0344" class="outline-5">
+<h5 id="org13f0344">Add check for <code>make-string</code></h5>
+<div class="outline-text-5" id="text-org13f0344">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/481">#481</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org3e4ab6d" class="outline-4">
+<h4 id="org3e4ab6d">counsel&#x2013;async-sentinel</h4>
+<div class="outline-text-4" id="text-org3e4ab6d">
+</div><div id="outline-container-org9db4e0f" class="outline-5">
+<h5 id="org9db4e0f">Fix issue with <code>ivy--regex-ignore-order</code></h5>
+<div class="outline-text-5" id="text-org9db4e0f">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/342">#342</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgfec3314" class="outline-5">
+<h5 id="orgfec3314">Re-display when no cands</h5>
+</div>
+<div id="outline-container-org1219fd2" class="outline-5">
+<h5 id="org1219fd2">Recognize error codes other than 1</h5>
+<div class="outline-text-5" id="text-org1219fd2">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/394">#394</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc5bc02" class="outline-4">
+<h4 id="orgc5bc02">consel-git</h4>
+<div class="outline-text-4" id="text-orgc5bc02">
+</div><div id="outline-container-org2e63c10" class="outline-5">
+<h5 id="org2e63c10">Fix window selection.</h5>
+<div class="outline-text-5" id="text-org2e63c10">
+<p>
+Use <code>with-ivy-window</code>, so that each new file chosen with e.g. <kbd>C-M-n</kbd> is
+selected in the same window.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgfb1000d" class="outline-4">
+<h4 id="orgfb1000d">counsel-recoll</h4>
+<div class="outline-text-4" id="text-orgfb1000d">
+</div><div id="outline-container-org65aa2ff" class="outline-5">
+<h5 id="org65aa2ff">Add <code>:unwind</code></h5>
+<div class="outline-text-5" id="text-org65aa2ff">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/403">#403</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgd8344cc" class="outline-4">
+<h4 id="orgd8344cc">compilation warnings</h4>
+<div class="outline-text-4" id="text-orgd8344cc">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/324">#324</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7a8bf6a" class="outline-3">
+<h3 id="org7a8bf6a">New Features</h3>
+<div class="outline-text-3" id="text-org7a8bf6a">
+</div><div id="outline-container-org93074ca" class="outline-4">
+<h4 id="org93074ca">ivy-read</h4>
+<div class="outline-text-4" id="text-org93074ca">
+</div><div id="outline-container-orgf637520" class="outline-5">
+<h5 id="orgf637520">Use <code>flx</code> for highlighting fuzzy matches</h5>
+<div class="outline-text-5" id="text-orgf637520">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/207">#207</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd1f024f" class="outline-5">
+<h5 id="orgd1f024f">Simplify the signature for <code>:dynamic-collection</code> functions</h5>
+<div class="outline-text-5" id="text-orgd1f024f">
+<p>
+When given <code>:dynamic-collection</code>, assume the collection function only
+needs one argument - the string input.
+</p>
+</div>
+</div>
+<div id="outline-container-org147548d" class="outline-5">
+<h5 id="org147548d">Modify <kbd>M-n</kbd> prediction when region is active</h5>
+<div class="outline-text-5" id="text-org147548d">
+<p>
+When the region is active and <kbd>M-n</kbd> is called, insert the region
+contents into the minibuffer and deactivate the region. The region
+deactivation is done for <code>swiper</code>, to make it easier to search for
+multiple words or a subword.
+</p>
+</div>
+</div>
+<div id="outline-container-org50fef3d" class="outline-5">
+<h5 id="org50fef3d">Allow to compose collections</h5>
+<div class="outline-text-5" id="text-org50fef3d">
+</div><div id="outline-container-orgffb7876" class="outline-6">
+<h6 id="orgffb7876">Example 1: async collection</h6>
+<div class="outline-text-6" id="text-orgffb7876">
+<p>
+Stack <code>recentf</code> on top of <code>counsel-locate</code>:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">small-test</span> ()
+  (cl-subseq recentf-list 0 10))
+
+(ivy-set-sources
+ 'counsel-locate
+ '((small-test)
+   (original-source)))
+</pre>
+</div>
+
+<p>
+Here, (original-source) represents the async candidates of
+<code>counsel-locate</code>. All extra sources are static - each function is called
+once to generate a list of strings, which will be filtered later.
+</p>
+
+<p>
+The order matters, so you can have e.g.:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-set-sources
+ 'counsel-locate
+ '((original-source)
+   (small-test)))
+</pre>
+</div>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/373">#373</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org5d7ba93" class="outline-6">
+<h6 id="org5d7ba93">Example 2: sync collection</h6>
+<div class="outline-text-6" id="text-org5d7ba93">
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-extra-source</span> ()
+  (append
+   (<span style="color: #7F0055; font-weight: bold;">when</span> (eq 'Git (vc-backend (buffer-file-name)))
+     (list <span style="color: #2A00FF;">"git1"</span> <span style="color: #2A00FF;">"git2"</span> <span style="color: #2A00FF;">"git3"</span>))
+   (<span style="color: #7F0055; font-weight: bold;">when</span> (file-exists-p <span style="color: #2A00FF;">"doc/Changelog.org"</span>)
+     (list (propertize <span style="color: #2A00FF;">"doc/Changelog.org"</span> 'face '(<span style="color: #7F0055; font-weight: bold;">:background</span> <span style="color: #2A00FF;">"red"</span>))))))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-find-file</span> ()
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (ivy-read <span style="color: #2A00FF;">"Find file: "</span> 'read-file-name-internal
+            <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+                      (with-ivy-window
+                        (find-file (expand-file-name x ivy--directory))))
+            <span style="color: #7F0055; font-weight: bold;">:require-match</span> 'confirm-after-completion
+            <span style="color: #7F0055; font-weight: bold;">:history</span> 'file-name-history
+            <span style="color: #7F0055; font-weight: bold;">:caller</span> 'my-find-file))
+
+(ivy-set-sources
+ 'my-find-file
+ '((my-extra-source)
+   (original-source)))
+</pre>
+</div>
+
+<p>
+The function <code>my-find-file</code> knows nothing about the extra source, it's
+only purpose is to introduce a <code>:caller</code> to attach things to, as to not
+to mess up e.g. <code>counsel-find-file</code>.
+</p>
+
+<p>
+The function <code>my-extra-source</code> gets called once in <code>ivy-read</code> via
+<code>ivy--reset-state</code>. It takes no args and returns a list of strings,
+possibly empty.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org688fb2" class="outline-5">
+<h5 id="org688fb2">Improve documentation UI</h5>
+<div class="outline-text-5" id="text-org688fb2">
+<p>
+Bind <kbd>C-h m</kbd> to <code>ivy-help</code>.
+</p>
+
+<p>
+<code>ivy-help-file</code> is a new defvar pointing to the ivy-help.org file.
+</p>
+
+<p>
+Bind <kbd>D</kbd> in <code>hydra-ivy</code> to go to hydra's definition.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/376">#376</a> and <a href="https://github.com/abo-abo/swiper/issues/379">#379</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8f188c6" class="outline-5">
+<h5 id="org8f188c6">Add ignore pattern toggling</h5>
+<div class="outline-text-5" id="text-org8f188c6">
+<p>
+<kbd>C-c C-a</kbd> is bound to <code>ivy-toggle-ignore</code> - a new command to toggle ignore
+patterns (user-configured filtering). If the ignore patterns are
+enabled and there are zero candidates after ignoring, display the ones
+that match the current text. This feature currently works for
+<code>ivy-switch-buffer</code> and <code>counsel-find-file</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/369">#369</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org14de4ad" class="outline-4">
+<h4 id="org14de4ad">ivy-mode</h4>
+<div class="outline-text-4" id="text-org14de4ad">
+</div><div id="outline-container-org7f37d6e" class="outline-5">
+<h5 id="org7f37d6e">Set <code>completion-in-region-function</code></h5>
+<div class="outline-text-5" id="text-org7f37d6e">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/331">#331</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8f1cb95" class="outline-5">
+<h5 id="org8f1cb95">Improve <kbd>M-n</kbd> for <code>'read-file-name-internal</code></h5>
+</div>
+</div>
+<div id="outline-container-org703c8fa" class="outline-4">
+<h4 id="org703c8fa">ivy-set-occur</h4>
+<div class="outline-text-4" id="text-org703c8fa">
+<p>
+Allows to customize <code>ivy-occur</code> per-command.
+</p>
+</div>
+<div id="outline-container-org484d70d" class="outline-5">
+<h5 id="org484d70d"><code>ivy-switch-buffer</code></h5>
+<div class="outline-text-5" id="text-org484d70d">
+<p>
+Add custom occur.
+See <a href="https://github.com/abo-abo/swiper/issues/438">#438</a> and <a href="https://github.com/abo-abo/swiper/issues/440">#440</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org49c1ec4" class="outline-4">
+<h4 id="org49c1ec4">ivy-occur-mode</h4>
+<div class="outline-text-4" id="text-org49c1ec4">
+</div><div id="outline-container-orge6ec491" class="outline-5">
+<h5 id="orge6ec491">New commands on <kbd>j</kbd>, <kbd>k</kbd>, <kbd>c</kbd></h5>
+<div class="outline-text-5" id="text-orge6ec491">
+<p>
+(ivy-occur-toggle-calling): New command bound to <kbd>c</kbd>.
+(ivy-occur-next-line): New command bound to <kbd>j</kbd>.
+(ivy-occur-previous-line): New command bound to <kbd>k</kbd>.
+</p>
+
+<p>
+This makes <code>ivy-occur</code> much more convenient, instead of <kbd>gjgjgjg</kbd>, just
+<kbd>cjjj</kbd>. Especially good for commands that change the contents of the
+other window, like <code>describe-function</code> or <code>counsel-git-grep</code>.
+</p>
+
+<p>
+Example:
+</p>
+
+<ul class="org-ul">
+<li><kbd>C-h f</kbd> (<code>describe-funtion</code>)</li>
+<li><code>run</code> (<code>self-insert-command</code>)</li>
+<li><kbd>C-c C-o</kbd> (<code>ivy-occur</code>); <kbd>C-o u</kbd> also works.</li>
+<li><kbd>cjjjjkkkk</kbd></li>
+</ul>
+</div>
+</div>
+<div id="outline-container-org918f282" class="outline-5">
+<h5 id="org918f282">New command <code>ivy-occur-revert-buffer</code> on <kbd>g</kbd></h5>
+<div class="outline-text-5" id="text-org918f282">
+<p>
+Does what e.g. <code>revert-buffer</code> does for <b>Help</b> buffers.
+</p>
+
+<p>
+Has special handling for <code>counsel-git-grep</code>, <code>counsel-ag</code> and
+<code>counsel-grep</code>: will run the shell command once more and reflect the
+updates in files.
+</p>
+
+<p>
+Move <code>ivy-occur-press</code> from <kbd>g</kbd> to <kbd>f</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9489b6c" class="outline-5">
+<h5 id="org9489b6c">Improve the feedback for <kbd>j</kbd> and <kbd>k</kbd></h5>
+<div class="outline-text-5" id="text-org9489b6c">
+<p>
+The overlays will be more responsive now.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org8096d26" class="outline-4">
+<h4 id="org8096d26">ivy-re-builders-alist</h4>
+<div class="outline-text-4" id="text-org8096d26">
+</div><div id="outline-container-orga665969" class="outline-5">
+<h5 id="orga665969">Allow <code>this-command</code> to be a key</h5>
+<div class="outline-text-5" id="text-orga665969">
+<p>
+Example:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">asdf</span> ()
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (completing-read <span style="color: #2A00FF;">"prompt: "</span> '(<span style="color: #2A00FF;">"abc"</span> <span style="color: #2A00FF;">"abcd"</span> <span style="color: #2A00FF;">"def"</span>)))
+
+(global-set-key (kbd <span style="color: #2A00FF;">"C-c t"</span>) 'asdf)
+
+(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
+      '(
+        (asdf . ivy--regex-fuzzy)
+        (t . ivy--regex-plus)))
+</pre>
+</div>
+<p>
+This is useful for commands that you didn't write. For new commands
+that you write, consider using <code>ivy-read</code> and <code>:caller</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/330">#330</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgeca7c47" class="outline-4">
+<h4 id="orgeca7c47">ivy-set-actions</h4>
+<div class="outline-text-4" id="text-orgeca7c47">
+</div><div id="outline-container-org3fdbf51" class="outline-5">
+<h5 id="org3fdbf51">Call with <code>t</code> to affect all commands</h5>
+<div class="outline-text-5" id="text-org3fdbf51">
+<p>
+Example:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(ivy-set-actions
+ t
+ '((<span style="color: #2A00FF;">"i"</span> insert <span style="color: #2A00FF;">"insert"</span>)))
+</pre>
+</div>
+
+<p>
+Now an "insert" action will be available for all <code>ivy-read</code> sessions
+when pressing <kbd>M-o</kbd>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/337">#337</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgcba8a19" class="outline-4">
+<h4 id="orgcba8a19">ivy-faces</h4>
+<div class="outline-text-4" id="text-orgcba8a19">
+<p>
+New defcustom group.
+See <a href="https://github.com/abo-abo/swiper/issues/389">#389</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org2387f07" class="outline-4">
+<h4 id="org2387f07">ivy-flx-limit</h4>
+<div class="outline-text-4" id="text-org2387f07">
+<p>
+New variable. Configure when <code>flx</code> is used.
+See <a href="https://github.com/abo-abo/swiper/issues/207">#207</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org90a9526" class="outline-4">
+<h4 id="org90a9526">ivy-ignore-buffers</h4>
+<div class="outline-text-4" id="text-org90a9526">
+<p>
+New defcustom. See <a href="https://github.com/abo-abo/swiper/issues/366">#366</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org5c8a5aa" class="outline-4">
+<h4 id="org5c8a5aa">ivy-inhibit-action</h4>
+<div class="outline-text-4" id="text-org5c8a5aa">
+<p>
+New variable. See <a href="https://github.com/abo-abo/swiper/issues/363">#363</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc68214d" class="outline-4">
+<h4 id="orgc68214d">ivy-do-completion-in-region</h4>
+<div class="outline-text-4" id="text-orgc68214d">
+<p>
+New defcustom. See <a href="https://github.com/abo-abo/swiper/issues/367">#367</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orge91e4f1" class="outline-4">
+<h4 id="orge91e4f1">ivy-fixed-height-minibuffer</h4>
+<div class="outline-text-4" id="text-orge91e4f1">
+<p>
+New defcustom.
+</p>
+
+<p>
+When non nil, fix the height of the minibuffer during ivy completion
+at <code>ivy-height</code>. This effectively sets the minimum height at this level
+and tries to ensure that it does not change depending on the number of
+candidates.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/353">#353</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org3526a34" class="outline-4">
+<h4 id="org3526a34">ivy-set-display-transformer</h4>
+<div class="outline-text-4" id="text-org3526a34">
+<p>
+New API function.
+</p>
+
+<p>
+Now used by <code>switch-to-buffer</code> and <code>read-file-name</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/399">#399</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgfeb1d75" class="outline-4">
+<h4 id="orgfeb1d75">ivy-ignore-buffers</h4>
+<div class="outline-text-4" id="text-orgfeb1d75">
+<p>
+New defcustom similar to <code>ido-ignore-buffers</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/382">#382</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org514105d" class="outline-4">
+<h4 id="org514105d">ivy-add-newline-after-prompt</h4>
+<div class="outline-text-4" id="text-org514105d">
+<p>
+New defcustom.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/451">#451</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgf85fb8b" class="outline-4">
+<h4 id="orgf85fb8b">ivy-switch-buffer</h4>
+<div class="outline-text-4" id="text-orgf85fb8b">
+</div><div id="outline-container-org8cbc052" class="outline-5">
+<h5 id="org8cbc052">Add virtual views</h5>
+<div class="outline-text-5" id="text-org8cbc052">
+<p>
+<code>ivy-views</code> variable stores pre-defined views. Allows to set a window
+configuration with many buffers from <code>ivy-switch-buffer</code>.
+</p>
+
+<p>
+How to use: just set <code>ivy-views</code> appropriately. An example value is
+provided (but nulled, so that it's empty initially).
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgea0510e" class="outline-4">
+<h4 id="orgea0510e">ivy-use-ignore-default</h4>
+<div class="outline-text-4" id="text-orgea0510e">
+<p>
+New defcustom
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/477">#477</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org850366" class="outline-4">
+<h4 id="org850366">swiper</h4>
+<div class="outline-text-4" id="text-org850366">
+</div><div id="outline-container-orgf488e4f" class="outline-5">
+<h5 id="orgf488e4f">Improve <code>swiper-query-replace</code></h5>
+<div class="outline-text-5" id="text-orgf488e4f">
+<p>
+To replace a symbol with a similar symbol,
+</p>
+
+<ol class="org-ol">
+<li>Press <kbd>C-s M-n</kbd> for <code>swiper</code> and select the symbol at point as input.</li>
+<li>Press <kbd>M-q</kbd> for <code>swiper-query-replace</code></li>
+<li>Press <kbd>M-n</kbd> to yank the symbol to replace.</li>
+<li>Edit the replacement and <kbd>RET</kbd>.</li>
+</ol>
+
+<p>
+Here step-3 was modified to yank e.g. "symbol" instead of
+"\_&lt;symbol\_&gt;" previously.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3d8dc5e" class="outline-4">
+<h4 id="org3d8dc5e">swiper-font-lock-exclude</h4>
+<div class="outline-text-4" id="text-org3d8dc5e">
+<p>
+New variable for major modes that misbehave with <code>font-lock-ensure</code>.
+See <a href="https://github.com/abo-abo/swiper/issues/346">#346</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org68375e0" class="outline-4">
+<h4 id="org68375e0">swiper-all</h4>
+<div class="outline-text-4" id="text-org68375e0">
+</div><div id="outline-container-org7f6dd53" class="outline-5">
+<h5 id="org7f6dd53">New auto-updates position</h5>
+<div class="outline-text-5" id="text-org7f6dd53">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/401">#401</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org39da7a7" class="outline-4">
+<h4 id="org39da7a7">counsel-mode</h4>
+<div class="outline-text-4" id="text-org39da7a7">
+<p>
+A minor-mode that remaps built-in functions that have counsel
+replacements available.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/414">#414</a>.
+</p>
+</div>
+<div id="outline-container-org9591a15" class="outline-5">
+<h5 id="org9591a15">Allow use of describe-prefix-bindings</h5>
+<div class="outline-text-5" id="text-org9591a15">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/441">#441</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org7b72f60" class="outline-4">
+<h4 id="org7b72f60">counsel-find-file</h4>
+<div class="outline-text-4" id="text-org7b72f60">
+</div><div id="outline-container-org94a6b39" class="outline-5">
+<h5 id="org94a6b39">Add <code>initial-input</code></h5>
+<div class="outline-text-5" id="text-org94a6b39">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/336">#336</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org9468bb1" class="outline-5">
+<h5 id="org9468bb1">Change tramp prompt from "Find File: " to "user@host: "</h5>
+</div>
+<div id="outline-container-orgaea0136" class="outline-5">
+<h5 id="orgaea0136">Bind <code>counsel-up-directory</code> to <kbd>C-DEL</kbd></h5>
+<div class="outline-text-5" id="text-orgaea0136">
+<p>
+New function that moves up to the parent directory and at the same
+time preselects the current directory. This is useful for moving up
+and down a file tree quickly.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/343">#343</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org8da33b4" class="outline-5">
+<h5 id="org8da33b4">Customize <code>M-n</code> action</h5>
+<div class="outline-text-5" id="text-org8da33b4">
+<p>
+This feature allows to quickly visit Github issues from either
+<code>magit-commit-mode</code> or from a version-controlled file. The point has to
+be at the "#" char in e.g. "<a href="https://github.com/abo-abo/swiper/issues/123">#123</a>", that represents an issue.
+</p>
+
+<p>
+It's possible to customize <code>ivy-ffap-url-functions</code> to do a similar
+thing for places other than Github.
+</p>
+
+<p>
+The <kbd>C-x C-f M-n</kbd> key binding will work better with <code>counsel-find-file</code>,
+for plain <code>find-file</code> it will open a <code>dired</code> buffer in addition to opening
+the URL.
+</p>
+</div>
+</div>
+<div id="outline-container-orge983beb" class="outline-5">
+<h5 id="orge983beb">Can un-ignore dotfiles with a leading dot input</h5>
+<div class="outline-text-5" id="text-orge983beb">
+<p>
+When <code>ivy-text</code> starts with a dot, don't use
+<code>counsel-find-file-ignore-regexp</code>. The generic way to do this is with
+<kbd>C-c C-a</kbd> (<code>ivy-toggle-ignore</code>), but this is faster and more convenient.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/408">#408</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org3e8c431" class="outline-5">
+<h5 id="org3e8c431">Bind <kbd>M-o f</kbd> to <code>find-file-other-window</code></h5>
+</div>
+<div id="outline-container-orgccebede" class="outline-5">
+<h5 id="orgccebede">Correctly expand file name at point</h5>
+<div class="outline-text-5" id="text-orgccebede">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/430">#430</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgea6e58c" class="outline-5">
+<h5 id="orgea6e58c">Add display transformer</h5>
+<div class="outline-text-5" id="text-orgea6e58c">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/458">#458</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgeb360b2" class="outline-5">
+<h5 id="orgeb360b2">Add magic slash that changes the directory</h5>
+<div class="outline-text-5" id="text-orgeb360b2">
+<p>
+Update to the behavior: the slash ("/") will enter a directory even if
+its name isn't completely typed out if either:
+</p>
+
+<ol class="org-ol">
+<li>It's the only candidate.</li>
+<li>The candidate index isn't 0, i.e. "C-n" has been typed at least once.</li>
+<li>The input isn't "/".</li>
+</ol>
+
+<p>
+The above rules still allow to keep the old behavior with "//" moving
+to root and "/ssh:" opening tramp.
+</p>
+
+<p>
+This is an experimental feature, please report if it breaks someone's
+workflow.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/321">#321</a> and <a href="https://github.com/abo-abo/swiper/issues/480">#480</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org1229a06" class="outline-4">
+<h4 id="org1229a06">counsel-git-grep</h4>
+<div class="outline-text-4" id="text-org1229a06">
+</div><div id="outline-container-org96a41c2" class="outline-5">
+<h5 id="org96a41c2">Bind <kbd>C-c C-m</kbd> to <code>counsel-git-grep-switch-cmd</code></h5>
+<div class="outline-text-5" id="text-org96a41c2">
+<p>
+The initial command always runs on all files.
+</p>
+
+<p>
+To run only on *.el files, <kbd>C-c C-m</kbd> followed by <kbd>M-i</kbd> <code>-- *.el</code>.
+To run on *.c and *.h files, <kbd>C-c C-m</kbd> followed by <kbd>M-i</kbd> <code>-- *.c *.h</code>.
+To switch to all files again, <kbd>C-c C-m</kbd> and select the appropriate
+entry.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/420">#420</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org9b9634a" class="outline-4">
+<h4 id="org9b9634a">counsel-locate</h4>
+<div class="outline-text-4" id="text-org9b9634a">
+</div><div id="outline-container-orgcb9119b" class="outline-5">
+<h5 id="orgcb9119b">counsel-locate-cmd</h5>
+<div class="outline-text-5" id="text-orgcb9119b">
+<p>
+New defcustom that replaces <code>counsel-locate-options</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/385">#385</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgaeb4feb" class="outline-5">
+<h5 id="orgaeb4feb">counsel-locate-cmd-mdfind</h5>
+<div class="outline-text-5" id="text-orgaeb4feb">
+<p>
+New function.
+See <a href="https://github.com/abo-abo/swiper/issues/390">#390</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-orgd20c4fa" class="outline-5">
+<h5 id="orgd20c4fa">counsel-locate-cmd-es</h5>
+<div class="outline-text-5" id="text-orgd20c4fa">
+<p>
+New function.
+See <a href="https://github.com/abo-abo/swiper/issues/426">#426</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org6e5ef8e" class="outline-4">
+<h4 id="org6e5ef8e">counsel-yank-pop</h4>
+<div class="outline-text-4" id="text-org6e5ef8e">
+</div><div id="outline-container-org713a8b" class="outline-5">
+<h5 id="org713a8b">Truncate during display</h5>
+<div class="outline-text-5" id="text-org713a8b">
+<p>
+During the completion, only the context around the match will be shown.
+By default, the context is +2 lines above and +2 lines below the match.
+It can be adjusted with <code>counsel-yank-pop-truncate-radius</code>.
+Additionally, <code>ivy-height</code> is temporarily bound to 5 during completion.
+This way, the maximum minibuffer height should be 1+4*5=21 lines.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/315">#315</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgae14618" class="outline-4">
+<h4 id="orgae14618">counsel-unicode-char</h4>
+<div class="outline-text-4" id="text-orgae14618">
+<p>
+Display hex codes in left column.
+</p>
+</div>
+</div>
+<div id="outline-container-orgce4f665" class="outline-4">
+<h4 id="orgce4f665">counsel-rhythmbox</h4>
+<div class="outline-text-4" id="text-orgce4f665">
+</div><div id="outline-container-org66040b8" class="outline-5">
+<h5 id="org66040b8">Preselect the current song</h5>
+</div>
+</div>
+<div id="outline-container-orgd2dccb6" class="outline-4">
+<h4 id="orgd2dccb6">counsel-ag</h4>
+<div class="outline-text-4" id="text-orgd2dccb6">
+</div><div id="outline-container-orgf1af31c" class="outline-5">
+<h5 id="orgf1af31c"><code>counsel-ag-base-command</code></h5>
+<div class="outline-text-5" id="text-orgf1af31c">
+<p>
+Allows the command run by <code>counsel-ag-function</code> to be customized. There
+are several reasons to allow this: The vimgrep option is a recent
+addition; on windows it's more convenient to use pt; and the user
+might want to customize ignored files.
+</p>
+
+<p>
+Standard value:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> counsel-ag-base-command <span style="color: #2A00FF;">"ag --nocolor --nogroup %s -- ."</span>)
+</pre>
+</div>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/335">#335</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org1571e72" class="outline-5">
+<h5 id="org1571e72">Add dir prompt for <kbd>C-u</kbd></h5>
+<div class="outline-text-5" id="text-org1571e72">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/429">#429</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org1e8d7e9" class="outline-5">
+<h5 id="org1e8d7e9">Add <code>counsel-ag-map</code></h5>
+<div class="outline-text-5" id="text-org1e8d7e9">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/462">#462</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org56ada59" class="outline-4">
+<h4 id="org56ada59">counsel-async-split-string-re</h4>
+<div class="outline-text-4" id="text-org56ada59">
+<p>
+New defcustom.
+</p>
+</div>
+</div>
+<div id="outline-container-org85e606c" class="outline-4">
+<h4 id="org85e606c">counsel&#x2013;async-cmd</h4>
+<div class="outline-text-4" id="text-org85e606c">
+</div><div id="outline-container-org25368b3" class="outline-5">
+<h5 id="org25368b3">Add optional exit-code table</h5>
+<div class="outline-text-5" id="text-org25368b3">
+<p>
+This argument can be used to associate exit codes with the underlying
+reason. Used in counsel-ag-function to signal that an exit code of 1
+means that no matches were found.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/421">#421</a>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-orgc75c56d" class="outline-4">
+<h4 id="orgc75c56d">counsel-prompt-function</h4>
+<div class="outline-text-4" id="text-orgc75c56d">
+<p>
+New defcustom
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/424">#424</a> and <a href="https://github.com/abo-abo/swiper/issues/425">#425</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-org2a72044" class="outline-4">
+<h4 id="org2a72044">counsel-grep</h4>
+<div class="outline-text-4" id="text-org2a72044">
+</div><div id="outline-container-org87ba05b" class="outline-5">
+<h5 id="org87ba05b">Reveal outlines</h5>
+<div class="outline-text-5" id="text-org87ba05b">
+<p>
+Just like <code>swiper</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org4d0af8d" class="outline-5">
+<h5 id="org4d0af8d">Should pick candidates closest to point</h5>
+<div class="outline-text-5" id="text-org4d0af8d">
+<p>
+Fixes the algorithm selecting the first matching candidate in case
+there are 0 matching candidates following point. Now the last matching
+candidate will be selected, resulting in less scrolling.
+</p>
+</div>
+</div>
+<div id="outline-container-org5136701" class="outline-5">
+<h5 id="org5136701">Speed up x40 times</h5>
+<div class="outline-text-5" id="text-org5136701">
+<p>
+The default shell command will not use <code>--ignore-case</code> switch for
+<code>grep</code>. It's a bit less convenient, but results in a huge speed-up.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org2db7341" class="outline-4">
+<h4 id="org2db7341">counsel-M-x</h4>
+<div class="outline-text-4" id="text-org2db7341">
+</div><div id="outline-container-orgaf41b62" class="outline-5">
+<h5 id="orgaf41b62">Add help action</h5>
+<div class="outline-text-5" id="text-orgaf41b62">
+<p>
+Bound to <kbd>M-o h</kbd> by default.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/452">#452</a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-org8b4cb79" class="outline-3">
+<h3 id="org8b4cb79">New Commands</h3>
+<div class="outline-text-3" id="text-org8b4cb79">
+</div><div id="outline-container-org9b5ebc7" class="outline-4">
+<h4 id="org9b5ebc7"><code>counsel-tmm</code></h4>
+<div class="outline-text-4" id="text-org9b5ebc7">
+<p>
+Completion for the menu bar items. For example:
+</p>
+
+<p>
+<code>counsel-tmm</code> -&gt; <code>Options</code> -&gt; <code>Set Default Font...</code>.
+</p>
+
+<p>
+Thanks to completion, the latter stages of the chain would look like: <code>op</code> <kbd>RET</kbd> <code>set</code> <kbd>RET</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgd780b4e" class="outline-4">
+<h4 id="orgd780b4e"><code>counsel-imenu</code></h4>
+<div class="outline-text-4" id="text-orgd780b4e">
+<p>
+Jump to a buffer position indexed by imenu.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-org731ae15" class="outline-4">
+<h4 id="org731ae15"><code>counsel-decbinds</code></h4>
+<div class="outline-text-4" id="text-org731ae15">
+<p>
+Show a list of all defined keys, and their definitions. Describe the
+selected candidate.
+See <a href="https://github.com/abo-abo/swiper/issues/332">#332</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-org2c8ae53" class="outline-4">
+<h4 id="org2c8ae53"><code>counsel-list-processes</code></h4>
+<div class="outline-text-4" id="text-org2c8ae53">
+<p>
+Offer completion for <code>process-list</code>
+</p>
+
+<p>
+The default action deletes the selected process.  An extra action
+allows to switch to the process buffer.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/357">#357</a> and <a href="https://github.com/abo-abo/swiper/issues/398">#398</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgc5b8bd1" class="outline-4">
+<h4 id="orgc5b8bd1"><code>ivy-switch-buffer-other-window</code></h4>
+<div class="outline-text-4" id="text-orgc5b8bd1">
+<p>
+Remap <code>switch-to-buffer-other-window</code> to <code>ivy-switch-buffer-other-window</code> for <code>ivy-mode</code>.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/361">#361</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgba7c15b" class="outline-4">
+<h4 id="orgba7c15b"><code>counsel-git-stash</code></h4>
+<div class="outline-text-4" id="text-orgba7c15b">
+<p>
+Search through all available git stashes.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/374">#374</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-org9295f8d" class="outline-4">
+<h4 id="org9295f8d"><code>counsel-git-log</code></h4>
+<div class="outline-text-4" id="text-org9295f8d">
+<p>
+Call the <code>git log --grep</code> shell command and search through the output.
+</p>
+</div>
+</div>
+<div id="outline-container-orgb0b6461" class="outline-4">
+<h4 id="orgb0b6461"><code>counsel-pt</code></h4>
+<div class="outline-text-4" id="text-orgb0b6461">
+<p>
+Grep for a string in the current directory using pt.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/434">#434</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-org1447929" class="outline-4">
+<h4 id="org1447929"><code>counsel-linux-app</code></h4>
+<div class="outline-text-4" id="text-org1447929">
+<p>
+Launch a Linux desktop application, similar to Alt-&lt;F2&gt;.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/446">#446</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgea039a2" class="outline-4">
+<h4 id="orgea039a2"><code>counsel-ace-link</code></h4>
+<div class="outline-text-4" id="text-orgea039a2">
+<p>
+Ivy completion for <code>ace-link</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-org24edf5b" class="outline-4">
+<h4 id="org24edf5b"><code>counsel-esh-history</code></h4>
+<div class="outline-text-4" id="text-org24edf5b">
+<p>
+Browse Eshell history.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/459">#459</a>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgb721388" class="outline-4">
+<h4 id="orgb721388"><code>counsel-shell-history</code></h4>
+<div class="outline-text-4" id="text-orgb721388">
+<p>
+Browse shell history.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-orgee7e5ed" class="outline-4">
+<h4 id="orgee7e5ed"><code>counsel-grep-or-swiper</code></h4>
+<div class="outline-text-4" id="text-orgee7e5ed">
+<p>
+New command: automatically use <code>swiper</code> for smaller buffers and
+<code>counsel-grep</code> for larger buffers.
+</p>
+
+<p>
+Adjust with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> counsel-grep-swiper-limit 300000)
+</pre>
+</div>
+
+<p>
+By default, the splitting predicate is 300K bytes in a file.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
