@@ -47,7 +47,7 @@ exports.
 :CUSTOM_ID: copying
 :END:
 #+TEXINFO: @ifnottex
-Ivy manual, version 0.7.0
+Ivy manual, version 0.8.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
