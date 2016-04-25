@@ -46,7 +46,7 @@
                                (concat "-" chapter "-")
                              "-")
                            (mapconcat (lambda (s)
-                                        (replace-regexp-in-string "[=~'()<>\\\"]" "" s))
+                                        (replace-regexp-in-string "[=~'()<>\\:%\"]" "" s))
                                       (split-string (downcase name) " ")
                                       "-"))))
           (when (< (org-element-property :level el) 4)
