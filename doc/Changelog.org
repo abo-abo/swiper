@@ -1,5 +1,11 @@
-#+OPTIONS: toc:nil
+#+OPTIONS: H:6 num:nil toc:4
+#+SETUPFILE: ~/git/org-html-themes/setup/theme-readtheorg.setup
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+
 * 0.6.0
+:PROPERTIES:
+:CUSTOM_ID: 0.6.0
+:END:
 ** Fixes
 *** =swiper-avy= should use only the current window
 Not all windows. See [[https://github.com/abo-abo/swiper/issues/117][#117]].
@@ -296,6 +302,9 @@ candidate, but the current text.  Bound to ~C-M-j~ or ~C-u C-j~.
 See [[https://github.com/abo-abo/swiper/pull/183][#183]].
 
 * 0.7.0
+:PROPERTIES:
+:CUSTOM_ID: 0.7.0
+:END:
 ** Fixes
 *** Fix :dynamic-collection not being sorted
 *** When :initial-input contains a plus, escape it
@@ -616,7 +625,13 @@ Give completion for inserting from the kill ring.
 See =counsel-yank-pop-truncate= defcustom and [[https://github.com/abo-abo/swiper/issues/218][#218]].
 
 * 0.8.0
+:PROPERTIES:
+:CUSTOM_ID: 0.8.0
+:END:
 ** Package rename
+:PROPERTIES:
+:CUSTOM_ID: package-rename
+:END:
 Due to popular demand, =swiper-0.7.0= is succeeded by =ivy-0.8.0= in GNU
 ELPA. The contents of the package don't change, only the name. Make
 sure to remove the =~/.emacs.d/elpa/swiper-0.7.0= directory if you
@@ -1135,12 +1150,15 @@ Completion for the menu bar items. For example:
 =counsel-tmm= -> =Options= -> =Set Default Font...=.
 
 Thanks to completion, the latter stages of the chain would look like: =op= ~RET~ =set= ~RET~.
+-----
 *** =counsel-imenu=
 Jump to a buffer position indexed by imenu.
+-----
 *** =counsel-decbinds=
 Show a list of all defined keys, and their definitions. Describe the
 selected candidate.
 See [[https://github.com/abo-abo/swiper/issues/332][#332]].
+-----
 *** =counsel-list-processes=
 Offer completion for =process-list=
 
@@ -1148,32 +1166,39 @@ The default action deletes the selected process.  An extra action
 allows to switch to the process buffer.
 
 See [[https://github.com/abo-abo/swiper/issues/357][#357]] and [[https://github.com/abo-abo/swiper/issues/398][#398]].
+-----
 *** =ivy-switch-buffer-other-window=
 Remap =switch-to-buffer-other-window= to =ivy-switch-buffer-other-window= for =ivy-mode=.
 
 See [[https://github.com/abo-abo/swiper/issues/361][#361]].
+-----
 *** =counsel-git-stash=
 Search through all available git stashes.
 
 See [[https://github.com/abo-abo/swiper/issues/374][#374]].
+-----
 *** =counsel-git-log=
 Call the =git log --grep= shell command and search through the output.
 *** =counsel-pt=
 Grep for a string in the current directory using pt.
 
 See [[https://github.com/abo-abo/swiper/issues/434][#434]].
+-----
 *** =counsel-linux-app=
 Launch a Linux desktop application, similar to Alt-<F2>.
 
 See [[https://github.com/abo-abo/swiper/issues/446][#446]].
+-----
 *** =counsel-ace-link=
 Ivy completion for =ace-link=.
 *** =counsel-esh-history=
 Browse Eshell history.
 
 See [[https://github.com/abo-abo/swiper/issues/459][#459]].
+-----
 *** =counsel-shell-history=
 Browse shell history.
+-----
 *** =counsel-grep-or-swiper=
 New command: automatically use =swiper= for smaller buffers and
 =counsel-grep= for larger buffers.
@@ -1184,3 +1209,4 @@ Adjust with:
 #+end_src
 
 By default, the splitting predicate is 300K bytes in a file.
+-----
