@@ -412,7 +412,6 @@ line numbers. For the buffer, use `ivy--regex' instead."
 (defun swiper--ivy (candidates &optional initial-input)
   "Select one of CANDIDATES and move there.
 When non-nil, INITIAL-INPUT is the initial search pattern."
-  (interactive)
   (swiper--init)
   (setq swiper-invocation-face
         (plist-get (text-properties-at (point)) 'face))
