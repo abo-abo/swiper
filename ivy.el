@@ -1235,6 +1235,7 @@ This variable is let-bound to nil by functions that take care of
 the restoring themselves.")
 
 ;;** Entry Point
+;;;###autoload
 (cl-defun ivy-read (prompt collection
                     &key
                       predicate require-match initial-input
