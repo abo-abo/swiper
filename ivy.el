@@ -2148,14 +2148,15 @@ CANDIDATES are assumed to be static."
                           ivy--old-cands)))
                       (t
                        (ivy--re-filter re candidates)))))
-        (ivy--recompute-index name re-str cands)
-        (setq ivy--old-re
-              (if (eq ivy--regex-function 'ivy--regex-ignore-order)
-                  re
-                (if cands
-                    re-str
-                  "")))
-        (setq ivy--old-cands (ivy--sort name cands))))))
+        (prog1
+            (setq ivy--old-cands (ivy--sort name cands))
+          (ivy--recompute-index name re-str ivy--old-cands)
+          (setq ivy--old-re
+                (if (eq ivy--regex-function 'ivy--regex-ignore-order)
+                    re
+                  (if ivy--old-cands
+                      re-str
+                    ""))))))))
 
 (defun ivy--set-candidates (x)
   "Update `ivy--all-candidates' with X."
