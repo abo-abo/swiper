@@ -2097,7 +2097,8 @@ And insert it into the minibuffer. Useful during
                 (imenu . counsel-imenu)
                 (load-library . counsel-load-library)
                 (load-theme . counsel-load-theme)
-                (yank-pop . counsel-yank-pop)))
+                (yank-pop . counsel-yank-pop)
+                (info-lookup-symbol . counsel-info-lookup-symbol)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'. Remaps built-in functions to counsel
