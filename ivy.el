@@ -498,7 +498,8 @@ key (a string), cmd and doc (a string)."
                       (car x)
                       'face 'ivy-action)
                      (nth 2 x)))
-           actions
+           (cl-remove-if (lambda (x) (string= (car x) ""))
+                         actions)
            "\n")))
 
 (defun ivy-read-action ()
@@ -510,12 +511,17 @@ selection, non-nil otherwise."
   (let ((actions (ivy-state-action ivy-last)))
     (if (null (ivy--actionp actions))
         t
-      (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
+      (let* ((res-actions (mapcar (lambda (x)
+                                    (ivy--resolve-action x (if (equal ivy--current "")
+                                                               ivy-text
+                                                             ivy--current)))
+                                  (cdr actions)))
+             (hint (funcall ivy-read-action-format-function res-actions))
              (resize-mini-windows 'grow-only)
              (key (string (read-key hint)))
              (action-idx (cl-position-if
                           (lambda (x) (equal (car x) key))
-                          (cdr actions))))
+                          res-actions)))
         (cond ((string= key "")
                nil)
               ((null action-idx)
@@ -828,13 +834,19 @@ If the input is empty, select the previous history element instead."
   ;; invalidate cache
   (setq ivy--old-cands nil))
 
-(defun ivy--get-action (state)
-  "Get the action function from STATE."
+(defun ivy--resolve-action (action candidate)
+  "Resolve ACTION against CANDIDATE if needed."
+  (if (and (functionp action) (stringp candidate))
+      (or (funcall action candidate) '("" ignore "-"))
+    action))
+
+(defun ivy--get-action (state &optional candidate)
+  "Get the action function from STATE, optionally resolving it against CANDIDATE if needed."
   (let ((action (ivy-state-action state)))
     (when action
       (if (functionp action)
           action
-        (cadr (nth (car action) action))))))
+        (cadr (ivy--resolve-action (nth (car action) action) candidate))))))
 
 (defun ivy--get-window (state)
   "Get the window from STATE."
@@ -874,7 +886,10 @@ If the input is empty, select the previous history element instead."
         (format "[%d/%d] %s"
                 (car action)
                 (1- (length action))
-                (nth 2 (nth (car action) action)))
+                (nth 2 (ivy--resolve-action (nth (car action) action)
+                                            (if (equal ivy--current "")
+                                                ivy-text
+                                              ivy--current))))
       "[1/1] default")))
 
 (defvar ivy-inhibit-action nil
@@ -891,7 +906,9 @@ Example use:
   "Call the current action without exiting completion."
   (interactive)
   (unless ivy-inhibit-action
-    (let ((action (ivy--get-action ivy-last)))
+    (let ((action (ivy--get-action ivy-last (if (equal ivy--current "")
+                                                ivy-text
+                                              ivy--current))))
       (when action
         (let* ((collection (ivy-state-collection ivy-last))
                (x (cond ((and (consp collection)
@@ -1440,7 +1457,7 @@ This is useful for recursive `ivy-read'."
                            (equal initial-input ""))
                  (setq coll (cons initial-input coll)))
                (unless (and (ivy-state-action ivy-last)
-                            (not (equal (ivy--get-action ivy-last) 'identity)))
+                            (not (equal (ivy--get-action ivy-last initial-input) 'identity)))
                  (setq initial-input nil))))
             ((eq collection 'internal-complete-buffer)
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
@@ -3054,7 +3071,7 @@ EVENT gives the mouse position."
                  (match-beginning 1)
                  (match-end 1)))
            (coll (ivy-state-collection ivy-last))
-           (action (ivy--get-action ivy-last))
+           (action (ivy--get-action ivy-last str))
            (ivy-exit 'done))
       (with-ivy-window
         (setq counsel-grep-last-line nil)
