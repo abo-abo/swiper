@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-04-25 Mon 12:34 -->
+<!-- 2016-05-02 Mon 22:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -1368,7 +1368,7 @@ likely at the end of the buffer</li>
 <code>completing-read-function</code> (which <code>ivy-mode</code> sets). Try refiling
 headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 <dt><code>magit</code></dt><dd><p>
-     Magit requries this setting for ivy completion:
+     Magit requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
@@ -1378,7 +1378,7 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 </div></dd>
 <dt><code>find-file-in-project</code></dt><dd>It uses ivy by default if Ivy is installed.</dd>
 <dt><code>projectile</code></dt><dd><p>
-     Projectile requires this seeting for ivy completion:
+     Projectile requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
@@ -1387,7 +1387,7 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 </pre>
 </div></dd>
 <dt><code>helm-make</code></dt><dd><p>
-     Helm-make requires this seeting for ivy completion.
+     Helm-make requires this setting for ivy completion.
 </p>
 
 <div class="org-src-container">
@@ -1408,7 +1408,7 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 <h3 id="file-name-completion"><a id="orgheadline"></a><span class="section-number-3">8.1</span> File Name Completion</h3>
 <div class="outline-text-3" id="text-file-name-completion">
 <p>
-Since file name completion is ubiquitious, Ivy provides extra
+Since file name completion is ubiquitous, Ivy provides extra
 bindings that work here:
 </p>
 
@@ -1494,7 +1494,7 @@ Adding this to Emacs init file:
 </pre>
 </div>
 <p>
-will add additional virual buffers to the buffers list for recent
+will add additional virtual buffers to the buffers list for recent
 files. Selecting such virtual buffers, which are highlighted with
 <code>ivy-virtual</code> face, will open the corresponding file.
 </p></dd>
@@ -1612,7 +1612,7 @@ interrupted with <kbd>C-g</kbd>. See <code>swiper</code> for an example usage.</
 <code>Completion Styles</code> for details.</dd>
 <dt><code>matcher</code></dt><dd>Is a function that takes a regex string and a list of strings and
 returns a list of strings matching the regex. Any ordinary Emacs
-matching function will suffice, yet finely tuned mathing
+matching function will suffice, yet finely tuned matching
 functions can be used. See <code>counsel-find-file</code> for an example
 usage.</dd>
 <dt><code>dynamic-collection</code></dt><dd>When non-nil, <code>collection</code> will be used to dynamically generate
@@ -1739,7 +1739,7 @@ narrowing) or select a candidate from the visible collection.
   (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
+     (format <span style="color: #2A00FF;">"locate %s '</span><span style="color: #110099;">%s</span><span style="color: #2A00FF;">'"</span>
              (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
              (counsel-unquote-regex-parens
               (ivy--regex str))))
