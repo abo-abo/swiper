@@ -929,7 +929,7 @@ To examine each action with each candidate in a key-efficient way, try:
      =completing-read-function= (which =ivy-mode= sets). Try refiling
      headings with similar names to appreciate =ivy-mode=.
 - =magit= ::
-     Magit requries this setting for ivy completion:
+     Magit requires this setting for ivy completion:
 
      #+begin_src elisp
      (setq magit-completing-read-function 'ivy-completing-read)
@@ -937,13 +937,13 @@ To examine each action with each candidate in a key-efficient way, try:
 - =find-file-in-project= ::
      It uses ivy by default if Ivy is installed.
 - =projectile= ::
-     Projectile requires this seeting for ivy completion:
+     Projectile requires this setting for ivy completion:
 
      #+begin_src elisp
      (setq projectile-completion-system 'ivy)
      #+end_src
 - =helm-make= ::
-     Helm-make requires this seeting for ivy completion.
+     Helm-make requires this setting for ivy completion.
 
      #+begin_src elisp
      (setq helm-make-completion-method 'ivy)
@@ -957,7 +957,7 @@ To examine each action with each candidate in a key-efficient way, try:
 :PROPERTIES:
 :CUSTOM_ID: file-name-completion
 :END:
-Since file name completion is ubiquitious, Ivy provides extra
+Since file name completion is ubiquitous, Ivy provides extra
 bindings that work here:
 
 
@@ -1019,7 +1019,7 @@ bindings that work here:
      #+begin_src elisp
      (setq ivy-use-virtual-buffers t)
      #+end_src
-     will add additional virual buffers to the buffers list for recent
+     will add additional virtual buffers to the buffers list for recent
      files. Selecting such virtual buffers, which are highlighted with
      =ivy-virtual= face, will open the corresponding file.
 
@@ -1118,7 +1118,7 @@ features such as multi-actions, non-exiting actions, =ivy-occur= and
 - =matcher= ::
      Is a function that takes a regex string and a list of strings and
      returns a list of strings matching the regex. Any ordinary Emacs
-     matching function will suffice, yet finely tuned mathing
+     matching function will suffice, yet finely tuned matching
      functions can be used. See =counsel-find-file= for an example
      usage.
 - =dynamic-collection= ::
