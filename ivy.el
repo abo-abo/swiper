@@ -39,6 +39,7 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'ffap)
+(require 'ido nil t)
 
 ;;* Customization
 (defgroup ivy nil
@@ -1138,6 +1139,16 @@ Prioritize directories."
     (if (get-text-property 0 'dirp y)
         nil
       (string< x y))))
+      
+(defun ivy-sort-file-function-using-ido (x y)
+  "Compare two files X and Y using `ido-file-extensions-order'
+  
+  This function is suitable as a replacement for `ivy-sort-file-function-default' 
+  in `ivy-sort-functions-alist'."
+  (if (and (boundp 'ido-file-extensions-order)
+           ido-file-extensions-order)
+      (ido-file-extension-lessp x y)
+    (ivy-sort-file-function-default x y)))
 
 (defcustom ivy-sort-functions-alist
   '((read-file-name-internal . ivy-sort-file-function-default)
