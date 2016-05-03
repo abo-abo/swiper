@@ -177,6 +177,15 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd actions)))
 
+(defun ivy-add-actions (cmd actions)
+  "Add CMD extra exit points to ACTIONS."
+  (setq ivy--actions-list
+        (plist-put ivy--actions-list cmd
+                   (delete-dups
+                    (append
+                     actions
+                     (plist-get ivy--actions-list cmd))))))
+
 (defvar ivy--display-transformers-list nil
   "A list of str->str transformers per command.")
 
