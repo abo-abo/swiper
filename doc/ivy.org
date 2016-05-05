@@ -1001,6 +1001,10 @@ bindings that work here:
 
      ~C-i~ works in a similar way to the default completion.
 
+     You can also get sudo access for the current directory by
+     inputting =/sudo::= ~RET~. Using =/sudo:= (i.e. single colon instead of
+     double) will result in a completion session for the desired user.
+
 - History ::
      File history works the same with ~M-p~, ~M-n~, and ~C-r~, but
      uses a custom code for file name completion that cycles through

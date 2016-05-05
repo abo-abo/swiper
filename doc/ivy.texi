@@ -8,7 +8,7 @@
 
 @copying
 @ifnottex
-Ivy manual, version 0.7.0
+Ivy manual, version 0.8.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -72,34 +72,42 @@ modify this GNU manual.''
 @detailmenu
 --- The Detailed Node Listing ---
 
+
 Installation
 
 * Installing from Emacs Package Manager::
 * Installing from the Git repository::
 
+
+
 Getting started
 
 * Basic customization::
+
 
 Key bindings
 
 * Global key bindings::
 * Minibuffer key bindings::
 
+
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
 * Saving the current completion session to a buffer::
+
 Completion Styles
 
 * ivy--regex-plus::
 * ivy--regex-ignore-order::
 * ivy--regex-fuzzy::
+
+
 
 Customization
 
@@ -107,6 +115,8 @@ Customization
 * Defcustoms::
 * Actions::
 * Packages::
+
+
 
 Actions
 
@@ -116,19 +126,27 @@ Actions
 * Example - add two actions to each command::
 * Example - define a new command with several actions::
 
+
+
+
 Example - add two actions to each command
 
 * How to undo adding the two actions::
 * How to add actions to a specific command::
 
+
+
 Example - define a new command with several actions
 
 * Test the above function with @code{ivy-occur}::
+
 Commands
 
 * File Name Completion::
 * Buffer Name Completion::
 * Counsel commands::
+
+
 
 API
 
@@ -200,6 +218,7 @@ from Ivy's development repository.
 
 Emacs 24.3.1 is the oldest version to run Ivy. Emacs 24.5.1 is the
 oldest version that runs Ivy with fancy faces display.
+
 @menu
 * Installing from Emacs Package Manager::
 * Installing from the Git repository::
@@ -279,6 +298,7 @@ First enable Ivy completion everywhere:
 @end lisp
 
 Note: @code{ivy-mode} can be toggled on and off with @kbd{M-x} @code{ivy-mode}.
+
 @menu
 * Basic customization::
 @end menu
@@ -362,10 +382,11 @@ described under their respective commands.
 A key feature of @code{ivy-minibuffer-map} is its full editing capability
 where the familiar @kbd{C-a}, @kbd{C-f}, @kbd{M-d}, @kbd{M-DEL}, @kbd{M-b}, @kbd{M-w}, @kbd{C-k},
 @kbd{C-y} key bindings work the same as in @code{fundamental-mode}.
+
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -840,6 +861,7 @@ entry on @code{ivy-re-builders-alist}.
 @item
 @code{ivy--regex}.
 @end enumerate
+
 @menu
 * ivy--regex-plus::
 * ivy--regex-ignore-order::
@@ -1124,6 +1146,7 @@ The second action copies the current candidate to the kill ring.
 
 Then in any completion session, @kbd{M-o y} invokes @code{ivy-yank-action}, and
 @kbd{M-o i} invokes @code{ivy-copy-to-buffer-action}.
+
 @menu
 * How to undo adding the two actions::
 * How to add actions to a specific command::
@@ -1176,6 +1199,7 @@ Use the command name as the key:
 
 The number 1 above is the index of the default action. Each
 action has its own string description for easy selection.
+
 @menu
 * Test the above function with @code{ivy-occur}::
 @end menu
@@ -1219,7 +1243,7 @@ headings with similar names to appreciate @code{ivy-mode}.
 @end indentedblock
 @subsubheading @code{magit}
 @indentedblock
-Magit requries this setting for ivy completion:
+Magit requires this setting for ivy completion:
 
 @lisp
      (setq magit-completing-read-function 'ivy-completing-read)
@@ -1231,7 +1255,7 @@ It uses ivy by default if Ivy is installed.
 @end indentedblock
 @subsubheading @code{projectile}
 @indentedblock
-Projectile requires this seeting for ivy completion:
+Projectile requires this setting for ivy completion:
 
 @lisp
      (setq projectile-completion-system 'ivy)
@@ -1239,7 +1263,7 @@ Projectile requires this seeting for ivy completion:
 @end indentedblock
 @subsubheading @code{helm-make}
 @indentedblock
-Helm-make requires this seeting for ivy completion.
+Helm-make requires this setting for ivy completion.
 
 @lisp
      (setq helm-make-completion-method 'ivy)
@@ -1258,7 +1282,7 @@ Helm-make requires this seeting for ivy completion.
 @node File Name Completion
 @section File Name Completion
 
-Since file name completion is ubiquitious, Ivy provides extra
+Since file name completion is ubiquitous, Ivy provides extra
 bindings that work here:
 
 
@@ -1323,6 +1347,10 @@ host and user names.
 For @code{/ssh:user@@} input, completes the domain name.
 
 @kbd{C-i} works in a similar way to the default completion.
+
+You can also get sudo access for the current directory by
+inputting @code{/sudo::} @kbd{RET}. Using @code{/sudo:} (i.e. single colon instead of
+double) will result in a completion session for the desired user.
 @end indentedblock
 @subsubheading History
 @indentedblock
@@ -1343,7 +1371,7 @@ Adding this to Emacs init file:
 @lisp
      (setq ivy-use-virtual-buffers t)
 @end lisp
-will add additional virual buffers to the buffers list for recent
+will add additional virtual buffers to the buffers list for recent
 files. Selecting such virtual buffers, which are highlighted with
 @code{ivy-virtual} face, will open the corresponding file.
 @end defopt
@@ -1376,6 +1404,7 @@ two required arguments and many optional arguments that can be passed
 by a key. The optional @code{:action} argument is highly recommended for
 features such as multi-actions, non-exiting actions, @code{ivy-occur} and
 @code{ivy-resume}.
+
 @menu
 * Required arguments for @code{ivy-read}::
 * Optional arguments for @code{ivy-read}::
@@ -1478,7 +1507,7 @@ Is a function that takes a string and returns a valid regex. See
 @indentedblock
 Is a function that takes a regex string and a list of strings and
 returns a list of strings matching the regex. Any ordinary Emacs
-matching function will suffice, yet finely tuned mathing
+matching function will suffice, yet finely tuned matching
 functions can be used. See @code{counsel-find-file} for an example
 usage.
 @end indentedblock
