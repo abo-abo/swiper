@@ -2725,7 +2725,7 @@ BUFFER may be a string or nil."
     "kill")
    ("j"
     ivy--switch-buffer-other-window-action
-    "other")
+    "other window")
    ("r"
     ivy--rename-buffer-action
     "rename")))
