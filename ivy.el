@@ -1438,7 +1438,9 @@ This is useful for recursive `ivy-read'."
                                 :test #'equal)))
                (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
-             (if (and initial-input (file-directory-p initial-input))
+             (if (and initial-input
+                      (not (equal initial-input ""))
+                      (file-directory-p initial-input))
                  (progn
                    (setq ivy--directory initial-input)
                    (setq initial-input nil))
