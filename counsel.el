@@ -637,7 +637,7 @@ The libraries are offered from `load-path'."
   (condition-case nil
       (progn
         (mapc #'disable-theme custom-enabled-themes)
-        (load-theme (intern x))
+        (load-theme (intern x) t)
         (when (fboundp 'powerline-reset)
           (powerline-reset)))
     (error "Problem loading theme %s" x)))
