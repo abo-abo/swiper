@@ -580,6 +580,10 @@ WND, when specified is the window."
                     (overlay-put overlay 'priority i)))
                 (cl-incf i)))))))))
 
+(defcustom swiper-action-recenter nil
+  "When non-nil, recenter after exiting `swiper'."
+  :type 'boolean)
+
 (defun swiper--action (x)
   "Goto line X."
   (let ((ln (1- (read (or (get-text-property 0 'display x)
@@ -599,6 +603,8 @@ WND, when specified is the window."
                  ln)
         (re-search-forward re (line-end-position) t)
         (swiper--ensure-visible)
+        (when swiper-action-recenter
+          (recenter))
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
             (when (eq ivy-exit 'done)
