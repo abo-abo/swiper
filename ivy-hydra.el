@@ -2,7 +2,11 @@
 
 ;; Copyright (C) 2015  Free Software Foundation, Inc.
 
-;; Author: Oleh Krehel
+;; Author: Oleh Krehel <ohwoeowho@gmail.com>
+;; URL: https://github.com/abo-abo/swiper
+;; Version: 0.8.0
+;; Package-Requires: ((emacs "24.1") (ivy "0.8.0") (hydra "0.13.4"))
+;; Keywords: completion, matching, bindings
 
 ;; This file is part of GNU Emacs.
 
