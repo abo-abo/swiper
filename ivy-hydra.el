@@ -31,26 +31,7 @@
 
 ;;; Code:
 (require 'ivy)
-
-(unless (require 'hydra nil t)
-  (defmacro defhydra (name &rest _)
-    "This is a stub for the uninstalled `hydra' package."
-    `(defun ,(intern (format "%S/body" name)) ()
-       (interactive)
-       (let ((enable-recursive-minibuffers t))
-         (if (yes-or-no-p "Package `hydra' not installed. Install?")
-             (progn
-               (ignore-errors (package-install 'hydra))
-               (save-window-excursion
-                 (let* ((buffer (condition-case nil
-                                    (find-library "ivy-hydra")
-                                  (error (find-file
-                                          ,(expand-file-name "ivy-hydra.el")))))
-                        (bname (buffer-file-name buffer)))
-                   (require 'hydra)
-                   (byte-compile-file bname t)
-                   (load-file bname))))
-           (error "Please install `hydra' and recompile/reinstall `ivy-hydra'"))))))
+(require 'hydra)
 
 (defun ivy--matcher-desc ()
   (if (eq ivy--regex-function
