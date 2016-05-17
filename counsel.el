@@ -762,7 +762,10 @@ Describe the selected candidate."
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
 (ivy-set-display-transformer 'counsel-git-grep 'counsel-git-grep-transformer)
 
-(defvar counsel-git-grep-cmd "git --no-pager grep --full-name -n --no-color -i -e %S"
+(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -e %S"
+  "Initial command for `counsel-git-grep'.")
+
+(defvar counsel-git-grep-cmd nil
   "Store the command for `counsel-git-grep'.")
 
 (defvar counsel--git-grep-dir nil
@@ -870,7 +873,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      (setq counsel-git-grep-cmd-history
            (delete-dups counsel-git-grep-cmd-history)))
     (t
-     (setq counsel-git-grep-cmd "git --no-pager grep --full-name -n --no-color -i -e %S")))
+     (setq counsel-git-grep-cmd counsel-git-grep-cmd-default)))
   (setq counsel--git-grep-dir
         (locate-dominating-file default-directory ".git"))
   (if (null counsel--git-grep-dir)
