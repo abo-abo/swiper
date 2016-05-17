@@ -1232,7 +1232,10 @@ like.")
   "Return the list of files in DIR.
 Directories come first."
   (let* ((default-directory dir)
-         (seq (all-completions "" 'read-file-name-internal))
+         (seq (condition-case nil
+                  (all-completions "" 'read-file-name-internal)
+                (error
+                 (directory-files dir))))
          sort-fn)
     (if (equal dir "/")
         seq
