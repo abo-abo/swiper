@@ -204,3 +204,5 @@
   (should (equal (counsel-unquote-regex-parens
                   (ivy--regex "(foo bar"))
                  "(\\(foo).*?(bar)")))
+
+(provide 'ivy-test)
