@@ -929,7 +929,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      #'counsel--gg-sentinel)))
 
 (defun counsel--gg-sentinel (process event)
-  (if (string= event "finished\n")
+  (if (member event '("finished\n"
+                      "exited abnormally with code 141\n"))
       (progn
         (with-current-buffer (process-buffer process)
           (setq ivy--all-candidates
