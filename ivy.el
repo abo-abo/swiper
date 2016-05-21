@@ -1446,21 +1446,23 @@ This is useful for recursive `ivy-read'."
                       (file-directory-p initial-input))
                  (progn
                    (setq ivy--directory initial-input)
-                   (setq initial-input nil))
+                   (setq initial-input nil)
+                   (when preselect
+                     (let ((preselect-directory (file-name-directory preselect)))
+                       (when (not (equal (expand-file-name preselect-directory)
+                                         (expand-file-name ivy--directory)))
+                         (setf (ivy-state-preselect state) (setq preselect nil))))))
                (setq ivy--directory default-directory))
              (require 'dired)
              (when preselect
                (let ((preselect-directory (file-name-directory preselect)))
-                 (if (not (equal (expand-file-name preselect-directory)
-                                 (expand-file-name ivy--directory)))
-                     (setf (ivy-state-preselect state) (setq preselect nil))
-                   (unless (or (null preselect-directory)
-                               (string= preselect-directory
-                                        default-directory))
-                     (setq ivy--directory preselect-directory))
-                   (setf
-                    (ivy-state-preselect state)
-                    (setq preselect (file-name-nondirectory preselect))))))
+                 (unless (or (null preselect-directory)
+                             (string= preselect-directory
+                                      default-directory))
+                   (setq ivy--directory preselect-directory))
+                 (setf
+                  (ivy-state-preselect state)
+                  (setq preselect (file-name-nondirectory preselect)))))
              (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
