@@ -1623,7 +1623,7 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
          ivy-completion-end))
       (setq ivy-completion-beg
             (move-marker (make-marker) (point)))
-      (insert str)
+      (insert (substring-no-properties str))
       (setq ivy-completion-end
             (move-marker (make-marker) (point))))))
 
