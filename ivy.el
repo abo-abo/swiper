@@ -860,20 +860,30 @@ If the input is empty, select the previous history element instead."
   "Return non-nil when X is a list of actions."
   (and x (listp x) (not (eq (car x) 'closure))))
 
+(defcustom ivy-action-wrap nil
+  "When non-nil, `ivy-next-action' and `ivy-prev-action' wrap."
+  :type 'boolean)
+
 (defun ivy-next-action ()
   "When the current action is a list, scroll it forwards."
   (interactive)
   (let ((action (ivy-state-action ivy-last)))
     (when (ivy--actionp action)
-      (unless (>= (car action) (1- (length action)))
-        (cl-incf (car action))))))
+      (let ((len (1- (length action)))
+            (idx (car action)))
+        (if (>= idx len)
+            (when ivy-action-wrap
+              (setf (car action) 1))
+          (cl-incf (car action)))))))
 
 (defun ivy-prev-action ()
   "When the current action is a list, scroll it backwards."
   (interactive)
   (let ((action (ivy-state-action ivy-last)))
     (when (ivy--actionp action)
-      (unless (<= (car action) 1)
+      (if (<= (car action) 1)
+          (when ivy-action-wrap
+            (setf (car action) (1- (length action))))
         (cl-decf (car action))))))
 
 (defun ivy-action-name ()
