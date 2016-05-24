@@ -1459,8 +1459,9 @@ This is useful for recursive `ivy-read'."
                    (setq initial-input nil)
                    (when preselect
                      (let ((preselect-directory (file-name-directory preselect)))
-                       (when (not (equal (expand-file-name preselect-directory)
-                                         (expand-file-name ivy--directory)))
+                       (when (and preselect-directory
+                                  (not (equal (expand-file-name preselect-directory)
+                                              (expand-file-name ivy--directory))))
                          (setf (ivy-state-preselect state) (setq preselect nil))))))
                (setq ivy--directory default-directory))
              (require 'dired)
