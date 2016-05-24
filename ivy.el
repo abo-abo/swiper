@@ -223,8 +223,7 @@ Example:
     (ivy-set-sources
      'counsel-locate
      '((small-recentf)
-       (original-source)))
-"
+       (original-source)))"
   (setq ivy--sources-list
         (plist-put ivy--sources-list cmd sources)))
 
@@ -311,6 +310,7 @@ This should eventually become a stack so that you could use
 `ivy-read' recursively.")
 
 (defsubst ivy-set-action (action)
+  "Set the current `ivy-last' field to ACTION."
   (setf (ivy-state-action ivy-last) action))
 
 (defun ivy-thing-at-point ()
@@ -360,12 +360,12 @@ Otherwise, store nil.")
 (defvar ivy--extra-candidates '((original-source))
   "Store candidates added by the extra sources.
 
-This is an internal-use alist. Each key is a function name, or
+This is an internal-use alist.  Each key is a function name, or
 original-source (which represents where the current dynamic
 candidates should go).
 
 Each value is an evaluation of the function, in case of static
-sources. These values will subsequently be filtered on `ivy-text'.
+sources.  These values will subsequently be filtered on `ivy-text'.
 
 This variable is set by `ivy-read' and used by `ivy--set-candidates'.")
 
@@ -494,7 +494,7 @@ When non-nil, it should contain at least one %d.")
 (defun ivy-read-action-format-default (actions)
   "Create a docstring from ACTIONS.
 
-ACTIONS is a list. Each list item is a list of 3 items:
+ACTIONS is a list.  Each list item is a list of 3 items:
 key (a string), cmd and doc (a string)."
   (format "%s\n%s\n"
           (if (eq this-command 'ivy-read-action)
@@ -1152,7 +1152,7 @@ Prioritize directories."
 (declare-function ido-file-extension-lessp "ido")
 
 (defun ivy-sort-file-function-using-ido (x y)
-  "Compare two files X and Y using `ido-file-extensions-order'
+  "Compare two files X and Y using `ido-file-extensions-order'.
 
 This function is suitable as a replacement for
 `ivy-sort-file-function-default' in `ivy-sort-functions-alist'."
