@@ -522,7 +522,8 @@ Update the minibuffer with the amount of lines collected every
   (ivy-read "Jump to bookmark: "
             (bookmark-all-names)
             :action (lambda (x)
-                      (bookmark-jump x))
+                      (with-ivy-window
+                        (bookmark-jump x)))
             :require-match t
             :caller 'counsel-bookmark))
 
