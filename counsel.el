@@ -515,6 +515,17 @@ Update the minibuffer with the amount of lines collected every
  'counsel-M-x
  'counsel-M-x-transformer)
 
+;;;###autoload
+(defun counsel-bookmark ()
+  "Forward to `bookmark-jump'."
+  (interactive)
+  (ivy-read "Jump to bookmark: "
+            (bookmark-all-names)
+            :action (lambda (x)
+                      (bookmark-jump x))
+            :require-match t
+            :caller 'counsel-bookmark))
+
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
   (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
