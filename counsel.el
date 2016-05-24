@@ -519,6 +519,7 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-bookmark ()
   "Forward to `bookmark-jump'."
   (interactive)
+  (require 'bookmark)
   (ivy-read "Jump to bookmark: "
             (bookmark-all-names)
             :action (lambda (x)
