@@ -1455,6 +1455,9 @@ This is useful for recursive `ivy-read'."
                       (not (equal initial-input ""))
                       (file-directory-p initial-input))
                  (progn
+                   (when (and (eq this-command 'dired-do-copy)
+                              (equal (file-name-nondirectory initial-input) ""))
+                     (setf (ivy-state-preselect state) (setq preselect nil)))
                    (setq ivy--directory initial-input)
                    (setq initial-input nil)
                    (when preselect
