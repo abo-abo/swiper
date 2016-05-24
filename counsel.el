@@ -2089,6 +2089,20 @@ And insert it into the minibuffer. Useful during
             :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
 
+;;;###autoload
+(defun counsel-company ()
+  "Complete using `company-candidates'."
+  (interactive)
+  (unless company-candidates
+    (company-complete))
+  (when company-point
+    (company-complete-common)
+    (when (looking-back company-common (line-beginning-position))
+      (setq ivy-completion-beg (match-beginning 0))
+      (setq ivy-completion-end (match-end 0)))
+    (ivy-read "company cand: " company-candidates
+              :action #'ivy-completion-in-region-action)))
+
 ;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
