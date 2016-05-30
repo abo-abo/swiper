@@ -698,7 +698,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
            t))))
 
 (defun ivy-immediate-done ()
-  "Exit the minibuffer with the current input."
+  "Exit the minibuffer with current input instead of current candidate."
   (interactive)
   (delete-minibuffer-contents)
   (insert (setq ivy--current
