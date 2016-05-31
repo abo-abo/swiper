@@ -205,6 +205,7 @@
     emms-playlist-mode
     emms-stream-mode
     erc-mode
+    forth-mode
     org-agenda-mode
     dired-mode
     jabber-chat-mode
