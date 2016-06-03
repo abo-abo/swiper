@@ -1523,6 +1523,12 @@ the command."
   :type 'integer
   :group 'ivy)
 
+(defvar counsel-compressed-file-regex
+  (progn
+    (require 'jka-compr nil t)
+    (jka-compr-build-file-regexp))
+  "Store the regex for compressed file names.")
+
 ;;;###autoload
 (defun counsel-grep-or-swiper ()
   "Call `swiper' for small buffers and `counsel-grep' for large ones."
@@ -1531,6 +1537,9 @@ the command."
            (not (buffer-narrowed-p))
            (not (ignore-errors
                   (file-remote-p (buffer-file-name))))
+           (not (string-match
+                 counsel-compressed-file-regex
+                 (buffer-file-name)))
            (> (buffer-size)
               (if (eq major-mode 'org-mode)
                   (/ counsel-grep-swiper-limit 4)
