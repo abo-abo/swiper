@@ -515,6 +515,8 @@ Update the minibuffer with the amount of lines collected every
  'counsel-M-x
  'counsel-M-x-transformer)
 
+(declare-function bookmark-all-names "bookmark")
+
 ;;;###autoload
 (defun counsel-bookmark ()
   "Forward to `bookmark-jump'."
@@ -2101,6 +2103,12 @@ And insert it into the minibuffer. Useful during
   (ivy-read "Run a command: " (counsel-linux-apps-list)
             :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
+
+(defvar company-candidates)
+(defvar company-point)
+(defvar company-common)
+(declare-function company-complete "ext:company")
+(declare-function company-complete-common "ext:company")
 
 ;;;###autoload
 (defun counsel-company ()
