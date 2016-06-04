@@ -748,18 +748,21 @@ Describe the selected candidate."
 (defun counsel-git ()
   "Find file in the current Git repository."
   (interactive)
-  (setq counsel--git-dir (expand-file-name
-                          (locate-dominating-file
-                           default-directory ".git")))
-  (let* ((default-directory counsel--git-dir)
-         (cands (split-string
-                 (shell-command-to-string
-                  "git ls-files --full-name --")
-                 "\n"
-                 t)))
-    (ivy-read (funcall counsel-prompt-function "Find file")
-              cands
-              :action #'counsel-git-action)))
+  (setq counsel--git-dir (locate-dominating-file
+                          default-directory ".git"))
+  (if (null counsel--git-dir)
+      (error "Not in a git repository")
+    (setq counsel--git-dir (expand-file-name
+                            counsel--git-dir))
+    (let* ((default-directory counsel--git-dir)
+           (cands (split-string
+                   (shell-command-to-string
+                    "git ls-files --full-name --")
+                   "\n"
+                   t)))
+      (ivy-read (funcall counsel-prompt-function "Find file")
+                cands
+                :action #'counsel-git-action))))
 
 (defun counsel-git-action (x)
   (with-ivy-window
