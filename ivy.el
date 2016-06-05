@@ -1653,14 +1653,18 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
 (defun ivy-completion-common-length (str)
   "Return the length of the first 'completions-common-part face in STR."
   (let ((pos 0)
-        (len (length str)))
+        (len (length str))
+        face-sym)
     (while (and (<= pos len)
-                (let ((prop (get-text-property pos 'face str)))
+                (let ((prop (or (prog1 (get-text-property pos 'face str)
+                                  (setq face-sym 'face))
+                                (prog1 (get-text-property pos 'font-lock-face str)
+                                  (setq face-sym 'font-lock-face)))))
                   (not (eq 'completions-common-part
                            (if (listp prop) (car prop) prop)))))
       (setq pos (1+ pos)))
     (if (< pos len)
-        (or (next-single-property-change pos 'face str) len)
+        (or (next-single-property-change pos face-sym str) len)
       0)))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
