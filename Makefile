@@ -2,8 +2,6 @@ emacs ?= emacs
 
 LOAD = -l colir.el -l ivy.el -l swiper.el -l counsel.el
 
-.PHONY: all compile clean
-
 all: test
 
 test:
@@ -17,3 +15,5 @@ plain:
 
 clean:
 	rm -f *.elc
+
+.PHONY: all compile clean test
