@@ -205,4 +205,11 @@
                   (ivy--regex "(foo bar"))
                  "(\\(foo).*?(bar)")))
 
+(ert-deftest colir-color-parse ()
+  (should (equal (colir-color-parse "#ab1234")
+                 ;; (color-name-to-rgb "#ab1234")
+                 '(0.6705882352941176
+                   0.07058823529411765
+                   0.20392156862745098))))
+
 (provide 'ivy-test)
