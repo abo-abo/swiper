@@ -525,6 +525,7 @@ input corresponding to the chosen variable."
   (let ((sym (intern
               (ivy-read "Variable: "
                         (counsel-variable-list)
+                        :preselect (ivy-thing-at-point)
                         :history 'counsel-set-variable-history)))
         sym-type
         cands)
