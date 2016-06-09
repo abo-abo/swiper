@@ -540,7 +540,7 @@ input corresponding to the chosen variable."
                (t nil)))
         (let ((res (ivy-read (format "Set (%S): " sym)
                              cands
-                             :preselect (symbol-name (symbol-value sym)))))
+                             :preselect (prin1-to-string (symbol-value sym)))))
           (when res
             (setq res
                   (if (assoc res cands)
