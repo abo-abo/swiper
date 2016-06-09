@@ -538,9 +538,10 @@ input corresponding to the chosen variable."
                ((eq sym-type 'boolean)
                 (setq cands '(("nil" . nil) ("t" . t))))
                (t nil)))
-        (let ((res (ivy-read (format "Set (%S): " sym)
+        (let* ((sym-val (symbol-value sym))
+               (res (ivy-read (format "Set (%S <%s>): " sym sym-val)
                              cands
-                             :preselect (prin1-to-string (symbol-value sym)))))
+                             :preselect (prin1-to-string sym-val))))
           (when res
             (setq res
                   (if (assoc res cands)
