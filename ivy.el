@@ -1920,6 +1920,17 @@ depending on the number of candidates."
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
+(defvar ivy--prompt-text-prop-override-function
+  (lambda (prompt std-props)
+    (ivy--set-match-props prompt "confirm"
+                          `(face ivy-confirm-face ,@std-props))
+    (ivy--set-match-props prompt "match required"
+                          `(face ivy-match-required-face ,@std-props))
+    prompt)
+  "Function to override the text properties of the default ivy prompt.
+Called with two arguments, PROMPT and STD-PROPS.
+The returned value should be the updated PROMPT.")
+
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when ivy--prompt
@@ -1973,20 +1984,21 @@ depending on the number of candidates."
           (set-text-properties 0 (length n-str)
                                `(face minibuffer-prompt ,@std-props)
                                n-str)
-          (ivy--set-match-props n-str "confirm"
-                                `(face ivy-confirm-face ,@std-props))
-          (ivy--set-match-props n-str "match required"
-                                `(face ivy-match-required-face ,@std-props))
+          (setq n-str (funcall ivy--prompt-text-prop-override-function
+                               n-str std-props))
           (insert n-str))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
 
-(defun ivy--set-match-props (str match props)
-  "Set STR text properties that match MATCH to PROPS."
+(defun ivy--set-match-props (str match props &optional subexp)
+  "Set STR text properties for regexp group SUBEXP that match MATCH to PROPS.
+If SUBEXP is nil, the text properties are applied to the whole match."
+  (when (null subexp)
+    (setq subexp 0))
   (when (string-match match str)
     (set-text-properties
-     (match-beginning 0)
-     (match-end 0)
+     (match-beginning subexp)
+     (match-end subexp)
      props
      str)))
 
