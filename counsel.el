@@ -485,6 +485,8 @@ Update the minibuffer with the amount of lines collected every
          (sym-value (symbol-value sym))
          (expr (minibuffer-with-setup-hook
                    (lambda ()
+                     (add-function :before-until (local 'eldoc-documentation-function)
+                                   #'elisp-eldoc-documentation-function)
                      (add-hook 'completion-at-point-functions #'elisp-completion-at-point nil t)
                      (run-hooks 'eval-expression-minibuffer-setup-hook)
                      (goto-char (minibuffer-prompt-end))
