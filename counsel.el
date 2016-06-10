@@ -541,9 +541,11 @@ input corresponding to the chosen variable."
                 (setq cands '(("nil" . nil) ("t" . t))))
                (t nil)))
         (let* ((sym-val (symbol-value sym))
-               (res (ivy-read (format "Set (%S <%s>): " sym sym-val)
-                             cands
-                             :preselect (prin1-to-string sym-val))))
+               ;; Escape '%' chars if present
+               (sym-val-str (replace-regexp-in-string "%" "%%" (format "%s" sym-val)))
+               (res (ivy-read (format "Set (%S <%s>): " sym sym-val-str)
+                              cands
+                              :preselect (prin1-to-string sym-val))))
           (when res
             (setq res
                   (if (assoc res cands)
