@@ -2065,6 +2065,27 @@ And insert it into the minibuffer. Useful during
   (require 'comint)
   (counsel--browse-history comint-input-ring))
 
+;;** `counsel-hydra-heads'
+(defun counsel-hydra-heads ()
+  "Call a head of the current/last hydra."
+  (interactive)
+  (let* ((base (substring
+                (prin1-to-string hydra-curr-body-fn)
+                0 -4))
+         (heads (eval (intern (concat base "heads"))))
+         (keymap (eval (intern (concat base "keymap"))))
+         (head-names
+          (mapcar (lambda (x)
+                    (cons
+                     (if (nth 2 x)
+                         (format "[%s] %S (%s)" (nth 0 x) (nth 1 x) (nth 2 x))
+                       (format "[%s] %S" (nth 0 x) (nth 1 x)))
+                     (lookup-key keymap (kbd (nth 0 x)))))
+                  heads)))
+    (ivy-read "head: " head-names
+              :action #'call-interactively)
+    (hydra-keyboard-quit)))
+
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
 (defvar helm-rhythmbox-library)
