@@ -1920,16 +1920,18 @@ depending on the number of candidates."
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
-(defvar ivy--prompt-text-prop-override-function
-  (lambda (prompt std-props)
-    (ivy--set-match-props prompt "confirm"
-                          `(face ivy-confirm-face ,@std-props))
-    (ivy--set-match-props prompt "match required"
-                          `(face ivy-match-required-face ,@std-props))
-    prompt)
-  "Function to override the text properties of the default ivy prompt.
+(defvar ivy-set-prompt-text-properties-function
+  'ivy-set-prompt-text-properties-default
+  "Function to set the text properties of the default ivy prompt.
 Called with two arguments, PROMPT and STD-PROPS.
 The returned value should be the updated PROMPT.")
+
+(defun ivy-set-prompt-text-properties-default (prompt std-props)
+  (ivy--set-match-props prompt "confirm"
+                        `(face ivy-confirm-face ,@std-props))
+  (ivy--set-match-props prompt "match required"
+                        `(face ivy-match-required-face ,@std-props))
+  prompt)
 
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
@@ -1984,7 +1986,7 @@ The returned value should be the updated PROMPT.")
           (set-text-properties 0 (length n-str)
                                `(face minibuffer-prompt ,@std-props)
                                n-str)
-          (setq n-str (funcall ivy--prompt-text-prop-override-function
+          (setq n-str (funcall ivy-set-prompt-text-properties-function
                                n-str std-props))
           (insert n-str))
         ;; get out of the prompt area
