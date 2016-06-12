@@ -227,6 +227,11 @@ Example:
   (setq ivy--sources-list
         (plist-put ivy--sources-list cmd sources)))
 
+(defvar ivy-current-prefix-arg nil
+  "Prefix arg to pass to actions.
+This is a global variable that is set by ivy functions for use in
+action functions.")
+
 ;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
@@ -466,6 +471,7 @@ When non-nil, it should contain at least one %d.")
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
+  (setq ivy-current-prefix-arg current-prefix-arg)
   (delete-minibuffer-contents)
   (cond ((or (> ivy--length 0)
              ;; the action from `ivy-dispatching-done' may not need a
@@ -544,10 +550,11 @@ selection, non-nil otherwise."
 (defun ivy-dispatching-call ()
   "Select one of the available actions and call `ivy-call'."
   (interactive)
+  (setq ivy-current-prefix-arg current-prefix-arg)
   (let ((actions (copy-sequence (ivy-state-action ivy-last))))
     (unwind-protect
-         (when (ivy-read-action)
-           (ivy-call))
+        (when (ivy-read-action)
+          (ivy-call))
       (ivy-set-action actions))))
 
 (defun ivy-build-tramp-name (x)
@@ -566,6 +573,7 @@ Is is a cons cell, related to `tramp-get-completion-function'."
   "Exit the minibuffer with the selected candidate.
 When ARG is t, exit with current text, ignoring the candidates."
   (interactive "P")
+  (setq ivy-current-prefix-arg current-prefix-arg)
   (cond (arg
          (ivy-immediate-done))
         (ivy--directory
@@ -909,6 +917,15 @@ Example use:
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
+  (unless
+      (or
+       ;; this is needed for testing in ivy-with which seems to call ivy-call
+       ;; again, and this-command is nil in that case.
+       (null this-command)
+       (memq this-command '(ivy-done
+                            ivy-alt-done
+                            ivy-dispatching-done)))
+    (setq ivy-current-prefix-arg current-prefix-arg))
   (unless ivy-inhibit-action
     (let ((action (ivy--get-action ivy-last)))
       (when action

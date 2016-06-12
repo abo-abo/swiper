@@ -212,4 +212,194 @@
                    0.07058823529411765
                    0.20392156862745098))))
 
+
+;;* prefix arg tests
+;;** tests with no prefix
+(ert-deftest ivy-no-prefix-arg ()
+  "Tests with no prefix arg."
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-m")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-j")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-M-j")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-M-m")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-M-n")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-M-p")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "M-o o")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "TAB TAB")
+           nil)))
+
+;;** tests with one prefix
+(ert-deftest ivy-one-prefix-arg ()
+  "Tests with no prefix arg."
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-m")
+           '(4)))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-j")
+           '(4)))
+  ;; C-M-j does not pass a prefix on.
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-M-j")
+           nil))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-M-m")
+           '(4)))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-M-n")
+           '(4)))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u C-M-p")
+           '(4)))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "C-u M-o o")
+           '(4)))
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action
+               '(1 ("o" (lambda (x)
+                          (setq res ivy-current-prefix-arg)))
+                 ("p" (lambda (x)
+                        (setq res ivy-current-prefix-arg)))))
+              res)
+            "C-u M-o p")
+           '(4)))
+  ;; TAB TAB does not pass prefix arg
+  (should (equal
+           (ivy-with
+            '(let (res)
+              (ivy-read "pattern: " '("blue" "yellow")
+               :action (lambda (x)
+                         (setq res ivy-current-prefix-arg)))
+              res)
+            "TAB TAB")
+           nil)))
+
+
+(ert-deftest ivy-numeric-prefix-arg ()
+  (should (equal
+           (ivy-with
+            '(let (res)
+               (ivy-read "pattern: " '("blue" "yellow")
+                         :action (lambda (x)
+                                   (setq res ivy-current-prefix-arg)))
+               res)
+            "M-1 M-2 M-3 C-m")
+           123))
+  (should (equal
+           (ivy-with
+            '(let (res)
+               (ivy-read "pattern: " '("blue" "yellow")
+                         :action (lambda (x)
+                                   (setq res ivy-current-prefix-arg)))
+               res)
+            "C-u 123 C-m")
+           123)))
+
+
 (provide 'ivy-test)
