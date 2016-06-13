@@ -1499,10 +1499,18 @@ This is useful for recursive `ivy-read'."
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
+            ((and (consp collection) (listp (car collection)))
+             (if (and sort (setq sort-fn (cdr (assoc caller ivy-sort-functions-alist))))
+                 (progn
+                   (setq sort nil)
+                   (setq coll (mapcar #'car
+                                      (cl-sort
+                                       (copy-sequence collection)
+                                       sort-fn))))
+               (setq coll (all-completions "" collection predicate))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
-                 (and (consp collection) (listp (car collection)))
                  (hash-table-p collection)
                  (and (listp collection) (symbolp (car collection))))
              (setq coll (all-completions "" collection predicate)))
