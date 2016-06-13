@@ -1947,7 +1947,12 @@ PREFIX is used to create the key."
                          (cons e (if (integerp v) (copy-marker v) v)))
                     ;; pass the prefix to next recursive call
                     (concat prefix (if prefix ".") (car elm)))
-                 (let ((key (concat prefix (if prefix ".") (car elm))))
+                 (let ((key (concat
+                             (when prefix
+                               (concat
+                                (propertize prefix 'face 'compilation-info)
+                                ": "))
+                             (car elm))))
                    (list (cons key
                                ;; create a imenu candidate here
                                (cons key (if (overlayp (cdr elm))
