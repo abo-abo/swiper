@@ -552,6 +552,8 @@ input corresponding to the chosen variable."
                       (cdr (assoc res cands))
                     (read res)))
             (eval `(setq ,sym ,res))))
+      (unless (boundp sym)
+        (set sym nil))
       (counsel-read-setq-expression sym))))
 
 ;;** `counsel-info-lookup-symbol'
