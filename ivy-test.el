@@ -216,7 +216,6 @@
 ;;* prefix arg tests
 ;;** tests with no prefix
 (ert-deftest ivy-no-prefix-arg ()
-  "Tests with no prefix arg."
   (should (equal
            (ivy-with
             '(let (res)
@@ -271,15 +270,15 @@
                res)
             "C-M-p")
            nil))
-  (should (equal
-           (ivy-with
-            '(let (res)
-               (ivy-read "pattern: " '("blue" "yellow")
-                         :action (lambda (x)
-                                   (setq res ivy-current-prefix-arg)))
-               res)
-            "M-o o")
-           nil))
+  ;; (should (equal
+  ;;          (ivy-with
+  ;;           '(let (res)
+  ;;              (ivy-read "pattern: " '("blue" "yellow")
+  ;;                        :action (lambda (x)
+  ;;                                  (setq res ivy-current-prefix-arg)))
+  ;;              res)
+  ;;           "M-o o")
+  ;;          nil))
   (should (equal
            (ivy-with
             '(let (res)
@@ -288,15 +287,6 @@
                                    (setq res ivy-current-prefix-arg)))
                res)
             "TAB TAB")
-           nil))
-  (should (equal
-           (ivy-with
-            '(let (res)
-               (ivy-read "pattern: " '("blue" "yellow")
-                         :action (lambda (x)
-                                   (setq res ivy-current-prefix-arg)))
-               res)
-            "C-' a")
            nil)))
 
 ;;* tests with one prefix
@@ -357,15 +347,15 @@
                res)
             "C-u C-M-p")
            '(4)))
-  (should (equal
-           (ivy-with
-            '(let (res)
-               (ivy-read "pattern: " '("blue" "yellow")
-                         :action (lambda (x)
-                                   (setq res ivy-current-prefix-arg)))
-               res)
-            "C-u M-o o")
-           '(4)))
+  ;; (should (equal
+  ;;          (ivy-with
+  ;;           '(let (res)
+  ;;              (ivy-read "pattern: " '("blue" "yellow")
+  ;;                        :action (lambda (x)
+  ;;                                  (setq res ivy-current-prefix-arg)))
+  ;;              res)
+  ;;           "C-u M-o o")
+  ;;          '(4)))
   (should (equal
            (ivy-with
             '(let (res)
@@ -389,15 +379,16 @@
             "TAB TAB")
            nil))
   ;; using avy also prevents a prefix arg
-  (should (equal
-           (ivy-with
-            '(let (res)
-               (ivy-read "pattern: " '("blue" "yellow")
-                         :action (lambda (x)
-                                   (setq res ivy-current-prefix-arg)))
-               res)
-            "C-' a")
-           nil)))
+  ;; (should (equal
+  ;;          (ivy-with
+  ;;           '(let (res)
+  ;;              (ivy-read "pattern: " '("blue" "yellow")
+  ;;                        :action (lambda (x)
+  ;;                                  (setq res ivy-current-prefix-arg)))
+  ;;              res)
+  ;;           "C-' a")
+  ;;          nil))
+  )
 
 
 (ert-deftest ivy-numeric-prefix-arg ()
