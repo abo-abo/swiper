@@ -2228,12 +2228,14 @@ And insert it into the minibuffer. Useful during
 (defvar company-point)
 (defvar company-common)
 (declare-function company-complete "ext:company")
+(declare-function company-mode "ext:company")
 (declare-function company-complete-common "ext:company")
 
 ;;;###autoload
 (defun counsel-company ()
   "Complete using `company-candidates'."
   (interactive)
+  (company-mode 1)
   (unless company-candidates
     (company-complete))
   (when company-point
