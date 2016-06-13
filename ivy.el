@@ -858,7 +858,7 @@ If the input is empty, select the previous history element instead."
 
 (defun ivy--actionp (x)
   "Return non-nil when X is a list of actions."
-  (and x (listp x) (not (eq (car x) 'closure))))
+  (and x (listp x) (not (memq (car x) '(closure lambda)))))
 
 (defcustom ivy-action-wrap nil
   "When non-nil, `ivy-next-action' and `ivy-prev-action' wrap."
