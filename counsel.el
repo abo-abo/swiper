@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.8.0
-;; Package-Requires: ((emacs "24.1") (swiper "0.8.0"))
+;; Package-Requires: ((emacs "24.1") (swiper "0.8.0") (s "1.11.0"))
 ;; Keywords: completion, matching
 
 ;; This file is part of GNU Emacs.
@@ -2225,11 +2225,24 @@ And insert it into the minibuffer. Useful during
             :caller 'counsel-linux-app))
 
 (defvar company-candidates)
+(defvar-local company-counsel-candidates nil)
 (defvar company-point)
 (defvar company-common)
+(defvar company-prefix)
+(defvar-local company-counsel-prefix nil)
 (declare-function company-complete "ext:company")
 (declare-function company-mode "ext:company")
 (declare-function company-complete-common "ext:company")
+
+(defun counsel-company-insert-action (candidate)
+  "Insert CANDIDATE for all cursors."
+  (ivy-completion-in-region-action candidate)
+  (let ((insertion (s-chop-prefix company-counsel-prefix candidate)))
+   (ignore-errors
+     (mc/execute-command-for-all-fake-cursors
+      (lambda ()
+        (interactive)
+        (insert insertion))))))
 
 ;;;###autoload
 (defun counsel-company ()
@@ -2239,12 +2252,15 @@ And insert it into the minibuffer. Useful during
   (unless company-candidates
     (company-complete))
   (when company-point
-    (company-complete-common)
+    (company--fetch-candidates company-prefix)
+    (setq company-counsel-prefix company-prefix)
     (when (looking-back company-common (line-beginning-position))
       (setq ivy-completion-beg (match-beginning 0))
       (setq ivy-completion-end (match-end 0)))
-    (ivy-read "company cand: " company-candidates
-              :action #'ivy-completion-in-region-action)))
+    (setq company-counsel-candidates company-candidates)
+    (company-cancel)
+    (ivy-read "company cand: " company-counsel-candidates
+              :action #'counsel-company-insert-action)))
 
 ;;** `counsel-mode'
 (defvar counsel-mode-map
