@@ -2099,23 +2099,29 @@ And insert it into the minibuffer. Useful during
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
-(defvar helm-rhythmbox-library)
-(declare-function helm-rhythmbox-load-library "ext:helm-rhythmbox")
 (declare-function dbus-call-method "dbus")
 (declare-function dbus-get-property "dbus")
-(declare-function helm-rhythmbox-song-uri "ext:helm-rhythmbox")
-(declare-function helm-rhythmbox-candidates "ext:helm-rhythmbox")
 
-(defun counsel-rhythmbox-enqueue-song (song)
+(defun counsel-rhythmbox-play-song (uri)
+  "Let Rhythmbox enqueue SONG."
+  (let ((service "org.gnome.Rhythmbox3")
+        (path "/org/mpris/MediaPlayer2")
+        (interface "org.mpris.MediaPlayer2.Player"))
+    (dbus-call-method :session service path interface
+                      "OpenUri" uri)))
+
+(defun counsel-rhythmbox-enqueue-song (uri)
   "Let Rhythmbox enqueue SONG."
   (let ((service "org.gnome.Rhythmbox3")
         (path "/org/gnome/Rhythmbox3/PlayQueue")
         (interface "org.gnome.Rhythmbox3.PlayQueue"))
     (dbus-call-method :session service path interface
-                      "AddToQueue" (helm-rhythmbox-song-uri song))))
+                      "AddToQueue" uri)))
 
 (defvar counsel-rhythmbox-history nil
   "History for `counsel-rhythmbox'.")
+
+(defvar counsel-rhythmbox-songs nil)
 
 (defun counsel-rhythmbox-current-song ()
   "Return the currently playing song title."
@@ -2135,21 +2141,35 @@ And insert it into the minibuffer. Useful during
 (defun counsel-rhythmbox ()
   "Choose a song from the Rhythmbox library to play or enqueue."
   (interactive)
-  (unless (require 'helm-rhythmbox nil t)
-    (error "Please install `helm-rhythmbox'"))
-  (unless helm-rhythmbox-library
-    (helm-rhythmbox-load-library)
-    (while (null helm-rhythmbox-library)
-      (sit-for 0.1)))
-  (ivy-read "Rhythmbox: "
-            (helm-rhythmbox-candidates)
+  (unless counsel-rhythmbox-songs
+    (let* ((service "org.gnome.Rhythmbox3")
+           (path "/org/gnome/UPnP/MediaServer2/Library/all")
+           (interface "org.gnome.UPnP.MediaContainer2")
+           (nb-songs (dbus-get-property
+                      :session service path interface "ChildCount")))
+      (if (not nb-songs)
+          (error "Couldn't connect to Rhythmbox")
+        (setq counsel-rhythmbox-songs
+              (mapcar (lambda (x)
+                        (cons
+                         (format
+                          "%s - %s - %s"
+                          (cl-caadr (assoc "Artist" x))
+                          (cl-caadr (assoc "Album" x))
+                          (cl-caadr (assoc "DisplayName" x)))
+                         (cl-caaadr (assoc "URLs" x))))
+                      (dbus-call-method
+                       :session service path interface "ListChildren"
+                       0 nb-songs '("*")))))))
+  (ivy-read "Rhythmbox: " counsel-rhythmbox-songs
             :history 'counsel-rhythmbox-history
             :preselect (counsel-rhythmbox-current-song)
             :action
             '(1
-              ("p" helm-rhythmbox-play-song "Play song")
+              ("p" counsel-rhythmbox-play-song "Play song")
               ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
             :caller 'counsel-rhythmbox))
+
 ;;** `counsel-linux-app'
 (defvar counsel-linux-apps-alist nil
   "List of data located in /usr/share/applications.")
