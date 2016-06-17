@@ -2408,7 +2408,7 @@ Prefix matches to NAME are put ahead of the list."
               (res 0)
               (i 0))
           (dolist (c cands)
-            (when (eq n (read (get-text-property 0 'display c)))
+            (when (eq n (read (get-text-property 0 'swiper-line-number c)))
               (setq res i))
             (cl-incf i))
           res)))))
