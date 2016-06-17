@@ -2077,6 +2077,9 @@ And insert it into the minibuffer. Useful during
   (counsel--browse-history comint-input-ring))
 
 ;;** `counsel-hydra-heads'
+(defvar hydra-curr-body-fn)
+(declare-function hydra-keyboard-quit "ext:hydra")
+
 (defun counsel-hydra-heads ()
   "Call a head of the current/last hydra."
   (interactive)
