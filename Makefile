@@ -13,6 +13,9 @@ compile:
 plain:
 	$(emacs) -Q $(LOAD) --eval "(progn (package-initialize) (ivy-mode))" -l ivy-hydra.el
 
+obsolete:
+	$(emacs) -batch -l targets/obsolete-config.el
+
 clean:
 	rm -f *.elc
 

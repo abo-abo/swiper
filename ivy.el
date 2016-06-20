@@ -186,6 +186,14 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
                      actions
                      (plist-get ivy--actions-list cmd))))))
 
+(defvar ivy--prompts-list nil)
+
+(defun ivy-set-prompt (caller prompt-fn)
+  "Associate CALLER with PROMPT-FN.
+PROMPT-FN is a function of no arguments that returns a prompt string."
+  (setq ivy--prompts-list
+        (plist-put ivy--prompts-list caller prompt-fn)))
+
 (defvar ivy--display-transformers-list nil
   "A list of str->str transformers per command.")
 
@@ -1975,9 +1983,16 @@ The returned value should be the updated PROMPT.")
                         `(face ivy-match-required-face ,@std-props))
   prompt)
 
+(defun ivy-prompt ()
+  "Return the current prompt."
+  (let ((fn (plist-get ivy--prompts-list (ivy-state-caller ivy-last))))
+    (if fn
+        (funcall fn)
+      ivy--prompt)))
+
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
-  (when ivy--prompt
+  (when (setq ivy--prompt (ivy-prompt))
     (unless (memq this-command '(ivy-done ivy-alt-done ivy-partial-or-done
                                  counsel-find-symbol))
       (setq ivy--prompt-extra ""))

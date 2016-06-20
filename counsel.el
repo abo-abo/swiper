@@ -203,9 +203,14 @@ Update the minibuffer with the amount of lines collected every
     (function :tag "Custom"))
   :group 'ivy)
 
-(defun counsel-prompt-function-default (prompt)
-  "Return PROMPT appended with a semicolon."
-  (format "%s: " prompt))
+(make-obsolete-variable
+ 'counsel-prompt-function
+ "Use `ivy-set-prompt' instead"
+ "0.8.0 <2016-06-20 Mon>")
+
+(defun counsel-prompt-function-default ()
+  "Return prompt appended with a semicolon."
+  (format "%s: " (ivy-state-prompt ivy-last)))
 
 (defun counsel-delete-process ()
   (let ((process (get-process " *counsel*")))
@@ -832,6 +837,7 @@ Describe the selected candidate."
   (interactive)
   (setq counsel--git-dir (locate-dominating-file
                           default-directory ".git"))
+  (ivy-set-prompt 'counsel-git counsel-prompt-function)
   (if (null counsel--git-dir)
       (error "Not in a git repository")
     (setq counsel--git-dir (expand-file-name
@@ -842,8 +848,7 @@ Describe the selected candidate."
                     "git ls-files --full-name --")
                    "\n"
                    t)))
-      (ivy-read (funcall counsel-prompt-function "Find file")
-                cands
+      (ivy-read "Find file" cands
                 :action #'counsel-git-action))))
 
 (defun counsel-git-action (x)
@@ -881,11 +886,11 @@ Describe the selected candidate."
   '("git --no-pager grep --full-name -n --no-color -i -e %S")
   "History for `counsel-git-grep' shell commands.")
 
-(defun counsel-prompt-function-dir (prompt)
-  "Return PROMPT appended with the parent directory."
+(defun counsel-prompt-function-dir ()
+  "Return prompt appended with the parent directory."
   (let ((directory counsel--git-grep-dir))
     (format "%s [%s]: "
-            prompt
+            (ivy-state-prompt ivy-last)
             (let ((dir-list (eshell-split-path directory)))
               (if (> (length dir-list) 3)
                   (apply #'concat
@@ -963,6 +968,7 @@ When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive "P")
+  (ivy-set-prompt 'counsel-git-grep counsel-prompt-function)
   (cond
     ((stringp cmd)
      (setq counsel-git-grep-cmd cmd))
@@ -979,17 +985,15 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (if (null counsel--git-grep-dir)
       (error "Not in a git repository")
     (setq counsel--git-grep-count (counsel--gg-count "" t))
-    (ivy-read
-     (funcall counsel-prompt-function "git grep")
-     'counsel-git-grep-function
-     :initial-input initial-input
-     :matcher #'counsel-git-grep-matcher
-     :dynamic-collection (> counsel--git-grep-count 20000)
-     :keymap counsel-git-grep-map
-     :action #'counsel-git-grep-action
-     :unwind #'swiper--cleanup
-     :history 'counsel-git-grep-history
-     :caller 'counsel-git-grep)))
+    (ivy-read "git grep" 'counsel-git-grep-function
+              :initial-input initial-input
+              :matcher #'counsel-git-grep-matcher
+              :dynamic-collection (> counsel--git-grep-count 20000)
+              :keymap counsel-git-grep-map
+              :action #'counsel-git-grep-action
+              :unwind #'swiper--cleanup
+              :history 'counsel-git-grep-history
+              :caller 'counsel-git-grep)))
 
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
@@ -1441,9 +1445,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (read-directory-name (concat
                                  (car (split-string counsel-ag-base-command))
                                  " in directory: ")))))
+  (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (setq counsel--git-grep-dir (or initial-directory default-directory))
-  (ivy-read (funcall counsel-prompt-function
-                     (car (split-string counsel-ag-base-command)))
+  (ivy-read (car (split-string counsel-ag-base-command))
             'counsel-ag-function
             :initial-input initial-input
             :dynamic-collection t
