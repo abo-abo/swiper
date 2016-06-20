@@ -1312,13 +1312,6 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
                   (substring url 1)))))))
 
 ;;** `counsel-locate'
-(defcustom counsel-locate-options nil
-  "Command line options for `locate`."
-  :group 'ivy
-  :type '(repeat string))
-
-(make-obsolete-variable 'counsel-locate-options 'counsel-locate-cmd "0.7.0")
-
 (defcustom counsel-locate-cmd (cond ((eq system-type 'darwin)
                                      'counsel-locate-cmd-noregex)
                                     ((and (eq system-type 'windows-nt)
