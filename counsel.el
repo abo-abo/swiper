@@ -849,7 +849,8 @@ Describe the selected candidate."
                    "\n"
                    t)))
       (ivy-read "Find file" cands
-                :action #'counsel-git-action))))
+                :action #'counsel-git-action
+                :caller 'counsel-git))))
 
 (defun counsel-git-action (x)
   (with-ivy-window
