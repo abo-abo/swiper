@@ -1989,7 +1989,12 @@ The returned value should be the updated PROMPT.")
   "Return the current prompt."
   (let ((fn (plist-get ivy--prompts-list (ivy-state-caller ivy-last))))
     (if fn
-        (funcall fn)
+        (condition-case nil
+            (funcall fn)
+          (error
+           (warn "`counsel-prompt-function' should take 0 args")
+           ;; old behavior
+           (funcall fn (ivy-state-prompt ivy-last))))
       ivy--prompt)))
 
 (defun ivy--insert-prompt ()
