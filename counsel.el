@@ -210,7 +210,8 @@ Update the minibuffer with the amount of lines collected every
 
 (defun counsel-prompt-function-default ()
   "Return prompt appended with a semicolon."
-  (format "%s: " (ivy-state-prompt ivy-last)))
+  (ivy-add-prompt-count
+   (format "%s: " (ivy-state-prompt ivy-last))))
 
 (defun counsel-delete-process ()
   (let ((process (get-process " *counsel*")))
@@ -889,15 +890,16 @@ Describe the selected candidate."
 
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
-  (let ((directory counsel--git-grep-dir))
-    (format "%s [%s]: "
-            (ivy-state-prompt ivy-last)
-            (let ((dir-list (eshell-split-path directory)))
-              (if (> (length dir-list) 3)
-                  (apply #'concat
-                         (append '("...")
-                                 (cl-subseq dir-list (- (length dir-list) 3))))
-                directory)))))
+  (ivy-add-prompt-count
+   (let ((directory counsel--git-grep-dir))
+     (format "%s [%s]: "
+             (ivy-state-prompt ivy-last)
+             (let ((dir-list (eshell-split-path directory)))
+               (if (> (length dir-list) 3)
+                   (apply #'concat
+                          (append '("...")
+                                  (cl-subseq dir-list (- (length dir-list) 3))))
+                 directory))))))
 
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."

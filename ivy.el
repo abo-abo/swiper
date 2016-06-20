@@ -1588,30 +1588,32 @@ This is useful for recursive `ivy-read'."
                (region-beginning)
                (region-end))
             (ivy-thing-at-point)))
-    (setq ivy--prompt
-          (cond ((string-match "%.*d" prompt)
-                 prompt)
-                ((null ivy-count-format)
-                 (error
-                  "`ivy-count-format' can't be nil.  Set it to an empty string instead"))
-                ((string-match "%d.*%d" ivy-count-format)
-                 (let ((w (length (number-to-string
-                                   (length ivy--all-candidates))))
-                       (s (copy-sequence ivy-count-format)))
-                   (string-match "%d" s)
-                   (match-end 0)
-                   (string-match "%d" s (match-end 0))
-                   (setq s (replace-match (format "%%-%dd" w) nil nil s))
-                   (string-match "%d" s)
-                   (concat (replace-match (format "%%%dd" w) nil nil s)
-                           prompt)))
-                ((string-match "%.*d" ivy-count-format)
-                 (concat ivy-count-format prompt))
-                (ivy--directory
-                 prompt)
-                (t
-                 prompt)))
+    (setq ivy--prompt (ivy-add-prompt-count prompt))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
+
+(defun ivy-add-prompt-count (prompt)
+  (cond ((string-match "%.*d" prompt)
+         prompt)
+        ((null ivy-count-format)
+         (error
+          "`ivy-count-format' can't be nil.  Set it to an empty string instead"))
+        ((string-match "%d.*%d" ivy-count-format)
+         (let ((w (length (number-to-string
+                           (length ivy--all-candidates))))
+               (s (copy-sequence ivy-count-format)))
+           (string-match "%d" s)
+           (match-end 0)
+           (string-match "%d" s (match-end 0))
+           (setq s (replace-match (format "%%-%dd" w) nil nil s))
+           (string-match "%d" s)
+           (concat (replace-match (format "%%%dd" w) nil nil s)
+                   prompt)))
+        ((string-match "%.*d" ivy-count-format)
+         (concat ivy-count-format prompt))
+        (ivy--directory
+         prompt)
+        (t
+         prompt)))
 
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
