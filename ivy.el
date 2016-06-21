@@ -1725,36 +1725,36 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
          (str (buffer-substring-no-properties start end))
          (completion-ignore-case case-fold-search)
          (comps
-          (completion-all-completions str collection predicate (- end start)))
-         (len (min (ivy-completion-common-length (car comps))
-                   (length str))))
+          (completion-all-completions str collection predicate (- end start))))
     (if (null comps)
         (message "No matches")
-      (nconc comps nil)
-      (setq ivy-completion-beg (- end len))
-      (setq ivy-completion-end end)
-      (if (null (cdr comps))
-          (if (string= str (car comps))
-              (message "Sole match")
-            (setf (ivy-state-window ivy-last) (selected-window))
-            (ivy-completion-in-region-action
-             (substring-no-properties
-              (car comps))))
-        (let* ((w (1+ (floor (log (length comps) 10))))
-               (ivy-count-format (if (string= ivy-count-format "")
-                                     ivy-count-format
-                                   (format "%%-%dd " w)))
-               (prompt (format "(%s): " str)))
-          (and
-           (ivy-read (if (string= ivy-count-format "")
-                         prompt
-                       (replace-regexp-in-string "%" "%%" prompt))
-                     ;; remove 'completions-first-difference face
-                     (mapcar #'substring-no-properties comps)
-                     :predicate predicate
-                     :action #'ivy-completion-in-region-action
-                     :require-match t)
-           t))))))
+      (let ((len (min (ivy-completion-common-length (car comps))
+                      (length str))))
+        (nconc comps nil)
+        (setq ivy-completion-beg (- end len))
+        (setq ivy-completion-end end)
+        (if (null (cdr comps))
+            (if (string= str (car comps))
+                (message "Sole match")
+              (setf (ivy-state-window ivy-last) (selected-window))
+              (ivy-completion-in-region-action
+               (substring-no-properties
+                (car comps))))
+          (let* ((w (1+ (floor (log (length comps) 10))))
+                 (ivy-count-format (if (string= ivy-count-format "")
+                                       ivy-count-format
+                                     (format "%%-%dd " w)))
+                 (prompt (format "(%s): " str)))
+            (and
+             (ivy-read (if (string= ivy-count-format "")
+                           prompt
+                         (replace-regexp-in-string "%" "%%" prompt))
+                       ;; remove 'completions-first-difference face
+                       (mapcar #'substring-no-properties comps)
+                       :predicate predicate
+                       :action #'ivy-completion-in-region-action
+                       :require-match t)
+             t)))))))
 
 (defcustom ivy-do-completion-in-region t
   "When non-nil `ivy-mode' will set `completion-in-region-function'."
