@@ -2144,6 +2144,7 @@ And insert it into the minibuffer. Useful during
 (defun counsel-rhythmbox ()
   "Choose a song from the Rhythmbox library to play or enqueue."
   (interactive)
+  (require 'dbus)
   (unless counsel-rhythmbox-songs
     (let* ((service "org.gnome.Rhythmbox3")
            (path "/org/gnome/UPnP/MediaServer2/Library/all")
