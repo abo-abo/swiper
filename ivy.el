@@ -2807,9 +2807,12 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
                                          (ft (nth 2 tr))
                                          (ft (nth 3 tr))))
                                (with-current-buffer (window-buffer tr)
-                                 (if (buffer-file-name)
-                                     (list 'file (buffer-file-name) (point))
-                                   (list 'buffer (buffer-name) (point)))))))
+                                 (cond ((buffer-file-name)
+                                        (list 'file (buffer-file-name) (point)))
+                                       ((eq major-mode 'dired-mode)
+                                        (list 'file default-directory (point)))
+                                       (t
+                                        (list 'buffer (buffer-name) (point))))))))
                  (ft (car (window-tree)))))
          (view-name (ivy-read "Name view: " nil
                               :initial-input (ivy-default-view-name))))
