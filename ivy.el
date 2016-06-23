@@ -2759,6 +2759,78 @@ TREE is a nested list with the following valid cars:
 
 TREE can be nested multiple times to have mulitple window splits.")
 
+(defun ivy-default-view-name ()
+  (let* ((default-view-name
+          (concat "{} "
+                  (mapconcat #'identity
+                             (cl-sort
+                              (mapcar (lambda (w)
+                                        (with-current-buffer (window-buffer w)
+                                          (if (buffer-file-name)
+                                              (file-name-nondirectory
+                                               (buffer-file-name))
+                                            (buffer-name))))
+                                      (window-list))
+                              #'string<)
+                             " ")))
+         (view-name-re (concat "\\`"
+                               (regexp-quote default-view-name)
+                               " \\([0-9]+\\)"))
+         old-view)
+    (cond ((setq old-view
+                 (cl-find-if
+                  (lambda (x)
+                    (string-match view-name-re (car x)))
+                  ivy-views))
+           (format "%s %d"
+                   default-view-name
+                   (1+ (string-to-number
+                        (match-string 1 (car old-view))))))
+          ((assoc default-view-name ivy-views)
+           (concat default-view-name " 1"))
+          (t
+           default-view-name))))
+
+(defun ivy-push-view ()
+  "Push the current window tree on `ivy-views'.
+Currently, the split configuration (i.e. horizonal or vertical)
+and point positions are saved, but the split positions aren't.
+Use `ivy-pop-view' to delete any item from `ivy-views'."
+  (interactive)
+  (let* ((view (cl-labels ((ft (tr)
+                             (if (consp tr)
+                                 (if (eq (car tr) t)
+                                     (list 'vert
+                                           (ft (nth 2 tr))
+                                           (ft (nth 3 tr)))
+                                   (list 'horz
+                                         (ft (nth 2 tr))
+                                         (ft (nth 3 tr))))
+                               (with-current-buffer (window-buffer tr)
+                                 (if (buffer-file-name)
+                                     (list 'file (buffer-file-name) (point))
+                                   (list 'buffer (buffer-name) (point)))))))
+                 (ft (car (window-tree)))))
+         (view-name (ivy-read "Name view: " nil
+                              :initial-input (ivy-default-view-name))))
+    (when view-name
+      (push (list view-name view) ivy-views))))
+
+(defun ivy-pop-view-action (view)
+  "Delete VIEW from `ivy-views'."
+  (setq ivy-views (delete view ivy-views))
+  (setq ivy--all-candidates
+        (delete (car view) ivy--all-candidates))
+  (setq ivy--old-cands nil))
+
+(defun ivy-pop-view ()
+  "Delete a view to delete from `ivy-views'."
+  (interactive)
+  (ivy-read "Pop view: " ivy-views
+            :preselect (caar ivy-views)
+            :action #'ivy-pop-view-action
+            :caller 'ivy-pop-view))
+
 (defun ivy-source-views ()
   (mapcar #'car ivy-views))
 
@@ -2783,7 +2855,7 @@ TREE can be nested multiple times to have mulitple window splits.")
            (with-selected-window wnd2
              (ivy-set-view-recur (nth 2 view)))))
         ((eq (car view) 'file)
-         (let* ((name (cadr view))
+         (let* ((name (nth 1 view))
                 (virtual (assoc name ivy--virtual-buffers))
                 buffer)
            (cond ((setq buffer (get-buffer name))
@@ -2791,11 +2863,17 @@ TREE can be nested multiple times to have mulitple window splits.")
                  (virtual
                   (find-file (cdr virtual)))
                  ((file-exists-p name)
-                  (find-file name)))))
+                  (find-file name))))
+         (when (and (> (length view) 2)
+                    (numberp (nth 2 view)))
+           (goto-char (nth 2 view))))
         ((eq (car view) 'buffer)
-         (switch-to-buffer (cadr view)))
+         (switch-to-buffer (nth 1 view))
+         (when (and (> (length view) 2)
+                    (numberp (nth 2 view)))
+           (goto-char (nth 2 view))))
         ((eq (car view) 'sexp)
-         (eval (cadr view)))))
+         (eval (nth 1 view)))))
 
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
