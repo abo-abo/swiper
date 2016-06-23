@@ -938,13 +938,17 @@ Example use:
     (let ((action (ivy--get-action ivy-last)))
       (when action
         (let* ((collection (ivy-state-collection ivy-last))
-               (x (cond ((and (consp collection)
-                              (consp (car collection))
-                              (cdr (assoc ivy--current collection))))
-                        ((equal ivy--current "")
-                         ivy-text)
-                        (t
-                         ivy--current))))
+               (x (cond
+                    ;; Alist type.
+                    ((and (consp collection)
+                          (consp (car collection))
+                          ;; Previously, the cdr of the selected candidate would be returned.
+                          ;; Now, the whole candidate is returned.
+                          (assoc ivy--current collection)))
+                    ((equal ivy--current "")
+                     ivy-text)
+                    (t
+                     ivy--current))))
           (prog1 (funcall action x)
             (unless (or (eq ivy-exit 'done)
                         (equal (selected-window)

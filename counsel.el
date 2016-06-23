@@ -801,15 +801,15 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
     (nreverse res)))
 
 (defun counsel-descbinds-action-describe (x)
-  (let ((cmd (cdr x)))
+  (let ((cmd (cddr x)))
     (describe-function cmd)))
 
 (defun counsel-descbinds-action-find (x)
-  (let ((cmd (cdr x)))
+  (let ((cmd (cddr x)))
     (counsel--find-symbol (symbol-name cmd))))
 
 (defun counsel-descbinds-action-info (x)
-  (let ((cmd (cdr x)))
+  (let ((cmd (cddr x)))
     (counsel-info-lookup-symbol (symbol-name cmd))))
 
 ;;;###autoload
@@ -1976,7 +1976,7 @@ PREFIX is used to create the key."
                         (with-ivy-window
                           ;; In org-mode, (imenu candidate) will expand child node
                           ;; after jump to the candidate position
-                          (imenu candidate)))
+                          (imenu (cdr candidate))))
               :caller 'counsel-imenu)))
 
 ;;** `counsel-list-processes'
@@ -2105,21 +2105,21 @@ And insert it into the minibuffer. Useful during
 (declare-function dbus-call-method "dbus")
 (declare-function dbus-get-property "dbus")
 
-(defun counsel-rhythmbox-play-song (uri)
-  "Let Rhythmbox enqueue SONG."
+(defun counsel-rhythmbox-play-song (song)
+  "Let Rhythmbox play SONG."
   (let ((service "org.gnome.Rhythmbox3")
         (path "/org/mpris/MediaPlayer2")
         (interface "org.mpris.MediaPlayer2.Player"))
     (dbus-call-method :session service path interface
-                      "OpenUri" uri)))
+                      "OpenUri" (cdr song))))
 
-(defun counsel-rhythmbox-enqueue-song (uri)
+(defun counsel-rhythmbox-enqueue-song (song)
   "Let Rhythmbox enqueue SONG."
   (let ((service "org.gnome.Rhythmbox3")
         (path "/org/gnome/Rhythmbox3/PlayQueue")
         (interface "org.gnome.Rhythmbox3.PlayQueue"))
     (dbus-call-method :session service path interface
-                      "AddToQueue" uri)))
+                      "AddToQueue" (cdr song))))
 
 (defvar counsel-rhythmbox-history nil
   "History for `counsel-rhythmbox'.")
@@ -2217,11 +2217,13 @@ And insert it into the minibuffer. Useful during
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
+  (setq desktop-shortcut (cdr desktop-shortcut))
   (call-process-shell-command
    (format "gtk-launch %s" (file-name-nondirectory desktop-shortcut))))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
+  (setq desktop-shortcut (cdr desktop-shortcut))
   (let* ((entry (rassoc desktop-shortcut counsel-linux-apps-alist))
          (short-name (and entry
                           (string-match "\\([^ ]*\\) " (car entry))

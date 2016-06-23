@@ -88,7 +88,7 @@
               (ivy-read "test" '(("foo" . "bar"))
                :action (lambda (x) (prin1 x))))
             "f C-m")
-           "\"bar\""))
+           "(\"foo\" . \"bar\")"))
   (should (equal
            (ivy-with
             '(with-output-to-string
