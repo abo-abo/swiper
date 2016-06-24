@@ -2892,7 +2892,10 @@ BUFFER may be a string or nil."
                (find-file (cdr virtual)))
               (view
                (delete-other-windows)
-               (ivy-set-view-recur (cadr view)))
+               (let (
+                     ;; silence "Directory has changed on disk"
+                     (inhibit-message t))
+                 (ivy-set-view-recur (cadr view))))
               (t
                (switch-to-buffer
                 buffer nil 'force-same-window)))))))
