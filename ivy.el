@@ -2718,6 +2718,11 @@ CANDS is a list of strings."
   "List of regexps or functions matching buffer names to ignore."
   :type '(repeat (choice regexp function)))
 
+(defvar ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
+                                        (org-mode . org-level-4))
+  "Store face customizations for `ivy-switch-buffer'.
+Each KEY is `major-mode', each VALUE is a face name.")
+
 (defun ivy--buffer-list (str &optional virtual predicate)
   "Return the buffers that match STR.
 When VIRTUAL is non-nil, add virtual buffers."
@@ -2729,7 +2734,12 @@ When VIRTUAL is non-nil, add virtual buffers."
              (file-remote-p
               (abbreviate-file-name default-directory)))
            (propertize x 'face 'ivy-remote)
-         x))
+         (let ((face (with-current-buffer x
+                       (cdr (assoc major-mode
+                                   ivy-switch-buffer-faces-alist)))))
+           (if face
+               (propertize x 'face face)
+             x))))
      (all-completions str 'internal-complete-buffer predicate))
     (and virtual
          (ivy--virtual-buffers)))))
