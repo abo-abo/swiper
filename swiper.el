@@ -397,23 +397,30 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer where candidates have
 line numbers. For the buffer, use `ivy--regex' instead."
-  (replace-regexp-in-string
-   "\t" "    "
-   (cond
-     ((equal str "")
-      "")
-     ((equal str "^")
-      (setq ivy--subexps 0)
-      ".")
-     ((string-match "^\\^" str)
-      (setq ivy--old-re "")
-      (let ((re (ivy--regex-plus (substring str 1))))
-        (if (zerop ivy--subexps)
-            (prog1 (format "^ ?\\(%s\\)" re)
-              (setq ivy--subexps 1))
-          (format "^ %s" re))))
-     (t
-      (ivy--regex-plus str)))))
+  (let ((re (cond
+              ((equal str "")
+               "")
+              ((equal str "^")
+               (setq ivy--subexps 0)
+               ".")
+              ((string-match "^\\^" str)
+               (setq ivy--old-re "")
+               (let ((re (ivy--regex-plus (substring str 1))))
+                 (if (zerop ivy--subexps)
+                     (prog1 (format "^ ?\\(%s\\)" re)
+                       (setq ivy--subexps 1))
+                   (format "^ %s" re))))
+              (t
+               (ivy--regex-plus str)))))
+    (cond ((stringp re)
+           (replace-regexp-in-string "\t" "    " re))
+          ((and (consp re)
+                (consp (car re)))
+           (setf (caar re)
+                 (replace-regexp-in-string "\t" "    " (caar re)))
+           re)
+          (t
+           (error "unexpected")))))
 
 (defvar swiper-history nil
   "History for `swiper'.")
@@ -507,10 +514,11 @@ Matched candidates should have `swiper-invocation-face'."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length ivy--current) 0)
-      (let* ((re (replace-regexp-in-string
-                  "    " "\t"
-                  (funcall ivy--regex-function ivy-text)))
+      (let* ((re (funcall ivy--regex-function ivy-text))
              (re (if (stringp re) re (caar re)))
+             (re (replace-regexp-in-string
+                  "    " "\t"
+                  re))
              (str (get-text-property 0 'swiper-line-number ivy--current))
              (num (if (string-match "^[0-9]+" str)
                       (string-to-number (match-string 0 str))
