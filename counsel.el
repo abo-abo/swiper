@@ -1207,9 +1207,21 @@ done") "\n" t)))
 
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
+(defun counsel-find-file-cd-bookmark-action (_)
+  "Reset `counsel-find-file' from selected directory."
+  (ivy-read "cd: "
+            (progn
+              (ivy--virtual-buffers)
+              (delete-dups
+               (mapcar (lambda (x) (file-name-directory (cdr x)))
+                       ivy--virtual-buffers)))
+            :action (lambda (x)
+                      (let ((default-directory (file-name-directory x)))
+                        (counsel-find-file)))))
 (ivy-set-actions
  'counsel-find-file
- '(("j" find-file-other-window "other window")))
+ '(("j" find-file-other-window "other window")
+   ("b" counsel-find-file-cd-bookmark-action "cd bookmark")))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
