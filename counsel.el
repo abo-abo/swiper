@@ -2130,9 +2130,9 @@ And insert it into the minibuffer. Useful during
                   'face 'font-lock-function-name-face)
                  (cdr tag))
               tag))
-          (semantic-fetch-tags)))))
-  (ivy-read "tag: " tags
-            :action 'counsel-semantic-action))
+          (semantic-fetch-tags))))
+    (ivy-read "tag: " tags
+              :action 'counsel-semantic-action)))
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
