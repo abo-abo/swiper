@@ -2112,6 +2112,27 @@ And insert it into the minibuffer. Useful during
     (ivy-read "head: " head-names
               :action #'call-interactively)
     (hydra-keyboard-quit)))
+;;** `counsel-semantic'
+(defun counsel-semantic-action (tag)
+  (with-ivy-window
+    (goto-char (semantic-tag-start tag))))
+
+(defun counsel-semantic ()
+  "Jump to a semantic tag in the current buffer."
+  (interactive)
+  (let ((tags
+         (mapcar
+          (lambda (tag)
+            (if (semantic-tag-of-class-p tag 'function)
+                (cons
+                 (propertize
+                  (car tag)
+                  'face 'font-lock-function-name-face)
+                 (cdr tag))
+              tag))
+          (semantic-fetch-tags)))))
+  (ivy-read "tag: " tags
+            :action 'counsel-semantic-action))
 
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
