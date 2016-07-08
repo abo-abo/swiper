@@ -1428,10 +1428,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     map))
 
-(defcustom counsel-ag-base-command "ag --nocolor --nogroup %s -- ."
-  "Format string to use in `cousel-ag-function' to construct the
-command. %S will be replaced by the regex string. The default is
-\"ag --nocolor --nogroup %s -- .\"."
+(defcustom counsel-ag-base-command "ag --nocolor --nogroup %s"
+  "Format string to use in `counsel-ag-function' to construct the
+command. The %s will be replaced by optional extra ag arguments followed by the
+regex string. The default is \"ag --nocolor --nogroup %s\"."
   :type 'string
   :group 'ivy)
 
@@ -1439,22 +1439,31 @@ command. %S will be replaced by the regex string. The default is
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-ag 'counsel-git-grep-transformer)
 
-(defun counsel-ag-function (string)
-  "Grep in the current directory for STRING."
+(defun counsel-ag-function (string extra-ag-args)
+  "Grep in the current directory for STRING.
+If non-nil, EXTRA-AG-ARGS string is appended to `counsel-ag-base-command'."
+  (when (null extra-ag-args)
+    (setq extra-ag-args ""))
   (if (< (length string) 3)
       (counsel-more-chars 3)
     (let ((default-directory counsel--git-grep-dir)
           (regex (counsel-unquote-regex-parens
                   (setq ivy--old-re
                         (ivy--regex string)))))
-      (counsel--async-command
-       (format counsel-ag-base-command (shell-quote-argument regex)))
+      (let ((ag-cmd (format counsel-ag-base-command
+                            (concat extra-ag-args
+                                    " -- "
+                                    (shell-quote-argument regex)))))
+        (counsel--async-command ag-cmd))
       nil)))
 
 ;;;###autoload
-(defun counsel-ag (&optional initial-input initial-directory)
+(defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
   "Grep for a string in the current directory using ag.
-INITIAL-INPUT can be given as the initial minibuffer input."
+INITIAL-INPUT can be given as the initial minibuffer input.
+INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
+EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
+AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument. "
   (interactive
    (list nil
          (when current-prefix-arg
@@ -1463,8 +1472,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                                  " in directory: ")))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (setq counsel--git-grep-dir (or initial-directory default-directory))
-  (ivy-read (car (split-string counsel-ag-base-command))
-            'counsel-ag-function
+  (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
+            (lambda (string)
+              (counsel-ag-function string extra-ag-args))
             :initial-input initial-input
             :dynamic-collection t
             :keymap counsel-ag-map
