@@ -190,13 +190,14 @@ complications with branch-introducing custom macros.
 Customizability is about being able to use different methods and
 interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
-selected candidate with @code{->}, instead of highlighting the
-selected candidate with the @code{ivy-current-match} face. Or take the
-customization of actions, say after the candidate function is
-selected. @kbd{RET} uses @code{counsel-describe-function} to describe the
-function, whereas @kbd{M-o d} jumps to that function's definition in
-the code. The @kbd{M-o} prefix can be uniformly used with characters
-like @kbd{d} to group similar actions.
+selected candidate with @code{>}, instead of highlighting the
+selected candidate with the @code{ivy-current-match} face (see
+@code{ivy-format-function}). Or take the customization of actions, say
+after the candidate function is selected. @kbd{RET} uses
+@code{counsel-describe-function} to describe the function, whereas
+@kbd{M-o d} jumps to that function's definition in the code. The
+@kbd{M-o} prefix can be uniformly used with characters like @kbd{d} to
+group similar actions.
 @end indentedblock
 @subsubheading Discoverability
 @indentedblock

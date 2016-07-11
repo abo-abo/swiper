@@ -105,13 +105,14 @@ discoverability.
      Customizability is about being able to use different methods and
      interfaces of completion to tailor the selection process. For
      example, adding a custom display function that points to a
-     selected candidate with =->=, instead of highlighting the
-     selected candidate with the =ivy-current-match= face. Or take the
-     customization of actions, say after the candidate function is
-     selected. ~RET~ uses =counsel-describe-function= to describe the
-     function, whereas ~M-o d~ jumps to that function's definition in
-     the code. The ~M-o~ prefix can be uniformly used with characters
-     like ~d~ to group similar actions.
+     selected candidate with =>=, instead of highlighting the selected
+     candidate with the =ivy-current-match= face (see
+     =ivy-format-function=). Or take the customization of actions, say
+     after the candidate function is selected. ~RET~ uses
+     =counsel-describe-function= to describe the function, whereas
+     ~M-o d~ jumps to that function's definition in the code. The
+     ~M-o~ prefix can be uniformly used with characters like ~d~ to
+     group similar actions.
 
 - Discoverability ::
      Ivy displays easily discoverable commands through the hydra
