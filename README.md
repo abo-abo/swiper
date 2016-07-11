@@ -1,21 +1,19 @@
-[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper) [![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
+[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper)
 
-## Swiper
+***flexible, simple tools for minibuffer completion in Emacs***
 
-Package for GNU Emacs that shows an overview during regex searching.
+This repository contains:
 
-![swiper.png](http://oremacs.com/download/swiper.png)
+**Ivy**, a generic completion mechanism for Emacs.
 
-The package uses the `ivy` back end for the overview, see also
-[swiper-helm](https://github.com/abo-abo/swiper-helm).
+**Counsel**, a collection of Ivy-enhanced versions of common Emacs
+commands.
 
-## Screenshots
+**Swiper**, an Ivy-enhanced alternative to isearch.
 
-![ivy-swiper-1.png](http://oremacs.com/download/ivy-swiper-1.png)
+# Ivy
 
-There's also a ten minute [video demo](https://www.youtube.com/watch?v=VvnJQpTFVDc).
-
-## Ivy
+[![MELPA](http://melpa.org/packages/ivy-badge.svg)](http://melpa.org/#/ivy)
 
 Ivy is a generic completion mechanism for Emacs. While it operates
 similarly to other completion schemes such as `icomplete-mode`, Ivy
@@ -26,9 +24,9 @@ To try Ivy, just call <kbd>M-x</kbd> `ivy-mode`. This will enable
 generic Ivy completion, including specific completion for file and
 buffer names.
 
-## Installation
+### Installation
 
-Install the `swiper` package from MELPA / GNU ELPA.
+Install the `ivy` package from MELPA / GNU ELPA.
 
 ## Documentation
 
@@ -65,15 +63,43 @@ Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 (define-key read-expression-map (kbd "C-r") 'counsel-expression-history)
 ```
 
-## Contributing
+# Counsel
 
-### Copyright Assignment
+`ivy-mode` ensures that any Emacs command using
+`completiong-read-function` uses ivy for completion.
 
-Swiper is subject to the same [copyright assignment](http://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html) policy as Emacs itself, org-mode, CEDET and other packages in [GNU ELPA](http://elpa.gnu.org/packages/). Any [legally significant](http://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant) contributions can only be accepted after the author has completed their paperwork. Please see [the request form](http://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future) if you want to proceed.
+Counsel takes this further, providing versions of common Emacs
+commands that are customised to make the best use of ivy. For example,
+`counsel-find-file` has some additional keybidings. Pressing
+<kbd>DEL</kbd> will move you to the parent directory.
+
+# Swiper
+
+[![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
+
+Swiper is an alternative to isearch that uses ivy to show an overview
+of all matches.
+
+![swiper.png](http://oremacs.com/download/swiper.png)
+
+A helm version of swiper is also available:
+[swiper-helm](https://github.com/abo-abo/swiper-helm).
+
+## Screenshots
+
+![ivy-swiper-1.png](http://oremacs.com/download/ivy-swiper-1.png)
+
+There's also a ten minute [video demo](https://www.youtube.com/watch?v=VvnJQpTFVDc).
+
+# Contributing
+
+## Copyright Assignment
+
+These package are subject to the same [copyright assignment](http://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html) policy as Emacs itself, org-mode, CEDET and other packages in [GNU ELPA](http://elpa.gnu.org/packages/). Any [legally significant](http://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant) contributions can only be accepted after the author has completed their paperwork. Please see [the request form](http://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future) if you want to proceed.
 
 The copyright assignment isn't a big deal, it just says that the copyright for your submitted changes to Emacs belongs to the FSF. This assignment works for all projects related to Emacs. To obtain it, you need to send one email, then send one letter (if you live in the US, it's digital), and wait for some time (in my case, I had to wait for one month).
 
-### Style
+## Style
 
 The basic code style guide is to use `(setq indent-tabs-mode nil)`. It is provided for you in [.dir-locals.el](https://github.com/abo-abo/swiper/blob/master/.dir-locals.el), please obey it.
 
