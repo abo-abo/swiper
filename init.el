@@ -1,10 +1,12 @@
 (add-to-list 'load-path "~/Dropbox/source/site-lisp/git/org-mode/lisp")
+(add-to-list 'load-path "~/Dropbox/source/site-lisp/git/swiper/")
 (add-to-list 'load-path "~/Dropbox/source/site-lisp/git/swiper/doc")
 (add-to-list 'load-path "~/Dropbox/source/site-lisp/git/eclipse-theme")
 (add-to-list 'load-path "~/Dropbox/source/site-lisp/git/htmlize")
 (require 'ivy-ox)
 (require 'org)
 (require 'eclipse-theme)
+(require 'ivy-test)
 (require 'htmlize)
 
 (setq org-confirm-babel-evaluate nil)

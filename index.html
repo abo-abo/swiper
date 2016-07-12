@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-05-05 Thu 08:44 -->
+<!-- 2016-07-12 Tue 08:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -223,13 +223,14 @@ complications with branch-introducing custom macros.</dd>
 <dt>Customizability</dt><dd>Customizability is about being able to use different methods and
 interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
-selected candidate with <code>-&gt;</code>, instead of highlighting the
-selected candidate with the <code>ivy-current-match</code> face. Or take the
-customization of actions, say after the candidate function is
-selected. <kbd>RET</kbd> uses <code>counsel-describe-function</code> to describe the
-function, whereas <kbd>M-o d</kbd> jumps to that function's definition in
-the code. The <kbd>M-o</kbd> prefix can be uniformly used with characters
-like <kbd>d</kbd> to group similar actions.</dd>
+selected candidate with <code>&gt;</code>, instead of highlighting the selected
+candidate with the <code>ivy-current-match</code> face (see
+<code>ivy-format-function</code>). Or take the customization of actions, say
+after the candidate function is selected. <kbd>RET</kbd> uses
+<code>counsel-describe-function</code> to describe the function, whereas
+<kbd>M-o d</kbd> jumps to that function's definition in the code. The
+<kbd>M-o</kbd> prefix can be uniformly used with characters like <kbd>d</kbd> to
+group similar actions.</dd>
 
 <dt>Discoverability</dt><dd>Ivy displays easily discoverable commands through the hydra
 facility.  <kbd>C-o</kbd> in the minibuffer displays a hydra menu. It
@@ -534,7 +535,7 @@ Example ERT test:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp">(should
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">should</span>
  (equal (ivy-with
          '(<span style="color: #7F0055; font-weight: bold;">progn</span>
            (ivy-read <span style="color: #2A00FF;">"Test: "</span> '(<span style="color: #2A00FF;">"can do"</span> <span style="color: #2A00FF;">"can't, sorry"</span> <span style="color: #2A00FF;">"other"</span>))
@@ -1196,7 +1197,7 @@ macro.
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
-  (with-ivy-window
+  (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
     (insert x)))
 </pre>
 </div></dd>
@@ -1253,7 +1254,7 @@ The second action copies the current candidate to the kill ring.
   (kill-new x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-copy-to-buffer-action</span> (x)
-  (with-ivy-window
+  (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
     (insert x)))
 
 (ivy-set-actions
@@ -1745,7 +1746,7 @@ narrowing) or select a candidate from the visible collection.
   (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format <span style="color: #2A00FF;">"locate %s '</span><span style="color: #110099;">%s</span><span style="color: #2A00FF;">'"</span>
+     (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
              (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
              (counsel-unquote-regex-parens
               (ivy--regex str))))
@@ -1761,7 +1762,7 @@ narrowing) or select a candidate from the visible collection.
             <span style="color: #7F0055; font-weight: bold;">:dynamic-collection</span> t
             <span style="color: #7F0055; font-weight: bold;">:history</span> 'counsel-locate-history
             <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (file)
-                      (with-ivy-window
+                      (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
                         (<span style="color: #7F0055; font-weight: bold;">when</span> file
                           (find-file file))))
             <span style="color: #7F0055; font-weight: bold;">:unwind</span> #'counsel-delete-process
