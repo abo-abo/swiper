@@ -66,11 +66,11 @@ Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 # Counsel
 
 `ivy-mode` ensures that any Emacs command using
-`completiong-read-function` uses ivy for completion.
+`completing-read-function` uses ivy for completion.
 
 Counsel takes this further, providing versions of common Emacs
 commands that are customised to make the best use of ivy. For example,
-`counsel-find-file` has some additional keybidings. Pressing
+`counsel-find-file` has some additional keybindings. Pressing
 <kbd>DEL</kbd> will move you to the parent directory.
 
 # Swiper
