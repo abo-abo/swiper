@@ -2810,12 +2810,10 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
   (let* ((view (cl-labels ((ft (tr)
                              (if (consp tr)
                                  (if (eq (car tr) t)
-                                     (list 'vert
-                                           (ft (nth 2 tr))
-                                           (ft (nth 3 tr)))
-                                   (list 'horz
-                                         (ft (nth 2 tr))
-                                         (ft (nth 3 tr))))
+                                     (cons 'vert
+                                           (mapcar #'ft (cddr tr)))
+                                   (cons 'horz
+                                         (mapcar #'ft (cddr tr))))
                                (with-current-buffer (window-buffer tr)
                                  (cond ((buffer-file-name)
                                         (list 'file (buffer-file-name) (point)))
@@ -2854,19 +2852,29 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
 
 (defun ivy-set-view-recur (view)
   (cond ((eq (car view) 'vert)
-         (let ((wnd1 (selected-window))
-               (wnd2 (split-window-vertically)))
+         (let* ((wnd1 (selected-window))
+                (wnd2 (split-window-vertically))
+                (views (cdr view))
+                (v (pop views)))
            (with-selected-window wnd1
-             (ivy-set-view-recur (nth 1 view)))
-           (with-selected-window wnd2
-             (ivy-set-view-recur (nth 2 view)))))
+             (ivy-set-view-recur v))
+           (while (setq v (pop views))
+             (with-selected-window wnd2
+               (ivy-set-view-recur v))
+             (when views
+               (setq wnd2 (split-window-vertically))))))
         ((eq (car view) 'horz)
-         (let ((wnd1 (selected-window))
-               (wnd2 (split-window-horizontally)))
+         (let* ((wnd1 (selected-window))
+                (wnd2 (split-window-horizontally))
+                (views (cdr view))
+                (v (pop views)))
            (with-selected-window wnd1
-             (ivy-set-view-recur (nth 1 view)))
-           (with-selected-window wnd2
-             (ivy-set-view-recur (nth 2 view)))))
+             (ivy-set-view-recur v))
+           (while (setq v (pop views))
+             (with-selected-window wnd2
+               (ivy-set-view-recur v))
+             (when views
+               (setq wnd2 (split-window-horizontally))))))
         ((eq (car view) 'file)
          (let* ((name (nth 1 view))
                 (virtual (assoc name ivy--virtual-buffers))
