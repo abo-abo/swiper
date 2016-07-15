@@ -822,6 +822,18 @@ Describe the selected candidate."
             :action #'counsel-descbinds-action-describe
             :history 'counsel-descbinds-history
             :caller 'counsel-descbinds))
+;;** `counsel-describe-face'
+(defun counsel-describe-face ()
+  "Completion for `describe-face'."
+  (interactive)
+  (let (cands)
+    (mapatoms
+     (lambda (s)
+       (if (facep s)
+           (push (symbol-name s) cands))))
+    (ivy-read "Face: " cands
+              :preselect (face-at-point t)
+              :action #'describe-face)))
 ;;* Git
 ;;** `counsel-git'
 (defvar counsel--git-dir nil
