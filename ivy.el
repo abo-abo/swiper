@@ -2731,8 +2731,9 @@ When VIRTUAL is non-nil, add virtual buffers."
     (mapcar
      (lambda (x)
        (if (with-current-buffer x
-             (file-remote-p
-              (abbreviate-file-name default-directory)))
+             (and default-directory
+                  (file-remote-p
+                   (abbreviate-file-name default-directory))))
            (propertize x 'face 'ivy-remote)
          (let ((face (with-current-buffer x
                        (cdr (assoc major-mode
