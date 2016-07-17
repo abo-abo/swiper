@@ -2802,9 +2802,7 @@ TREE can be nested multiple times to have mulitple window splits.")
            default-view-name))))
 
 (defun ivy-push-view ()
-  "Push the current window tree on `ivy-views'.
-Currently, the split configuration (i.e. horizonal or vertical)
-and point positions are saved, but the split positions aren't.
+  "Push the current window configuration to `ivy-views'.
 Use `ivy-pop-view' to delete any item from `ivy-views'."
   (interactive)
   (let* ((view (list (current-window-configuration) (point-marker)))
