@@ -836,6 +836,9 @@ Describe the selected candidate."
               :action #'describe-face)))
 ;;* Git
 ;;** `counsel-git'
+(defvar counsel-git-cmd "git ls-files --full-name --"
+  "Command for `counsel-git'.")
+
 (defvar counsel--git-dir nil
   "Store the base git directory.")
 
@@ -858,8 +861,7 @@ Describe the selected candidate."
                             counsel--git-dir))
     (let* ((default-directory counsel--git-dir)
            (cands (split-string
-                   (shell-command-to-string
-                    "git ls-files --full-name --")
+                   (shell-command-to-string counsel-git-cmd)
                    "\n"
                    t)))
       (ivy-read "Find file" cands
