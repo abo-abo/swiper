@@ -837,7 +837,7 @@ Describe the selected candidate."
 
 ;;* Git
 ;;** `counsel-git'
-(defvar counsel-git-cmd "git ls-files --full-name --"
+(defvar counsel-git-cmd "git ls-files --full-name --modified --others --"
   "Command for `counsel-git'.")
 
 (defvar counsel--git-dir nil
@@ -885,7 +885,7 @@ Describe the selected candidate."
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
 (ivy-set-display-transformer 'counsel-git-grep 'counsel-git-grep-transformer)
 
-(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -e %S"
+(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color --untracked -i -e %S"
   "Initial command for `counsel-git-grep'.")
 
 (defvar counsel-git-grep-cmd nil
