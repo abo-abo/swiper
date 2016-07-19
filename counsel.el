@@ -993,7 +993,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (cmd
      (setq counsel-git-grep-cmd
            (ivy-read "cmd: " counsel-git-grep-cmd-history
-                     :history 'counsel-git-grep-cmd-history))
+                     :history 'counsel-git-grep-cmd-history
+                     :re-builder #'ivy--regex))
      (setq counsel-git-grep-cmd-history
            (delete-dups counsel-git-grep-cmd-history)))
     (t
