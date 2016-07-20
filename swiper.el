@@ -135,6 +135,8 @@
 (defun swiper-avy ()
   "Jump to one of the current swiper candidates."
   (interactive)
+  (unless (require 'avy nil 'noerror)
+    (error "Package avy isn't installed"))
   (unless (string= ivy-text "")
     (let* ((avy-all-windows nil)
            (candidates (append
