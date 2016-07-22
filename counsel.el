@@ -900,7 +900,7 @@ Describe the selected candidate."
   "History for `counsel-git-grep'.")
 
 (defvar counsel-git-grep-cmd-history
-  '("git --no-pager grep --full-name -n --no-color -i -e %S")
+  (list counsel-git-grep-cmd-default)
   "History for `counsel-git-grep' shell commands.")
 
 (defun counsel-prompt-function-dir ()
