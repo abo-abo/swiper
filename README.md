@@ -91,6 +91,14 @@ A helm version of swiper is also available:
 
 There's also a ten minute [video demo](https://www.youtube.com/watch?v=VvnJQpTFVDc).
 
+# Frequently asked questions
+
+Q: How do I enter an input that matches one of the candidates instead
+   of this candidate? Example: create a file `bar` when a file
+   `barricade` exists in the current directory.
+
+A: Press <kbd>C-M-j</kbd>.
+
 # Contributing
 
 ## Copyright Assignment
