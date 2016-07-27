@@ -41,6 +41,11 @@ Set =CUSTOM_ID= property to name each heading. For example, =worf='s
 
 Keep one empty line before each source block for proper Texinfo
 exports.
+
+** Exporting to texinfo
+
+ivy.texi is generated from ivy.org. To update the .texi file, eval
+ivy-ox.el then ~C-c C-e i t~ in the ivy.org bufer.
 * Copying
 :PROPERTIES:
 :COPYING:  t
