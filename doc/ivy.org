@@ -214,7 +214,6 @@ Here are some basic settings particularly useful for new Ivy users:
 
 #+begin_src elisp
 (setq ivy-use-virtual-buffers t)
-(setq ivy-height 10)
 (setq ivy-count-format "(%d/%d) ")
 #+end_src
 
