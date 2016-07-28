@@ -2275,26 +2275,26 @@ And insert it into the minibuffer. Useful during
         (insert-file-contents (expand-file-name file "/usr/share/applications"))
         (let (name comment exec)
           (goto-char (point-min))
-          (if (re-search-forward "^Name *= *\\(.*\\)$" nil t)
-              (setq name (match-string 1))
-            (error "File %s has no Name" file))
-          (goto-char (point-min))
-          (when (re-search-forward "^Comment *= *\\(.*\\)$" nil t)
-            (setq comment (match-string 1)))
-          (goto-char (point-min))
-          (when (re-search-forward "^Exec *= *\\(.*\\)$" nil t)
-            (setq exec (match-string 1)))
-          (if (and exec (not (equal exec "")))
-              (add-to-list
-               'counsel-linux-apps-alist
-               (cons (format "% -45s: %s%s"
-                             (propertize exec 'face 'font-lock-builtin-face)
-                             name
-                             (if comment
-                                 (concat " - " comment)
-                               ""))
-                     file))
-            (add-to-list 'counsel-linux-apps-faulty file))))))
+          (if (null (re-search-forward "^Name *= *\\(.*\\)$" nil t))
+              (message "Warning: File %s has no Name" file)
+            (setq name (match-string 1))
+            (goto-char (point-min))
+            (when (re-search-forward "^Comment *= *\\(.*\\)$" nil t)
+              (setq comment (match-string 1)))
+            (goto-char (point-min))
+            (when (re-search-forward "^Exec *= *\\(.*\\)$" nil t)
+              (setq exec (match-string 1)))
+            (if (and exec (not (equal exec "")))
+                (add-to-list
+                 'counsel-linux-apps-alist
+                 (cons (format "% -45s: %s%s"
+                               (propertize exec 'face 'font-lock-builtin-face)
+                               name
+                               (if comment
+                                   (concat " - " comment)
+                                 ""))
+                       file))
+              (add-to-list 'counsel-linux-apps-faulty file)))))))
   counsel-linux-apps-alist)
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
