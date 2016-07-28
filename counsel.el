@@ -2159,6 +2159,29 @@ And insert it into the minibuffer. Useful during
     (ivy-read "tag: " tags
               :action 'counsel-semantic-action)))
 
+;;** `counsel-outline'
+(defun counsel-outline-candidates ()
+  (let (cands)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward outline-regexp nil t)
+        (skip-chars-forward " ")
+        (push (cons (buffer-substring-no-properties
+                     (point) (line-end-position))
+                    (line-beginning-position))
+              cands))
+      (nreverse cands))))
+
+(defun counsel-outline-action (x)
+  (with-ivy-window
+    (goto-char (cdr x))))
+
+(defun counsel-outline ()
+  "Jump to outline with completion."
+  (interactive)
+  (ivy-read "outline: " (counsel-outline-candidates)
+            :action #'counsel-outline-action))
+
 ;;* Misc OS
 ;;** `counsel-rhythmbox'
 (declare-function dbus-call-method "dbus")
