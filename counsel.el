@@ -1377,6 +1377,7 @@ string - the full shell command to run."
 
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command on X."
+  (interactive (list (read-file-name "File: ")))
   (call-process shell-file-name nil
                 nil nil
                 shell-command-switch
@@ -1385,6 +1386,8 @@ string - the full shell command to run."
                             "open"
                           "xdg-open")
                         (shell-quote-argument x))))
+
+(defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
 
 (declare-function dired-jump "dired-x")
 
