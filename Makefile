@@ -12,7 +12,7 @@ compile:
 	$(emacs) -batch --eval "(progn (add-to-list 'load-path default-directory) (mapc #'byte-compile-file '(\"ivy.el\" \"swiper.el\" \"counsel.el\")))"
 
 plain:
-	$(emacs) -Q $(LOAD) --eval "(progn (package-initialize) (ivy-mode))" -l ivy-hydra.el
+	$(emacs) -Q $(LOAD) --eval "(progn (package-initialize) (ivy-mode))"
 
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
