@@ -2319,7 +2319,8 @@ CANDIDATES are assumed to be static."
                    res))))
     (setq ivy--all-candidates res)))
 
-(defcustom ivy-sort-matches-functions-alist '((t . nil))
+(defcustom ivy-sort-matches-functions-alist '((t . nil)
+                                              (ivy-switch-buffer . ivy-sort-function-buffer))
   "An alist of functions for sorting matching candidates.
 
 Unlike `ivy-sort-functions-alist', which is used to sort the
@@ -2374,6 +2375,25 @@ Prefix matches to NAME are put ahead of the list."
     (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
           res-prefix
           res-noprefix)
+      (dolist (s candidates)
+        (if (string-match re-prefix s)
+            (push s res-prefix)
+          (push s res-noprefix)))
+      (nconc
+       (nreverse res-prefix)
+       (nreverse res-noprefix)))))
+
+(defun ivy-sort-function-buffer (name candidates)
+  "Re-sort CANDIDATES.
+Prefer first \"^*NAME\", then \"^NAME\"."
+  (if (or (string-match "^\\^" name) (string= name ""))
+      candidates
+    (let* ((base-re (funcall ivy--regex-function name))
+           (re-prefix (concat "^\\*" base-re))
+           res-prefix
+           res-noprefix)
+      (unless (cl-find-if (lambda (s) (string-match re-prefix s)) candidates)
+        (setq re-prefix (concat "^" base-re)))
       (dolist (s candidates)
         (if (string-match re-prefix s)
             (push s res-prefix)
