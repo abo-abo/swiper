@@ -1,4 +1,5 @@
 emacs ?= emacs
+elmake = $(emacs) -batch -l makefi.el -f
 
 LOAD = -l colir.el -l ivy.el -l swiper.el -l counsel.el
 
@@ -16,7 +17,10 @@ plain:
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
 
+update-issues:
+	$(elmake) update-issues
+
 clean:
 	rm -f *.elc
 
-.PHONY: all compile clean test
+.PHONY: all compile clean test update-issues

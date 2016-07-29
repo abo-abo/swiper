@@ -2141,6 +2141,10 @@ And insert it into the minibuffer. Useful during
               :action #'call-interactively)
     (hydra-keyboard-quit)))
 ;;** `counsel-semantic'
+(declare-function semantic-tag-start "tag")
+(declare-function semantic-tag-of-class-p "tag")
+(declare-function semantic-fetch-tags "semantic")
+
 (defun counsel-semantic-action (tag)
   (with-ivy-window
     (goto-char (semantic-tag-start tag))))
