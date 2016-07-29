@@ -314,6 +314,7 @@ action functions.")
   dynamic-collection
   ;; A lambda that transforms candidates only for display
   display-transformer-fn
+  directory
   caller)
 
 (defvar ivy-last (make-ivy-state)
@@ -733,25 +734,26 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
     (when (eq (ivy-state-caller ivy-last) 'swiper)
       (switch-to-buffer (ivy-state-buffer ivy-last)))
     (with-current-buffer (ivy-state-buffer ivy-last)
-      (ivy-read
-       (ivy-state-prompt ivy-last)
-       (ivy-state-collection ivy-last)
-       :predicate (ivy-state-predicate ivy-last)
-       :require-match (ivy-state-require-match ivy-last)
-       :initial-input ivy-text
-       :history (ivy-state-history ivy-last)
-       :preselect (unless (eq (ivy-state-collection ivy-last)
-                              'read-file-name-internal)
-                    ivy--current)
-       :keymap (ivy-state-keymap ivy-last)
-       :update-fn (ivy-state-update-fn ivy-last)
-       :sort (ivy-state-sort ivy-last)
-       :action (ivy-state-action ivy-last)
-       :unwind (ivy-state-unwind ivy-last)
-       :re-builder (ivy-state-re-builder ivy-last)
-       :matcher (ivy-state-matcher ivy-last)
-       :dynamic-collection (ivy-state-dynamic-collection ivy-last)
-       :caller (ivy-state-caller ivy-last)))))
+      (let ((default-directory (ivy-state-directory ivy-last)))
+        (ivy-read
+         (ivy-state-prompt ivy-last)
+         (ivy-state-collection ivy-last)
+         :predicate (ivy-state-predicate ivy-last)
+         :require-match (ivy-state-require-match ivy-last)
+         :initial-input ivy-text
+         :history (ivy-state-history ivy-last)
+         :preselect (unless (eq (ivy-state-collection ivy-last)
+                                'read-file-name-internal)
+                      ivy--current)
+         :keymap (ivy-state-keymap ivy-last)
+         :update-fn (ivy-state-update-fn ivy-last)
+         :sort (ivy-state-sort ivy-last)
+         :action (ivy-state-action ivy-last)
+         :unwind (ivy-state-unwind ivy-last)
+         :re-builder (ivy-state-re-builder ivy-last)
+         :matcher (ivy-state-matcher ivy-last)
+         :dynamic-collection (ivy-state-dynamic-collection ivy-last)
+         :caller (ivy-state-caller ivy-last))))))
 
 (defvar-local ivy-calling nil
   "When non-nil, call the current action when `ivy--index' changes.")
@@ -1405,6 +1407,7 @@ customizations apply to the current completion session."
            :matcher matcher
            :dynamic-collection dynamic-collection
            :display-transformer-fn transformer-fn
+           :directory default-directory
            :caller caller))
     (ivy--reset-state ivy-last)
     (prog1
