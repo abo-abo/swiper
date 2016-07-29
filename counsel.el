@@ -1236,7 +1236,8 @@ done") "\n" t)))
 (ivy-set-actions
  'counsel-find-file
  '(("j" find-file-other-window "other window")
-   ("b" counsel-find-file-cd-bookmark-action "cd bookmark")))
+   ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
+   ("x" counsel-find-file-extern "open externally")))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
@@ -1376,15 +1377,16 @@ string - the full shell command to run."
   "History for `counsel-locate'.")
 
 (defun counsel-locate-action-extern (x)
-  "Use xdg-open shell command on X."
+  "Use xdg-open shell command, or corresponding system command, on X."
   (interactive (list (read-file-name "File: ")))
   (call-process shell-file-name nil
                 nil nil
                 shell-command-switch
                 (format "%s %s"
-                        (if (eq system-type 'darwin)
-                            "open"
-                          "xdg-open")
+                        (cl-case system-type
+                          (darwin "open")
+                          (windows-nt "start")
+                          (t "xdg-open"))
                         (shell-quote-argument x))))
 
 (defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
