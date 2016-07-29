@@ -670,18 +670,79 @@ Run `swiper' for those buffers."
             :unwind #'swiper--cleanup
             :caller 'swiper-multi))
 
+(defun swiper-all-function (str)
+  (if (and (< (length str) 3))
+      (counsel-more-chars 3)
+    (let ((buffers (cl-remove-if-not
+                    (lambda (b)
+                      (or (buffer-file-name b)
+                          (eq (with-current-buffer b
+                                major-mode) 'dired-mode)))
+                    (buffer-list)))
+          (re (funcall ivy--regex-function str))
+          cands
+          match)
+      (dolist (buffer buffers)
+        (with-current-buffer buffer
+          (save-excursion
+            (goto-char (point-min))
+            (while (re-search-forward re nil t)
+              (setq match (concat
+                           " "
+                           (buffer-substring
+                            (line-beginning-position)
+                            (line-end-position))))
+              (put-text-property
+               0 1 'buffer
+               (buffer-name)
+               match)
+              (let ((lns (format "%-4d " (line-number-at-pos))))
+                (put-text-property 0 1 'swiper-line-number lns match)
+                (put-text-property 0 1 'display lns match))
+              (push match cands)))))
+      (setq ivy--old-cands (nreverse cands)))))
+
+(defun swiper--all-format-function (cands)
+  (let* ((ww (window-width))
+         (col2 1)
+         (cands-with-buffer
+          (mapcar (lambda (s)
+                    (let ((buffer (get-text-property 0 'buffer s)))
+                      (setq col2 (max col2 (length buffer)))
+                      (cons s buffer))) cands))
+         (col1 (- ww 6 col2)))
+    (setq cands
+          (mapcar (lambda (x)
+                    (if (cdr x)
+                        (let ((s (ivy--truncate-string (car x) col1)))
+                          (concat
+                           s
+                           (make-string
+                            (max 0
+                                 (- ww (string-width s) (length (cdr x)) 4))
+                            ?\ )
+                           (cdr x)))
+                      (car x)))
+                  cands-with-buffer))
+    (ivy--format-function-generic
+     (lambda (str)
+       (ivy--add-face str 'ivy-current-match))
+     (lambda (str)
+       str)
+     cands
+     "\n")))
+
 (defun swiper-all ()
   "Run `swiper' for all opened buffers."
   (interactive)
-  (ivy-read "Swiper: " (swiper--multi-candidates
-                        (cl-remove-if-not
-                         #'buffer-file-name
-                         (buffer-list)))
-            :action 'swiper-multi-action-2
-            :unwind #'swiper--cleanup
-            :update-fn (lambda ()
-                         (swiper-multi-action-2 ivy--current))
-            :caller 'swiper-multi))
+  (let ((ivy-format-function #'swiper--all-format-function))
+    (ivy-read "Swiper: " 'swiper-all-function
+              :action 'swiper-multi-action-2
+              :unwind #'swiper--cleanup
+              :update-fn (lambda ()
+                           (swiper-multi-action-2 ivy--current))
+              :dynamic-collection t
+              :caller 'swiper-multi)))
 
 (defun swiper--multi-candidates (buffers)
   (let* ((ww (window-width))
@@ -734,18 +795,21 @@ Run `swiper' for those buffers."
          (delete-minibuffer-contents))))
 
 (defun swiper-multi-action-2 (x)
-  (let ((buf-space (get-text-property (1- (length x)) 'display x)))
-    (with-ivy-window
-      (when (string-match "\\` *\\([^ ]+\\)\\'" buf-space)
-        (switch-to-buffer (match-string 1 buf-space))
-        (goto-char (point-min))
-        (forward-line (1- (read (get-text-property 0 'swiper-line-number x))))
-        (re-search-forward
-         (ivy--regex ivy-text)
-         (line-end-position) t)
-        (unless (eq ivy-exit 'done)
-          (swiper--cleanup)
-          (swiper--add-overlays (ivy--regex ivy-text)))))))
+  (when (> (length x) 0)
+    (let ((buffer-name (get-text-property 0 'buffer x)))
+      (when buffer-name
+        (with-ivy-window
+          (switch-to-buffer buffer-name)
+          (goto-char (point-min))
+          (forward-line (1- (read (get-text-property 0 'swiper-line-number x))))
+          (re-search-forward
+           (ivy--regex ivy-text)
+           (line-end-position) t)
+          (isearch-range-invisible (line-beginning-position)
+                                   (line-end-position))
+          (unless (eq ivy-exit 'done)
+            (swiper--cleanup)
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (provide 'swiper)
 
