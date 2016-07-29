@@ -734,7 +734,7 @@ Run `swiper' for those buffers."
          (delete-minibuffer-contents))))
 
 (defun swiper-multi-action-2 (x)
-  (let ((buf-space (get-text-property (1- (length x)) 'swiper-line-number x)))
+  (let ((buf-space (get-text-property (1- (length x)) 'display x)))
     (with-ivy-window
       (when (string-match "\\` *\\([^ ]+\\)\\'" buf-space)
         (switch-to-buffer (match-string 1 buf-space))
