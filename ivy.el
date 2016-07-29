@@ -2399,6 +2399,9 @@ Prefix matches to NAME are put ahead of the list."
                   (cl-position
                    (concat re-str "/") cands
                    :test #'equal))
+             (and (eq caller 'ivy-switch-buffer)
+                  (> (length name) 0)
+                  0)
              (and (not (string= name ""))
                   (not (and (require 'flx nil 'noerror)
                             (eq ivy--regex-function 'ivy--regex-fuzzy)
