@@ -1440,6 +1440,52 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))
 
+;;** File Jump and Dired Jump
+
+;;;###autoload
+(defun counsel-file-jump (&optional initial-input initial-directory)
+  "Jump to a file from a list of all files directories
+below the current one.  INITIAL-INPUT can be given as the initial
+minibuffer input.  INITIAL-DIRECTORY, if non-nil, is used as the
+root directory for search."
+  (interactive
+   (list nil
+         (when current-prefix-arg
+           (read-directory-name "From directory: "))))
+  (let* ((default-directory (or initial-directory default-directory)))
+    (ivy-read "Find file: "
+              (split-string (shell-command-to-string "find * -type f"))
+              :matcher #'counsel--find-file-matcher
+              :initial-input initial-input
+              :action (lambda (x)
+                        (with-ivy-window
+                          (find-file (expand-file-name x ivy--directory))))
+              :preselect (when counsel-find-file-at-point
+                           (require 'ffap)
+                           (let ((f (ffap-guesser)))
+                             (when f (expand-file-name f))))
+              :require-match 'confirm-after-completion
+              :history 'file-name-history
+              :keymap counsel-find-file-map
+              :caller 'counsel-file-jump)))
+
+;;;###autoload
+(defun counsel-dired-jump (&optional initial-input initial-directory)
+  "Jump to a directory (in dired) from a list of all directories
+below the current one.  INITIAL-INPUT can be given as the initial
+minibuffer input.  INITIAL-DIRECTORY, if non-nil, is used as the
+root directory for search."
+  (interactive
+   (list nil
+         (when current-prefix-arg
+           (read-directory-name "From directory: "))))
+  (let* ((default-directory (or initial-directory default-directory)))
+    (ivy-read "Directory: "
+              (split-string (shell-command-to-string "find * -type d"))
+              :initial-input initial-input
+              :action #'dired-jump
+              :caller 'counsel-dired-jump)))
+
 ;;* Grep
 ;;** `counsel-ag'
 (defvar counsel-ag-map
