@@ -1483,7 +1483,7 @@ root directory for search."
     (ivy-read "Directory: "
               (split-string (shell-command-to-string "find * -type d"))
               :initial-input initial-input
-              :action #'dired-jump
+              :action (lambda (d) (dired-jump nil (expand-file-name d)))
               :caller 'counsel-dired-jump)))
 
 ;;* Grep
