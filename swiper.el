@@ -709,15 +709,16 @@ Run `swiper' for those buffers."
 (defun swiper-all-function (str)
   (if (and (< (length str) 3))
       (list "" (format "%d chars more" (- 3 (length ivy-text))))
-    (let ((buffers (cl-remove-if-not
-                    (lambda (b)
-                      (or (buffer-file-name b)
-                          (eq (with-current-buffer b
-                                major-mode) 'dired-mode)))
-                    (buffer-list)))
-          (re (funcall ivy--regex-function str))
-          cands
-          match)
+    (let* ((buffers (cl-remove-if-not
+                     (lambda (b)
+                       (or (buffer-file-name b)
+                           (eq (with-current-buffer b
+                                 major-mode) 'dired-mode)))
+                     (buffer-list)))
+           (re (funcall ivy--regex-function str))
+           (re (if (consp re) (caar re) re))
+           cands
+           match)
       (dolist (buffer buffers)
         (with-current-buffer buffer
           (save-excursion
@@ -728,8 +729,8 @@ Run `swiper' for those buffers."
                                (line-beginning-position)
                                (line-end-position))
                             (buffer-substring
-                               (line-beginning-position)
-                               (line-end-position))))
+                             (line-beginning-position)
+                             (line-end-position))))
               (put-text-property
                0 1 'buffer
                (buffer-name)

@@ -2392,6 +2392,7 @@ Prefer first \"^*NAME\", then \"^NAME\"."
   (if (or (string-match "^\\^" name) (string= name ""))
       candidates
     (let* ((base-re (funcall ivy--regex-function name))
+           (base-re (if (consp base-re) (caar base-re) base-re))
            (re-prefix (concat "^\\*" base-re))
            res-prefix
            res-noprefix)
