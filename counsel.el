@@ -1454,7 +1454,9 @@ root directory for search."
            (read-directory-name "From directory: "))))
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (split-string (shell-command-to-string "find * -type f -not -path '*\/.git*'"))
+              (split-string
+               (shell-command-to-string "find * -type f -not -path '*\/.git*'")
+               "\n" t)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (x)
@@ -1481,7 +1483,9 @@ root directory for search."
            (read-directory-name "From directory: "))))
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Directory: "
-              (split-string (shell-command-to-string "find * -type d -not -path '*\/.git*'"))
+              (split-string
+               (shell-command-to-string "find * -type d -not -path '*\/.git*'")
+               "\n" t)
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
               :caller 'counsel-dired-jump)))
