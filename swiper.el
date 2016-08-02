@@ -399,21 +399,24 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer where candidates have
 line numbers. For the buffer, use `ivy--regex' instead."
-  (let ((re (cond
-              ((equal str "")
-               "")
-              ((equal str "^")
-               (setq ivy--subexps 0)
-               ".")
-              ((string-match "^\\^" str)
-               (setq ivy--old-re "")
-               (let ((re (ivy--regex-plus (substring str 1))))
-                 (if (zerop ivy--subexps)
-                     (prog1 (format "^ ?\\(%s\\)" re)
-                       (setq ivy--subexps 1))
-                   (format "^ %s" re))))
-              (t
-               (ivy--regex-plus str)))))
+  (let* ((re-builder
+          (or (cdr (assoc 'swiper ivy-re-builders-alist))
+              (cdr (assoc t ivy-re-builders-alist))))
+         (re (cond
+               ((equal str "")
+                "")
+               ((equal str "^")
+                (setq ivy--subexps 0)
+                ".")
+               ((string-match "^\\^" str)
+                (setq ivy--old-re "")
+                (let ((re (funcall re-builder (substring str 1))))
+                  (if (zerop ivy--subexps)
+                      (prog1 (format "^ ?\\(%s\\)" re)
+                        (setq ivy--subexps 1))
+                    (format "^ %s" re))))
+               (t
+                (funcall re-builder str)))))
     (cond ((stringp re)
            (replace-regexp-in-string "\t" "    " re))
           ((and (consp re)
