@@ -741,7 +741,9 @@ Run `swiper' for those buffers."
               (put-text-property 0 1 'point (point) match)
               (push match cands)))))
       (setq ivy--old-re nil)
-      (setq ivy--old-cands (nreverse cands)))))
+      (if (null cands)
+          (list "")
+        (setq ivy--old-cands (nreverse cands))))))
 
 (defun swiper--all-format-function (cands)
   (let* ((ww (window-width))
