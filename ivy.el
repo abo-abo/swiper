@@ -2444,27 +2444,29 @@ Prefer first \"^*NAME\", then \"^NAME\"."
                 ivy--index)))))
 
 (defun ivy-recompute-index-swiper (_re-str cands)
-  (let ((tail (nthcdr ivy--index ivy--old-cands))
-        idx)
-    (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
-        (progn
-          (while (and tail (null idx))
-            ;; Compare with eq to handle equal duplicates in cands
-            (setq idx (cl-position (pop tail) cands)))
-          (or
-           idx
-           (1- (length cands))))
-      (if ivy--old-cands
-          ivy--index
-        ;; already in ivy-state-buffer
-        (let ((n (line-number-at-pos))
-              (res 0)
-              (i 0))
-          (dolist (c cands)
-            (when (eq n (read (get-text-property 0 'swiper-line-number c)))
-              (setq res i))
-            (cl-incf i))
-          res)))))
+  (condition-case nil
+      (let ((tail (nthcdr ivy--index ivy--old-cands))
+            idx)
+        (if (and tail ivy--old-cands (not (equal "^" ivy--old-re)))
+            (progn
+              (while (and tail (null idx))
+                ;; Compare with eq to handle equal duplicates in cands
+                (setq idx (cl-position (pop tail) cands)))
+              (or
+               idx
+               (1- (length cands))))
+          (if ivy--old-cands
+              ivy--index
+            ;; already in ivy-state-buffer
+            (let ((n (line-number-at-pos))
+                  (res 0)
+                  (i 0))
+              (dolist (c cands)
+                (when (eq n (read (get-text-property 0 'swiper-line-number c)))
+                  (setq res i))
+                (cl-incf i))
+              res))))
+    (error 0)))
 
 (defun ivy-recompute-index-swiper-async (_re-str cands)
   (if (null ivy--old-cands)

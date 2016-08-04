@@ -979,6 +979,11 @@ Describe the selected candidate."
                          str))
   str)
 
+(defvar counsel-git-grep-projects-alist nil
+  "An alist of project directory to \"git-grep\" command.
+Allows to automatically use a custom \"git-grep\" command for all
+files in a project.")
+
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
   "Grep for a string in the current git repository.
@@ -987,32 +992,53 @@ When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive "P")
   (ivy-set-prompt 'counsel-git-grep counsel-prompt-function)
-  (cond
-    ((stringp cmd)
-     (setq counsel-git-grep-cmd cmd))
-    (cmd
-     (setq counsel-git-grep-cmd
-           (ivy-read "cmd: " counsel-git-grep-cmd-history
-                     :history 'counsel-git-grep-cmd-history
-                     :re-builder #'ivy--regex))
-     (setq counsel-git-grep-cmd-history
-           (delete-dups counsel-git-grep-cmd-history)))
-    (t
-     (setq counsel-git-grep-cmd counsel-git-grep-cmd-default)))
-  (setq counsel--git-grep-dir
-        (locate-dominating-file default-directory ".git"))
-  (if (null counsel--git-grep-dir)
-      (error "Not in a git repository")
-    (setq counsel--git-grep-count (counsel--gg-count "" t))
-    (ivy-read "git grep" 'counsel-git-grep-function
-              :initial-input initial-input
-              :matcher #'counsel-git-grep-matcher
-              :dynamic-collection (> counsel--git-grep-count 20000)
-              :keymap counsel-git-grep-map
-              :action #'counsel-git-grep-action
-              :unwind #'swiper--cleanup
-              :history 'counsel-git-grep-history
-              :caller 'counsel-git-grep)))
+  (let ((dd (expand-file-name default-directory))
+        proj)
+    (cond
+      ((stringp cmd)
+       (setq counsel-git-grep-cmd cmd))
+      (cmd
+       (if (setq proj
+                 (cl-find-if
+                  (lambda (x)
+                    (string-match (car x) dd))
+                  counsel-git-grep-projects-alist))
+           (setq counsel-git-grep-cmd (cdr proj))
+         (setq counsel-git-grep-cmd
+               (ivy-read "cmd: " counsel-git-grep-cmd-history
+                         :history 'counsel-git-grep-cmd-history
+                         :re-builder #'ivy--regex))
+         (setq counsel-git-grep-cmd-history
+               (delete-dups counsel-git-grep-cmd-history))))
+      (t
+       (setq counsel-git-grep-cmd counsel-git-grep-cmd-default)))
+    (setq counsel--git-grep-dir
+          (if proj
+              (car proj)
+            (locate-dominating-file default-directory ".git")))
+    (if (null counsel--git-grep-dir)
+        (error "Not in a git repository")
+      (unless proj
+        (setq counsel--git-grep-count (counsel--gg-count "" t)))
+      (ivy-read "git grep: " (if proj
+                                 'counsel-git-grep-proj-function
+                               'counsel-git-grep-function)
+                :initial-input initial-input
+                :matcher #'counsel-git-grep-matcher
+                :dynamic-collection (or proj (> counsel--git-grep-count 20000))
+                :keymap counsel-git-grep-map
+                :action #'counsel-git-grep-action
+                :unwind #'swiper--cleanup
+                :history 'counsel-git-grep-history
+                :caller 'counsel-git-grep))))
+
+(defun counsel-git-grep-proj-function (str)
+  (if (< (length str) 3)
+      (counsel-more-chars 3)
+    (let ((regex (setq ivy--old-re
+                       (ivy--regex str t))))
+      (counsel--async-command (format counsel-git-grep-cmd regex))
+      nil)))
 
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
