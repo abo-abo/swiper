@@ -1020,9 +1020,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
         (error "Not in a git repository")
       (unless proj
         (setq counsel--git-grep-count (counsel--gg-count "" t)))
-      (ivy-read "git grep: " (if proj
-                                 'counsel-git-grep-proj-function
-                               'counsel-git-grep-function)
+      (ivy-read "git grep" (if proj
+                               'counsel-git-grep-proj-function
+                             'counsel-git-grep-function)
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
                 :dynamic-collection (or proj (> counsel--git-grep-count 20000))
