@@ -2044,11 +2044,16 @@ The returned value should be the updated PROMPT.")
         (save-excursion
           (goto-char (point-min))
           (delete-region (point-min) (minibuffer-prompt-end))
-          (if (> (+ (mod (+ (length n-str) (length d-str)) (window-width))
-                    (length ivy-text))
-                 (window-width))
-              (setq n-str (concat n-str "\n" d-str))
-            (setq n-str (concat n-str d-str)))
+          (let ((len-n (length n-str))
+                (len-d (length d-str))
+                (ww (window-width)))
+            (setq n-str
+                  (cond ((> (+ len-n len-d) ww)
+                         (concat n-str "\n" d-str "\n"))
+                        ((> (+ len-n len-d (length ivy-text)) ww)
+                         (concat n-str d-str "\n"))
+                        (t
+                         (concat n-str d-str)))))
           (when ivy-add-newline-after-prompt
             (setq n-str (concat n-str "\n")))
           (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
