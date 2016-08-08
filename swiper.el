@@ -311,7 +311,7 @@ numbers; replaces calculating the width from buffer line count."
                            (buffer-substring
                             (point)
                             (line-end-position)))))))
-              (remove-text-properties 0 (length str) '(field) str)
+              (setq str (ivy-cleanup-string str))
               (let ((line-number-str
                      (format swiper--format-spec (cl-incf line-number))))
                 (if swiper-include-line-number-in-search

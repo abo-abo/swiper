@@ -2040,11 +2040,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 (point))))
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point)))
-  (let ((candidates (cl-remove-if
-                     (lambda (s)
-                       (or (< (length s) 3)
-                           (string-match "\\`[\n[:blank:]]+\\'" s)))
-                     (delete-dups kill-ring))))
+  (let ((candidates
+         (mapcar #'ivy-cleanup-string
+                 (cl-remove-if
+                  (lambda (s)
+                    (or (< (length s) 3)
+                        (string-match "\\`[\n[:blank:]]+\\'" s)))
+                  (delete-dups kill-ring)))))
     (let ((ivy-format-function #'counsel--yank-pop-format-function)
           (ivy-height 5))
       (ivy-read "kill-ring: " candidates

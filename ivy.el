@@ -1979,6 +1979,11 @@ depending on the number of candidates."
     (goto-char (minibuffer-prompt-end))
     (delete-region (line-end-position) (point-max))))
 
+(defun ivy-cleanup-string (str)
+  "Remove unwanted text properties from STR."
+  (remove-text-properties 0 (length str) '(field) str)
+  str)
+
 (defvar ivy-set-prompt-text-properties-function
   'ivy-set-prompt-text-properties-default
   "Function to set the text properties of the default ivy prompt.
