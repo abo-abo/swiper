@@ -1438,8 +1438,6 @@ customizations apply to the current completion session."
                        (set hist (cons (propertize item 'ivy-index ivy--index)
                                        (delete item
                                                (cdr (symbol-value hist))))))))
-                 (when (> (length ivy--current) 0)
-                   (remove-text-properties 0 1 '(idx) ivy--current))
                  ivy--current))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
@@ -1448,6 +1446,8 @@ customizations apply to the current completion session."
             (when recursive-ivy-last
               (ivy--reset-state (setq ivy-last recursive-ivy-last)))))
       (ivy-call)
+      (when (> (length ivy--current) 0)
+        (remove-text-properties 0 1 '(idx) ivy--current))
       (when (and recursive-ivy-last
                  ivy-recursive-restore)
         (ivy--reset-state (setq ivy-last recursive-ivy-last))))))
