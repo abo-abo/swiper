@@ -1306,6 +1306,9 @@ Skip some dotfiles unless `ivy-text' requires them."
 
 (declare-function ffap-guesser "ffap")
 
+(defvar counsel-find-file-speedup-remote t
+  "Speed up opening remote files by disabling `find-file-hook' for them.")
+
 ;;;###autoload
 (defun counsel-find-file (&optional initial-input)
   "Forward to `find-file'.
@@ -1317,7 +1320,12 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :action
             (lambda (x)
               (with-ivy-window
-                (find-file (expand-file-name x ivy--directory))))
+                (let ((find-file-hook (if (and
+                                           counsel-find-file-speedup-remote
+                                           (file-remote-p ivy--directory))
+                                          nil
+                                        find-file-hook)))
+                  (find-file (expand-file-name x ivy--directory)))))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
                          (let ((f (ffap-guesser)))
