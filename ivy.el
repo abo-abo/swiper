@@ -946,7 +946,10 @@ Example use:
                           (consp (car collection))
                           ;; Previously, the cdr of the selected candidate would be returned.
                           ;; Now, the whole candidate is returned.
-                          (assoc ivy--current collection)))
+                          (let (idx)
+                            (if (setq idx (get-text-property 0 'idx ivy--current))
+                                (nth idx collection)
+                              (assoc ivy--current collection)))))
                     ((equal ivy--current "")
                      ivy-text)
                     (t
@@ -1435,6 +1438,8 @@ customizations apply to the current completion session."
                        (set hist (cons (propertize item 'ivy-index ivy--index)
                                        (delete item
                                                (cdr (symbol-value hist))))))))
+                 (when (> (length ivy--current) 0)
+                   (remove-text-properties 0 1 '(idx) ivy--current))
                  ivy--current))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (when (setq unwind (ivy-state-unwind ivy-last))
@@ -1539,7 +1544,11 @@ This is useful for recursive `ivy-read'."
                                       (cl-sort
                                        (copy-sequence collection)
                                        sort-fn))))
-               (setq coll (all-completions "" collection predicate))))
+               (setq coll (all-completions "" collection predicate)))
+             (let ((i 0))
+               (dolist (cm coll)
+                 (add-text-properties 0 1 `(idx ,i) cm)
+                 (cl-incf i))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
