@@ -1805,6 +1805,29 @@ Minibuffer bindings:
 
 ;;* Implementation
 ;;** Regex
+(defun ivy-re-match (re-seq str)
+  "Return non-nil if RE-SEQ matches STR.
+
+RE-SEQ is a list of (RE . MATCH-P).
+
+RE is a regular expression.
+
+MATCH-P is t when RE should match STR and nil when RE should not
+match STR.
+
+Each element of RE-SEQ must match for the funtion to return true.
+
+This concept is used to generalize regular expressions for
+`ivy--regex-plus' and `ivy--regex-ignore-order'."
+  (let ((res t)
+        re)
+    (while (and res (setq re (pop re-seq)))
+      (setq res
+            (if (cdr re)
+                (string-match-p (car re) str)
+              (not (string-match-p (car re) str)))))
+    res))
+
 (defvar ivy--regex-hash
   (make-hash-table :test #'equal)
   "Store pre-computed regex.")

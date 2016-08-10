@@ -718,10 +718,13 @@ Run `swiper' for those buffers."
                            (eq (with-current-buffer b
                                  major-mode) 'dired-mode)))
                      (buffer-list)))
-           (re (funcall ivy--regex-function str))
-           (re (if (consp re) (caar re) re))
-           cands
-           match)
+           (re-full (funcall ivy--regex-function str))
+           re re-tail
+           cands match)
+      (if (stringp re-full)
+          (setq re re-full)
+        (setq re (caar re-full))
+        (setq re-tail (cdr re-full)))
       (dolist (buffer buffers)
         (with-current-buffer buffer
           (save-excursion
@@ -739,8 +742,9 @@ Run `swiper' for those buffers."
                (buffer-name)
                match)
               (put-text-property 0 1 'point (point) match)
-              (push match cands)))))
-      (setq ivy--old-re nil)
+              (when (or (null re-tail) (ivy-re-match re-tail match))
+                (push match cands))))))
+      (setq ivy--old-re re-full)
       (if (null cands)
           (list "")
         (setq ivy--old-cands (nreverse cands))))))
