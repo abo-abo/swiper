@@ -2205,6 +2205,7 @@ Should be run via minibuffer `post-command-hook'."
   "Insert TEXT into minibuffer with appropriate cleanup."
   (let ((resize-mini-windows nil)
         (update-fn (ivy-state-update-fn ivy-last))
+        (old-mark (marker-position (mark-marker)))
         deactivate-mark)
     (ivy--cleanup)
     (when update-fn
@@ -2217,7 +2218,10 @@ Should be run via minibuffer `post-command-hook'."
           (forward-line 1)
           (insert text))))
     (when (display-graphic-p)
-      (ivy--resize-minibuffer-to-fit))))
+      (ivy--resize-minibuffer-to-fit))
+    ;; prevent region growing due to text remove/add
+    (when (region-active-p)
+      (set-mark old-mark))))
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
