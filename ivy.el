@@ -3183,7 +3183,7 @@ buffer would modify `ivy-last'.")
 (defvar ivy-occur-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'ivy-occur-click)
-    (define-key map (kbd "RET") 'ivy-occur-press)
+    (define-key map (kbd "RET") 'ivy-occur-press-and-switch)
     (define-key map (kbd "j") 'ivy-occur-next-line)
     (define-key map (kbd "k") 'ivy-occur-previous-line)
     (define-key map (kbd "h") 'backward-char)
@@ -3408,6 +3408,11 @@ EVENT gives the mouse position."
               (when (timerp ivy-occur-timer)
                 (cancel-timer ivy-occur-timer))
               (setq ivy-occur-timer (run-at-time 1.0 nil 'swiper--cleanup))))))))
+
+(defun ivy-occur-press-and-switch ()
+  (interactive)
+  (ivy-occur-press)
+  (select-window (ivy--get-window ivy-last)))
 
 (defvar ivy-help-file (let ((default-directory
                              (if load-file-name
