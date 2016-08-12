@@ -1036,7 +1036,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (if (< (length str) 3)
       (counsel-more-chars 3)
     (let ((regex (setq ivy--old-re
-                       (ivy--regex str))))
+                       (ivy--regex str t))))
       (counsel--async-command (format counsel-git-grep-cmd regex))
       nil)))
 
