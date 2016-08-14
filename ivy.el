@@ -3412,7 +3412,7 @@ EVENT gives the mouse position."
 (defun ivy-occur-press-and-switch ()
   (interactive)
   (ivy-occur-press)
-  (select-window (ivy--get-window ivy-last)))
+  (select-window (ivy--get-window ivy-occur-last)))
 
 (defvar ivy-help-file (let ((default-directory
                              (if load-file-name
