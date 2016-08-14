@@ -2481,9 +2481,8 @@ Prefer first \"^*NAME\", then \"^NAME\"."
                   (cl-position (nth ivy--index ivy--old-cands)
                                cands))
              (funcall func re-str cands))))
-    (when (and (or (string= name "")
-                   (string= name "^"))
-               (not (equal ivy--old-re "")))
+    (when (or (string= name "")
+              (string= name "^"))
       (setq ivy--index
             (or (ivy--preselect-index
                  (ivy-state-preselect ivy-last)
