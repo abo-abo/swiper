@@ -114,6 +114,28 @@
            (perform-replace from to
                             t t nil)))))))
 
+(defun swiper-all-query-replace ()
+  "Start `query-replace' with string to replace from last search string."
+  (interactive)
+  (if (null (window-minibuffer-p))
+      (user-error
+       "Should only be called in the minibuffer through `swiper-all-map'")
+    (let* ((enable-recursive-minibuffers t)
+           (from (ivy--regex ivy-text))
+           (to (query-replace-read-to from "Query replace" t)))
+      (swiper--cleanup)
+      (ivy-exit-with-action
+       (lambda (_)
+         (let ((wnd-conf (current-window-configuration))
+               (inhibit-message t))
+           (unwind-protect
+                (dolist (cand ivy--old-cands)
+                  (let ((buffer (get-text-property 0 'buffer cand)))
+                    (switch-to-buffer buffer)
+                    (goto-char (point-min))
+                    (perform-replace from to t t nil)))
+             (set-window-configuration wnd-conf))))))))
+
 (defvar avy-background)
 (defvar avy-all-windows)
 (defvar avy-style)
@@ -640,7 +662,6 @@ WND, when specified is the window."
          re
          regexp-search-ring-max)))))
 
-;; (define-key isearch-mode-map (kbd "C-o") 'swiper-from-isearch)
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
   (interactive)
@@ -779,16 +800,23 @@ Run `swiper' for those buffers."
      cands
      "\n")))
 
+(defvar swiper-all-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-q") 'swiper-all-query-replace)
+    map)
+  "Keymap for `swiper-all'.")
+
 (defun swiper-all ()
   "Run `swiper' for all opened buffers."
   (interactive)
   (let ((ivy-format-function #'swiper--all-format-function))
-    (ivy-read "Swiper: " 'swiper-all-function
+    (ivy-read "swiper-all: " 'swiper-all-function
               :action 'swiper-all-action
               :unwind #'swiper--cleanup
               :update-fn (lambda ()
                            (swiper-all-action ivy--current))
               :dynamic-collection t
+              :keymap swiper-all-map
               :caller 'swiper-multi)))
 
 (defun swiper-all-action (x)
