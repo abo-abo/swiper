@@ -1475,6 +1475,27 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))
 
+;;** `counsel-dpkg'
+;;;###autoload
+(defun counsel-dpkg ()
+  "Call the \"dpkg\" shell command."
+  (interactive)
+  (let ((cands (mapcar
+                (lambda (x)
+                  (let ((y (split-string x "  +")))
+                    (setq col1 (max col1 (length (nth 1 y))))
+                    (cons (format "%-40s   %s"
+                                  (ivy--truncate-string
+                                   (nth 1 y) 40)
+                                  (nth 4 y))
+                          (mapconcat #'identity y " "))))
+                (split-string
+                 (shell-command-to-string "dpkg -l | tail -n+6") "\n" t))))
+    (ivy-read "dpkg: " cands
+              :action (lambda (x)
+                        (message (cdr x)))
+              :caller 'counsel-dpkg)))
+
 ;;** File Jump and Dired Jump
 
 ;;;###autoload
