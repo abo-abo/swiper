@@ -1494,7 +1494,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (let ((cands (mapcar
                 (lambda (x)
                   (let ((y (split-string x "  +")))
-                    (setq col1 (max col1 (length (nth 1 y))))
                     (cons (format "%-40s   %s"
                                   (ivy--truncate-string
                                    (nth 1 y) 40)
