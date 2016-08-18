@@ -1546,9 +1546,11 @@ This is useful for recursive `ivy-read'."
                                        sort-fn))))
                (setq coll (all-completions "" collection predicate)))
              (let ((i 0))
-               (dolist (cm coll)
-                 (add-text-properties 0 1 `(idx ,i) cm)
-                 (cl-incf i))))
+               (ignore-errors
+                 ;; cm can be read-only
+                 (dolist (cm coll)
+                   (add-text-properties 0 1 `(idx ,i) cm)
+                   (cl-incf i)))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
