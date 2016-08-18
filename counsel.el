@@ -1383,6 +1383,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
                   (substring url 1)))))))
 
 ;;** `counsel-recentf'
+(defvar recentf-list)
+
 ;;;###autoload
 (defun counsel-recentf ()
   "Find a file on `recentf-list'."
