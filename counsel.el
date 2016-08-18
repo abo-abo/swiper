@@ -1382,6 +1382,17 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
 
+;;** `counsel-recentf'
+;;;###autoload
+(defun counsel-recentf ()
+  "Find a file on `recentf-list'."
+  (interactive)
+  (ivy-read "Recentf: " recentf-list
+            :action (lambda (f)
+                      (with-ivy-window
+                        (find-file f)))
+            :caller 'counsel-recentf))
+
 ;;** `counsel-locate'
 (defcustom counsel-locate-cmd (cond ((eq system-type 'darwin)
                                      'counsel-locate-cmd-noregex)
