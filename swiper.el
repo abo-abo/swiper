@@ -405,7 +405,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 
 (ivy-set-occur 'swiper 'swiper-occur)
 
-(declare-function evil-jumper--set-jump "ext:evil-jumper")
+(declare-function evil-set-jump "ext:evil-jumps")
 
 (defvar swiper--current-line nil)
 (defvar swiper--current-match-start nil)
@@ -415,8 +415,8 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (setq swiper--current-line nil)
   (setq swiper--current-match-start nil)
   (setq swiper--opoint (point))
-  (when (bound-and-true-p evil-jumper-mode)
-    (evil-jumper--set-jump)))
+  (when (bound-and-true-p evil-mode)
+    (evil-set-jump)))
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
