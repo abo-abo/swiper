@@ -227,7 +227,8 @@
     (recenter-top-bottom arg)))
 
 (defvar swiper-font-lock-exclude
-  '(package-menu-mode
+  '(bookmark-bmenu-mode
+    package-menu-mode
     gnus-summary-mode
     gnus-article-mode
     gnus-group-mode
