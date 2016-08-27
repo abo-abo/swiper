@@ -3388,7 +3388,7 @@ EVENT gives the mouse position."
         (funcall action
                  (if (and (consp coll)
                           (consp (car coll)))
-                     (cdr (assoc str coll))
+                     (assoc str coll)
                    str))
         (if (memq (ivy-state-caller ivy-last)
                   '(swiper counsel-git-grep counsel-grep))
