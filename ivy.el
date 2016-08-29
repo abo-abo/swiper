@@ -955,7 +955,8 @@ Example use:
                      ivy-text)
                     (t
                      ivy--current))))
-          (prog1 (with-ivy-window (funcall action x))
+          (select-window (ivy--get-window ivy-last))
+          (prog1 (funcall action x)
             (unless (or (eq ivy-exit 'done)
                         (equal (selected-window)
                                (active-minibuffer-window))
