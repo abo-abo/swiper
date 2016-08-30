@@ -409,11 +409,13 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 
 (defvar swiper--current-line nil)
 (defvar swiper--current-match-start nil)
+(defvar swiper--current-window-start nil)
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
   (setq swiper--current-line nil)
   (setq swiper--current-match-start nil)
+  (setq swiper--current-window-start nil)
   (setq swiper--opoint (point))
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
@@ -574,7 +576,8 @@ Matched candidates should have `swiper-invocation-face'."
                                      (line-end-position))
             (unless (and (>= (point) (window-start))
                          (<= (point) (window-end (ivy-state-window ivy-last) t)))
-              (recenter))))
+              (recenter))
+            (setq swiper--current-window-start (window-start))))
         (swiper--add-overlays re)))))
 
 (defun swiper--add-overlays (re &optional beg end wnd)
@@ -651,8 +654,9 @@ WND, when specified is the window."
                  ln)
         (re-search-forward re (line-end-position) t)
         (swiper--ensure-visible)
-        (when swiper-action-recenter
-          (recenter))
+        (if swiper-action-recenter
+            (recenter)
+          (set-window-start (selected-window) swiper--current-window-start))
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
             (when (eq ivy-exit 'done)
