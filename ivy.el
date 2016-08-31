@@ -102,7 +102,10 @@
   "Face used by Ivy for highlighting modified file visiting buffers.")
 
 (defface ivy-remote
-  '((t :foreground "#110099"))
+  '((((class color) (background light))
+     :foreground "#110099")
+    (((class color) (background dark))
+     :foreground "#7B6BFF"))
   "Face used by Ivy for highlighting remotes in the alternatives.")
 
 (defface ivy-virtual
