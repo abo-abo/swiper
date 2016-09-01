@@ -358,6 +358,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (swiper--ivy (swiper--candidates) initial-input))
 
 (declare-function string-trim-right "subr-x")
+(defvar swiper--current-window-start nil)
 
 (defun swiper-occur (&optional revert)
   "Generate a custom occur buffer for `swiper'.
@@ -393,6 +394,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
     (unless (eq major-mode 'ivy-occur-grep-mode)
       (ivy-occur-grep-mode)
       (font-lock-mode -1))
+    (setq swiper--current-window-start nil)
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
     (insert (format "%d candidates:\n" (length cands)))
@@ -409,7 +411,6 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 
 (defvar swiper--current-line nil)
 (defvar swiper--current-match-start nil)
-(defvar swiper--current-window-start nil)
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
@@ -654,9 +655,10 @@ WND, when specified is the window."
                  ln)
         (re-search-forward re (line-end-position) t)
         (swiper--ensure-visible)
-        (if swiper-action-recenter
-            (recenter)
-          (set-window-start (selected-window) swiper--current-window-start))
+        (cond (swiper-action-recenter
+               (recenter))
+              (swiper--current-window-start
+               (set-window-start (selected-window) swiper--current-window-start)))
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
             (when (eq ivy-exit 'done)
