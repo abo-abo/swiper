@@ -2566,6 +2566,22 @@ Prefer first \"^*NAME\", then \"^NAME\"."
 When the amount of matching candidates exceeds this limit, then
 no sorting is done.")
 
+(defun ivy--flx-propertize (x)
+  "X is (cons (flx-score STR ...) STR)."
+  (let ((str (copy-sequence (cdr x)))
+        (i 0)
+        (last-j -2))
+    (dolist (j (cdar x))
+      (unless (eq j (1+ last-j))
+        (cl-incf i))
+      (setq last-j j)
+      (ivy-add-face-text-property
+       j (1+ j)
+       (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+            ivy-minibuffer-faces)
+       str))
+    str))
+
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
@@ -2583,20 +2599,7 @@ no sorting is done.")
                                   (cons score x))))
                          cands))))
             (if cands-with-score
-                (mapcar (lambda (x)
-                          (let ((str (copy-sequence (cdr x)))
-                                (i 0)
-                                (last-j -2))
-                            (dolist (j (cdar x))
-                              (unless (eq j (1+ last-j))
-                                (cl-incf i))
-                              (setq last-j j)
-                              (ivy-add-face-text-property
-                               j (1+ j)
-                               (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                                    ivy-minibuffer-faces)
-                               str))
-                            str))
+                (mapcar #'cdr
                         (sort cands-with-score
                               (lambda (x y)
                                 (> (caar x) (caar y)))))
@@ -2678,39 +2681,52 @@ SEPARATOR is used to join the candidates."
              (match-end 0)
            0))
         (str (copy-sequence str)))
-    (cond ((eq ivy--regex-function 'ivy--regex-ignore-order)
-           (when (consp ivy--old-re)
-             (let ((i 1))
-               (dolist (re ivy--old-re)
-                 (when (string-match (car re) str)
-                   (ivy-add-face-text-property
-                    (match-beginning 0) (match-end 0)
-                    (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                         ivy-minibuffer-faces)
-                    str))
-                 (cl-incf i)))))
-          ((and (eq ivy-display-style 'fancy)
-                (not (eq ivy--regex-function 'ivy--regex-fuzzy)))
-           (unless ivy--old-re
-             (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-           (ignore-errors
-             (while (and (string-match ivy--old-re str start)
-                         (> (- (match-end 0) (match-beginning 0)) 0))
-               (setq start (match-end 0))
-               (let ((i 0))
-                 (while (<= i ivy--subexps)
-                   (let ((face
-                          (cond ((zerop ivy--subexps)
-                                 (cadr ivy-minibuffer-faces))
-                                ((zerop i)
-                                 (car ivy-minibuffer-faces))
-                                (t
-                                 (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                                      ivy-minibuffer-faces)))))
+    (when (eq ivy-display-style 'fancy)
+      (cond ((eq ivy--regex-function 'ivy--regex-ignore-order)
+             (when (consp ivy--old-re)
+               (let ((i 1))
+                 (dolist (re ivy--old-re)
+                   (when (string-match (car re) str)
                      (ivy-add-face-text-property
-                      (match-beginning i) (match-end i)
-                      face str))
-                   (cl-incf i)))))))
+                      (match-beginning 0) (match-end 0)
+                      (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                           ivy-minibuffer-faces)
+                      str))
+                   (cl-incf i)))))
+            ((or (eq ivy--regex-function 'ivy--regex-fuzzy)
+                 (and (eq ivy--regex-function 'swiper--re-builder)
+                      (let ((caller (ivy-state-caller ivy-last)))
+                        (eq (or (and caller
+                                     (cdr (assoc caller ivy-re-builders-alist)))
+                                (cdr (assoc t ivy-re-builders-alist)))
+                            'ivy--regex-fuzzy))))
+             (let ((flx-name (if (string-match "^\\^" ivy-text)
+                                 (substring ivy-text 1)
+                               ivy-text)))
+               (setq str
+                     (ivy--flx-propertize
+                      (cons (flx-score str flx-name ivy--flx-cache) str)))))
+            (t
+             (unless ivy--old-re
+               (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
+             (ignore-errors
+               (while (and (string-match ivy--old-re str start)
+                           (> (- (match-end 0) (match-beginning 0)) 0))
+                 (setq start (match-end 0))
+                 (let ((i 0))
+                   (while (<= i ivy--subexps)
+                     (let ((face
+                            (cond ((zerop ivy--subexps)
+                                   (cadr ivy-minibuffer-faces))
+                                  ((zerop i)
+                                   (car ivy-minibuffer-faces))
+                                  (t
+                                   (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                                        ivy-minibuffer-faces)))))
+                       (ivy-add-face-text-property
+                        (match-beginning i) (match-end i)
+                        face str))
+                     (cl-incf i))))))))
     str))
 
 (ivy-set-display-transformer
