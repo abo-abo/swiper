@@ -1755,6 +1755,7 @@ the command."
                              :history 'counsel-git-grep-history
                              :update-fn (lambda ()
                                           (counsel-grep-action ivy--current))
+                             :re-builder #'ivy--regex
                              :action #'counsel-grep-action
                              :unwind (lambda ()
                                        (counsel-delete-process)
