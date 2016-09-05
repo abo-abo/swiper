@@ -1976,7 +1976,8 @@ Insert .* between each char."
                   (mapconcat
                    (lambda (x)
                      (format "\\(%c\\)" x))
-                   (string-to-list (match-string 2 str)) ".*")
+                   (string-to-list (match-string 2 str))
+                   ".*?")
                   (match-string 3 str))
         (setq ivy--subexps (length (match-string 2 str))))
     str))
@@ -2693,13 +2694,15 @@ SEPARATOR is used to join the candidates."
                            ivy-minibuffer-faces)
                       str))
                    (cl-incf i)))))
-            ((or (eq ivy--regex-function 'ivy--regex-fuzzy)
-                 (and (eq ivy--regex-function 'swiper--re-builder)
-                      (let ((caller (ivy-state-caller ivy-last)))
-                        (eq (or (and caller
-                                     (cdr (assoc caller ivy-re-builders-alist)))
-                                (cdr (assoc t ivy-re-builders-alist)))
-                            'ivy--regex-fuzzy))))
+            ((and
+              (require 'flx nil 'noerror)
+              (or (eq ivy--regex-function 'ivy--regex-fuzzy)
+                  (and (eq ivy--regex-function 'swiper--re-builder)
+                       (let ((caller (ivy-state-caller ivy-last)))
+                         (eq (or (and caller
+                                      (cdr (assoc caller ivy-re-builders-alist)))
+                                 (cdr (assoc t ivy-re-builders-alist)))
+                             'ivy--regex-fuzzy)))))
              (let ((flx-name (if (string-match "^\\^" ivy-text)
                                  (substring ivy-text 1)
                                ivy-text)))

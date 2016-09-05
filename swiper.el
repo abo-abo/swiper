@@ -613,24 +613,32 @@ WND, when specified is the window."
           ;; RE can become an invalid regexp
           (while (and (ignore-errors (re-search-forward re end t))
                       (> (- (match-end 0) (match-beginning 0)) 0))
-            (let ((i 0))
-              (while (<= i ivy--subexps)
-                (when (match-beginning i)
-                  (let ((overlay (make-overlay (match-beginning i)
-                                               (match-end i)))
-                        (face
-                         (cond ((zerop ivy--subexps)
-                                (cadr swiper-faces))
-                               ((zerop i)
-                                (car swiper-faces))
-                               (t
-                                (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                                     swiper-faces)))))
-                    (push overlay swiper--overlays)
-                    (overlay-put overlay 'face face)
-                    (overlay-put overlay 'window wnd)
-                    (overlay-put overlay 'priority i)))
-                (cl-incf i)))))))))
+            (swiper--add-overlay (match-beginning 0) (match-end 0)
+                                 (if (zerop ivy--subexps)
+                                     (cadr swiper-faces)
+                                   (car swiper-faces))
+                                 wnd 0)
+            (let ((i 1)
+                  (j 0))
+              (while (<= (cl-incf j) ivy--subexps)
+                (let ((bm (match-beginning j))
+                      (em (match-end j)))
+                  (while (and (< j ivy--subexps)
+                              (= em (match-beginning (+ j 1))))
+                    (setq em (match-end (cl-incf j))))
+                  (swiper--add-overlay
+                   bm em
+                   (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
+                        swiper-faces)
+                   wnd i)
+                  (cl-incf i))))))))))
+
+(defun swiper--add-overlay (beg end face wnd priority)
+  (let ((overlay (make-overlay beg end)))
+    (push overlay swiper--overlays)
+    (overlay-put overlay 'face face)
+    (overlay-put overlay 'window wnd)
+    (overlay-put overlay 'priority priority)))
 
 (defcustom swiper-action-recenter nil
   "When non-nil, recenter after exiting `swiper'."
