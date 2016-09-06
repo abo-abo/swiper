@@ -1203,6 +1203,9 @@ done") "\n" t)))
                   :action 'counsel-git-stash-kill-action
                   :caller 'counsel-git-stash)))))
 ;;** `counsel-git-log'
+(defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
+  "Command used for \"git log\".")
+
 (defun counsel-git-log-function (input)
   (if (< (length input) 3)
       (counsel-more-chars 3)
@@ -1211,10 +1214,8 @@ done") "\n" t)))
     (counsel--async-command
      ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
      ;; But it doesn't like the non-greedy ".*?".
-     (format "GIT_PAGER=cat git log --grep '%s'"
-             (replace-regexp-in-string
-              "\\.\\*\\?" ".*"
-              ivy--old-re)))
+     (format counsel-git-log-cmd
+             (replace-regexp-in-string "\\.\\*\\?" ".*" ivy--old-re)))
     nil))
 
 (defun counsel-git-log-action (x)
