@@ -190,8 +190,8 @@ complications with branch-introducing custom macros.
 Customizability is about being able to use different methods and
 interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
-selected candidate with @code{>}, instead of highlighting the
-selected candidate with the @code{ivy-current-match} face (see
+selected candidate with @code{>}, instead of highlighting the selected
+candidate with the @code{ivy-current-match} face (see
 @code{ivy-format-function}). Or take the customization of actions, say
 after the candidate function is selected. @kbd{RET} uses
 @code{counsel-describe-function} to describe the function, whereas
@@ -245,7 +245,7 @@ for adding MELPA to the list of package archives:
 @end lisp
 
 After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by
-@kbd{M-x} @code{package-install} @kbd{RET} @code{swiper} @kbd{RET}.
+@kbd{M-x} @code{package-install} @kbd{RET} @code{counsel} @kbd{RET}.
 
 For package manager details, see @ref{Packages,,,emacs,}.
 

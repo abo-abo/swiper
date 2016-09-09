@@ -162,7 +162,7 @@ for adding MELPA to the list of package archives:
 #+end_src
 
 After this do ~M-x~ =package-refresh-contents= ~RET~, followed by
-~M-x~ =package-install= ~RET~ =swiper= ~RET~.
+~M-x~ =package-install= ~RET~ =counsel= ~RET~.
 
 For package manager details, see [[info:emacs#Packages]].
 
