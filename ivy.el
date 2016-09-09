@@ -1549,7 +1549,10 @@ This is useful for recursive `ivy-read'."
                                       (cl-sort
                                        (copy-sequence collection)
                                        sort-fn))))
-               (setq coll (all-completions "" collection predicate)))
+               (setq collection
+                     (setf (ivy-state-collection ivy-last)
+                           (cl-remove-if-not predicate collection)))
+               (setq coll (all-completions "" collection)))
              (let ((i 0))
                (ignore-errors
                  ;; cm can be read-only
