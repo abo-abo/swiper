@@ -2409,6 +2409,8 @@ The alist VAL is a sorting function with the signature of
                 (nth 5 (file-attributes f2))
                 (nth 5 (file-attributes f1)))))))
 
+(defvar ivy--flx-featurep (require 'flx nil 'noerror))
+
 (defun ivy--sort (name candidates)
   "Re-sort CANDIDATES by NAME.
 All CANDIDATES are assumed to match NAME."
@@ -2416,7 +2418,7 @@ All CANDIDATES are assumed to match NAME."
                  (when (functionp (ivy-state-collection ivy-last))
                    (ivy-state-collection ivy-last))))
         fun)
-    (cond ((and (require 'flx nil 'noerror)
+    (cond ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
           ((setq fun (cdr (or (assoc key ivy-sort-matches-functions-alist)
@@ -2482,7 +2484,7 @@ Prefer first \"^*NAME\", then \"^NAME\"."
                   (> (length name) 0)
                   0)
              (and (not (string= name ""))
-                  (not (and (require 'flx nil 'noerror)
+                  (not (and ivy--flx-featurep
                             (eq ivy--regex-function 'ivy--regex-fuzzy)
                             (< (length cands) 200)))
                   ivy--old-cands
@@ -2695,7 +2697,7 @@ SEPARATOR is used to join the candidates."
                       str))
                    (cl-incf i)))))
             ((and
-              (require 'flx nil 'noerror)
+              ivy--flx-featurep
               (or (eq ivy--regex-function 'ivy--regex-fuzzy)
                   (and (eq ivy--regex-function 'swiper--re-builder)
                        (let ((caller (ivy-state-caller ivy-last)))
