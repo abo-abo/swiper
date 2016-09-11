@@ -352,13 +352,14 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-unicode-char ()
   "Insert a Unicode character at point."
   (interactive)
-  (let ((minibuffer-allow-text-properties t))
+  (let ((minibuffer-allow-text-properties t)
+	(ivy-sort-max-size (expt 8 6)))
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
     (ivy-read "Unicode name: "
               (mapcar (lambda (x)
                         (propertize
-                         (format "% -6X% -60s%c" (cdr x) (car x) (cdr x))
+                         (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
                          'result (cdr x)))
                       (ucs-names))
               :action (lambda (char)
@@ -367,7 +368,8 @@ Update the minibuffer with the amount of lines collected every
                           (setq ivy-completion-beg (point))
                           (insert-char (get-text-property 0 'result char))
                           (setq ivy-completion-end (point))))
-              :history 'counsel-unicode-char-history)))
+              :history 'counsel-unicode-char-history
+	      :sort t)))
 
 ;;* Elisp symbols
 ;;** `counsel-describe-variable'
