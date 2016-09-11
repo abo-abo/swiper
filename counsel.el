@@ -1385,11 +1385,14 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 ;;** `counsel-recentf'
 (defvar recentf-list)
+(declare-function recentf-mode "recentf")
 
 ;;;###autoload
 (defun counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
+  (require 'recentf)
+  (recentf-mode)
   (ivy-read "Recentf: " recentf-list
             :action (lambda (f)
                       (with-ivy-window
