@@ -353,7 +353,7 @@ Update the minibuffer with the amount of lines collected every
   "Insert a Unicode character at point."
   (interactive)
   (let ((minibuffer-allow-text-properties t)
-        (ivy-sort-max-size (expt 8 6)))
+        (ivy-sort-max-size (expt 256 6)))
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
     (ivy-read "Unicode name: "
