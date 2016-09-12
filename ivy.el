@@ -457,8 +457,7 @@ When non-nil, it should contain at least one %d.")
   "Quit the minibuffer and call ACTION afterwards."
   (ivy-set-action
    `(lambda (x)
-      (with-ivy-window
-        (funcall ',action x))
+      (funcall ',action x)
       (ivy-set-action ',(ivy-state-action ivy-last))))
   (setq ivy-exit 'done)
   (exit-minibuffer))
