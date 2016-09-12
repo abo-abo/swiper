@@ -2231,7 +2231,10 @@ This depends on `lv' feature provided by the package `hydra'.")
     (when (stringp text)
       (if ivy-flip
           (let ((lv-force-update t))
-            (lv-message (substring text 1)))
+            (lv-message
+             (if (string-match "\\`\n" text)
+                 (substring text 1)
+               text)))
         (let ((buffer-undo-list t))
           (save-excursion
             (forward-line 1)
