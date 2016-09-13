@@ -953,6 +953,8 @@ Example use:
                             (if (setq idx (get-text-property 0 'idx ivy--current))
                                 (nth idx collection)
                               (assoc ivy--current collection)))))
+                    (ivy--directory
+                     (expand-file-name ivy--current ivy--directory))
                     ((equal ivy--current "")
                      ivy-text)
                     (t
