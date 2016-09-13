@@ -1606,8 +1606,10 @@ If non-nil, EXTRA-AG-ARGS string is appended to `counsel-ag-base-command'."
                             (concat extra-ag-args
                                     " -- "
                                     (shell-quote-argument regex)))))
-        (counsel--async-command ag-cmd))
-      nil)))
+        (if (file-remote-p default-directory)
+            (split-string (shell-command-to-string ag-cmd) "\n" t)
+          (counsel--async-command ag-cmd)
+          nil)))))
 
 ;;;###autoload
 (defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
