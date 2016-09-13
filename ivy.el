@@ -2219,6 +2219,9 @@ Should be run via minibuffer `post-command-hook'."
   "When non-nil, the candidates are above the input, instead of below.
 This depends on `lv' feature provided by the package `hydra'.")
 
+(defvar lv-force-update)
+(declare-function lv-message "ext:lv")
+
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
   (let ((resize-mini-windows nil)
