@@ -714,7 +714,7 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
             :require-match t
             :history 'extended-command-history
             :action #'counsel--M-x-execute
-            :sort (not (featurep 'smex))
+            :sort (not (require 'smex nil 'no-error))
             :keymap counsel-describe-map
             :initial-input (or initial-input (cdr (assoc this-command ivy-initial-inputs-alist)))
             :caller 'counsel-M-x))
