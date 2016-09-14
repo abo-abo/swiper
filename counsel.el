@@ -674,60 +674,65 @@ input corresponding to the chosen variable."
            this-command cmd)
      'record)))
 
+(defun counsel--M-x-init-smex ()
+  "When available, initialize `smex'.
+Returns non-nil when `smex' is available."
+  (when (require 'smex nil 'noerror)
+    (unless smex-initialized-p
+      (smex-initialize))
+    (smex-detect-new-commands)
+    (smex-update)
+    t))
+
+(defun counsel--M-x-all-commands ()
+  "All commands available to the user as a list of strings."
+  (if (counsel--M-x-init-smex)
+      smex-ido-cache
+    (cl-remove-if-not #'commandp obarray)))
+
+(defun counsel--M-x-major-mode-commands ()
+  "All commands in `major-mode' as a list of strings.
+Includes commands in the current local keymap.  This is
+essentially a data-only clone of `smex-major-mode-commands'.
+
+It is an error if `smex' is not available."
+  (unless (counsel--M-x-init-smex)
+    (error "smex not available"))
+  (mapcar
+   #'symbol-name
+   (smex-sort-according-to-cache
+    (delete-dups
+     (append (smex-extract-commands-from-keymap (current-local-map))
+             (smex-extract-commands-from-features major-mode))))))
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
 Optional INITIAL-INPUT is the initial input in the minibuffer."
   (interactive)
-  (unless initial-input
-    (setq initial-input (cdr (assoc this-command
-                                    ivy-initial-inputs-alist))))
-  (let* ((cands obarray)
-         (pred 'commandp)
-         (sort t))
-    (when (require 'smex nil 'noerror)
-      (unless smex-initialized-p
-        (smex-initialize))
-      (smex-detect-new-commands)
-      (smex-update)
-      (setq cands smex-ido-cache)
-      (setq pred nil)
-      (setq sort nil))
-    (ivy-read (counsel--M-x-prompt) cands
-              :predicate pred
-              :require-match t
-              :history 'extended-command-history
-              :action #'counsel--M-x-execute
-              :sort sort
-              :keymap counsel-describe-map
-              :initial-input initial-input
-              :caller 'counsel-M-x)))
+  (ivy-read (counsel--M-x-prompt) (counsel--M-x-all-commands)
+            :require-match t
+            :history 'extended-command-history
+            :action #'counsel--M-x-execute
+            :sort (not (featurep 'smex))
+            :keymap counsel-describe-map
+            :initial-input (or initial-input (cdr (assoc this-command ivy-initial-inputs-alist)))
+            :caller 'counsel-M-x))
 
 ;;;###autoload
 (defun counsel-major-mode-commands (&optional initial-input)
   "Ivy version of `smex-major-mode-commands'.
 Optional INITIAL-INPUT is the initial input in the minibuffer."
   (interactive)
-  (unless (require 'smex nil 'noerror)
+  (unless (require 'smex nil 'no-error)
     (user-error "This command requires `smex', which is not installed"))
-  (unless smex-initialized-p
-    (smex-initialize))
-  (smex-detect-new-commands)
-  (smex-update)
-  (let* ((keymap-commands (smex-extract-commands-from-keymap (current-local-map)))
-         (mode-commands (smex-extract-commands-from-features major-mode))
-         (cands (delete-dups (append keymap-commands mode-commands)))
-         (cands (smex-sort-according-to-cache cands))
-         (cands (mapcar #'symbol-name cands)))
-    (ivy-read (counsel--M-x-prompt) cands
-              :predicate #'commandp
-              :require-match t
-              :history 'extended-command-history
-              :action #'counsel--M-x-execute
-              :sort nil
-              :keymap counsel-describe-map
-              :initial-input (or initial-input (cdr (assoc this-command ivy-initial-inputs-alist)))
-              :caller 'counsel-major-mode-commands)))
+  (ivy-read (counsel--M-x-prompt) (counsel--M-x-major-mode-commands)
+            :require-match t
+            :history 'extended-command-history
+            :action #'counsel--M-x-execute
+            :keymap counsel-describe-map
+            :initial-input (or initial-input (cdr (assoc this-command ivy-initial-inputs-alist)))
+            :caller 'counsel-major-mode-commands))
 
 ;;** `counsel-load-library'
 ;;;###autoload
