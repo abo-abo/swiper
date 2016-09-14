@@ -725,7 +725,8 @@ Run `swiper' for those buffers."
                (swiper--multi-candidates
                 (mapcar #'get-buffer swiper-multi-buffers))))
         ((eq this-command 'ivy-call)
-         (delete-minibuffer-contents))))
+         (with-selected-window (active-minibuffer-window)
+           (delete-minibuffer-contents)))))
 
 (defun swiper-multi-action-2 (x)
   (when (> (length x) 0)
