@@ -603,16 +603,6 @@ input corresponding to the chosen variable."
   (require 'info-look)
   (info-lookup 'symbol symbol mode))
 
-;;** `counsel-M-x'
-(ivy-set-actions
- 'counsel-M-x
- '(("d" counsel--find-symbol "definition")
-   ("h" (lambda (x) (describe-function (intern x))) "help")))
-
-(ivy-set-display-transformer
- 'counsel-M-x
- 'counsel-M-x-transformer)
-
 (declare-function bookmark-all-names "bookmark")
 
 ;;;###autoload
@@ -627,6 +617,18 @@ input corresponding to the chosen variable."
                         (bookmark-jump x)))
             :require-match t
             :caller 'counsel-bookmark))
+
+;;** `counsel-M-x' and `counsel-major-mode-commands'
+(mapcar
+ (lambda (extended-command-function)
+   (ivy-set-actions
+    extended-command-function
+    '(("d" counsel--find-symbol "definition")
+      ("h" (lambda (x) (describe-function (intern x))) "help")))
+   (ivy-set-display-transformer
+    extended-command-function
+    #'counsel-M-x-transformer))
+ '(counsel-M-x counsel-major-mode-commands))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
@@ -643,6 +645,8 @@ input corresponding to the chosen variable."
 (declare-function smex-detect-new-commands "ext:smex")
 (declare-function smex-update "ext:smex")
 (declare-function smex-rank "ext:smex")
+(declare-function smex-extract-commands-from-keymap "ext:smex")
+(declare-function smex-extract-commands-from-features "ext:smex")
 
 (defun counsel--M-x-prompt ()
   "M-x plus the string representation of `current-prefix-arg'."
@@ -657,6 +661,18 @@ input corresponding to the chosen variable."
              "C-u "
            (format "%d " (car current-prefix-arg)))))
      "M-x ")))
+
+(defun counsel--M-x-execute (cmd)
+  "Execute CMD."
+  (when (stringp cmd)
+    (setq cmd (intern cmd)))
+  (when (featurep 'smex)
+    (smex-rank cmd))
+  (let ((prefix-arg current-prefix-arg))
+    (command-execute
+     (setq real-this-command cmd
+           this-command cmd)
+     'record)))
 
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
@@ -681,18 +697,37 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               :predicate pred
               :require-match t
               :history 'extended-command-history
-              :action
-              (lambda (cmd)
-                (when (featurep 'smex)
-                  (smex-rank (intern cmd)))
-                (let ((prefix-arg current-prefix-arg))
-                  (setq real-this-command
-                        (setq this-command (intern cmd)))
-                  (command-execute (intern cmd) 'record)))
+              :action #'counsel--M-x-execute
               :sort sort
               :keymap counsel-describe-map
               :initial-input initial-input
               :caller 'counsel-M-x)))
+
+;;;###autoload
+(defun counsel-major-mode-commands (&optional initial-input)
+  "Ivy version of `smex-major-mode-commands'.
+Optional INITIAL-INPUT is the initial input in the minibuffer."
+  (interactive)
+  (unless (require 'smex nil 'noerror)
+    (user-error "This command requires `smex', which is not installed"))
+  (unless smex-initialized-p
+    (smex-initialize))
+  (smex-detect-new-commands)
+  (smex-update)
+  (let* ((keymap-commands (smex-extract-commands-from-keymap (current-local-map)))
+         (mode-commands (smex-extract-commands-from-features major-mode))
+         (cands (delete-dups (append keymap-commands mode-commands)))
+         (cands (smex-sort-according-to-cache cands))
+         (cands (mapcar #'symbol-name cands)))
+    (ivy-read (counsel--M-x-prompt) cands
+              :predicate #'commandp
+              :require-match t
+              :history 'extended-command-history
+              :action #'counsel--M-x-execute
+              :sort nil
+              :keymap counsel-describe-map
+              :initial-input (or initial-input (cdr (assoc this-command ivy-initial-inputs-alist)))
+              :caller 'counsel-major-mode-commands)))
 
 ;;** `counsel-load-library'
 ;;;###autoload
