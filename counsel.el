@@ -2147,26 +2147,38 @@ PREFIX is used to create the key."
              alist))
 
 ;;;###autoload
-(defun counsel-imenu ()
-  "Jump to a buffer position indexed by imenu."
-  (interactive)
+(defun counsel-imenu (&optional force-rescan jump-immediately)
+  "Jump to a buffer position indexed by imenu.
+
+With one \\[universal-argument] prefix, imenu will rescan the
+entire buffer regardless of its size.
+
+With two \\[universal-argument] prefixes, we'll immediately jump
+to the definition of the thing at point (assuming that thing is
+found by imenu)."
+  (interactive "P")
+  (setq jump-immediately (<= 16 (car force-rescan)))
   (unless (featurep 'imenu)
     (require 'imenu nil t))
   (let* ((imenu-auto-rescan t)
-         (imenu-auto-rescan-maxout (if current-prefix-arg
+         (imenu-auto-rescan-maxout (if force-rescan
                                        (buffer-size)
                                      imenu-auto-rescan-maxout))
          (items (imenu--make-index-alist t))
-         (items (delete (assoc "*Rescan*" items) items)))
-    (ivy-read "imenu items:" (counsel-imenu-get-candidates-from items)
-              :preselect (thing-at-point 'symbol)
-              :require-match t
-              :action (lambda (candidate)
-                        (with-ivy-window
-                          ;; In org-mode, (imenu candidate) will expand child node
-                          ;; after jump to the candidate position
-                          (imenu (cdr candidate))))
-              :caller 'counsel-imenu)))
+         (items (delete (assoc "*Rescan*" items) items))
+         (tap (thing-at-point 'symbol))
+         (tap-candidate (assoc tap items)))
+    (if tap-candidate
+        (imenu (car tap-candidate))
+      (ivy-read "imenu items:" (counsel-imenu-get-candidates-from items)
+                :preselect tap
+                :require-match t
+                :action (lambda (candidate)
+                          (with-ivy-window
+                            ;; In org-mode, (imenu candidate) will expand child node
+                            ;; after jump to the candidate position
+                            (imenu (cdr candidate))))
+                :caller 'counsel-imenu))))
 
 ;;** `counsel-list-processes'
 (defun counsel-list-processes-action-delete (x)
