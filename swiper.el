@@ -441,7 +441,7 @@ line numbers. For the buffer, use `ivy--regex' instead."
                       (prog1 (format "^ ?\\(%s\\)" re)
                         (setq ivy--subexps 1))
                     (format "^ %s" re))))
-               ((eq search-default-mode 'char-fold-to-regexp)
+               ((eq (bound-and-true-p search-default-mode) 'char-fold-to-regexp)
                 (mapconcat #'char-fold-to-regexp (ivy--split str) ".*"))
                (t
                 (funcall re-builder str)))))
