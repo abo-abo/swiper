@@ -2157,6 +2157,8 @@ If SUBEXP is nil, the text properties are applied to the whole match."
                   (string-match "\\`[[:alpha:]]:/" default-directory))
              (ivy--cd (match-string 0 default-directory))
            (ivy--cd "/")))
+        ((string-match "\\`/ssh:" ivy-text)
+         (ivy--cd (file-name-directory ivy-text)))
         ((string-match "[[:alpha:]]:/\\'" ivy-text)
          (let ((drive-root (match-string 0 ivy-text)))
            (when (file-exists-p drive-root)
