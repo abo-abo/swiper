@@ -2194,10 +2194,10 @@ Should be run via minibuffer `post-command-hook'."
             (ivy--insert-minibuffer
              (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
-             (if (string-match "/\\'" ivy-text)
-                 (ivy--magic-file-slash)
-               (if (string-match "\\`~\\'" ivy-text)
-                   (ivy--cd (expand-file-name "~/")))))
+             (if (string-match "\\`~/\\'" ivy-text)
+                 (ivy--cd (expand-file-name "~/"))
+               (if (string-match "/\\'" ivy-text)
+                   (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
              (when (or (and (string-match "\\` " ivy-text)
                             (not (string-match "\\` " ivy--old-text)))
