@@ -421,6 +421,12 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
+(defun swiper--highlighter ()
+  (let* ((re-builder
+          (or (cdr (assoc 'swiper ivy-re-builders-alist))
+              (cdr (assoc t ivy-re-builders-alist)))))
+    (ivy--highlight-function-for-regex-function re-builder)))
+
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer where candidates have
@@ -489,6 +495,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  :unwind #'swiper--cleanup
                  :action #'swiper--action
                  :re-builder #'swiper--re-builder
+                 :highlighter (swiper--highlighter)
                  :history 'swiper-history
                  :caller 'swiper))
           (point))
