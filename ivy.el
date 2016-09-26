@@ -959,13 +959,15 @@ Example use:
                      ivy-text)
                     (t
                      ivy--current))))
-          (select-window (ivy--get-window ivy-last))
-          (prog1 (funcall action x)
-            (unless (or (eq ivy-exit 'done)
-                        (equal (selected-window)
-                               (active-minibuffer-window))
-                        (null (active-minibuffer-window)))
-              (select-window (active-minibuffer-window)))))))))
+          (if (eq action 'identity)
+              (funcall action x)
+            (select-window (ivy--get-window ivy-last))
+            (prog1 (funcall action x)
+              (unless (or (eq ivy-exit 'done)
+                          (equal (selected-window)
+                                 (active-minibuffer-window))
+                          (null (active-minibuffer-window)))
+                (select-window (active-minibuffer-window))))))))))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
