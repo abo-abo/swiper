@@ -1444,15 +1444,16 @@ string - the full shell command to run."
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command, or corresponding system command, on X."
   (interactive (list (read-file-name "File: ")))
-  (call-process shell-file-name nil
-                nil nil
-                shell-command-switch
-                (format "%s %s"
-                        (cl-case system-type
-                          (darwin "open")
-                          (windows-nt "start")
-                          (t "xdg-open"))
-                        (shell-quote-argument x))))
+  (if (eq system-type 'windows-nt)
+      (w32-shell-execute "open" x)
+    (call-process shell-file-name nil
+                  nil nil
+                  shell-command-switch
+                  (format "%s %s"
+                          (cl-case system-type
+                            (darwin "open")
+                            (t "xdg-open"))
+                          (shell-quote-argument x)))))
 
 (defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
 
