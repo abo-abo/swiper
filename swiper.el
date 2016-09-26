@@ -420,6 +420,17 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
+(defun swiper--highlighter ()
+  "Return the correct highlighter for swiper."
+  (let ((re-builder
+         (or (cdr (assoc 'swiper ivy-re-builders-alist))
+             (cdr (assoc t ivy-re-builders-alist))))
+        (ivy-highlight-functions-alist
+         (assq-delete-all 'swiper--re-builder (copy-alist ivy-highlight-functions-alist))))
+    (ivy--highlight-function-for-regex-function re-builder)))
+
+(push '(swiper--re-builder . (:eval (swiper--highlighter))) ivy-highlight-functions-alist)
+
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer where candidates have

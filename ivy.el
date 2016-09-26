@@ -436,6 +436,9 @@ When non-nil, it should contain at least one %d.")
 (defvar ivy--regex-function 'ivy--regex
   "Current function for building a regex.")
 
+(defvar ivy--highlight-function 'ivy--highlight-default
+  "Current function for formatting the candidates.")
+
 (defvar ivy--subexps 0
   "Number of groups in the current `ivy--regex'.")
 
@@ -1298,6 +1301,20 @@ The matches will be filtered in a sequence, you can mix the
 regexps that should match and that should not match as you
 like.")
 
+(defvar ivy-highlight-functions-alist
+  '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
+    (ivy--regex-fuzzy . (:eval (if ivy--flx-featurep 'ivy--highlight-fuzzy 'ivy--highlight-default))))
+  "An alist of highlighting functions for each regex buidler function.
+
+Each value should be either:
+
+1. A function that takes two arguments, STR and START.  The
+function should return a highlight STR from the index START, and
+return the result.
+
+2. A plist whose :eval entry is a form, which evaluates to a
+function as in point 1.")
+
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
     (org-agenda-refile . "^")
@@ -1537,6 +1554,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy-text "")
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
+    (setq ivy--highlight-function (ivy--highlight-function-for-regex-function ivy--regex-function))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -2440,7 +2458,7 @@ CANDIDATES are assumed to be static."
           (setq ivy--old-cands (ivy--sort name cands))
           (ivy--recompute-index name re-str ivy--old-cands))
         (setq ivy--old-re
-              (if (eq ivy--regex-function 'ivy--regex-ignore-order)
+              (if (eq ivy--highlight-function 'ivy--highlight-ignore-order)
                   re
                 (if ivy--old-cands
                     re-str
@@ -2774,63 +2792,72 @@ SEPARATOR is used to join the candidates."
     (font-lock-append-text-property
      start end 'face face str)))
 
+(defun ivy--highlight-ignore-order (str _start)
+  "Highlight STR, starting from START, using the ignore-order method."
+  ;; (message "ivy--highlight-ignore-order: old-re = %s" ivy--old-re)
+  (when (consp ivy--old-re)
+    (let ((i 1))
+      (dolist (re ivy--old-re)
+        (when (string-match (car re) str)
+          (ivy-add-face-text-property
+           (match-beginning 0) (match-end 0)
+           (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                ivy-minibuffer-faces)
+           str))
+        (cl-incf i))))
+  str)
+
+(defun ivy--highlight-fuzzy (str _start)
+  "Highlight STR, starting from START, using the fuzzy method."
+  (let ((flx-name (if (string-match "^\\^" ivy-text)
+                      (substring ivy-text 1)
+                    ivy-text)))
+    (ivy--flx-propertize
+     (cons (flx-score str flx-name ivy--flx-cache) str))))
+
+(defun ivy--highlight-default (str start)
+  "Highlight STR, starting from START, using the default method."
+  (unless ivy--old-re
+    (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
+  (ignore-errors
+    (while (and (string-match ivy--old-re str start)
+                (> (- (match-end 0) (match-beginning 0)) 0))
+      (setq start (match-end 0))
+      (let ((i 0))
+        (while (<= i ivy--subexps)
+          (let ((face
+                 (cond ((zerop ivy--subexps)
+                        (cadr ivy-minibuffer-faces))
+                       ((zerop i)
+                        (car ivy-minibuffer-faces))
+                       (t
+                        (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                             ivy-minibuffer-faces)))))
+            (ivy-add-face-text-property
+             (match-beginning i) (match-end i)
+             face str))
+          (cl-incf i)))))
+  str)
+
+(defun ivy--highlight-function-for-regex-function (regex-fn)
+  "Return a highlighting function which is appropriate for the regex builder REGEX-FN."
+  (let ((res (cdr (or (assoc regex-fn ivy-highlight-functions-alist)
+                      (cons t #'ivy--highlight-default)))))
+    ;; note: alist-get is only available in emacs 25 and above.
+    ;; (despite the documentation not mentioning this fact.)
+    (if (listp res)
+        (eval (plist-get res :eval))
+      res)))
+
 (defun ivy--format-minibuffer-line (str)
-  (let ((start
-         (if (and (memq (ivy-state-caller ivy-last)
-                        '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
-                  (string-match "^[^:]+:[^:]+:" str))
-             (match-end 0)
-           0))
-        (str (copy-sequence str)))
-    (when (eq ivy-display-style 'fancy)
-      (cond ((eq ivy--regex-function 'ivy--regex-ignore-order)
-             (when (consp ivy--old-re)
-               (let ((i 1))
-                 (dolist (re ivy--old-re)
-                   (when (string-match (car re) str)
-                     (ivy-add-face-text-property
-                      (match-beginning 0) (match-end 0)
-                      (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                           ivy-minibuffer-faces)
-                      str))
-                   (cl-incf i)))))
-            ((and
-              ivy--flx-featurep
-              (or (eq ivy--regex-function 'ivy--regex-fuzzy)
-                  (and (eq ivy--regex-function 'swiper--re-builder)
-                       (let ((caller (ivy-state-caller ivy-last)))
-                         (eq (or (and caller
-                                      (cdr (assoc caller ivy-re-builders-alist)))
-                                 (cdr (assoc t ivy-re-builders-alist)))
-                             'ivy--regex-fuzzy)))))
-             (let ((flx-name (if (string-match "^\\^" ivy-text)
-                                 (substring ivy-text 1)
-                               ivy-text)))
-               (setq str
-                     (ivy--flx-propertize
-                      (cons (flx-score str flx-name ivy--flx-cache) str)))))
-            (t
-             (unless ivy--old-re
-               (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-             (ignore-errors
-               (while (and (string-match ivy--old-re str start)
-                           (> (- (match-end 0) (match-beginning 0)) 0))
-                 (setq start (match-end 0))
-                 (let ((i 0))
-                   (while (<= i ivy--subexps)
-                     (let ((face
-                            (cond ((zerop ivy--subexps)
-                                   (cadr ivy-minibuffer-faces))
-                                  ((zerop i)
-                                   (car ivy-minibuffer-faces))
-                                  (t
-                                   (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                                        ivy-minibuffer-faces)))))
-                       (ivy-add-face-text-property
-                        (match-beginning i) (match-end i)
-                        face str))
-                     (cl-incf i))))))))
-    str))
+  (when (eq ivy-display-style 'fancy)
+    (let ((start
+           (if (and (memq (ivy-state-caller ivy-last)
+                          '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
+                    (string-match "^[^:]+:[^:]+:" str))
+               (match-end 0)
+             0)))
+      (funcall ivy--highlight-function (copy-sequence str) start))))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
