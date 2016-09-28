@@ -1360,11 +1360,13 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (file-name-as-directory (file-name-nondirectory dir-file-name)))))
 
 (defun counsel-at-git-issue-p ()
-  "Whe point is at an issue in a Git-versioned file, return the issue string."
+  "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")
        (or
         (eq (vc-backend (buffer-file-name)) 'Git)
-        (memq major-mode '(magit-commit-mode)))
+        (or
+         (memq major-mode '(magit-commit-mode))
+         (bound-and-true-p magit-commit-mode)))
        (match-string-no-properties 0)))
 
 (defun counsel-github-url-p ()
