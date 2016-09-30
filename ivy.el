@@ -39,6 +39,7 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'ffap)
+(require 'ivy-overlay)
 
 ;;* Customization
 (defgroup ivy nil
@@ -171,6 +172,16 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
 (defcustom ivy-use-virtual-buffers nil
   "When non-nil, add `recentf-mode' and bookmarks to `ivy-switch-buffer'."
   :type 'boolean)
+
+(defcustom ivy-display-function nil
+  "Decide where to display the candidates.
+This function takes a string with the current matching candidates
+and has to display it somewhere."
+  :type '(choice
+          (const :tag "Minibuffer" nil)
+          (const :tag "LV" ivy-display-function-lv)
+          (const :tag "Popup" ivy-display-function-popup)
+          (const :tag "Overlay" ivy-display-function-overlay)))
 
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
@@ -1755,7 +1766,12 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
          (str (buffer-substring-no-properties start end))
          (completion-ignore-case case-fold-search)
          (comps
-          (completion-all-completions str collection predicate (- end start))))
+          (completion-all-completions str collection predicate (- end start)))
+         (ivy-display-function (unless (window-minibuffer-p)
+                                 #'ivy-display-function-overlay))
+         (ivy--prompts-list (if (window-minibuffer-p)
+                                ivy--prompts-list
+                              '(ivy-completion-in-region (lambda nil)))))
     (if (null comps)
         (message "No matches")
       (let ((len (min (ivy-completion-common-length (car comps))
@@ -1783,7 +1799,9 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
                        (mapcar #'substring-no-properties comps)
                        :predicate predicate
                        :action #'ivy-completion-in-region-action
-                       :require-match t)
+                       :unwind #'ivy-overlay-cleanup
+                       :require-match t
+                       :caller 'ivy-completion-in-region)
              t)))))))
 
 (defcustom ivy-do-completion-in-region t
@@ -2218,14 +2236,6 @@ Should be run via minibuffer `post-command-hook'."
           (ivy--filter ivy-text ivy--all-candidates))))
       (setq ivy--old-text ivy-text))))
 
-(defvar ivy-flip (and (require 'lv nil t)
-                      nil)
-  "When non-nil, the candidates are above the input, instead of below.
-This depends on `lv' feature provided by the package `hydra'.")
-
-(defvar lv-force-update)
-(declare-function lv-message "ext:lv")
-
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
   (let ((resize-mini-windows nil)
@@ -2238,12 +2248,8 @@ This depends on `lv' feature provided by the package `hydra'.")
     (ivy--insert-prompt)
     ;; Do nothing if while-no-input was aborted.
     (when (stringp text)
-      (if ivy-flip
-          (let ((lv-force-update t))
-            (lv-message
-             (if (string-match "\\`\n" text)
-                 (substring text 1)
-               text)))
+      (if ivy-display-function
+          (funcall ivy-display-function text)
         (let ((buffer-undo-list t))
           (save-excursion
             (forward-line 1)
