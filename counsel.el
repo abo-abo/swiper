@@ -1528,6 +1528,26 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                         (message (cdr x)))
               :caller 'counsel-dpkg)))
 
+;;** `counsel-rpm'
+;;;###autoload
+(defun counsel-rpm ()
+  "Call the \"rpm\" shell command."
+  (interactive)
+  (let ((cands (mapcar
+                (lambda (x)
+                  (let ((y (split-string x "|")))
+                    (cons (format "%-40s   %s"
+                                  (ivy--truncate-string
+                                   (nth 0 y) 40)
+                                  (nth 1 y))
+                          (mapconcat #'identity y " "))))
+                (split-string
+                 (shell-command-to-string "rpm -qa --qf \"%{NAME}|%{SUMMARY}\\n\"") "\n" t))))
+    (ivy-read "rpm: " cands
+              :action (lambda (x)
+                        (message (cdr x)))
+              :caller 'counsel-rpm)))
+
 ;;** File Jump and Dired Jump
 
 ;;;###autoload
