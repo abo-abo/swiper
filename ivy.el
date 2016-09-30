@@ -117,6 +117,13 @@
   '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for displaying keys in `ivy-read-action'.")
 
+(defface ivy-path-face
+  '((((class color) (background light))
+     :foreground "#a9a9a9")
+    (((class color) (background dark))
+     :foreground "grey"))
+  "Face used by Ivy for highlighting path information.")
+
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
@@ -193,6 +200,14 @@ See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
     (tmm-shortcut . completing-read-default))
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
   :type '(alist :key-type function :value-type function))
+
+(defcustom ivy-display-path nil
+  "When non-nil, add path information to candidates in `ivy-switch-buffer'."
+  :type 'boolean)
+
+(defcustom ivy-path-format "%s"
+  "Format string to use in `ivy-switch-buffer' to display path information."
+  :type 'string)
 
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
@@ -3259,7 +3274,10 @@ BUFFER may be a string or nil."
 (defun ivy--switch-buffer-matcher (regexp candidates)
   "Return REGEXP-matching CANDIDATES.
 Skip buffers that match `ivy-ignore-buffers'."
-  (let ((res (ivy--re-filter regexp candidates)))
+  (let ((res (ivy--switch-buffer-post-filter-transformer
+              (ivy--re-filter
+               regexp
+               (ivy--switch-buffer-pre-filter-transformer candidates)))))
     (if (or (null ivy-use-ignore)
             (null ivy-ignore-buffers))
         res
@@ -3275,17 +3293,72 @@ Skip buffers that match `ivy-ignore-buffers'."
           (and (eq ivy-use-ignore t)
                res)))))
 
+(defvar ivy--filter-cands-mapping nil
+  "Store the mapping between original candidates and the ones used for filtering alist.")
+
+(defun ivy--switch-buffer-pre-filter-transformer (candidates)
+  "Transform CANDIDATES for filtering.
+If a transformation is necessary, store the original and the transformed value
+in `ivy--filter-cands-mapping' alist. Return the transformed values."
+  (setq ivy--filter-cands-mapping nil)
+  (if ivy-display-path
+      (mapcar
+       (lambda (x)
+         (let ((cand (ivy--display-path-transformer x)))
+           ;; Only store non-trivial entries where the original and the
+           ;; transformed values do not match.
+           (if (equal cand x)
+               x
+             (push (cons cand x) ivy--filter-cands-mapping)
+             cand)))
+       candidates)
+    candidates))
+
+(defun ivy--switch-buffer-post-filter-transformer (candidates)
+  "Transform CANDIDATES back to their original value.
+Use `ivy--filter-cands-mapping' alist to lookup an original value from a
+transformed one. Return the original values."
+  (if ivy--filter-cands-mapping
+      (let ((cands (mapcar
+                    (lambda (x)
+                      (or (cdr (assoc x ivy--filter-cands-mapping))
+                          x))
+                    candidates)))
+        (setq ivy--filter-cands-mapping nil)
+        cands)
+    candidates))
+
 (ivy-set-display-transformer
  'ivy-switch-buffer 'ivy-switch-buffer-transformer)
 (ivy-set-display-transformer
  'internal-complete-buffer 'ivy-switch-buffer-transformer)
 
 (defun ivy-switch-buffer-transformer (str)
-  (let ((b (get-buffer str)))
-    (if (and b
-             (buffer-file-name b)
-             (buffer-modified-p b))
-        (propertize str 'face 'ivy-modified-buffer)
+  (let ((b (get-buffer str))
+        (entry str))
+    (when (and b
+               (buffer-file-name b)
+               (buffer-modified-p b))
+      (setq entry (propertize entry 'face 'ivy-modified-buffer)))
+    (when ivy-display-path
+      (setq entry (ivy--display-path-transformer entry)))
+    entry))
+
+(defun ivy--display-path-transformer (str)
+  (let* ((b (get-buffer str))
+         (file-name (and b
+                         (buffer-file-name b)))
+         (virtual (assoc str ivy--virtual-buffers))
+         (path (or (and virtual
+                        (not (eq ivy-virtual-abbreviate 'full))
+                        (cdr virtual))
+                   (and b
+                        (with-current-buffer b
+                          (and (eq major-mode 'dired-mode)
+                               default-directory)))
+                   file-name)))
+    (if path
+        (concat str " " (propertize (format ivy-path-format path) 'face 'ivy-path-face))
       str)))
 
 (defun ivy-switch-buffer-occur ()
