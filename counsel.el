@@ -2300,7 +2300,7 @@ And insert it into the minibuffer. Useful during
                      (lookup-key keymap (kbd (nth 0 x)))))
                   heads)))
     (ivy-read "head: " head-names
-              :action #'call-interactively)
+              :action (lambda (x) (call-interactively (cdr x))))
     (hydra-keyboard-quit)))
 ;;** `counsel-semantic'
 (declare-function semantic-tag-start "tag")
