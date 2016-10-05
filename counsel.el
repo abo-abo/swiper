@@ -1700,7 +1700,8 @@ the command."
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-grep-base-command regex counsel--git-grep-dir))
+       (format counsel-grep-base-command regex
+               (shell-quote-argument counsel--git-grep-dir)))
       nil)))
 
 (defun counsel-grep-action (x)
