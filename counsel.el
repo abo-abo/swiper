@@ -1411,8 +1411,12 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (ivy-read "Recentf: " recentf-list
             :action (lambda (f)
                       (with-ivy-window
-                        (find-file f)))
+                       (find-file f)))
             :caller 'counsel-recentf))
+(ivy-set-actions
+ 'counsel-recentf
+ '(("j" find-file-other-window "other-window")
+   ("x" counsel-find-file-extern "open externally")))
 
 ;;** `counsel-locate'
 (defcustom counsel-locate-cmd (cond ((eq system-type 'darwin)
