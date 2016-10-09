@@ -842,7 +842,7 @@ Describe the selected candidate."
        (if (facep s)
            (push (symbol-name s) cands))))
     (ivy-read "Face: " cands
-              :preselect (face-at-point t)
+              :preselect (symbol-name (face-at-point t))
               :action #'describe-face)))
 ;;* Git
 ;;** `counsel-git'
