@@ -703,9 +703,10 @@ WND, when specified is the window."
 Run `swiper' for those buffers."
   (interactive)
   (setq swiper-multi-buffers nil)
-  (ivy-read (swiper-multi-prompt)
-            'internal-complete-buffer
-            :action 'swiper-multi-action-1)
+  (let ((ivy-use-virtual-buffers nil))
+    (ivy-read (swiper-multi-prompt)
+              'internal-complete-buffer
+              :action 'swiper-multi-action-1))
   (ivy-read "Swiper: " swiper-multi-candidates
             :action 'swiper-multi-action-2
             :unwind #'swiper--cleanup
