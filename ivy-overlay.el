@@ -69,7 +69,12 @@ Hide the minibuffer contents and cursor."
       (buffer-substring (1- (point)) (point))
       ivy-text
       (buffer-substring (point) (line-end-position))
-      (ivy-left-pad str (current-column))))))
+      (ivy-left-pad str
+                    (+ (if (eq major-mode 'org-mode)
+                           (* org-indent-indentation-per-level (org-current-level))
+                         0)
+                       (- ivy-completion-beg ivy-completion-end)
+                       (current-column)))))))
 
 (provide 'ivy-overlay)
 ;;; ivy-overlay.el ends here
