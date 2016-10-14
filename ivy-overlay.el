@@ -81,8 +81,11 @@ Hide the minibuffer contents and cursor."
       (setq cursor-type nil)
       (let ((overlay-str
              (concat
-              (buffer-substring (1- (point)) (point))
+              (buffer-substring (max 1 (1- (point))) (point))
               ivy-text
+              (if (eolp)
+                  " "
+                "")
               (buffer-substring (point) (line-end-position))
               (ivy-left-pad
                str
