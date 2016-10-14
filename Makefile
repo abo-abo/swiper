@@ -1,7 +1,7 @@
 emacs ?= emacs
 elmake = $(emacs) -batch -l makefi.el -f
 
-LOAD = -l colir.el -l ivy.el -l swiper.el -l counsel.el
+LOAD = -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el
 
 all: test
 
