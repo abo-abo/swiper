@@ -176,7 +176,8 @@ Only \"./\" and \"../\" apply here. They appear in reverse order."
 (defcustom ivy-display-function nil
   "Decide where to display the candidates.
 This function takes a string with the current matching candidates
-and has to display it somewhere."
+and has to display it somewhere.
+See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
   :type '(choice
           (const :tag "Minibuffer" nil)
           (const :tag "LV" ivy-display-function-lv)
