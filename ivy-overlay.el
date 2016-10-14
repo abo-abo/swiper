@@ -31,6 +31,8 @@
   "Cursor face for inline completion."
   :group 'ivy-faces)
 
+(defvar ivy--old-cursor-type t)
+
 (defvar ivy-overlay-at nil
   "Overlay variable for `ivy-display-function-overlay'.")
 
@@ -46,7 +48,7 @@
   (when (overlayp ivy-overlay-at)
     (delete-overlay ivy-overlay-at)
     (setq ivy-overlay-at nil))
-  (setq cursor-type t))
+  (setq cursor-type ivy--old-cursor-type))
 
 (defun ivy-overlay-show-after (str)
   "Display STR in an overlay at point.
@@ -70,6 +72,8 @@ Hide the minibuffer contents and cursor."
   (let ((cursor-pos (1+ (- (point) (minibuffer-prompt-end)))))
     (setq cursor-type nil)
     (with-ivy-window
+      (when cursor-type
+        (setq ivy--old-cursor-type cursor-type))
       (setq cursor-type nil)
       (let ((overlay-str
              (concat
