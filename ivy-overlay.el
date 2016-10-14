@@ -25,6 +25,12 @@
 ;; minibuffer.
 
 ;;; Code:
+(defface ivy-cursor
+  '((t (:background "black"
+        :foreground "white")))
+  "Cursor face for inline completion."
+  :group 'ivy-faces)
+
 (defvar ivy-overlay-at nil
   "Overlay variable for `ivy-display-function-overlay'.")
 
@@ -61,20 +67,25 @@ Then attach the overlay the character before point."
 Hide the minibuffer contents and cursor."
   (add-face-text-property (minibuffer-prompt-end) (point-max)
                           '(:foreground "white"))
-  (setq cursor-type nil)
-  (with-ivy-window
+  (let ((cursor-pos (1+ (- (point) (minibuffer-prompt-end)))))
     (setq cursor-type nil)
-    (ivy-overlay-show-after
-     (concat
-      (buffer-substring (1- (point)) (point))
-      ivy-text
-      (buffer-substring (point) (line-end-position))
-      (ivy-left-pad str
-                    (+ (if (eq major-mode 'org-mode)
-                           (* org-indent-indentation-per-level (org-current-level))
-                         0)
-                       (- ivy-completion-beg ivy-completion-end)
-                       (current-column)))))))
+    (with-ivy-window
+      (setq cursor-type nil)
+      (let ((overlay-str
+             (concat
+              (buffer-substring (1- (point)) (point))
+              ivy-text
+              (buffer-substring (point) (line-end-position))
+              (ivy-left-pad
+               str
+               (+ (if (eq major-mode 'org-mode)
+                      (* org-indent-indentation-per-level (org-current-level))
+                    0)
+                  (- ivy-completion-beg ivy-completion-end)
+                  (current-column))))))
+        (add-face-text-property cursor-pos (1+ cursor-pos)
+                                'ivy-cursor t overlay-str)
+        (ivy-overlay-show-after overlay-str)))))
 
 (provide 'ivy-overlay)
 ;;; ivy-overlay.el ends here
