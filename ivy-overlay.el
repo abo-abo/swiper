@@ -43,12 +43,16 @@
                (split-string str "\n")
                "\n")))
 
+(declare-function company-abort "ext:company")
+
 (defun ivy-overlay-cleanup ()
   "Clean up after `ivy-display-function-overlay'."
   (when (overlayp ivy-overlay-at)
     (delete-overlay ivy-overlay-at)
     (setq ivy-overlay-at nil))
-  (setq cursor-type ivy--old-cursor-type))
+  (setq cursor-type ivy--old-cursor-type)
+  (when (fboundp 'company-abort)
+    (company-abort)))
 
 (defun ivy-overlay-show-after (str)
   "Display STR in an overlay at point.
