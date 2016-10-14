@@ -50,7 +50,8 @@
   (when (overlayp ivy-overlay-at)
     (delete-overlay ivy-overlay-at)
     (setq ivy-overlay-at nil))
-  (setq cursor-type ivy--old-cursor-type)
+  (unless cursor-type
+    (setq cursor-type ivy--old-cursor-type))
   (when (fboundp 'company-abort)
     (company-abort)))
 
