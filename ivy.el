@@ -1460,6 +1460,7 @@ customizations apply to the current completion session."
                                                (cdr (symbol-value hist))))))))
                  ivy--current))
           (remove-hook 'post-command-hook #'ivy--exhibit)
+          (ivy-overlay-cleanup)
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
           (unless (eq ivy-exit 'done)
