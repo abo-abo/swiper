@@ -1828,12 +1828,16 @@ the command."
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
-  "Grep in the current directory for STRING."
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (format "recoll -t -b '%s'" string))
-    nil))
+  "Run recoll for STRING."
+  ;; Handle single quote (') within a query, e.g. Jensen's inequality.
+  ;; Note elisp function shell-quote-argument isn't relevant here
+  (let ((sanitized-string
+	 (replace-regexp-in-string "'" "'\\\\''" string)))
+    (if (< (length string) 3)
+	(counsel-more-chars 3)
+      (counsel--async-command
+       (format "recoll -t -b '%s'" sanitized-string))
+      nil)))
 
 ;; This command uses the recollq command line tool that comes together
 ;; with the recoll (the document indexing database) source:
