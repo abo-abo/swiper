@@ -1280,6 +1280,38 @@ that they appear:
   we want to kill the running process created by
   =counsel--async-command=.
 - =caller= argument identifies this command for easier customization.
+** Example - =ivy-read-with-extra-properties=
+:PROPERTIES:
+:CUSTOM_ID: example---ivy-read-with-extra-properties
+:END:
+This is another example to show how to associate additional values to each
+displayed strings.
+
+#+BEGIN_SRC elisp
+(defun find-candidates-function (str pred _)
+  (let ((props '(1 2))
+        (strs '("foo" "foo2")))
+    (cl-mapcar (lambda (s p) (propertize s 'property p))
+               strs
+               props)))
+
+(defun find-candidates ()
+  (interactive)
+  (ivy-read "Find symbols: "
+            #'find-candidates-function
+            :action (lambda (x)
+                      (message "Value: %s" (get-text-property 0 'property x)
+                       ))))
+#+END_SRC
+
+Here are the interesting features of the above function:
+
+- =find-candidates-function= builds up a list of strings and associates "foo" with
+  the value 1 and "foo2" with 2.
+- =find-candidates= is an interactive function.
+- =#'find-candidates= is passed as the =collection= argument.
+- =action= gets passed the selected string with the associated value. It
+  then retrieves that value and displays it.
 
 * Variable Index
 :PROPERTIES:
