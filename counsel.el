@@ -1828,11 +1828,12 @@ the command."
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
-  "Grep in the current directory for STRING."
+  "Run recoll for STRING."
   (if (< (length string) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format "recoll -t -b '%s'" string))
+     (format "recoll -t -b %s"
+             (shell-quote-argument string)))
     nil))
 
 ;; This command uses the recollq command line tool that comes together
