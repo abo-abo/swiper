@@ -74,9 +74,10 @@ Then attach the overlay the character before point."
 Hide the minibuffer contents and cursor."
   (add-face-text-property (minibuffer-prompt-end) (point-max)
                           '(:foreground "white"))
-  (let ((cursor-pos (1+ (- (point) (minibuffer-prompt-end)))))
+  (let ((cursor-pos (1+ (- (point) (minibuffer-prompt-end))))
+        (ivy-window (ivy--get-window ivy-last)))
     (setq cursor-type nil)
-    (with-ivy-window
+    (with-selected-window ivy-window
       (when cursor-type
         (setq ivy--old-cursor-type cursor-type))
       (setq cursor-type nil)
