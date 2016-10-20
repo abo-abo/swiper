@@ -2448,8 +2448,7 @@ All CANDIDATES are assumed to match NAME."
                  (when (functionp (ivy-state-collection ivy-last))
                    (ivy-state-collection ivy-last))))
         fun)
-    (cond ((and ivy--flx-featurep
-                (eq ivy--regex-function 'ivy--regex-fuzzy))
+    (cond ((ivy--flx-fuzzy-enabled)
            (ivy--flx-sort name candidates))
           ((setq fun (cdr (or (assoc key ivy-sort-matches-functions-alist)
                               (assoc t ivy-sort-matches-functions-alist))))
@@ -2514,9 +2513,8 @@ Prefer first \"^*NAME\", then \"^NAME\"."
                   (> (length name) 0)
                   0)
              (and (not (string= name ""))
-                  (not (and ivy--flx-featurep
-                            (eq ivy--regex-function 'ivy--regex-fuzzy)
-                            (< (length cands) 200)))
+                  (not (and (ivy--flx-fuzzy-enabled)
+                            (< (length cands) ivy-flx-limit)))
                   ivy--old-cands
                   (cl-position (nth ivy--index ivy--old-cands)
                                cands))
@@ -2598,6 +2596,18 @@ Prefer first \"^*NAME\", then \"^NAME\"."
 
 When the amount of matching candidates exceeds this limit, then
 no sorting is done.")
+
+(defun ivy--flx-fuzzy-enabled ()
+  "True if flx is available and fuzzy searching is enabled."
+  (and
+   ivy--flx-featurep
+   (or (eq ivy--regex-function 'ivy--regex-fuzzy)
+       (and (eq ivy--regex-function 'swiper--re-builder)
+            (let ((caller (ivy-state-caller ivy-last)))
+              (eq (or (and caller
+                           (cdr (assoc caller ivy-re-builders-alist)))
+                      (cdr (assoc t ivy-re-builders-alist)))
+                  'ivy--regex-fuzzy))))))
 
 (defun ivy--flx-propertize (x)
   "X is (cons (flx-score STR ...) STR)."
@@ -2726,15 +2736,7 @@ SEPARATOR is used to join the candidates."
                            ivy-minibuffer-faces)
                       str))
                    (cl-incf i)))))
-            ((and
-              ivy--flx-featurep
-              (or (eq ivy--regex-function 'ivy--regex-fuzzy)
-                  (and (eq ivy--regex-function 'swiper--re-builder)
-                       (let ((caller (ivy-state-caller ivy-last)))
-                         (eq (or (and caller
-                                      (cdr (assoc caller ivy-re-builders-alist)))
-                                 (cdr (assoc t ivy-re-builders-alist)))
-                             'ivy--regex-fuzzy)))))
+            ((ivy--flx-fuzzy-enabled)
              (let ((flx-name (if (string-match "^\\^" ivy-text)
                                  (substring ivy-text 1)
                                ivy-text)))
