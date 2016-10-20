@@ -582,7 +582,7 @@ input corresponding to the chosen variable."
 
 ;;;###autoload
 (defun counsel-info-lookup-symbol (symbol &optional mode)
-  "Forward to (`info-describe-symbol' SYMBOL MODE) with ivy completion."
+  "Forward to (`info-lookup-symbol' SYMBOL MODE) with ivy completion."
   (interactive
    (progn
      (require 'info-look)
