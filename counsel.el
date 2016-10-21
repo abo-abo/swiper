@@ -598,6 +598,7 @@ input corresponding to the chosen variable."
             (value (ivy-read
                     "Describe symbol: "
                     (mapcar #'car completions)
+                    :preselect (ivy-thing-at-point)
                     :sort t)))
        (list value info-lookup-mode))))
   (require 'info-look)
