@@ -2432,7 +2432,7 @@ The alist VAL is a sorting function with the signature of
            (function :tag "Custom sort function"))))
 
 (defun ivy--sort-files-by-date (_name candidates)
-  "Re-soft CANDIDATES according to file modification date."
+  "Re-sort CANDIDATES according to file modification date."
   (let ((default-directory ivy--directory))
     (cl-sort (copy-sequence candidates)
              (lambda (f1 f2)
