@@ -2196,6 +2196,11 @@ If SUBEXP is nil, the text properties are applied to the whole match."
                  (file-exists-p ivy--current))))
          (ivy--cd (expand-file-name ivy--current ivy--directory)))))
 
+(defcustom ivy-magic-tilde t
+  "When non-nil, ~ will move home when selecting files.
+Otherwise, ~/ will move home."
+  :type boolean)
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -2217,10 +2222,12 @@ Should be run via minibuffer `post-command-hook'."
             (ivy--insert-minibuffer
              (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
-             (if (string-match "/\\'" ivy-text)
-                 (ivy--magic-file-slash)
-               (if (string-match "\\`~\\'" ivy-text)
-                   (ivy--cd (expand-file-name "~/")))))
+             (cond ((or (string= "~/" ivy-text)
+                        (and (string= "~" ivy-text)
+                             ivy-magic-tilde))
+                    (ivy--cd (expand-file-name "~/")))
+                   ((string-match "/\\'" ivy-text)
+                    (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
              (when (or (and (string-match "\\` " ivy-text)
                             (not (string-match "\\` " ivy--old-text)))
