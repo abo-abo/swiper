@@ -2199,7 +2199,7 @@ If SUBEXP is nil, the text properties are applied to the whole match."
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
 Otherwise, ~/ will move home."
-  :type boolean)
+  :type 'boolean)
 
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
