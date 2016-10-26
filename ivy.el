@@ -2032,13 +2032,13 @@ depending on the number of candidates."
   (set (make-local-variable 'inhibit-field-text-motion) nil)
   (when (display-graphic-p)
     (setq truncate-lines t))
-  (setq-local max-mini-window-height
-              (+ ivy-height
-                 (if ivy-add-newline-after-prompt
-                     1
-                   0)))
+  (setq-local max-mini-window-height ivy-height)
   (when ivy-fixed-height-minibuffer
-    (set-window-text-height (selected-window) ivy-height))
+    (set-window-text-height (selected-window)
+                            (+ ivy-height
+                               (if ivy-add-newline-after-prompt
+                                   1
+                                 0))))
   (add-hook 'post-command-hook #'ivy--exhibit nil t)
   ;; show completions with empty input
   (ivy--exhibit))
