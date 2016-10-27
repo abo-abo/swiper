@@ -315,6 +315,8 @@ action functions.")
   prompt collection
   predicate require-match initial-input
   history preselect keymap update-fn sort
+  ;; The frame in which `ivy-read' was called
+  frame
   ;; The window in which `ivy-read' was called
   window
   ;; The buffer in which `ivy-read' was called
@@ -1424,6 +1426,7 @@ customizations apply to the current completion session."
            :update-fn update-fn
            :sort sort
            :action action
+           :frame (selected-frame)
            :window (selected-window)
            :buffer (current-buffer)
            :unwind unwind
@@ -1477,6 +1480,8 @@ customizations apply to the current completion session."
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
+  (unless (equal (selected-frame) (ivy-state-frame state))
+    (select-window (active-minibuffer-window)))
   (let ((prompt (or (ivy-state-prompt state) ""))
         (collection (ivy-state-collection state))
         (predicate (ivy-state-predicate state))
