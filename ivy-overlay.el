@@ -69,6 +69,9 @@ Then attach the overlay the character before point."
   (overlay-put ivy-overlay-at 'display str)
   (overlay-put ivy-overlay-at 'after-string ""))
 
+(declare-function org-current-level "org")
+(defvar org-indent-indentation-per-level)
+
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
 Hide the minibuffer contents and cursor."
