@@ -2491,24 +2491,35 @@ Prefix matches to NAME are put ahead of the list."
        (nreverse res-noprefix)))))
 
 (defun ivy-sort-function-buffer (name candidates)
-  "Re-sort CANDIDATES.
-Prefer first \"^*NAME\", then \"^NAME\"."
+  "Re-sort CANDIDATES, a list of buffer names that contain NAME.
+Sort open buffers before virtual buffers, and prefix matches
+before substring matches."
   (if (or (string-match "^\\^" name) (string= name ""))
       candidates
     (let* ((base-re (funcall ivy--regex-function name))
            (base-re (if (consp base-re) (caar base-re) base-re))
            (re-prefix (concat "^\\*" base-re))
            res-prefix
-           res-noprefix)
+           res-noprefix
+           res-virtual-prefix
+           res-virtual-noprefix)
       (unless (cl-find-if (lambda (s) (string-match re-prefix s)) candidates)
         (setq re-prefix (concat "^" base-re)))
       (dolist (s candidates)
-        (if (string-match re-prefix s)
-            (push s res-prefix)
-          (push s res-noprefix)))
+        (cond
+         ((and (assoc s ivy--virtual-buffers) (string-match re-prefix s))
+          (push s res-virtual-prefix))
+         ((assoc s ivy--virtual-buffers)
+          (push s res-virtual-noprefix))
+         ((string-match re-prefix s)
+          (push s res-prefix))
+         (t
+          (push s res-noprefix))))
       (nconc
        (nreverse res-prefix)
-       (nreverse res-noprefix)))))
+       (nreverse res-noprefix)
+       (nreverse res-virtual-prefix)
+       (nreverse res-virtual-noprefix)))))
 
 (defun ivy--recompute-index (name re-str cands)
   (let* ((caller (ivy-state-caller ivy-last))
