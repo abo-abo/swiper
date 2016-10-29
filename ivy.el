@@ -2490,6 +2490,9 @@ Prefix matches to NAME are put ahead of the list."
        (nreverse res-prefix)
        (nreverse res-noprefix)))))
 
+(defvar ivy--virtual-buffers nil
+  "Store the virtual buffers alist.")
+
 (defun ivy-sort-function-buffer (name candidates)
   "Re-sort CANDIDATES, a list of buffer names that contain NAME.
 Sort open buffers before virtual buffers, and prefix matches
@@ -2828,9 +2831,6 @@ CANDS is a list of strings."
              (res (concat "\n" (funcall ivy-format-function cands))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
-
-(defvar ivy--virtual-buffers nil
-  "Store the virtual buffers alist.")
 
 (defvar recentf-list)
 
