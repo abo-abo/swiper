@@ -1524,22 +1524,24 @@ This is useful for recursive `ivy-read'."
                                 :test #'equal)))
                (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
-             (if (and initial-input
-                      (not (equal initial-input ""))
-                      (file-directory-p initial-input))
-                 (progn
-                   (when (and (eq this-command 'dired-do-copy)
-                              (equal (file-name-nondirectory initial-input) ""))
-                     (setf (ivy-state-preselect state) (setq preselect nil)))
-                   (setq ivy--directory initial-input)
-                   (setq initial-input nil)
-                   (when preselect
-                     (let ((preselect-directory (file-name-directory preselect)))
-                       (when (and preselect-directory
-                                  (not (equal (expand-file-name preselect-directory)
-                                              (expand-file-name ivy--directory))))
-                         (setf (ivy-state-preselect state) (setq preselect nil))))))
-               (setq ivy--directory default-directory))
+             (setq ivy--directory default-directory)
+             (when (and initial-input
+                        (not (equal initial-input "")))
+               (cond ((file-directory-p initial-input)
+                      (when (and (eq this-command 'dired-do-copy)
+                                 (equal (file-name-nondirectory initial-input) ""))
+                        (setf (ivy-state-preselect state) (setq preselect nil)))
+                      (setq ivy--directory initial-input)
+                      (setq initial-input nil)
+                      (when preselect
+                        (let ((preselect-directory (file-name-directory preselect)))
+                          (when (and preselect-directory
+                                     (not (equal (expand-file-name preselect-directory)
+                                                 (expand-file-name ivy--directory))))
+                            (setf (ivy-state-preselect state) (setq preselect nil))))))
+                     ((file-exists-p (file-name-directory initial-input))
+                      (setq ivy--directory (file-name-directory initial-input))
+                      (setf (ivy-state-preselect state) (file-name-nondirectory initial-input)))))
              (require 'dired)
              (when preselect
                (let ((preselect-directory (file-name-directory preselect)))
