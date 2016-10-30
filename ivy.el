@@ -3178,6 +3178,7 @@ Skip buffers that match `ivy-ignore-buffers'."
   "Switch to another buffer in another window."
   (interactive)
   (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
+            :matcher #'ivy--switch-buffer-matcher
             :preselect (buffer-name (other-buffer (current-buffer)))
             :action #'ivy--switch-buffer-other-window-action
             :keymap ivy-switch-buffer-map
