@@ -618,16 +618,22 @@ input corresponding to the chosen variable."
 
 ;;;###autoload
 (defun counsel-bookmark ()
-  "Forward to `bookmark-jump'."
+  "Forward to `bookmark-jump' or `bookmark-set' if bookmark doesn't exist."
   (interactive)
   (require 'bookmark)
-  (ivy-read "Jump to bookmark: "
+  (ivy-read "Create or jump to bookmark: "
             (bookmark-all-names)
             :action (lambda (x)
-                      (with-ivy-window
-                        (bookmark-jump x)))
-            :require-match t
+                      (if (member x (bookmark-all-names))
+                          (with-ivy-window
+                            (bookmark-jump x))
+                        (bookmark-set x)))
             :caller 'counsel-bookmark))
+
+(ivy-set-actions
+ 'counsel-bookmark
+ '(("d" bookmark-delete "delete")
+   ("e" bookmark-rename "edit")))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
