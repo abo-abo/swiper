@@ -1706,13 +1706,13 @@ pt using `counsel-ag'."
   :group 'ivy)
 
 ;;;###autoload
-(defun counsel-pt ()
+(defun counsel-pt (&optional initial-input)
   "Grep for a string in the current directory using pt.
 This uses `counsel-ag' with `counsel-pt-base-command' replacing
 `counsel-ag-base-command'."
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command))
-    (call-interactively 'counsel-ag)))
+    (counsel-ag initial-input)))
 
 ;;** `counsel-grep'
 (defcustom counsel-grep-base-command "grep -nE \"%s\" %s"
