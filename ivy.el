@@ -552,7 +552,7 @@ selection, non-nil otherwise."
     (if (null (ivy--actionp actions))
         t
       (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
-             (resize-mini-windows 'grow-only)
+             (resize-mini-windows t)
              (key (string (read-key hint)))
              (action-idx (cl-position-if
                           (lambda (x) (equal (car x) key))
