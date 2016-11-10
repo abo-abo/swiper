@@ -1807,9 +1807,10 @@ the command."
                              :dynamic-collection t
                              :preselect (format "%d:%s"
                                                 (line-number-at-pos)
-                                                (buffer-substring-no-properties
-                                                 (line-beginning-position)
-                                                 (line-end-position)))
+                                                (regexp-quote
+                                                 (buffer-substring-no-properties
+                                                  (line-beginning-position)
+                                                  (line-end-position))))
                              :history 'counsel-git-grep-history
                              :update-fn (lambda ()
                                           (counsel-grep-action ivy--current))
