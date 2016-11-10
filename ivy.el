@@ -567,11 +567,17 @@ selection, non-nil otherwise."
                (setcar actions (1+ action-idx))
                (ivy-set-action actions)))))))
 
+(defun ivy-shrink-after-dispatching ()
+  "Shrink the window after dispatching when action list is too large."
+  (let ((window (selected-window)))
+    (window-resize window (- ivy-height (window-height window)))))
+
 (defun ivy-dispatching-done ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
   (when (ivy-read-action)
-    (ivy-done)))
+    (ivy-done))
+  (ivy-shrink-after-dispatching))
 
 (defun ivy-dispatching-call ()
   "Select one of the available actions and call `ivy-call'."
@@ -581,7 +587,8 @@ selection, non-nil otherwise."
     (unwind-protect
         (when (ivy-read-action)
           (ivy-call))
-      (ivy-set-action actions))))
+      (ivy-set-action actions)))
+  (ivy-shrink-after-dispatching))
 
 (defun ivy-build-tramp-name (x)
   "Reconstruct X into a path.
