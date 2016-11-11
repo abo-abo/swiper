@@ -1959,16 +1959,27 @@ When GREEDY is non-nil, join words in a greedy way."
                             ".*?")))))
                     ivy--regex-hash)))))
 
+(defun ivy--legal-regex-p (str)
+  "Return t if STR is valid regular expression."
+  (condition-case nil
+      (progn
+        (string-match-p str "")
+        t)
+    (invalid-regexp nil)))
+
 (defun ivy--regex-ignore-order--part (str &optional discard)
   "Re-build regex from STR by splitting at spaces.
-Ignore the order of each group."
+Ignore the order of each group. If any substring is not a valid
+regex, treat it as a literal string."
   (let* ((subs (split-string str " +" t))
          (len (length subs)))
     (cl-case len
       (0
        "")
       (t
-       (mapcar (lambda (x) (cons x (not discard)))
+       (mapcar (lambda (s)
+                 (cons (if (ivy--legal-regex-p s) s (regexp-quote s))
+                       (not discard)))
                subs)))))
 
 (defun ivy--regex-ignore-order (str)

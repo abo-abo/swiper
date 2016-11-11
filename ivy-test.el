@@ -169,7 +169,9 @@
   (should (equal (ivy--regex-ignore-order "one two !three four")
                  '(("one" . t) ("two" . t) ("three") ("four"))))
   (should (equal (ivy--regex-ignore-order "!three four")
-                 '(("" . t) (("three") ("four"))))))
+                 '(("" . t) (("three") ("four")))))
+  (should (equal (ivy--regex-ignore-order "foo[ bar[xy]")
+                 '(("foo\\[" . t) ("bar[xy]" . t)))))
 
 (ert-deftest ivy--format ()
   (should (string= (let ((ivy--index 10)
