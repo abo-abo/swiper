@@ -1694,16 +1694,24 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
 ;;;###autoload
 (defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
   "Grep for a string in the current directory using ag.
-INITIAL-INPUT can be given as the initial minibuffer input.
-INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
-EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
-AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument. "
-  (interactive
-   (list nil
-         (when current-prefix-arg
-           (read-directory-name (concat
-                                 (car (split-string counsel-ag-base-command))
-                                 " in directory: ")))))
+  INITIAL-INPUT can be given as the initial minibuffer input.
+  INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
+  EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
+  AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument. "
+  (interactive)
+  (when current-prefix-arg
+    (setq initial-directory
+          (or initial-directory
+              (read-directory-name (concat
+                                    (car (split-string counsel-ag-base-command))
+                                    " in directory: "))))
+    (setq extra-ag-args
+          (or extra-ag-args
+              (let* ((pos (position ?  counsel-ag-base-command))
+                     (command (substring-no-properties counsel-ag-base-command 0 pos))
+                     (ag-args (replace-regexp-in-string
+                               "%s" "" (substring-no-properties counsel-ag-base-command pos))))
+                (read-string (format "(%s) args:" command) ag-args)))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (setq counsel--git-grep-dir (or initial-directory default-directory))
   (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
@@ -1744,7 +1752,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument. "
       cands))))
 
 ;;** `counsel-pt'
-(defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s -- ."
+(defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
   "Used to in place of `counsel-ag-base-command' to search with
 pt using `counsel-ag'."
   :type 'string
