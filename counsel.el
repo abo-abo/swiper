@@ -3461,6 +3461,14 @@ PREFIX is used to create the key."
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
     map))
 
+(defun counsel-imenu-categorize-functions (items)
+  "Categorize all the functions of imenu."
+  (let* ((others (remove-if-not (lambda (x) (listp (cdr x))) items))
+         (functions (remove-if (lambda (x) (listp (cdr x))) items)))
+    (if functions
+        (append others `(("Function" ,@functions)))
+      items)))
+
 ;;;###autoload
 (defun counsel-imenu ()
   "Jump to a buffer position indexed by imenu."
@@ -3472,7 +3480,8 @@ PREFIX is used to create the key."
                                        (buffer-size)
                                      imenu-auto-rescan-maxout))
          (items (imenu--make-index-alist t))
-         (items (delete (assoc "*Rescan*" items) items)))
+         (items (delete (assoc "*Rescan*" items) items))
+         (items (counsel-imenu-categorize-functions items)))
     (ivy-read "imenu items: " (counsel-imenu-get-candidates-from items)
               :preselect (thing-at-point 'symbol)
               :require-match t
