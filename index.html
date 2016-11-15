@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-09-09 Fri 12:05 -->
+<!-- 2016-11-15 Tue 17:37 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -144,6 +144,7 @@ for the JavaScript code in this tag.
 <li><a href="#optional-arguments-for-ivy-read">9.2. Optional arguments for <code>ivy-read</code></a></li>
 <li><a href="#example---counsel-describe-function">9.3. Example - <code>counsel-describe-function</code></a></li>
 <li><a href="#example---counsel-locate">9.4. Example - <code>counsel-locate</code></a></li>
+<li><a href="#example---ivy-read-with-extra-properties">9.5. Example - <code>ivy-read-with-extra-properties</code></a></li>
 </ul>
 </li>
 <li><a href="#variable-index">10. Variable Index</a></li>
@@ -1745,7 +1746,7 @@ narrowing) or select a candidate from the visible collection.
   (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
+     (format <span style="color: #2A00FF;">"locate %s '</span><span style="color: #110099;">%s</span><span style="color: #2A00FF;">'"</span>
              (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
              (counsel-unquote-regex-parens
               (ivy--regex str))))
@@ -1797,6 +1798,47 @@ called.</li>
 we want to kill the running process created by
 <code>counsel--async-command</code>.</li>
 <li><code>caller</code> argument identifies this command for easier customization.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-3">
+<h3 id="example---ivy-read-with-extra-properties"><a id="orgheadline"></a><span class="section-number-3">9.5</span> Example - <code>ivy-read-with-extra-properties</code></h3>
+<div class="outline-text-3" id="text-example---ivy-read-with-extra-properties">
+<p>
+This is another example to show how to associate additional values to each
+displayed strings.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates-function</span> (str pred _)
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((props '(1 2))
+        (strs '(<span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"foo2"</span>)))
+    (cl-mapcar (<span style="color: #7F0055; font-weight: bold;">lambda</span> (s p) (propertize s 'property p))
+               strs
+               props)))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates</span> ()
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
+  (ivy-read <span style="color: #2A00FF;">"Find symbols: "</span>
+            #'find-candidates-function
+            <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+                      (message <span style="color: #2A00FF;">"Value: %s"</span> (get-text-property 0 'property x)
+                       ))))
+</pre>
+</div>
+
+<p>
+Here are the interesting features of the above function:
+</p>
+
+<ul class="org-ul">
+<li><code>find-candidates-function</code> builds up a list of strings and associates "foo" with
+the value 1 and "foo2" with 2.</li>
+<li><code>find-candidates</code> is an interactive function.</li>
+<li><code>#'find-candidates</code> is passed as the <code>collection</code> argument.</li>
+<li><code>action</code> gets passed the selected string with the associated value. It
+then retrieves that value and displays it.</li>
 </ul>
 </div>
 </div>
