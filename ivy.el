@@ -637,6 +637,8 @@ When ARG is t, exit with current text, ignoring the candidates."
         (setq dir (ivy-expand-file-if-directory ivy--current)))
        (ivy--cd dir)
        (ivy--exhibit))
+      ((file-exists-p ivy-text)
+       (ivy--cd (file-name-as-directory ivy-text)))
       ((or (and (equal ivy--directory "/")
                 (string-match "\\`[^/]+:.*:.*\\'" ivy-text))
            (string-match "\\`/[^/]+:.*:.*\\'" ivy-text))
