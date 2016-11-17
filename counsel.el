@@ -1682,10 +1682,18 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
           (regex (counsel-unquote-regex-parens
                   (setq ivy--old-re
                         (ivy--regex string)))))
-      (let ((ag-cmd (format base-cmd
-                            (concat extra-ag-args
-                                    " -- "
-                                    (shell-quote-argument regex)))))
+      (let* ((args-end (string-match " -- " extra-ag-args))
+             (file (if args-end
+                       (substring-no-properties extra-ag-args (+ args-end 3))
+                     ""))
+             (extra-ag-args (if args-end
+                                (substring-no-properties extra-ag-args 0 args-end)
+                              extra-ag-args))
+             (ag-cmd (format counsel-ag-base-command
+                             (concat extra-ag-args
+                                     " -- "
+                                     (shell-quote-argument regex)
+                                     file))))
         (if (file-remote-p default-directory)
             (split-string (shell-command-to-string ag-cmd) "\n" t)
           (counsel--async-command ag-cmd)
