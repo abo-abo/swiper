@@ -1549,7 +1549,7 @@ This is useful for recursive `ivy-read'."
                                      (not (equal (expand-file-name preselect-directory)
                                                  (expand-file-name ivy--directory))))
                             (setf (ivy-state-preselect state) (setq preselect nil))))))
-                     ((file-exists-p (file-name-directory initial-input))
+                     ((ignore-errors (file-exists-p (file-name-directory initial-input)))
                       (setq ivy--directory (file-name-directory initial-input))
                       (setf (ivy-state-preselect state) (file-name-nondirectory initial-input)))))
              (require 'dired)
