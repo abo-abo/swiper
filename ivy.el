@@ -985,8 +985,7 @@ Example use:
           (if (eq action 'identity)
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
-            (prog1 (progn
-                     (setq default-directory (ivy-state-directory ivy-last))
+            (prog1 (let ((default-directory (ivy-state-directory ivy-last)))
                      (funcall action x))
               (unless (or (eq ivy-exit 'done)
                           (equal (selected-window)
