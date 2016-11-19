@@ -1720,6 +1720,22 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
   (let ((counsel-ag-base-command counsel-pt-base-command))
     (counsel-ag initial-input)))
 
+;;** `counsel-rg'
+(defcustom counsel-rg-base-command "rg %s"
+  "Used to in place of `counsel-rg-base-command' to search with
+ripgrep using `counsel-rg'."
+  :type 'string
+  :group 'ivy)
+
+;;;###autoload
+(defun counsel-rg (&optional initial-input)
+  "Grep for a string in the current directory using rg.
+This uses `counsel-ag' with `counsel-rg-base-command' replacing
+`counsel-ag-base-command'."
+  (interactive)
+  (let ((counsel-ag-base-command counsel-rg-base-command))
+    (counsel-ag initial-input)))
+
 ;;** `counsel-grep'
 (defcustom counsel-grep-base-command "grep -nE \"%s\" %s"
   "Format string to use in `cousel-grep-function' to construct
