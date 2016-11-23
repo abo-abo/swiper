@@ -3330,7 +3330,8 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
 
-\\{ivy-occur-mode-map}")
+\\{ivy-occur-mode-map}"
+  (setq-local view-read-only nil))
 
 (defvar ivy-occur-grep-mode-map
   (let ((map (copy-keymap ivy-occur-mode-map)))
@@ -3341,7 +3342,8 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
 
-\\{ivy-occur-grep-mode-map}")
+\\{ivy-occur-grep-mode-map}"
+  (setq-local view-read-only nil))
 
 (defvar ivy--occurs-list nil
   "A list of custom occur generators per command.")
