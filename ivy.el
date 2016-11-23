@@ -184,6 +184,10 @@ See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
           (const :tag "Popup" ivy-display-function-popup)
           (const :tag "Overlay" ivy-display-function-overlay)))
 
+(defvar ivy-display-functions-alist
+  '((ivy-completion-in-region . ivy-display-function-overlay))
+  "An alist for customizing `ivy-display-function'.")
+
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
 
@@ -1422,7 +1426,9 @@ customizations apply to the current completion session."
         (transformer-fn
          (plist-get ivy--display-transformers-list
                     (or caller (and (functionp collection)
-                                    collection)))))
+                                    collection))))
+        (ivy-display-function (unless (window-minibuffer-p)
+                                (cdr (assoc caller ivy-display-functions-alist)))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1787,8 +1793,6 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
          (completion-ignore-case case-fold-search)
          (comps
           (completion-all-completions str collection predicate (- end start)))
-         (ivy-display-function (unless (window-minibuffer-p)
-                                 #'ivy-display-function-overlay))
          (ivy--prompts-list (if (window-minibuffer-p)
                                 ivy--prompts-list
                               '(ivy-completion-in-region (lambda nil)))))
@@ -1819,7 +1823,6 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
                        (mapcar #'substring-no-properties comps)
                        :predicate predicate
                        :action #'ivy-completion-in-region-action
-                       :unwind #'ivy-overlay-cleanup
                        :require-match t
                        :caller 'ivy-completion-in-region)
              t)))))))
