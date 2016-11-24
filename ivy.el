@@ -642,7 +642,7 @@ When ARG is t, exit with current text, ignoring the candidates."
        (ivy--cd dir)
        (ivy--exhibit))
       ((and (not (string= ivy-text ""))
-            (file-exists-p ivy-text))
+            (ignore-errors (file-exists-p ivy-text)))
        (if (file-directory-p ivy-text)
            (ivy--cd (expand-file-name
                      (file-name-as-directory ivy-text) ivy--directory))
