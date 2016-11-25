@@ -544,9 +544,10 @@ Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
 line.
 
 Comes in handy when opening multiple files from
-@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag}, or
-@code{counsel-locate} lists. Just hold @kbd{C-M-n} for rapid-fire default
-action on each successive element of the list.
+@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag},
+@code{counsel-rg}, or @code{counsel-locate} lists. Just hold
+@kbd{C-M-n} for rapid-fire default action on each successive element
+of the list.
 @end indentedblock
 @subsubheading @kbd{C-M-p} (@code{ivy-previous-line-and-call})
 @vindex ivy-previous-line-and-call

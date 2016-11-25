@@ -407,7 +407,7 @@ actions.
      line.
 
      Comes in handy when opening multiple files from
-     =counsel-find-file=, =counsel-git-grep=, =counsel-ag=, or
+     =counsel-find-file=, =counsel-git-grep=, =counsel-ag=, =counsel-rg=, or
      =counsel-locate= lists. Just hold ~C-M-n~ for rapid-fire default
      action on each successive element of the list.
 
