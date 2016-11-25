@@ -702,10 +702,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               :caller 'counsel-M-x)))
 
 ;;** `counsel-load-library'
-;;;###autoload
-(defun counsel-load-library ()
-  "Load a selected the Emacs Lisp library.
-The libraries are offered from `load-path'."
+(defun counsel-library-candidates ()
+  "Return a list of completion candidates for `counsel-load-library'."
   (interactive)
   (let ((dirs load-path)
         (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
@@ -744,10 +742,29 @@ The libraries are offered from `load-path'."
                                 'full-name (expand-file-name file dir))
                                dir) cands)))))))
     (maphash (lambda (_k v) (push (car v) res)) cands)
-    (ivy-read "Load library: " (nreverse res)
+    (nreverse res)))
+
+;;;###autoload
+(defun counsel-load-library ()
+  "Load a selected the Emacs Lisp library.
+The libraries are offered from `load-path'."
+  (interactive)
+  (let ((cands (counsel-library-candidates)))
+    (ivy-read "Load library: " cands
               :action (lambda (x)
                         (load-library
                          (get-text-property 0 'full-name x)))
+              :keymap counsel-describe-map)))
+
+;;** `counsel-find-library'
+;;;###autoload
+(defun counsel-find-library ()
+  "Visit a selected the Emacs Lisp library.
+The libraries are offered from `load-path'."
+  (interactive)
+  (let ((cands (counsel-library-candidates)))
+    (ivy-read "Find library: " cands
+              :action #'counsel--find-symbol
               :keymap counsel-describe-map)))
 
 ;;** `counsel-load-theme'
@@ -2641,6 +2658,7 @@ And insert it into the minibuffer. Useful during
                 (describe-function . counsel-describe-function)
                 (describe-variable . counsel-describe-variable)
                 (find-file . counsel-find-file)
+                (find-library . counsel-find-library)
                 (imenu . counsel-imenu)
                 (load-library . counsel-load-library)
                 (load-theme . counsel-load-theme)
