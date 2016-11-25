@@ -920,6 +920,12 @@ Describe the selected candidate."
   (list counsel-git-grep-cmd-default)
   "History for `counsel-git-grep' shell commands.")
 
+(defcustom counsel-grep-post-action-hook nil
+  "Hook that runs after the point moves to the next candidate.
+Typical value: '(recenter)."
+  :type 'hook
+  :group 'ivy)
+
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
   (ivy-add-prompt-count
@@ -956,6 +962,7 @@ Describe the selected candidate."
         (forward-line (1- (string-to-number line-number)))
         (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
         (swiper--ensure-visible)
+        (run-hooks 'counsel-grep-post-action-hook)
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text)))))))
@@ -1823,6 +1830,7 @@ the command."
           (forward-line (- line-number counsel-grep-last-line))
           (setq counsel-grep-last-line line-number))
         (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+        (run-hooks 'counsel-grep-post-action-hook)
         (if (eq ivy-exit 'done)
             (swiper--ensure-visible)
           (isearch-range-invisible (line-beginning-position)
