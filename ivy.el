@@ -2773,7 +2773,7 @@ SEPARATOR is used to join the candidates."
 (defun ivy--format-minibuffer-line (str)
   (let ((start
          (if (and (memq (ivy-state-caller ivy-last)
-                        '(counsel-git-grep counsel-ag counsel-pt))
+                        '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
                   (string-match "^[^:]+:[^:]+:" str))
              (match-end 0)
            0))
@@ -3431,7 +3431,7 @@ updated original buffer."
              (let ((inhibit-read-only t))
                (erase-buffer)
                (funcall (plist-get ivy--occurs-list caller) t))))
-          ((memq caller '(counsel-git-grep counsel-grep counsel-ag))
+          ((memq caller '(counsel-git-grep counsel-grep counsel-ag counsel-rg))
            (let ((inhibit-read-only t))
              (erase-buffer)
              (funcall (plist-get ivy--occurs-list caller)))))))
@@ -3486,7 +3486,7 @@ EVENT gives the mouse position."
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
     (when (memq (ivy-state-caller ivy-occur-last)
-                '(swiper counsel-git-grep counsel-grep counsel-ag
+                '(swiper counsel-git-grep counsel-grep counsel-ag counsel-rg
                   counsel-describe-function counsel-describe-variable))
       (let ((window (ivy-state-window ivy-occur-last)))
         (when (or (null (window-live-p window))
