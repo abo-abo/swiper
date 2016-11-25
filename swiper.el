@@ -748,16 +748,23 @@ Run `swiper' for those buffers."
             (swiper--cleanup)
             (swiper--add-overlays (ivy--regex ivy-text))))))))
 
+(defun swiper-all-buffer-p (buffer)
+  "Return non-nil if BUFFER should be considered by `swiper-all'."
+  (let ((major-mode (with-current-buffer buffer major-mode)))
+    (cond
+     ;; Ignore TAGS buffers, they tend to add duplicate results.
+     ((eq major-mode #'tags-table-mode) nil)
+     ;; Always consider dired buffers, even though they're not backed
+     ;; by a file.
+     ((eq major-mode #'dired-mode) t)
+     ;; Otherwise, only consider the file if it's backed by a file.
+     (t (buffer-file-name buffer)))))
+
 ;;* `swiper-all'
 (defun swiper-all-function (str)
   (if (and (< (length str) 3))
       (list "" (format "%d chars more" (- 3 (length ivy-text))))
-    (let* ((buffers (cl-remove-if-not
-                     (lambda (b)
-                       (or (buffer-file-name b)
-                           (eq (with-current-buffer b
-                                 major-mode) 'dired-mode)))
-                     (buffer-list)))
+    (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p (buffer-list)))
            (re-full (funcall ivy--regex-function str))
            re re-tail
            cands match)
