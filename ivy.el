@@ -1312,8 +1312,9 @@ like.")
   "Sorting won't be done for collections larger than this."
   :type 'integer)
 
-(defun ivy--sorted-files (dir)
+(defun ivy--sorted-files (dir &optional predicate)
   "Return the list of files in DIR.
+When PREDICATE is not nil, use it to filter the result.
 Directories come first."
   (let* ((default-directory dir)
          (seq (condition-case nil
@@ -1334,7 +1335,9 @@ Directories come first."
         (setq seq (cl-sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
-      seq)))
+      (if predicate
+          (cl-remove-if-not predicate seq)
+        seq))))
 
 (defvar ivy-recursive-restore t
   "When non-nil, restore the above state when exiting the minibuffer.
@@ -1571,7 +1574,7 @@ This is useful for recursive `ivy-read'."
                  (setf
                   (ivy-state-preselect state)
                   (setq preselect (file-name-nondirectory preselect)))))
-             (setq coll (ivy--sorted-files ivy--directory))
+             (setq coll (ivy--sorted-files ivy--directory predicate))
              (when initial-input
                (unless (or require-match
                            (equal initial-input default-directory)
