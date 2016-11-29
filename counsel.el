@@ -1867,7 +1867,7 @@ the command."
                           (ivy--regex
                            (progn (string-match "\"\\(.*\\)\"" (buffer-name))
                                   (match-string 1 (buffer-name))) t)))
-                   counsel--git-grep-dir))
+                   (shell-quote-argument counsel--git-grep-dir)))
           "\n" t))
         (file (file-name-nondirectory counsel--git-grep-dir)))
     ;; Need precise number of header lines for `wgrep' to work.
