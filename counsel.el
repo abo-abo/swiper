@@ -615,6 +615,7 @@ input corresponding to the chosen variable."
  'counsel-M-x-transformer)
 
 (declare-function bookmark-all-names "bookmark")
+(declare-function bookmark-location "bookmark")
 
 (defcustom counsel-bookmark-avoid-dired nil
   "If non-nil, choosing a directory in `counsel-bookmark'
