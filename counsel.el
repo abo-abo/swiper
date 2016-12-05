@@ -616,6 +616,13 @@ input corresponding to the chosen variable."
 
 (declare-function bookmark-all-names "bookmark")
 
+(defcustom counsel-bookmark-avoid-dired nil
+  "If non-nil, choosing a directory in `counsel-bookmark'
+forwards the choice to `counsel-find-file' instead of opening a
+dired buffer."
+  :type 'boolean
+  :group 'ivy)
+
 ;;;###autoload
 (defun counsel-bookmark ()
   "Forward to `bookmark-jump' or `bookmark-set' if bookmark doesn't exist."
@@ -624,10 +631,17 @@ input corresponding to the chosen variable."
   (ivy-read "Create or jump to bookmark: "
             (bookmark-all-names)
             :action (lambda (x)
-                      (if (member x (bookmark-all-names))
-                          (with-ivy-window
-                            (bookmark-jump x))
-                        (bookmark-set x)))
+                      (cond ((and counsel-bookmark-avoid-dired
+                                  (member x (bookmark-all-names))
+                                  (file-directory-p (bookmark-location x)))
+                             (with-ivy-window
+                               (let ((default-directory (bookmark-location x)))
+                                 (counsel-find-file))))
+                            ((member x (bookmark-all-names))
+                             (with-ivy-window
+                               (bookmark-jump x)))
+                            (t
+                             (bookmark-set x))))
             :caller 'counsel-bookmark))
 
 (ivy-set-actions
