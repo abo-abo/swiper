@@ -411,6 +411,8 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 
 (defvar swiper--current-line nil)
 (defvar swiper--current-match-start nil)
+(defvar swiper--point-min nil)
+(defvar swiper--point-max nil)
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
@@ -418,6 +420,8 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (setq swiper--current-match-start nil)
   (setq swiper--current-window-start nil)
   (setq swiper--opoint (point))
+  (setq swiper--point-min (point-min))
+  (setq swiper--point-max (point-max))
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
@@ -561,7 +565,7 @@ Matched candidates should have `swiper-invocation-face'."
             (unless (if swiper--current-line
                         (eq swiper--current-line num)
                       (eq (line-number-at-pos) num))
-              (goto-char (point-min))
+              (goto-char swiper--point-min)
               (if swiper-use-visual-line
                   (line-move (1- num))
                 (forward-line (1- num))))
@@ -581,7 +585,10 @@ Matched candidates should have `swiper-invocation-face'."
                          (<= (point) (window-end (ivy-state-window ivy-last) t)))
               (recenter))
             (setq swiper--current-window-start (window-start))))
-        (swiper--add-overlays re)))))
+        (swiper--add-overlays
+         re
+         (max (window-start) swiper--point-min)
+         (min (window-end) swiper--point-max))))))
 
 (defun swiper--add-overlays (re &optional beg end wnd)
   "Add overlays for RE regexp in visible part of the current buffer.
@@ -658,7 +665,7 @@ WND, when specified is the window."
         (unless (equal (current-buffer)
                        (ivy-state-buffer ivy-last))
           (switch-to-buffer (ivy-state-buffer ivy-last)))
-        (goto-char (point-min))
+        (goto-char swiper--point-min)
         (funcall (if swiper-use-visual-line
                      #'line-move
                    #'forward-line)
