@@ -2959,48 +2959,20 @@ selected candidate."
 
 
 ;;** `counsel-faces'
-(defun counsel-faces--update-highlight (cand)
-  "Update the highlight face for the current candidate CAND.
-
-This is necessary because the default `ivy-current-match' face
-background mask most of the faces and you can not see the current
-candidate face when is selected, which is counter-intuitive and not
-user friendly.  The default Emacs command `list-faces-display' have
-the same problem."
-  (when (> (length cand) 0)
-    (let ((face
-           (intern (car (split-string (substring-no-properties cand))))))
-      (face-remap-add-relative
-       'ivy-current-match
-       :background (face-attribute face :background nil 'default)
-       :foreground (face-attribute face :foreground nil 'default)))))
-
 (defun counsel-faces-action-describe (x)
   "Describe the face X."
-  (let ((face (car (split-string (substring x 0 25)))))
-    (describe-face (intern face))))
+  (describe-face (intern x)))
 
 (defun counsel-faces-action-customize (x)
   "Customize the face X."
-  (let ((face (car (split-string (substring x 0 25)))))
-    (customize-face (intern face))))
-
-(defun counsel-faces-action-insert-name (x)
-  "Insert the name of face X."
-  (let ((face (car (split-string (substring x 0 25)))))
-    (insert face)))
-
-(defun counsel-faces-action-kill-name (x)
-  "Kill the name of face X."
-  (let ((face (car (split-string (substring x 0 25)))))
-    (kill-new face)))
+  (customize-face (intern x)))
 
 (ivy-set-actions
  'counsel-faces
  '(("d" counsel-faces-action-describe "describe face")
    ("c" counsel-faces-action-customize "customize face")
-   ("i" counsel-faces-action-insert-name "insert face name")
-   ("k" counsel-faces-action-kill-name "kill face name")))
+   ("i" insert "insert face name")
+   ("k" kill-new "kill face name")))
 
 (defvar counsel-faces-history nil
   "History for `counsel-faces'.")
@@ -3009,32 +2981,41 @@ the same problem."
   "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
   "Text string to display as the sample text for `counsel-faces'.")
 
+(defvar counsel--faces-fmt nil)
+
+(defun counsel--faces-format-function (cands)
+  (ivy--format-function-generic
+   (lambda (str)
+     (concat
+      (format counsel--faces-fmt
+              (ivy--add-face str 'ivy-current-match))
+      (propertize counsel-faces--sample-text 'face (intern str))))
+   (lambda (str)
+     (concat
+      (format counsel--faces-fmt
+              str)
+      (propertize counsel-faces--sample-text 'face (intern str))))
+   cands
+   "\n"))
+
 (defun counsel-faces ()
   "Show a list of all defined faces.
 
 You can describe, customize, insert or kill the name or selected
 candidate."
   (interactive)
-  (let ((minibuffer-allow-text-properties t)
-        (max-length
-         (apply #'max
-                (mapcar
-                 (lambda (x)
-                   (length (symbol-name x)))
-                 (face-list)))))
-    (ivy-read "%d Face: "
-              (mapcar (lambda (x)
-                        (concat
-                         (propertize
-                          (format (format "%%-%ds  " max-length) x))
-                         (propertize
-                          (format "%s" counsel-faces--sample-text)
-                          'face x)))
-                      (face-list))
+  (let* ((minibuffer-allow-text-properties t)
+         (max-length
+          (apply #'max
+                 (mapcar
+                  (lambda (x)
+                    (length (symbol-name x)))
+                  (face-list))))
+         (counsel--faces-fmt (format "%%-%ds  " max-length))
+         (ivy-format-function #'counsel--faces-format-function))
+    (ivy-read "%d Face: " (face-list)
               :require-match t
               :action #'counsel-faces-action-describe
-              :update-fn (lambda ()
-                           (counsel-faces--update-highlight ivy--current))
               :history 'counsel-faces-history
               :caller 'counsel-faces
               :sort t)))
