@@ -2725,10 +2725,10 @@ the same problem."
 ;;** `counsel-colors-emacs'
 (ivy-set-actions
  'counsel-colors-emacs
- '(("n" counsel-color-action-insert-name "insert color name")
-   ("h" counsel-color-action-insert-hex "insert color hexadecimal value")
-   ("N" counsel-color-action-kill-name "kill color name")
-   ("H" counsel-color-action-kill-hex "kill color hexadecimal value")))
+ '(("n" counsel-colors-action-insert-name "insert color name")
+   ("h" counsel-colors-action-insert-hex "insert color hexadecimal value")
+   ("N" counsel-colors-action-kill-name "kill color name")
+   ("H" counsel-colors-action-kill-hex "kill color hexadecimal value")))
 
 (defvar counsel-colors-emacs-history nil
   "History for `counsel-colors-emacs'.")
