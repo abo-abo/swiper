@@ -764,6 +764,10 @@ Run `swiper' for those buffers."
      ;; Always consider dired buffers, even though they're not backed
      ;; by a file.
      ((eq major-mode #'dired-mode) t)
+     ;; Always consider stash buffers too, as they may have
+     ;; interesting content not present in any buffers. We don't #'
+     ;; quote to satisfy the byte-compiler.
+     ((eq major-mode 'magit-stash-mode) t)
      ;; Otherwise, only consider the file if it's backed by a file.
      (t (buffer-file-name buffer)))))
 
