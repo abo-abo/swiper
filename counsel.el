@@ -1715,7 +1715,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
                                     " in directory: "))))
     (setq extra-ag-args
           (or extra-ag-args
-              (let* ((pos (position ?  counsel-ag-base-command))
+              (let* ((pos (cl-position ?  counsel-ag-base-command))
                      (command (substring-no-properties counsel-ag-base-command 0 pos))
                      (ag-args (replace-regexp-in-string
                                "%s" "" (substring-no-properties counsel-ag-base-command pos))))
