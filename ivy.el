@@ -2883,10 +2883,10 @@ CANDS is a list of strings."
   (unless recentf-mode
     (recentf-mode 1))
   (let ((bookmarks (and (boundp 'bookmark-alist)
-                        bookmark-alist))
+                        (copy-sequence bookmark-alist)))
         virtual-buffers)
     (dolist (head (append
-                   recentf-list
+                   (copy-sequence recentf-list)
                    (delq nil (mapcar (lambda (bookmark)
                                        (let (file)
                                          (when (setq file (assoc 'filename bookmark))
