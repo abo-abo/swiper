@@ -1689,7 +1689,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
              (extra-ag-args (if args-end
                                 (substring-no-properties extra-ag-args 0 args-end)
                               extra-ag-args))
-             (ag-cmd (format counsel-ag-base-command
+             (ag-cmd (format base-cmd
                              (concat extra-ag-args
                                      " -- "
                                      (shell-quote-argument regex)
