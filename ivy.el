@@ -330,8 +330,6 @@ action functions.")
   action
   unwind
   re-builder
-  highlighter
-  ;; highlighter of candidates
   matcher
   ;; When this is non-nil, call it for each input change to get new candidates
   dynamic-collection
@@ -1301,6 +1299,20 @@ The matches will be filtered in a sequence, you can mix the
 regexps that should match and that should not match as you
 like.")
 
+(defvar ivy-highlight-functions-alist
+  '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
+    (ivy--regex-fuzzy . ivy--highlight-fuzzy))
+  "An alist of highlighting functions for each regex buidler function.
+
+Each value should be either:
+
+1. A function that takes two arguments, STR and START.  The
+function should return a highlight STR from the index START, and
+return the result.
+
+2. A plist whose :eval entry is a form, which evaluates to a
+function as in point 1.")
+
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
     (org-agenda-refile . "^")
@@ -1354,7 +1366,7 @@ the restoring themselves.")
                     &key
                       predicate require-match initial-input
                       history preselect keymap update-fn sort
-                      action unwind re-builder highlighter matcher dynamic-collection caller)
+                      action unwind re-builder matcher dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a format string, normally ending in a colon and a
@@ -1393,8 +1405,6 @@ UNWIND is a lambda function to call before exiting.
 
 RE-BUILDER is a lambda function to call to transform text into a
 regex pattern.
-
-HIGHLIGHTER is a function used to highlight candidates.
 
 MATCHER is to override matching.
 
@@ -1459,7 +1469,6 @@ customizations apply to the current completion session."
            :buffer (current-buffer)
            :unwind unwind
            :re-builder re-builder
-           :highlighter highlighter
            :matcher matcher
            :dynamic-collection dynamic-collection
            :display-transformer-fn transformer-fn
@@ -1518,7 +1527,6 @@ This is useful for recursive `ivy-read'."
         (preselect (ivy-state-preselect state))
         (sort (ivy-state-sort state))
         (re-builder (ivy-state-re-builder state))
-        (highlighter (ivy-state-highlighter state))
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
         (require-match (ivy-state-require-match state))
@@ -1544,7 +1552,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy-text "")
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
-    (setq ivy--highlight-function (or highlighter (ivy--highlight-function-for-regex-function ivy--regex-function)))
+    (setq ivy--highlight-function (ivy--highlight-function-for-regex-function ivy--regex-function))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -2831,9 +2839,10 @@ SEPARATOR is used to join the candidates."
 
 (defun ivy--highlight-function-for-regex-function (regex-fn)
   "Return a highlighting function which is appropriate for the regex builder REGEX-FN."
-  (cond ((eq regex-fn 'ivy--regex-ignore-order) 'ivy--highlight-ignore-order)
-        ((and ivy--flx-featurep (eq regex-fn 'ivy--regex-fuzzy)) 'ivy--highlight-fuzzy)
-        (t 'ivy--highlight-default)))
+  (let ((res (alist-get regex-fn ivy-highlight-functions-alist #'ivy--highlight-default)))
+    (if (listp res)
+        (eval (plist-get res :eval))
+      res)))
 
 (defun ivy--format-minibuffer-line (str)
   (when (eq ivy-display-style 'fancy)

@@ -422,10 +422,15 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
     (evil-set-jump)))
 
 (defun swiper--highlighter ()
-  (let* ((re-builder
-          (or (cdr (assoc 'swiper ivy-re-builders-alist))
-              (cdr (assoc t ivy-re-builders-alist)))))
+  "Return the correct highlighter for swiper."
+  (let ((re-builder
+         (or (cdr (assoc 'swiper ivy-re-builders-alist))
+             (cdr (assoc t ivy-re-builders-alist))))
+        (ivy-highlight-functions-alist
+         (assq-delete-all 'swiper--re-builder (copy-alist ivy-highlight-functions-alist))))
     (ivy--highlight-function-for-regex-function re-builder)))
+
+(push '(swiper--re-builder . (:eval (swiper--highlighter))) ivy-highlight-functions-alist)
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
@@ -495,7 +500,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  :unwind #'swiper--cleanup
                  :action #'swiper--action
                  :re-builder #'swiper--re-builder
-                 :highlighter (swiper--highlighter)
                  :history 'swiper-history
                  :caller 'swiper))
           (point))
