@@ -2839,7 +2839,10 @@ SEPARATOR is used to join the candidates."
 
 (defun ivy--highlight-function-for-regex-function (regex-fn)
   "Return a highlighting function which is appropriate for the regex builder REGEX-FN."
-  (let ((res (alist-get regex-fn ivy-highlight-functions-alist #'ivy--highlight-default)))
+  (let ((res (cdr (or (assoc regex-fn ivy-highlight-functions-alist)
+                      (cons t #'ivy--highlight-default)))))
+    ;; note: alist-get is only available in emacs 25 and above.
+    ;; (despite the documentation not mentioning this fact.)
     (if (listp res)
         (eval (plist-get res :eval))
       res)))
