@@ -1301,7 +1301,7 @@ like.")
 
 (defvar ivy-highlight-functions-alist
   '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
-    (ivy--regex-fuzzy . ivy--highlight-fuzzy))
+    (ivy--regex-fuzzy . (:eval (if ivy--flx-featurep 'ivy--highlight-fuzzy 'ivy--highlight-default))))
   "An alist of highlighting functions for each regex buidler function.
 
 Each value should be either:
