@@ -3058,6 +3058,67 @@ candidate."
           :action #'counsel-command-history-action-eval
           :caller 'counsel-command-history))
 
+;;** `counsel-org-agenda-headlines'
+(defvar org-odd-levels-only)
+(declare-function org-set-startup-visibility "org")
+(declare-function org-show-entry "org")
+(declare-function org-map-entries "org")
+(declare-function org-heading-components "org")
+
+(defun counsel-org-agenda-headlines-action-goto (headline)
+  "Go to the `org-mode' agenda HEADLINE."
+  (find-file (nth 1 headline))
+  (org-set-startup-visibility)
+  (goto-char (nth 2 headline))
+  (org-show-entry))
+
+(ivy-set-actions
+ 'counsel-org-agenda-headlines
+ '(("g" counsel-org-agenda-headlines-action-goto "goto headline")))
+
+(defvar counsel-org-agenda-headlines-history nil
+  "History for `counsel-org-agenda-headlines'.")
+
+(defun counsel-org-agenda-headlines--candidates ()
+  "Return a list of completion candidates for `counsel-org-agenda-headlines'."
+  (org-map-entries
+   (lambda ()
+     (let* ((components (org-heading-components))
+            (level (make-string
+                    (if org-odd-levels-only
+                        (nth 1 components)
+                      (nth 0 components))
+                    ?*))
+            (todo (nth 2 components))
+            (priority (nth 3 components))
+            (text (nth 4 components))
+            (tags (nth 5 components)))
+       (list
+        (mapconcat
+         'identity
+         (cl-remove-if 'null
+                       (list
+                        level
+                        todo
+                        (if priority (format "[#%c]" priority))
+                        text
+                        tags))
+         " ")
+        (buffer-file-name) (point))))
+   nil
+   'agenda))
+
+;;;###autoload
+(defun counsel-org-agenda-headlines ()
+  "Choose from headers of `org-mode' files in the agenda."
+  (interactive)
+  (let ((minibuffer-allow-text-properties t))
+    (ivy-read "Org headline: "
+              (counsel-org-agenda-headlines--candidates)
+              :action #'counsel-org-agenda-headlines-action-goto
+              :history 'counsel-org-agenda-headlines-history
+              :caller 'counsel-org-agenda-headlines)))
+
 ;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
