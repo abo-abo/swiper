@@ -583,7 +583,7 @@ Matched candidates should have `swiper-invocation-face'."
         (swiper--add-overlays
          re
          (max (window-start) swiper--point-min)
-         (min (window-end) swiper--point-max))))))
+         (min (window-end (selected-window) t) swiper--point-max))))))
 
 (defun swiper--add-overlays (re &optional beg end wnd)
   "Add overlays for RE regexp in visible part of the current buffer.
