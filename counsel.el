@@ -77,7 +77,7 @@
            (directory-file-name dir)) "/"))
 
 (defun counsel-string-compose (prefix str)
-  "Make PREFIX the display prefix of STR though text properties."
+  "Make PREFIX the display prefix of STR through text properties."
   (let ((str (copy-sequence str)))
     (put-text-property
      0 1 'display

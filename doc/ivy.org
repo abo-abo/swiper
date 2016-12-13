@@ -678,7 +678,6 @@ installed.
 
 ~C-o m~ toggles the current regexp builder.
 
-
 * Customization
 :PROPERTIES:
 :CUSTOM_ID: customization
