@@ -3036,6 +3036,31 @@ candidate."
               :caller 'counsel-faces
               :sort t)))
 
+;;** `counsel-command-history'
+(defun counsel-command-history-action-eval (cmd)
+  "Eval the command CMD."
+    (eval (read cmd)))
+
+(defun counsel-command-history-action-edit-and-eval (cmd)
+  "Edit and eval the command CMD."
+    (edit-and-eval-command "Eval: " (read cmd)))
+
+(ivy-set-actions
+ 'counsel-command-history
+ '(("r" counsel-command-history-action-eval           "eval command")
+   ("e" counsel-command-history-action-edit-and-eval  "edit and eval command")))
+
+(defun counsel-command-history ()
+  "Show the history of commands."
+  (interactive)
+  (ivy-read "%d Command: "
+            (mapcar (lambda (x)
+                        (format "%s" x))
+                    command-history)
+          :require-match t
+          :action #'counsel-command-history-action-eval
+          :caller 'counsel-command-history))
+
 ;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
