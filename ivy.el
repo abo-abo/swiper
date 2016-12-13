@@ -1303,17 +1303,8 @@ like.")
 
 (defvar ivy-highlight-functions-alist
   '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
-    (ivy--regex-fuzzy . (:eval (if ivy--flx-featurep 'ivy--highlight-fuzzy 'ivy--highlight-default))))
-  "An alist of highlighting functions for each regex buidler function.
-
-Each value should be either:
-
-1. A function that takes two arguments, STR and START.  The
-function should return a highlight STR from the index START, and
-return the result.
-
-2. A plist whose :eval entry is a form, which evaluates to a
-function as in point 1.")
+    (ivy--regex-fuzzy . ivy--highlight-fuzzy))
+  "An alist of highlighting functions for each regex buidler function.")
 
 (defvar ivy-initial-inputs-alist
   '((org-refile . "^")
@@ -1554,7 +1545,14 @@ This is useful for recursive `ivy-read'."
     (setq ivy-text "")
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
-    (setq ivy--highlight-function (ivy--highlight-function-for-regex-function ivy--regex-function))
+    (setq ivy--highlight-function
+          (if (and (eq ivy--regex-function 'swiper--re-builder)
+                   (eq (cdr (assoc t ivy-re-builders-alist))
+                       'ivy--regex-fuzzy))
+              #'ivy--highlight-fuzzy
+            (or (cdr (assoc ivy--regex-function
+                            ivy-highlight-functions-alist))
+                #'ivy--highlight-default)))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -2458,7 +2456,7 @@ CANDIDATES are assumed to be static."
           (setq ivy--old-cands (ivy--sort name cands))
           (ivy--recompute-index name re-str ivy--old-cands))
         (setq ivy--old-re
-              (if (eq ivy--highlight-function 'ivy--highlight-ignore-order)
+              (if (eq ivy--regex-function 'ivy--regex-ignore-order)
                   re
                 (if ivy--old-cands
                     re-str
@@ -2792,9 +2790,8 @@ SEPARATOR is used to join the candidates."
     (font-lock-append-text-property
      start end 'face face str)))
 
-(defun ivy--highlight-ignore-order (str _start)
-  "Highlight STR, starting from START, using the ignore-order method."
-  ;; (message "ivy--highlight-ignore-order: old-re = %s" ivy--old-re)
+(defun ivy--highlight-ignore-order (str)
+  "Highlight STR, using the ignore-order method."
   (when (consp ivy--old-re)
     (let ((i 1))
       (dolist (re ivy--old-re)
@@ -2807,57 +2804,49 @@ SEPARATOR is used to join the candidates."
         (cl-incf i))))
   str)
 
-(defun ivy--highlight-fuzzy (str _start)
-  "Highlight STR, starting from START, using the fuzzy method."
-  (let ((flx-name (if (string-match "^\\^" ivy-text)
-                      (substring ivy-text 1)
-                    ivy-text)))
-    (ivy--flx-propertize
-     (cons (flx-score str flx-name ivy--flx-cache) str))))
+(defun ivy--highlight-fuzzy (str)
+  "Highlight STR, using the fuzzy method."
+  (if ivy--flx-featurep
+      (let ((flx-name (if (string-match "^\\^" ivy-text)
+                          (substring ivy-text 1)
+                        ivy-text)))
+        (ivy--flx-propertize
+         (cons (flx-score str flx-name ivy--flx-cache) str)))
+    (ivy--highlight-default str)))
 
-(defun ivy--highlight-default (str start)
-  "Highlight STR, starting from START, using the default method."
+(defun ivy--highlight-default (str)
+  "Highlight STR, using the default method."
   (unless ivy--old-re
     (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-  (ignore-errors
-    (while (and (string-match ivy--old-re str start)
-                (> (- (match-end 0) (match-beginning 0)) 0))
-      (setq start (match-end 0))
-      (let ((i 0))
-        (while (<= i ivy--subexps)
-          (let ((face
-                 (cond ((zerop ivy--subexps)
-                        (cadr ivy-minibuffer-faces))
-                       ((zerop i)
-                        (car ivy-minibuffer-faces))
-                       (t
-                        (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                             ivy-minibuffer-faces)))))
-            (ivy-add-face-text-property
-             (match-beginning i) (match-end i)
-             face str))
-          (cl-incf i)))))
+  (let ((start
+         (if (and (memq (ivy-state-caller ivy-last)
+                        '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
+                  (string-match "^[^:]+:[^:]+:" str))
+             (match-end 0)
+           0)))
+    (ignore-errors
+      (while (and (string-match ivy--old-re str start)
+                  (> (- (match-end 0) (match-beginning 0)) 0))
+        (setq start (match-end 0))
+        (let ((i 0))
+          (while (<= i ivy--subexps)
+            (let ((face
+                   (cond ((zerop ivy--subexps)
+                          (cadr ivy-minibuffer-faces))
+                         ((zerop i)
+                          (car ivy-minibuffer-faces))
+                         (t
+                          (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
+                               ivy-minibuffer-faces)))))
+              (ivy-add-face-text-property
+               (match-beginning i) (match-end i)
+               face str))
+            (cl-incf i))))))
   str)
-
-(defun ivy--highlight-function-for-regex-function (regex-fn)
-  "Return a highlighting function which is appropriate for the regex builder REGEX-FN."
-  (let ((res (cdr (or (assoc regex-fn ivy-highlight-functions-alist)
-                      (cons t #'ivy--highlight-default)))))
-    ;; note: alist-get is only available in emacs 25 and above.
-    ;; (despite the documentation not mentioning this fact.)
-    (if (listp res)
-        (eval (plist-get res :eval))
-      res)))
 
 (defun ivy--format-minibuffer-line (str)
   (when (eq ivy-display-style 'fancy)
-    (let ((start
-           (if (and (memq (ivy-state-caller ivy-last)
-                          '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
-                    (string-match "^[^:]+:[^:]+:" str))
-               (match-end 0)
-             0)))
-      (funcall ivy--highlight-function (copy-sequence str) start))))
+    (funcall ivy--highlight-function (copy-sequence str))))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
