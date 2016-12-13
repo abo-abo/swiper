@@ -31,11 +31,6 @@
 ;;
 ;; It can double as a quick `regex-builder', although only single
 ;; lines will be matched.
-;;
-;; It also provides `ivy-mode': a global minor mode that uses the
-;; matching back end of `swiper' for all matching on your system,
-;; including file matching. You can use it in place of `ido-mode'
-;; (can't have both on at once).
 
 ;;; Code:
 (require 'ivy)
