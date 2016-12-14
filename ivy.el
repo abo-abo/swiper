@@ -1547,9 +1547,9 @@ This is useful for recursive `ivy-read'."
     (setq ivy-use-ignore ivy-use-ignore-default)
     (setq ivy--highlight-function
           (if (and (eq ivy--regex-function 'swiper--re-builder)
-                   (eq (cdr (assoc t ivy-re-builders-alist))
-                       'ivy--regex-fuzzy))
-              #'ivy--highlight-fuzzy
+                   (assoc t ivy-re-builders-alist)
+                   (assoc (cdr (assoc t ivy-re-builders-alist)) ivy-highlight-functions-alist))
+              (cdr (assoc (cdr (assoc t ivy-re-builders-alist)) ivy-highlight-functions-alist))
             (or (cdr (assoc ivy--regex-function
                             ivy-highlight-functions-alist))
                 #'ivy--highlight-default)))
@@ -2456,7 +2456,7 @@ CANDIDATES are assumed to be static."
           (setq ivy--old-cands (ivy--sort name cands))
           (ivy--recompute-index name re-str ivy--old-cands))
         (setq ivy--old-re
-              (if (eq ivy--regex-function 'ivy--regex-ignore-order)
+              (if (eq ivy--highlight-function 'ivy--highlight-ignore-order)
                   re
                 (if ivy--old-cands
                     re-str
