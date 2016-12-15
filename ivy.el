@@ -3392,7 +3392,9 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
        highlight
        help-echo "mouse-1: call ivy-action")
      str)
-    (insert str "\n")))
+    (insert str "\n"))
+  (goto-char (point-min))
+  (forward-line 4))
 
 (defun ivy-occur ()
   "Stop completion and put the current matches into a new buffer.
