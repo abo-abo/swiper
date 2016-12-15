@@ -1545,14 +1545,15 @@ This is useful for recursive `ivy-read'."
     (setq ivy-text "")
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
-    (setq ivy--highlight-function
-          (if (and (eq ivy--regex-function 'swiper--re-builder)
-                   (assoc t ivy-re-builders-alist)
-                   (assoc (cdr (assoc t ivy-re-builders-alist)) ivy-highlight-functions-alist))
-              (cdr (assoc (cdr (assoc t ivy-re-builders-alist)) ivy-highlight-functions-alist))
-            (or (cdr (assoc ivy--regex-function
-                            ivy-highlight-functions-alist))
-                #'ivy--highlight-default)))
+    (let (reb)
+      (setq ivy--highlight-function
+            (if (and (eq ivy--regex-function 'swiper--re-builder)
+                     (setq reb (cdr (assoc t ivy-re-builders-alist)))
+                     (setq reb (cdr (assoc reb ivy-highlight-functions-alist))))
+                reb
+              (or (cdr (assoc ivy--regex-function
+                              ivy-highlight-functions-alist))
+                  #'ivy--highlight-default))))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
