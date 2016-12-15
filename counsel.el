@@ -3053,10 +3053,7 @@ candidate."
 (defun counsel-command-history ()
   "Show the history of commands."
   (interactive)
-  (ivy-read "%d Command: "
-            (mapcar (lambda (x)
-                        (format "%s" x))
-                    command-history)
+  (ivy-read "%d Command: " (mapcar #'prin1-to-string command-history)
           :require-match t
           :action #'counsel-command-history-action-eval
           :caller 'counsel-command-history))
