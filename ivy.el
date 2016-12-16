@@ -2846,8 +2846,9 @@ SEPARATOR is used to join the candidates."
   str)
 
 (defun ivy--format-minibuffer-line (str)
-  (when (eq ivy-display-style 'fancy)
-    (funcall ivy--highlight-function (copy-sequence str))))
+  (if (eq ivy-display-style 'fancy)
+      (funcall ivy--highlight-function (copy-sequence str))
+    (copy-sequence str)))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
