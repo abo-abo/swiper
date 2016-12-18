@@ -2166,6 +2166,33 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
+;;** `counsel-mark-ring'
+(defun counsel--pad (string length)
+  "Pad string to length with spaces."
+  (let ((padding (max 0 (- length (length string)))))
+    (concat string (make-string padding ?\s))))
+
+(defun counsel-mark-ring ()
+  "Browse `mark-ring' interactively."
+  (interactive)
+  (let ((candidates
+         (with-current-buffer (current-buffer)
+           (let ((padding (length (format "%s: " (line-number-at-pos (eobp))))))
+             (save-mark-and-excursion
+              (goto-char (point-min))
+              (mapcar (lambda (mark)
+                        (let* ((position (marker-position mark))
+                               (line-number (line-number-at-pos position))
+                               (line-marker (counsel--pad (format "%s:" line-number) padding))
+                               (bol (point-at-bol line-number))
+                               (eol (point-at-eol line-number))
+                               (line (buffer-substring bol eol)))
+                          (cons (format "%s%s" line-marker line) position)))
+                      (cl-remove-duplicates mark-ring :test #'equal)))))))
+    (ivy-read "Marks: " candidates
+              :action (lambda (elem)
+                        (goto-char (cdr elem))))))
+
 ;;** `counsel-tmm'
 (defvar tmm-km-list nil)
 (declare-function tmm-get-keymap "tmm")
@@ -3133,7 +3160,8 @@ candidate."
                 (load-library . counsel-load-library)
                 (load-theme . counsel-load-theme)
                 (yank-pop . counsel-yank-pop)
-                (info-lookup-symbol . counsel-info-lookup-symbol)))
+                (info-lookup-symbol . counsel-info-lookup-symbol)
+                (pop-mark . counsel-mark-ring)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'. Remaps built-in functions to counsel
