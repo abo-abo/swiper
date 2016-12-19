@@ -2386,7 +2386,7 @@ An extra action allows to switch to the process buffer."
     (if (null collection)
         (error "%S is not supported" major-mode)
       (ivy-read "Ace-Link: " (funcall collection)
-                :action action
+                :action (lambda (x) (funcall action (cdr x)))
                 :require-match t
                 :caller 'counsel-ace-link))))
 ;;** `counsel-expression-history'
