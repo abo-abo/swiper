@@ -2234,7 +2234,9 @@ If SUBEXP is nil, the text properties are applied to the whole match."
 (defun ivy--magic-file-slash ()
   (cond ((member ivy-text ivy--all-candidates)
          (ivy--cd (expand-file-name ivy-text ivy--directory)))
-        ((string-match "//\\'" ivy-text)
+        ((and (string-match "//\\'" ivy-text)
+              (= 0 (string-match "//\\'" ivy-text))))
+        ((string-match "///\\'" ivy-text)
          (if (and default-directory
                   (string-match "\\`[[:alpha:]]:/" default-directory))
              (ivy--cd (match-string 0 default-directory))
