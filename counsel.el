@@ -1687,7 +1687,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
       (let* ((args-end (string-match " -- " extra-ag-args))
              (file (if args-end
                        (substring-no-properties extra-ag-args (+ args-end 3))
-                     ""))
+                     default-directory))
              (extra-ag-args (if args-end
                                 (substring-no-properties extra-ag-args 0 args-end)
                               extra-ag-args))
@@ -1695,6 +1695,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
                              (concat extra-ag-args
                                      " -- "
                                      (shell-quote-argument regex)
+                                     " "
                                      file))))
         (if (file-remote-p default-directory)
             (split-string (shell-command-to-string ag-cmd) "\n" t)
