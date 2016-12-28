@@ -1077,9 +1077,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
         (error "Not in a git repository")
       (unless proj
         (setq counsel--git-grep-count
-              (if (eq system-type 'windows-nt)
-                  0
-                (counsel--gg-count "" t))))
+              (counsel--gg-count "" t)
+              ;; (if (eq system-type 'windows-nt)
+              ;;     0
+              ;;   (counsel--gg-count "" t))
+              ))
       (ivy-read "git grep" (if proj
                                'counsel-git-grep-proj-function
                              'counsel-git-grep-function)
