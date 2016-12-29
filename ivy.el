@@ -2703,26 +2703,68 @@ no sorting is done.")
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
-      (if (and cands
-               (< (length cands) ivy-flx-limit))
-          (let* ((flx-name (if (string-match "^\\^" name)
-                               (substring name 1)
-                             name))
-                 (cands-with-score
-                  (delq nil
-                        (mapcar
-                         (lambda (x)
-                           (let ((score (flx-score x flx-name ivy--flx-cache)))
-                             (and score
-                                  (cons score x))))
-                         cands))))
-            (if cands-with-score
-                (mapcar #'cdr
-                        (sort cands-with-score
-                              (lambda (x y)
-                                (> (caar x) (caar y)))))
-              cands))
-        cands)
+      (let* (;; an optimized regex for fuzzy matching
+             ;; "abc" → "\\`[^a]*a[^b]*b[^c]*c"
+             (fuzzy-regex (if (= (elt name 0) ?^)
+                              (concat "^"
+                                      (regexp-quote (substring name 1 2))
+                                      (mapconcat
+                                       (lambda (x)
+                                         (setq x (string x))
+                                         (concat "[^" x "]*" (regexp-quote x)))
+                                       (substring name 2)
+                                       ""))
+                            (concat "^"
+                                    (mapconcat
+                                     (lambda (x)
+                                       (setq x (string x))
+                                       (concat "[^" x "]*" (regexp-quote x)))
+                                     name
+                                     ""))))
+
+             ;; strip off the leading "^" for flx matching
+             (flx-name (if (string-match "^\\^" name)
+                           (substring name 1)
+                         name))
+
+             (cands-left)
+             (cands-to-sort))
+
+        ;; filter out non-matching candidates
+        (dolist (cand cands)
+          (when (string-match fuzzy-regex cand)
+            (push cand cands-left)))
+
+        ;; pre-sort the candidates by length before partitioning
+        (setq cands-left (sort cands-left
+                               (lambda (c1 c2)
+                                 (< (length c1)
+                                    (length c2)))))
+
+        ;; partition the candidates into sorted and unsorted groups
+        (dotimes (_n (min (length cands-left) ivy-flx-limit))
+          (push (pop cands-left) cands-to-sort))
+
+        (append
+         ;; compute all of the flx scores in one pass and sort
+         (mapcar #'car
+                 (sort (mapcar
+                        (lambda (cand)
+                          (cons cand
+                                (car (flx-score cand
+                                                flx-name
+                                                ivy--flx-cache))))
+                        cands-to-sort)
+                       (lambda (c1 c2)
+                         ;; break ties by length
+                         (if (/= (cdr c1) (cdr c2))
+                             (> (cdr c1)
+                                (cdr c2))
+                           (< (length (car c1))
+                              (length (car c2)))))))
+
+         ;; add the unsorted candidates
+         cands-left))
     (error
      cands)))
 
