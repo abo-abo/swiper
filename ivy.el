@@ -301,6 +301,7 @@ action functions.")
     (define-key map (kbd "C-M-a") 'ivy-read-action)
     (define-key map (kbd "C-c C-o") 'ivy-occur)
     (define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
+    (define-key map (kbd "C-c C-s") 'ivy-rotate-sort)
     (define-key map [remap describe-mode] 'ivy-help)
     map)
   "Keymap used in the minibuffer.")
@@ -1252,6 +1253,10 @@ Nil means no sorting, which is useful to turn off the sorting for
 functions that have candidates in the natural buffer order, like
 `org-refile' or `Man-goto-section'.
 
+A list can be used to associate multiple sorting functions with a
+collection. The car of the list is the current sort
+function. This list can be rotated with `ivy-rotate-sort'.
+
 The entry associated with t is used for all fall-through cases.
 
 See also `ivy-sort-max-size'."
@@ -1264,8 +1269,26 @@ See also `ivy-sort-max-size'."
                  (const :tag "Plain sort" string-lessp)
                  (const :tag "File sort" ivy-sort-file-function-default)
                  (const :tag "No sort" nil)
-                 (function :tag "Custom function")))
+                 (function :tag "Custom function")
+                 (repeat (function :tag "Custom function"))))
   :group 'ivy)
+
+(defun ivy--sort-function (collection)
+  "Retrieve sort function from `ivy-sort-functions-alist'"
+  (let ((res (cdr (assoc collection ivy-sort-functions-alist))))
+    (or (car-safe res) res)))
+
+(defun ivy-rotate-sort ()
+  "Rotate through sorting functions available for current collection.
+This only has an effect if multiple sorting functions are
+specified for the current collection in
+`ivy-sort-functions-alist'."
+  (interactive)
+  (let ((cell
+         (assoc (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
+    (when (listp (cdr cell))
+      (setcdr cell (append (cddr cell) (list (cadr cell))))
+      (ivy--reset-state ivy-last))))
 
 (defvar ivy-index-functions-alist
   '((swiper . ivy-recompute-index-swiper)
@@ -1334,8 +1357,7 @@ Directories come first."
     (if (equal dir "/")
         seq
       (setq seq (delete "./" (delete "../" seq)))
-      (when (eq (setq sort-fn (cdr (assoc 'read-file-name-internal
-                                          ivy-sort-functions-alist)))
+      (when (eq (setq sort-fn (ivy--sort-function 'read-file-name-internal))
                 #'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
                             (propertize x 'dirp (string-match-p "/\\'" x)))
@@ -1606,7 +1628,7 @@ This is useful for recursive `ivy-read'."
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
             ((and (consp collection) (listp (car collection)))
-             (if (and sort (setq sort-fn (cdr (assoc caller ivy-sort-functions-alist))))
+             (if (and sort (setq sort-fn (ivy--sort-function caller)))
                  (progn
                    (setq sort nil)
                    (setq coll (mapcar #'car
@@ -1633,12 +1655,11 @@ This is useful for recursive `ivy-read'."
              (setq coll collection)))
       (when sort
         (if (and (functionp collection)
-                 (setq sort-fn (assoc collection ivy-sort-functions-alist)))
-            (when (and (setq sort-fn (cdr sort-fn))
-                       (not (eq collection 'read-file-name-internal)))
+                 (setq sort-fn (ivy--sort-function collection)))
+            (when (not (eq collection 'read-file-name-internal))
               (setq coll (cl-sort coll sort-fn)))
           (unless (eq history 'org-refile-history)
-            (if (and (setq sort-fn (cdr (assoc t ivy-sort-functions-alist)))
+            (if (and (setq sort-fn (ivy--sort-function t))
                      (<= (length coll) ivy-sort-max-size))
                 (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
       (setq coll (ivy--set-candidates coll))
@@ -1749,11 +1770,9 @@ INHERIT-INPUT-METHOD is currently ignored."
               :history history
               :keymap nil
               :sort
-              (let ((sort (or (assoc this-command ivy-sort-functions-alist)
-                              (assoc t ivy-sort-functions-alist))))
-                (if sort
-                    (cdr sort)
-                  t)))))
+              (let ((sort (or (ivy--sort-function this-command)
+                              (ivy--sort-function t))))
+                (or sort t)))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
@@ -2220,13 +2239,9 @@ If SUBEXP is nil, the text properties are applied to the whole match."
         entry)
     (if (null sort)
         collection
-      (let ((sort-fn (cond ((functionp sort)
-                            sort)
-                           ((setq entry (assoc (ivy-state-collection ivy-last)
-                                               ivy-sort-functions-alist))
-                            (cdr entry))
-                           (t
-                            (cdr (assoc t ivy-sort-functions-alist))))))
+      (let ((sort-fn (or (and (functionp sort) sort)
+                         (ivy--sort-function (ivy-state-collection ivy-last))
+                         (ivy--sort-function t))))
         (if (functionp sort-fn)
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
