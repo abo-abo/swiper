@@ -2235,8 +2235,7 @@ If SUBEXP is nil, the text properties are applied to the whole match."
 
 (defun ivy--sort-maybe (collection)
   "Sort COLLECTION if needed."
-  (let ((sort (ivy-state-sort ivy-last))
-        entry)
+  (let ((sort (ivy-state-sort ivy-last)))
     (if (null sort)
         collection
       (let ((sort-fn (or (and (functionp sort) sort)
