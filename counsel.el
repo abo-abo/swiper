@@ -2676,7 +2676,7 @@ And insert it into the minibuffer. Useful during
                      (format "Run %s on: " short-name)))))
     (if file
         (call-process-shell-command
-         (format "gtk-launch %s %s"
+         (format "gtk-launch %s \"%s\""
                  (file-name-nondirectory desktop-shortcut)
                  file))
       (user-error "cancelled"))))
