@@ -357,9 +357,9 @@ Update the minibuffer with the amount of lines collected every
   "History for `counsel-unicode-char'.")
 
 ;;;###autoload
-(defun counsel-unicode-char ()
+(defun counsel-unicode-char (&optional count)
   "Insert a Unicode character at point."
-  (interactive)
+  (interactive "p")
   (let ((minibuffer-allow-text-properties t)
         (ivy-sort-max-size (expt 256 6)))
     (setq ivy-completion-beg (point))
@@ -374,7 +374,7 @@ Update the minibuffer with the amount of lines collected every
                         (with-ivy-window
                           (delete-region ivy-completion-beg ivy-completion-end)
                           (setq ivy-completion-beg (point))
-                          (insert-char (get-text-property 0 'result char))
+                          (insert-char (get-text-property 0 'result char) count)
                           (setq ivy-completion-end (point))))
               :history 'counsel-unicode-char-history
               :sort t)))
