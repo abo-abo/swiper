@@ -2215,17 +2215,7 @@ Additional Actions:
     (package-initialize t))
   (unless package-archive-contents
     (package-refresh-contents))
-  (let ((cands (mapcar (lambda (pkg)
-                         (let* ((pkg (car pkg))
-                                (pkg-name (symbol-name pkg)))
-                           (if (package-installed-p pkg)
-                               (cons
-                                (format "-%s" pkg-name)
-                                pkg-name)
-                             (cons pkg-name pkg-name)
-                             (cons
-                              (format "+%s" pkg-name)
-                              pkg-name))))
+  (let ((cands (mapcar #'counsel-package-make-package-cell
                        package-archive-contents)))
     (ivy-read "Packages (install +pkg or delete -pkg): "
               (cl-sort cands #'counsel--package-sort)
@@ -2234,15 +2224,33 @@ Additional Actions:
               :require-match t
               :caller 'counsel-package)))
 
+(defun counsel-package-make-package-cell (pkg)
+  (let* ((pkg (car pkg))
+         (pkg-entry (assq pkg package-archive-contents))
+         (pkg-name (symbol-name pkg)))
+    (cons (format "%s%s"
+                  (if (package-installed-p pkg) "-" "+")
+                  pkg-name)
+          pkg-entry)))
+
 (defun counsel-package-action (pkg-cons)
-  (if (equal (car pkg-cons) "+")
-      (package-install (cdr pkg-cons))
-    (package-delete (cdr pkg-cons))))
+  (let ((pkg (cadr pkg-cons)))
+    (if (package-installed-p pkg)
+        (package-delete pkg)
+      (package-install pkg))))
 
 (defun counsel-package-action-describe (pkg-cons)
-  "Call `describe-package'."
-  (message "%s" pkg-cons)
-  (describe-package (intern (cdr pkg-cons))))
+  "Call `describe-package' for package in PKG-CONS."
+  (describe-package (car (cdr pkg-cons))))
+
+(defun counsel-package-action-homepage (pkg-cons)
+  "Open homepage for package in PKG-CONS."
+  (let* ((desc-list (cddr pkg-cons))
+         (desc (if (listp desc-list) (car desc-list) desc-list))
+         (url (cdr (assoc :url (package-desc-extras desc)))))
+    (when url
+      (require 'browse-url)
+      (browse-url url))))
 
 (defun counsel--package-sort (a b)
   "Sort function for `counsel-package'."
@@ -2254,9 +2262,8 @@ Additional Actions:
         (and (eq a-inst b-inst) (string-lessp a b)))))
 
 (ivy-set-actions 'counsel-package
-                 ;; Ideas for more:
-                 ;; 1. Jump to package homepage
-                 '(("d" counsel-package-action-describe "describe package")))
+                 '(("d" counsel-package-action-describe "describe package")
+                   ("h" counsel-package-action-homepage "open package homepage")))
 
 ;;** `counsel-tmm'
 (defvar tmm-km-list nil)
