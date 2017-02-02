@@ -2194,6 +2194,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                         (goto-char (cdr elem))))))
 
 ;;** `counsel-package'
+(defvar package--initialized)
+(defvar package-archive-contents)
+(declare-function package-installed-p "package")
+(declare-function package-delete "package")
+
 (defun counsel-package ()
   "Install or delete packages.
 
@@ -2210,27 +2215,34 @@ Additional Actions:
     (package-initialize t))
   (unless package-archive-contents
     (package-refresh-contents))
-  (ivy-read "Packages (install +pkg or delete -pkg): "
-            (mapcar (lambda (pkg)
-                      (let* ((pkg (car pkg))
-                             (pkg-name (symbol-name pkg)))
-                        (if (package-installed-p pkg)
-                            (cons
-                             (format "-%s" pkg-name)
-                             pkg-name)
-                          (cons pkg-name pkg-name)
-                          (cons
-                           (format "+%s" pkg-name)
-                           pkg-name))))
-                    package-archive-contents)
-            :action (lambda (pkg-cons)
-                      (if (equal (car pkg-cons) "+")
-                          (package-install (cdr pkg-cons))
-                        (package-delete (cdr pkg-cons))))
-            :initial-input "^+"
-            :require-match t
-            :sort t
-            :caller 'counsel-package))
+  (let ((cands (mapcar (lambda (pkg)
+                         (let* ((pkg (car pkg))
+                                (pkg-name (symbol-name pkg)))
+                           (if (package-installed-p pkg)
+                               (cons
+                                (format "-%s" pkg-name)
+                                pkg-name)
+                             (cons pkg-name pkg-name)
+                             (cons
+                              (format "+%s" pkg-name)
+                              pkg-name))))
+                       package-archive-contents)))
+    (ivy-read "Packages (install +pkg or delete -pkg): "
+              (cl-sort cands #'counsel--package-sort)
+              :action #'counsel-package-action
+              :initial-input "^+ "
+              :require-match t
+              :caller 'counsel-package)))
+
+(defun counsel-package-action (pkg-cons)
+  (if (equal (car pkg-cons) "+")
+      (package-install (cdr pkg-cons))
+    (package-delete (cdr pkg-cons))))
+
+(defun counsel-package-action-describe (pkg-cons)
+  "Call `describe-package'."
+  (message "%s" pkg-cons)
+  (describe-package (intern (cdr pkg-cons))))
 
 (defun counsel--package-sort (a b)
   "Sort function for `counsel-package'."
@@ -2241,18 +2253,10 @@ Additional Actions:
     (or (and a-inst (not b-inst))
         (and (eq a-inst b-inst) (string-lessp a b)))))
 
-(push '(counsel-package . counsel--package-sort)
-      ivy-sort-functions-alist)
-
-(defun counsel--describe-package (pkg-cons)
-  "Call `describe-package'."
-  (message "%s" pkg-cons)
-  (describe-package (intern (cdr pkg-cons))))
-
 (ivy-set-actions 'counsel-package
                  ;; Ideas for more:
                  ;; 1. Jump to package homepage
-                 '(("d" counsel--describe-package "describe package")))
+                 '(("d" counsel-package-action-describe "describe package")))
 
 ;;** `counsel-tmm'
 (defvar tmm-km-list nil)
