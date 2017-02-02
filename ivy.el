@@ -1770,9 +1770,10 @@ INHERIT-INPUT-METHOD is currently ignored."
               :history history
               :keymap nil
               :sort
-              (let ((sort (or (ivy--sort-function this-command)
-                              (ivy--sort-function t))))
-                (or sort t)))))
+              (let ((sort (assoc this-command ivy-sort-functions-alist)))
+                (if sort
+                    (ivy--sort-function (car sort))
+                  (or (ivy--sort-function t) t))))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
