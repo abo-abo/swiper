@@ -771,6 +771,10 @@ The libraries are offered from `load-path'."
                          (get-text-property 0 'full-name x)))
               :keymap counsel-describe-map)))
 
+(ivy-set-actions
+ 'counsel-load-library
+ '(("d" counsel--find-symbol "definition")))
+
 ;;** `counsel-find-library'
 ;;;###autoload
 (defun counsel-find-library ()
