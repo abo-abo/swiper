@@ -232,6 +232,7 @@
     erc-mode
     forth-mode
     forth-block-mode
+    nix-mode
     org-agenda-mode
     dired-mode
     jabber-chat-mode
