@@ -686,7 +686,7 @@ WND, when specified is the window."
           (add-to-history 'evil-ex-search-history re)
           (setq evil-ex-search-pattern (list re t t))
           (when evil-ex-search-persistent-highlight
-            (evil-ex-search-activate-highlight (list re t t))))))))
+            (evil-ex-search-activate-highlight evil-ex-search-pattern)))))))
 
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
