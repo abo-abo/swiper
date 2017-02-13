@@ -680,7 +680,11 @@ WND, when specified is the window."
         (add-to-history
          'regexp-search-ring
          re
-         regexp-search-ring-max)))))
+         regexp-search-ring-max)
+        (when (and (bound-and-true-p evil-mode)
+                   (eq evil-search-module 'evil-search))
+          (add-to-history 'evil-ex-search-history re)
+          (setq evil-ex-search-pattern (list re t t)))))))
 
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
