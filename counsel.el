@@ -699,6 +699,12 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
       (setq cands smex-ido-cache)
       (setq pred nil)
       (setq sort nil))
+    ;; When `counsel-M-x' returns, `last-command' would be set to
+    ;; `counsel-M-x' because :action hasn't been invoked yet.
+    ;; Instead, preserve the old value of `this-command'.
+    (setq this-command last-command)
+    (setq real-this-command real-last-command)
+
     (ivy-read (counsel--M-x-prompt) cands
               :predicate pred
               :require-match t
