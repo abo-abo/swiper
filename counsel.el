@@ -897,9 +897,8 @@ Describe the selected candidate."
 
 (ivy-set-actions
  'counsel-git
- '(("j"
-    find-file-other-window
-    "other")))
+ '(("j" find-file-other-window "other")
+   ("x" counsel-find-file-extern "open externally")))
 
 ;;;###autoload
 (defun counsel-git ()
