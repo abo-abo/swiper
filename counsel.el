@@ -2717,34 +2717,38 @@ And insert it into the minibuffer. Useful during
             :caller 'counsel-rhythmbox))
 
 ;;** `counsel-linux-app'
-(defvar counsel-linux-apps-alist nil
-  "List of data located in /usr/share/applications.")
-
-(defvar counsel-linux-apps-faulty nil
-  "List of faulty data located in /usr/share/applications.")
-
 (defcustom counsel-linux-apps-directories
   '("/usr/local/share/applications/" "/usr/share/applications/")
   "Directories in which to search for applications (.desktop files)."
   :group 'counsel
   :type '(list directory))
 
+(defun counsel-linux-apps-list-desktop-files ()
+  "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications."
+  (cl-remove-duplicates
+   (apply 'append
+          (mapcar
+           (lambda (dir)
+             (when (file-exists-p dir)
+               (let ((dir (file-name-as-directory dir)))
+                 (mapcar
+                  (lambda (file)
+                    (cons (subst-char-in-string ?/ ?- file) (concat dir file)))
+                  (directory-files dir nil ".*\\.desktop$")))))
+           counsel-linux-apps-directories))
+   :key 'car
+   ;; Earlier directories take precedence
+   :from-end t))
+
 (defun counsel-linux-apps-list ()
-  (let ((files (apply 'append
-                      (mapcar
-                       (lambda (dir)
-                         (when (file-exists-p dir)
-                           (directory-files dir t ".*\\.desktop$")))
-                       counsel-linux-apps-directories))))
-    (dolist (file (cl-set-difference files (append (mapcar 'car counsel-linux-apps-alist)
-                                                   counsel-linux-apps-faulty)
-                                     :test 'equal))
+  (let ((files (counsel-linux-apps-list-desktop-files)) result)
+    (dolist (file files result)
       (with-temp-buffer
-        (insert-file-contents file)
+        (insert-file-contents (cdr file))
         (let (name comment exec)
           (goto-char (point-min))
           (if (null (re-search-forward "^Name *= *\\(.*\\)$" nil t))
-              (message "Warning: File %s has no Name" file)
+              (message "Warning: File %s has no Name" (cdr file))
             (setq name (match-string 1))
             (goto-char (point-min))
             (when (re-search-forward "^Comment *= *\\(.*\\)$" nil t)
@@ -2752,40 +2756,30 @@ And insert it into the minibuffer. Useful during
             (goto-char (point-min))
             (when (re-search-forward "^Exec *= *\\(.*\\)$" nil t)
               (setq exec (match-string 1)))
-            (if (and exec (not (equal exec "")))
-                (add-to-list
-                 'counsel-linux-apps-alist
-                 (cons (format "% -45s: %s%s"
-                               (propertize exec 'face 'font-lock-builtin-face)
-                               name
-                               (if comment
-                                   (concat " - " comment)
-                                 ""))
-                       file))
-              (add-to-list 'counsel-linux-apps-faulty file)))))))
-  counsel-linux-apps-alist)
+            (when (and exec (not (equal exec "")))
+              (push
+               (cons (format "% -45s: %s%s"
+                             (propertize exec 'face 'font-lock-builtin-face)
+                             name
+                             (if comment
+                                 (concat " - " comment)
+                               ""))
+                     (car file))
+               result))))))))
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
   (setq desktop-shortcut (cdr desktop-shortcut))
   (call-process-shell-command
-   (format "gtk-launch %s" (file-name-nondirectory desktop-shortcut))))
+   (format "gtk-launch %s" desktop-shortcut)))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
   (setq desktop-shortcut (cdr desktop-shortcut))
-  (let* ((entry (rassoc desktop-shortcut counsel-linux-apps-alist))
-         (short-name (and entry
-                          (string-match "\\([^ ]*\\) " (car entry))
-                          (match-string 1 (car entry))))
-         (file (and short-name
-                    (read-file-name
-                     (format "Run %s on: " short-name)))))
+  (let ((file (read-file-name "Open: ")))
     (if file
         (call-process-shell-command
-         (format "gtk-launch %s \"%s\""
-                 (file-name-nondirectory desktop-shortcut)
-                 file))
+         (format "gtk-launch %s \"%s\"" desktop-shortcut file))
       (user-error "cancelled"))))
 
 (ivy-set-actions
