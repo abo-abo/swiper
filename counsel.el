@@ -2747,16 +2747,16 @@ And insert it into the minibuffer. Useful during
         (insert-file-contents (cdr file))
         (let (name comment exec)
           (goto-char (point-min))
-          (if (null (re-search-forward "^Name *= *\\(.*\\)$" nil t))
+          (if (null (re-search-forward "^Name *= *\\(.+\\)$" nil t))
               (message "Warning: File %s has no Name" (cdr file))
             (setq name (match-string 1))
             (goto-char (point-min))
-            (when (re-search-forward "^Comment *= *\\(.*\\)$" nil t)
+            (when (re-search-forward "^Comment *= *\\(.+\\)$" nil t)
               (setq comment (match-string 1)))
             (goto-char (point-min))
-            (when (re-search-forward "^Exec *= *\\(.*\\)$" nil t)
+            (when (re-search-forward "^Exec *= *\\(.+\\)$" nil t)
               (setq exec (match-string 1)))
-            (when (and exec (not (equal exec "")))
+            (when exec
               (push
                (cons (format "% -45s: %s%s"
                              (propertize exec 'face 'font-lock-builtin-face)
