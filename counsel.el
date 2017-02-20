@@ -2703,6 +2703,45 @@ And insert it into the minibuffer. Useful during
   :group 'counsel
   :type '(list directory))
 
+(defcustom counsel-linux-app-format-function 'counsel-linux-app-format-function-default
+  "Function to format linux applications for display in the =counsel-linux-app= menu."
+  :type '(choice
+          (const :tag "Command : Name - Comment" counsel-linux-app-format-function-default)
+          (const :tag "Name - Comment (Command)" counsel-linux-app-format-function-name-first)
+          (const :tag "Name - Comment" counsel-linux-app-format-function-name-only)
+          (const :tag "Command" counsel-linux-app-format-function-command-only)
+          (function :tag "Custom")))
+
+(defun counsel-linux-app-format-function-default (name comment exec)
+  "Default linux application name formatter."
+  (format "% -45s: %s%s"
+          (propertize exec 'face 'font-lock-builtin-face)
+          name
+          (if comment
+              (concat " - " comment)
+            "")))
+
+(defun counsel-linux-app-format-function-name-first (name comment exec)
+  "Format linux application names with the name (and comment) first."
+  (format "%s%s (%s)"
+          name
+          (if comment
+              (concat " - " comment)
+            "")
+          (propertize exec 'face 'font-lock-builtin-face)))
+
+(defun counsel-linux-app-format-function-name-only (name comment exec)
+  "Format linux application names with the name (and comment) only."
+  (format "%s%s"
+          name
+          (if comment
+              (concat " - " comment)
+            "")))
+
+(defun counsel-linux-app-format-function-command-only (name comment exec)
+  "Display only the command (Exec field) when formatting linux application names."
+  exec)
+
 (defun counsel-linux-apps-list ()
   (let ((files (apply 'append
                       (mapcar
@@ -2728,13 +2767,7 @@ And insert it into the minibuffer. Useful during
             (if (and exec (not (equal exec "")))
                 (add-to-list
                  'counsel-linux-apps-alist
-                 (cons (format "% -45s: %s%s"
-                               (propertize exec 'face 'font-lock-builtin-face)
-                               name
-                               (if comment
-                                   (concat " - " comment)
-                                 ""))
-                       file))
+                 (cons (funcall counsel-linux-app-format-function name comment exec) file))
               (add-to-list 'counsel-linux-apps-faulty file)))))))
   counsel-linux-apps-alist)
 
