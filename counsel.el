@@ -2707,7 +2707,8 @@ And insert it into the minibuffer. Useful during
   (let ((files (apply 'append
                       (mapcar
                        (lambda (dir)
-                         (directory-files dir t ".*\\.desktop$"))
+                         (when (file-exists-p dir)
+                           (directory-files dir t ".*\\.desktop$")))
                        counsel-linux-apps-directories))))
     (dolist (file (cl-set-difference files (append (mapcar 'car counsel-linux-apps-alist)
                                                    counsel-linux-apps-faulty)
