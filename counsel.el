@@ -2746,26 +2746,32 @@ And insert it into the minibuffer. Useful during
       (with-temp-buffer
         (insert-file-contents (cdr file))
         (let (name comment exec)
-          (goto-char (point-min))
-          (if (null (re-search-forward "^Name *= *\\(.+\\)$" nil t))
+          (catch 'break
+            (goto-char (point-min))
+            (unless (re-search-forward "^Name *= *\\(.+\\)$" nil t)
               (message "Warning: File %s has no Name" (cdr file))
+              (throw 'break nil))
             (setq name (match-string 1))
+
             (goto-char (point-min))
             (when (re-search-forward "^Comment *= *\\(.+\\)$" nil t)
               (setq comment (match-string 1)))
+
             (goto-char (point-min))
-            (when (re-search-forward "^Exec *= *\\(.+\\)$" nil t)
-              (setq exec (match-string 1)))
-            (when exec
-              (push
-               (cons (format "% -45s: %s%s"
-                             (propertize exec 'face 'font-lock-builtin-face)
-                             name
-                             (if comment
-                                 (concat " - " comment)
-                               ""))
-                     (car file))
-               result))))))))
+            (unless (re-search-forward "^Exec *= *\\(.+\\)$" nil t)
+              ;; Don't warn because this can technically be a valid desktop file.
+              (throw 'break nil))
+            (setq exec (match-string 1))
+
+            (push
+             (cons (format "% -45s: %s%s"
+                           (propertize exec 'face 'font-lock-builtin-face)
+                           name
+                           (if comment
+                               (concat " - " comment)
+                             ""))
+                   (car file))
+             result)))))))
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
