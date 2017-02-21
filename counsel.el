@@ -2745,20 +2745,25 @@ And insert it into the minibuffer. Useful during
     (dolist (file files result)
       (with-temp-buffer
         (insert-file-contents (cdr file))
-        (let (name comment exec)
+        (goto-char (point-min))
+        (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
+              (end (re-search-forward "^\\[" nil t))
+              name comment exec)
           (catch 'break
-            (goto-char (point-min))
-            (unless (re-search-forward "^Name *= *\\(.+\\)$" nil t)
+            (unless start (throw 'break))
+
+            (goto-char start)
+            (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
               (message "Warning: File %s has no Name" (cdr file))
               (throw 'break nil))
             (setq name (match-string 1))
 
-            (goto-char (point-min))
-            (when (re-search-forward "^Comment *= *\\(.+\\)$" nil t)
+            (goto-char start)
+            (when (re-search-forward "^Comment *= *\\(.+\\)$" end t)
               (setq comment (match-string 1)))
 
-            (goto-char (point-min))
-            (unless (re-search-forward "^Exec *= *\\(.+\\)$" nil t)
+            (goto-char start)
+            (unless (re-search-forward "^Exec *= *\\(.+\\)$" end t)
               ;; Don't warn because this can technically be a valid desktop file.
               (throw 'break nil))
             (setq exec (match-string 1))
