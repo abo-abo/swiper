@@ -2750,7 +2750,17 @@ And insert it into the minibuffer. Useful during
               (end (re-search-forward "^\\[" nil t))
               name comment exec)
           (catch 'break
-            (unless start (throw 'break))
+            (unless start (throw 'break nil))
+
+            (goto-char start)
+            (when (re-search-forward "^\\(Hidden\\|NoDisplay\\) *= *\\(1\\|true\\) *$" end t)
+              (throw 'break nil))
+            (setq name (match-string 1))
+
+            (goto-char start)
+            (unless (re-search-forward "^Type *= *Application *$" end t)
+              (throw 'break nil))
+            (setq name (match-string 1))
 
             (goto-char start)
             (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
