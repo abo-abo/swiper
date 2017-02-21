@@ -2725,20 +2725,19 @@ And insert it into the minibuffer. Useful during
 
 (defun counsel-linux-apps-list-desktop-files ()
   "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications."
-  (cl-remove-duplicates
-   (apply 'append
-          (mapcar
-           (lambda (dir)
-             (when (file-exists-p dir)
-               (let ((dir (file-name-as-directory dir)))
-                 (mapcar
-                  (lambda (file)
-                    (cons (subst-char-in-string ?/ ?- file) (concat dir file)))
-                  (directory-files dir nil ".*\\.desktop$")))))
-           counsel-linux-apps-directories))
-   :key 'car
-   ;; Earlier directories take precedence
-   :from-end t))
+  (let ((hash (make-hash-table :test #'equal))
+        result)
+    (dolist (dir (reverse counsel-linux-apps-directories))
+      (when (file-exists-p dir)
+        (let ((dir (file-name-as-directory dir)))
+          (dolist (file (directory-files dir nil ".*\\.desktop$"))
+            (let ((id (subst-char-in-string ?/ ?- file))
+                  (file (concat dir file)))
+              (puthash id file hash))))))
+    (maphash (lambda (key value)
+               (push (cons key value) result))
+             hash)
+    result))
 
 (defun counsel-linux-apps-list ()
   (let ((files (counsel-linux-apps-list-desktop-files)) result)
