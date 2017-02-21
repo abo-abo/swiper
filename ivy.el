@@ -1283,8 +1283,7 @@ See also `ivy-sort-max-size'."
 
 (defun ivy--sort-function (collection)
   "Retrieve sort function from `ivy-sort-functions-alist'"
-  (let ((res (cdr (assoc collection ivy-sort-functions-alist))))
-    (or (car-safe res) res)))
+  (cdr (assoc collection ivy-sort-functions-alist)))
 
 (defun ivy-rotate-sort ()
   "Rotate through sorting functions available for current collection.
@@ -1666,10 +1665,10 @@ This is useful for recursive `ivy-read'."
                  (setq sort-fn (ivy--sort-function collection)))
             (when (not (eq collection 'read-file-name-internal))
               (setq coll (cl-sort coll sort-fn)))
-          (unless (eq history 'org-refile-history)
-            (if (and (setq sort-fn (ivy--sort-function t))
-                     (<= (length coll) ivy-sort-max-size))
-                (setq coll (cl-sort (copy-sequence coll) sort-fn))))))
+          (when (and (not (eq history 'org-refile-history))
+                     (<= (length coll) ivy-sort-max-size)
+                     (setq sort-fn (ivy--sort-function caller)))
+            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
       (setq coll (ivy--set-candidates coll))
       (when preselect
         (unless (or (not (stringp preselect))
@@ -1779,11 +1778,8 @@ INHERIT-INPUT-METHOD is currently ignored."
                 :preselect (if (listp def) (car def) def)
                 :history history
                 :keymap nil
-                :sort
-                (let ((sort (assoc this-command ivy-sort-functions-alist)))
-                  (if sort
-                      (ivy--sort-function (car sort))
-                    (or (ivy--sort-function t) t)))))))
+                :sort t
+                :caller this-command))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
