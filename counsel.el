@@ -2778,6 +2778,12 @@ And insert it into the minibuffer. Useful during
               (throw 'break nil))
             (setq exec (match-string 1))
 
+            (goto-char start)
+            (when (re-search-forward "^TryExec *= *\\(.+\\)$" end t)
+              (let ((try-exec (match-string 1)))
+                (unless (locate-file try-exec exec-path nil #'file-executable-p)
+                  (throw 'break nil))))
+
             (push
              (cons (format "% -45s: %s%s"
                            (propertize exec 'face 'font-lock-builtin-face)
