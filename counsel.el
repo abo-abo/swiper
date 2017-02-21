@@ -2791,16 +2791,14 @@ And insert it into the minibuffer. Useful during
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
   (setq desktop-shortcut (cdr desktop-shortcut))
-  (call-process-shell-command
-   (format "gtk-launch %s" desktop-shortcut)))
+  (call-process "gtk-launch" nil nil nil desktop-shortcut))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
   (setq desktop-shortcut (cdr desktop-shortcut))
   (let ((file (read-file-name "Open: ")))
     (if file
-        (call-process-shell-command
-         (format "gtk-launch %s \"%s\"" desktop-shortcut file))
+        (call-process "gtk-launch" nil nil nil desktop-shortcut file)
       (user-error "cancelled"))))
 
 (ivy-set-actions
