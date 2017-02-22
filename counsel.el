@@ -2726,37 +2726,51 @@ And insert it into the minibuffer. Useful during
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
 
+(defvar counsel--linux-apps-cache nil
+  "Cache of desktop files data.")
+
+(defvar counsel--linux-apps-cached-files nil
+  "List of cached desktop files.")
+
+(defvar counsel--linux-apps-cache-timestamp nil
+  "Time when we last updated the cached application list.")
+
 (defun counsel-linux-apps-list-desktop-files ()
-  "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications."
+  "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications.
+
+   This function always returns it's elements in a stable order."
   (let ((hash (make-hash-table :test #'equal))
         result)
-    (dolist (dir (reverse counsel-linux-apps-directories))
+    (dolist (dir counsel-linux-apps-directories)
       (when (file-exists-p dir)
         (let ((dir (file-name-as-directory dir)))
           (dolist (file (directory-files-recursively dir ".*\\.desktop$"))
-            (puthash
-             (subst-char-in-string ?/ ?- (file-relative-name file dir))
-             file
-             hash)))))
-    (maphash (lambda (key value)
-               (push (cons key value) result))
-             hash)
+            (let ((id (subst-char-in-string ?/ ?- (file-relative-name file dir))))
+              (unless (gethash id hash)
+                (push (cons id file) result)
+                (puthash id file hash)))))))
     result))
 
-(defun counsel-linux-apps-list ()
-  (let ((files (counsel-linux-apps-list-desktop-files)) result)
-    (dolist (file files result)
-      (unless (member (cdr file) counsel-linux-apps-faulty)
+(defun counsel-linux-apps-parse (desktop-entries-alist)
+  "Parse the given alist of desktop entries (~(id . file-name)~).
+
+   Any desktop entries that fail to parse are recorded in ~counsel-linux-apps-faulty~."
+
+  (let (result)
+    (setq counsel-linux-apps-faulty nil)
+    (dolist (entry desktop-entries-alist result)
+      (let ((id (car entry))
+            (file (cdr entry)))
         (with-temp-buffer
-          (insert-file-contents (cdr file))
+          (insert-file-contents file)
           (goto-char (point-min))
           (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
                 (end (re-search-forward "^\\[" nil t))
                 name comment exec)
             (catch 'break
               (unless start
-                (push (cdr file) counsel-linux-apps-faulty)
-                (message "Warning: File %s has no [Desktop Entry] group" (cdr file))
+                (push file counsel-linux-apps-faulty)
+                (message "Warning: File %s has no [Desktop Entry] group" file)
                 (throw 'break nil))
 
               (goto-char start)
@@ -2771,8 +2785,8 @@ And insert it into the minibuffer. Useful during
 
               (goto-char start)
               (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
-                (push (cdr file) counsel-linux-apps-faulty)
-                (message "Warning: File %s has no Name" (cdr file))
+                (push file counsel-linux-apps-faulty)
+                (message "Warning: File %s has no Name" file)
                 (throw 'break nil))
               (setq name (match-string 1))
 
@@ -2799,8 +2813,25 @@ And insert it into the minibuffer. Useful during
                              (if comment
                                  (concat " - " comment)
                                ""))
-                     (car file))
+                     id)
                result))))))))
+
+(defun counsel-linux-apps-list ()
+  (let* ((new-desktop-alist (counsel-linux-apps-list-desktop-files))
+         (new-files (mapcar 'cdr new-desktop-alist)))
+    (unless (and
+             (equal new-files counsel--linux-apps-cached-files)
+             (null (cl-find-if
+                    (lambda (file)
+                      (time-less-p
+                       counsel--linux-apps-cache-timestamp
+                       (file-attribute-modification-time (file-attributes file))))
+                    new-files)))
+      (setq counsel--linux-apps-cache (counsel-linux-apps-parse new-desktop-alist)
+            counsel--linux-apps-cache-timestamp (current-time)
+            counsel--linux-apps-cached-files new-files)))
+  counsel--linux-apps-cache)
+
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
