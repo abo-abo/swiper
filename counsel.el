@@ -2723,6 +2723,9 @@ And insert it into the minibuffer. Useful during
   :group 'counsel
   :type '(list directory))
 
+(defvar counsel-linux-apps-faulty nil
+  "List of faulty desktop files.")
+
 (defun counsel-linux-apps-list-desktop-files ()
   "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications."
   (let ((hash (make-hash-table :test #'equal))
@@ -2742,56 +2745,61 @@ And insert it into the minibuffer. Useful during
 (defun counsel-linux-apps-list ()
   (let ((files (counsel-linux-apps-list-desktop-files)) result)
     (dolist (file files result)
-      (with-temp-buffer
-        (insert-file-contents (cdr file))
-        (goto-char (point-min))
-        (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
-              (end (re-search-forward "^\\[" nil t))
-              name comment exec)
-          (catch 'break
-            (unless start (throw 'break nil))
+      (unless (member (cdr file) counsel-linux-apps-faulty)
+        (with-temp-buffer
+          (insert-file-contents (cdr file))
+          (goto-char (point-min))
+          (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
+                (end (re-search-forward "^\\[" nil t))
+                name comment exec)
+            (catch 'break
+              (unless start
+                (push (cdr file) counsel-linux-apps-faulty)
+                (message "Warning: File %s has no [Desktop Entry] group" (cdr file))
+                (throw 'break nil))
 
-            (goto-char start)
-            (when (re-search-forward "^\\(Hidden\\|NoDisplay\\) *= *\\(1\\|true\\) *$" end t)
-              (throw 'break nil))
-            (setq name (match-string 1))
+              (goto-char start)
+              (when (re-search-forward "^\\(Hidden\\|NoDisplay\\) *= *\\(1\\|true\\) *$" end t)
+                (throw 'break nil))
+              (setq name (match-string 1))
 
-            (goto-char start)
-            (unless (re-search-forward "^Type *= *Application *$" end t)
-              (throw 'break nil))
-            (setq name (match-string 1))
+              (goto-char start)
+              (unless (re-search-forward "^Type *= *Application *$" end t)
+                (throw 'break nil))
+              (setq name (match-string 1))
 
-            (goto-char start)
-            (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
-              (message "Warning: File %s has no Name" (cdr file))
-              (throw 'break nil))
-            (setq name (match-string 1))
+              (goto-char start)
+              (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
+                (push (cdr file) counsel-linux-apps-faulty)
+                (message "Warning: File %s has no Name" (cdr file))
+                (throw 'break nil))
+              (setq name (match-string 1))
 
-            (goto-char start)
-            (when (re-search-forward "^Comment *= *\\(.+\\)$" end t)
-              (setq comment (match-string 1)))
+              (goto-char start)
+              (when (re-search-forward "^Comment *= *\\(.+\\)$" end t)
+                (setq comment (match-string 1)))
 
-            (goto-char start)
-            (unless (re-search-forward "^Exec *= *\\(.+\\)$" end t)
-              ;; Don't warn because this can technically be a valid desktop file.
-              (throw 'break nil))
-            (setq exec (match-string 1))
+              (goto-char start)
+              (unless (re-search-forward "^Exec *= *\\(.+\\)$" end t)
+                ;; Don't warn because this can technically be a valid desktop file.
+                (throw 'break nil))
+              (setq exec (match-string 1))
 
-            (goto-char start)
-            (when (re-search-forward "^TryExec *= *\\(.+\\)$" end t)
-              (let ((try-exec (match-string 1)))
-                (unless (locate-file try-exec exec-path nil #'file-executable-p)
-                  (throw 'break nil))))
+              (goto-char start)
+              (when (re-search-forward "^TryExec *= *\\(.+\\)$" end t)
+                (let ((try-exec (match-string 1)))
+                  (unless (locate-file try-exec exec-path nil #'file-executable-p)
+                    (throw 'break nil))))
 
-            (push
-             (cons (format "% -45s: %s%s"
-                           (propertize exec 'face 'font-lock-builtin-face)
-                           name
-                           (if comment
-                               (concat " - " comment)
-                             ""))
-                   (car file))
-             result)))))))
+              (push
+               (cons (format "% -45s: %s%s"
+                             (propertize exec 'face 'font-lock-builtin-face)
+                             name
+                             (if comment
+                                 (concat " - " comment)
+                               ""))
+                     (car file))
+               result))))))))
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
