@@ -2733,10 +2733,11 @@ And insert it into the minibuffer. Useful during
     (dolist (dir (reverse counsel-linux-apps-directories))
       (when (file-exists-p dir)
         (let ((dir (file-name-as-directory dir)))
-          (dolist (file (directory-files dir nil ".*\\.desktop$"))
-            (let ((id (subst-char-in-string ?/ ?- file))
-                  (file (concat dir file)))
-              (puthash id file hash))))))
+          (dolist (file (directory-files-recursively dir ".*\\.desktop$"))
+            (puthash
+             (subst-char-in-string ?/ ?- (file-relative-name file dir))
+             file
+             hash)))))
     (maphash (lambda (key value)
                (push (cons key value) result))
              hash)
