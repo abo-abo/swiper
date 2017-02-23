@@ -254,7 +254,9 @@
     twittering-mode
     vc-dir-mode
     rcirc-mode
-    circe-mode
+    circe-channel-mode
+    circe-server-mode
+    circe-query-mode
     sauron-mode
     w3m-mode)
   "List of major-modes that are incompatible with font-lock-ensure.")
