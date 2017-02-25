@@ -3437,6 +3437,8 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 \\{ivy-occur-grep-mode-map}"
   (setq-local view-read-only nil))
 
+(add-hook 'ivy-occur-grep-mode-hook 'wgrep-setup)
+
 (defvar ivy--occurs-list nil
   "A list of custom occur generators per command.")
 
