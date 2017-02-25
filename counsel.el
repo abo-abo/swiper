@@ -2252,6 +2252,8 @@ Additional Actions:
   "Call `describe-package' for package in PKG-CONS."
   (describe-package (cadr pkg-cons)))
 
+(declare-function package-desc-extras "package")
+
 (defun counsel-package-action-homepage (pkg-cons)
   "Open homepage for package in PKG-CONS."
   (let* ((desc-list (cddr pkg-cons))

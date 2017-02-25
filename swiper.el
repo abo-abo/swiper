@@ -424,6 +424,8 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
+(declare-function char-fold-to-regexp "char-fold")
+
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
 This is the regex used in the minibuffer where candidates have
@@ -653,6 +655,11 @@ WND, when specified is the window."
 (defcustom swiper-action-recenter nil
   "When non-nil, recenter after exiting `swiper'."
   :type 'boolean)
+(defvar evil-search-module)
+(defvar evil-ex-search-pattern)
+(defvar evil-ex-search-persistent-highlight)
+(declare-function evil-ex-search-activate-highlight "evil-ex")
+
 
 (defun swiper--action (x)
   "Goto line X."
