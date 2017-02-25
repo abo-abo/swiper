@@ -3435,9 +3435,9 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Major mode for output from \\[ivy-occur].
 
 \\{ivy-occur-grep-mode-map}"
-  (setq-local view-read-only nil))
-
-(add-hook 'ivy-occur-grep-mode-hook 'wgrep-setup)
+  (setq-local view-read-only nil)
+  (when (fboundp 'wgrep-setup)
+    (wgrep-setup)))
 
 (defvar ivy--occurs-list nil
   "A list of custom occur generators per command.")
@@ -3519,7 +3519,8 @@ updated original buffer."
                (error "buffer was killed"))
              (let ((inhibit-read-only t))
                (erase-buffer)
-               (funcall (plist-get ivy--occurs-list caller) t))))
+               (funcall (plist-get ivy--occurs-list caller) t)
+               (ivy-occur-grep-mode))))
           ((memq caller '(counsel-git-grep counsel-grep counsel-ag counsel-rg))
            (let ((inhibit-read-only t))
              (erase-buffer)
