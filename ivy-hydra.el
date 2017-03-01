@@ -77,6 +77,27 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
         (lambda (_) (find-function 'hydra-ivy/body)))
        :exit t))
 
+(defun ivy-dispatching-done-hydra ()
+  "Select one of the available actions and call `ivy-done'."
+  (interactive)
+  (let ((actions (ivy-state-action ivy-last)))
+    (if (null (ivy--actionp actions))
+        (ivy-done)
+      (funcall
+       (eval
+        `(defhydra ivy-read-action (:color teal)
+           "action"
+           ,@(mapcar (lambda (x)
+                       (list (nth 0 x)
+                             `(progn
+                                (ivy-set-action ',(nth 1 x))
+                                (ivy-done))
+                             (nth 2 x)))
+                     (cdr actions))
+           ("M-o" nil "back")))))))
+
+(define-key ivy-mode-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+
 (provide 'ivy-hydra)
 
 ;;; ivy-hydra.el ends here
