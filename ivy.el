@@ -1873,7 +1873,6 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
                        (mapcar #'substring-no-properties comps)
                        :predicate predicate
                        :action #'ivy-completion-in-region-action
-                       :require-match t
                        :caller 'ivy-completion-in-region)
              t)))))))
 
