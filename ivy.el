@@ -3524,7 +3524,8 @@ updated original buffer."
           ((memq caller '(counsel-git-grep counsel-grep counsel-ag counsel-rg))
            (let ((inhibit-read-only t))
              (erase-buffer)
-             (funcall (plist-get ivy--occurs-list caller)))))))
+             (funcall (plist-get ivy--occurs-list caller)))))
+    (setq ivy-occur-last ivy-last)))
 
 (declare-function wgrep-change-to-wgrep-mode "ext:wgrep")
 
