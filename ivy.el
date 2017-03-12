@@ -1767,7 +1767,7 @@ INHERIT-INPUT-METHOD is currently ignored."
       (ivy-read (replace-regexp-in-string "%" "%%" prompt)
                 collection
                 :predicate predicate
-                :require-match require-match
+                :require-match (and collection require-match)
                 :initial-input (if (consp initial-input)
                                    (car initial-input)
                                  (if (and (stringp initial-input)
