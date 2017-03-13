@@ -457,7 +457,14 @@ When non-nil, it should contain at least one %d.")
 (defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
 
-(defvar ivy-case-fold-search 'auto
+(defcustom ivy-case-fold-search-default 'auto
+  "The default value for `ivy-case-fold-search'."
+  :type '(choice
+          (const :tag "Auto" auto)
+          (const :tag "Always" always)
+          (const :tag "Never" nil)))
+
+(defvar ivy-case-fold-search ivy-case-fold-search-default
   "Store the current overriding `case-fold-search'.")
 
 (defvar Info-current-file)
@@ -1557,7 +1564,7 @@ This is useful for recursive `ivy-read'."
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
     (setq ivy--directory nil)
-    (setq ivy-case-fold-search 'auto)
+    (setq ivy-case-fold-search ivy-case-fold-search-default)
     (setq ivy--regex-function
           (or re-builder
               (and (functionp collection)
@@ -2404,18 +2411,22 @@ Should be run via minibuffer `post-command-hook'."
   '(setq ivy--flx-cache (flx-make-string-cache)))
 
 (defun ivy-toggle-case-fold ()
-  "Toggle the case folding between nil and auto.
-In any completion session, the case folding starts in auto:
+  "Toggle the case folding between nil and auto/always.
 
-- when the input is all lower case, `case-fold-search' is t
-- otherwise nil.
+If auto, `case-fold-search' is t, when the input is all lower case,
+otherwise nil.
 
-You can toggle this to make `case-fold-search' nil regardless of input."
+If always, `case-fold-search' is always t, regardless of the input.
+
+Otherwise `case-fold-search' is always nil, regardless of the input.
+
+In any completion session, the case folding starts in
+`ivy-case-fold-search-default'."
   (interactive)
   (setq ivy-case-fold-search
         (if ivy-case-fold-search
             nil
-          'auto))
+          (or ivy-case-fold-search-default 'auto)))
   ;; reset cache so that the candidate list updates
   (setq ivy--old-re nil))
 
@@ -2450,7 +2461,8 @@ CANDIDATES are assumed to be static."
              (matcher (ivy-state-matcher ivy-last))
              (case-fold-search
               (and ivy-case-fold-search
-                   (string= name (downcase name))))
+                   (or (eq ivy-case-fold-search 'always)
+                       (string= name (downcase name)))))
              (cands (cond
                       (matcher
                        (funcall matcher re candidates))
