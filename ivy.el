@@ -2411,7 +2411,7 @@ Should be run via minibuffer `post-command-hook'."
   '(setq ivy--flx-cache (flx-make-string-cache)))
 
 (defun ivy-toggle-case-fold ()
-  "Toggle the case folding between nil, auto and always.
+  "Toggle the case folding between nil and auto/always.
 
 If auto, `case-fold-search' is t, when the input is all lower case,
 otherwise nil.
@@ -2424,10 +2424,9 @@ In any completion session, the case folding starts in
 `ivy-case-fold-search-default'."
   (interactive)
   (setq ivy-case-fold-search
-        (cl-case ivy-case-fold-search
-          ('auto 'always)
-          ('always nil)
-          (t 'auto)))
+        (if ivy-case-fold-search
+            nil
+          (or ivy-case-fold-search-default 'auto)))
   ;; reset cache so that the candidate list updates
   (setq ivy--old-re nil))
 
