@@ -1779,7 +1779,10 @@ INHERIT-INPUT-METHOD is currently ignored."
                 :history history
                 :keymap nil
                 :sort t
-                :caller this-command))))
+                :caller (cond ((called-interactively-p 'any)
+                               this-command)
+                              ((and collection (symbolp collection))
+                               collection))))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
