@@ -1862,7 +1862,7 @@ the command."
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-grep-base-command regex
+       (format counsel-grep-base-command (shell-quote-argument regex)
                (shell-quote-argument counsel--git-grep-dir)))
       nil)))
 
