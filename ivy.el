@@ -1104,7 +1104,7 @@ If so, move to that directory, while keeping only the file name."
                 'ivy-index))))
     (when idx
       (ivy--exhibit)
-      (setq ivy--index idx))))
+      (ivy-set-index idx))))
 
 (defun ivy--cd (dir)
   "When completing file names, move to directory DIR."
@@ -1112,7 +1112,7 @@ If so, move to that directory, while keeping only the file name."
       (error "Unexpected")
     (setq ivy--old-cands nil)
     (setq ivy--old-re nil)
-    (setq ivy--index 0)
+    (ivy-set-index 0)
     (setq ivy--all-candidates
           (ivy--sorted-files (setq ivy--directory dir)))
     (setq ivy-text "")
@@ -1689,23 +1689,23 @@ This is useful for recursive `ivy-read'."
       (setq ivy--old-cands nil)
       (when (integerp preselect)
         (setq ivy--old-re "")
-        (setq ivy--index preselect))
+        (ivy-set-index preselect))
       (when initial-input
         ;; Needed for anchor to work
         (setq ivy--old-cands coll)
         (setq ivy--old-cands (ivy--filter initial-input coll)))
       (setq ivy--all-candidates coll)
       (unless (integerp preselect)
-        (setq ivy--index (or
-                          (and dynamic-collection
-                               ivy--index)
-                          (and preselect
-                               (ivy--preselect-index
-                                preselect
-                                (if initial-input
-                                    ivy--old-cands
-                                  coll)))
-                          0))))
+        (ivy-set-index (or
+                        (and dynamic-collection
+                             ivy--index)
+                        (and preselect
+                             (ivy--preselect-index
+                              preselect
+                              (if initial-input
+                                  ivy--old-cands
+                                coll)))
+                        0))))
     (setq ivy-exit nil)
     (setq ivy--default
           (if (region-active-p)
@@ -2618,35 +2618,35 @@ before substring matches."
                    (cdr (assoc t ivy-index-functions-alist))
                    #'ivy-recompute-index-zero)))
     (unless (eq this-command 'ivy-resume)
-      (setq ivy--index
-            (or
-             (cl-position (if (and (> (length name) 0)
-                                   (eq ?^ (aref name 0)))
-                              (substring name 1)
-                            name) cands
-                            :test #'equal)
-             (and ivy--directory
-                  (cl-position
-                   (concat re-str "/") cands
-                   :test #'equal))
-             (and (eq caller 'ivy-switch-buffer)
-                  (> (length name) 0)
-                  0)
-             (and (not (string= name ""))
-                  (not (and ivy--flx-featurep
-                            (eq ivy--regex-function 'ivy--regex-fuzzy)
-                            (< (length cands) 200)))
-                  ivy--old-cands
-                  (cl-position (nth ivy--index ivy--old-cands)
-                               cands))
-             (funcall func re-str cands))))
+      (ivy-set-index
+       (or
+        (cl-position (if (and (> (length name) 0)
+                              (eq ?^ (aref name 0)))
+                         (substring name 1)
+                       name) cands
+                       :test #'equal)
+        (and ivy--directory
+             (cl-position
+              (concat re-str "/") cands
+              :test #'equal))
+        (and (eq caller 'ivy-switch-buffer)
+             (> (length name) 0)
+             0)
+        (and (not (string= name ""))
+             (not (and ivy--flx-featurep
+                       (eq ivy--regex-function 'ivy--regex-fuzzy)
+                       (< (length cands) 200)))
+             ivy--old-cands
+             (cl-position (nth ivy--index ivy--old-cands)
+                          cands))
+        (funcall func re-str cands))))
     (when (or (string= name "")
               (string= name "^"))
-      (setq ivy--index
-            (or (ivy--preselect-index
-                 (ivy-state-preselect ivy-last)
-                 cands)
-                ivy--index)))))
+      (ivy-set-index
+       (or (ivy--preselect-index
+            (ivy-state-preselect ivy-last)
+            cands)
+           ivy--index)))))
 
 (defun ivy-recompute-index-swiper (_re-str cands)
   (condition-case nil
@@ -2941,7 +2941,7 @@ SEPARATOR is used to join the candidates."
 CANDS is a list of strings."
   (setq ivy--length (length cands))
   (when (>= ivy--index ivy--length)
-    (setq ivy--index (max (1- ivy--length) 0)))
+    (ivy-set-index (max (1- ivy--length) 0)))
   (if (null cands)
       (setf (ivy-state-current ivy-last) "")
     (let* ((half-height (/ ivy-height 2))

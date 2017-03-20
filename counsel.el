@@ -160,9 +160,10 @@ Or the time of the last minibuffer update.")
              (unless (stringp re)
                (setq re (caar re)))
              (if (null ivy--old-cands)
-                 (unless (setq ivy--index (ivy--preselect-index
-                                           (ivy-state-preselect ivy-last)
-                                           ivy--all-candidates))
+                 (unless (ivy-set-index
+                          (ivy--preselect-index
+                           (ivy-state-preselect ivy-last)
+                           ivy--all-candidates))
                    (ivy--recompute-index
                     ivy-text re ivy--all-candidates))
                (ivy--recompute-index
