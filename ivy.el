@@ -1308,10 +1308,9 @@ This only has an effect if multiple sorting functions are
 specified for the current collection in
 `ivy-sort-functions-alist'."
   (interactive)
-  (let ((cell
-         (assoc (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
-    (when (listp (cdr cell))
-      (setcdr cell (append (cddr cell) (list (cadr cell))))
+  (let ((cell (assoc (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
+    (when (consp (cdr cell))
+      (setcdr cell `(,@(cddr cell) ,(cadr cell)))
       (ivy--reset-state ivy-last))))
 
 (defvar ivy-index-functions-alist
