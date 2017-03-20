@@ -1849,7 +1849,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument. "
       cands))))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE \"%s\" %s"
+(defcustom counsel-grep-base-command "grep -nE '%s' %s"
   "Format string to use in `cousel-grep-function' to construct
 the command."
   :type 'string
@@ -1863,7 +1863,7 @@ the command."
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-grep-base-command (shell-quote-argument regex)
+       (format counsel-grep-base-command regex
                (shell-quote-argument counsel--git-grep-dir)))
       nil)))
 
