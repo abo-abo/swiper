@@ -355,6 +355,13 @@ action functions.")
 This should eventually become a stack so that you could use
 `ivy-read' recursively.")
 
+(defvar ivy-recursive-last nil)
+
+(defvar ivy-recursive-restore t
+  "When non-nil, restore the above state when exiting the minibuffer.
+This variable is let-bound to nil by functions that take care of
+the restoring themselves.")
+
 (defsubst ivy-set-action (action)
   "Set the current `ivy-last' field to ACTION."
   (setf (ivy-state-action ivy-last) action))
@@ -1013,6 +1020,10 @@ Example use:
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
             (prog1 (with-current-buffer (ivy-state-buffer ivy-last)
+                     (when (and ivy-recursive-last
+                                ivy-recursive-restore
+                                (not (eq ivy-last ivy-recursive-last)))
+                       (ivy--reset-state (setq ivy-last ivy-recursive-last)))
                      (funcall action x))
               (unless (or (eq ivy-exit 'done)
                           (equal (selected-window)
@@ -1383,11 +1394,6 @@ Directories come first."
           (cl-remove-if-not predicate seq)
         seq))))
 
-(defvar ivy-recursive-restore t
-  "When non-nil, restore the above state when exiting the minibuffer.
-This variable is let-bound to nil by functions that take care of
-the restoring themselves.")
-
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1472,7 +1478,7 @@ customizations apply to the current completion session."
                           (list (car source) (funcall (car source)))
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
-  (let ((recursive-ivy-last (and (active-minibuffer-window) ivy-last))
+  (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
         (transformer-fn
          (plist-get ivy--display-transformers-list
                     (or caller (and (functionp collection)
@@ -1532,14 +1538,8 @@ customizations apply to the current completion session."
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (ivy-overlay-cleanup)
           (when (setq unwind (ivy-state-unwind ivy-last))
-            (funcall unwind))
-          (unless (eq ivy-exit 'done)
-            (when recursive-ivy-last
-              (ivy--reset-state (setq ivy-last recursive-ivy-last)))))
+            (funcall unwind)))
       (ivy-call)
-      (when (and recursive-ivy-last
-                 ivy-recursive-restore)
-        (ivy--reset-state (setq ivy-last recursive-ivy-last)))
       (when (> (length (ivy-state-current ivy-last)) 0)
         (remove-text-properties 0 1 '(idx) (ivy-state-current ivy-last))))))
 
