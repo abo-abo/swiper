@@ -346,7 +346,8 @@ action functions.")
   ;; A lambda that transforms candidates only for display
   display-transformer-fn
   directory
-  caller)
+  caller
+  current)
 
 (defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
@@ -388,9 +389,6 @@ of `history-length'.")
 
 (defvar ivy-text ""
   "Store the user's string as it is typed in.")
-
-(defvar ivy--current ""
-  "Current candidate.")
 
 (defvar ivy--index 0
   "Store the index of the current candidate.")
@@ -509,11 +507,12 @@ When non-nil, it should contain at least one %d.")
 
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
-  (if (and ivy--directory
-           (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
-      (insert (setq ivy--current (expand-file-name
-                                  text ivy--directory)))
-    (insert (setq ivy--current text)))
+  (insert
+   (setf (ivy-state-current ivy-last)
+         (if (and ivy--directory
+                  (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
+             (expand-file-name text ivy--directory)
+           text)))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
@@ -527,7 +526,7 @@ When non-nil, it should contain at least one %d.")
              ;; the action from `ivy-dispatching-done' may not need a
              ;; candidate at all
              (eq this-command 'ivy-dispatching-done))
-         (ivy--done ivy--current))
+         (ivy--done (ivy-state-current ivy-last)))
         ((memq (ivy-state-collection ivy-last)
                '(read-file-name-internal internal-complete-buffer))
          (if (or (not (eq confirm-nonexistent-file-or-buffer t))
@@ -555,7 +554,7 @@ key (a string), cmd and doc (a string)."
   (format "%s\n%s\n"
           (if (eq this-command 'ivy-read-action)
               "Select action: "
-            ivy--current)
+            (ivy-state-current ivy-last))
           (mapconcat
            (lambda (x)
              (format "%s: %s"
@@ -636,7 +635,7 @@ When ARG is t, exit with current text, ignoring the candidates."
         (ivy--directory
          (ivy--directory-done))
         ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
-         (if (member ivy--current '("(./)" "(../)"))
+         (if (member (ivy-state-current ivy-last) '("(./)" "(../)"))
              (ivy-quit-and-run
               (ivy-read "Go to file: " 'read-file-name-internal
                         :action (lambda (x)
@@ -657,8 +656,8 @@ When ARG is t, exit with current text, ignoring the candidates."
        (ivy--exhibit))
       ((and
         (> ivy--length 0)
-        (not (string= ivy--current "./"))
-        (setq dir (ivy-expand-file-if-directory ivy--current)))
+        (not (string= (ivy-state-current ivy-last) "./"))
+        (setq dir (ivy-expand-file-if-directory (ivy-state-current ivy-last))))
        (ivy--cd dir)
        (ivy--exhibit))
       ((and (not (string= ivy-text ""))
@@ -677,8 +676,8 @@ When ARG is t, exit with current text, ignoring the candidates."
                         ivy-text))
                       ((string-match
                         "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        ivy--current)
-                       (setq ivy-text ivy--current))))
+                        (ivy-state-current ivy-last))
+                       (setq ivy-text (ivy-state-current ivy-last)))))
            (string-match
             "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
             ivy-text))
@@ -772,7 +771,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   "Exit the minibuffer with current input instead of current candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (insert (setq ivy--current
+  (insert (setf (ivy-state-current ivy-last)
                 (if ivy--directory
                     (expand-file-name ivy-text ivy--directory)
                   ivy-text)))
@@ -798,7 +797,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          :history (ivy-state-history ivy-last)
          :preselect (unless (eq (ivy-state-collection ivy-last)
                                 'read-file-name-internal)
-                      ivy--current)
+                      (ivy-state-current ivy-last))
          :keymap (ivy-state-keymap ivy-last)
          :update-fn (ivy-state-update-fn ivy-last)
          :sort (ivy-state-sort ivy-last)
@@ -1001,15 +1000,15 @@ Example use:
                           ;; Previously, the cdr of the selected candidate would be returned.
                           ;; Now, the whole candidate is returned.
                           (let (idx)
-                            (if (setq idx (get-text-property 0 'idx ivy--current))
+                            (if (setq idx (get-text-property 0 'idx (ivy-state-current ivy-last)))
                                 (nth idx collection)
-                              (assoc ivy--current collection)))))
+                              (assoc (ivy-state-current ivy-last) collection)))))
                     (ivy--directory
-                     (expand-file-name ivy--current ivy--directory))
-                    ((equal ivy--current "")
+                     (expand-file-name (ivy-state-current ivy-last) ivy--directory))
+                    ((equal (ivy-state-current ivy-last) "")
                      ivy-text)
                     (t
-                     ivy--current))))
+                     (ivy-state-current ivy-last)))))
           (if (eq action 'identity)
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
@@ -1523,13 +1522,13 @@ customizations apply to the current completion session."
                   hist)
                  (when (eq ivy-exit 'done)
                    (let ((item (if ivy--directory
-                                   ivy--current
+                                   (ivy-state-current ivy-last)
                                  ivy-text)))
                      (unless (equal item "")
                        (set hist (cons (propertize item 'ivy-index ivy--index)
                                        (delete item
                                                (cdr (symbol-value hist))))))))
-                 ivy--current))
+                 (ivy-state-current ivy-last)))
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (ivy-overlay-cleanup)
           (when (setq unwind (ivy-state-unwind ivy-last))
@@ -1538,11 +1537,11 @@ customizations apply to the current completion session."
             (when recursive-ivy-last
               (ivy--reset-state (setq ivy-last recursive-ivy-last)))))
       (ivy-call)
-      (when (> (length ivy--current) 0)
-        (remove-text-properties 0 1 '(idx) ivy--current))
       (when (and recursive-ivy-last
                  ivy-recursive-restore)
-        (ivy--reset-state (setq ivy-last recursive-ivy-last))))))
+        (ivy--reset-state (setq ivy-last recursive-ivy-last)))
+      (when (> (length (ivy-state-current ivy-last)) 0)
+        (remove-text-properties 0 1 '(idx) (ivy-state-current ivy-last))))))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
@@ -2284,10 +2283,10 @@ If SUBEXP is nil, the text properties are applied to the whole match."
                   (not (string= ivy-text "/")))
               (let ((default-directory ivy--directory))
                 (and
-                 (not (equal ivy--current ""))
-                 (file-directory-p ivy--current)
-                 (file-exists-p ivy--current))))
-         (ivy--cd (expand-file-name ivy--current ivy--directory)))))
+                 (not (equal (ivy-state-current ivy-last) ""))
+                 (file-directory-p (ivy-state-current ivy-last))
+                 (file-exists-p (ivy-state-current ivy-last)))))
+         (ivy--cd (expand-file-name (ivy-state-current ivy-last) ivy--directory)))))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
@@ -2944,7 +2943,7 @@ CANDS is a list of strings."
   (when (>= ivy--index ivy--length)
     (setq ivy--index (max (1- ivy--length) 0)))
   (if (null cands)
-      (setq ivy--current "")
+      (setf (ivy-state-current ivy-last) "")
     (let* ((half-height (/ ivy-height 2))
            (start (max 0 (- ivy--index half-height)))
            (end (min (+ start (1- ivy-height)) ivy--length))
@@ -2952,7 +2951,7 @@ CANDS is a list of strings."
            (cands (cl-subseq cands start end))
            (index (- ivy--index start))
            transformer-fn)
-      (setq ivy--current (copy-sequence (nth index cands)))
+      (setf (ivy-state-current ivy-last) (copy-sequence (nth index cands)))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
           (setq cands (mapcar transformer-fn cands))))
@@ -3348,9 +3347,9 @@ Don't finish completion."
   (interactive)
   (delete-minibuffer-contents)
   (if (and ivy--directory
-           (string-match "/$" ivy--current))
-      (insert (substring ivy--current 0 -1))
-    (insert ivy--current)))
+           (string-match "/$" (ivy-state-current ivy-last)))
+      (insert (substring (ivy-state-current ivy-last) 0 -1))
+    (insert (ivy-state-current ivy-last))))
 
 (defun ivy-toggle-fuzzy ()
   "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."

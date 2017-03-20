@@ -1250,7 +1250,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 (defun counsel-git-grep-recenter ()
   (interactive)
   (with-ivy-window
-    (counsel-git-grep-action ivy--current)
+    (counsel-git-grep-action (ivy-state-current ivy-last))
     (recenter-top-bottom)))
 
 ;;** `counsel-git-stash'
@@ -1941,7 +1941,7 @@ the command."
                                                   (line-end-position))))
                              :history 'counsel-git-grep-history
                              :update-fn (lambda ()
-                                          (counsel-grep-action ivy--current))
+                                          (counsel-grep-action (ivy-state-current ivy-last)))
                              :re-builder #'ivy--regex
                              :action #'counsel-grep-action
                              :unwind (lambda ()
@@ -2898,7 +2898,7 @@ selected candidate."
                       (list-colors-duplicates))
               :require-match t
               :update-fn (lambda ()
-                           (counsel-colors--update-highlight ivy--current))
+                           (counsel-colors--update-highlight (ivy-state-current ivy-last)))
               :action #'counsel-colors-action-insert-name
               :history 'counsel-colors-emacs-history
               :caller 'counsel-colors-emacs
@@ -3086,7 +3086,7 @@ selected candidate."
               :require-match t
               :action #'counsel-colors-action-insert-name
               :update-fn (lambda ()
-                           (counsel-colors--update-highlight ivy--current))
+                           (counsel-colors--update-highlight (ivy-state-current ivy-last)))
               :history 'counsel-colors-web-history
               :caller 'counsel-colors-web
               :sort t)))

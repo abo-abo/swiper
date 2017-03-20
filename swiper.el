@@ -551,13 +551,13 @@ Matched candidates should have `swiper-invocation-face'."
   "Called when `ivy' input is updated."
   (with-ivy-window
     (swiper--cleanup)
-    (when (> (length ivy--current) 0)
+    (when (> (length (ivy-state-current ivy-last)) 0)
       (let* ((re (funcall ivy--regex-function ivy-text))
              (re (if (stringp re) re (caar re)))
              (re (replace-regexp-in-string
                   "    " "\t"
                   re))
-             (str (get-text-property 0 'swiper-line-number ivy--current))
+             (str (get-text-property 0 'swiper-line-number (ivy-state-current ivy-last)))
              (num (if (string-match "^[0-9]+" str)
                       (string-to-number (match-string 0 str))
                     0)))
@@ -871,7 +871,7 @@ Run `swiper' for those buffers."
               :action 'swiper-all-action
               :unwind #'swiper--cleanup
               :update-fn (lambda ()
-                           (swiper-all-action ivy--current))
+                           (swiper-all-action (ivy-state-current ivy-last)))
               :dynamic-collection t
               :keymap swiper-all-map
               :caller 'swiper-multi)))
