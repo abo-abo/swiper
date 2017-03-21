@@ -1801,31 +1801,30 @@ INHERIT-INPUT-METHOD is currently ignored."
   "Insert STR, erasing the previous one.
 The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
   (when (stringp str)
-    (with-ivy-window
-      (let ((fake-cursors (and (featurep 'multiple-cursors)
-                               (mc/all-fake-cursors)))
-            (pt (point))
-            (beg ivy-completion-beg)
-            (end ivy-completion-end))
-        (when ivy-completion-beg
-          (delete-region
-           ivy-completion-beg
-           ivy-completion-end))
-        (setq ivy-completion-beg
-              (move-marker (make-marker) (point)))
-        (insert (substring-no-properties str))
-        (setq ivy-completion-end
-              (move-marker (make-marker) (point)))
-        (save-excursion
-          (dolist (cursor fake-cursors)
-            (goto-char (overlay-start cursor))
-            (delete-region (+ (point) (- beg pt))
-                           (+ (point) (- end pt)))
-            (insert (substring-no-properties str))
-            ;; manually move the fake cursor
-            (move-overlay cursor (point) (1+ (point)))
-            (move-marker (overlay-get cursor 'point) (point))
-            (move-marker (overlay-get cursor 'mark) (point))))))))
+    (let ((fake-cursors (and (featurep 'multiple-cursors)
+                             (mc/all-fake-cursors)))
+          (pt (point))
+          (beg ivy-completion-beg)
+          (end ivy-completion-end))
+      (when ivy-completion-beg
+        (delete-region
+         ivy-completion-beg
+         ivy-completion-end))
+      (setq ivy-completion-beg
+            (move-marker (make-marker) (point)))
+      (insert (substring-no-properties str))
+      (setq ivy-completion-end
+            (move-marker (make-marker) (point)))
+      (save-excursion
+        (dolist (cursor fake-cursors)
+          (goto-char (overlay-start cursor))
+          (delete-region (+ (point) (- beg pt))
+                         (+ (point) (- end pt)))
+          (insert (substring-no-properties str))
+          ;; manually move the fake cursor
+          (move-overlay cursor (point) (1+ (point)))
+          (move-marker (overlay-get cursor 'point) (point))
+          (move-marker (overlay-get cursor 'mark) (point)))))))
 
 (defun ivy-completion-common-length (str)
   "Return the length of the first 'completions-common-part face in STR."
