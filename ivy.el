@@ -1769,25 +1769,31 @@ INHERIT-INPUT-METHOD is currently ignored."
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
-      (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-                collection
-                :predicate predicate
-                :require-match (and collection require-match)
-                :initial-input (if (consp initial-input)
-                                   (car initial-input)
-                                 (if (and (stringp initial-input)
-                                          (string-match "\\+" initial-input))
-                                     (replace-regexp-in-string
-                                      "\\+" "\\\\+" initial-input)
-                                   initial-input))
-                :preselect (if (listp def) (car def) def)
-                :history history
-                :keymap nil
-                :sort t
-                :caller (cond ((called-interactively-p 'any)
-                               this-command)
-                              ((and collection (symbolp collection))
-                               collection))))))
+      (let* ((dynamic-collection (functionp collection))
+             (collection (if dynamic-collection
+                             (lambda (string) (funcall collection string predicate t))
+                           collection))
+             (predicate (unless dynamic-collection predicate)))
+        (ivy-read (replace-regexp-in-string "%" "%%" prompt)
+                  collection
+                  :dynamic-collection dynamic-collection
+                  :predicate predicate
+                  :require-match (and collection require-match)
+                  :initial-input (if (consp initial-input)
+                                     (car initial-input)
+                                   (if (and (stringp initial-input)
+                                            (string-match "\\+" initial-input))
+                                       (replace-regexp-in-string
+                                        "\\+" "\\\\+" initial-input)
+                                     initial-input))
+                  :preselect (if (listp def) (car def) def)
+                  :history history
+                  :keymap nil
+                  :sort t
+                  :caller (cond ((called-interactively-p 'any)
+                                 this-command)
+                                ((and collection (symbolp collection))
+                                 collection)))))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
