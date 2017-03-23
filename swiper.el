@@ -156,10 +156,28 @@
     (error "Package avy isn't installed"))
   (unless (string= ivy-text "")
     (let* ((avy-all-windows nil)
+           ;; We'll have overlapping overlays, so we sort all the
+           ;; overlays in the visible region by their start, and then
+           ;; throw out non-Swiper overlays or overlapping Swiper
+           ;; overlays.
+           (visible-overlays (cl-sort (with-ivy-window
+                                        (overlays-in (window-start)
+                                                     (window-end)))
+                                      #'< :key #'overlay-start))
+           (min-overlay-start 0)
+           (overlays-for-avy (cl-remove-if-not
+                              (lambda (ov)
+                                (when (and (>= (overlay-start ov)
+                                               min-overlay-start)
+                                           (memq (overlay-get ov 'face)
+                                                 swiper-faces))
+                                  (setq min-overlay-start (overlay-start ov))))
+                              visible-overlays))
            (candidates (append
-                        (with-ivy-window
-                          (avy--regex-candidates
-                           (ivy--regex ivy-text)))
+                        (mapcar (lambda (ov)
+                                  (cons (overlay-start ov)
+                                        (overlay-get ov 'window)))
+                                overlays-for-avy)
                         (save-excursion
                           (save-restriction
                             (narrow-to-region (window-start) (window-end))
@@ -192,7 +210,7 @@
             (ivy-done)
             (ivy-call))
         (ivy-quit-and-run
-         (avy-action-goto (caar candidate)))))))
+         (avy-action-goto (avy-candidate-beg candidate)))))))
 
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
 (declare-function multiple-cursors-mode "ext:multiple-cursors-core")
