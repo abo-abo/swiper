@@ -1326,6 +1326,40 @@ done") "\n" t)))
   :type 'integer
   :group 'ivy)
 
+;;** `counsel-git-change-worktree'
+(autoload 'string-trim-right "subr-x")
+(defun counsel-git-change-worktree-action (git-root-dir tree)
+  "Find the corresponding file in the worktree located at TREE.
+
+The current buffer is assumed to be in a subdirectory of GIT-ROOT-DIR."
+  (let* ((new-root-dir (counsel-git-worktree-parse-root tree))
+         (tree-filename (file-relative-name (buffer-file-name) git-root-dir))
+         (file-name (expand-file-name tree-filename new-root-dir)))
+    (find-file file-name)))
+
+(defun counsel-git-worktree-list ()
+  "List worktrees in the git repository containing the current buffer."
+  (let ((cmd-output (shell-command-to-string "git worktree list")))
+    (and (string-match "fatal: Not a git repository" cmd-output)
+         (error "Not in a git repository!"))
+    (delete "" (split-string (string-trim-right cmd-output) "\n"))))
+
+(defun counsel-git-worktree-parse-root (tree)
+  (substring tree 0 (string-match " " tree)))
+
+;;;###autoload
+(defun counsel-git-change-worktree ()
+  "Find the file corresponding to the current buffer on a different worktree."
+  (interactive)
+  (let ((git-root-dir (string-trim-right (shell-command-to-string "git rev-parse --show-toplevel"))))
+    (ivy-read "Select worktree: "
+              (or (cl-delete git-root-dir (counsel-git-worktree-list)
+                             :key #'counsel-git-worktree-parse-root :test #'string=)
+                  (error "No other worktrees!"))
+              :action (lambda (tree) (counsel-git-change-worktree-action git-root-dir tree))
+              :require-match t
+              :caller 'counsel-git-change-worktree)))
+
 ;;;###autoload
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
