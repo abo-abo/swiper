@@ -984,6 +984,12 @@ Example use:
      ;; do whatever with str - the corresponding file will not be opened
      )")
 
+(defun ivy-recursive-restore ()
+  (when (and ivy-recursive-last
+             ivy-recursive-restore
+             (not (eq ivy-last ivy-recursive-last)))
+    (ivy--reset-state (setq ivy-last ivy-recursive-last))))
+
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
@@ -1020,11 +1026,8 @@ Example use:
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
             (prog1 (with-current-buffer (ivy-state-buffer ivy-last)
-                     (when (and ivy-recursive-last
-                                ivy-recursive-restore
-                                (not (eq ivy-last ivy-recursive-last)))
-                       (ivy--reset-state (setq ivy-last ivy-recursive-last)))
-                     (funcall action x))
+                     (unwind-protect (funcall action x)
+                       (ivy-recursive-restore)))
               (unless (or (eq ivy-exit 'done)
                           (equal (selected-window)
                                  (active-minibuffer-window))
@@ -1537,7 +1540,9 @@ customizations apply to the current completion session."
           (remove-hook 'post-command-hook #'ivy--exhibit)
           (ivy-overlay-cleanup)
           (when (setq unwind (ivy-state-unwind ivy-last))
-            (funcall unwind)))
+            (funcall unwind))
+          (unless (eq ivy-exit 'done)
+            (ivy-recursive-restore)))
       (ivy-call)
       (when (> (length (ivy-state-current ivy-last)) 0)
         (remove-text-properties 0 1 '(idx) (ivy-state-current ivy-last))))))
