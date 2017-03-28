@@ -3240,7 +3240,40 @@ candidate."
               :history 'counsel-org-agenda-headlines-history
               :caller 'counsel-org-agenda-headlines)))
 
-;** `counsel-mode'
+;;** `counsel-irony'
+;;;###autoload
+(defun counsel-irony ()
+  "Inline C/C++ completion using Irony."
+  (interactive)
+  (irony-completion-candidates-async 'counsel-irony-callback))
+
+(defun counsel-irony-callback ()
+  (interactive)
+  (let ((coll (irony-completion-at-point)))
+    (when coll
+      (setq ivy-completion-beg (nth 0 coll))
+      (setq ivy-completion-end (nth 1 coll))
+      (ivy-read "code: " (mapcar #'counsel-irony-annotate
+                                 (nth 2 coll))
+                :caller 'counsel-irony
+                :action 'ivy-completion-in-region-action))))
+
+(defun counsel-irony-annotate (x)
+  (cons
+   (condition-case nil
+       (concat
+        x " "
+        (irony-completion--at-point-annotate x))
+     (error x))
+   x))
+
+(add-to-list 'ivy-display-functions-alist '(counsel-irony . ivy-display-function-overlay))
+
+(declare-function irony-completion-candidates-async "ext:irony-completion")
+(declare-function irony-completion-at-point "ext:irony-completion")
+(declare-function irony-completion--at-point-annotate "ext:irony-completion")
+
+;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (binding

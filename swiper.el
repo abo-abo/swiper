@@ -139,6 +139,7 @@
 (declare-function avy--process "ext:avy")
 (declare-function avy--overlay-post "ext:avy")
 (declare-function avy-action-goto "ext:avy")
+(declare-function avy-candidate-beg "ext:avy")
 (declare-function avy--done "ext:avy")
 (declare-function avy--make-backgrounds "ext:avy")
 (declare-function avy-window-list "ext:avy")
