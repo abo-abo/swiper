@@ -39,7 +39,13 @@
 (defun ivy-left-pad (str width)
   "Pad STR from left with WIDTH spaces."
   (let ((padding (make-string width ?\ )))
-    (mapconcat (lambda (x) (concat padding x))
+    (mapconcat (lambda (x)
+                 (setq x (concat padding x))
+                 (if (> (length x) (window-width))
+                     (concat
+                      (substring x 0 (- (window-width) 4))
+                      "...")
+                   x))
                (split-string str "\n")
                "\n")))
 
