@@ -1805,6 +1805,8 @@ INHERIT-INPUT-METHOD is currently ignored."
 (defun ivy-completion-in-region-action (str)
   "Insert STR, erasing the previous one.
 The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
+  (when (consp str)
+    (setq str (cdr str)))
   (when (stringp str)
     (let ((fake-cursors (and (featurep 'multiple-cursors)
                              (mc/all-fake-cursors)))
