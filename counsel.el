@@ -2809,13 +2809,15 @@ midpoint, then the chosen color is black, otherwise is white.  This
 helps to improve the contrast and readability of a text regardless of
 the background color."
   (let ((rgb (color-name-to-rgb color)))
-    (if (>
-         (+ (* (nth 0 rgb) 0.299)
-            (* (nth 1 rgb) 0.587)
-            (* (nth 2 rgb) 0.114))
-         0.5)
-        "#000000"
-      "#FFFFFF")))
+    (if rgb
+        (if (>
+             (+ (* (nth 0 rgb) 0.299)
+                (* (nth 1 rgb) 0.587)
+                (* (nth 2 rgb) 0.114))
+             0.5)
+            "#000000"
+          "#FFFFFF")
+      color)))
 
 (defun counsel-colors--update-highlight (cand)
   "Update the highlight face for the current candidate CAND.
