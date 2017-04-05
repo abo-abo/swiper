@@ -77,6 +77,11 @@
   :type 'boolean
   :group 'swiper)
 
+(defcustom swiper-goto-start-of-match nil
+  "When non-nil, go to the start of the match, not its end."
+  :type 'boolean
+  :group 'swiper)
+
 (defvar swiper-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-q") 'swiper-query-replace)
@@ -697,7 +702,8 @@ WND, when specified is the window."
                      #'line-move
                    #'forward-line)
                  ln)
-        (re-search-forward re (line-end-position) t)
+        (when (and (re-search-forward re (line-end-position) t) swiper-goto-start-of-match)
+          (goto-char (match-beginning 0)))
         (swiper--ensure-visible)
         (cond (swiper-action-recenter
                (recenter))
