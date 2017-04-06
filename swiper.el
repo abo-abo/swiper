@@ -722,6 +722,7 @@ WND, when specified is the window."
                    (eq evil-search-module 'evil-search))
           (add-to-history 'evil-ex-search-history re)
           (setq evil-ex-search-pattern (list re t t))
+          (setq evil-ex-search-direction 'forward)
           (when evil-ex-search-persistent-highlight
             (evil-ex-search-activate-highlight evil-ex-search-pattern)))))))
 
