@@ -757,11 +757,13 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (new (try-completion (if startp
                                   (substring postfix 1)
                                 postfix)
-                              (mapcar (lambda (str)
-                                        (let ((i (string-match postfix str)))
-                                          (when i
-                                            (substring str i))))
-                                      ivy--old-cands))))
+                              (if (ivy-state-dynamic-collection ivy-last)
+                                  ivy--all-candidates
+                                (mapcar (lambda (str)
+                                          (let ((i (string-match postfix str)))
+                                            (when i
+                                              (substring str i))))
+                                        ivy--old-cands)))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
           (new
