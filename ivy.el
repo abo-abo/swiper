@@ -3109,26 +3109,10 @@ TREE can be nested multiple times to have mulitple window splits.")
            default-view-name))))
 
 (defun ivy-push-view ()
-  "Push the current window tree on `ivy-views'.
-Currently, the split configuration (i.e. horizonal or vertical)
-and point positions are saved, but the split positions aren't.
+  "Push the current window configuration to `ivy-views'.
 Use `ivy-pop-view' to delete any item from `ivy-views'."
   (interactive)
-  (let* ((view (cl-labels ((ft (tr)
-                             (if (consp tr)
-                                 (if (eq (car tr) t)
-                                     (cons 'vert
-                                           (mapcar #'ft (cddr tr)))
-                                   (cons 'horz
-                                         (mapcar #'ft (cddr tr))))
-                               (with-current-buffer (window-buffer tr)
-                                 (cond ((buffer-file-name)
-                                        (list 'file (buffer-file-name) (point)))
-                                       ((eq major-mode 'dired-mode)
-                                        (list 'file default-directory (point)))
-                                       (t
-                                        (list 'buffer (buffer-name) (point))))))))
-                 (ft (car (window-tree)))))
+  (let* ((view (list (current-window-configuration) (point-marker)))
          (view-name (ivy-read "Name view: " nil
                               :initial-input (ivy-default-view-name))))
     (when view-name
@@ -3216,11 +3200,17 @@ BUFFER may be a string or nil."
                     (not (get-buffer buffer)))
                (find-file (cdr virtual)))
               (view
-               (delete-other-windows)
-               (let (
-                     ;; silence "Directory has changed on disk"
-                     (inhibit-message t))
-                 (ivy-set-view-recur (cadr view))))
+               (if
+                   (window-configuration-p (caadr view))
+                   (progn
+                     (set-window-configuration (caadr view))
+                     (goto-char (cadadr view)))
+                 (progn
+                   (delete-other-windows)
+                   (let (
+                         ;; silence "Directory has changed on disk"
+                         (inhibit-message t))
+                     (ivy-set-view-recur (cadr view))))))
               (t
                (switch-to-buffer
                 buffer nil 'force-same-window)))))))
