@@ -1949,24 +1949,17 @@ By default, the splitting predicate is 300K bytes in a file.
 :PROPERTIES:
 :CUSTOM_ID: fixes
 :END:
-*** doc
-
-**** Fixed typos in the doc
-See #497, #809.
-**** Added =ivy-format-function= to the doc
-See #577.
-**** Added info on generating the doc
-See #601.
-**** Added info on associating values
-See #714.
-**** Update package names on ELPA/MELPA
-See #833.
-*** =ivy--filter= Recompute index after filter
-See #491.
-*** =ivy-hydra= is now a separate package on MELPA
-See #464, #512.
-*** =counsel-load-theme=
-Add noconfirm flag.
+*** =colir-parse-color=
+Fix color parsing in terminal. See #541 and #543.
+*** =counsel--gg-sentinel=
+Check for an additional 141 return code.
+*** =counsel-ace-link=
+Use =cdr= for action. See #835.
+*** =counsel-ag=
+**** Use sync on remote
+See #669.
+**** Add missing parameter
+See #858, #861.
 *** =counsel-find-file=
 **** Improve stability on arcane systems
 It can happen that =(all-completions "" 'read-file-name-internal)= may
@@ -1990,61 +1983,93 @@ See #780.
 See #782.
 **** Fix ~RET~ when file exists
 See #792.
-*** =counsel--gg-sentinel=
-Check for an additional 141 return code.
-*** =ivy-completion-in-region-action=
-Remove string properties, see #517.
-Remove =with-ivy-window=, see #928.
-*** =ivy-completion-in-region=
-Fix double insert bug.
-Fix common length bug. See #528.
-Remove =:require-match=, see #907.
-*** =ivy-immediate-done=
-Update docstring, see #525.
-*** =swiper-font-lock-exclude=
-Add =forth-mode=, see #526.
-Add =forth-block-mode=, see #527.
-Add =bookmark-bmenu-mode=.
-Add =nix-mode=, see #879.
-Add =circe-mode=, see #900, #901
-*** =ivy-read=
-**** Document all args
-See #533.
-**** Use predicate when reading file names
-See #804.
-*** =counsel-grep-or-swiper=
-Don't grep on compressed files. See #536.
 *** =counsel-git=
 **** Add a better error message.
 See #537.
 **** Add ~x~ action
 To open externally.
-*** =colir-parse-color=
-Fix color parsing in terminal. See #541 and #543.
+*** =counsel-grep=
+Quote =:preselect=.
+*** =counsel-grep-or-swiper=
+Don't grep on compressed files. See #536.
 *** =counsel-imenu=
 **** Improve readability
 See #558.
 **** Force rescan if requested
 See #631.
-*** =counsel-rhythmbox=
-No longer depends on =helm-rhythmbox=.
+*** =counsel-info-lookup-symbol=
+Fix doc, see #721.
+Add preselect, see #722.
+*** =counsel-linux-app=
+**** Don't quit on bad data
+See #604.
+**** Check if dir exists
+See #896.
+*** =counsel-load-theme=
+Add noconfirm flag in =counsel-load-theme-action=.
+*** =counsel-locate=
+**** Make =counsel-locate-action-extern= interactive
+See #605.
+**** Add w32 support to =counsel-locate-action-extern=
+See #607, #688.
 *** =counsel-M-x=
 **** Fix interaction with =repeat=
 See #564.
 **** Preserve =last-command=
 See #891, #893.
-*** =swiper=
-**** Fix "foo!bar" syntax
-See #565.
-**** Now respects =ivy-re-builders-alist=
-See #613.
-
-Example:
-#+begin_src
-(setq ivy-re-builders-alist
-          '((swiper . ivy--regex-fuzzy)
-            (t . ivy--regex-plus)))
-#+end_src
+*** =counsel-org-tag-action=
+Perform in the minibuffer. See #890.
+*** =counsel-recoll=
+Add =shell-quote-argument=. See #713.
+*** =counsel-rhythmbox=
+No longer depends on =helm-rhythmbox=.
+*** =counsel-yank-pop=
+Fix candidates not showing sometimes.
+*** doc
+**** Fixed typos in the doc
+See #497, #809.
+**** Added =ivy-format-function= to the doc
+See #577.
+**** Added info on generating the doc
+See #601.
+**** Added info on associating values
+See #714.
+**** Update package names on ELPA/MELPA
+See #833.
+*** =ivy--filter= Recompute index after filter
+See #491.
+*** =ivy--flx-sort=
+Improve. See #843.
+*** =ivy--format-minibuffer-line=
+Fix for =ivy-display-style= nil. See #828.
+*** =ivy--minibuffer-setup=
+Fix =max-mini-window-height=. See #732.
+*** =ivy--occur-insert-lines=
+Scroll to first command. See #829.
+*** =ivy--regex-ignore-order=
+Ensure it returns legal regexps. See #765.
+*** =ivy--reset-state=
+Simplify. See #827.
+*** =ivy--virtual-buffers=
+Don't modify recentfs or bookmarks. See #821.
+*** =ivy-call=
+Set =default-directory=, see #717, #760, #779, #810.
+Recursive logic, see #924, #937.
+*** =ivy-completion-in-region=
+Fix double insert bug.
+Fix common length bug. See #528.
+Remove =:require-match=, see #907.
+*** =ivy-completion-in-region-action=
+Remove string properties, see #517.
+Remove =with-ivy-window=, see #928.
+*** =ivy-fixed-height-minibuffer=
+Add correction. See #737.
+*** =ivy-help-file=
+Define with =defconst=, see #938.
+*** =ivy-hydra= is now a separate package on MELPA
+See #464, #512.
+*** =ivy-immediate-done=
+Update docstring, see #525.
 *** =ivy-minibuffer-map=
 **** Move =ivy-toggle-regexp-quote= from ~M-q~ to ~M-r~.
 See #566.
@@ -2058,102 +2083,194 @@ mapped to =scroll-up-command= bound in =ivy-minibuffer-map=. While
 still having the standard ~C-v~ and ~M-v~ bindings.
 
 See #797, #798, #535.
-*** =swiper-avy=
-Require avy, see #593.
-*** =counsel-linux-app=
-**** Don't quit on bad data
-See #604.
-**** Check if dir exists
-See #896.
-*** =counsel-locate=
-**** Make =counsel-locate-action-extern= interactive
-See #605.
-**** Add w32 support to =counsel-locate-action-extern=
-See #607, #688.
-*** =ivy-switch-buffer=
-**** Reset index to 0 on input
-See #522, #513.
-*** =ivy-resume=
-The original =default-directory= will be restored, see #591.
-*** =counsel-yank-pop=
-Fix candidates not showing sometimes.
 *** =ivy-occur-press=
 Pass the whole cons cell to action, see #634.
-*** =ivy-remote=
-Use a lighter color for dark themes, see #646.
-*** =counsel-ag=
-Use sync on remote. See #669.
-Add missing parameter. See #858, #861
-*** =swiper-multi=
-Fix regression, See #673.
-Don't use virtual buffers, See #705.
-*** =counsel-recoll=
-Add =shell-quote-argument=. See #713.
-*** =ivy-call=
-Set =default-directory=, see #717, #760, #779, #810.
-Recursive logic, see #924, #937.
-*** =counsel-info-lookup-symbol=
-Fix doc, see #721.
-Add preselect, see #722.
-*** =ivy--minibuffer-setup=
-Fix =max-mini-window-height=. See #732.
-*** Recursive minibuffers with two emacsclients
-See #738
-*** =ivy-fixed-height-minibuffer=
-Add correction. See #737.
-*** =ivy-switch-buffer-other-window=
-Obey =ivy-ignore-buffers=. See #745.
-*** =counsel-grep=
-Quote =:preselect=.
-*** shrink minibuffer after reading actions
-See #764, #402
-*** =ivy--regex-ignore-order=
-Ensure it returns legal regexps. See #765.
-*** =ivy--virtual-buffers=
-Don't modify recentfs or bookmarks. See #821.
-*** =ivy--reset-state=
-Simplify. See #827.
-*** =ivy--occur-insert-lines=
-Scroll to first command. See #829.
-*** =ivy--format-minibuffer-line=
-Fix for =ivy-display-style= nil. See #828.
-*** =counsel-ace-link=
-Use =cdr= for action. See #835.
-*** =ivy--flx-sort=
-Improve. See #843.
-*** =ivy-sort-functions-alist=
-Improve. See #870.
-*** =counsel-org-tag-action=
-Perform in the minibuffer. See #890.
-*** =ivy-help-file=
-Define with =defconst=, see #938.
 *** =ivy-partial=
 Fix for =:dynamic-collection=.
 See #946.
+*** =ivy-read=
+**** Document all args
+See #533.
+**** Use predicate when reading file names
+See #804.
+*** =ivy-remote=
+Use a lighter color for dark themes, see #646.
+*** =ivy-resume=
+The original =default-directory= will be restored, see #591.
+*** =ivy-sort-functions-alist=
+Improve. See #870.
+*** =ivy-switch-buffer=
+**** Reset index to 0 on input
+See #522, #513.
+*** =ivy-switch-buffer-other-window=
+Obey =ivy-ignore-buffers=. See #745.
+*** Recursive minibuffers with two emacsclients
+See #738.
+*** shrink minibuffer after reading actions
+See #764, #402.
+*** =swiper=
+**** Fix "foo!bar" syntax
+See #565.
+**** Now respects =ivy-re-builders-alist=
+See #613.
+
+Example:
+#+begin_src
+(setq ivy-re-builders-alist
+          '((swiper . ivy--regex-fuzzy)
+            (t . ivy--regex-plus)))
+#+end_src
+*** =swiper-avy=
+Require =avy=, see #593.
+*** =swiper-font-lock-exclude=
+Add =forth-mode=, see #526.
+Add =forth-block-mode=, see #527.
+Add =bookmark-bmenu-mode=.
+Add =nix-mode=, see #879.
+Add =circe-mode=, see #900, #901
+*** =swiper-multi=
+Fix regression, See #673.
+Don't use virtual buffers, See #705.
 ** New Features
 :PROPERTIES:
 :CUSTOM_ID: new-features
 :END:
-*** =counsel-mode-map=
+*** =counsel-ag=
+**** Extend more
+See #576.
+**** Add =counsel-git-cmd=
+See #590.
+**** Prompt for extra args when using prefix arg
+See #774.
+**** Support limiting in files
+See #820, #822, #823.
+**** =counsel-grep-post-action-hook=
+New hook for counsel-ag/grep/pt. See #800, #751.
+*** =counsel-bookmark=
+**** =counsel-bookmark-avoid-dired=
+When non-nil and a directory is selected from =counsel-bookmark=,
+forward the choice to =counsel-find-file= instead of opening a =dired=
+buffer.  See #813.
+*** =counsel-find-file=
+**** Add binding to jump to a bookmarked directory without quit
+Press ~M-o b~ to set the current directory to one of the virtual
+buffers' directories. You continue to select a file from that directory.
+
+See #531.
+**** Add =counsel-find-file-root=
+Press ~M-o r~ to find the current file as root.
+See #948.
+*** =counsel-git-grep=
+**** Support custom per-project commands
+The idea is to grep several Git repositories at once. For example, my
+Emacs config is a Git repository with many Git submodule repositories
+inside.
+
+When used with ~C-u~, and inside =counsel-git-grep-projects-alist=, use
+the corresponding command instead.  Additionally,
+=counsel-git-grep-proj-function= is used.
+
+For a possible implementation of the custom git-grep command, see:
+https://github.com/abo-abo/oremacs/commit/c7effdb94749dc600b1204ea7a9db319ebdb0f00
+
+See #616.
+**** Reveal text hidden in outlines
+**** Works with "Git for Windows" and native Emacs build
+**** Fix for files with spaces in the name
+See #700.
+**** Fix ~g~ (=counsel-git-grep-occur=)
+Things go wrong when `ivy-text' is changed from the original value.
+Extract =ivy-text= from the buffer name.
+
+Quote the directory name. See #811.
+**** Update quoting
+See #876.
+**** =counsel-git-grep-cmd-default=
+The initial value for =counsel-git-grep-cmd=.
+*** =counsel-git-log=
+**** Add =counsel-git-log-cmd=
+Allows to customize the command, see #652.
+*** =counsel-linux-app=
+**** =counsel-linux-apps-directories=
+Customize the search path.
+*** =counsel-load-library=
+**** Allow to find library with an action
+See #873.
+*** =counsel-mode=
 **** Bind =counsel-info-lookup-symbol=
 Substitutes =info-lookup-symbol=, see #493.
-*** =ivy-add-actions=
+**** Bind ~C-r~ for =eval-expression= and =shell-command=
+Press ~C-r~ while inside the minibuffer during =eval-expression= or
+=shell-command= to get completion for history.
+*** =counsel-pt=
+Add =initial-input= arg. See #757.
+*** =counsel-unicode-char=
+**** Add leading zeros to the display
+See #662.
+**** Support universal argument
+See #868.
+*** =counsel-yank-pop=
+**** Add =counsel-yank-pop-separator=
+Allows to customize the separator.
+See #660.
+*** =ivy=
+**** completion at point
+- =ivy-display-functions-alist= ::
+    New defcustom, which decides how to display the candidates.
+=ivy-completion-in-region= will use completion at point by default.
+
+Related: #707, #712, #788.
+**** =ivy-action-wrap=
+Set this to have =ivy-next-action= and =ivy-prev-action= wrap around.
+**** =ivy-add-actions=
 This is a convenience extension to the existing =ivy-set-actions=.
 See #470.
-*** =ivy-sort-file-function-using-ido=
+**** =ivy-case-fold-search= additional value ='always=
+If the value of ivy-case-fold-search is set to 'always, the search is
+always case-insensive, regardless of the input.
+See #916.
+**** =ivy-completion-in-region-action=
+Add support for =multiple-cursors=, see #547.
+**** =ivy-highlight-functions-alist=
+Customize the highlighters. See #691, #654, #827.
+**** =ivy-magic-tilde=
+New defcustom. Decide if =~= or =~/= should cd home.
+
+See #687, #679.
+**** =ivy-set-prompt=
+Allow to set the prompt using the =:caller= as key.
+**** =ivy-set-prompt-text-properties-function=
+An advanced override of the prompt string.
+**** =ivy-sort-file-function-using-ido=
 Extends the options for sorting file names. See #498.
-*** Make key binding for other window action consistent
+*** =ivy-completing-read=
+**** Set =:caller= to =this-command=
+Improves sorting customization. See #899.
+**** Don't =:require-match= for null
+See #909.
+**** =ivy-completing-read-handlers-alist=
+New defcustom. See #892.
+*** =ivy-minibuffer-map=
+**** Alternative action list ~M-o~ using Hydra
+Not hiding the candidates and using a single line for actions results
+in a more distraction-free experience.
+
+Use this code to turn it on:
+#+begin_src elisp
+(require 'ivy-hydra)
+#+end_src
+*** =ivy-occur-mode=
+**** ~RET~ now switches to candidate window
+**** =read-only-mode= is enabled
+See #720.
+**** Set =view-read-only= locally
+See #789.
+**** Run =wgrep-setup=
+See #904.
+*** =ivy-read=
+**** Make key binding for other window action consistent
 By default, ~M-o j~ will select the file or buffer in other window, for
 both =ivy-switch-buffer= and =counsel-find-file=.
-*** =counsel-git-grep-cmd-default=
-The initial value for =counsel-git-grep-cmd=.
-*** =ivy-action-wrap=
-Set this to have =ivy-next-action= and =ivy-prev-action= wrap around.
-*** =ivy-set-prompt-text-properties-function=
-An advanced override of the prompt string.
-*** =ivy-completion-in-region-action=
-Add support for =multiple-cursors=, see #547.
-*** =ivy-read=
 **** Facilitate sorting of cons cells
 See #554.
 #+begin_src elisp
@@ -2204,8 +2321,6 @@ numeric prefix selects the index to print in a message-box
                            (t
                             (elt x (prefix-numeric-value ivy-current-prefix-arg)))))))
 #+end_src
-
-
 **** Breaking change for alist type collection actions
 The action will be called with collection's =ITEM=, instead of =(cdr
 ITEM)= like before. This allows to simplify the logic of complex action
@@ -2230,7 +2345,24 @@ This allows for a lot of simplification, e.g. use =insert= instead of
 =(lambda (x) (with-ivy-window (insert x)))=.
 
 See #639.
+*** =ivy-switch-buffer=
+**** Add =ivy-sort-function-buffer=
+Puts e.g. the =*scratch*= buffer ahead of the =misc= buffer if the input
+is "sc", since it's almost like a prefix match.
 
+See #595.
+**** Sort virtual buffers after open buffers
+See #706, #743.
+**** =ivy-switch-buffer-faces-alist=
+Allow to customize faces in =ivy-switch-buffer= by the mode of each buffer.
+
+Example:
+#+begin_src elisp
+(setq ivy-switch-buffer-faces-alist
+      '((emacs-lisp-mode . swiper-match-face-1)
+        (dired-mode . ivy-subdir)
+        (org-mode . org-level-4)))
+#+end_src
 *** =swiper=
 **** Add option for swiper line number to be searchable
 See =swiper-include-line-number-in-search= and #562.
@@ -2248,41 +2380,14 @@ See #887
 See #888
 **** Set =evil-ex-search-direction=
 See #947
-*** =ivy-set-prompt=
-Allow to set the prompt using the =:caller= as key.
-*** =ivy-switch-buffer-faces-alist=
-Allow to customize faces in =ivy-switch-buffer= by the mode of each buffer.
+**** =swiper-goto-start-of-match=
+New defcustom. When non-nil, swiper default action will go to the
+beginning of the match instead of on its end. This behavior is
+inspired by vim's and evil's way of searching.
 
-Example:
-#+begin_src elisp
-(setq ivy-switch-buffer-faces-alist
-      '((emacs-lisp-mode . swiper-match-face-1)
-        (dired-mode . ivy-subdir)
-        (org-mode . org-level-4)))
-#+end_src
-*** =counsel-find-file=
-**** Add binding to jump to a bookmarked directory without quit
-Press ~M-o b~ to set the current directory to one of the virtual
-buffers' directories. You continue to select a file from that directory.
-
-See #531.
-*** =counsel-ag=
-**** Extend more
-See #576.
-**** Add =counsel-git-cmd=
-See #590.
-**** Prompt for extra args when using prefix arg
-See #774.
-**** Support limiting in files
-See #820, #822, #823.
-*** =ivy-switch-buffer=
-**** Add =ivy-sort-function-buffer=
-Puts e.g. the =*scratch*= buffer ahead of the =misc= buffer if the input
-is "sc", since it's almost like a prefix match.
-
-See #595.
-**** Sort virtual buffers after open buffers
-See #706, #743.
+See #944, #942.
+**** =swiper-avy= works with more regexp builders
+See #932.
 *** =swiper-all=
 **** Is now async
 This means extremely fast startup time.
@@ -2297,144 +2402,83 @@ See #620.
 **** Press ~M-q~ for query-replace
 See #623.
 **** Ignore TAGS buffers
-See #787
+See #787.
 **** Consider magit stash buffers
-See #819
+See #819.
 **** Fix =case-fold-search=
-See #880
+See #880.
 
-*** =counsel-git-grep=
-**** Support custom per-project commands
-The idea is to grep several Git repositories at once. For example, my
-Emacs config is a Git repository with many Git submodule repositories
-inside.
-
-When used with ~C-u~, and inside =counsel-git-grep-projects-alist=, use
-the corresponding command instead.  Additionally,
-=counsel-git-grep-proj-function= is used.
-
-For a possible implementation of the custom git-grep command, see:
-https://github.com/abo-abo/oremacs/commit/c7effdb94749dc600b1204ea7a9db319ebdb0f00
-
-See #616.
-**** Reveal text hidden in outlines
-**** Works with "Git for Windows" and native Emacs build
-**** Fix for files with spaces in the name
-See #700.
-**** Fix ~g~ (=counsel-git-grep-occur=)
-Things go wrong when `ivy-text' is changed from the original value.
-Extract =ivy-text= from the buffer name.
-
-Quote the directory name. See #811.
-**** Update quoting
-See #876.
-
-*** =ivy-occur-mode=
-**** ~RET~ now switches to candidate window
-**** =read-only-mode= is enabled
-See #720
-**** Set =view-read-only= locally
-See #789
-**** Run =wgrep-setup=
-See #904
-*** =counsel-git-log=
-**** Add =counsel-git-log-cmd=
-Allows to customize the command, see #652.
-*** =counsel-yank-pop=
-**** Add =counsel-yank-pop-separator=
-Allows to customize the separator.
-See #660.
-*** =counsel-unicode-char=
-**** Add leading zeros to the display
-See #662.
-**** Support universal argument
-See #868
-*** =ivy-flip=
-When non-nil, insert the candidates into =LV= window, instead of the
-minibuffer. While this is an experimental feature, it shows off the
-flexibility of Ivy's display pipeline. While the input is quite firmly
-restricted to the minibuffer, the display does not have to be.  Which
-means it can be moved no another window, perhaps even a popup overlay.
-
-Maybe at some point in the future Ivy will support the style of popups
-that environments like Eclipse or KDevelop offer, or at least the
-likes of =auto-complete-mode= and =company-mode= in Emacs.
-*** =counsel-mode=
-Press ~C-r~ while inside the minibuffer during =eval-expression= or
-=shell-command= to get completion for history.
-*** completion at point
-- =ivy-display-functions-alist= ::
-    New defcustom, which decides how to display the candidates.
-=ivy-completion-in-region= will use completion at point by default.
-
-Related: #707, #712, #788
-*** =ivy-magic-tilde=
-New defcustom. Decide if =~= or =~/= should cd home.
-
-See #687, #679.
-*** =counsel-pt=
-Add =initial-input= arg. See #757.
-*** =counsel-grep-post-action-hook=
-New hook for counsel-ag/grep/pt. See #800, #751.
-*** =counsel-bookmark-avoid-dired=
-When non-nil and a directory is selected from =counsel-bookmark=,
-forward the choice to =counsel-find-file= instead of opening a =dired=
-buffer.
-See #813.
-*** =ivy-highlight-functions-alist=
-Customize the highlighters. See #691, #654, #827.
-*** =counsel-linux-apps-directories=
-Customize the search path for =counsel-linux-app=.
-*** =counsel-load-library=
-**** Allow to find library with an action
-See #873.
-*** =ivy-completing-read-handlers-alist=
-New defcustom. See #892.
-*** =ivy-completing-read=
-**** Set =:caller= to =this-command=
-Improves sorting customization. See #899.
-**** Don't =:require-match= for null
-See #909.
-*** Alternative action list ~M-o~ using Hydra
-Not hiding the candidates and using a single line for actions results
-in a more distraction-free experience.
-
-Use this code to turn it on:
-#+begin_src elisp
-(require 'ivy-hydra)
-#+end_src
-*** =ivy-case-fold-search=
-**** Add an additional value ='always=
-If the value of ivy-case-fold-search is set to 'always, the search is
-always case-insensive, regardless of the input.
-
-See #916.
-*** =swiper-avy=
-**** Work with more regexp builders
-See #932.
-*** =swiper-goto-start-of-match=
-New defcustom. When non-nil, swiper default action will go to the
-beginning of the match instead of on its end. This behavior is
-inspired by vim's and evil's way of searching.
-
-See #944, #942.
 ** New Commands
 :PROPERTIES:
 :CUSTOM_ID: new-commands
 :END:
-*** =counsel-company=
-Picks up company's candidates and inserts the result into the buffer.
-See #331, #547.
 *** =counsel-bookmark=
 Completion for =bookmark-jump=.
 
 Can delete and rename bookmarks, see #758.
-*** =counsel-set-variable=
-Completion for setting a variable to a value.
-See #544, #546, #549, #550, #556.
+*** =counsel-colors-emacs=
+See #815, #921
+*** =counsel-colors-web=
+See #815
+*** =counsel-command-history=
+See #826
+*** =counsel-company=
+Picks up company's candidates and inserts the result into the buffer.
+See #331, #547.
+*** =counsel-describe-face=
+See #585, #703.
+*** =counsel-dired-jump=
+Like, =counsel-file-jump=, but for directories.
+*** =counsel-dpkg=
+Completion for =dpkg -l=.
+*** =counsel-faces=
+See #815
+*** =counsel-file-jump=
+Jump to a file from a list of all files in the current directory, see #609, #610.
+*** =counsel-find-library=
+A helpful and unsurprising alternative to using ~C-.~ with
+=counsel-load-library=.
+See #794, #801.
 *** =counsel-hydra-heads=
 Call a head of the current/last hydra by name.
 See #696
+*** =counsel-irony=
+Inline C++ completion using Irony.
+*** =counsel-mark-ring=
+See #834
+*** =counsel-org-agenda-headlines=
+See #825
+*** =counsel-outline=
+Completion for outlines in the current buffer.
+*** =counsel-package=
+Manage packages. Allows installing, deleting, describing etc.
+See #869, #872.
+*** =counsel-recentf=
+Renamed from =ivy-recentf=, see #624.
+
+Added actions in #701:
+
+- ~j~ for =find-file-other-window=
+- ~x~ for =counsel-find-file-extern=
+
+Remove text properties, see #770.
+
+*** =counsel-rg=
+Grep for a string in the current directory using =rg=.
+Use =counsel-rg-base-command= to customize.
+See #784, #785, #795, #796.
+*** =counsel-rpm=
+Call the =rpm= shell command. See #695.
+*** =counsel-semantic=
+Completion for semantic tags.
+*** =counsel-set-variable=
+Completion for setting a variable to a value.
+See #544, #546, #549, #550, #556.
+*** =counsel-shell-command-history=
+Search through history in =shell-mode=. See #689.
+
+When =counsel-mode= is on, ~M-! C-r~ will call
+=counsel-shell-command-history=.
 *** =ivy-push-view=
 And =ivy-pop-view=.
 
@@ -2449,55 +2493,6 @@ And =ivy-pop-view=.
    more.
 
 See #584.
-*** =counsel-semantic=
-Completion for semantic tags.
-*** =counsel-describe-face=
-See #585, #703.
-*** =counsel-outline=
-Completion for outlines in the current buffer.
-*** =counsel-file-jump=
-Jump to a file from a list of all files in the current directory, see #609, #610.
-*** =counsel-dired-jump=
-Like, =counsel-file-jump=, but for directories.
-*** =counsel-dpkg=
-Completion for =dpkg -l=.
-*** =counsel-recentf=
-Renamed from =ivy-recentf=, see #624.
-
-Added actions in #701:
-
-- ~j~ for =find-file-other-window=
-- ~x~ for =counsel-find-file-extern=
-
-Remove text properties, see #770.
-
-*** =counsel-shell-command-history=
-Search through history in =shell-mode=. See #689.
-
-When =counsel-mode= is on, ~M-! C-r~ will call
-=counsel-shell-command-history=.
-*** =counsel-rpm=
-Call the =rpm= shell command. See #695.
-*** =counsel-rg=
-Grep for a string in the current directory using =rg=.
-Use =counsel-rg-base-command= to customize.
-See #784, #785, #795, #796.
-*** =counsel-find-library=
-A helpful and unsurprising alternative to using ~C-.~ with
-=counsel-load-library=.
-See #794, #801.
-*** =counsel-colors-web=
-See #815
-*** =counsel-colors-emacs=
-See #815, #921
-*** =counsel-faces=
-See #815
-*** =counsel-command-history=
-See #826
-*** =counsel-org-agenda-headlines=
-See #825
-*** =counsel-mark-ring=
-See #834
 *** =ivy-rotate-sort=
 Modify =ivy-sort-functions-alist= to allow a list of sorting functions
 to apply to a collection. The car of this list is the current
@@ -2521,9 +2516,3 @@ using =string-lessp=. ~C-c C-s~ again switches to =string-greaterp= and so
 on.
 
 See #845, #927.
-
-*** =counsel-package=
-Manage packages. Allows installing, deleting, describing etc.
-See #869, #872.
-*** =counsel-irony=
-Inline C++ completion using Irony.
