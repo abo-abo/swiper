@@ -1,10 +1,10 @@
 ;;; ivy.el --- Incremental Vertical completYon -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015-2016  Free Software Foundation, Inc.
+;; Copyright (C) 2015-2017  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.8.0
+;; Version: 0.9.0
 ;; Package-Requires: ((emacs "24.1"))
 ;; Keywords: matching
 

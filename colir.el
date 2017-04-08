@@ -1,6 +1,6 @@
 ;;; colir.el --- Color blending library -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015-2016  Free Software Foundation, Inc.
+;; Copyright (C) 2015-2017  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 
