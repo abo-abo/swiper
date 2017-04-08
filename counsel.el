@@ -429,7 +429,7 @@ Update the minibuffer with the amount of lines collected every
                  (find-library
                   (prin1-to-string sym)))
                 (t
-                 (error "Couldn't fild definition of %s"
+                 (error "Couldn't find definition of %s"
                         sym))))))))
 
 (define-obsolete-function-alias 'counsel-symbol-at-point
@@ -904,7 +904,7 @@ Describe the selected candidate."
 
 (ivy-set-actions
  'counsel-git
- '(("j" find-file-other-window "other")
+ '(("j" find-file-other-window "other window")
    ("x" counsel-find-file-extern "open externally")))
 
 ;;;###autoload
@@ -1497,7 +1497,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :caller 'counsel-recentf))
 (ivy-set-actions
  'counsel-recentf
- '(("j" find-file-other-window "other-window")
+ '(("j" find-file-other-window "other window")
    ("x" counsel-find-file-extern "open externally")))
 
 ;;** `counsel-locate'
