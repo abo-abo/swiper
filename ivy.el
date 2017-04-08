@@ -781,7 +781,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (delete-minibuffer-contents)
   (insert (setf (ivy-state-current ivy-last)
-                (if ivy--directory
+                (if (and ivy--directory
+                         (not (eq (ivy-state-history ivy-last)
+                                  'grep-files-history)))
                     (expand-file-name ivy-text ivy--directory)
                   ivy-text)))
   (setq ivy-exit 'done)
