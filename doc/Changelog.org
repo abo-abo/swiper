@@ -2114,10 +2114,11 @@ See [[https://github.com/abo-abo/swiper/issues/714][#714]].
 See [[https://github.com/abo-abo/swiper/issues/833][#833]].
 -----
 *** =ivy--filter=
-Recompute index after filter
 :PROPERTIES:
 :CUSTOM_ID: 0-9-0-fx-ivy--filter-recompute-index-after-filter
 :END:
+Recompute index after filter.
+
 See [[https://github.com/abo-abo/swiper/issues/491][#491]].
 -----
 *** =ivy--flx-sort=
