@@ -2340,8 +2340,6 @@ Don't use virtual buffers, See [[https://github.com/abo-abo/swiper/issues/705][#
 :END:
 **** Extend more
 See [[https://github.com/abo-abo/swiper/issues/576][#576]].
-**** Add =counsel-git-cmd=
-See [[https://github.com/abo-abo/swiper/issues/590][#590]].
 **** Prompt for extra args when using prefix arg
 See [[https://github.com/abo-abo/swiper/issues/774][#774]].
 **** Support limiting in files
@@ -2371,6 +2369,9 @@ See [[https://github.com/abo-abo/swiper/issues/531][#531]].
 Press ~M-o r~ to find the current file as root.
 See [[https://github.com/abo-abo/swiper/issues/948][#948]].
 -----
+*** =counsel-git=
+**** Add =counsel-git-cmd=
+See [[https://github.com/abo-abo/swiper/issues/590][#590]].
 *** =counsel-git-grep=
 :PROPERTIES:
 :CUSTOM_ID: 0-9-0-nf-counsel-git-grep
