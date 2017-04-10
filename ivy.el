@@ -587,7 +587,7 @@ selection, non-nil otherwise."
              (action-idx (cl-position-if
                           (lambda (x) (equal (car x) key))
                           (cdr actions))))
-        (cond ((string= key "")
+        (cond ((member key '("" ""))
                nil)
               ((null action-idx)
                (message "%s is not bound" key)
