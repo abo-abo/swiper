@@ -94,7 +94,8 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
                                 (ivy-done))
                              (nth 2 x)))
                      (cdr actions))
-           ("M-o" nil "back")))))))
+           ("M-o" nil "back")
+           ("C-g" nil)))))))
 
 (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
 
