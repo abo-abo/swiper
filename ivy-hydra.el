@@ -77,15 +77,25 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
         (lambda (_) (find-function 'hydra-ivy/body)))
        :exit t))
 
+(defvar ivy-dispatching-done-columns 2
+  "Number of columns to use if the hint does not fit on one line.")
+
 (defun ivy-dispatching-done-hydra ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
-  (let ((actions (ivy-state-action ivy-last)))
+  (let* ((actions (ivy-state-action ivy-last))
+         (estimated-len (+ 25 (length
+                               (mapconcat
+                                (lambda (x) (format "[%s] %s" (nth 0 x) (nth 2 x)))
+                                (cdr actions) ", "))))
+         (n-columns (if (> estimated-len (window-width))
+                        ivy-dispatching-done-columns
+                      nil)))
     (if (null (ivy--actionp actions))
         (ivy-done)
       (funcall
        (eval
-        `(defhydra ivy-read-action (:color teal)
+        `(defhydra ivy-read-action (:color teal :columns ,n-columns)
            "action"
            ,@(mapcar (lambda (x)
                        (list (nth 0 x)
