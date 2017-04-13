@@ -2302,10 +2302,6 @@ If SUBEXP is nil, the text properties are applied to the whole match."
          (let ((drive-root (match-string 0 ivy-text)))
            (when (file-exists-p drive-root)
              (ivy--cd drive-root))))
-        ((and (file-exists-p ivy-text)
-              (not (string= ivy-text "/"))
-              (file-directory-p ivy-text))
-         (ivy--cd ivy-text))
         ((and (or (> ivy--index 0)
                   (= ivy--length 1)
                   (not (string= ivy-text "/")))
@@ -2315,7 +2311,11 @@ If SUBEXP is nil, the text properties are applied to the whole match."
                  (file-directory-p (ivy-state-current ivy-last))
                  (file-exists-p (ivy-state-current ivy-last)))))
          (ivy--cd
-          (expand-file-name (ivy-state-current ivy-last) ivy--directory)))))
+          (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+        ((and (file-exists-p ivy-text)
+              (not (string= ivy-text "/"))
+              (file-directory-p ivy-text))
+         (ivy--cd ivy-text))))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
