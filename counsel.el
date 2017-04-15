@@ -390,7 +390,7 @@ Update the minibuffer with the amount of lines collected every
 
 (ivy-set-actions
  'counsel-describe-variable
- '(("i" counsel-info-lookup-symbol "info")
+ '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
 (defvar counsel-describe-symbol-history nil
@@ -466,7 +466,7 @@ Update the minibuffer with the amount of lines collected every
 ;;** `counsel-describe-function'
 (ivy-set-actions
  'counsel-describe-function
- '(("i" counsel-info-lookup-symbol "info")
+ '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
 ;;;###autoload
@@ -822,7 +822,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (ivy-set-actions
  'counsel-descbinds
  '(("d" counsel-descbinds-action-find "definition")
-   ("i" counsel-descbinds-action-info "info")))
+   ("I" counsel-descbinds-action-info "info")))
 
 (defvar counsel-descbinds-history nil
   "History for `counsel-descbinds'.")

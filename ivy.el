@@ -3290,6 +3290,11 @@ BUFFER may be a string or nil."
     ivy--rename-buffer-action
     "rename")))
 
+(ivy-set-actions
+ t
+ '(("i" (lambda (x) (insert (if (stringp x) x (car x)))) "insert")
+   ("w" (lambda (x) (kill-new (if (stringp x) x (car x)))) "copy")))
+
 (defun ivy--switch-buffer-matcher (regexp candidates)
   "Return REGEXP-matching CANDIDATES.
 Skip buffers that match `ivy-ignore-buffers'."
