@@ -2845,9 +2845,19 @@ Any desktop entries that fail to parse are recorded in `counsel-linux-apps-fault
         (call-process "gtk-launch" nil nil nil desktop-shortcut file)
       (user-error "cancelled"))))
 
+(defun counsel-linux-app-action-open-desktop (desktop-shortcut)
+  "Open DESKTOP-SHORTCUT"
+  (setq desktop-shortcut (cdr desktop-shortcut))
+  (let ((file
+         (cdr (assoc desktop-shortcut (counsel-linux-apps-list-desktop-files)))))
+    (if file
+        (find-file file)
+      (user-error "cancelled"))))
+
 (ivy-set-actions
  'counsel-linux-app
- '(("f" counsel-linux-app-action-file "run on a file")))
+ '(("f" counsel-linux-app-action-file "run on a file")
+   ("d" counsel-linux-app-action-open-desktop "open desktop file")))
 
 ;;;###autoload
 (defun counsel-linux-app ()
