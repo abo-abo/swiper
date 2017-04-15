@@ -2723,6 +2723,18 @@ And insert it into the minibuffer. Useful during
   :group 'counsel
   :type '(list directory))
 
+(defcustom counsel-linux-app-format-function 'counsel-linux-app-format-function-default
+  "Function to format linux application names the `counsel-linux-app' menu.
+The format function will be passed the application's name, comment, and command
+as arguments."
+  :group 'counsel
+  :type '(choice
+          (const :tag "Command : Name - Comment" counsel-linux-app-format-function-default)
+          (const :tag "Name - Comment (Command)" counsel-linux-app-format-function-name-first)
+          (const :tag "Name - Comment" counsel-linux-app-format-function-name-only)
+          (const :tag "Command" counsel-linux-app-format-function-command-only)
+          (function :tag "Custom")))
+
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
 
@@ -2734,6 +2746,39 @@ And insert it into the minibuffer. Useful during
 
 (defvar counsel--linux-apps-cache-timestamp nil
   "Time when we last updated the cached application list.")
+
+(defvar counsel--linux-apps-cache-format-function nil
+  "The function used to format the cached Linux application menu.")
+
+(defun counsel-linux-app-format-function-default (name comment exec)
+  "Default linux application name formatter."
+  (format "% -45s: %s%s"
+          (propertize exec 'face 'font-lock-builtin-face)
+          name
+          (if comment
+              (concat " - " comment)
+            "")))
+
+(defun counsel-linux-app-format-function-name-first (name comment exec)
+  "Format linux application names with the name (and comment) first."
+  (format "%s%s (%s)"
+          name
+          (if comment
+              (concat " - " comment)
+            "")
+          (propertize exec 'face 'font-lock-builtin-face)))
+
+(defun counsel-linux-app-format-function-name-only (name comment _exec)
+  "Format linux application names with the name (and comment) only."
+  (format "%s%s"
+          name
+          (if comment
+              (concat " - " comment)
+            "")))
+
+(defun counsel-linux-app-format-function-command-only (_name _comment exec)
+  "Display only the command (Exec field) when formatting linux application names."
+  exec)
 
 (defun counsel-linux-apps-list-desktop-files ()
   "Return an alist of (desktop-name . desktop-file) pairs for all Linux applications.
@@ -2806,19 +2851,15 @@ Any desktop entries that fail to parse are recorded in `counsel-linux-apps-fault
                     (throw 'break nil))))
 
               (push
-               (cons (format "% -45s: %s%s"
-                             (propertize exec 'face 'font-lock-builtin-face)
-                             name
-                             (if comment
-                                 (concat " - " comment)
-                               ""))
-                     id)
+               (cons (funcall counsel-linux-app-format-function name comment exec) id)
                result))))))))
 
 (defun counsel-linux-apps-list ()
   (let* ((new-desktop-alist (counsel-linux-apps-list-desktop-files))
          (new-files (mapcar 'cdr new-desktop-alist)))
     (unless (and
+             (eq counsel-linux-app-format-function
+                 counsel--linux-apps-cache-format-function)
              (equal new-files counsel--linux-apps-cached-files)
              (null (cl-find-if
                     (lambda (file)
@@ -2827,6 +2868,7 @@ Any desktop entries that fail to parse are recorded in `counsel-linux-apps-fault
                        (nth 5 (file-attributes file))))
                     new-files)))
       (setq counsel--linux-apps-cache (counsel-linux-apps-parse new-desktop-alist)
+            counsel--linux-apps-cache-format-function counsel-linux-app-format-function
             counsel--linux-apps-cache-timestamp (current-time)
             counsel--linux-apps-cached-files new-files)))
   counsel--linux-apps-cache)
