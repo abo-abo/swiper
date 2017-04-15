@@ -2736,7 +2736,7 @@ And insert it into the minibuffer. Useful during
   "Time when we last updated the cached application list.")
 
 (defun counsel-linux-apps-list-desktop-files ()
-  "Returns an alist of ~(desktop-name . desktop-file)~ pairs for all Linux applications.
+  "Return an alist of (desktop-name . desktop-file) pairs for all Linux applications.
 
    This function always returns it's elements in a stable order."
   (let ((hash (make-hash-table :test #'equal))
@@ -2752,10 +2752,9 @@ And insert it into the minibuffer. Useful during
     result))
 
 (defun counsel-linux-apps-parse (desktop-entries-alist)
-  "Parse the given alist of desktop entries (~(id . file-name)~).
+  "Parse the given alist of desktop entries ((id . file-name)).
 
-   Any desktop entries that fail to parse are recorded in ~counsel-linux-apps-faulty~."
-
+Any desktop entries that fail to parse are recorded in `counsel-linux-apps-faulty'."
   (let (result)
     (setq counsel-linux-apps-faulty nil)
     (dolist (entry desktop-entries-alist result)
@@ -2825,7 +2824,7 @@ And insert it into the minibuffer. Useful during
                     (lambda (file)
                       (time-less-p
                        counsel--linux-apps-cache-timestamp
-                       (file-attribute-modification-time (file-attributes file))))
+                       (nth 5 (file-attributes file))))
                     new-files)))
       (setq counsel--linux-apps-cache (counsel-linux-apps-parse new-desktop-alist)
             counsel--linux-apps-cache-timestamp (current-time)
@@ -2858,6 +2857,7 @@ And insert it into the minibuffer. Useful during
             :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
 
+;;** `counsel-company'
 (defvar company-candidates)
 (defvar company-point)
 (defvar company-common)
