@@ -77,6 +77,10 @@ Then attach the overlay the character before point."
 
 (declare-function org-current-level "org")
 (defvar org-indent-indentation-per-level)
+(defvar ivy-last)
+(defvar ivy-text)
+(defvar ivy-completion-beg)
+(declare-function ivy--get-window "ivy")
 
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
