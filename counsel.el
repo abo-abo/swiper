@@ -3458,6 +3458,17 @@ replacements. "
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
+;;;###autoload
+(defun counsel-bookmarks ()
+  "Show a list of bookmarks.
+Navigates to the selected candidate."
+  (interactive)
+  (ivy-read "Bookmarks: " (bookmark-all-names)
+            :action (lambda (bookmark)
+                      (with-ivy-window
+                        (let ((loc (bookmark-location bookmark)))
+                          (find-file loc))))))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
