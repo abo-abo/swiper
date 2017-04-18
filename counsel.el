@@ -525,11 +525,12 @@ X is an item of a radio- or choice-type defcustom."
   (let (y)
     (when (and (listp x)
                (consp (setq y (last x))))
-      (setq x (car y))
-      (cons (prin1-to-string x)
-            (if (symbolp x)
-                (list 'quote x)
-              x)))))
+      (unless (equal y '(function))
+        (setq x (car y))
+        (cons (prin1-to-string x)
+              (if (symbolp x)
+                  (list 'quote x)
+                x))))))
 
 ;;;###autoload
 (defun counsel-set-variable ()
