@@ -2272,7 +2272,8 @@ Additional Actions:
 (defun counsel-package-action (pkg-cons)
   (let ((pkg (cadr pkg-cons)))
     (if (package-installed-p pkg)
-        (package-delete pkg)
+        (package-delete
+         (cadr (assoc pkg package-alist)))
       (package-install pkg))))
 
 (defun counsel-package-action-describe (pkg-cons)
