@@ -2409,8 +2409,7 @@ Additional Actions:
          (mapcar #'ivy-cleanup-string
                  (cl-remove-if
                   (lambda (s)
-                    (or (< (length s) 3)
-                        (string-match "\\`[\n[:blank:]]+\\'" s)))
+                    (string-match "\\`[\n[:blank:]]+\\'" s))
                   (delete-dups kill-ring)))))
     (let ((ivy-format-function #'counsel--yank-pop-format-function)
           (ivy-height 5))
