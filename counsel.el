@@ -3383,7 +3383,7 @@ candidate."
   (interactive)
   (irony-completion-candidates-async 'counsel-irony-callback))
 
-(defun counsel-irony-callback ()
+(defun counsel-irony-callback (&optional _cands)
   (interactive)
   (let ((coll (irony-completion-at-point)))
     (when coll
