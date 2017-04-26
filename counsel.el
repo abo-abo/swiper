@@ -3399,7 +3399,7 @@ candidate."
    (condition-case nil
        (concat
         x " "
-        (irony-completion--at-point-annotate x))
+        (irony-completion--capf-annotate x))
      (error x))
    x))
 
@@ -3407,7 +3407,7 @@ candidate."
 
 (declare-function irony-completion-candidates-async "ext:irony-completion")
 (declare-function irony-completion-at-point "ext:irony-completion")
-(declare-function irony-completion--at-point-annotate "ext:irony-completion")
+(declare-function irony-completion--capf-annotate "ext:irony-completion")
 
 ;;** `counsel-mode'
 (defvar counsel-mode-map
