@@ -2232,6 +2232,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 ;;** `counsel-package'
 (defvar package--initialized)
+(defvar package-alist)
 (defvar package-archive-contents)
 (declare-function package-installed-p "package")
 (declare-function package-delete "package")
