@@ -456,7 +456,10 @@ Update the minibuffer with the amount of lines collected every
 
 ;;;###autoload
 (defun counsel-describe-variable ()
-  "Forward to `describe-variable'."
+  "Forward to `describe-variable'.
+
+Variables declared using `defcustom' are highlighted according to
+`font-lock-variable-name-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read
