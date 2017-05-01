@@ -481,9 +481,21 @@ Variables declared using `defcustom' are highlighted according to
  '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
+(defun counsel-describe-function-transformer (function-name)
+  "Propertize FUNCTION-NAME if it's an interactive function."
+  (if (commandp (intern function-name))
+      (propertize function-name 'face 'font-lock-function-name-face)
+    function-name))
+
+(ivy-set-display-transformer
+ 'counsel-describe-function 'counsel-describe-function-transformer)
+
 ;;;###autoload
 (defun counsel-describe-function ()
-  "Forward to `describe-function'."
+  "Forward to `describe-function'.
+
+Interactive functions \(i.e., commands) are highlighted according
+to `font-lock-function-name-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Describe function: "
