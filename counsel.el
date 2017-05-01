@@ -445,6 +445,15 @@ Update the minibuffer with the amount of lines collected every
          (push (symbol-name vv) cands))))
     cands))
 
+(defun counsel-describe-variable-transformer (var)
+  "Propertize VAR if it's a custom variable."
+  (if (custom-variable-p (intern var))
+      (propertize var 'face 'font-lock-variable-name-face)
+    var))
+
+(ivy-set-display-transformer
+ 'counsel-describe-variable 'counsel-describe-variable-transformer)
+
 ;;;###autoload
 (defun counsel-describe-variable ()
   "Forward to `describe-variable'."
