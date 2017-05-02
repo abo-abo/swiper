@@ -117,6 +117,10 @@
   '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for displaying keys in `ivy-read-action'.")
 
+(defface ivy-highlight-face
+  '((t :inherit highlight))
+  "Face used by Ivy to highlight certain candidates.")
+
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10

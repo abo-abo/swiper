@@ -448,7 +448,7 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-describe-variable-transformer (var)
   "Propertize VAR if it's a custom variable."
   (if (custom-variable-p (intern var))
-      (propertize var 'face 'font-lock-variable-name-face)
+      (propertize var 'face 'ivy-highlight-face)
     var))
 
 (ivy-set-display-transformer
@@ -459,7 +459,7 @@ Update the minibuffer with the amount of lines collected every
   "Forward to `describe-variable'.
 
 Variables declared using `defcustom' are highlighted according to
-`font-lock-variable-name-face'."
+`ivy-highlight-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read
@@ -484,7 +484,7 @@ Variables declared using `defcustom' are highlighted according to
 (defun counsel-describe-function-transformer (function-name)
   "Propertize FUNCTION-NAME if it's an interactive function."
   (if (commandp (intern function-name))
-      (propertize function-name 'face 'font-lock-function-name-face)
+      (propertize function-name 'face 'ivy-highlight-face)
     function-name))
 
 (ivy-set-display-transformer
@@ -495,7 +495,7 @@ Variables declared using `defcustom' are highlighted according to
   "Forward to `describe-function'.
 
 Interactive functions \(i.e., commands) are highlighted according
-to `font-lock-function-name-face'."
+to `ivy-highlight-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Describe function: "
