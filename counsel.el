@@ -3485,11 +3485,27 @@ MODE is a symbol."
   "Switch to a shell buffer, or create one."
   (interactive)
   (require 'pcase)
-  (switch-to-buffer
+  (counsel-switch-to-buffer-or-window
    (pcase (counsel-list-buffers-with-mode 'shell-mode)
      (`() (progn (shell) "*shell*"))
      (`(,buf) buf)
      ((and `(,_ . ,_) bufs) (ivy-read "Switch to shell buffer: " bufs)))))
+
+(defun counsel-switch-to-buffer-or-window (buffer-or-name)
+  "Display buffer BUFFER-OR-NAME and select its window.
+
+This behaves as `switch-to-buffer', except when the buffer is
+already visible; in that case, select the window corresponding to
+the buffer."
+  (let ((buffer (window-normalize-buffer-to-switch-to buffer-or-name)))
+    (let (window-of-buffer-visible)
+      (catch 'found
+        (walk-windows (lambda (window)
+                        (and (equal (window-buffer window) buffer)
+                             (throw 'found (setq window-of-buffer-visible window))))))
+      (if window-of-buffer-visible
+          (select-window window-of-buffer-visible)
+        (switch-to-buffer buffer)))))
 
 ;;;###autoload
 (define-minor-mode counsel-mode
