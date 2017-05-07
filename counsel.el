@@ -3469,6 +3469,26 @@ active."
   :group 'ivy
   :type 'boolean)
 
+(defun counsel-list-buffers-with-mode (mode)
+  "List all buffers with major-mode MODE.
+
+MODE is a symbol."
+  (let (bufs)
+    (dolist (buf (buffer-list) bufs)
+      (and (equal (with-current-buffer buf major-mode) mode)
+           (push (buffer-name buf) bufs)))))
+
+;;;###autoload
+(defun counsel-switch-to-shell-buffer ()
+  "Switch to a shell buffer, or create one."
+  (interactive)
+  (require 'pcase)
+  (switch-to-buffer
+   (pcase (counsel-list-buffers-with-mode 'shell-mode)
+     (`() (progn (shell) "*shell*"))
+     (`(,buf) buf)
+     ((and `(,_ . ,_) bufs) (ivy-read "Switch to shell buffer: " bufs)))))
+
 ;;;###autoload
 (define-minor-mode counsel-mode
   "Toggle Counsel mode on or off.
