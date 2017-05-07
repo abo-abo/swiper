@@ -3473,10 +3473,12 @@ active."
   "List all buffers with major-mode MODE.
 
 MODE is a symbol."
-  (let (bufs)
-    (dolist (buf (buffer-list) bufs)
-      (and (equal (with-current-buffer buf major-mode) mode)
-           (push (buffer-name buf) bufs)))))
+  (save-current-buffer
+    (let (bufs)
+      (dolist (buf (buffer-list) bufs)
+        (set-buffer buf)
+        (and (equal major-mode mode)
+             (push (buffer-name buf) bufs))))))
 
 ;;;###autoload
 (defun counsel-switch-to-shell-buffer ()
