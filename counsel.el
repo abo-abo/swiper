@@ -1353,8 +1353,8 @@ The current buffer is assumed to be in a subdirectory of GIT-ROOT-DIR."
   (interactive)
   (let ((git-root-dir (string-trim-right (shell-command-to-string "git rev-parse --show-toplevel"))))
     (ivy-read "Select worktree: "
-              (cl-remove-if (lambda (tree) (string= git-root-dir (counsel-git-worktree-parse-root tree)))
-                            (counsel-git-worktree-list))
+              (cl-delete git-root-dir (counsel-git-worktree-list)
+                         :key #'counsel-git-worktree-parse-root :test #'string=)
               :action (lambda (tree) (counsel-git-change-worktree-action git-root-dir tree))
               :caller 'counsel-git-change-worktree)))
 
