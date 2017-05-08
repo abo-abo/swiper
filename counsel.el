@@ -1338,8 +1338,7 @@ The current buffer is assumed to be in a subdirectory of GIT-ROOT-DIR."
 
 (defun counsel-git-worktree-list ()
   "List worktrees in the git repository containing the current buffer."
-  (let (worktrees cmd-output)
-    (setq cmd-output (shell-command-to-string "git worktree list"))
+  (let ((cmd-output (shell-command-to-string "git worktree list")))
     (and (string-match "fatal: Not a git repository" cmd-output)
          (error "Not in a git repository!"))
     (delete "" (split-string (string-trim-right cmd-output) "\n"))))
