@@ -3338,6 +3338,9 @@ Skip buffers that match `ivy-ignore-buffers'."
          (new-qualifier `((name . ,cand-regexp))))
     (ibuffer nil (buffer-name) new-qualifier)))
 
+(defun ivy--preview-current-buffer ()
+  (with-ivy-window (switch-to-buffer ivy--current)))
+
 ;;;###autoload
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
@@ -3346,6 +3349,7 @@ Skip buffers that match `ivy-ignore-buffers'."
     (ivy-read "Switch to buffer: " 'internal-complete-buffer
               :matcher #'ivy--switch-buffer-matcher
               :preselect (buffer-name (other-buffer (current-buffer)))
+              :update-fn #'ivy--preview-current-buffer
               :action #'ivy--switch-buffer-action
               :keymap ivy-switch-buffer-map
               :caller 'ivy-switch-buffer)))
