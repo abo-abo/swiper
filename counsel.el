@@ -448,7 +448,7 @@ Update the minibuffer with the amount of lines collected every
 (defun counsel-describe-variable-transformer (var)
   "Propertize VAR if it's a custom variable."
   (if (custom-variable-p (intern var))
-      (propertize var 'face 'ivy-highlight-face)
+      (ivy-append-face var 'ivy-highlight-face)
     var))
 
 (ivy-set-display-transformer
@@ -484,7 +484,7 @@ Variables declared using `defcustom' are highlighted according to
 (defun counsel-describe-function-transformer (function-name)
   "Propertize FUNCTION-NAME if it's an interactive function."
   (if (commandp (intern function-name))
-      (propertize function-name 'face 'ivy-highlight-face)
+      (ivy-append-face function-name 'ivy-highlight-face)
     function-name))
 
 (ivy-set-display-transformer

@@ -3323,12 +3323,18 @@ Skip buffers that match `ivy-ignore-buffers'."
 (ivy-set-display-transformer
  'internal-complete-buffer 'ivy-switch-buffer-transformer)
 
+(defun ivy-append-face (str face)
+  (let ((new (copy-sequence str)))
+    (font-lock-append-text-property
+     0 (length new) 'face face new)
+    new))
+
 (defun ivy-switch-buffer-transformer (str)
   (let ((b (get-buffer str)))
     (if (and b
              (buffer-file-name b)
              (buffer-modified-p b))
-        (propertize str 'face 'ivy-modified-buffer)
+        (ivy-append-face str 'ivy-modified-buffer)
       str)))
 
 (defun ivy-switch-buffer-occur ()
