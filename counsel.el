@@ -2018,21 +2018,23 @@ the command."
 (defun counsel-grep-or-swiper ()
   "Call `swiper' for small buffers and `counsel-grep' for large ones."
   (interactive)
-  (if (and (buffer-file-name)
-           (not (buffer-narrowed-p))
-           (not (ignore-errors
-                  (file-remote-p (buffer-file-name))))
-           (not (string-match
-                 counsel-compressed-file-regex
-                 (buffer-file-name)))
-           (> (buffer-size)
-              (if (eq major-mode 'org-mode)
-                  (/ counsel-grep-swiper-limit 4)
-                counsel-grep-swiper-limit)))
-      (progn
-        (save-buffer)
-        (counsel-grep))
-    (swiper--ivy (swiper--candidates))))
+  (let ((fname (buffer-file-name)))
+    (if (and fname
+             (not (buffer-narrowed-p))
+             (not (ignore-errors
+                    (file-remote-p fname)))
+             (not (string-match
+                   counsel-compressed-file-regex
+                   fname))
+             (> (buffer-size)
+                (if (eq major-mode 'org-mode)
+                    (/ counsel-grep-swiper-limit 4)
+                  counsel-grep-swiper-limit)))
+        (progn
+          (when (file-writable-p fname)
+            (save-buffer))
+          (counsel-grep))
+      (swiper--ivy (swiper--candidates)))))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
