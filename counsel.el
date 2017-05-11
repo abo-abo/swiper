@@ -1974,8 +1974,9 @@ the command."
 (counsel-set-async-exit-code 'counsel-grep 1 "")
 
 ;;;###autoload
-(defun counsel-grep ()
-  "Grep for a string in the current file."
+(defun counsel-grep (&optional initial-input)
+  "Grep for a string in the current file.
+INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (setq counsel-grep-last-line nil)
   (setq counsel--git-grep-dir (buffer-file-name))
@@ -1984,6 +1985,7 @@ the command."
     (unwind-protect
          (setq res (ivy-read "grep: " 'counsel-grep-function
                              :dynamic-collection t
+                             :initial-input initial-input
                              :preselect (format "%d:%s"
                                                 (line-number-at-pos)
                                                 (regexp-quote
@@ -2015,8 +2017,10 @@ the command."
   "Store the regex for compressed file names.")
 
 ;;;###autoload
-(defun counsel-grep-or-swiper ()
-  "Call `swiper' for small buffers and `counsel-grep' for large ones."
+(defun counsel-grep-or-swiper (&optional initial-input)
+  "Call `swiper' for small buffers and `counsel-grep' for large ones.
+INITIAL-INPUT can be given as the initial minibuffer input for the selected
+command."
   (interactive)
   (if (and (buffer-file-name)
            (not (buffer-narrowed-p))
@@ -2031,8 +2035,8 @@ the command."
                 counsel-grep-swiper-limit)))
       (progn
         (save-buffer)
-        (counsel-grep))
-    (swiper--ivy (swiper--candidates))))
+        (counsel-grep initial-input))
+    (swiper--ivy (swiper--candidates) initial-input)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
