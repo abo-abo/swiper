@@ -2147,7 +2147,8 @@ depending on the number of candidates."
   (when (display-graphic-p)
     (setq truncate-lines t))
   (setq-local max-mini-window-height ivy-height)
-  (when ivy-fixed-height-minibuffer
+  (when (and ivy-fixed-height-minibuffer
+             (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
     (set-window-text-height (selected-window)
                             (+ ivy-height
                                (if ivy-add-newline-after-prompt
