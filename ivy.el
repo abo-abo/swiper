@@ -2293,6 +2293,19 @@ If SUBEXP is nil, the text properties are applied to the whole match."
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
 
+(defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
+  "Action to take when a slash is added to the end of a non existing directory.
+Possible choices are 'ivy-magic-slash-non-match-use-selected,
+'ivy-magic-slash-non-match-create, or nil"
+  :type '(choice
+          (const :tag "Use currently selected directory" ivy-magic-slash-non-match-use-selected)
+          (const :tag "Create and use new directory" ivy-magic-slash-non-match-create)
+          (const :tag "Do nothing" nil)))
+
+(defun ivy--create-and-cd (dir)
+  (make-directory dir)
+  (ivy--cd dir))
+
 (defun ivy--magic-file-slash ()
   (cond ((member ivy-text ivy--all-candidates)
          (ivy--cd (expand-file-name ivy-text ivy--directory)))
@@ -2315,12 +2328,22 @@ If SUBEXP is nil, the text properties are applied to the whole match."
                  (not (equal (ivy-state-current ivy-last) ""))
                  (file-directory-p (ivy-state-current ivy-last))
                  (file-exists-p (ivy-state-current ivy-last)))))
-         (ivy--cd
-          (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+         (when (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected)
+           (ivy--cd
+            (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+         (when
+             (and (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+                  (not (string= ivy-text "/")))
+           (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))
         ((and (file-exists-p ivy-text)
               (not (string= ivy-text "/"))
               (file-directory-p ivy-text))
-         (ivy--cd ivy-text))))
+         (ivy--cd ivy-text))
+        (t
+         (when (and
+                (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+                (not (string= ivy-text "/")))
+           (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
