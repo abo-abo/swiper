@@ -3482,12 +3482,16 @@ MODE is a symbol."
 
 ;;;###autoload
 (defun counsel-switch-to-shell-buffer ()
-  "Switch to a shell buffer, or create one."
+  "Switch to a shell buffer, or create one.
+
+List all the buffers in `shell-mode'. Is there is none, create
+one; if there is exactly one, switch to it; otherwise, select one
+of them and switch to it."
   (interactive)
   (require 'pcase)
   (counsel-switch-to-buffer-or-window
    (pcase (counsel-list-buffers-with-mode 'shell-mode)
-     (`() (progn (shell) "*shell*"))
+     (`() (shell))
      (`(,buf) buf)
      ((and `(,_ . ,_) bufs) (ivy-read "Switch to shell buffer: " bufs)))))
 
