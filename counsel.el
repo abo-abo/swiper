@@ -3481,17 +3481,19 @@ MODE is a symbol."
              (push (buffer-name buf) bufs))))))
 
 ;;;###autoload
-(defun counsel-switch-to-shell-buffer ()
+(defun counsel-switch-to-shell-buffer (force-create)
   "Switch to a shell buffer, or create one.
 
-List all the buffers in `shell-mode'. Is there is none, create
-one; if there is exactly one, switch to it; otherwise, select one
-of them and switch to it."
-  (interactive)
+List all the buffers in `shell-mode'. Is there is none or
+if FORCE-CREATE is non nil, create one; if there is exactly one,
+switch to it; otherwise, select one of them and switch to it."
+  (interactive "P")
   (require 'pcase)
   (counsel-switch-to-buffer-or-window
    (pcase (counsel-list-buffers-with-mode 'shell-mode)
-     (`() (shell))
+     ((or (guard force-create) `())
+      (shell (read-string "Buffer name: "
+                          (generate-new-buffer-name "*shell*"))))
      (`(,buf) buf)
      ((and `(,_ . ,_) bufs) (ivy-read "Switch to shell buffer: " bufs)))))
 
