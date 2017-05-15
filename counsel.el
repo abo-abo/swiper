@@ -366,11 +366,12 @@ Update the minibuffer with the amount of lines collected every
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
     (ivy-read "Unicode name: "
-              (mapcar (lambda (x)
-                        (propertize
-                         (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
-                         'result (cdr x)))
-                      (ucs-names))
+              (nreverse
+               (mapcar (lambda (x)
+                         (propertize
+                          (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
+                          'result (cdr x)))
+                       (ucs-names)))
               :action (lambda (char)
                         (with-ivy-window
                           (delete-region ivy-completion-beg ivy-completion-end)
