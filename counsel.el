@@ -2236,6 +2236,169 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
+(defcustom counsel-org-goto-display-style 'path
+  "The style for displaying headlines in `counsel-org-goto' functions.
+
+If headline, the title and the leading stars are displayed.
+
+If whole-line, the whole headline is displayed.  This includes todo keywords
+as well as tags.
+
+If path, the path hierarchy is displayed.  For each entry the title is shown.
+`counsel-org-goto-separator' is used as separator between entries.
+
+If title or any other value, only the title of the headline is displayed."
+  :type '(choice
+          (const :tag "Title only" title)
+          (const :tag "Headline" headline)
+          (const :tag "Whole headline" whole-line)
+          (const :tag "Path" path))
+  :group 'ivy)
+
+(defcustom counsel-org-goto-separator "/"
+  "Character(s) to separate path entries in `counsel-org-goto' functions.
+This variable has no effect unless `counsel-org-goto-display-style' is
+set to path."
+  :type 'string
+  :group 'ivy)
+
+(defcustom counsel-org-goto-face-style nil
+  "The face used for displaying headlines in `counsel-org-goto' functions.
+
+If org, the default faces from `org-mode' are applied, i.e. org-level-1
+through org-level-8.  Note that no cycling is in effect, therefore headlines
+on levels 9 and higher will not be styled.
+
+If verbatim, the face used in the buffer is applied.  This is usually the
+same as org except that it depends on how much of the buffer has been
+completely loaded.  If your buffer exceeds a certain size, headlines are
+styled lazily depending on which parts of the tree are visible.  Headlines
+which are not styled yet in the buffer will appear unstyled in the
+minibuffer as well.
+Verbatim is useful if `counsel-org-goto-display-style' is set to whole-line
+and you want tags and todo keywords to be styled properly, otherwise you
+are probably better off using org instead.
+
+If custom, the faces defined in `counsel-org-goto-custom-faces' are applied.
+Note that no cycling is in effect, therefore if there is no face defined
+for a certain level, headlines on that level will not be styled.
+
+If nil or any other value, no face is applied to the headline."
+  :type '(choice
+          (const :tag "Same as org-mode" org)
+          (const :tag "Verbatim" verbatim)
+          (const :tag "Custom" custom))
+  :group 'ivy)
+
+(defcustom counsel-org-goto-custom-faces nil
+  "Custom faces for displaying headlines in `counsel-org-goto' functions.
+
+The n-th entry is used for headlines on level n, starting with n = 1.  If
+a headline is an a level for which there is no entry in the list, it will
+not be styled.
+
+This variable has no effect unless `counsel-org-goto-face-style' is set
+to custom."
+  :type '(repeat face)
+  :group 'ivy)
+
+(declare-function org-entry-get "org")
+(declare-function org-goto-marker-or-bmk "org")
+(declare-function outline-next-heading "outline")
+
+;;;###autoload
+(defun counsel-org-goto ()
+  "Go to a different location in the current file."
+  (interactive)
+  (let ((entries (counsel-org-goto--get-headlines)))
+    (ivy-read "Goto: "
+              entries
+              :history 'org-goto-history
+              :action 'counsel-org-goto-action
+              :caller 'counsel-org-goto)))
+
+;;;###autoload
+(defun counsel-org-goto-all ()
+  "Go to a different location in any org file."
+  (interactive)
+  (let (entries)
+    (dolist (b (buffer-list))
+      (with-current-buffer b
+        (when (derived-mode-p 'org-mode)
+          (if entries
+              (nconc entries (counsel-org-goto--get-headlines))
+            (setq entries (counsel-org-goto--get-headlines))))))
+    (ivy-read "Goto: "
+              entries
+              :history 'org-goto-history
+              :action 'counsel-org-goto-action
+              :caller 'counsel-org-goto-all)))
+
+(defun counsel-org-goto-action (x)
+  "Go to headline in candidate X."
+  (org-goto-marker-or-bmk (cdr x)))
+
+(defun counsel-org-goto--get-headlines ()
+  "Get all headlines from the current org buffer."
+  (save-excursion
+    (let (entries
+          start-pos
+          stack
+          (stack-level 0))
+      (goto-char (point-min))
+      (while (setq start-pos (outline-next-heading))
+        (let ((name (org-entry-get start-pos "ITEM"))
+              level)
+          (search-forward " ")
+          (setq level
+                (- (length (buffer-substring-no-properties start-pos (point)))
+                   1))
+          (cond ((eq counsel-org-goto-display-style 'path)
+                 ;; Update stack. The empty entry guards against incorrect
+                 ;; headline hierarchies e.g. a level 3 headline immediately
+                 ;; following a level 1 entry.
+                 (while (<= level stack-level)
+                   (pop stack)
+                   (cl-decf stack-level))
+                 (while (> level stack-level)
+                   (push "" stack)
+                   (cl-incf stack-level))
+                 (setf (car stack)
+                       (or (and counsel-org-goto-face-style
+                                (counsel-org-goto--add-face name level))
+                           name))
+                 (setq name (mapconcat
+                             #'identity
+                             (reverse stack)
+                             counsel-org-goto-separator)))
+                ((eq counsel-org-goto-display-style 'whole-line)
+                 (setq name (or (and (eq counsel-org-goto-face-style 'verbatim)
+                                     (substring (thing-at-point 'line) 0 -1))
+                                (counsel-org-goto--add-face
+                                 (buffer-substring-no-properties
+                                  start-pos
+                                  (line-end-position))
+                                 level))))
+                (t
+                 (when (eq counsel-org-goto-display-style 'headline)
+                   (setq name (concat (make-string level ?*) " " name)))
+                 (when counsel-org-goto-face-style
+                   (setq name (counsel-org-goto--add-face name level)))))
+          (push `(,name . ,(point-marker)) entries)))
+      (reverse entries))))
+
+(defun counsel-org-goto--add-face (name level)
+  "Add face to headline NAME on LEVEL.
+The face can be customized through `counsel-org-goto-face-style'."
+  (let ((face (or (and (eq counsel-org-goto-face-style 'org)
+                       (concat "org-level-" (number-to-string level)))
+                  (and (eq counsel-org-goto-face-style 'verbatim)
+                       (get-char-property (line-beginning-position) 'face))
+                  (and (eq counsel-org-goto-face-style 'custom)
+                       (nth (1- level) counsel-org-goto-custom-faces)))))
+    (or (and face (propertize name 'face face))
+        name)))
+
 ;;** `counsel-mark-ring'
 (defun counsel--pad (string length)
   "Pad string to length with spaces."
