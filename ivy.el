@@ -2295,12 +2295,15 @@ If SUBEXP is nil, the text properties are applied to the whole match."
 
 (defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
   "Action to take when a slash is added to the end of a non existing directory.
-Possible choices are 'ivy-magic-slash-non-match-use-selected,
+Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 'ivy-magic-slash-non-match-create, or nil"
   :type '(choice
-          (const :tag "Use currently selected directory" ivy-magic-slash-non-match-use-selected)
-          (const :tag "Create and use new directory" ivy-magic-slash-non-match-create)
-          (const :tag "Do nothing" nil)))
+          (const :tag "Use currently selected directory"
+                 ivy-magic-slash-non-match-cd-selected)
+          (const :tag "Create and use new directory"
+                 ivy-magic-slash-non-match-create)
+          (const :tag "Do nothing"
+                 nil)))
 
 (defun ivy--create-and-cd (dir)
   (make-directory dir)
