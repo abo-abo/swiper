@@ -1115,9 +1115,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
         (error "Not in a git repository")
       (unless proj
         (setq counsel--git-grep-count
-              (if (eq system-type 'windows-nt)
-                  0
-                (counsel--gg-count "" t))))
+              (counsel--gg-count "" t)
+              ;; (if (eq system-type 'windows-nt)
+              ;;     0
+              ;;   (counsel--gg-count "" t))
+              ))
       (ivy-read "git grep" (if proj
                                'counsel-git-grep-proj-function
                              'counsel-git-grep-function)
@@ -1746,7 +1748,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
       (let* ((args-end (string-match " -- " extra-ag-args))
              (file (if args-end
                        (substring-no-properties extra-ag-args (+ args-end 3))
-                     ""))
+                     default-directory))
              (extra-ag-args (if args-end
                                 (substring-no-properties extra-ag-args 0 args-end)
                               extra-ag-args))
@@ -1754,6 +1756,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
                              (concat extra-ag-args
                                      " -- "
                                      (shell-quote-argument regex)
+                                     " "
                                      file))))
         (if (file-remote-p default-directory)
             (split-string (shell-command-to-string ag-cmd) "\n" t)
