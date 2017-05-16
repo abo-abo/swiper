@@ -444,7 +444,7 @@ Update the minibuffer with the amount of lines collected every
        (when (or (get vv 'variable-documentation)
                  (and (boundp vv) (not (keywordp vv))))
          (push (symbol-name vv) cands))))
-    cands))
+    (delete "" cands)))
 
 (defun counsel-describe-variable-transformer (var)
   "Propertize VAR if it's a custom variable."
