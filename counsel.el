@@ -2358,7 +2358,10 @@ to custom."
           stack
           (stack-level 0))
       (goto-char (point-min))
-      (while (setq start-pos (outline-next-heading))
+      (setq start-pos (or (and (org-at-heading-p)
+                               (point))
+                          (outline-next-heading)))
+      (while start-pos
         (let ((name (org-get-heading
                      (not counsel-org-goto-display-tags)
                      (not counsel-org-goto-display-todo)))
@@ -2386,7 +2389,8 @@ to custom."
                  (when (eq counsel-org-goto-display-style 'headline)
                    (setq name (concat (make-string level ?*) " " name)))
                  (setq name (counsel-org-goto--add-face name level))))
-          (push `(,name . ,(point-marker)) entries)))
+          (push `(,name . ,(point-marker)) entries))
+        (setq start-pos (outline-next-heading)))
       (nreverse entries))))
 
 (defun counsel-org-goto--add-face (name level)
