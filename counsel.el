@@ -2408,7 +2408,7 @@ The face can be customized through `counsel-org-goto-face-style'."
             name
             'face
             (nth (1- level) counsel-org-goto-custom-faces)))
-      (substring-no-properties name)))
+      (propertize name 'face 'minibuffer-prompt)))
 
 ;;** `counsel-mark-ring'
 (defun counsel--pad (string length)
