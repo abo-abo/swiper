@@ -2389,7 +2389,7 @@ to custom."
                  (when (eq counsel-org-goto-display-style 'headline)
                    (setq name (concat (make-string level ?*) " " name)))
                  (setq name (counsel-org-goto--add-face name level))))
-          (push `(,name . ,(point-marker)) entries))
+          (push (cons name (point-marker)) entries))
         (setq start-pos (outline-next-heading)))
       (nreverse entries))))
 
