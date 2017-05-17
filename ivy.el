@@ -2310,43 +2310,44 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
   (ivy--cd dir))
 
 (defun ivy--magic-file-slash ()
-  (cond ((member ivy-text ivy--all-candidates)
-         (ivy--cd (expand-file-name ivy-text ivy--directory)))
-        ((string-match "//\\'" ivy-text)
-         (if (and default-directory
-                  (string-match "\\`[[:alpha:]]:/" default-directory))
-             (ivy--cd (match-string 0 default-directory))
-           (ivy--cd "/")))
-        ((string-match "\\`/ssh:" ivy-text)
-         (ivy--cd (file-name-directory ivy-text)))
-        ((string-match "[[:alpha:]]:/\\'" ivy-text)
-         (let ((drive-root (match-string 0 ivy-text)))
-           (when (file-exists-p drive-root)
-             (ivy--cd drive-root))))
-        ((and (or (> ivy--index 0)
-                  (= ivy--length 1)
+  (when (and (eq this-command 'self-insert-command)
+             (eolp))
+    (cond ((member ivy-text ivy--all-candidates)
+           (ivy--cd (expand-file-name ivy-text ivy--directory)))
+          ((string-match "//\\'" ivy-text)
+           (if (and default-directory
+                    (string-match "\\`[[:alpha:]]:/" default-directory))
+               (ivy--cd (match-string 0 default-directory))
+             (ivy--cd "/")))
+          ((string-match "\\`/ssh:" ivy-text)
+           (ivy--cd (file-name-directory ivy-text)))
+          ((string-match "[[:alpha:]]:/\\'" ivy-text)
+           (let ((drive-root (match-string 0 ivy-text)))
+             (when (file-exists-p drive-root)
+               (ivy--cd drive-root))))
+          ((and (file-exists-p ivy-text)
+                (not (string= ivy-text "/"))
+                (file-directory-p ivy-text))
+           (ivy--cd ivy-text))
+          ((and (or (> ivy--index 0)
+                    (= ivy--length 1)
+                    (not (string= ivy-text "/")))
+                (let ((default-directory ivy--directory))
+                  (and
+                   (not (equal (ivy-state-current ivy-last) ""))
+                   (file-directory-p (ivy-state-current ivy-last))
+                   (file-exists-p (ivy-state-current ivy-last)))))
+           (when (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected)
+             (ivy--cd
+              (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+           (when (and (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+                      (not (string= ivy-text "/")))
+             (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))
+          (t
+           (when (and
+                  (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
                   (not (string= ivy-text "/")))
-              (let ((default-directory ivy--directory))
-                (and
-                 (not (equal (ivy-state-current ivy-last) ""))
-                 (file-directory-p (ivy-state-current ivy-last))
-                 (file-exists-p (ivy-state-current ivy-last)))))
-         (when (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected)
-           (ivy--cd
-            (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
-         (when
-             (and (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-                  (not (string= ivy-text "/")))
-           (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))
-        ((and (file-exists-p ivy-text)
-              (not (string= ivy-text "/"))
-              (file-directory-p ivy-text))
-         (ivy--cd ivy-text))
-        (t
-         (when (and
-                (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-                (not (string= ivy-text "/")))
-           (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))))
+             (ivy--create-and-cd (expand-file-name ivy-text ivy--directory)))))))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
