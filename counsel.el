@@ -3626,6 +3626,39 @@ candidate."
 (declare-function irony-completion-at-point "ext:irony-completion")
 (declare-function irony-completion--capf-annotate "ext:irony-completion")
 
+;;** `counsel-apropos'
+;;;###autoload
+(defun counsel-apropos ()
+  "Show all matching symbols.
+See `apropos' for further information about what is considered
+a symbol and how to search for them."
+  (interactive)
+  (ivy-read "Search for symbol (word list or regexp): "
+            (counsel-symbol-list)
+            :history 'counsel-apropos-history
+            :action (lambda (pattern)
+                      (when (= (length pattern) 0)
+                        (user-error "Please specify a pattern"))
+                      ;; If the user selected a candidate form the list, we use
+                      ;; a pattern which matches only the selected symbol.
+                      (if (memq this-command '(ivy-immediate-done ivy-alt-done))
+                          ;; Regexp pattern are passed verbatim, other input is
+                          ;; split into words.
+                          (if (string-equal (regexp-quote pattern) pattern)
+                              (apropos (split-string pattern "[ \t]+" t))
+                            (apropos pattern))
+                        (apropos (concat "^" pattern "$"))))
+            :caller 'counsel-apropos))
+
+(defun counsel-symbol-list ()
+  "Return a list of all symbols."
+  (let (cands)
+    (mapatoms
+     (lambda (symbol)
+       (when (or (boundp symbol) (fboundp symbol))
+         (push (symbol-name symbol) cands))))
+    (delete "" cands)))
+
 ;;** `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
