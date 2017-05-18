@@ -3600,31 +3600,29 @@ candidate."
   (interactive)
   (irony-completion-candidates-async 'counsel-irony-callback))
 
-(defun counsel-irony-callback (&optional _cands)
+(defun counsel-irony-callback (candidates)
   (interactive)
-  (let ((coll (irony-completion-at-point)))
-    (when coll
-      (setq ivy-completion-beg (nth 0 coll))
-      (setq ivy-completion-end (nth 1 coll))
-      (ivy-read "code: " (mapcar #'counsel-irony-annotate
-                                 (nth 2 coll))
-                :caller 'counsel-irony
-                :action 'ivy-completion-in-region-action))))
+  (let* ((symbol-bounds (irony-completion-symbol-bounds))
+         (beg (car symbol-bounds))
+         (end (cdr symbol-bounds))
+         (prefix (buffer-substring-no-properties beg end)))
+  (setq ivy-completion-beg beg
+        ivy-completion-end end)
+    (ivy-read "code: " (mapcar #'counsel-irony-annotate candidates)
+              :predicate (lambda (candidate)
+                           (string-prefix-p prefix (car candidate)))
+              :caller 'counsel-irony
+              :action 'ivy-completion-in-region-action)))
 
 (defun counsel-irony-annotate (x)
-  (cons
-   (condition-case nil
-       (concat
-        x " "
-        (irony-completion--capf-annotate x))
-     (error x))
-   x))
+  (cons (concat (car x) (irony-completion-annotation x))
+        (car x)))
 
 (add-to-list 'ivy-display-functions-alist '(counsel-irony . ivy-display-function-overlay))
 
 (declare-function irony-completion-candidates-async "ext:irony-completion")
-(declare-function irony-completion-at-point "ext:irony-completion")
-(declare-function irony-completion--capf-annotate "ext:irony-completion")
+(declare-function irony-completion-symbol-bounds "ext:irony-completion")
+(declare-function irony-completion-annotation "ext:irony-completion")
 
 ;;** `counsel-apropos'
 ;;;###autoload
