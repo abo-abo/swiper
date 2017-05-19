@@ -756,7 +756,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (let* ((parts (or (split-string ivy-text " " t) (list "")))
          (postfix (car (last parts)))
-         (completion-ignore-case t)
+         (case-fold-search (and ivy-case-fold-search
+				     (or (eq ivy-case-fold-search 'always)
+					 (string= ivy-text (downcase ivy-text)))))
+         (completion-ignore-case case-fold-search)
          (startp (string-match "^\\^" postfix))
          (new (try-completion (if startp
                                   (substring postfix 1)
