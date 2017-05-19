@@ -757,8 +757,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (let* ((parts (or (split-string ivy-text " " t) (list "")))
          (postfix (car (last parts)))
          (case-fold-search (and ivy-case-fold-search
-				     (or (eq ivy-case-fold-search 'always)
-					 (string= ivy-text (downcase ivy-text)))))
+                                (or (eq ivy-case-fold-search 'always)
+                                    (string= ivy-text (downcase ivy-text)))))
          (completion-ignore-case case-fold-search)
          (startp (string-match "^\\^" postfix))
          (new (try-completion (if startp
@@ -770,15 +770,16 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                           (let ((i (string-match postfix str)))
                                             (when i
                                               (substring str i))))
-                                        ivy--old-cands)))))
+                                        ivy--old-cands))))
+         (new* (if (eq ivy-case-fold-search 'auto) (downcase new) new)))
     (cond ((eq new t) nil)
-          ((string= new ivy-text) nil)
+          ((string= new* ivy-text) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar (last parts)
                    (if startp
-                       (concat "^" new)
-                     new))
+                       (concat "^" new*)
+                     new*))
            (insert (mapconcat #'identity parts " ")
                    (if ivy-tab-space " " ""))
            t))))
