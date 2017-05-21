@@ -770,16 +770,18 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                           (let ((i (string-match postfix str)))
                                             (when i
                                               (substring str i))))
-                                        ivy--old-cands))))
-         (new* (if (eq ivy-case-fold-search 'auto) (downcase new) new)))
+                                        ivy--old-cands)))))
+    (when (and (eq ivy-case-fold-search 'auto)
+               (stringp new))
+      (setq new (downcase new)))
     (cond ((eq new t) nil)
-          ((string= new* ivy-text) nil)
+          ((string= new ivy-text) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar (last parts)
                    (if startp
-                       (concat "^" new*)
-                     new*))
+                       (concat "^" new)
+                     new))
            (insert (mapconcat #'identity parts " ")
                    (if ivy-tab-space " " ""))
            t))))
