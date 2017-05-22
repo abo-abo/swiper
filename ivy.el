@@ -2316,8 +2316,9 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
   (ivy--cd dir))
 
 (defun ivy--magic-file-slash ()
-  (when (and (eq this-command 'self-insert-command)
-             (eolp))
+  (when (or (and (eq this-command 'self-insert-command)
+                 (eolp))
+            (eq this-command 'ivy-partial-or-done))
     (cond ((member ivy-text ivy--all-candidates)
            (ivy--cd (expand-file-name ivy-text ivy--directory)))
           ((string-match "//\\'" ivy-text)
