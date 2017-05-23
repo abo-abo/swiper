@@ -1709,15 +1709,6 @@ This is useful for recursive `ivy-read'."
                      (setq sort-fn (ivy--sort-function caller)))
             (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
       (setq coll (ivy--set-candidates coll))
-      (when preselect
-        (unless (or (not (stringp preselect))
-                    (and require-match
-                         (not (eq collection 'internal-complete-buffer)))
-                    dynamic-collection
-                    (let ((re (regexp-quote preselect)))
-                      (cl-find-if (lambda (x) (string-match re x))
-                                  coll)))
-          (setq coll (cons preselect coll))))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
       (when (integerp preselect)
