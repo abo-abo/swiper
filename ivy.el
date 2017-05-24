@@ -1798,13 +1798,15 @@ INHERIT-INPUT-METHOD is currently ignored."
                 collection
                 :predicate predicate
                 :require-match (and collection require-match)
-                :initial-input (if (consp initial-input)
-                                   (car initial-input)
-                                 (if (and (stringp initial-input)
-                                          (string-match "\\+" initial-input))
-                                     (replace-regexp-in-string
-                                      "\\+" "\\\\+" initial-input)
-                                   initial-input))
+                :initial-input (cond ((consp initial-input)
+                                      (car initial-input))
+                                     ((and (stringp initial-input)
+                                           (not (eq collection 'read-file-name-internal))
+                                           (string-match "\\+" initial-input))
+                                      (replace-regexp-in-string
+                                       "\\+" "\\\\+" initial-input))
+                                     (t
+                                      initial-input))
                 :preselect (if (listp def) (car def) def)
                 :history history
                 :keymap nil
