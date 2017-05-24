@@ -1415,6 +1415,12 @@ Directories come first."
           (cl-remove-if-not predicate seq)
         seq))))
 
+(defvar ivy-auto-select-single-candidate nil
+  "When non-nil, auto-select the candidate if it is the only one.
+When t, it is the same as if the user were prompted and selected the candidate
+by calling the default action.  This variable has no use unless the collection
+contains a single candidate.")
+
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1544,12 +1550,18 @@ customizations apply to the current completion session."
                          ((display-graphic-p) nil)
                          ((null resize-mini-windows) 'grow-only)
                          (t resize-mini-windows))))
-                 (read-from-minibuffer
-                  prompt
-                  (ivy-state-initial-input ivy-last)
-                  (make-composed-keymap keymap ivy-minibuffer-map)
-                  nil
-                  hist)
+                 (if (and ivy-auto-select-single-candidate
+                          (= (length ivy--all-candidates) 1))
+                     (progn
+                       (setf (ivy-state-current ivy-last)
+                             (car ivy--all-candidates))
+                       (setq ivy-exit 'done))
+                   (read-from-minibuffer
+                    prompt
+                    (ivy-state-initial-input ivy-last)
+                    (make-composed-keymap keymap ivy-minibuffer-map)
+                    nil
+                    hist))
                  (when (eq ivy-exit 'done)
                    (let ((item (if ivy--directory
                                    (ivy-state-current ivy-last)
