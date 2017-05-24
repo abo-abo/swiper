@@ -1721,7 +1721,7 @@ root directory for search."
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     map))
 
-(defcustom counsel-ag-base-command "ag --nocolor --nogroup %s"
+(defcustom counsel-ag-base-command "ag -S --nocolor --nogroup %s"
   "Format string to use in `counsel-ag-function' to construct the
 command. The %s will be replaced by optional extra ag arguments followed by the
 regex string. The default is \"ag --nocolor --nogroup %s\"."
@@ -1821,7 +1821,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
       cands))))
 
 ;;** `counsel-pt'
-(defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
+(defcustom counsel-pt-base-command "pt -S --nocolor --nogroup -e %s"
   "Used to in place of `counsel-ag-base-command' to search with
 pt using `counsel-ag'."
   :type 'string
@@ -1837,7 +1837,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
     (counsel-ag initial-input)))
 
 ;;** `counsel-rg'
-(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 %s ."
+(defcustom counsel-rg-base-command "rg -S --no-heading --line-number --max-columns 150 %s ."
   "Used to in place of `counsel-rg-base-command' to search with
 ripgrep using `counsel-rg'."
   :type 'string
