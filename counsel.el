@@ -1819,6 +1819,30 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :caller 'counsel-dired-jump)))
 
 ;;* Grep
+(defun counsel--grep-mode-occur (git-grep-dir-is-file)
+  "Generate a custom occur buffer for grep like commands.
+If GIT-GREP-DIR-IS-FILE is t, then `counsel--git-grep-dir' is treated as a full
+path to a file rather than a directory (e.g. for `counsel-grep-occur').
+
+This function expects that the candidates have already been filtered.
+It applies no filtering to ivy--all-candidates."
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode))
+  (let* ((directory
+          (if git-grep-dir-is-file
+              (file-name-directory counsel--git-grep-dir)
+            counsel--git-grep-dir))
+         (prepend
+          (if git-grep-dir-is-file
+              (concat (file-name-nondirectory counsel--git-grep-dir) ":")
+            "")))
+    (setq default-directory directory)
+    ;; Need precise number of header lines for `wgrep' to work.
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n" default-directory))
+    (insert (format "%d candidates:\n" (length ivy--all-candidates)))
+    (ivy--occur-insert-lines
+     (mapcar (lambda (cand) (concat "./" prepend cand)) ivy--all-candidates))))
+
 ;;** `counsel-ag'
 (defvar counsel-ag-map
   (let ((map (make-sparse-keymap)))
@@ -1903,27 +1927,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode))
-  (setq default-directory counsel--git-grep-dir)
-  (let* ((regex (counsel-unquote-regex-parens
-                 (setq ivy--old-re
-                       (ivy--regex
-                        (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                               (match-string 1 (buffer-name)))))))
-         (cands (split-string
-                 (shell-command-to-string
-                  (format counsel-ag-base-command (concat "-- " (shell-quote-argument regex))))
-                 "\n"
-                 t)))
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                    default-directory))
-    (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar
-      (lambda (cand) (concat "./" cand))
-      cands))))
+  (counsel--grep-mode-occur nil))
 
 ;;** `counsel-pt'
 (defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
@@ -2001,27 +2005,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-rg-occur ()
   "Generate a custom occur buffer for `counsel-rg'."
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode))
-  (setq default-directory counsel--git-grep-dir)
-  (let* ((regex (counsel-unquote-regex-parens
-                 (setq ivy--old-re
-                       (ivy--regex
-                        (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                               (match-string 1 (buffer-name)))))))
-         (cands (split-string
-                 (shell-command-to-string
-                  (format counsel-rg-base-command (shell-quote-argument regex)))
-                 "\n"
-                 t)))
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                    default-directory))
-    (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar
-      (lambda (cand) (concat "./" cand))
-      cands))))
+  (counsel--grep-mode-occur nil))
 
 ;;** `counsel-grep'
 (defcustom counsel-grep-base-command "grep -nE '%s' %s"
@@ -2078,28 +2062,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode))
-  (let ((cands
-         (split-string
-          (shell-command-to-string
-           (format counsel-grep-base-command
-                   (counsel-unquote-regex-parens
-                    (setq ivy--old-re
-                          (ivy--regex
-                           (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                                  (match-string 1 (buffer-name))) t)))
-                   (shell-quote-argument counsel--git-grep-dir)))
-          "\n" t))
-        (file (file-name-nondirectory counsel--git-grep-dir)))
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                    default-directory))
-    (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar
-      (lambda (cand) (concat "./" file ":" cand))
-      cands))))
+  (counsel--grep-mode-occur t))
 
 (ivy-set-occur 'counsel-grep 'counsel-grep-occur)
 (counsel-set-async-exit-code 'counsel-grep 1 "")
