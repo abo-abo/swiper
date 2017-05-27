@@ -1941,6 +1941,26 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
   (let ((counsel-ag-base-command counsel-pt-base-command))
     (counsel-ag initial-input)))
 
+;;** `counsel-ack'
+(defcustom counsel-ack-base-command
+  (concat
+   (file-name-nondirectory
+    (or (executable-find "ack-grep") "ack"))
+   " --nocolor --nogroup %s")
+  "Alternative to `counsel-ag-base-command' using ack."
+  :type 'string
+  :group 'ivy)
+
+;;;###autoload
+(defun counsel-ack (&optional initial-input)
+  "Grep for a string in the current directory using ack.
+This uses `counsel-ag' with `counsel-ack-base-command' replacing
+`counsel-ag-base-command'."
+  (interactive)
+  (let ((counsel-ag-base-command counsel-ack-base-command))
+    (counsel-ag initial-input)))
+
+
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 --color never %s ."
   "Alternative to `counsel-ag-base-command' using ripgrep."
