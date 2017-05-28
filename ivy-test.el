@@ -26,6 +26,7 @@
 
 ;;; Code:
 (require 'ert)
+(require 'colir)
 
 ;; useful for #'ivy-read-remap. It must arrive before (require 'ivy)
 (define-key global-map (kbd "<S-right>") #'end-of-buffer)
