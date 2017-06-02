@@ -53,7 +53,10 @@
     (- 1 (* 2 (- 1 a) (- 1 b)))))
 
 (defun colir-compose-alpha (a b &optional alpha gamma)
-  "Compose A and B channels."
+  "Compose A and B channels.
+Optional argument ALPHA is a number between 0.0 and 1.0 which corresponds
+to the influence of A on the result.  Default value is 0.5.
+Optional argument GAMMA is used for gamma correction.  Default value is 2.2."
   (setq alpha (or alpha 0.5))
   (setq gamma (or gamma 2.2))
   (+ (* (expt a gamma) alpha) (* (expt b gamma) (- 1 alpha))))
