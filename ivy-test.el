@@ -518,6 +518,24 @@
               "bl C-p C-M-j")
              "bl"))))
 
+(ert-deftest ivy-completing-read-default ()
+  (should
+   (equal "b"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "b")
+                    "RET")))
+  (should
+   (equal "d"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "d")
+                    "RET")))
+  (should
+   (equal "e"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil '("e" "b"))
+                    "RET")))
+  (should
+   (equal ""
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
+                    "RET"))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
