@@ -351,7 +351,8 @@ action functions.")
   display-transformer-fn
   directory
   caller
-  current)
+  current
+  def)
 
 (defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
@@ -1426,7 +1427,7 @@ contains a single candidate.")
 (cl-defun ivy-read (prompt collection
                     &key
                       predicate require-match initial-input
-                      history preselect keymap update-fn sort
+                      history preselect def keymap update-fn sort
                       action unwind re-builder matcher
                       dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
@@ -1455,6 +1456,8 @@ KEYMAP is composed with `ivy-minibuffer-map'.
 
 If PRESELECT is not nil, then select the corresponding candidate
 out of the ones that match the INITIAL-INPUT.
+
+DEF is for compatibility with `completing-read'.
 
 UPDATE-FN is called each time the current candidate(s) is changed.
 
@@ -1536,7 +1539,8 @@ customizations apply to the current completion session."
            :dynamic-collection dynamic-collection
            :display-transformer-fn transformer-fn
            :directory default-directory
-           :caller caller))
+           :caller caller
+           :def def))
     (ivy--reset-state ivy-last)
     (prog1
         (unwind-protect
@@ -1596,7 +1600,8 @@ This is useful for recursive `ivy-read'."
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
         (require-match (ivy-state-require-match state))
-        (caller (ivy-state-caller state)))
+        (caller (ivy-state-caller state))
+        (def (ivy-state-def state)))
     (unless initial-input
       (setq initial-input (cdr (assoc this-command
                                       ivy-initial-inputs-alist))))
@@ -1711,6 +1716,9 @@ This is useful for recursive `ivy-read'."
              (setq coll (all-completions "" collection predicate)))
             (t
              (setq coll collection)))
+      (when def
+        (unless (member def coll)
+          (push def coll)))
       (when sort
         (if (and (functionp collection)
                  (setq sort-fn (ivy--sort-function collection)))
@@ -1820,6 +1828,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                                      (t
                                       initial-input))
                 :preselect (if (listp def) (car def) def)
+                :def def
                 :history history
                 :keymap nil
                 :sort t
