@@ -520,21 +520,31 @@
 
 (ert-deftest ivy-completing-read-default ()
   (should
+   ;; DEF in COLLECTION
    (equal "b"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "b")
                     "RET")))
+  ;; DEF not in COLLECTION
   (should
    (equal "d"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "d")
                     "RET")))
+  ;; DEF list, some in COLLECTION
   (should
    (equal "e"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil '("e" "b"))
                     "RET")))
+  ;; DEF nil
   (should
    (equal ""
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
-                    "RET"))))
+                    "RET")))
+  ;; DEF nil, and `ivy-completing-read-default-is-empty-string' also nil
+  (should
+   (equal "a"
+          (let ((ivy-completing-read-default-is-empty-string nil))
+            (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
+                      "RET")))))
 
 (provide 'ivy-test)
 
