@@ -1717,8 +1717,11 @@ This is useful for recursive `ivy-read'."
             (t
              (setq coll collection)))
       (when def
-        (unless (member def coll)
-          (push def coll)))
+        (cond ((listp def)
+               (setq coll (cl-union def coll :test 'equal)))
+              ((member def coll))
+              (t
+               (push def coll))))
       (when sort
         (if (and (functionp collection)
                  (setq sort-fn (ivy--sort-function collection)))
