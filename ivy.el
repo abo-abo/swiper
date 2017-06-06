@@ -2353,7 +2353,7 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
           ((and (file-exists-p ivy-text)
                 (not (string= ivy-text "/"))
                 (file-directory-p ivy-text))
-           (ivy--cd ivy-text))
+           (ivy--cd (expand-file-name ivy-text)))
           ((and (or (> ivy--index 0)
                     (= ivy--length 1)
                     (not (string= ivy-text "/")))
