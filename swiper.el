@@ -891,6 +891,7 @@ Run `swiper' for those buffers."
     map)
   "Keymap for `swiper-all'.")
 
+;;;###autoload
 (defun swiper-all ()
   "Run `swiper' for all opened buffers."
   (interactive)
