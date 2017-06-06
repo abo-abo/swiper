@@ -1915,7 +1915,8 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
         (if (null (cdr comps))
             (if (string= str (car comps))
                 (message "Sole match")
-              (setf (ivy-state-window ivy-last) (selected-window))
+              (unless (minibuffer-window-active-p (selected-window))
+                (setf (ivy-state-window ivy-last) (selected-window)))
               (ivy-completion-in-region-action
                (substring-no-properties
                 (car comps))))
