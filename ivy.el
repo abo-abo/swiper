@@ -121,6 +121,10 @@
   '((t :inherit highlight))
   "Face used by Ivy to highlight certain candidates.")
 
+(defface ivy-prompt-match
+  '((t :inherit ivy-current-match))
+  "Face used by Ivy for highlighting the selected prompt line.")
+
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
@@ -528,32 +532,59 @@ When non-nil, it should contain at least one %d.")
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
+(defcustom ivy-use-selectable-prompt nil
+  "When non-nil, make the prompt line selectable like a candidate.
+
+The prompt line can be selected by calling `ivy-previous-line' when the first
+regular candidate is selected.  Both actions `ivy-done' and `ivy-alt-done',
+when called on a selected prompt, are forwarded to `ivy-immediate-done', which
+results to the same as calling `ivy-immediate-done' explicitely when a regular
+candidate is selected.
+
+Note that if `ivy-wrap' is set to t, calling `ivy-previous-line' when the
+prompt is selected wraps around to the last candidate, while calling
+`ivy-next-line' on the last candidate wraps around to the first
+candidate, not the prompt."
+  :type 'boolean)
+
+(defun ivy--prompt-selectable-p ()
+  "Return t if the prompt line is selectable."
+  (and ivy-use-selectable-prompt
+       (not (ivy-state-require-match ivy-last))))
+
+(defun ivy--prompt-selected-p ()
+  "Return t if the prompt line is selected."
+  (and (ivy--prompt-selectable-p)
+       (= ivy--index -1)))
+
 ;;* Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
-  (setq ivy-current-prefix-arg current-prefix-arg)
-  (delete-minibuffer-contents)
-  (cond ((or (> ivy--length 0)
-             ;; the action from `ivy-dispatching-done' may not need a
-             ;; candidate at all
-             (eq this-command 'ivy-dispatching-done))
-         (ivy--done (ivy-state-current ivy-last)))
-        ((memq (ivy-state-collection ivy-last)
-               '(read-file-name-internal internal-complete-buffer))
-         (if (or (not (eq confirm-nonexistent-file-or-buffer t))
-                 (equal " (confirm)" ivy--prompt-extra))
-             (ivy--done ivy-text)
-           (setq ivy--prompt-extra " (confirm)")
+  (if (ivy--prompt-selected-p)
+      (ivy-immediate-done)
+    (setq ivy-current-prefix-arg current-prefix-arg)
+    (delete-minibuffer-contents)
+    (cond ((or (> ivy--length 0)
+               ;; the action from `ivy-dispatching-done' may not need a
+               ;; candidate at all
+               (eq this-command 'ivy-dispatching-done))
+           (ivy--done (ivy-state-current ivy-last)))
+          ((memq (ivy-state-collection ivy-last)
+                 '(read-file-name-internal internal-complete-buffer))
+           (if (or (not (eq confirm-nonexistent-file-or-buffer t))
+                   (equal " (confirm)" ivy--prompt-extra))
+               (ivy--done ivy-text)
+             (setq ivy--prompt-extra " (confirm)")
+             (insert ivy-text)
+             (ivy--exhibit)))
+          ((memq (ivy-state-require-match ivy-last)
+                 '(nil confirm confirm-after-completion))
+           (ivy--done ivy-text))
+          (t
+           (setq ivy--prompt-extra " (match required)")
            (insert ivy-text)
-           (ivy--exhibit)))
-        ((memq (ivy-state-require-match ivy-last)
-               '(nil confirm confirm-after-completion))
-         (ivy--done ivy-text))
-        (t
-         (setq ivy--prompt-extra " (match required)")
-         (insert ivy-text)
-         (ivy--exhibit))))
+           (ivy--exhibit)))))
 
 (defvar ivy-read-action-format-function 'ivy-read-action-format-default
   "Function used to transform the actions list into a docstring.")
@@ -642,7 +673,8 @@ Is is a cons cell, related to `tramp-get-completion-function'."
 When ARG is t, exit with current text, ignoring the candidates."
   (interactive "P")
   (setq ivy-current-prefix-arg current-prefix-arg)
-  (cond (arg
+  (cond ((or arg
+             (ivy--prompt-selected-p))
          (ivy-immediate-done))
         (ivy--directory
          (ivy--directory-done))
@@ -899,11 +931,13 @@ If the input is empty, select the previous history element instead."
   "Move cursor vertically up ARG candidates."
   (interactive "p")
   (setq arg (or arg 1))
-  (let ((index (- ivy--index arg)))
-    (if (< index 0)
+  (let ((index (- ivy--index arg))
+        (min-index (or (and (ivy--prompt-selectable-p) -1)
+                       0)))
+    (if (< index min-index)
         (if ivy-wrap
             (ivy-end-of-buffer)
-          (ivy-set-index 0))
+          (ivy-set-index min-index))
       (ivy-set-index index))))
 
 (defun ivy-previous-line-or-history (arg)
@@ -2288,6 +2322,15 @@ The returned value should be the updated PROMPT.")
           (setq n-str (funcall ivy-set-prompt-text-properties-function
                                n-str std-props))
           (insert n-str))
+        ;; Mark prompt as selected if the user moves there or it is the only
+        ;; option left.  Since the user input stays put, we have to manually
+        ;; remove the face as well.
+        (when (ivy--prompt-selectable-p)
+          (if (or (= ivy--index -1)
+                  (= ivy--length 0))
+              (add-face-text-property (point-min) (line-end-position)
+                                      'ivy-prompt-match)
+            (remove-text-properties (point-min) (line-end-position) '(face))))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
 
