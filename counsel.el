@@ -1012,8 +1012,8 @@ Typical value: '(recenter)."
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
   (if (and (> counsel--git-grep-count 20000)
-           (< (length string) 3))
-      (counsel-more-chars 3)
+           (< (length string) 2))
+      (counsel-more-chars 2)
     (let* ((default-directory counsel--git-grep-dir)
            (cmd (format counsel-git-grep-cmd
                         (setq ivy--old-re (ivy--regex string t)))))
@@ -1131,8 +1131,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 :caller 'counsel-git-grep))))
 
 (defun counsel-git-grep-proj-function (str)
-  (if (< (length str) 3)
-      (counsel-more-chars 3)
+  (if (< (length str) 2)
+      (counsel-more-chars 2)
     (let ((regex (setq ivy--old-re
                        (ivy--regex str t))))
       (counsel--async-command (format counsel-git-grep-cmd regex))
@@ -1307,8 +1307,8 @@ done") "\n" t)))
   "Command used for \"git log\".")
 
 (defun counsel-git-log-function (input)
-  (if (< (length input) 3)
-      (counsel-more-chars 3)
+  (if (< (length input) 2)
+      (counsel-more-chars 2)
     ;; `counsel--yank-pop-format-function' uses this
     (setq ivy--old-re (funcall ivy--regex-function input))
     (counsel--async-command
@@ -1635,8 +1635,8 @@ string - the full shell command to run."
            (ivy--regex input t))))
 
 (defun counsel-locate-function (input)
-  (if (< (length input) 3)
-      (counsel-more-chars 3)
+  (if (< (length input) 2)
+      (counsel-more-chars 2)
     (counsel--async-command
      (funcall counsel-locate-cmd input))
     '("" "working...")))
@@ -1755,7 +1755,7 @@ root directory for search."
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     map))
 
-(defcustom counsel-ag-base-command "ag --nocolor --nogroup %s"
+(defcustom counsel-ag-base-command "ag -S --nocolor --nogroup %s"
   "Format string to use in `counsel-ag-function' to construct the
 command. The %s will be replaced by optional extra ag arguments followed by the
 regex string. The default is \"ag --nocolor --nogroup %s\"."
@@ -1771,8 +1771,8 @@ regex string. The default is \"ag --nocolor --nogroup %s\"."
 If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
   (when (null extra-ag-args)
     (setq extra-ag-args ""))
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
+  (if (< (length string) 2)
+      (counsel-more-chars 2)
     (let ((default-directory counsel--git-grep-dir)
           (regex (counsel-unquote-regex-parens
                   (setq ivy--old-re
@@ -1855,7 +1855,7 @@ If non-nil, EXTRA-AG-ARGS string is appended to BASE-CMD."
       cands))))
 
 ;;** `counsel-pt'
-(defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
+(defcustom counsel-pt-base-command "pt -S --nocolor --nogroup -e %s"
   "Used to in place of `counsel-ag-base-command' to search with
 pt using `counsel-ag'."
   :type 'string
@@ -1871,7 +1871,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
     (counsel-ag initial-input)))
 
 ;;** `counsel-rg'
-(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 %s ."
+(defcustom counsel-rg-base-command "rg -S --no-heading --line-number --max-columns 150 %s ."
   "Used to in place of `counsel-rg-base-command' to search with
 ripgrep using `counsel-rg'."
   :type 'string
@@ -2080,8 +2080,8 @@ the command."
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
   "Run recoll for STRING."
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
+  (if (< (length string) 2)
+      (counsel-more-chars 2)
     (counsel--async-command
      (format "recoll -t -b %s"
              (shell-quote-argument string)))
