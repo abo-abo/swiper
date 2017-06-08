@@ -1903,7 +1903,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' replacing
     (counsel-ag initial-input)))
 
 ;;** `counsel-rg'
-(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 %s ."
+(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 --color never %s ."
   "Used to in place of `counsel-rg-base-command' to search with
 ripgrep using `counsel-rg'."
   :type 'string
