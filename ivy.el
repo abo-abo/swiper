@@ -550,7 +550,8 @@ candidate, not the prompt."
 (defun ivy--prompt-selectable-p ()
   "Return t if the prompt line is selectable."
   (and ivy-use-selectable-prompt
-       (not (ivy-state-require-match ivy-last))))
+       (memq (ivy-state-require-match ivy-last)
+             '(nil confirm confirm-after-completion))))
 
 (defun ivy--prompt-selected-p ()
   "Return t if the prompt line is selected."
