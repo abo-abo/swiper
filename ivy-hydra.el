@@ -34,6 +34,7 @@
 (require 'hydra)
 
 (defun ivy--matcher-desc ()
+  "Return description of `ivy--regex-function'."
   (if (eq ivy--regex-function
           'ivy--regex-fuzzy)
       "fuzzy"

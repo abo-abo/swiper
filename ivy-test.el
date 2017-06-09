@@ -19,6 +19,12 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+;;
+;; This packages provides the tests for `ert'.  They can be executed
+;; from the command line as well by calling "make test".
+
+;;; Code:
 (require 'ert)
 
 ;; useful for #'ivy-read-remap. It must arrive before (require 'ivy)
@@ -503,3 +509,5 @@
              "bl"))))
 
 (provide 'ivy-test)
+
+;;; ivy-test.el ends here
