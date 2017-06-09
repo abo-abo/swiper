@@ -426,4 +426,80 @@
             "RET")
            "default")))
 
+(ert-deftest ivy-read-prompt ()
+  (let ((prompt "pattern: ")
+        (collection '("blue" "yellow")))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-m")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-p C-m")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-j")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-p C-j")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-M-j")
+             "bl"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt nil))
+                 (ivy-read prompt collection))
+              "bl C-p C-M-j")
+             "bl"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-m")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-p C-m")
+             "bl"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-j")
+             "blue"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-p C-j")
+             "bl"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-M-j")
+             "bl"))
+    (should (equal
+             (ivy-with
+              '(let ((ivy-use-selectable-prompt t))
+                 (ivy-read prompt collection))
+              "bl C-p C-M-j")
+             "bl"))))
+
 (provide 'ivy-test)
