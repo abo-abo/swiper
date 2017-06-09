@@ -3757,43 +3757,38 @@ active."
 MODE is a symbol."
   (save-current-buffer
     (let (bufs)
-      (dolist (buf (buffer-list) bufs)
+      (dolist (buf (buffer-list))
         (set-buffer buf)
         (and (equal major-mode mode)
-             (push (buffer-name buf) bufs))))))
+             (push (buffer-name buf) bufs)))
+      (nreverse bufs))))
 
 ;;;###autoload
-(defun counsel-switch-to-shell-buffer (force-create)
-  "Switch to a shell buffer, or create one.
+(defun counsel-switch-to-shell-buffer ()
+  "Switch to a shell buffer, or create one."
+  (interactive)
+  (ivy-read "Switch to shell buffer: "
+            (counsel-list-buffers-with-mode 'shell-mode)
+            :action #'counsel-switch-to-buffer-or-window
+            :caller 'counsel-switch-to-shell-buffer))
 
-List all the buffers in `shell-mode'. Is there is none or
-if FORCE-CREATE is non nil, create one; if there is exactly one,
-switch to it; otherwise, select one of them and switch to it."
-  (interactive "P")
-  (require 'pcase)
-  (counsel-switch-to-buffer-or-window
-   (pcase (counsel-list-buffers-with-mode 'shell-mode)
-     ((or (guard force-create) `())
-      (shell (read-string "Buffer name: "
-                          (generate-new-buffer-name "*shell*"))))
-     (`(,buf) buf)
-     ((and `(,_ . ,_) bufs) (ivy-read "Switch to shell buffer: " bufs)))))
-
-(defun counsel-switch-to-buffer-or-window (buffer-or-name)
-  "Display buffer BUFFER-OR-NAME and select its window.
+(defun counsel-switch-to-buffer-or-window (buffer-name)
+  "Display buffer BUFFER-NAME and select its window.
 
 This behaves as `switch-to-buffer', except when the buffer is
 already visible; in that case, select the window corresponding to
 the buffer."
-  (let ((buffer (window-normalize-buffer-to-switch-to buffer-or-name)))
-    (let (window-of-buffer-visible)
-      (catch 'found
-        (walk-windows (lambda (window)
-                        (and (equal (window-buffer window) buffer)
-                             (throw 'found (setq window-of-buffer-visible window))))))
-      (if window-of-buffer-visible
-          (select-window window-of-buffer-visible)
-        (switch-to-buffer buffer)))))
+  (let ((buffer (get-buffer buffer-or-name)))
+    (if (not buffer)
+        (shell buffer-or-name)
+      (let (window-of-buffer-visible)
+        (catch 'found
+          (walk-windows (lambda (window)
+                          (and (equal (window-buffer window) buffer)
+                               (throw 'found (setq window-of-buffer-visible window))))))
+        (if window-of-buffer-visible
+            (select-window window-of-buffer-visible)
+          (switch-to-buffer buffer))))))
 
 ;;;###autoload
 (define-minor-mode counsel-mode
