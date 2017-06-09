@@ -1035,15 +1035,21 @@ Typical value: '(recenter)."
                                   (cl-subseq dir-list (- (length dir-list) 3))))
                  directory))))))
 
+(defcustom counsel-git-grep-skip-counting-lines nil
+  "If non-nil, total lines in the git repository will not be counted
+  before grepping."
+  :type 'boolean
+  :group 'ivy)
+
 (defun counsel-git-grep-function (string &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
-  (if (and (> counsel--git-grep-count 20000)
+  (if (and (or counsel-git-grep-skip-counting-lines (> counsel--git-grep-count 20000))
            (< (length string) 3))
       (counsel-more-chars 3)
     (let* ((default-directory counsel--git-grep-dir)
            (cmd (format counsel-git-grep-cmd
                         (setq ivy--old-re (ivy--regex string t)))))
-      (if (<= counsel--git-grep-count 20000)
+      (if (and (not counsel-git-grep-skip-counting-lines) (<= counsel--git-grep-count 20000))
           (split-string (shell-command-to-string cmd) "\n" t)
         (counsel--gg-candidates (ivy--regex string))
         nil))))
@@ -1139,7 +1145,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             (locate-dominating-file default-directory ".git")))
     (if (null counsel--git-grep-dir)
         (error "Not in a git repository")
-      (unless proj
+      (unless (or proj counsel-git-grep-skip-counting-lines)
         (setq counsel--git-grep-count
               (if (eq system-type 'windows-nt)
                   0
@@ -1149,7 +1155,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                              'counsel-git-grep-function)
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
-                :dynamic-collection (or proj (> counsel--git-grep-count 20000))
+                :dynamic-collection (or proj counsel-git-grep-skip-counting-lines (> counsel--git-grep-count 20000))
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
                 :unwind #'swiper--cleanup
