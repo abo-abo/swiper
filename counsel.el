@@ -683,6 +683,10 @@ can use `C-x r j i' to open that file."
             :action (lambda (register-file)
                       (with-ivy-window (find-file register-file)))))
 
+(ivy-set-actions
+ 'counsel-file-register
+ '(("j" find-file-other-window "other window")))
+
 (declare-function bookmark-all-names "bookmark")
 (declare-function bookmark-location "bookmark")
 
