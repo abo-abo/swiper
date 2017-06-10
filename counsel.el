@@ -655,12 +655,17 @@ input corresponding to the chosen variable."
 
 ;;;###autoload
 (defun counsel-file-register ()
-  "Search file in register."
+  "Search file in register.
+
+You cannot use Emacs' normal register commands to create file
+registers.  Instead you must use the `set-register' function like
+so: `(set-register ?i \"/home/eric/.emacs.d/init.el\")'.  Now you
+can use `C-x r j i' to open that file."
   (interactive)
   (ivy-read "File Register: "
             ;; Use the `register-alist' variable to filter out file
             ;; registers.  Each entry for a file registar will have the
-            ;; following layout:initj
+            ;; following layout:
             ;;
             ;;     (NUMBER 'file . "string/path/to/file")
             ;;
@@ -676,9 +681,7 @@ input corresponding to the chosen variable."
             :history 'counsel-file-register
             :caller 'counsel-file-register
             :action (lambda (register-file)
-                      (with-ivy-window (find-file register-file)))
-            :history 'counsel-file-register
-            :caller 'counsel-file-register))
+                      (with-ivy-window (find-file register-file)))))
 
 (declare-function bookmark-all-names "bookmark")
 (declare-function bookmark-location "bookmark")
