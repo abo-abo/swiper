@@ -3839,9 +3839,9 @@ MODE is a symbol."
 This behaves as `switch-to-buffer', except when the buffer is
 already visible; in that case, select the window corresponding to
 the buffer."
-  (let ((buffer (get-buffer buffer-or-name)))
+  (let ((buffer (get-buffer buffer-name)))
     (if (not buffer)
-        (shell buffer-or-name)
+        (shell buffer-name)
       (let (window-of-buffer-visible)
         (catch 'found
           (walk-windows (lambda (window)
