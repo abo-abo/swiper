@@ -1548,13 +1548,12 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :initial-input initial-input
             :action
             (lambda (x)
-              (with-ivy-window
-                (let ((find-file-hook (if (and
-                                           counsel-find-file-speedup-remote
-                                           (file-remote-p ivy--directory))
-                                          nil
-                                        find-file-hook)))
-                  (find-file (expand-file-name x ivy--directory)))))
+              (let ((find-file-hook (if (and
+                                         counsel-find-file-speedup-remote
+                                         (file-remote-p ivy--directory))
+                                        nil
+                                      find-file-hook)))
+                (find-file (expand-file-name x ivy--directory))))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
                          (let ((f (ffap-guesser)))
