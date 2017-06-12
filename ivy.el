@@ -805,9 +805,6 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                             (when i
                                               (substring str i))))
                                         ivy--old-cands)))))
-    (when (and (eq ivy-case-fold-search 'auto)
-               (stringp new))
-      (setq new (downcase new)))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
           (new

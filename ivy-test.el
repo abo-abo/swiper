@@ -54,6 +54,16 @@
               (kbd keys)))
     ivy-result))
 
+(ert-deftest ivy-partial ()
+  (should (equal
+           (ivy-with '(ivy-read "test: " '("case" "Case"))
+                     "ca TAB C-m")
+           "case"))
+  (should (equal
+           (ivy-with '(ivy-read "test: " '("case" "Case"))
+                     "Ca TAB C-m")
+           "Case")))
+
 (ert-deftest ivy-read ()
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow"))
