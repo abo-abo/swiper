@@ -3813,7 +3813,7 @@ Remaps built-in functions to counsel replacements.")
   :type 'boolean)
 
 (defun counsel-list-buffers-with-mode (mode)
-  "List all buffers with major-mode MODE.
+  "List all buffers with `major-mode' MODE.
 
 MODE is a symbol."
   (save-current-buffer
