@@ -1841,11 +1841,12 @@ DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
   (let ((handler (assoc this-command ivy-completing-read-handlers-alist)))
     (if handler
-        (funcall (cdr handler)
-                 prompt collection
-                 predicate require-match
-                 initial-input history
-                 def inherit-input-method)
+        (let ((completion-in-region-function #'completion--in-region))
+          (funcall (cdr handler)
+                   prompt collection
+                   predicate require-match
+                   initial-input history
+                   def inherit-input-method))
       ;; See the doc of `completing-read'.
       (when (consp history)
         (when (numberp (cdr history))
