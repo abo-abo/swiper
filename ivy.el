@@ -2457,6 +2457,8 @@ Should be run via minibuffer `post-command-hook'."
                         (and (string= "~" ivy-text)
                              ivy-magic-tilde))
                     (ivy--cd (expand-file-name "~/")))
+                   ((string-prefix-p "~/" ivy-text)
+                    (ivy--cd-maybe))
                    ((string-match "/\\'" ivy-text)
                     (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
