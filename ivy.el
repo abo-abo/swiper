@@ -1294,10 +1294,11 @@ On error (read-only), call `ivy-on-del-error-function'."
             (avy--process
              (nreverse candidates)
              (avy--style-fn avy-style)))))
-    (goto-char candidate)
-    (ivy--done
-     (buffer-substring-no-properties
-      (point) (line-end-position)))))
+    (when (number-or-marker-p candidate)
+      (goto-char candidate)
+      (ivy--done
+       (buffer-substring-no-properties
+        (point) (line-end-position))))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
