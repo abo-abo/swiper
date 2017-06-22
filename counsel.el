@@ -86,6 +86,13 @@
      str)
     str))
 
+(defun counsel-require-program (program)
+  "Check system for PROGRAM, printing error if unfound."
+  (when (and (stringp program)
+             (not (string= program ""))
+             (not (executable-find program)))
+    (user-error "Required program \"%s\" not found in your path" program)))
+
 ;;* Async Utility
 (defvar counsel--async-time nil
   "Store the time when a new process was started.
@@ -991,6 +998,7 @@ BUFFER defaults to the current one."
 (defun counsel-git (&optional initial-input)
   "Find file in the current Git repository."
   (interactive)
+  (counsel-require-program (car (split-string counsel-git-cmd)))
   (setq counsel--git-dir (locate-dominating-file
                           default-directory ".git"))
   (ivy-set-prompt 'counsel-git counsel-prompt-function)
@@ -1168,6 +1176,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                (delete-dups counsel-git-grep-cmd-history))))
       (t
        (setq counsel-git-grep-cmd counsel-git-grep-cmd-default)))
+    (counsel-require-program (car (split-string counsel-git-grep-cmd)))
     (setq counsel--git-grep-dir
           (if proj
               (car proj)
@@ -1484,6 +1493,7 @@ TREE is the selected candidate."
 
 (defun counsel-find-file-as-root (x)
   "Find file X with root privileges."
+  (counsel-require-program counsel-root-command)
   (let* ((host (file-remote-p x 'host))
          (file-name (format "/%s:%s:%s"
                             counsel-root-command
@@ -1596,6 +1606,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (defun counsel-github-url-p ()
   "Return a Github issue URL at point."
+  (counsel-require-program "git")
   (let ((url (counsel-at-git-issue-p)))
     (when url
       (let ((origin (shell-command-to-string
@@ -1615,6 +1626,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (defun counsel-emacs-url-p ()
   "Return a Debbugs issue URL at point."
+  (counsel-require-program "git")
   (let ((url (counsel-at-git-issue-p)))
     (when url
       (let ((origin (shell-command-to-string
@@ -1697,20 +1709,24 @@ string - the full shell command to run."
 
 (defun counsel-locate-cmd-default (input)
   "Return a shell command based on INPUT."
+  (counsel-require-program "locate")
   (format "locate -i --regex '%s'"
           (counsel-unquote-regex-parens
            (ivy--regex input))))
 
 (defun counsel-locate-cmd-noregex (input)
   "Return a shell command based on INPUT."
+  (counsel-require-program "locate")
   (format "locate -i '%s'" input))
 
 (defun counsel-locate-cmd-mdfind (input)
   "Return a shell command based on INPUT."
+  (counsel-require-program "mdfind")
   (format "mdfind -name '%s'" input))
 
 (defun counsel-locate-cmd-es (input)
   "Return a shell command based on INPUT."
+  (counsel-require-program "es.exe")
   (format "es.exe -i -r %s"
           (counsel-unquote-regex-parens
            (ivy--regex input t))))
@@ -1744,6 +1760,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-dpkg ()
   "Call the \"dpkg\" shell command."
   (interactive)
+  (counsel-require-program "dpkg")
   (let ((cands (mapcar
                 (lambda (x)
                   (let ((y (split-string x "  +")))
@@ -1764,6 +1781,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-rpm ()
   "Call the \"rpm\" shell command."
   (interactive)
+  (counsel-require-program "rpm")
   (let ((cands (mapcar
                 (lambda (x)
                   (let ((y (split-string x "|")))
@@ -1791,6 +1809,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (read-directory-name "From directory: "))))
+  (counsel-require-program "find")
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
               (split-string
@@ -1820,6 +1839,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (read-directory-name "From directory: "))))
+  (counsel-require-program "find")
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Directory: "
               (split-string
@@ -1908,6 +1928,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
+  (counsel-require-program (car (split-string counsel-ag-base-command)))
   (when current-prefix-arg
     (setq initial-directory
           (or initial-directory
@@ -1999,6 +2020,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
            (read-directory-name (concat
                                  (car (split-string counsel-rg-base-command))
                                  " in directory: ")))))
+  (counsel-require-program (car (split-string counsel-rg-base-command)))
   (ivy-set-prompt 'counsel-rg counsel-prompt-function)
   (setq counsel--git-grep-dir (or initial-directory default-directory))
   (ivy-read (or rg-prompt (car (split-string counsel-rg-base-command)))
@@ -2082,6 +2104,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel-grep ()
   "Grep for a string in the current file."
   (interactive)
+  (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-grep-dir (buffer-file-name))
   (let ((init-point (point))
@@ -2165,6 +2188,7 @@ You'll be given a list of files that match.
 Selecting a file will launch `swiper' for that file.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
+  (counsel-require-program "recoll")
   (ivy-read "recoll: " 'counsel-recoll-function
             :initial-input initial-input
             :dynamic-collection t
