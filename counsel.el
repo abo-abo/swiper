@@ -988,7 +988,7 @@ BUFFER defaults to the current one."
    ("x" counsel-find-file-extern "open externally")))
 
 ;;;###autoload
-(defun counsel-git ()
+(defun counsel-git (&optional initial-input)
   "Find file in the current Git repository."
   (interactive)
   (setq counsel--git-dir (locate-dominating-file
@@ -1004,6 +1004,7 @@ BUFFER defaults to the current one."
                    "\n"
                    t)))
       (ivy-read "Find file" cands
+                :initial-input initial-input
                 :action #'counsel-git-action
                 :caller 'counsel-git))))
 
