@@ -1178,17 +1178,27 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               (if (eq system-type 'windows-nt)
                   0
                 (counsel--gg-count "" t))))
-      (ivy-read "git grep" (if proj
-                               'counsel-git-grep-proj-function
-                             'counsel-git-grep-function)
-                :initial-input initial-input
-                :matcher #'counsel-git-grep-matcher
-                :dynamic-collection (or proj counsel-git-grep-skip-counting-lines (> counsel--git-grep-count 20000))
-                :keymap counsel-git-grep-map
-                :action #'counsel-git-grep-action
-                :unwind #'swiper--cleanup
-                :history 'counsel-git-grep-history
-                :caller 'counsel-git-grep))))
+      (cl-flet
+          ((collection-function
+            (if proj
+                #'counsel-git-grep-proj-function
+              #'counsel-git-grep-function))
+           (unwind-function
+            (if proj
+                (lambda ()
+                  (counsel-delete-process)
+                  (swiper--cleanup))
+              (lambda ()
+                (swiper--cleanup)))))
+        (ivy-read "git grep" #'collection-function
+                  :initial-input initial-input
+                  :matcher #'counsel-git-grep-matcher
+                  :dynamic-collection (or proj counsel-git-grep-skip-counting-lines (> counsel--git-grep-count 20000))
+                  :keymap counsel-git-grep-map
+                  :action #'counsel-git-grep-action
+                  :unwind #'unwind-function
+                  :history 'counsel-git-grep-history
+                  :caller 'counsel-git-grep)))))
 
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current git repository."
