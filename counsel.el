@@ -996,7 +996,8 @@ BUFFER defaults to the current one."
 
 ;;;###autoload
 (defun counsel-git (&optional initial-input)
-  "Find file in the current Git repository."
+  "Find file in the current Git repository.
+INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-git-cmd)))
   (setq counsel--git-dir (locate-dominating-file
@@ -1990,6 +1991,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
 ;;;###autoload
 (defun counsel-ack (&optional initial-input)
   "Grep for a string in the current directory using ack.
+INITIAL-INPUT can be given as the initial minibuffer input.
 This uses `counsel-ag' with `counsel-ack-base-command' replacing
 `counsel-ag-base-command'."
   (interactive)
