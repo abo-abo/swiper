@@ -1656,6 +1656,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--old-text "")
     (setq ivy--full-length nil)
     (setq ivy-text "")
+    (setq ivy--index 0)
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
     (let (reb)
