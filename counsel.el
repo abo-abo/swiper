@@ -773,8 +773,8 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
     (when (require 'smex nil 'noerror)
       (unless smex-initialized-p
         (smex-initialize))
-      (smex-detect-new-commands)
-      (smex-update)
+      (when (smex-detect-new-commands)
+        (smex-update))
       (setq cands smex-ido-cache)
       (setq pred nil)
       (setq sort nil))
