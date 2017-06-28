@@ -2024,7 +2024,9 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                  " in directory: ")))))
   (counsel-require-program (car (split-string counsel-rg-base-command)))
   (ivy-set-prompt 'counsel-rg counsel-prompt-function)
-  (setq counsel--git-grep-dir (or initial-directory default-directory))
+  (setq counsel--git-grep-dir (or initial-directory
+                                  (locate-dominating-file default-directory ".git")
+                                  default-directory))
   (ivy-read (or rg-prompt (car (split-string counsel-rg-base-command)))
             (lambda (string)
               (counsel-ag-function string counsel-rg-base-command extra-rg-args))
