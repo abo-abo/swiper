@@ -1682,10 +1682,9 @@ This is useful for recursive `ivy-read'."
              (when (and initial-input
                         (not (equal initial-input "")))
                (cond ((file-directory-p initial-input)
-                      (when (and (eq this-command 'dired-do-copy)
-                                 (equal (file-name-nondirectory initial-input)
-                                        ""))
-                        (setf (ivy-state-preselect state) (setq preselect nil)))
+                      (when (equal (file-name-nondirectory initial-input) "")
+                        (setf (ivy-state-preselect state) (setq preselect nil))
+                        (setf (ivy-state-def state) (setq def nil)))
                       (setq ivy--directory initial-input)
                       (setq initial-input nil)
                       (when preselect
