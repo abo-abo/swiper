@@ -1944,7 +1944,9 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                "%s" "" (substring-no-properties counsel-ag-base-command pos))))
                 (read-string (format "(%s%s) extra-args:" command ag-args))))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
-  (setq counsel--git-grep-dir (or initial-directory default-directory))
+  (setq counsel--git-grep-dir (or initial-directory
+                                  (locate-dominating-file default-directory ".git")
+                                  default-directory))
   (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
             (lambda (string)
               (counsel-ag-function string counsel-ag-base-command extra-ag-args))
