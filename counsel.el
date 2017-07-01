@@ -923,7 +923,7 @@ See `describe-buffer-bindings' for further information."
       (re-search-forward "")
       (forward-char 1)
       (while (not (eobp))
-        (when (looking-at "^\\([^\t\n]+\\)\t+\\(.*\\)$")
+        (when (looking-at "^\\([^\t\n]+\\)[\t ]*\\(.*\\)$")
           (let ((key (match-string 1))
                 (fun (match-string 2))
                 cmd)
