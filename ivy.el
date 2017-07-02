@@ -2337,9 +2337,10 @@ STD-PROPS is a property list containing the default text properties."
         (when (ivy--prompt-selectable-p)
           (if (or (= ivy--index -1)
                   (= ivy--length 0))
-              (add-face-text-property (point-min) (line-end-position)
-                                      'ivy-prompt-match)
-            (remove-text-properties (point-min) (line-end-position) '(face))))
+              (add-face-text-property
+               (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
+            (remove-text-properties
+             (minibuffer-prompt-end) (line-end-position) '(face))))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
 
