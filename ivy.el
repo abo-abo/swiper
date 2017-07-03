@@ -3536,6 +3536,25 @@ Don't finish completion."
       (insert (substring (ivy-state-current ivy-last) 0 -1))
     (insert (ivy-state-current ivy-last))))
 
+(defcustom ivy--preferred-re-builders
+  '((ivy--regex-plus . "ivy")
+    (ivy--regex-ignore-order . "order")
+    (ivy--regex-fuzzy . "fuzzy"))
+  "Alist of preferred re-builders with display names.
+This list can be rotated with `ivy-rotate-preferred-builders'."
+  :type '(alist :key-type function :value-type string)
+  :group 'ivy)
+
+(defun ivy-rotate-preferred-builders ()
+  "Switch to the next re builder in `ivy--preferred-re-builders'."
+  (interactive)
+  (when ivy--preferred-re-builders
+    (setq ivy--old-re nil)
+    (setq ivy--regex-function
+          (let ((cell (assoc ivy--regex-function ivy--preferred-re-builders)))
+            (car (or (cadr (memq cell ivy--preferred-re-builders))
+                     (car ivy--preferred-re-builders)))))))
+
 (defun ivy-toggle-fuzzy ()
   "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."
   (interactive)
