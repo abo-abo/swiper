@@ -1534,9 +1534,11 @@ since you can still access the dotfiles if your input starts with
 a dot. The generic way to toggle ignored files is \\[ivy-toggle-ignore],
 but the leading dot is a lot faster."
   :group 'ivy
-  :type '(choice
+  :type `(choice
           (const :tag "None" nil)
           (const :tag "Dotfiles" "\\`\\.")
+          (const :tag "Ignored Extensions"
+                 ,(regexp-opt completion-ignored-extensions))
           (regexp :tag "Regex")))
 
 (defun counsel--find-file-matcher (regexp candidates)
