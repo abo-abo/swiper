@@ -1889,6 +1889,7 @@ result as a URL."
 (ivy-set-actions
  'counsel-recentf
  '(("j" find-file-other-window "other window")
+   ("f" find-file-other-frame "other frame")
    ("x" counsel-find-file-extern "open externally")))
 
 ;;** `counsel-locate'
