@@ -885,6 +885,19 @@ The libraries are offered from `load-path'."
  '(("d" counsel--find-symbol "definition")))
 
 ;;** `counsel-find-library'
+(ivy-set-actions
+ 'counsel-find-library
+ '(("j" (lambda (library)
+          (let ((buf (find-file-noselect (find-library-name library))))
+            (pop-to-buffer buf 'other-window)))
+    "other window")
+   ("f" (lambda (library)
+          (let ((buf (find-file-noselect (find-library-name library))))
+            (condition-case nil
+                (switch-to-buffer-other-frame buf)
+              (error (pop-to-buffer buf)))))
+    "other frame")))
+
 ;;;###autoload
 (defun counsel-find-library ()
   "Visit a selected the Emacs Lisp library.
