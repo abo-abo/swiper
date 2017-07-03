@@ -1623,6 +1623,7 @@ Does not list the currently checked out one."
 (ivy-set-actions
  'counsel-find-file
  '(("j" find-file-other-window "other window")
+   ("f" find-file-other-frame "other frame")
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
