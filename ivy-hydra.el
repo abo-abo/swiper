@@ -35,10 +35,10 @@
 
 (defun ivy--matcher-desc ()
   "Return description of `ivy--regex-function'."
-  (if (eq ivy--regex-function
-          'ivy--regex-fuzzy)
-      "fuzzy"
-    "ivy"))
+  (let ((cell (assoc ivy--regex-function ivy--preferred-re-builders)))
+    (if cell
+        (cdr cell)
+      "other")))
 
 (defhydra hydra-ivy (:hint nil
                      :color pink)
@@ -65,7 +65,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _m_: matcher %-5s(ivy--matcher-desc)
   ("g" ivy-call)
   ("C-m" ivy-done :exit t)
   ("c" ivy-toggle-calling)
-  ("m" ivy-toggle-fuzzy)
+  ("m" ivy-rotate-preferred-builders)
   (">" ivy-minibuffer-grow)
   ("<" ivy-minibuffer-shrink)
   ("w" ivy-prev-action)
