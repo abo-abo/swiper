@@ -1364,8 +1364,8 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 (defun counsel-git-grep-recenter ()
   "Recenter window according to the selected candidate."
   (interactive)
+  (counsel-git-grep-action (ivy-state-current ivy-last))
   (with-ivy-window
-    (counsel-git-grep-action (ivy-state-current ivy-last))
     (recenter-top-bottom)))
 
 ;;** `counsel-git-stash'
