@@ -1944,9 +1944,11 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                      (command (substring-no-properties counsel-ag-base-command 0 pos))
                      (ag-args (replace-regexp-in-string
                                "%s" "" (substring-no-properties counsel-ag-base-command pos))))
-                (read-string (format "(%s) args:" command) ag-args)))))
+                (read-string (format "(%s%s) extra-args:" command ag-args))))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
-  (setq counsel--git-grep-dir (or initial-directory default-directory))
+  (setq counsel--git-grep-dir (or initial-directory
+                                  (locate-dominating-file default-directory ".git")
+                                  default-directory))
   (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
             (lambda (string)
               (counsel-ag-function string counsel-ag-base-command extra-ag-args))
@@ -2000,47 +2002,21 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
   (let ((counsel-ag-base-command counsel-ack-base-command))
     (counsel-ag initial-input)))
 
-
 ;;** `counsel-rg'
-(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 --color never %s ."
+(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 --color never %s"
   "Alternative to `counsel-ag-base-command' using ripgrep."
   :type 'string
   :group 'ivy)
 
-(counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
-(ivy-set-occur 'counsel-rg 'counsel-rg-occur)
-(ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
-
 ;;;###autoload
-(defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
+(defun counsel-rg (&optional initial-input)
   "Grep for a string in the current directory using rg.
 INITIAL-INPUT can be given as the initial minibuffer input.
-INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
-EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
-RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
-  (interactive
-   (list nil
-         (when current-prefix-arg
-           (read-directory-name (concat
-                                 (car (split-string counsel-rg-base-command))
-                                 " in directory: ")))))
-  (counsel-require-program (car (split-string counsel-rg-base-command)))
-  (ivy-set-prompt 'counsel-rg counsel-prompt-function)
-  (setq counsel--git-grep-dir (or initial-directory
-                                  (locate-dominating-file default-directory ".git")
-                                  default-directory))
-  (ivy-read (or rg-prompt (car (split-string counsel-rg-base-command)))
-            (lambda (string)
-              (counsel-ag-function string counsel-rg-base-command extra-rg-args))
-            :initial-input initial-input
-            :dynamic-collection t
-            :keymap counsel-ag-map
-            :history 'counsel-git-grep-history
-            :action #'counsel-git-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-rg))
+This uses `counsel-ag' with `counsel-rg-base-command' instead of
+`counsel-rg-base-command'."
+  (interactive)
+  (let ((counsel-ag-base-command counsel-rg-base-command))
+    (counsel-ag initial-input)))
 
 (defun counsel-rg-occur ()
   "Generate a custom occur buffer for `counsel-rg'."
