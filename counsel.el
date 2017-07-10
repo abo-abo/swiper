@@ -2002,7 +2002,7 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 
 
 ;;** `counsel-rg'
-(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --max-columns 150 --color never %s ."
+(defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
   "Alternative to `counsel-ag-base-command' using ripgrep."
   :type 'string
   :group 'ivy)
