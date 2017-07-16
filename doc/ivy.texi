@@ -94,8 +94,8 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -385,8 +385,8 @@ where the familiar @kbd{C-a}, @kbd{C-f}, @kbd{M-d}, @kbd{M-DEL}, @kbd{M-b}, @kbd
 
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -1318,9 +1318,9 @@ Switch to the home directory.
 If the current input matches an existing directory name exactly,
 switch the completion to that directory.
 @end indentedblock
-@subsubheading @kbd{M-q} (@code{ivy-toggle-regexp-quote})
+@subsubheading @kbd{M-r} (@code{ivy-toggle-regexp-quote})
 @vindex ivy-toggle-regexp-quote
-@kindex M-q
+@kindex M-r
 @indentedblock
 Toggle between input as regexp or not.
 
