@@ -980,7 +980,7 @@ bindings that work here:
 - ~/~ (=self-insert-command=) ::
      If the current input matches an existing directory name exactly,
      switch the completion to that directory.
-- ~M-q~ (=ivy-toggle-regexp-quote=) ::
+- ~M-r~ (=ivy-toggle-regexp-quote=) ::
      Toggle between input as regexp or not.
 
      Switch to matching literally since file names include =.=, which
