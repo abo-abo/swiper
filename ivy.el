@@ -3490,6 +3490,14 @@ Skip buffers that match `ivy-ignore-buffers'."
               :caller 'ivy-switch-buffer)))
 
 ;;;###autoload
+(defun ivy-switch-view ()
+  "Switch to one of the window views stored by `ivy-push-view'."
+  (interactive)
+  (let ((ivy-initial-inputs-alist
+         '((ivy-switch-buffer . "{}"))))
+    (ivy-switch-buffer)))
+
+;;;###autoload
 (defun ivy-switch-buffer-other-window ()
   "Switch to another buffer in another window."
   (interactive)
