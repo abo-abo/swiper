@@ -1870,7 +1870,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                                      (t
                                       initial-input))
                 :preselect (if (listp def) (car def) def)
-                :def def
+                :def (if (listp def) (car def) def)
                 :history history
                 :keymap nil
                 :sort t
