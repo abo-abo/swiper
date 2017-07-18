@@ -1,4 +1,4 @@
-;;; ivy.el --- Incremental Vertical completYon -*- lexical-binding: t -*-
+;;; ivy.el --- Incremental Vertical completion -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015-2017  Free Software Foundation, Inc.
 
