@@ -1449,6 +1449,19 @@ TREE is the selected candidate."
     (and (string-match-p "Not a git repository" out) (error "Not a git repository!"))
     out))
 
+(defun counsel-git-close-worktree-files-action (root-dir)
+  "Close all buffers from the worktree located at ROOT-DIR."
+  (save-excursion
+    (dolist (buf (buffer-list))
+      (set-buffer buf)
+      (and buffer-file-name
+           (string= "." (file-relative-name root-dir (counsel-git-toplevel)))
+           (kill-buffer buf)))))
+
+(ivy-set-actions
+ 'counsel-git-change-worktree
+ '(("k" counsel-git-close-worktree-files-action "kill all")))
+
 ;;;###autoload
 (defun counsel-git-change-worktree ()
   "Find the file corresponding to the current buffer on a different worktree."
