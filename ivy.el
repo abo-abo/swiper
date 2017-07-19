@@ -273,14 +273,6 @@ Example:
 This is a global variable that is set by ivy functions for use in
 action functions.")
 
-(defvar ivy-completing-read-default-is-empty-string t
-  "If non-nil, emulate default arg handling of `completing-read-default'.
-
-Specifically, if `ivy-completing-read' is called with DEF nil, it
-will be treated as equivalent to specifying the empty string for
-DEF, since that is what `completing-read-default' does. If this
-is nil, then a nil DEF will really mean no default.")
-
 ;;* Keymap
 (require 'delsel)
 (defvar ivy-minibuffer-map
@@ -1864,8 +1856,6 @@ INHERIT-INPUT-METHOD is currently ignored."
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
-      (when (and (null def) ivy-completing-read-default-is-empty-string)
-        (setq def ""))
       (ivy-read (replace-regexp-in-string "%" "%%" prompt)
                 collection
                 :predicate predicate
@@ -1888,6 +1878,21 @@ INHERIT-INPUT-METHOD is currently ignored."
                                this-command)
                               ((and collection (symbolp collection))
                                collection))))))
+
+(defun ivy-completing-read-with-empty-string-def
+    (prompt collection
+            &optional predicate require-match initial-input
+            history def inherit-input-method)
+  "Same as `ivy-completing-read' but with different handling of DEF.
+
+Specifically, if DEF is nil, it is treated the same as if DEF was
+the empty string. This mimics the behavior of
+`completing-read-refault'. This function can therefore be used in
+place of `icy-completing-read' for commands that rely on this
+behavior."
+  (ivy-completing-read
+   prompt collection predicate require-match initial-input
+   history (or def "") inherit-input-method))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")

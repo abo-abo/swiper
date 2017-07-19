@@ -518,33 +518,55 @@
               "bl C-p C-M-j")
              "bl"))))
 
-(ert-deftest ivy-completing-read-default ()
-  (should
+(ert-deftest ivy-completing-read-def-handling ()
    ;; DEF in COLLECTION
+  (should
    (equal "b"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "b")
                     "RET")))
+  ;; Also make sure that choosing a non-default item works
+  (should
+   (equal "c"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "b")
+                    "c RET")))
   ;; DEF not in COLLECTION
   (should
    (equal "d"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "d")
                     "RET")))
+  (should
+   (equal "c"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil "d")
+                    "c RET")))
   ;; DEF list, some in COLLECTION
   (should
    (equal "e"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil '("e" "b"))
                     "RET")))
+  (should
+   (equal "c"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil '("e" "b"))
+                    "c RET")))
   ;; DEF nil
   (should
-   (equal ""
+   (equal "a"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
                     "RET")))
-  ;; DEF nil, and `ivy-completing-read-default-is-empty-string' also nil
   (should
-   (equal "a"
-          (let ((ivy-completing-read-default-is-empty-string nil))
-            (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
-                      "RET")))))
+   (equal "c"
+          (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
+                    "c RET")))
+  ;; DEF nil, and called via `ivy-completing-read-with-empty-string-def'
+  (should
+   (equal ""
+          (ivy-with '(ivy-completing-read-with-empty-string-def
+                      "Pick: " '("a" "b" "c") nil t nil nil nil)
+                    "RET")))
+  (should
+   (equal "c"
+          (ivy-with '(ivy-completing-read-with-empty-string-def
+                      "Pick: " '("a" "b" "c") nil t nil nil nil)
+                      "c RET"))))
 
 (provide 'ivy-test)
 
