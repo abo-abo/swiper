@@ -1443,11 +1443,17 @@ TREE is the selected candidate."
   "Return worktree from candidate TREE."
   (substring tree 0 (string-match " " tree)))
 
+(defun counsel-git-toplevel ()
+  "Return the base directory of the current git repository."
+  (let ((out (string-trim-right (shell-command-to-string "git rev-parse --show-toplevel"))))
+    (and (string-match-p "Not a git repository" out) (error "Not a git repository!"))
+    out))
+
 ;;;###autoload
 (defun counsel-git-change-worktree ()
   "Find the file corresponding to the current buffer on a different worktree."
   (interactive)
-  (let ((git-root-dir (string-trim-right (shell-command-to-string "git rev-parse --show-toplevel"))))
+  (let ((git-root-dir (counsel-git-toplevel)))
     (ivy-read "Select worktree: "
               (or (cl-delete git-root-dir (counsel-git-worktree-list)
                              :key #'counsel-git-worktree-parse-root :test #'string=)
