@@ -59,6 +59,18 @@
   (setq this-command cmd)
   (apply #'command-execute cmd args))
 
+(defadvice symbol-function (around no-void-function activate)
+  "Suppress void-function errors.
+
+This advice makes `symbol-function' return nil when called on a
+symbol with no function rather than throwing a void-fucntion
+error. On Emacs 24.4 and above, this has no effect, because
+`symbol-function' already does this, but on 24.3 and earlier, it
+will bring the behavior in line with the newer Emacsen."
+  (condition-case nil
+      ad-do-it
+    (void-function nil)))
+
 (ert-deftest ivy-partial ()
   (should (equal
            (ivy-with '(ivy-read "test: " '("case" "Case"))
