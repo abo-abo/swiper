@@ -198,7 +198,16 @@ See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
 
 (defcustom ivy-completing-read-handlers-alist
   '((tmm-menubar . completing-read-default)
-    (tmm-shortcut . completing-read-default))
+    (tmm-shortcut . completing-read-default)
+    (bbdb-create . ivy-completing-read-with-empty-string-def)
+    (auto-insert . ivy-completing-read-with-empty-string-def)
+    (Info-on-current-buffer . ivy-completing-read-with-empty-string-def)
+    (Info-follow-reference . ivy-completing-read-with-empty-string-def)
+    (Info-menu . ivy-completing-read-with-empty-string-def)
+    (Info-index . ivy-completing-read-with-empty-string-def)
+    (Info-virtual-index . ivy-completing-read-with-empty-string-def)
+    (info-display-manual . ivy-completing-read-with-empty-string-def)
+    (webjump . ivy-completing-read-with-empty-string-def))
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
   :type '(alist :key-type function :value-type function))
 
