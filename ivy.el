@@ -202,6 +202,12 @@ See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
   :type '(alist :key-type function :value-type function))
 
+(defvar ivy-completing-read-ignore-handlers-depth -1
+  "Used to avoid infinite recursion.
+
+If `(minibuffer-depth)' equals this, `ivy-completing-read' will
+act as if `ivy-completing-read-handlers-alist' is empty.")
+
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
 
@@ -1842,9 +1848,12 @@ INITIAL-INPUT is a string inserted into the minibuffer initially.
 HISTORY is a list of previously selected inputs.
 DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
-  (let ((handler (assoc this-command ivy-completing-read-handlers-alist)))
+  (let ((handler
+         (when (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
+           (assoc this-command ivy-completing-read-handlers-alist))))
     (if handler
-        (let ((completion-in-region-function #'completion--in-region))
+        (let ((completion-in-region-function #'completion--in-region)
+              (ivy-completing-read-ignore-handlers-depth (1+ (minibuffer-depth))))
           (funcall (cdr handler)
                    prompt collection
                    predicate require-match
