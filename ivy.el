@@ -3863,7 +3863,7 @@ EVENT gives the mouse position."
                      (assoc str coll)
                    str))
         (if (memq (ivy-state-caller ivy-last)
-                  '(swiper counsel-git-grep counsel-grep))
+                  '(swiper counsel-git-grep counsel-grep counsel-ag counsel-rg))
             (with-current-buffer (window-buffer (selected-window))
               (swiper--cleanup)
               (swiper--add-overlays
