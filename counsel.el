@@ -1599,11 +1599,18 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :action
             (lambda (x)
               (with-ivy-window
-                (let ((find-file-hook (if (and
-                                           counsel-find-file-speedup-remote
-                                           (file-remote-p ivy--directory))
-                                          nil
-                                        find-file-hook)))
+                ;; We only do the let binding here for find-file-hook
+                ;; if we are actually going to override it, there are
+                ;; some other modes (git-gutter and diff-hl) that
+                ;; cause user visible warnings if find-file-hook is
+                ;; let bound.  This way the user only has the warning
+                ;; in case of remote files and if she is annoyed with
+                ;; that, can set the counsel-find-file-speedup-remote
+                ;; variable to nil to get rid of them.
+                (if (and counsel-find-file-speedup-remote
+                         (file-remote-p ivy--directory))
+                    (let ((find-file-hook nil))
+                      (find-file (expand-file-name x ivy--directory)))
                   (find-file (expand-file-name x ivy--directory)))))
             :preselect (when counsel-find-file-at-point
                          (require 'ffap)
