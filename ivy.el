@@ -1655,7 +1655,7 @@ This is useful for recursive `ivy-read'."
         (caller (ivy-state-caller state))
         (def (ivy-state-def state)))
     (unless initial-input
-      (setq initial-input (cdr (assoc this-command
+      (setq initial-input (cdr (assoc (or caller this-command)
                                       ivy-initial-inputs-alist))))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)

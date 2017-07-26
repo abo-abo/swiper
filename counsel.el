@@ -764,9 +764,6 @@ By default `counsel-bookmark' opens a dired buffer for directories."
   "Ivy version of `execute-extended-command'.
 Optional INITIAL-INPUT is the initial input in the minibuffer."
   (interactive)
-  (unless initial-input
-    (setq initial-input (cdr (assoc this-command
-                                    ivy-initial-inputs-alist))))
   (let* ((cands obarray)
          (pred 'commandp)
          (sort t))
