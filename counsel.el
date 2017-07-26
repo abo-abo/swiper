@@ -1396,6 +1396,9 @@ done") "\n" t)))
 (defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
   "Command used for \"git log\".")
 
+(defvar counsel-git-log-split-string-re "\ncommit "
+  "The `split-string' separates when split output of `counsel-git-log-cmd'.")
+
 (defun counsel-git-log-function (input)
   "Search for INPUT in git log."
   (if (< (length input) 3)
@@ -1478,7 +1481,7 @@ TREE is the selected candidate."
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
   (interactive)
-  (let ((counsel-async-split-string-re "\ncommit ")
+  (let ((counsel-async-split-string-re counsel-git-log-split-string-re)
         (counsel-yank-pop-truncate-radius 5)
         (ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height 4))
