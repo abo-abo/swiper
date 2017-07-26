@@ -1489,6 +1489,7 @@ TREE is the selected candidate."
   "Call the \"git log --grep\" shell command."
   (interactive)
   (let ((counsel-async-split-string-re counsel-git-log-split-string-re)
+        (counsel-async-ignore-re "^[ \n]*$")
         (counsel-yank-pop-truncate-radius 5)
         (ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height 4))
