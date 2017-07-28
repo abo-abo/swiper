@@ -2237,6 +2237,10 @@ tries to ensure that it does not change depending on the number of candidates."
   :type 'boolean)
 
 ;;** Rest
+(defcustom ivy-truncate-lines t
+  "Minibuffer setting for `truncate-lines'."
+  :type 'boolean)
+
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
   (set (make-local-variable 'completion-show-inline-help) nil)
@@ -2245,7 +2249,7 @@ tries to ensure that it does not change depending on the number of candidates."
          (list ivy--default)))
   (set (make-local-variable 'inhibit-field-text-motion) nil)
   (when (display-graphic-p)
-    (setq truncate-lines t))
+    (setq truncate-lines ivy-truncate-lines))
   (setq-local max-mini-window-height ivy-height)
   (when (and ivy-fixed-height-minibuffer
              (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
