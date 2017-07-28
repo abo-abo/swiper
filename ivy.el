@@ -1442,11 +1442,11 @@ like.")
   "Sorting won't be done for collections larger than this."
   :type 'integer)
 
-(defun ivy--sorted-files (dir &optional predicate)
+(defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
-When PREDICATE is not nil, use it to filter the result.
 Directories come first."
   (let* ((default-directory dir)
+         (predicate (ivy-state-predicate ivy-last))
          (seq (condition-case nil
                   (all-completions "" 'read-file-name-internal)
                 (error
@@ -1729,7 +1729,7 @@ This is useful for recursive `ivy-read'."
                  (setf
                   (ivy-state-preselect state)
                   (setq preselect (file-name-nondirectory preselect)))))
-             (setq coll (ivy--sorted-files ivy--directory predicate))
+             (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
                            (equal initial-input default-directory)
