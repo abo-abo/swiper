@@ -2785,7 +2785,13 @@ A is the left hand side, B the right hand side."
 
 (defun counsel-yank-pop-action-remove (s)
   "Remove S from the kill ring."
-  (setq kill-ring (delete s kill-ring)))
+  (let ((next-ptr (cdr (member s kill-ring))))
+    (setq kill-ring (delete s kill-ring))
+    (setq kill-ring-yank-pointer (or next-ptr kill-ring))))
+
+(defun counsel-yank-pop-action-position (s)
+  "Set yank position to S."
+  (setq kill-ring-yank-pointer (member s kill-ring)))
 
 ;;;###autoload
 (defun counsel-yank-pop ()
@@ -2814,7 +2820,8 @@ A is the left hand side, B the right hand side."
 
 (ivy-set-actions
  'counsel-yank-pop
- '(("d" counsel-yank-pop-action-remove "delete")))
+ '(("d" counsel-yank-pop-action-remove "delete")
+   ("p" counsel-yank-pop-action-position "position")))
 
 ;;** `counsel-imenu'
 (defvar imenu-auto-rescan)
