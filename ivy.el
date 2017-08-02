@@ -1313,6 +1313,8 @@ On error (read-only), call `ivy-on-del-error-function'."
              (avy--style-fn avy-style)))))
     (when (number-or-marker-p candidate)
       (goto-char candidate)
+      (when (eq ivy-format-function 'ivy-format-function-arrow)
+        (forward-char 2))
       (ivy--done
        (buffer-substring-no-properties
         (point) (line-end-position))))))
