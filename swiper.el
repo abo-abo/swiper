@@ -267,6 +267,8 @@
     woman-mode
     mu4e-view-mode
     mu4e-headers-mode
+    notmuch-tree-mode
+    notmuch-search-mode
     help-mode
     debbugs-gnu-mode
     occur-mode
