@@ -1907,7 +1907,7 @@ INHERIT-INPUT-METHOD is currently ignored."
 
 Specifically, if DEF is nil, it is treated the same as if DEF was
 the empty string. This mimics the behavior of
-`completing-read-refault'. This function can therefore be used in
+`completing-read-default'. This function can therefore be used in
 place of `ivy-completing-read' for commands that rely on this
 behavior."
   (ivy-completing-read
