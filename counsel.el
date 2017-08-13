@@ -2951,7 +2951,8 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
   (setq ivy-completion-end (point))
   (ivy-read "Symbol name: "
             (delete-dups
-             (ring-elements elements))
+             (when (> (ring-size elements) 0)
+               (ring-elements elements)))
             :action #'ivy-completion-in-region-action))
 
 (defvar eshell-history-ring)
