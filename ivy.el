@@ -1426,7 +1426,8 @@ like.")
 
 (defvar ivy-highlight-functions-alist
   '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
-    (ivy--regex-fuzzy . ivy--highlight-fuzzy))
+    (ivy--regex-fuzzy . ivy--highlight-fuzzy)
+    (ivy--regex-plus . ivy--highlight-default))
   "An alist of highlighting functions for each regex buidler function.")
 
 (defvar ivy-initial-inputs-alist
@@ -1678,15 +1679,9 @@ This is useful for recursive `ivy-read'."
     (setq ivy--index 0)
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
-    (let (reb)
-      (setq ivy--highlight-function
-            (if (and (eq ivy--regex-function 'swiper--re-builder)
-                     (setq reb (cdr (assoc t ivy-re-builders-alist)))
-                     (setq reb (cdr (assoc reb ivy-highlight-functions-alist))))
-                reb
-              (or (cdr (assoc ivy--regex-function
-                              ivy-highlight-functions-alist))
-                  #'ivy--highlight-default))))
+    (setq ivy--highlight-function
+          (or (cdr (assoc re-builder ivy-highlight-functions-alist))
+              #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
@@ -1695,7 +1690,7 @@ This is useful for recursive `ivy-read'."
                                (cl-delete-duplicates
                                 (all-completions "(" collection predicate)
                                 :test #'equal)))
-               (setq coll (all-completions "" collection predicate))))
+                 (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
              (setq ivy--directory default-directory)
              (when (and initial-input
@@ -1708,7 +1703,7 @@ This is useful for recursive `ivy-read'."
                       (setq initial-input nil)
                       (when preselect
                         (let ((preselect-directory
-                               (file-name-directory preselect)))
+                                (file-name-directory preselect)))
                           (when (and preselect-directory
                                      (not (equal
                                            (expand-file-name
@@ -1717,7 +1712,7 @@ This is useful for recursive `ivy-read'."
                             (setf (ivy-state-preselect state)
                                   (setq preselect nil))))))
                      ((ignore-errors
-                        (file-exists-p (file-name-directory initial-input)))
+                       (file-exists-p (file-name-directory initial-input)))
                       (setq ivy--directory (file-name-directory initial-input))
                       (setf (ivy-state-preselect state)
                             (file-name-nondirectory initial-input)))))
@@ -1752,16 +1747,16 @@ This is useful for recursive `ivy-read'."
                                       (cl-sort
                                        (copy-sequence collection)
                                        sort-fn))))
-               (setq collection
-                     (setf (ivy-state-collection ivy-last)
-                           (cl-remove-if-not predicate collection)))
-               (setq coll (all-completions "" collection)))
+                 (setq collection
+                       (setf (ivy-state-collection ivy-last)
+                             (cl-remove-if-not predicate collection)))
+                 (setq coll (all-completions "" collection)))
              (let ((i 0))
                (ignore-errors
-                 ;; cm can be read-only
-                 (dolist (cm coll)
-                   (add-text-properties 0 1 `(idx ,i) cm)
-                   (cl-incf i)))))
+                ;; cm can be read-only
+                (dolist (cm coll)
+                  (add-text-properties 0 1 `(idx ,i) cm)
+                  (cl-incf i)))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
@@ -1781,10 +1776,10 @@ This is useful for recursive `ivy-read'."
                  (setq sort-fn (ivy--sort-function collection)))
             (when (not (eq collection 'read-file-name-internal))
               (setq coll (cl-sort coll sort-fn)))
-          (when (and (not (eq history 'org-refile-history))
-                     (<= (length coll) ivy-sort-max-size)
-                     (setq sort-fn (ivy--sort-function caller)))
-            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
+            (when (and (not (eq history 'org-refile-history))
+                       (<= (length coll) ivy-sort-max-size)
+                       (setq sort-fn (ivy--sort-function caller)))
+              (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
@@ -1805,7 +1800,7 @@ This is useful for recursive `ivy-read'."
                               preselect
                               (if initial-input
                                   ivy--old-cands
-                                coll)))
+                                  coll)))
                         0))))
     (setq ivy-exit nil)
     (setq ivy--default
@@ -1813,7 +1808,7 @@ This is useful for recursive `ivy-read'."
               (buffer-substring
                (region-beginning)
                (region-end))
-            (ivy-thing-at-point)))
+              (ivy-thing-at-point)))
     (setq ivy--prompt (ivy-add-prompt-count prompt))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
