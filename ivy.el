@@ -3174,22 +3174,15 @@ CANDS is a list of strings."
 
 (defun ivy--virtual-buffers ()
   "Adapted from `ido-add-virtual-buffers-to-list'."
+  (require 'bookmark)
   (unless recentf-mode
     (recentf-mode 1))
-  (let ((bookmarks (and (boundp 'bookmark-alist)
-                        (copy-sequence bookmark-alist)))
-        virtual-buffers)
+  (let (virtual-buffers)
+    (bookmark-maybe-load-default-file)
     (dolist (head (append
                    (copy-sequence recentf-list)
-                   (delq nil (mapcar
-                              (lambda (bookmark)
-                                (let (file)
-                                  (when (setq file (assoc 'filename bookmark))
-                                    (unless (string= (cdr file)
-                                                     "   - no file -")
-                                      (cons (car bookmark)
-                                            (cdr file))))))
-                              bookmarks))))
+                   (delq nil (mapcar #'bookmark-get-filename
+                                     (copy-sequence bookmark-alist)))))
       (let ((file-name (if (stringp head)
                            head
                          (cdr head)))
