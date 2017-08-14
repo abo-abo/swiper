@@ -3181,8 +3181,9 @@ CANDS is a list of strings."
     (bookmark-maybe-load-default-file)
     (dolist (head (append
                    (copy-sequence recentf-list)
-                   (delq nil (mapcar #'bookmark-get-filename
-                                     (copy-sequence bookmark-alist)))))
+                   (delete "   - no file -"
+                           (delq nil (mapcar #'bookmark-get-filename
+                                             (copy-sequence bookmark-alist))))))
       (let ((file-name (if (stringp head)
                            head
                          (cdr head)))
