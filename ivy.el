@@ -2632,8 +2632,11 @@ Otherwise, the car must not match."
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
   (let ((re (funcall ivy--regex-function name)))
-    (if (and (equal re ivy--old-re)
-             ivy--old-cands)
+    (if (and
+         ivy--old-re
+         ivy--old-cands
+         (or (equal re ivy--old-re)
+             (equal (car-safe (car-safe re)) ivy--old-re)))
         ;; quick caching for "C-n", "C-p" etc.
         ivy--old-cands
       (let* ((re-str (if (listp re) (caar re) re))
@@ -2810,11 +2813,14 @@ RE-STR is the regexp, CANDS are the current candidates."
                               (eq ?^ (aref name 0)))
                          (substring name 1)
                        name) cands
-                     :test #'equal)
+                       :test #'equal)
         (and ivy--directory
              (cl-position
               (concat re-str "/") cands
               :test #'equal))
+        (and (eq caller 'ivy-switch-buffer)
+             (> (length name) 0)
+             0)
         (and (not (string= name ""))
              (not (and ivy--flx-featurep
                        (eq ivy--regex-function 'ivy--regex-fuzzy)
