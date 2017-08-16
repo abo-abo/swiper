@@ -2810,14 +2810,11 @@ RE-STR is the regexp, CANDS are the current candidates."
                               (eq ?^ (aref name 0)))
                          (substring name 1)
                        name) cands
-                       :test #'equal)
+                     :test #'equal)
         (and ivy--directory
              (cl-position
               (concat re-str "/") cands
               :test #'equal))
-        (and (eq caller 'ivy-switch-buffer)
-             (> (length name) 0)
-             0)
         (and (not (string= name ""))
              (not (and ivy--flx-featurep
                        (eq ivy--regex-function 'ivy--regex-fuzzy)
