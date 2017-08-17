@@ -3689,8 +3689,15 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (defvar ivy-occur-grep-mode-map
   (let ((map (copy-keymap ivy-occur-mode-map)))
     (define-key map (kbd "C-x C-q") 'ivy-wgrep-change-to-wgrep-mode)
+    (define-key map (kbd "C-d") 'ivy-occur-delete-candidate)
     map)
   "Keymap for Ivy Occur Grep mode.")
+
+(defun ivy-occur-delete-candidate ()
+  (interactive)
+  (let ((inhibit-read-only t))
+    (delete-region (line-beginning-position)
+                   (1+ (line-end-position)))))
 
 (define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
