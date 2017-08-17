@@ -1423,7 +1423,8 @@ done") "\n" t)))
      ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
      ;; But it doesn't like the non-greedy ".*?".
      (format counsel-git-log-cmd
-             (replace-regexp-in-string "\\.\\*\\?" ".*" ivy--old-re)))
+             (replace-regexp-in-string "\\.\\*\\?" ".*"
+                                       (ivy-re-to-str ivy--old-re))))
     nil))
 
 (defun counsel-git-log-action (x)
@@ -2734,8 +2735,9 @@ A is the left hand side, B the right hand side."
   (condition-case nil
       (let* ((lines (split-string str "\n" t))
              (n (length lines))
+             (re (ivy-re-to-str ivy--old-re))
              (first-match (cl-position-if
-                           (lambda (s) (string-match ivy--old-re s))
+                           (lambda (s) (string-match re s))
                            lines))
              (beg (max 0 (- first-match
                             counsel-yank-pop-truncate-radius)))

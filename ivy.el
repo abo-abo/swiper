@@ -468,7 +468,8 @@ When non-nil, it should contain at least one %d.")
   "Temporary modifications to the prompt.")
 
 (defvar ivy--old-re nil
-  "Store the old regexp.")
+  "Store the old regexp.
+Either a string or a list for `ivy-re-match'.")
 
 (defvar ivy--old-cands nil
   "Store the candidates matched by `ivy--old-re'.")
@@ -499,6 +500,11 @@ When non-nil, it should contain at least one %d.")
   "Store the current overriding `case-fold-search'.")
 
 (defvar Info-current-file)
+
+(defun ivy-re-to-str (re)
+  (if (stringp re)
+      re
+    (caar re)))
 
 (eval-and-compile
   (unless (fboundp 'defvar-local)
@@ -1278,6 +1284,14 @@ On error (read-only), call `ivy-on-del-error-function'."
 (declare-function avy--process "ext:avy")
 (declare-function avy--style-fn "ext:avy")
 
+(defcustom ivy-format-function 'ivy-format-function-default
+  "Function to transform the list of candidates into a string.
+This string is inserted into the minibuffer."
+  :type '(choice
+          (const :tag "Default" ivy-format-function-default)
+          (const :tag "Arrow prefix" ivy-format-function-arrow)
+          (const :tag "Full line" ivy-format-function-line)))
+
 (eval-after-load 'avy
   '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
 
@@ -1680,7 +1694,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
     (setq ivy--highlight-function
-          (or (cdr (assoc re-builder ivy-highlight-functions-alist))
+          (or (cdr (assoc ivy--regex-function ivy-highlight-functions-alist))
               #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
@@ -1690,7 +1704,7 @@ This is useful for recursive `ivy-read'."
                                (cl-delete-duplicates
                                 (all-completions "(" collection predicate)
                                 :test #'equal)))
-                 (setq coll (all-completions "" collection predicate))))
+               (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
              (setq ivy--directory default-directory)
              (when (and initial-input
@@ -1703,7 +1717,7 @@ This is useful for recursive `ivy-read'."
                       (setq initial-input nil)
                       (when preselect
                         (let ((preselect-directory
-                                (file-name-directory preselect)))
+                               (file-name-directory preselect)))
                           (when (and preselect-directory
                                      (not (equal
                                            (expand-file-name
@@ -1712,7 +1726,7 @@ This is useful for recursive `ivy-read'."
                             (setf (ivy-state-preselect state)
                                   (setq preselect nil))))))
                      ((ignore-errors
-                       (file-exists-p (file-name-directory initial-input)))
+                        (file-exists-p (file-name-directory initial-input)))
                       (setq ivy--directory (file-name-directory initial-input))
                       (setf (ivy-state-preselect state)
                             (file-name-nondirectory initial-input)))))
@@ -1747,16 +1761,16 @@ This is useful for recursive `ivy-read'."
                                       (cl-sort
                                        (copy-sequence collection)
                                        sort-fn))))
-                 (setq collection
-                       (setf (ivy-state-collection ivy-last)
-                             (cl-remove-if-not predicate collection)))
-                 (setq coll (all-completions "" collection)))
+               (setq collection
+                     (setf (ivy-state-collection ivy-last)
+                           (cl-remove-if-not predicate collection)))
+               (setq coll (all-completions "" collection)))
              (let ((i 0))
                (ignore-errors
-                ;; cm can be read-only
-                (dolist (cm coll)
-                  (add-text-properties 0 1 `(idx ,i) cm)
-                  (cl-incf i)))))
+                 ;; cm can be read-only
+                 (dolist (cm coll)
+                   (add-text-properties 0 1 `(idx ,i) cm)
+                   (cl-incf i)))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
@@ -1776,10 +1790,10 @@ This is useful for recursive `ivy-read'."
                  (setq sort-fn (ivy--sort-function collection)))
             (when (not (eq collection 'read-file-name-internal))
               (setq coll (cl-sort coll sort-fn)))
-            (when (and (not (eq history 'org-refile-history))
-                       (<= (length coll) ivy-sort-max-size)
-                       (setq sort-fn (ivy--sort-function caller)))
-              (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
+          (when (and (not (eq history 'org-refile-history))
+                     (<= (length coll) ivy-sort-max-size)
+                     (setq sort-fn (ivy--sort-function caller)))
+            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
@@ -1800,7 +1814,7 @@ This is useful for recursive `ivy-read'."
                               preselect
                               (if initial-input
                                   ivy--old-cands
-                                  coll)))
+                                coll)))
                         0))))
     (setq ivy-exit nil)
     (setq ivy--default
@@ -1808,7 +1822,7 @@ This is useful for recursive `ivy-read'."
               (buffer-substring
                (region-beginning)
                (region-end))
-              (ivy-thing-at-point)))
+            (ivy-thing-at-point)))
     (setq ivy--prompt (ivy-add-prompt-count prompt))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
@@ -2635,8 +2649,7 @@ CANDIDATES are assumed to be static."
     (if (and
          ivy--old-re
          ivy--old-cands
-         (or (equal re ivy--old-re)
-             (equal (car-safe (car-safe re)) ivy--old-re)))
+         (equal re ivy--old-re))
         ;; quick caching for "C-n", "C-p" etc.
         ivy--old-cands
       (let* ((re-str (if (listp re) (caar re) re))
@@ -2674,12 +2687,7 @@ CANDIDATES are assumed to be static."
               (setq ivy--old-cands (ivy--sort name cands)))
           (setq ivy--old-cands (ivy--sort name cands))
           (ivy--recompute-index name re-str ivy--old-cands))
-        (setq ivy--old-re
-              (if (eq ivy--highlight-function 'ivy--highlight-ignore-order)
-                  re
-                (if ivy--old-cands
-                    re-str
-                  "")))
+        (setq ivy--old-re re)
         ivy--old-cands))))
 
 (defun ivy--set-candidates (x)
@@ -2998,14 +3006,6 @@ no sorting is done.")
     (error
      cands)))
 
-(defcustom ivy-format-function 'ivy-format-function-default
-  "Function to transform the list of candidates into a string.
-This string is inserted into the minibuffer."
-  :type '(choice
-          (const :tag "Default" ivy-format-function-default)
-          (const :tag "Arrow prefix" ivy-format-function-arrow)
-          (const :tag "Full line" ivy-format-function-line)))
-
 (defun ivy--truncate-string (str width)
   "Truncate STR to WIDTH."
   (if (> (string-width str) width)
@@ -3166,6 +3166,7 @@ CANDS is a list of strings."
         res))))
 
 (defvar recentf-list)
+(defvar bookmark-alist)
 
 (defcustom ivy-virtual-abbreviate 'name
   "The mode of abbreviation for virtual buffer names."
@@ -3174,6 +3175,8 @@ CANDS is a list of strings."
           (const :tag "Full path" full)
           ;; eventually, uniquify
           ))
+(declare-function bookmark-maybe-load-default-file "bookmark")
+(declare-function bookmark-get-filename "bookmark")
 
 (defun ivy--virtual-buffers ()
   "Adapted from `ido-add-virtual-buffers-to-list'."
