@@ -1336,12 +1336,23 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (setq ivy-text
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
-  (let ((cands (split-string
-                (shell-command-to-string
-                 (format counsel-git-grep-cmd
-                         (setq ivy--old-re (ivy--regex ivy-text t))))
-                "\n"
-                t)))
+  (let* ((regex (funcall ivy--regex-function ivy-text))
+         (positive-pattern (replace-regexp-in-string
+                            ;; git-grep can't handle .*?
+                            "\\.\\*\\?" ".*"
+                            (if (stringp regex) regex (caar regex))))
+         (negative-patterns
+          (mapconcat (lambda (x)
+                       (and (null (cdr x))
+                            (format "| grep -v %s" (car x))))
+                     regex
+                     " "))
+         (cmd (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns))
+         cands)
+    (setq cands (split-string
+                 (shell-command-to-string cmd)
+                 "\n"
+                 t))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
