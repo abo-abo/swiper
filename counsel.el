@@ -1045,7 +1045,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
 (ivy-set-display-transformer 'counsel-git-grep 'counsel-git-grep-transformer)
 
-(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -e '%s'"
+(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -e \"%s\""
   "Initial command for `counsel-git-grep'.")
 
 (defvar counsel-git-grep-cmd nil
