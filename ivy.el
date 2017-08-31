@@ -1937,6 +1937,8 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
   (when (consp str)
     (setq str (cdr str)))
   (when (stringp str)
+    (unless (member str ivy--old-cands)
+      (setq ivy-completion-beg ivy-completion-end))
     (let ((fake-cursors (and (featurep 'multiple-cursors)
                              (mc/all-fake-cursors)))
           (pt (point))
