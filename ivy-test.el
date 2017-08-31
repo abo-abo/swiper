@@ -241,6 +241,13 @@ will bring the behavior in line with the newer Emacsen."
                   (ivy--regex "(foo bar"))
                  "(\\(foo).*?(bar)")))
 
+(defmacro ivy--string-buffer (text body)
+  "Test helper that wraps TEXT in a temp buffer while running BODY."
+  `(with-temp-buffer
+    (insert ,text)
+    (goto-char (point-min))
+    ,body))
+
 (ert-deftest counsel-url-expand ()
   "Test ffap expansion using counsel-url-expansions."
   ;; no expansions defined
@@ -252,14 +259,17 @@ will bring the behavior in line with the newer Emacsen."
                                       (concat "https://foo.com/issues/"
                                               (match-string 1 word)))))))
     ;; no match
-    (defun current-word () "foobar")
-    (should (equal (counsel-url-expand) nil))
+    (ivy--string-buffer
+     "foobar"
+     (should (equal (counsel-url-expand) nil)))
     ;; string expansion
-    (defun current-word () "foo")
-    (should (equal (counsel-url-expand) "https://foo.com/foo"))
+    (ivy--string-buffer
+     "foo"
+     (should (equal (counsel-url-expand) "https://foo.com/foo")))
     ;; function expansion
-    (defun current-word () "issue123")
-    (should (equal (counsel-url-expand) "https://foo.com/issues/123"))))
+    (ivy--string-buffer
+     "issue123"
+     (should (equal (counsel-url-expand) "https://foo.com/issues/123")))))
 
 (ert-deftest colir-color-parse ()
   (should (equal (colir-color-parse "#ab1234")
