@@ -1707,7 +1707,7 @@ trims the \"issue\" prefix from the word at point before creating the URL.")
   "Expand word at point using `counsel-url-expansions'.
 The first pair in the list whose regexp matches the word at point
 will be expanded according to its format.  This function is
-intended to be used by `ivy-ffap-url-functions' to browse the
+intended to be used in `ivy-ffap-url-functions' to browse the
 result as a URL."
   (let ((word-at-point (current-word)))
     (cl-some
