@@ -241,12 +241,11 @@ will bring the behavior in line with the newer Emacsen."
                   (ivy--regex "(foo bar"))
                  "(\\(foo).*?(bar)")))
 
-(defmacro ivy--string-buffer (text body)
+(defmacro ivy--string-buffer (text &rest body)
   "Test helper that wraps TEXT in a temp buffer while running BODY."
   `(with-temp-buffer
     (insert ,text)
-    (goto-char (point-min))
-    ,body))
+    ,@body))
 
 (ert-deftest counsel-url-expand ()
   "Test ffap expansion using counsel-url-expansions."
