@@ -1703,16 +1703,6 @@ transformations are possible.  As an example,
               (match-string 1 word))))
 trims the \"issue\" prefix from the word at point before creating the URL.")
 
-(defun compat-seq-some (pred lst)
-  "Call PRED on each element of LST and return first non-nil result.
-\(Implementation of seq-some for Emacs prior to version 25.)"
-  (catch 'result
-    (dolist (elt lst)
-      (let ((result (funcall pred elt)))
-        (when result
-          (throw 'result result))))
-    nil))
-
 (defun counsel-url-expand ()
   "Expand word at point using `counsel-url-expansions'.
 The first pair in the list whose regexp matches the word at point
@@ -1720,7 +1710,7 @@ will be expanded according to its format.  This function is
 intended to be used by `ivy-ffap-url-functions' to browse the
 result as a URL."
   (let ((word-at-point (current-word)))
-    (compat-seq-some
+    (cl-some
      (lambda (pair)
        (let ((regexp (car pair))
              (formatter (cdr pair)))
