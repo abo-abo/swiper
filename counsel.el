@@ -1516,7 +1516,7 @@ TREE is the selected candidate."
 
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
-(add-to-list 'ivy-ffap-url-functions 'counsel-url-expansions)
+(add-to-list 'ivy-ffap-url-functions 'counsel-url-expand)
 (defun counsel-find-file-cd-bookmark-action (_)
   "Reset `counsel-find-file' from selected directory."
   (ivy-read "cd: "
