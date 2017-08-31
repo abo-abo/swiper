@@ -244,7 +244,7 @@ will bring the behavior in line with the newer Emacsen."
 (ert-deftest counsel-url-expand ()
   "Test ffap expansion using counsel-url-expansions."
   ;; no expansions defined
-  (let ((counsel-url-expansions nil))
+  (let (counsel-url-expansions)
     (should (eq (counsel-url-expand) nil)))
   (let ((counsel-url-expansions
          `(("^foo$" . "https://foo.com/%s")
