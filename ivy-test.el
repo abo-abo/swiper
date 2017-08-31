@@ -245,7 +245,7 @@ will bring the behavior in line with the newer Emacsen."
   "Test ffap expansion using counsel-url-expansions."
   ;; no expansions defined
   (let ((counsel-url-expansions nil))
-    (should (eql (counsel-url-expand) nil)))
+    (should (eq (counsel-url-expand) nil)))
   (let ((counsel-url-expansions
          `(("^foo$" . "https://foo.com/%s")
            ("^issue\\([0-9]+\\)" . ,(lambda (word)
