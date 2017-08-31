@@ -1679,9 +1679,11 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
 
-(defvar counsel-url-expansions
-  nil
-  "List of (REGEXP . FORMAT) pairs.
+(defvar counsel-url-expansions nil
+  "Map of regular expressions to expansions.
+
+This variable should take the form of a list of (REGEXP . FORMAT)
+pairs.
 
 `counsel-url-expand' will expand the word at point according to
 FORMAT for the first matching REGEXP.  FORMAT can be either a
@@ -1691,13 +1693,13 @@ as the next argument.  If it is a function, it will be called
 with the word at point as the sole argument.
 
 For example, a pair of the form:
-  '(\"^BSERV-[0-9]+$\" . \"https://jira.atlassian.com/browse/%s\")
+  '(\"\\`BSERV-[[:digit:]]+\\'\" . \"https://jira.atlassian.com/browse/%s\")
 will expand to URL `https://jira.atlassian.com/browse/BSERV-100'
 when the word at point is BSERV-100.
 
 If the format element is a function, more powerful
 transformations are possible.  As an example,
-  '(\"^issue\\([0-9]+\\)$\" .
+  '(\"\\'issue\\([[:digit:]]+\\)\\'\" .
     (lambda (word)
       (concat \"http://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
               (match-string 1 word))))
