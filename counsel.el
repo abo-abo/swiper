@@ -1699,7 +1699,7 @@ when the word at point is BSERV-100.
 
 If the format element is a function, more powerful
 transformations are possible.  As an example,
-  '(\"\\'issue\\([[:digit:]]+\\)\\'\" .
+  '(\"\\`issue\\([[:digit:]]+\\)\\'\" .
     (lambda (word)
       (concat \"http://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
               (match-string 1 word))))
