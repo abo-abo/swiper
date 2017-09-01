@@ -2079,7 +2079,7 @@ RE is a regular expression.
 MATCH-P is t when RE should match STR and nil when RE should not
 match STR.
 
-Each element of RE-SEQ must match for the funtion to return true.
+Each element of RE-SEQ must match for the function to return true.
 
 This concept is used to generalize regular expressions for
 `ivy--regex-plus' and `ivy--regex-ignore-order'."
