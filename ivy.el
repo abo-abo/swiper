@@ -850,6 +850,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                   'grep-files-history)))
                     (expand-file-name ivy-text ivy--directory)
                   ivy-text)))
+  (setq ivy-completion-beg ivy-completion-end)
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
@@ -1937,8 +1938,6 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
   (when (consp str)
     (setq str (cdr str)))
   (when (stringp str)
-    (unless (member str ivy--old-cands)
-      (setq ivy-completion-beg ivy-completion-end))
     (let ((fake-cursors (and (featurep 'multiple-cursors)
                              (mc/all-fake-cursors)))
           (pt (point))
