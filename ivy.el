@@ -3164,7 +3164,8 @@ CANDS is a list of strings."
       (setf (ivy-state-current ivy-last) (copy-sequence (nth index cands)))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
-          (setq cands (mapcar transformer-fn cands))))
+          (with-current-buffer (ivy-state-buffer ivy-last)
+            (setq cands (mapcar transformer-fn cands)))))
       (let* ((ivy--index index)
              (cands (mapcar
                      #'ivy--format-minibuffer-line
@@ -3873,11 +3874,12 @@ EVENT gives the mouse position."
            (ivy-exit 'done))
       (with-ivy-window
         (setq counsel-grep-last-line nil)
-        (funcall action
-                 (if (and (consp coll)
-                          (consp (car coll)))
-                     (assoc str coll)
-                   str))
+        (with-current-buffer (ivy-state-buffer ivy-last)
+          (funcall action
+                   (if (and (consp coll)
+                            (consp (car coll)))
+                       (assoc str coll)
+                     str)))
         (if (memq (ivy-state-caller ivy-last)
                   '(swiper counsel-git-grep counsel-grep counsel-ag counsel-rg))
             (with-current-buffer (window-buffer (selected-window))
