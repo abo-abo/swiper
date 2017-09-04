@@ -1850,7 +1850,8 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
               (split-string
-               (shell-command-to-string "find * -type f -not -path '*\/.git*'")
+               (shell-command-to-string
+                (concat find-program " * -type f -not -path '*\/.git*'"))
                "\n" t)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -1880,7 +1881,8 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Directory: "
               (split-string
-               (shell-command-to-string "find * -type d -not -path '*\/.git*'")
+               (shell-command-to-string
+                (concat find-program " * -type d -not -path '*\/.git*'"))
                "\n" t)
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
