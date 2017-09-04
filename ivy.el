@@ -1112,6 +1112,13 @@ See variable `ivy-recursive-restore' for further information."
                           (null (active-minibuffer-window)))
                 (select-window (active-minibuffer-window))))))))))
 
+(defun ivy-call-and-recenter ()
+  "Call action and recenter window according to the selected candidate."
+  (interactive)
+  (ivy-call)
+  (with-ivy-window
+    (recenter-top-bottom)))
+
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
 Call the permanent action if possible."
