@@ -840,6 +840,12 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                    (if ivy-tab-space " " ""))
            t))))
 
+(defvar ivy-completion-beg nil
+  "Completion bounds start.")
+
+(defvar ivy-completion-end nil
+  "Completion bounds end.")
+
 (defun ivy-immediate-done ()
   "Exit the minibuffer with current input instead of current candidate."
   (interactive)
@@ -1930,12 +1936,6 @@ behavior."
   (ivy-completing-read
    prompt collection predicate require-match initial-input
    history (or def "") inherit-input-method))
-
-(defvar ivy-completion-beg nil
-  "Completion bounds start.")
-
-(defvar ivy-completion-end nil
-  "Completion bounds end.")
 
 (declare-function mc/all-fake-cursors "ext:multiple-cursors-core")
 
