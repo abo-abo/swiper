@@ -773,6 +773,9 @@ By default `counsel-bookmark' opens a dired buffer for directories."
            (format "%d " (car current-prefix-arg)))))
      "M-x ")))
 
+(defvar counsel-M-x-history nil
+  "History for `counsel-M-x'.")
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
@@ -794,11 +797,10 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
     ;; Instead, preserve the old value of `this-command'.
     (setq this-command last-command)
     (setq real-this-command real-last-command)
-
     (ivy-read (counsel--M-x-prompt) cands
               :predicate pred
               :require-match t
-              :history 'extended-command-history
+              :history 'counsel-M-x-history
               :action
               (lambda (cmd)
                 (when (featurep 'smex)
