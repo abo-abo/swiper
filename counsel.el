@@ -1005,21 +1005,20 @@ BUFFER defaults to the current one."
  '(("j" find-file-other-window "other window")
    ("x" counsel-find-file-extern "open externally")))
 
-;;;###autoload
 (defun counsel-locate-git-root ()
   "Locate the root of the git repository containing the current buffer."
-  (setq counsel--git-dir (locate-dominating-file default-directory ".git"))
-  (and (null counsel--git-dir) (error "Not in a git repository"))
-  counsel--git-dir)
+  (or (locate-dominating-file default-directory ".git")
+      (error "Not in a git repository")))
 
+;;;###autoload
 (defun counsel-git (&optional initial-input)
   "Find file in the current Git repository.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-git-cmd)))
-  (counsel-locate-git-root)
   (ivy-set-prompt 'counsel-git counsel-prompt-function)
-  (setq counsel--git-dir (expand-file-name counsel--git-dir))
+  (setq counsel--git-dir (expand-file-name
+                          (counsel-locate-git-root)))
   (let* ((default-directory counsel--git-dir)
          (cands (split-string
                  (shell-command-to-string counsel-git-cmd)
@@ -1194,7 +1193,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
     (counsel-require-program (car (split-string counsel-git-grep-cmd)))
-    (counsel-locate-git-root)
+    (setq counsel--git-dir (if proj
+                               (car proj)
+                             (counsel-locate-git-root)))
     (unless (or proj counsel-git-grep-skip-counting-lines)
       (setq counsel--git-grep-count
             (if (eq system-type 'windows-nt)
@@ -1382,7 +1383,7 @@ The git command applies the stash entry where candidate X was found in."
 (defun counsel-git-stash ()
   "Search through all available git stashes."
   (interactive)
-  (counsel-locate-git-root)
+  (setq counsel--git-dir (counsel-locate-git-root))
   (let ((cands (split-string (shell-command-to-string
                               "IFS=$'\n'
 for i in `git stash list --format=\"%gd\"`; do
@@ -1391,6 +1392,7 @@ done") "\n" t)))
     (ivy-read "git stash: " cands
               :action 'counsel-git-stash-kill-action
               :caller 'counsel-git-stash)))
+
 ;;** `counsel-git-log'
 (defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
   "Command used for \"git log\".")
@@ -1434,7 +1436,7 @@ TREE is the selected candidate."
 
 (defun counsel-git-worktree-list ()
   "List worktrees in the git repository containing the current buffer."
-  (counsel-locate-git-root)
+  (setq counsel--git-dir (counsel-locate-git-root))
   (let ((cmd-output (shell-command-to-string "git worktree list")))
     (delete "" (split-string (string-trim-right cmd-output) "\n"))))
 
@@ -1460,7 +1462,7 @@ TREE is the selected candidate."
 (defun counsel-git-change-worktree ()
   "Find the file corresponding to the current buffer on a different worktree."
   (interactive)
-  (counsel-locate-git-root)
+  (setq counsel--git-dir (counsel-locate-git-root))
   (ivy-read "Select worktree: "
             (or (cl-delete counsel--git-dir (counsel-git-worktree-list)
                            :key #'counsel-git-worktree-parse-root :test #'string=)
@@ -1477,16 +1479,16 @@ BRANCH is a string whose first word designates the command argument."
   (shell-command
    (format "git checkout %s" (substring branch 0 (string-match " " branch)))))
 
-(autoload 'cl-mapcan "sl-extra")
 (defun counsel-git-branch-list ()
   "List branches in the git repository containing the current buffer.
 
 Does not list the currently checked out one."
-  (counsel-locate-git-root)
+  (setq counsel--git-dir (counsel-locate-git-root))
   (let ((cmd-output (shell-command-to-string "git branch -vv --all")))
     (cl-mapcan
-     (lambda (str) (when (string-prefix-p " " str)
-                     (list (substring str (string-match (rx (not (any blank))) str)))))
+     (lambda (str)
+       (when (string-prefix-p " " str)
+         (list (substring str (string-match "[^[:blank:]]" str)))))
      (split-string (string-trim-right cmd-output) "\n"))))
 
 ;;;###autoload
