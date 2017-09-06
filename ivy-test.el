@@ -203,7 +203,15 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--regex-ignore-order "one two !three four")
                  '(("one" . t) ("two" . t) ("three") ("four"))))
   (should (equal (ivy--regex-ignore-order "!three four")
-                 '(("" . t) (("three") ("four")))))
+                 '(("three") ("four"))))
+  ;; Support escaping ! and spaces.
+  (should (equal (ivy--regex-ignore-order "one\\ two")
+                 '(("one two" . t))))
+  (should (equal (ivy--regex-ignore-order "one\\!two")
+                 '(("one!two" . t))))
+  ;; Don't crash on multiple !.
+  (ivy--regex-ignore-order "! ! !")
+  ;; Escape invalid regexps.
   (should (equal (ivy--regex-ignore-order "foo[ bar[xy]")
                  '(("foo\\[" . t) ("bar[xy]" . t)))))
 

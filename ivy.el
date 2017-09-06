@@ -2178,41 +2178,101 @@ When GREEDY is non-nil, join words in a greedy way."
         t)
     (invalid-regexp nil)))
 
-(defun ivy--regex-ignore-order--part (str &optional discard)
-  "Re-build regex from STR by splitting at spaces.
-Ignore the order of each group.  If any substring is not a valid
-regex, treat it as a literal string.
-If DISCARD is non-nil, mark the regex as non-matching i.e. candidates
-should not match the regexp."
-  (let* ((subs (split-string str " +" t))
-         (len (length subs)))
-    (cl-case len
-      (0
-       "")
-      (t
-       (mapcar (lambda (s)
-                 (cons (if (ivy--legal-regex-p s) s (regexp-quote s))
-                       (not discard)))
-               subs)))))
+(defun ivy--regex-or-literal (str)
+  "If STR isn't a legal regex, escape it."
+  (if (ivy--legal-regex-p str) str (regexp-quote str)))
+
+(defun ivy--split-negation (str)
+  "Split STR into text before and after !.
+Don't split if it's escaped with \\!.
+
+Assumes there is at most one unescaped !."
+  (let (parts
+        (part ""))
+    (mapc
+     (lambda (char)
+       (let ((prev-char (if (zerop (length part))
+                            nil
+                          (elt part (1- (length part))))))
+         ;; Split on !, unless it's escaped.
+         (cond
+          ;; Store "\!" as "!".
+          ((and (eq char ?!) (eq prev-char ?\\))
+           (setq part (concat (substring part 0 (1- (length part)))
+                              "!")))
+          ;; Split on "!".
+          ((eq char ?!)
+           (push part parts)
+           (setq part ""))
+          ;; Otherwise, append the current character.
+          (t
+           (setq part (concat part (string char)))))))
+     str)
+    (unless (zerop (length part))
+      (push part parts))
+    (setq parts (nreverse parts))
+    ;; If we have more than unescaped !, just discard the extra parts
+    ;; rather than crashing. We can't warn or error because the
+    ;; minibuffer is already active.
+    (when (> (length parts) 2)
+      (setq parts (list (cl-first parts) (cl-second parts))))
+    parts))
+
+(defun ivy--split-spaces (str)
+  "Split STR on spaces, unless they're preceded by \\.
+No unescaped spaces are present in the output."
+  (let (parts
+        (part ""))
+    (mapc
+     (lambda (char)
+       (let ((prev-char (if (zerop (length part))
+                            nil
+                          (elt part (1- (length part))))))
+         (cond
+          ;; Store "\ " as " ".
+          ((and (eq char ?\s) (eq prev-char ?\\))
+           (setq part (concat (substring part 0 (1- (length part)))
+                              " ")))
+          ;; Split on " ".
+          ((eq char ?\s)
+           (unless (zerop (length part))
+             (push part parts))
+           (setq part ""))
+          ;; Otherwise, append the current character.
+          (t
+           (setq part (concat part (string char)))))))
+     str)
+    (unless (zerop (length part))
+      (push part parts))
+    (nreverse parts)))
 
 (defun ivy--regex-ignore-order (str)
-  "Re-build regex from STR by splitting at spaces.
-Ignore the order of each group.  Everything before \"!\" should
-match.  Everything after \"!\" should not match."
-  (let ((parts (split-string str "!" t)))
-    (cl-case (length parts)
-      (0
-       "")
-      (1
-       (if (string= (substring str 0 1) "!")
-           (list (cons "" t)
-                 (ivy--regex-ignore-order--part (car parts) t))
-         (ivy--regex-ignore-order--part (car parts))))
-      (2
-       (append
-        (ivy--regex-ignore-order--part (car parts))
-        (ivy--regex-ignore-order--part (cadr parts) t)))
-      (t (error "Unexpected: use only one !")))))
+  "Re-build regex from STR by splitting at spaces and using ! for negation.
+
+Examples:
+foo          -> matches \"foo\"
+foo bar      -> matches if both \"foo\" and \"bar\" match (any order)
+foo !bar     -> matches if \"foo\" matches and \"bar\" does not match
+foo !bar baz -> matches if \"foo\" matches and neither \"bar\" nor \"baz\" match
+foo[a-z]     -> matches \"foo[a-z]\"
+
+Escaping examples:
+foo\!bar -> matches \"foo!bar\"
+foo\ bar -> matches \"foo bar\"
+
+If STR isn't a valid input, fall back to exact matching:
+foo[     -> matches \"foo\[\" (invalid regex, so literal [ character)
+
+Returns a list suitable for `ivy-re-match'."
+  (let* (regex-parts
+         (raw-parts (ivy--split-negation str)))
+    (dolist (part (ivy--split-spaces (car raw-parts)))
+      (push (cons (ivy--regex-or-literal part) t) regex-parts))
+    (when (cdr raw-parts)
+      (dolist (part (ivy--split-spaces (cadr raw-parts)))
+        (push (cons (ivy--regex-or-literal part) nil) regex-parts)))
+    (if regex-parts (nreverse regex-parts)
+      "")))
 
 (defun ivy--regex-plus (str)
   "Build a regex sequence from STR.
