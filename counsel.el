@@ -1485,6 +1485,35 @@ TREE is the selected candidate."
               :require-match t
               :caller 'counsel-git-change-worktree)))
 
+;;** `counsel-git-checkout'
+(defun counsel-git-checkout-action (branch)
+  "Call the \"git checkout BRANCH\" command.
+
+BRANCH is a string whose first word designates the command argument."
+  (shell-command
+   (format "git checkout %s" (substring branch 0 (string-match " " branch)))))
+
+(autoload 'cl-mapcan "sl-extra")
+(defun counsel-git-branch-list ()
+  "List branches in the git repository containing the current buffer.
+
+Does not list the currently checked out one."
+  (let ((cmd-output (shell-command-to-string "git branch -vv --all")))
+    (and (string-match "fatal: Not a git repository" cmd-output)
+         (error "Not in a git repository!"))
+    (cl-mapcan
+     (lambda (str) (when (string-prefix-p " " str)
+                     (list (substring str (string-match (rx (not (any blank))) str)))))
+     (split-string (string-trim-right cmd-output) "\n"))))
+
+;;;###autoload
+(defun counsel-git-checkout ()
+  "Call the \"git checkout\" command."
+  (interactive)
+  (ivy-read "Checkout branch: " (counsel-git-branch-list)
+            :action #'counsel-git-checkout-action
+            :caller 'counsel-git-checkout))
+
 ;;;###autoload
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
