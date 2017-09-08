@@ -655,15 +655,18 @@ WND, when specified is the window."
               (while (<= (cl-incf j) ivy--subexps)
                 (let ((bm (match-beginning j))
                       (em (match-end j)))
-                  (while (and (< j ivy--subexps)
-                              (= em (match-beginning (+ j 1))))
-                    (setq em (match-end (cl-incf j))))
-                  (swiper--add-overlay
-                   bm em
-                   (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                        swiper-faces)
-                   wnd i)
-                  (cl-incf i))))))))))
+                  (when (and (integerp em)
+                             (integerp bm))
+                    (while (and (< j ivy--subexps)
+                                (integerp (match-beginning (+ j 1)))
+                                (= em (match-beginning (+ j 1))))
+                      (setq em (match-end (cl-incf j))))
+                    (swiper--add-overlay
+                     bm em
+                     (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
+                          swiper-faces)
+                     wnd i)
+                    (cl-incf i)))))))))))
 
 (defun swiper--add-overlay (beg end face wnd priority)
   "Add overlay bound by BEG and END to `swiper--overlays'.
