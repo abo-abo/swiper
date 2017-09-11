@@ -249,6 +249,35 @@ will bring the behavior in line with the newer Emacsen."
                   (ivy--regex "(foo bar"))
                  "(\\(foo).*?(bar)")))
 
+(defmacro ivy--string-buffer (text &rest body)
+  "Test helper that wraps TEXT in a temp buffer while running BODY."
+  `(with-temp-buffer
+    (insert ,text)
+    ,@body))
+
+(ert-deftest counsel-url-expand ()
+  "Test ffap expansion using counsel-url-expansions."
+  ;; no expansions defined
+  (let (counsel-url-expansions)
+    (should (eq (counsel-url-expand) nil)))
+  (let ((counsel-url-expansions
+         `(("^foo$" . "https://foo.com/%s")
+           ("^issue\\([0-9]+\\)" . ,(lambda (word)
+                                      (concat "https://foo.com/issues/"
+                                              (match-string 1 word)))))))
+    ;; no match
+    (ivy--string-buffer
+     "foobar"
+     (should (equal (counsel-url-expand) nil)))
+    ;; string expansion
+    (ivy--string-buffer
+     "foo"
+     (should (equal (counsel-url-expand) "https://foo.com/foo")))
+    ;; function expansion
+    (ivy--string-buffer
+     "issue123"
+     (should (equal (counsel-url-expand) "https://foo.com/issues/123")))))
+
 (ert-deftest colir-color-parse ()
   (should (equal (colir-color-parse "#ab1234")
                  ;; (color-name-to-rgb "#ab1234")

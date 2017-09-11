@@ -1537,6 +1537,7 @@ Does not list the currently checked out one."
 
 (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
 (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
+(add-to-list 'ivy-ffap-url-functions 'counsel-url-expand)
 (defun counsel-find-file-cd-bookmark-action (_)
   "Reset `counsel-find-file' from selected directory."
   (ivy-read "cd: "
@@ -1698,6 +1699,49 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
         (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
           (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
+
+(defvar counsel-url-expansions nil
+  "Map of regular expressions to expansions.
+
+This variable should take the form of a list of (REGEXP . FORMAT)
+pairs.
+
+`counsel-url-expand' will expand the word at point according to
+FORMAT for the first matching REGEXP.  FORMAT can be either a
+string or a function.  If it is a string, it will be used as the
+format string for the `format' function, with the word at point
+as the next argument.  If it is a function, it will be called
+with the word at point as the sole argument.
+
+For example, a pair of the form:
+  '(\"\\`BSERV-[[:digit:]]+\\'\" . \"https://jira.atlassian.com/browse/%s\")
+will expand to URL `https://jira.atlassian.com/browse/BSERV-100'
+when the word at point is BSERV-100.
+
+If the format element is a function, more powerful
+transformations are possible.  As an example,
+  '(\"\\`issue\\([[:digit:]]+\\)\\'\" .
+    (lambda (word)
+      (concat \"http://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
+              (match-string 1 word))))
+trims the \"issue\" prefix from the word at point before creating the URL.")
+
+(defun counsel-url-expand ()
+  "Expand word at point using `counsel-url-expansions'.
+The first pair in the list whose regexp matches the word at point
+will be expanded according to its format.  This function is
+intended to be used in `ivy-ffap-url-functions' to browse the
+result as a URL."
+  (let ((word-at-point (current-word)))
+    (cl-some
+     (lambda (pair)
+       (let ((regexp (car pair))
+             (formatter (cdr pair)))
+         (when (string-match regexp word-at-point)
+           (if (functionp formatter)
+               (funcall formatter word-at-point)
+             (format formatter word-at-point)))))
+     counsel-url-expansions)))
 
 ;;** `counsel-recentf'
 (defvar recentf-list)
