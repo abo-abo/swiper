@@ -1336,12 +1336,51 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (setq ivy-text
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
-  (let ((cands (split-string
-                (shell-command-to-string
-                 (format counsel-git-grep-cmd
-                         (setq ivy--old-re (ivy--regex ivy-text t))))
-                "\n"
-                t)))
+  ;; everything after "!" is negative pattern
+  (let* ((parts (split-string ivy-text "!" t))
+         (len (length parts))
+         cmd
+         cands)
+    (cond
+     ((= len 1)
+      ;; since there is only negative pattern, use `git grep -v' which is efficient
+      (let* ((is-negative (string= (substring ivy-text 0 1) "!"))
+             (text (if is-negative (substring ivy-text 1 (length ivy-text))
+                     ivy-text)))
+        ;; Well that's what `counsel-git-grep' build the regex:
+        ;; '!keyword1 keyword2' logic is different from 'keyword0 !keyword1 keyword2'
+        (setq cmd (concat (format counsel-git-grep-cmd
+                                  (setq ivy--old-re (ivy--regex text t)))
+                          (if is-negative " -v" "")))
+        (setq cands (split-string
+                     (shell-command-to-string cmd)
+                     "\n"
+                     t))))
+     ((= len 2)
+      (let* ((grep-cmd (executable-find "grep"))
+             (neg-pattern (replace-regexp-in-string " +" "\\\\|" (nth 1 parts))))
+        ;; pipe 'git-grep' into 'grep -v' if possible
+        ;; (setq grep-cmd nil) ; debug
+        (setq cmd (concat (format counsel-git-grep-cmd
+                                  (setq ivy--old-re (ivy--regex (nth 0 parts) t)))
+                          (if grep-cmd (format "|%s -v '%s'"
+                                               grep-cmd
+                                               neg-pattern)
+                            "")) )
+        ;; if grep-cmd is non-nil, this is the final result
+        (setq cands (split-string
+                     (shell-command-to-string cmd)
+                     "\n"
+                     t))
+        (unless grep-cmd
+          ;; well, fall back the slowest lisp way
+          (setq cands (delq nil (mapcar (lambda (s)
+                                          (unless (string-match-p neg-pattern s) s))
+                                        cands))))))
+     (t
+      ;; impossbile, see `ivy--regex-ignore-order' implementation
+      (error "Unexpected: use only one !")))
+
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
@@ -1350,6 +1389,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
      (mapcar
       (lambda (cand) (concat "./" cand))
       cands))))
+
 
 (defun counsel-git-grep-query-replace ()
   "Start `query-replace' with string to replace from last search string."
