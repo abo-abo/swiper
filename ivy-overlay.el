@@ -87,8 +87,10 @@ Then attach the overlay the character before point."
 Hide the minibuffer contents and cursor."
   (if (save-selected-window
         (select-window (ivy-state-window ivy-last))
-        (< (- (window-width) (current-column))
-           (length (ivy-state-current ivy-last))))
+        (or
+         (< (- (window-width) (current-column))
+            (length (ivy-state-current ivy-last)))
+         (<= (window-height) (+ ivy-height 2))))
       (let ((buffer-undo-list t))
         (save-excursion
           (forward-line 1)
