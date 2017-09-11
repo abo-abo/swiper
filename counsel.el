@@ -1700,7 +1700,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
           (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
 
-(defvar counsel-url-expansions nil
+(defvar counsel-url-expansions-alist nil
   "Map of regular expressions to expansions.
 
 This variable should take the form of a list of (REGEXP . FORMAT)
@@ -1727,7 +1727,7 @@ transformations are possible.  As an example,
 trims the \"issue\" prefix from the word at point before creating the URL.")
 
 (defun counsel-url-expand ()
-  "Expand word at point using `counsel-url-expansions'.
+  "Expand word at point using `counsel-url-expansions-alist'.
 The first pair in the list whose regexp matches the word at point
 will be expanded according to its format.  This function is
 intended to be used in `ivy-ffap-url-functions' to browse the
@@ -1741,7 +1741,7 @@ result as a URL."
            (if (functionp formatter)
                (funcall formatter word-at-point)
              (format formatter word-at-point)))))
-     counsel-url-expansions)))
+     counsel-url-expansions-alist)))
 
 ;;** `counsel-recentf'
 (defvar recentf-list)
