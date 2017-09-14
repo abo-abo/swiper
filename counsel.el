@@ -1096,7 +1096,7 @@ Typical value: '(recenter)."
     (let* ((default-directory counsel--git-dir)
            (cmd (format counsel-git-grep-cmd
                         (setq ivy--old-re (ivy--regex string t)))))
-      (if (and (not counsel-git-grep-skip-counting-lines) (<= counsel--git-grep-count 20000))
+      (if (or (not counsel-git-grep-skip-counting-lines) (<= counsel--git-grep-count 20000))
           (split-string (shell-command-to-string cmd) "\n" t)
         (counsel--gg-candidates (ivy--regex string))
         nil))))
