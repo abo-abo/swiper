@@ -2394,12 +2394,12 @@ STD-PROPS is a property list containing the default text properties."
                                  counsel-find-symbol))
       (setq ivy--prompt-extra ""))
     (let (head tail)
-      (if (string-match "\\(.*\\): \\'" ivy--prompt)
+      (if (string-match "\\(.*?\\)\\(:? ?\\)\\'" ivy--prompt)
           (progn
             (setq head (match-string 1 ivy--prompt))
-            (setq tail ": "))
-        (setq head (substring ivy--prompt 0 -1))
-        (setq tail " "))
+            (setq tail (match-string 2 ivy--prompt)))
+        (setq head ivy--prompt)
+        (setq tail ""))
       (let ((inhibit-read-only t)
             (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
