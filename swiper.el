@@ -277,6 +277,7 @@
     bongo-library-mode
     bongo-playlist-mode
     eww-mode
+    treemacs-mode
     twittering-mode
     vc-dir-mode
     rcirc-mode
