@@ -1535,8 +1535,9 @@ Does not list the currently checked out one."
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
     map))
 
-(add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
-(add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p)
+(when (executable-find "git")
+  (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
+  (add-to-list 'ivy-ffap-url-functions 'counsel-emacs-url-p))
 (add-to-list 'ivy-ffap-url-functions 'counsel-url-expand)
 (defun counsel-find-file-cd-bookmark-action (_)
   "Reset `counsel-find-file' from selected directory."
