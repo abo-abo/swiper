@@ -2174,6 +2174,8 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   :type 'string
   :group 'ivy)
 
+(defvar counsel-grep-command nil)
+
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
   (if (< (length string) 2)
@@ -2182,8 +2184,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-grep-base-command regex
-               (shell-quote-argument counsel--git-dir)))
+       (format counsel-grep-command regex))
       nil)))
 
 (defun counsel-grep-action (x)
@@ -2193,7 +2194,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
     (let ((default-directory (file-name-directory counsel--git-dir))
           file-name line-number)
       (when (cond ((string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
-                   (setq file-name counsel--git-dir)
+                   (setq file-name (buffer-file-name (ivy-state-buffer ivy-last)))
                    (setq line-number (match-string-no-properties 1 x)))
                   ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
                    (setq file-name (match-string-no-properties 1 x))
@@ -2234,7 +2235,12 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
-  (setq counsel--git-dir (buffer-file-name))
+  (setq counsel--git-dir default-directory)
+  (if (string-match "%s$" counsel-grep-base-command)
+      (setq counsel-grep-command
+            (concat (substring counsel-grep-base-command 0 (match-beginning 0))
+                    (shell-quote-argument (buffer-file-name))))
+    (error "expected `counsel-grep-base-command' to end in %%s"))
   (let ((init-point (point))
         res)
     (unwind-protect
