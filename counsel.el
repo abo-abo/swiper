@@ -393,16 +393,27 @@ Update the minibuffer with the amount of lines collected every
 COUNT defaults to 1."
   (interactive "p")
   (let ((minibuffer-allow-text-properties t)
-        (ivy-sort-max-size (expt 256 6)))
+        (ivy-sort-max-size (expt 256 6))
+        (ucs-map (ucs-names))
+        (ucs-map-fmtd (make-hash-table :test 'equal)))
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
     (ivy-read "Unicode name: "
-              (nreverse
-               (mapcar (lambda (x)
-                         (propertize
-                          (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
-                          'result (cdr x)))
-                       (ucs-names)))
+              (if (hash-table-p ucs-map)
+                  (progn
+                    (maphash (lambda (key val)
+                               (let ((key-fmtd (propertize
+                                                (format "%06X % -60s%c" val key val)
+                                                'result val)))
+                                 (puthash key-fmtd nil ucs-map-fmtd)))
+                             ucs-map)
+                    ucs-map-fmtd)
+                (nreverse
+                 (mapcar (lambda (x)
+                           (propertize
+                            (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
+                            'result (cdr x)))
+                         ucs-map)))
               :action (lambda (char)
                         (with-ivy-window
                           (delete-region ivy-completion-beg ivy-completion-end)
