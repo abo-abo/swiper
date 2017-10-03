@@ -2082,9 +2082,30 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                       (swiper--cleanup))
             :caller 'counsel-ag))
 
+(defun counsel-grep-like-occur (cmd-template)
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode)
+    (setq default-directory counsel--git-dir))
+  (setq ivy-text
+        (and (string-match "\"\\(.*\\)\"" (buffer-name))
+             (match-string 1 (buffer-name))))
+  (let* ((cmd (format cmd-template
+                      (counsel-unquote-regex-parens
+                       (ivy--regex ivy-text))))
+         (cands (split-string (shell-command-to-string cmd) "\n" t)))
+    ;; Need precise number of header lines for `wgrep' to work.
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                    default-directory))
+    (insert (format "%d candidates:\n" (length cands)))
+    (ivy--occur-insert-lines
+     (mapcar
+      (lambda (cand) (concat "./" cand))
+      cands))))
+
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
-  (counsel--grep-mode-occur nil))
+  (counsel-grep-like-occur
+   "ag --nocolor --nogroup %s"))
 
 ;;** `counsel-pt'
 (defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
@@ -2166,7 +2187,8 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-rg-occur ()
   "Generate a custom occur buffer for `counsel-rg'."
-  (counsel--grep-mode-occur nil))
+  (counsel-grep-like-occur
+   "rg -i --no-heading --line-number --color never \"%s\" ."))
 
 ;;** `counsel-grep'
 (defcustom counsel-grep-base-command "grep -nE '%s' %s"
@@ -2224,7 +2246,13 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
-  (counsel--grep-mode-occur t))
+  (counsel-grep-like-occur
+   (format
+    "grep -niE '%%s' %s /dev/null"
+    (shell-quote-argument
+     (file-name-nondirectory
+      (buffer-file-name
+       (ivy-state-buffer ivy-last)))))))
 
 (ivy-set-occur 'counsel-grep 'counsel-grep-occur)
 (counsel-set-async-exit-code 'counsel-grep 1 "")
