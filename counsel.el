@@ -387,40 +387,48 @@ Update the minibuffer with the amount of lines collected every
 (defvar counsel-unicode-char-history nil
   "History for `counsel-unicode-char'.")
 
+(defun counsel--unicode-names ()
+  "Return formatted and sorted list of `ucs-names'.
+The result of `ucs-names' is mostly, but not completely, sorted,
+so this function ensures lexicographic order."
+  (let* (cands
+         (table (ucs-names))            ; Either hash map or alist
+         (fmt   (lambda (name code)     ; Common format function
+                  (push (propertize (format "%06X %-58s %c" code name code)
+                                    'code code)
+                        cands))))
+    (if (not (hash-table-p table))
+        ;; Support `ucs-names' returning an alist in Emacs < 26. The result of
+        ;; `ucs-names' comes pre-reversed so no need to repeat.
+        (dolist (entry table)
+          (funcall fmt (car entry) (cdr entry)))
+      (maphash fmt table)
+      ;; Reverse to speed up sorting
+      (setq cands (nreverse cands)))
+    (sort cands #'string-lessp)))
+
+(defvar counsel--unicode-table
+  (lazy-completion-table counsel--unicode-table counsel--unicode-names)
+  "Lazy completion table for `counsel-unicode-char'.
+Candidates comprise `counsel--unicode-names', which see.")
+
 ;;;###autoload
 (defun counsel-unicode-char (&optional count)
   "Insert COUNT copies of a Unicode character at point.
 COUNT defaults to 1."
   (interactive "p")
-  (let ((minibuffer-allow-text-properties t)
-        (ivy-sort-max-size (expt 256 6))
-        (ucs-map (ucs-names))
-        (ucs-map-fmtd (make-hash-table :test 'equal)))
+  (let ((ivy-sort-max-size (expt 256 6)))
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
-    (ivy-read "Unicode name: "
-              (if (hash-table-p ucs-map)
-                  (progn
-                    (maphash (lambda (key val)
-                               (let ((key-fmtd (propertize
-                                                (format "%06X % -60s%c" val key val)
-                                                'result val)))
-                                 (puthash key-fmtd nil ucs-map-fmtd)))
-                             ucs-map)
-                    ucs-map-fmtd)
-                (nreverse
-                 (mapcar (lambda (x)
-                           (propertize
-                            (format "%06X % -60s%c" (cdr x) (car x) (cdr x))
-                            'result (cdr x)))
-                         ucs-map)))
-              :action (lambda (char)
+    (ivy-read "Unicode name: " counsel--unicode-table
+              :action (lambda (name)
                         (with-ivy-window
                           (delete-region ivy-completion-beg ivy-completion-end)
                           (setq ivy-completion-beg (point))
-                          (insert-char (get-text-property 0 'result char) count)
+                          (insert-char (get-text-property 0 'code name) count)
                           (setq ivy-completion-end (point))))
               :history 'counsel-unicode-char-history
+              :caller 'counsel-unicode-char
               :sort t)))
 
 ;;* Elisp symbols
