@@ -3285,14 +3285,14 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
 (defcustom counsel-linux-apps-directories
   '("/usr/local/share/applications/" "/usr/share/applications/")
   "Directories in which to search for applications (.desktop files)."
-  :group 'counsel
+  :group 'ivy
   :type '(list directory))
 
 (defcustom counsel-linux-app-format-function 'counsel-linux-app-format-function-default
   "Function to format Linux application names the `counsel-linux-app' menu.
 The format function will be passed the application's name, comment, and command
 as arguments."
-  :group 'counsel
+  :group 'ivy
   :type '(choice
           (const :tag "Command : Name - Comment" counsel-linux-app-format-function-default)
           (const :tag "Name - Comment (Command)" counsel-linux-app-format-function-name-first)
