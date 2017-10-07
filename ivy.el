@@ -1465,7 +1465,7 @@ like.")
     (counsel-M-x . "^")
     (counsel-describe-function . "^")
     (counsel-describe-variable . "^")
-    (man . "^")
+    (Man-completion-table . "^")
     (woman . "^"))
   "Command to initial input table.")
 
