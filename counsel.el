@@ -1361,11 +1361,12 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
                             "\\.\\*\\?" ".*"
                             (if (stringp regex) regex (caar regex))))
          (negative-patterns
-          (mapconcat (lambda (x)
-                       (and (null (cdr x))
-                            (format "| grep -v %s" (car x))))
-                     regex
-                     " "))
+          (if (stringp regex) ""
+            (mapconcat (lambda (x)
+                         (and (null (cdr x))
+                              (format "| grep -v %s" (car x))))
+                       regex
+                       " ")))
          (cmd (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns))
          cands)
     (setq cands (split-string
