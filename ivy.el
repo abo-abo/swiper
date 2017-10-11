@@ -2555,6 +2555,10 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 Otherwise, ~/ will move home."
   :type 'boolean)
 
+(defcustom ivy-magic-root-slash t
+  "When non-nil, / will move root when selecting files."
+  :type 'boolean)
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -2580,6 +2584,9 @@ Should be run via minibuffer `post-command-hook'."
                         (and (string= "~" ivy-text)
                              ivy-magic-tilde))
                     (ivy--cd (expand-file-name "~/")))
+                   ((and (string= "/" ivy-text)
+                         ivy-magic-root-slash)
+                    (ivy--cd "/"))
                    ((string-match "/\\'" ivy-text)
                     (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
