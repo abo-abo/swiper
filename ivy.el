@@ -1655,7 +1655,7 @@ customizations apply to the current completion session."
                                        (delete item
                                                (cdr (symbol-value hist))))))))
                  (ivy-state-current ivy-last)))
-          (remove-hook 'post-command-hook #'ivy--exhibit)
+          (remove-hook 'post-command-hook #'ivy--queue-exhibit)
           (when (eq ivy-display-function 'ivy-display-function-overlay)
             (ivy-overlay-cleanup))
           (when (setq unwind (ivy-state-unwind ivy-last))
@@ -2354,7 +2354,7 @@ tries to ensure that it does not change depending on the number of candidates."
                                (if ivy-add-newline-after-prompt
                                    1
                                  0))))
-  (add-hook 'post-command-hook #'ivy--exhibit nil t)
+  (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
   ;; show completions with empty input
   (ivy--exhibit))
 
@@ -2570,10 +2570,31 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 Otherwise, ~/ will move home."
   :type 'boolean)
 
+(defcustom ivy-dynamic-exhibit-delay-ms 0
+  "Delay in ms before dynamic collections are refreshed"
+  :type 'integer)
+
+(defvar ivy--exhibit-timer nil)
+
+(defun ivy--queue-exhibit ()
+  "Insert Ivy completions display, possibly after a timeout for
+dynamic collections.
+Should be run via minibuffer `post-command-hook'."
+  (if (and (> ivy-dynamic-exhibit-delay-ms 0)
+           (ivy-state-dynamic-collection ivy-last))
+      (progn
+        (when ivy--exhibit-timer (cancel-timer ivy--exhibit-timer))
+        (setq ivy--exhibit-timer
+              (run-with-timer
+               (/ ivy-dynamic-exhibit-delay-ms 1000.0)
+               nil
+               'ivy--exhibit)))
+    (ivy--exhibit)))
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
-  (when (memq 'ivy--exhibit post-command-hook)
+  (when (memq 'ivy--queue-exhibit post-command-hook)
     (let ((inhibit-field-text-motion nil))
       (constrain-to-field nil (point-max)))
     (setq ivy-text (ivy--input))
