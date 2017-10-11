@@ -16,7 +16,7 @@ compile:
 
 plain:
 	$(emacs) --version
-	$(emacs) -Q $(LOAD) --eval "(progn (package-initialize) (ivy-mode))"
+	$(emacs) -Q $(LOAD) -l targets/plain.el
 
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
