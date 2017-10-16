@@ -2019,7 +2019,7 @@ It applies no filtering to ivy--all-candidates."
     "ag --nocolor --nogroup %s")
   "Format string to use in `counsel-ag-function' to construct the command.
 The %s will be replaced by optional extra ag arguments followed by the
-regex string.  The default is \"ag --nocolor --nogroup %s\"."
+regex string."
   :type 'string
   :group 'ivy)
 
@@ -2098,8 +2098,9 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
   (let* ((cmd (format cmd-template
-                      (counsel-unquote-regex-parens
-                       (ivy--regex ivy-text))))
+                      (shell-quote-argument
+                       (counsel-unquote-regex-parens
+                        (ivy--regex ivy-text)))))
          (cands (split-string (shell-command-to-string cmd) "\n" t)))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
@@ -2113,7 +2114,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
   (counsel-grep-like-occur
-   "ag --nocolor --nogroup \"%s\""))
+   "ag --nocolor --nogroup %s"))
 
 ;;** `counsel-pt'
 (defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
@@ -2154,7 +2155,9 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command "rg -i --no-heading --line-number --color never %s ."
-  "Alternative to `counsel-ag-base-command' using ripgrep."
+  "Alternative to `counsel-ag-base-command' using ripgrep.
+
+Note: don't use single quotes for the regex."
   :type 'string
   :group 'ivy)
 
@@ -2196,11 +2199,13 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel-rg-occur ()
   "Generate a custom occur buffer for `counsel-rg'."
   (counsel-grep-like-occur
-   "rg -i --no-heading --line-number --color never \"%s\" ."))
+   "rg -i --no-heading --line-number --color never %s ."))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE '%s' %s"
-  "Format string to use in `cousel-grep-function' to construct the command."
+(defcustom counsel-grep-base-command "grep -nE %s %s"
+  "Format string to use in `cousel-grep-function' to construct the command.
+
+Note: don't use single quotes for either the regex or the file name."
   :type 'string
   :group 'ivy)
 
@@ -2214,7 +2219,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                   (setq ivy--old-re
                         (ivy--regex string)))))
       (counsel--async-command
-       (format counsel-grep-command regex))
+       (format counsel-grep-command (shell-quote-argument regex)))
       nil)))
 
 (defun counsel-grep-action (x)
@@ -2256,7 +2261,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   "Generate a custom occur buffer for `counsel-grep'."
   (counsel-grep-like-occur
    (format
-    "grep -niE '%%s' %s /dev/null"
+    "grep -niE %%s %s /dev/null"
     (shell-quote-argument
      (file-name-nondirectory
       (buffer-file-name
