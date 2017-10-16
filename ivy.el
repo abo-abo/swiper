@@ -306,6 +306,7 @@ action functions.")
     (define-key map [remap backward-delete-char-untabify] 'ivy-backward-delete-char)
     (define-key map [remap backward-kill-word] 'ivy-backward-kill-word)
     (define-key map [remap delete-char] 'ivy-delete-char)
+    (define-key map [remap delete-forward-char] 'ivy-delete-forward-char)
     (define-key map [remap forward-char] 'ivy-forward-char)
     (define-key map [remap kill-word] 'ivy-kill-word)
     (define-key map [remap beginning-of-buffer] 'ivy-beginning-of-buffer)
@@ -1245,6 +1246,12 @@ On error (read-only), call `ivy-on-del-error-function'."
   (interactive "p")
   (unless (= (point) (line-end-position))
     (delete-char arg)))
+
+(defun ivy-delete-forward-char (n &optional killflag)
+  "Forward to `delete-forward-char' N and KILLFLAG."
+  (interactive "p\nP")
+  (unless (= (point) (line-end-position))
+    (delete-forward-char n killflag)))
 
 (defun ivy-forward-char (arg)
   "Forward to `forward-char' ARG."
