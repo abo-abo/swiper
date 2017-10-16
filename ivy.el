@@ -2010,8 +2010,9 @@ See `completion-in-region' for further information."
       (let ((len (min (ivy-completion-common-length (car comps))
                       (length str))))
         (nconc comps nil)
-        (setq ivy-completion-beg (- end len))
-        (setq ivy-completion-end end)
+        (delete-region start end)
+        (setq ivy-completion-beg start)
+        (setq ivy-completion-end start)
         (if (null (cdr comps))
             (if (string= str (car comps))
                 (message "Sole match")
@@ -2032,7 +2033,12 @@ See `completion-in-region' for further information."
                        ;; remove 'completions-first-difference face
                        (mapcar #'substring-no-properties comps)
                        :predicate predicate
+                       :initial-input str
                        :action #'ivy-completion-in-region-action
+                       :unwind (lambda ()
+                                 (unless (eq ivy-exit 'done)
+                                   (goto-char start)
+                                   (insert str)))
                        :caller 'ivy-completion-in-region)
              t)))))))
 
