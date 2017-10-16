@@ -2113,7 +2113,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
   (counsel-grep-like-occur
-   "ag --nocolor --nogroup %s"))
+   "ag --nocolor --nogroup \"%s\""))
 
 ;;** `counsel-pt'
 (defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
