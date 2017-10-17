@@ -1673,13 +1673,27 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :caller 'counsel-find-file))
 
 (defun counsel-up-directory ()
-  "Go to the parent directory preselecting the current one."
+  "Go to the parent directory preselecting the current one.
+
+If the current directory is remote and it's not possible to go up any
+further, make the remote prefix editable"
   (interactive)
-  (let ((dir-file-name
-         (directory-file-name (expand-file-name ivy--directory))))
-    (ivy--cd (file-name-directory dir-file-name))
-    (setf (ivy-state-preselect ivy-last)
-          (file-name-as-directory (file-name-nondirectory dir-file-name)))))
+  (let* ((cur-dir (directory-file-name (expand-file-name ivy--directory)))
+         (up-dir (file-name-directory cur-dir)))
+    (if (and (file-remote-p cur-dir) (string-equal cur-dir up-dir))
+        (progn
+          ;; make the remote prefix editable
+          (setq ivy--old-cands nil)
+          (setq ivy--old-re nil)
+          (ivy-set-index 0)
+          (setq ivy--directory "")
+          (setq ivy--all-candidates nil)
+          (setq ivy-text "")
+          (delete-minibuffer-contents)
+          (insert up-dir))
+      (ivy--cd up-dir)
+      (setf (ivy-state-preselect ivy-last)
+            (file-name-as-directory (file-name-nondirectory cur-dir))))))
 
 (defun counsel-at-git-issue-p ()
   "When point is at an issue in a Git-versioned file, return the issue string."
