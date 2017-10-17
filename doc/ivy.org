@@ -997,23 +997,28 @@ bindings that work here:
 
      Likewise, =./= can be removed.
 
-- Using TRAMP ::
-     From any directory, with the empty input, inputting =/ssh:= and
-     pressing ~C-j~ (or ~RET~, which is the same thing) completes for
-     host and user names.
-
-     For =/ssh:user@= input, completes the domain name.
-
-     ~C-i~ works in a similar way to the default completion.
-
-     You can also get sudo access for the current directory by
-     inputting =/sudo::= ~RET~. Using =/sudo:= (i.e. single colon instead of
-     double) will result in a completion session for the desired user.
-
 - History ::
      File history works the same with ~M-p~, ~M-n~, and ~C-r~, but
      uses a custom code for file name completion that cycles through
      files previously opened. It also works with TRAMP files.
+
+*** Using TRAMP
+From any directory, with the empty input, inputting =/ssh:= and pressing
+~C-j~ (or ~RET~, which is the same thing) completes for host and user
+names.
+
+For =/ssh:user@= input, completes the domain name.
+
+~C-i~ works in a similar way to the default completion.
+
+You can also get sudo access for the current directory by inputting
+=/sudo::= ~RET~. Using =/sudo:= (i.e. single colon instead of double) will
+result in a completion session for the desired user.
+
+Multi-hopping is possible, although a bit complex.
+
+- Example : connect to a remote host =cloud= and open a file with =sudo= there ::
+  - ~C-x C-f~ =/ssh:cloud|sudo:root:/=.
 
 ** Buffer Name Completion
 :PROPERTIES:
