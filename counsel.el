@@ -3018,7 +3018,7 @@ PREFIX is used to create the key."
                                      imenu-auto-rescan-maxout))
          (items (imenu--make-index-alist t))
          (items (delete (assoc "*Rescan*" items) items)))
-    (ivy-read "imenu items:" (counsel-imenu-get-candidates-from items)
+    (ivy-read "imenu items: " (counsel-imenu-get-candidates-from items)
               :preselect (thing-at-point 'symbol)
               :require-match t
               :action (lambda (candidate)
