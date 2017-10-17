@@ -2002,15 +2002,19 @@ See `completion-in-region' for further information."
          (completion-ignore-case case-fold-search)
          (comps
           (completion-all-completions str collection predicate (- end start)))
+         (len (min (ivy-completion-common-length (car comps))))
+         (initial (if (= len 0)
+                      ""
+                    (substring str (- len))))
          (ivy--prompts-list (if (window-minibuffer-p)
                                 ivy--prompts-list
                               '(ivy-completion-in-region (lambda nil)))))
     (if (null comps)
         (message "No matches")
       (nconc comps nil)
-      (delete-region start end)
-      (setq ivy-completion-beg start)
-      (setq ivy-completion-end start)
+      (delete-region (- end len) end)
+      (setq ivy-completion-beg (- end len))
+      (setq ivy-completion-end ivy-completion-beg)
       (if (null (cdr comps))
           (if (string= str (car comps))
               (message "Sole match")
@@ -2031,12 +2035,12 @@ See `completion-in-region' for further information."
                      ;; remove 'completions-first-difference face
                      (mapcar #'substring-no-properties comps)
                      :predicate predicate
-                     :initial-input str
+                     :initial-input initial
                      :action #'ivy-completion-in-region-action
                      :unwind (lambda ()
                                (unless (eq ivy-exit 'done)
-                                 (goto-char start)
-                                 (insert str)))
+                                 (goto-char ivy-completion-beg)
+                                 (insert initial)))
                      :caller 'ivy-completion-in-region)
            t))))))
 
