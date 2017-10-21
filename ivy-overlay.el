@@ -82,15 +82,18 @@ Then attach the overlay the character before point."
 (defvar ivy-completion-beg)
 (declare-function ivy--get-window "ivy")
 
+(defun ivy-overlay-possible-p ()
+  (or
+   (< (- (window-width) (current-column))
+      (length (ivy-state-current ivy-last)))
+   (<= (window-height) (+ ivy-height 3))))
+
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
 Hide the minibuffer contents and cursor."
   (if (save-selected-window
         (select-window (ivy-state-window ivy-last))
-        (or
-         (< (- (window-width) (current-column))
-            (length (ivy-state-current ivy-last)))
-         (<= (window-height) (+ ivy-height 2))))
+        (ivy-overlay-possible-p))
       (let ((buffer-undo-list t))
         (save-excursion
           (forward-line 1)
