@@ -580,15 +580,14 @@ will bring the behavior in line with the newer Emacsen."
                             (switch-to-buffer temp-buffer)
                             (emacs-lisp-mode)
                             (ivy-mode)
-                            (insert " temp-buffer-sh")
+                            (insert " emacs-lisp-mode-h")
                             (execute-kbd-macro
                              (vconcat
-                              (kbd "C-M-i")
-                              (kbd "RET")))
+                              (kbd "C-M-i")))
                             (buffer-string))
                        (and (buffer-name temp-buffer)
                             (kill-buffer temp-buffer))))
-                   " temp-buffer-show-hook")))
+                   " emacs-lisp-mode-hook")))
 
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
