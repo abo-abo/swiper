@@ -573,21 +573,34 @@ will bring the behavior in line with the newer Emacsen."
             "bl C-p C-M-j")
            "bl")))
 
+(defmacro ivy-with-r (expr &rest keys)
+  `(let ((temp-buffer (generate-new-buffer " *temp*")))
+     (unwind-protect
+          (save-window-excursion
+            (switch-to-buffer temp-buffer)
+            ,expr
+            (ivy-mode)
+            (execute-kbd-macro
+             ,(apply 'vconcat (mapcar 'kbd keys)))
+            (buffer-string))
+       (and (buffer-name temp-buffer)
+            (kill-buffer temp-buffer)))))
+
 (ert-deftest ivy-completion-in-region ()
-  (should (string= (let ((temp-buffer (generate-new-buffer " *temp*")))
-                     (unwind-protect
-                          (save-window-excursion
-                            (switch-to-buffer temp-buffer)
-                            (emacs-lisp-mode)
-                            (ivy-mode)
-                            (insert " emacs-lisp-mode-h")
-                            (execute-kbd-macro
-                             (vconcat
-                              (kbd "C-M-i")))
-                            (buffer-string))
-                       (and (buffer-name temp-buffer)
-                            (kill-buffer temp-buffer))))
-                   " emacs-lisp-mode-hook")))
+  (should (string=
+           (ivy-with-r
+            (progn
+              (emacs-lisp-mode)
+              (insert " emacs-lisp-mode-h"))
+            "C-M-i")
+           " emacs-lisp-mode-hook"))
+  (should (string=
+           (ivy-with-r
+            (progn
+              (emacs-lisp-mode)
+              (insert "(nconc"))
+            "C-M-i")
+           "(nconc")))
 
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
