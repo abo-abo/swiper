@@ -573,6 +573,23 @@ will bring the behavior in line with the newer Emacsen."
             "bl C-p C-M-j")
            "bl")))
 
+(ert-deftest ivy-completion-in-region ()
+  (should (string= (let ((temp-buffer (generate-new-buffer " *temp*")))
+                     (unwind-protect
+                          (save-window-excursion
+                            (switch-to-buffer temp-buffer)
+                            (emacs-lisp-mode)
+                            (ivy-mode)
+                            (insert " temp-buffer-sh")
+                            (execute-kbd-macro
+                             (vconcat
+                              (kbd "C-M-i")
+                              (kbd "RET")))
+                            (buffer-string))
+                       (and (buffer-name temp-buffer)
+                            (kill-buffer temp-buffer))))
+                   " temp-buffer-show-hook")))
+
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
   (should
