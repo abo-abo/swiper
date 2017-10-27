@@ -2008,9 +2008,14 @@ See `completion-in-region' for further information."
     (if (null comps)
         (message "No matches")
       (let* ((len (ivy-completion-common-length (car comps)))
-             (initial (if (= len 0)
-                          ""
-                        (substring str (- len)))))
+             (str-len (length str))
+             (initial (cond ((= len 0)
+                             "")
+                            ((> len str-len)
+                             (setq len str-len)
+                             str)
+                            (t
+                             (substring str (- len))))))
         (nconc comps nil)
         (delete-region (- end len) end)
         (setq ivy-completion-beg (- end len))
