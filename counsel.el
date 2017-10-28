@@ -88,10 +88,10 @@
 
 (defun counsel-require-program (program)
   "Check system for PROGRAM, printing error if unfound."
-  (when (and (stringp program)
-             (not (string= program ""))
-             (not (executable-find program)))
-    (user-error "Required program \"%s\" not found in your path" program)))
+  (or (and (stringp program)
+           (not (string= program ""))
+           (executable-find program))
+      (user-error "Required program \"%s\" not found in your path" program)))
 
 ;;* Async Utility
 (defvar counsel--async-time nil
