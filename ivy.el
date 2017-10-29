@@ -1340,12 +1340,9 @@ This string is inserted into the minibuffer."
              (nreverse candidates)
              (avy--style-fn avy-style)))))
     (when (number-or-marker-p candidate)
-      (goto-char candidate)
-      (when (eq ivy-format-function 'ivy-format-function-arrow)
-        (forward-char 2))
       (ivy--done
-       (buffer-substring-no-properties
-        (point) (line-end-position))))))
+       (substring-no-properties
+        (nth (- (line-number-at-pos candidate) 2) ivy--old-cands))))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
