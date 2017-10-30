@@ -1,0 +1,52 @@
+* Reporting issues
+
+Before reporting a bug, please take a look at:
+- the [[https://github.com/abo-abo/swiper/blob/master/README.md][FAQ]]
+- the [[http://oremacs.com/swiper/][manual]]
+- the [[https://github.com/abo-abo/swiper/wiki][wiki]]
+- the [[https://github.com/abo-abo/swiper/issues][open issues]]
+
+To understand what's going on, we need a reproducible bug scenario. It
+is important that we can rule out interference with other Emacs
+packages or customizations, therefore use =emacs -Q= to bypass your init
+file.
+
+This shortcut will start =emacs -Q= for you with =ivy-mode= already
+loaded:
+#+begin_src sh
+git clone https://github.com/abo-abo/swiper/
+cd swiper
+make plain
+#+end_src
+
+* Contributing code
+The basic code style guide is to use:
+#+begin_src elisp
+(setq indent-tabs-mode nil)
+#+end_src
+It is provided for you in [[https://github.com/abo-abo/swiper/blob/master/.dir-locals.el][.dir-locals.el]], please obey it.
+
+Before submitting a change, run:
+- =make compile= - check for new compilation warnings
+- =make test= - check for failing tests
+- =make checkdock= - check documentation guidelines
+
+Use your own judgment for the commit messages, I recommend a verbose
+style using =magit-commit-add-log=.
+
+* Copyright Assignment
+These packages are subject to the same [[http://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
+Emacs itself, org-mode, CEDET and other packages in [[http://elpa.gnu.org/packages/][GNU ELPA]].
+
+Any [[http://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant][legally significant]] contributions can only be accepted after the
+author has completed their paperwork. Please see [[http://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future][the request form]] if
+you want to proceed with the assignment.
+
+The copyright assignment isn't a big deal, it just says that the
+copyright for your submitted changes to Emacs belongs to the FSF. This
+assignment works for all projects related to Emacs. To obtain it you
+need to:
+- send one email
+- then send one letter (if you live in the US, it's digital)
+- wait for some time (in my case, I had to wait for one month; but
+  recently it's less than a week)
