@@ -1229,11 +1229,19 @@ On error (read-only), call `ivy-on-del-error-function'."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
-        (ivy--cd (file-name-directory
-                  (directory-file-name
-                   (expand-file-name
-                    ivy--directory))))
-        (ivy--exhibit))
+        (let ((old-dir (file-name-nondirectory
+                        (directory-file-name ivy--directory)))
+              idx)
+          (ivy--cd (file-name-directory
+                    (directory-file-name
+                     (expand-file-name
+                      ivy--directory))))
+          (ivy--exhibit)
+          (when (setq idx (cl-position
+                           (file-name-as-directory old-dir)
+                           ivy--old-cands
+                           :test 'equal))
+            (ivy-set-index idx))))
     (condition-case nil
         (backward-delete-char 1)
       (error
