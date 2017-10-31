@@ -1913,8 +1913,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      (format counsel-fzf-cmd
              (if (string-equal str "")
                  "\"\""
-               (counsel-unquote-regex-parens
-                (ivy--regex str))))))
+               (progn
+                 (setq ivy--old-re (ivy--regex-fuzzy str))
+                 str)))))
   nil)
 
 ;;;###autoload
@@ -1923,14 +1924,16 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-fzf-cmd)))
-  (setq counsel--fzf-dir (if (and
-                              (fboundp 'projectile-project-p)
-                              (fboundp 'projectile-project-root)
-                              (projectile-project-p))
-                             (projectile-project-root)
-                           default-directory))
+  (setq counsel--fzf-dir
+        (if (and
+             (fboundp 'projectile-project-p)
+             (fboundp 'projectile-project-root)
+             (projectile-project-p))
+            (projectile-project-root)
+          default-directory))
   (ivy-read "> " #'counsel-fzf-function
             :initial-input initial-input
+            :re-builder #'ivy--regex-fuzzy
             :dynamic-collection t
             :action #'counsel-fzf-action
             :unwind #'counsel-delete-process
