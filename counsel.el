@@ -43,6 +43,7 @@
 (require 'swiper)
 (require 'etags)
 (require 'esh-util)
+(require 'compile)
 
 ;;* Utility
 (defun counsel-more-chars (n)
