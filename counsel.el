@@ -1166,14 +1166,14 @@ Typical value: '(recenter)."
 (defun counsel-git-grep-transformer (str)
   "Higlight file and line number in STR."
   (when (string-match "\\`\\([^:]+\\):\\([^:]+\\):" str)
-    (set-text-properties (match-beginning 1)
-                         (match-end 1)
-                         '(face compilation-info)
-                         str)
-    (set-text-properties (match-beginning 2)
-                         (match-end 2)
-                         '(face compilation-line-number)
-                         str))
+    (add-face-text-property (match-beginning 1)
+                            (match-end 1)
+                            'compilation-info
+                            nil str)
+    (add-face-text-property (match-beginning 2)
+                            (match-end 2)
+                            'compilation-line-number
+                            nil str))
   str)
 
 (defvar counsel-git-grep-projects-alist nil
