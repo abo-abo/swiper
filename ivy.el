@@ -2595,8 +2595,9 @@ Should be run via minibuffer `post-command-hook'."
                     (ivy--sort-maybe
                      (funcall (ivy-state-collection ivy-last) ivy-text)))
               (setq ivy--old-text ivy-text)))
-          (ivy--insert-minibuffer
-           (ivy--format ivy--all-candidates)))
+          (when ivy--all-candidates
+            (ivy--insert-minibuffer
+             (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
              (cond ((or (string= "~/" ivy-text)
                         (and (string= "~" ivy-text)
