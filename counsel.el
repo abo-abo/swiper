@@ -2264,7 +2264,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    "rg -i --no-heading --line-number --color never %s ."))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE %s %s"
+(defcustom counsel-grep-base-command "grep -nE -- %s %s"
   "Format string to use in `cousel-grep-function' to construct the command.
 
 Note: don't use single quotes for either the regex or the file name."
