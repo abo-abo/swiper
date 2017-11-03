@@ -120,7 +120,8 @@ Hide the minibuffer contents and cursor."
                 (buffer-substring (point) (line-end-position))
                 (ivy-left-pad
                  str
-                 (+ (if (eq major-mode 'org-mode)
+                 (+ (if (and (eq major-mode 'org-mode)
+                             (bound-and-true-p org-indent-mode))
                         (* org-indent-indentation-per-level (org-current-level))
                       0)
                     (save-excursion
