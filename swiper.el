@@ -111,8 +111,9 @@
        (lambda (_)
          (with-ivy-window
            (move-beginning-of-line 1)
-           (perform-replace from to
-                            t t nil)))))))
+           (let ((inhibit-read-only t))
+             (perform-replace from to
+                              t t nil))))))))
 
 (defun swiper-all-query-replace ()
   "Start `query-replace' with string to replace from last search string."
