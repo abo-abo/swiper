@@ -87,9 +87,7 @@ Then attach the overlay the character before point."
    (< (- (window-width) (current-column))
       (length (ivy-state-current ivy-last)))
    (<= (window-height) (+ ivy-height 3))
-   (= (point) (point-min))
-   (and (eq major-mode 'org-mode)
-        (bound-and-true-p org-indent-mode))))
+   (= (point) (point-min))))
 
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
