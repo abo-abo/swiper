@@ -277,6 +277,7 @@
     bongo-mode
     bongo-library-mode
     magit-popup-mode
+    adoc-mode
     bongo-playlist-mode
     eww-mode
     treemacs-mode
