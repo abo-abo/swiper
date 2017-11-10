@@ -3170,6 +3170,18 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
             :action #'insert
             :caller 'counsel-shell-command-history))
 
+;;** `counsel-minibuffer-history'
+;;;###autoload
+(defun counsel-minibuffer-history ()
+  "Browse minibuffer history."
+  (interactive)
+  (let ((enable-recursive-minibuffers t))
+    (ivy-read "Reverse-i-search: " (symbol-value minibuffer-history-variable)
+              :action #'insert
+              :caller 'counsel-minibuffer-history)))
+(make-obsolete 'counsel-expression-history 'counsel-minibuffer-history "20171011")
+(make-obsolete 'counsel-shell-command-history 'counsel-minibuffer-history "20171011")
+
 ;;** `counsel-esh-history'
 (defun counsel--browse-history (elements)
   "Use Ivy to navigate through ELEMENTS."
@@ -4158,10 +4170,8 @@ replacements. "
         (when (and (fboundp 'advice-add)
                    counsel-mode-override-describe-bindings)
           (advice-add #'describe-bindings :override #'counsel-descbinds))
-        (define-key minibuffer-local-shell-command-map (kbd "C-r")
-          'counsel-shell-command-history)
-        (define-key read-expression-map (kbd "C-r")
-          'counsel-expression-history))
+        (define-key minibuffer-local-map (kbd "C-r")
+          'counsel-minibuffer-history))
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
