@@ -626,19 +626,18 @@ candidate, not the prompt."
 
 (defun ivy-mouse-done (event)
   "Exit the minibuffer with the selected candidate."
-  (interactive (list last-input-event))
+  (interactive "@e")
   (when event
-    (with-selected-window (posn-window (event-start event))
-      (let* ((line-number-at-point
-              (max 2
-                   (line-number-at-pos (posn-point (event-start event)))))
+    (let* ((line-number-at-point
+            (max 2
+                 (line-number-at-pos (posn-point (event-start event)))))
 
-             (line-number-candidate ;; convert to 0 based index
-              (- line-number-at-point 2))
-             (offset
-              (- line-number-candidate
-                 ivy--window-index)))
-        (ivy-next-line-and-call offset)))
+           (line-number-candidate ;; convert to 0 based index
+            (- line-number-at-point 2))
+           (offset
+            (- line-number-candidate
+               ivy--window-index)))
+      (ivy-next-line-and-call offset))
     (ivy-alt-done)))
 
 (defvar ivy-read-action-format-function 'ivy-read-action-format-default
