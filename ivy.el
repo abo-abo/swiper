@@ -620,6 +620,10 @@ candidate, not the prompt."
            (insert ivy-text)
            (ivy--exhibit)))))
 
+(defvar ivy-mouse-action-tooltip
+  "Exit the minibuffer with the selected candidate."
+  "The doc visible in the tooltip for mouse-1 binding in the minibuffer")
+
 (defun ivy-mouse-done (event)
   "Exit the minibuffer with the selected candidate."
   (interactive (list last-input-event))
@@ -3271,8 +3275,7 @@ FACE is the face to apply to STR."
          0 (length str)
          `(mouse-face
            ivy-minibuffer-match-highlight
-           ;; TODO: help-echo?
-           )
+           help-echo (format "mouse-1: %s" ivy-mouse-action-tooltip))
          str)
         str)
     (copy-sequence str)))
