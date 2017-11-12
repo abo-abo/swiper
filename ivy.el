@@ -58,6 +58,10 @@
      :background "#65a7e2" :foreground "black"))
   "Face used by Ivy for highlighting the current match.")
 
+(defface ivy-minibuffer-match-highlight
+  '((t :inherit highlight))
+  "Face used by Ivy for highlighting the match under the cursor.")
+
 (defface ivy-minibuffer-match-face-1
   '((((class color) (background light))
      :background "#d3d3d3")
@@ -294,6 +298,9 @@ action functions.")
 (defvar ivy-minibuffer-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-m") 'ivy-done)
+    (define-key map [down-mouse-1] 'ignore)
+    (define-key map [mouse-1] 'ivy-mouse-done)
+    (define-key map [mouse-3] 'ivy-mouse-dispatching-done)
     (define-key map (kbd "C-M-m") 'ivy-call)
     (define-key map (kbd "C-j") 'ivy-alt-done)
     (define-key map (kbd "C-M-j") 'ivy-immediate-done)
@@ -426,6 +433,9 @@ of `history-length'.")
 
 (defvar ivy--index 0
   "Store the index of the current candidate.")
+
+(defvar ivy--window-index 0
+  "Store the index of the current candidate in the minibuffer window.")
 
 (defvar ivy-exit nil
   "Store `done' if the completion was successfully selected.
@@ -610,6 +620,43 @@ candidate, not the prompt."
            (setq ivy--prompt-extra " (match required)")
            (insert ivy-text)
            (ivy--exhibit)))))
+
+(defvar ivy-mouse-1-tooltip
+  "Exit the minibuffer with the selected candidate."
+  "The doc visible in the tooltip for mouse-1 binding in the minibuffer")
+(defvar ivy-mouse-3-tooltip
+  "Display alternative actions."
+  "The doc visible in the tooltip for mouse-3 binding in the minibuffer")
+
+(defun ivy-mouse-offset (event)
+  "Compute the offset between the candidate at point and the selected one."
+  (if event
+      (let* ((line-number-at-point
+              (max 2
+                   (line-number-at-pos (posn-point (event-start event)))))
+
+             (line-number-candidate ;; convert to 0 based index
+              (- line-number-at-point 2))
+             (offset
+              (- line-number-candidate
+                 ivy--window-index)))
+        offset)
+    nil))
+
+(defun ivy-mouse-done (event)
+  (interactive "@e")
+  (let ((offset (ivy-mouse-offset event)))
+    (when offset
+      (ivy-next-line-and-call offset)
+      (ivy-alt-done))))
+
+(defun ivy-mouse-dispatching-done (event)
+  (interactive "@e")
+  (let ((offset (ivy-mouse-offset event)))
+    (when offset
+      (ivy-next-line offset)
+      (ivy--exhibit)
+      (ivy-dispatching-done))))
 
 (defvar ivy-read-action-format-function 'ivy-read-action-format-default
   "Function used to transform the actions list into a docstring.")
@@ -2348,6 +2395,8 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
+  (setq-local mwheel-scroll-up-function 'ivy-next-line)
+  (setq-local mwheel-scroll-down-function 'ivy-previous-line)
   (setq-local completion-show-inline-help nil)
   (setq-local minibuffer-default-add-function
               (lambda ()
@@ -3135,7 +3184,7 @@ and SEPARATOR is used to join them."
   (let ((i -1))
     (mapconcat
      (lambda (str)
-       (let ((curr (eq (cl-incf i) ivy--index)))
+       (let ((curr (eq (cl-incf i) ivy--window-index)))
          (if curr
              (funcall selected-fn str)
            (funcall other-fn str))))
@@ -3237,9 +3286,21 @@ FACE is the face to apply to STR."
 
 (defun ivy--format-minibuffer-line (str)
   "Format line STR for use in minibuffer."
-  (if (eq ivy-display-style 'fancy)
-      (funcall ivy--highlight-function (copy-sequence str))
-    (copy-sequence str)))
+  (let ((str (if (eq ivy-display-style 'fancy)
+                 (funcall ivy--highlight-function (copy-sequence str))
+               (copy-sequence str))))
+    (add-text-properties
+     0 (length str)
+     '(mouse-face
+       ivy-minibuffer-match-highlight
+       help-echo
+       (format
+        (if tooltip-mode
+            "mouse-1: %s\nmouse-3: %s"
+          "mouse-1: %s   mouse-3: %s")
+        ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
+     str)
+    str))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
@@ -3267,13 +3328,13 @@ CANDS is a list of strings."
            (cands (cl-subseq cands start end))
            (index (- ivy--index start))
            transformer-fn)
+      (setq ivy--window-index index)
       (setf (ivy-state-current ivy-last) (copy-sequence (nth index cands)))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
           (with-current-buffer (ivy-state-buffer ivy-last)
             (setq cands (mapcar transformer-fn cands)))))
-      (let* ((ivy--index index)
-             (cands (mapcar
+      (let* ((cands (mapcar
                      #'ivy--format-minibuffer-line
                      cands))
              (res (concat "\n" (funcall ivy-format-function cands))))
