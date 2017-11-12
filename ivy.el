@@ -3274,7 +3274,7 @@ FACE is the face to apply to STR."
          0 (length str)
          `(mouse-face
            ivy-minibuffer-match-highlight
-           help-echo (format "mouse-1: %s" ivy-mouse-action-tooltip))
+           help-echo ,(format "mouse-1: %s" ivy-mouse-action-tooltip))
          str)
         str)
     (copy-sequence str)))
