@@ -3266,18 +3266,16 @@ FACE is the face to apply to STR."
 
 (defun ivy--format-minibuffer-line (str)
   "Format line STR for use in minibuffer."
-  (if (eq ivy-display-style 'fancy)
-      (let ((str
-             (funcall ivy--highlight-function (copy-sequence str))))
-
-        (add-text-properties
+  (let ((str (if (eq ivy-display-style 'fancy)
+                 (funcall ivy--highlight-function (copy-sequence str))
+               (copy-sequence str))))
+    (add-text-properties
          0 (length str)
          `(mouse-face
            ivy-minibuffer-match-highlight
            help-echo ,(format "mouse-1: %s" ivy-mouse-action-tooltip))
          str)
-        str)
-    (copy-sequence str)))
+    str))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
