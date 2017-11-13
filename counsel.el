@@ -1930,19 +1930,33 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   nil)
 
 ;;;###autoload
-(defun counsel-fzf (&optional initial-input)
-  "Call the \"fzf\" shell command.
-INITIAL-INPUT can be given as the initial minibuffer input."
-  (interactive)
-  (counsel-require-program (car (split-string counsel-fzf-cmd)))
-  (setq counsel--fzf-dir (funcall counsel-fzf-dir-function))
-  (ivy-read "> " #'counsel-fzf-function
-            :initial-input initial-input
-            :re-builder #'ivy--regex-fuzzy
-            :dynamic-collection t
-            :action #'counsel-fzf-action
-            :unwind #'counsel-delete-process
-            :caller 'counsel-fzf))
+(defun counsel-fzf (&optional initial-input initial-directory fzf-prompt)
+  "Open a file using the fzf shell command.
+INITIAL-INPUT can be given as the initial minibuffer input.
+INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
+FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
+  (interactive
+   (let ((fzf-basename (car (split-string counsel-fzf-cmd))))
+     (list nil
+           (when current-prefix-arg
+             (read-directory-name (concat
+                                   fzf-basename
+                                   " in directory: "))))))
+
+  (let ((fzf-basename (car (split-string counsel-fzf-cmd))))
+    (counsel-require-program fzf-basename)
+    (setq counsel--fzf-dir
+          (or initial-directory
+              (funcall counsel-fzf-dir-function)))
+    (ivy-set-prompt 'counsel-fzf counsel-prompt-function)
+    (ivy-read (or fzf-prompt (concat fzf-basename ": "))
+              #'counsel-fzf-function
+              :initial-input initial-input
+              :re-builder #'ivy--regex-fuzzy
+              :dynamic-collection t
+              :action #'counsel-fzf-action
+              :unwind #'counsel-delete-process
+              :caller 'counsel-fzf)))
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
