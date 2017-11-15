@@ -1950,6 +1950,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (let ((default-directory counsel--fzf-dir))
       (find-file x))))
 
+(ivy-set-actions
+ 'counsel-fzf
+ '(("x" counsel-locate-action-extern "xdg-open")
+   ("d" counsel-locate-action-dired "dired")))
+
 (counsel-set-async-exit-code 'counsel-fzf 1 "Nothing found")
 
 ;;** `counsel-dpkg'
