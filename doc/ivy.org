@@ -541,7 +541,7 @@ Hydra menu offers these additioanl bindings:
 
 The new buffer is read-only and has a few useful bindings defined.
 
-- ~RET~ or ~j~ (=ivy-occur-press=) ::
+- ~RET~ or ~f~ (=ivy-occur-press=) ::
      Call the current action on the selected candidate.
 
 - ~mouse-1~ (=ivy-occur-click=) ::
