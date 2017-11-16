@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-12-18 Sun 19:15 -->
+<!-- 2017-11-16 Thu 20:32 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -21,7 +21,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2013 Free Software Foundation, Inc.
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -133,7 +133,11 @@ for the JavaScript code in this tag.
 </li>
 <li><a href="#commands">8. Commands</a>
 <ul>
-<li><a href="#file-name-completion">8.1. File Name Completion</a></li>
+<li><a href="#file-name-completion">8.1. File Name Completion</a>
+<ul>
+<li><a href="#orgheadline">8.1.1. Using TRAMP</a></li>
+</ul>
+</li>
 <li><a href="#buffer-name-completion">8.2. Buffer Name Completion</a></li>
 <li><a href="#counsel-commands">8.3. Counsel commands</a></li>
 </ul>
@@ -280,10 +284,10 @@ See the code below for adding MELPA to the list of package archives:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">package</span>)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">package</span>)
 (add-to-list 'package-archives
              '(<span style="color: #2A00FF;">"melpa"</span> . <span style="color: #2A00FF;">"http://melpa.org/packages/"</span>))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -315,9 +319,9 @@ For package manager details, see <a href="http://www.gnu.org/software/emacs/manu
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
+<pre><code class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
 <span style="color: #7F0055; font-weight: bold;">cd</span> swiper &amp;&amp; make compile
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -325,9 +329,9 @@ Second, add these lines to the Emacs init file:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
+<pre><code class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
 (<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ivy</span>)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -335,9 +339,9 @@ Then, update the code with:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-sh">git pull
+<pre><code class="src src-sh">git pull
 make
-</pre>
+</code></pre>
 </div></dd>
 </dl>
 </div>
@@ -352,8 +356,8 @@ First enable Ivy completion everywhere:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(ivy-mode 1)
-</pre>
+<pre><code class="src src-elisp">(ivy-mode 1)
+</code></pre>
 </div>
 
 <p>
@@ -368,9 +372,9 @@ Here are some basic settings particularly useful for new Ivy users:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
 (<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -401,7 +405,7 @@ The recommended key bindings are:
 
 <dl class="org-dl">
 <dt>Ivy-based interface to standard commands</dt><dd><div class="org-src-container">
-<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
+<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
 (global-set-key (kbd <span style="color: #2A00FF;">"M-x"</span>) 'counsel-M-x)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x C-f"</span>) 'counsel-find-file)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; f"</span>) 'counsel-describe-function)
@@ -409,16 +413,16 @@ The recommended key bindings are:
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; l"</span>) 'counsel-find-library)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
-</pre>
+</code></pre>
 </div></dd>
 
 <dt>Ivy-based interface to shell and system tools</dt><dd><div class="org-src-container">
-<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
+<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c j"</span>) 'counsel-git-grep)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c k"</span>) 'counsel-ag)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x l"</span>) 'counsel-locate)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-S-o"</span>) 'counsel-rhythmbox)
-</pre>
+</code></pre>
 </div></dd>
 
 <dt>Ivy-resume and other commands</dt><dd><p>
@@ -426,8 +430,8 @@ The recommended key bindings are:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
-</pre>
+<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
+</code></pre>
 </div></dd>
 </dl>
 </div>
@@ -526,14 +530,14 @@ Example ERT test:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">should</span>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">should</span>
  (equal (ivy-with
          '(<span style="color: #7F0055; font-weight: bold;">progn</span>
            (ivy-read <span style="color: #2A00FF;">"Test: "</span> '(<span style="color: #2A00FF;">"can do"</span> <span style="color: #2A00FF;">"can't, sorry"</span> <span style="color: #2A00FF;">"other"</span>))
            ivy-text)
          <span style="color: #2A00FF;">"c &lt;tab&gt;"</span>)
         <span style="color: #2A00FF;">"can"</span>))
-</pre>
+</code></pre>
 </div></dd>
 
 <dt><kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>)</dt><dd><p>
@@ -830,7 +834,7 @@ The new buffer is read-only and has a few useful bindings defined.
 </p>
 
 <dl class="org-dl">
-<dt><kbd>RET</kbd> or <kbd>j</kbd> (<code>ivy-occur-press</code>)</dt><dd>Call the current action on the selected candidate.</dd>
+<dt><kbd>RET</kbd> or <kbd>f</kbd> (<code>ivy-occur-press</code>)</dt><dd>Call the current action on the selected candidate.</dd>
 
 <dt><kbd>mouse-1</kbd> (<code>ivy-occur-click</code>)</dt><dd>Call the current action on the selected candidate.</dd>
 
@@ -892,9 +896,9 @@ The default is:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((t . ivy--regex-plus)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -903,10 +907,10 @@ completion:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -948,8 +952,8 @@ transformed into
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp"><span style="color: #2A00FF;">"</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">for</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">.*</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">example</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">"</span>
-</pre>
+<pre><code class="src src-elisp"><span style="color: #2A00FF;">"</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">for</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">.*</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">example</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">"</span>
+</code></pre>
 </div>
 
 <p>
@@ -1043,8 +1047,8 @@ For example:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> confirm-nonexistent-file-or-buffer t)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> confirm-nonexistent-file-or-buffer t)
+</code></pre>
 </div>
 
 <p>
@@ -1083,8 +1087,8 @@ Enable virtual buffers with:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</code></pre>
 </div></dd>
 </dl>
 </div>
@@ -1108,8 +1112,8 @@ To disable showing the number of candidates:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">""</span>)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">""</span>)
+</code></pre>
 </div>
 
 <p>
@@ -1117,8 +1121,8 @@ To also display the current candidate:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
+</code></pre>
 </div>
 
 <p>
@@ -1178,10 +1182,10 @@ macro.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
   (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
     (insert x)))
-</pre>
+</code></pre>
 </div></dd>
 </dl>
 </div>
@@ -1231,7 +1235,7 @@ The second action copies the current candidate to the kill ring.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-yank-action</span> (x)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-yank-action</span> (x)
   (kill-new x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-copy-to-buffer-action</span> (x)
@@ -1242,7 +1246,7 @@ The second action copies the current candidate to the kill ring.
  t
  '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
    (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1261,8 +1265,8 @@ the <code>t</code> key as follows:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(ivy-set-actions t nil)
-</pre>
+<pre><code class="src src-elisp">(ivy-set-actions t nil)
+</code></pre>
 </div>
 </div>
 </div>
@@ -1275,11 +1279,11 @@ Use the command name as the key:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(ivy-set-actions
+<pre><code class="src src-elisp">(ivy-set-actions
  'swiper
  '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
    (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
-</pre>
+</code></pre>
 </div>
 </div>
 </div>
@@ -1289,7 +1293,7 @@ Use the command name as the key:
 <h4 id="example---define-a-new-command-with-several-actions"><a id="orgheadline"></a><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
 <div class="outline-text-4" id="text-example---define-a-new-command-with-several-actions">
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
   (message <span style="color: #2A00FF;">"action-1: %s"</span> x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-2</span> (x)
@@ -1305,7 +1309,7 @@ Use the command name as the key:
                       (<span style="color: #2A00FF;">"o"</span> my-action-1 <span style="color: #2A00FF;">"action 1"</span>)
                       (<span style="color: #2A00FF;">"j"</span> my-action-2 <span style="color: #2A00FF;">"action 2"</span>)
                       (<span style="color: #2A00FF;">"k"</span> my-action-3 <span style="color: #2A00FF;">"action 3"</span>))))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1351,8 +1355,8 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> magit-completing-read-function 'ivy-completing-read)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> magit-completing-read-function 'ivy-completing-read)
+</code></pre>
 </div></dd>
 <dt><code>find-file-in-project</code></dt><dd>It uses ivy by default if Ivy is installed.</dd>
 <dt><code>projectile</code></dt><dd><p>
@@ -1360,16 +1364,16 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> projectile-completion-system 'ivy)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> projectile-completion-system 'ivy)
+</code></pre>
 </div></dd>
 <dt><code>helm-make</code></dt><dd><p>
      Helm-make requires this setting for ivy completion.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> helm-make-completion-method 'ivy)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> helm-make-completion-method 'ivy)
+</code></pre>
 </div></dd>
 </dl>
 </div>
@@ -1403,7 +1407,7 @@ is empty.</dd>
 <dt><kbd>~</kbd> (<code>self-insert-command</code>)</dt><dd>Switch to the home directory.</dd>
 <dt><kbd>/</kbd> (<code>self-insert-command</code>)</dt><dd>If the current input matches an existing directory name exactly,
 switch the completion to that directory.</dd>
-<dt><kbd>M-q</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
+<dt><kbd>M-r</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
      Toggle between input as regexp or not.
 </p>
 
@@ -1430,10 +1434,19 @@ and <kbd>C-j</kbd>.
 Likewise, <code>./</code> can be removed.
 </p></dd>
 
-<dt>Using TRAMP</dt><dd><p>
-     From any directory, with the empty input, inputting <code>/ssh:</code> and
-pressing <kbd>C-j</kbd> (or <kbd>RET</kbd>, which is the same thing) completes for
-host and user names.
+<dt>History</dt><dd>File history works the same with <kbd>M-p</kbd>, <kbd>M-n</kbd>, and <kbd>C-r</kbd>, but
+uses a custom code for file name completion that cycles through
+files previously opened. It also works with TRAMP files.</dd>
+</dl>
+</div>
+
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="orgheadline"><span class="section-number-4">8.1.1</span> Using TRAMP</h4>
+<div class="outline-text-4" id="text-8-1-1">
+<p>
+From any directory, with the empty input, inputting <code>/ssh:</code> and pressing
+<kbd>C-j</kbd> (or <kbd>RET</kbd>, which is the same thing) completes for host and user
+names.
 </p>
 
 <p>
@@ -1445,15 +1458,21 @@ For <code>/ssh:user@</code> input, completes the domain name.
 </p>
 
 <p>
-You can also get sudo access for the current directory by
-inputting <code>/sudo::</code> <kbd>RET</kbd>. Using <code>/sudo:</code> (i.e. single colon instead of
-double) will result in a completion session for the desired user.
-</p></dd>
+You can also get sudo access for the current directory by inputting
+<code>/sudo::</code> <kbd>RET</kbd>. Using <code>/sudo:</code> (i.e. single colon instead of double) will
+result in a completion session for the desired user.
+</p>
 
-<dt>History</dt><dd>File history works the same with <kbd>M-p</kbd>, <kbd>M-n</kbd>, and <kbd>C-r</kbd>, but
-uses a custom code for file name completion that cycles through
-files previously opened. It also works with TRAMP files.</dd>
+<p>
+Multi-hopping is possible, although a bit complex.
+</p>
+
+<dl class="org-dl">
+<dt>Example : connect to a remote host <code>cloud</code> and open a file with <code>sudo</code> there</dt><dd><ul class="org-ul">
+<li><kbd>C-x C-f</kbd> <code>/ssh:cloud|sudo:root:/</code>.</li>
+</ul></dd>
 </dl>
+</div>
 </div>
 </div>
 
@@ -1471,8 +1490,8 @@ Adding this to Emacs init file:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
-</pre>
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</code></pre>
 </div>
 <p>
 will add additional virtual buffers to the buffers list for recent
@@ -1627,7 +1646,7 @@ later use yourself. However, it's recommended that you use the
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-describe-function</span> ()
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-describe-function</span> ()
   <span style="color: #2A00FF;">"Forward to `</span><span style="color: #110099;">describe-function</span><span style="color: #2A00FF;">'."</span>
   (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
   (ivy-read <span style="color: #2A00FF;">"Describe function: "</span>
@@ -1646,7 +1665,7 @@ later use yourself. However, it's recommended that you use the
                       (describe-function
                        (intern x)))
             <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-describe-function))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1714,11 +1733,11 @@ narrowing) or select a candidate from the visible collection.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
   (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
-     (format <span style="color: #2A00FF;">"locate %s '</span><span style="color: #110099;">%s</span><span style="color: #2A00FF;">'"</span>
+     (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
              (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
              (counsel-unquote-regex-parens
               (ivy--regex str))))
@@ -1739,7 +1758,7 @@ narrowing) or select a candidate from the visible collection.
                           (find-file file))))
             <span style="color: #7F0055; font-weight: bold;">:unwind</span> #'counsel-delete-process
             <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-locate))
-</pre>
+</code></pre>
 </div>
 
 <p>
@@ -1782,7 +1801,7 @@ displayed strings.
 </p>
 
 <div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates-function</span> (str pred _)
+<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates-function</span> (str pred _)
   (<span style="color: #7F0055; font-weight: bold;">let</span> ((props '(1 2))
         (strs '(<span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"foo2"</span>)))
     (cl-mapcar (<span style="color: #7F0055; font-weight: bold;">lambda</span> (s p) (propertize s 'property p))
@@ -1796,7 +1815,7 @@ displayed strings.
             <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
                       (message <span style="color: #2A00FF;">"Value: %s"</span> (get-text-property 0 'property x)
                        ))))
-</pre>
+</code></pre>
 </div>
 
 <p>
