@@ -2377,6 +2377,8 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
+  (setq-local mwheel-scroll-down-function 'ivy-next-line)
+  (setq-local mwheel-scroll-up-function 'ivy-previous-line)
   (setq-local completion-show-inline-help nil)
   (setq-local minibuffer-default-add-function
               (lambda ()
