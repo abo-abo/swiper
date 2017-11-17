@@ -2274,10 +2274,11 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    "rg -i --no-heading --line-number --color never -- %s ."))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE -- %s %s"
-  "Format string to use in `cousel-grep-function' to construct the command.
-
-Note: don't use single quotes for either the regex or the file name."
+(defcustom counsel-grep-base-command "grep -E -n -e %s %s"
+  "Format string used by `counsel-grep' to build a shell command.
+It should contain two %-sequences (see function `format') to be
+substituted by the search regexp and file, respectively.  Neither
+%-sequence should be contained in single quotes."
   :type 'string
   :group 'ivy)
 
@@ -2349,11 +2350,9 @@ Note: don't use single quotes for either the regex or the file name."
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-dir default-directory)
-  (if (string-match "%s$" counsel-grep-base-command)
-      (setq counsel-grep-command
-            (concat (substring counsel-grep-base-command 0 (match-beginning 0))
-                    (shell-quote-argument (buffer-file-name))))
-    (error "expected `counsel-grep-base-command' to end in %%s"))
+  (setq counsel-grep-command
+        (format counsel-grep-base-command
+                "%s" (shell-quote-argument buffer-file-name)))
   (let ((init-point (point))
         res)
     (unwind-protect
