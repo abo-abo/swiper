@@ -2356,23 +2356,24 @@ substituted by the search regexp and file, respectively.  Neither
   (let ((init-point (point))
         res)
     (unwind-protect
-         (setq res (ivy-read "grep: " 'counsel-grep-function
-                             :dynamic-collection t
-                             :preselect (format "%d:%s"
-                                                (line-number-at-pos)
-                                                (regexp-quote
-                                                 (buffer-substring-no-properties
-                                                  (line-beginning-position)
-                                                  (line-end-position))))
-                             :history 'counsel-git-grep-history
-                             :update-fn (lambda ()
-                                          (counsel-grep-action (ivy-state-current ivy-last)))
-                             :re-builder #'ivy--regex
-                             :action #'counsel-grep-action
-                             :unwind (lambda ()
-                                       (counsel-delete-process)
-                                       (swiper--cleanup))
-                             :caller 'counsel-grep))
+        (setq res (ivy-read "grep: " #'counsel-grep-function
+                            :dynamic-collection t
+                            :preselect (format "%d:%s"
+                                               (line-number-at-pos)
+                                               (regexp-quote
+                                                (buffer-substring-no-properties
+                                                 (line-beginning-position)
+                                                 (line-end-position))))
+                            :history 'counsel-git-grep-history
+                            :update-fn (lambda ()
+                                         (counsel-grep-action
+                                          (ivy-state-current ivy-last)))
+                            :re-builder #'ivy--regex
+                            :action #'counsel-grep-action
+                            :unwind (lambda ()
+                                      (counsel-delete-process)
+                                      (swiper--cleanup))
+                            :caller 'counsel-grep))
       (unless res
         (goto-char init-point)))))
 
