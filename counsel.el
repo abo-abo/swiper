@@ -2274,10 +2274,11 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    "rg -i --no-heading --line-number --color never -- %s ."))
 
 ;;** `counsel-grep'
-(defcustom counsel-grep-base-command "grep -nE -- %s %s"
-  "Format string to use in `cousel-grep-function' to construct the command.
-
-Note: don't use single quotes for either the regex or the file name."
+(defcustom counsel-grep-base-command "grep -E -n -e %s %s"
+  "Format string used by `counsel-grep' to build a shell command.
+It should contain two %-sequences (see function `format') to be
+substituted by the search regexp and file, respectively.  Neither
+%-sequence should be contained in single quotes."
   :type 'string
   :group 'ivy)
 
@@ -2305,29 +2306,25 @@ Note: don't use single quotes for either the regex or the file name."
                    (setq line-number (match-string-no-properties 1 x)))
                   ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
                    (setq file-name (match-string-no-properties 1 x))
-                   (setq line-number (match-string-no-properties 2 x)))
-                  (t nil))
+                   (setq line-number (match-string-no-properties 2 x))))
         ;; If the file buffer is already open, just get it. Prevent doing
         ;; `find-file', as that file could have already been opened using
         ;; `find-file-literally'.
-        (let ((buf (get-file-buffer file-name)))
-          (unless buf
-            (setq buf (find-file file-name)))
-          (with-current-buffer buf
-            (setq line-number (string-to-number line-number))
-            (if (null counsel-grep-last-line)
-                (progn
-                  (goto-char (point-min))
-                  (forward-line (1- (setq counsel-grep-last-line line-number))))
+        (with-current-buffer (or (get-file-buffer file-name)
+                                 (find-file file-name))
+          (setq line-number (string-to-number line-number))
+          (if counsel-grep-last-line
               (forward-line (- line-number counsel-grep-last-line))
-              (setq counsel-grep-last-line line-number))
-            (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-            (run-hooks 'counsel-grep-post-action-hook)
-            (if (eq ivy-exit 'done)
-                (swiper--ensure-visible)
-              (isearch-range-invisible (line-beginning-position)
-                                       (line-end-position))
-              (swiper--add-overlays (ivy--regex ivy-text)))))))))
+            (goto-char (point-min))
+            (forward-line (1- line-number)))
+          (setq counsel-grep-last-line line-number)
+          (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+          (run-hooks 'counsel-grep-post-action-hook)
+          (if (eq ivy-exit 'done)
+              (swiper--ensure-visible)
+            (isearch-range-invisible (line-beginning-position)
+                                     (line-end-position))
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
@@ -2349,31 +2346,30 @@ Note: don't use single quotes for either the regex or the file name."
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-dir default-directory)
-  (if (string-match "%s$" counsel-grep-base-command)
-      (setq counsel-grep-command
-            (concat (substring counsel-grep-base-command 0 (match-beginning 0))
-                    (shell-quote-argument (buffer-file-name))))
-    (error "expected `counsel-grep-base-command' to end in %%s"))
+  (setq counsel-grep-command
+        (format counsel-grep-base-command
+                "%s" (shell-quote-argument buffer-file-name)))
   (let ((init-point (point))
         res)
     (unwind-protect
-         (setq res (ivy-read "grep: " 'counsel-grep-function
-                             :dynamic-collection t
-                             :preselect (format "%d:%s"
-                                                (line-number-at-pos)
-                                                (regexp-quote
-                                                 (buffer-substring-no-properties
-                                                  (line-beginning-position)
-                                                  (line-end-position))))
-                             :history 'counsel-git-grep-history
-                             :update-fn (lambda ()
-                                          (counsel-grep-action (ivy-state-current ivy-last)))
-                             :re-builder #'ivy--regex
-                             :action #'counsel-grep-action
-                             :unwind (lambda ()
-                                       (counsel-delete-process)
-                                       (swiper--cleanup))
-                             :caller 'counsel-grep))
+        (setq res (ivy-read "grep: " #'counsel-grep-function
+                            :dynamic-collection t
+                            :preselect (format "%d:%s"
+                                               (line-number-at-pos)
+                                               (regexp-quote
+                                                (buffer-substring-no-properties
+                                                 (line-beginning-position)
+                                                 (line-end-position))))
+                            :history 'counsel-git-grep-history
+                            :update-fn (lambda ()
+                                         (counsel-grep-action
+                                          (ivy-state-current ivy-last)))
+                            :re-builder #'ivy--regex
+                            :action #'counsel-grep-action
+                            :unwind (lambda ()
+                                      (counsel-delete-process)
+                                      (swiper--cleanup))
+                            :caller 'counsel-grep))
       (unless res
         (goto-char init-point)))))
 
@@ -2383,33 +2379,22 @@ Note: don't use single quotes for either the regex or the file name."
   :type 'integer
   :group 'ivy)
 
-(defvar counsel-compressed-file-regex
-  (progn
-    (require 'jka-compr nil t)
-    (jka-compr-build-file-regexp))
-  "Store the regex for compressed file names.")
-
 ;;;###autoload
 (defun counsel-grep-or-swiper ()
   "Call `swiper' for small buffers and `counsel-grep' for large ones."
   (interactive)
-  (let ((fname (buffer-file-name)))
-    (if (and fname
-             (not (buffer-narrowed-p))
-             (not (ignore-errors
-                    (file-remote-p fname)))
-             (not (string-match
-                   counsel-compressed-file-regex
-                   fname))
-             (> (buffer-size)
-                (if (eq major-mode 'org-mode)
-                    (/ counsel-grep-swiper-limit 4)
-                  counsel-grep-swiper-limit)))
-        (progn
-          (when (file-writable-p fname)
-            (save-buffer))
-          (counsel-grep))
-      (swiper--ivy (swiper--candidates)))))
+  (if (or (not buffer-file-name)
+          (buffer-narrowed-p)
+          (ignore-errors
+            (file-remote-p buffer-file-name))
+          (jka-compr-get-compression-info buffer-file-name)
+          (<= (buffer-size)
+              (/ counsel-grep-swiper-limit
+                 (if (eq major-mode 'org-mode) 4 1))))
+      (swiper)
+    (when (file-writable-p buffer-file-name)
+      (save-buffer))
+    (counsel-grep)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
