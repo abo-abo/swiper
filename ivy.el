@@ -3964,6 +3964,12 @@ EVENT gives the mouse position."
            (selected-window))
      (selected-window))))
 
+(defun ivy--occur-press-buffer ()
+  (let ((buffer (ivy-state-buffer ivy-last)))
+    (if (buffer-live-p buffer)
+        buffer
+      (current-buffer))))
+
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
@@ -3981,7 +3987,7 @@ EVENT gives the mouse position."
            (ivy-exit 'done))
       (with-ivy-window
         (setq counsel-grep-last-line nil)
-        (with-current-buffer (ivy-state-buffer ivy-last)
+        (with-current-buffer (ivy--occur-press-buffer)
           (funcall action
                    (if (and (consp coll)
                             (consp (car coll)))
