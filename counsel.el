@@ -2383,33 +2383,22 @@ Note: don't use single quotes for either the regex or the file name."
   :type 'integer
   :group 'ivy)
 
-(defvar counsel-compressed-file-regex
-  (progn
-    (require 'jka-compr nil t)
-    (jka-compr-build-file-regexp))
-  "Store the regex for compressed file names.")
-
 ;;;###autoload
 (defun counsel-grep-or-swiper ()
   "Call `swiper' for small buffers and `counsel-grep' for large ones."
   (interactive)
-  (let ((fname (buffer-file-name)))
-    (if (and fname
-             (not (buffer-narrowed-p))
-             (not (ignore-errors
-                    (file-remote-p fname)))
-             (not (string-match
-                   counsel-compressed-file-regex
-                   fname))
-             (> (buffer-size)
-                (if (eq major-mode 'org-mode)
-                    (/ counsel-grep-swiper-limit 4)
-                  counsel-grep-swiper-limit)))
-        (progn
-          (when (file-writable-p fname)
-            (save-buffer))
-          (counsel-grep))
-      (swiper--ivy (swiper--candidates)))))
+  (if (or (not buffer-file-name)
+          (buffer-narrowed-p)
+          (ignore-errors
+            (file-remote-p buffer-file-name))
+          (jka-compr-get-compression-info buffer-file-name)
+          (<= (buffer-size)
+              (/ counsel-grep-swiper-limit
+                 (if (eq major-mode 'org-mode) 4 1))))
+      (swiper)
+    (when (file-writable-p buffer-file-name)
+      (save-buffer))
+    (counsel-grep)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (string)
