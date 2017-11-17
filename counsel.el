@@ -2306,29 +2306,25 @@ substituted by the search regexp and file, respectively.  Neither
                    (setq line-number (match-string-no-properties 1 x)))
                   ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
                    (setq file-name (match-string-no-properties 1 x))
-                   (setq line-number (match-string-no-properties 2 x)))
-                  (t nil))
+                   (setq line-number (match-string-no-properties 2 x))))
         ;; If the file buffer is already open, just get it. Prevent doing
         ;; `find-file', as that file could have already been opened using
         ;; `find-file-literally'.
-        (let ((buf (get-file-buffer file-name)))
-          (unless buf
-            (setq buf (find-file file-name)))
-          (with-current-buffer buf
-            (setq line-number (string-to-number line-number))
-            (if (null counsel-grep-last-line)
-                (progn
-                  (goto-char (point-min))
-                  (forward-line (1- (setq counsel-grep-last-line line-number))))
+        (with-current-buffer (or (get-file-buffer file-name)
+                                 (find-file file-name))
+          (setq line-number (string-to-number line-number))
+          (if counsel-grep-last-line
               (forward-line (- line-number counsel-grep-last-line))
-              (setq counsel-grep-last-line line-number))
-            (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-            (run-hooks 'counsel-grep-post-action-hook)
-            (if (eq ivy-exit 'done)
-                (swiper--ensure-visible)
-              (isearch-range-invisible (line-beginning-position)
-                                       (line-end-position))
-              (swiper--add-overlays (ivy--regex ivy-text)))))))))
+            (goto-char (point-min))
+            (forward-line (1- line-number)))
+          (setq counsel-grep-last-line line-number)
+          (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+          (run-hooks 'counsel-grep-post-action-hook)
+          (if (eq ivy-exit 'done)
+              (swiper--ensure-visible)
+            (isearch-range-invisible (line-beginning-position)
+                                     (line-end-position))
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
