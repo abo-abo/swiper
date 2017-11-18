@@ -1063,30 +1063,32 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
   (cd counsel--git-dir)
   (counsel-cmd-to-dired
-   (format "%s | grep -i -E '%s' | xargs ls -alh"
+   (format "%s | grep -i -E '%s' | xargs ls -alh | sed -e 's/^/  /'"
            counsel-git-cmd ivy--old-re)))
 
 (defun counsel-cmd-to-dired (cmd)
   "Adapted from `find-dired'."
   (let ((inhibit-read-only t))
     (erase-buffer)
-    (let ((lines (split-string
-                  (shell-command-to-string cmd)
-                  "\n")))
-      (dired-mode default-directory "-alh")
-      (dolist (l lines)
-        (insert "  " l "\n"))
-      (goto-char (point-min))
-      (setq-local dired-sort-inhibit t)
-      (setq-local revert-buffer-function
-                  (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
-      (setq-local dired-subdir-alist
-                  (list (cons default-directory (point-min-marker))))
-      (setq-local dired-subdir-switches "-alh")
-      (insert "  " default-directory ":\n")
-      (let ((point (point)))
-        (insert "  " cmd "\n")
-        (dired-insert-set-properties point (point))))))
+    (dired-mode default-directory "-alh")
+    (insert "  " default-directory ":\n")
+    (let ((point (point)))
+      (insert "  " cmd "\n")
+      (dired-insert-set-properties point (point)))
+    (setq-local dired-sort-inhibit t)
+    (setq-local revert-buffer-function
+                (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
+    (setq-local dired-subdir-alist
+                (list (cons default-directory (point-min-marker))))
+    (setq-local dired-subdir-switches "-alh")
+    (let ((proc (start-process-shell-command "counsel-cmd" (current-buffer) cmd)))
+      (set-process-sentinel
+       proc
+       (lambda (_ state)
+         (when (equal state "finished\n")
+           (goto-char (point-min))
+           (forward-line 2)
+           (dired-move-to-filename)))))))
 
 (ivy-set-occur 'counsel-git 'counsel-git-occur)
 
@@ -1981,6 +1983,16 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (with-ivy-window
     (let ((default-directory counsel--fzf-dir))
       (find-file x))))
+
+(defun counsel-fzf-occur ()
+  "Occur function for `counsel-fzf' using `counsel-cmd-to-dired'."
+  (cd counsel--fzf-dir)
+  (counsel-cmd-to-dired
+   (format
+    "%s --print0 | xargs -0 ls -alh | sed -e 's/^/  /'"
+    (format counsel-fzf-cmd ivy-text))))
+
+(ivy-set-occur 'counsel-fzf 'counsel-fzf-occur)
 
 (ivy-set-actions
  'counsel-fzf
