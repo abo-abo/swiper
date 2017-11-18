@@ -1589,7 +1589,8 @@ customizations apply to the current completion session."
                           (list (car source) (funcall (car source)))
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
-  (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
+  (let ((inhibit-message t)
+        (ivy-recursive-last (and (active-minibuffer-window) ivy-last))
         (transformer-fn
          (plist-get ivy--display-transformers-list
                     (or caller (and (functionp collection)
