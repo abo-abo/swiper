@@ -44,6 +44,7 @@
 (require 'etags)
 (require 'esh-util)
 (require 'compile)
+(require 'dired)
 
 ;;* Utility
 (defun counsel-more-chars (n)
@@ -1057,6 +1058,50 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (with-ivy-window
     (let ((default-directory counsel--git-dir))
       (find-file x))))
+
+(defun counsel-git-occur ()
+  "Occur function for `counsel-git' using `counsel-find-dired'."
+  (let ((re (concat
+             (if (string-match-p "\\`\\^" ivy--old-re) "" ".*")
+             ivy--old-re
+             (if (string-match-p "\\$\\'" ivy--old-re) "" ".*"))))
+    (counsel-find-dired
+     counsel--git-dir
+     (format "%s . -type f -iregex %s -ls"
+             find-program
+             (shell-quote-argument re)))))
+
+(defvar find-ls-option)
+(defvar find-ls-subdir-switches)
+
+(defun counsel-find-dired (dir cmd)
+  "Adapted from `find-dired'."
+  (erase-buffer)
+  (setq default-directory dir)
+  (let ((lines (split-string
+                (shell-command-to-string cmd)
+                "\n")))
+    (dired-mode dir (cdr find-ls-option))
+    (mapc (lambda (l)
+            (when (string-match "\\` *[0-9]+ *[0-9]+ \\(.*\\)\\'" l)
+              (insert
+               "  "
+               (replace-regexp-in-string "\\./" "" (match-string 1 l))
+               "\n")))
+          lines)
+    (goto-char (point-min))
+    (setq-local dired-sort-inhibit t)
+    (setq-local revert-buffer-function (lambda (_1 _2)
+                                         (counsel-find-dired dir cmd)))
+    (setq-local dired-subdir-alist
+                (list (cons default-directory (point-min-marker))))
+    (setq-local dired-subdir-switches find-ls-subdir-switches)
+    (insert "  " dir ":\n")
+    (let ((point (point)))
+      (insert "  " cmd "\n")
+      (dired-insert-set-properties point (point)))))
+
+(ivy-set-occur 'counsel-git 'counsel-git-occur)
 
 ;;** `counsel-git-grep'
 (defvar counsel-git-grep-map
