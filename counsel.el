@@ -1060,32 +1060,30 @@ INITIAL-INPUT can be given as the initial minibuffer input."
       (find-file x))))
 
 (defun counsel-git-occur ()
-  "Occur function for `counsel-git' using `counsel-find-dired'."
-  (counsel-find-dired
-   counsel--git-dir
+  "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
+  (cd counsel--git-dir)
+  (counsel-cmd-to-dired
    (format "%s | grep -i -E '%s' | xargs ls -alh"
            counsel-git-cmd ivy--old-re)))
 
-(defun counsel-find-dired (dir cmd)
+(defun counsel-cmd-to-dired (cmd)
   "Adapted from `find-dired'."
   (let ((inhibit-read-only t))
     (erase-buffer)
-    (setq default-directory dir)
     (let ((lines (split-string
                   (shell-command-to-string cmd)
                   "\n")))
-      (dired-mode dir "-alh")
-      (mapc (lambda (l)
-              (insert "  " l "\n"))
-            lines)
+      (dired-mode default-directory "-alh")
+      (dolist (l lines)
+        (insert "  " l "\n"))
       (goto-char (point-min))
       (setq-local dired-sort-inhibit t)
-      (setq-local revert-buffer-function (lambda (_1 _2)
-                                           (counsel-find-dired dir cmd)))
+      (setq-local revert-buffer-function
+                  (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
       (setq-local dired-subdir-alist
                   (list (cons default-directory (point-min-marker))))
       (setq-local dired-subdir-switches "-alh")
-      (insert "  " dir ":\n")
+      (insert "  " default-directory ":\n")
       (let ((point (point)))
         (insert "  " cmd "\n")
         (dired-insert-set-properties point (point))))))
