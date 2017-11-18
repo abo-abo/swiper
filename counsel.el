@@ -1063,14 +1063,20 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
   (cd counsel--git-dir)
   (counsel-cmd-to-dired
-   (format "%s | grep -i -E '%s' | xargs ls -alh | sed -e 's/^/  /'"
+   (format "%s | grep -i -E '%s' | xargs ls"
            counsel-git-cmd ivy--old-re)))
+
+(defvar counsel-dired-listing-switches "-alh"
+  "Switches passed to `ls' for `counsel-cmd-to-dired'.")
 
 (defun counsel-cmd-to-dired (cmd)
   "Adapted from `find-dired'."
-  (let ((inhibit-read-only t))
+  (let ((inhibit-read-only t)
+        (full-cmd (format "%s %s | sed -e 's/^/  /'"
+                          cmd
+                          counsel-dired-listing-switches)))
     (erase-buffer)
-    (dired-mode default-directory "-alh")
+    (dired-mode default-directory counsel-dired-listing-switches)
     (insert "  " default-directory ":\n")
     (let ((point (point)))
       (insert "  " cmd "\n")
@@ -1080,8 +1086,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
     (setq-local dired-subdir-alist
                 (list (cons default-directory (point-min-marker))))
-    (setq-local dired-subdir-switches "-alh")
-    (let ((proc (start-process-shell-command "counsel-cmd" (current-buffer) cmd)))
+    (let ((proc (start-process-shell-command
+                 "counsel-cmd" (current-buffer) full-cmd)))
       (set-process-sentinel
        proc
        (lambda (_ state)
@@ -1989,7 +1995,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (cd counsel--fzf-dir)
   (counsel-cmd-to-dired
    (format
-    "%s --print0 | xargs -0 ls -alh | sed -e 's/^/  /'"
+    "%s --print0 | xargs -0 ls"
     (format counsel-fzf-cmd ivy-text))))
 
 (ivy-set-occur 'counsel-fzf 'counsel-fzf-occur)
