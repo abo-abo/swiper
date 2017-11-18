@@ -1713,6 +1713,14 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :keymap counsel-find-file-map
             :caller 'counsel-find-file))
 
+(ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
+
+(defun counsel-find-file-occur ()
+  (cd ivy--directory)
+  (counsel-cmd-to-dired
+   (format
+    "ls | grep -i -E '%s' | xargs ls" ivy--old-re)))
+
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
 
