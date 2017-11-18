@@ -3761,6 +3761,7 @@ buffer would modify `ivy-last'.")
     (define-key map (kbd "c") 'ivy-occur-toggle-calling)
     (define-key map (kbd "q") 'quit-window)
     (define-key map (kbd "R") 'read-only-mode)
+    (define-key map (kbd "C-d") 'ivy-occur-delete-candidate)
     map)
   "Keymap for Ivy Occur mode.")
 
@@ -3799,7 +3800,6 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (defvar ivy-occur-grep-mode-map
   (let ((map (copy-keymap ivy-occur-mode-map)))
     (define-key map (kbd "C-x C-q") 'ivy-wgrep-change-to-wgrep-mode)
-    (define-key map (kbd "C-d") 'ivy-occur-delete-candidate)
     map)
   "Keymap for Ivy Occur Grep mode.")
 
