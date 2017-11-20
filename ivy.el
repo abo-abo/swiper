@@ -3557,14 +3557,24 @@ BUFFER may be a string or nil."
 
 (ivy-set-actions
  'ivy-switch-buffer
- '(("k"
-    (lambda (x)
-      (kill-buffer x)
-      (ivy--reset-state ivy-last))
-    "kill")
+ `(("f"
+    ,(lambda (x)
+       (let* ((b (get-buffer x))
+              (default-directory
+                (or (and b (buffer-local-value 'default-directory b))
+                    default-directory)))
+         (call-interactively (if (fboundp 'counsel-find-file)
+                                 #'counsel-find-file
+                               #'find-file))))
+    "find file")
    ("j"
     ivy--switch-buffer-other-window-action
     "other window")
+   ("k"
+    ,(lambda (x)
+       (kill-buffer x)
+       (ivy--reset-state ivy-last))
+    "kill")
    ("r"
     ivy--rename-buffer-action
     "rename")))
