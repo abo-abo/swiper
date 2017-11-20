@@ -226,13 +226,14 @@ act as if `ivy-completing-read-handlers-alist' is empty.")
         (plist-put ivy--actions-list cmd actions)))
 
 (defun ivy-add-actions (cmd actions)
-  "Add CMD extra exit points to ACTIONS."
+  "Add extra exit points ACTIONS to CMD.
+Existing exit points of CMD are overwritten by those in
+ACTIONS that have the same key."
   (setq ivy--actions-list
         (plist-put ivy--actions-list cmd
-                   (delete-dups
-                    (append
-                     actions
-                     (plist-get ivy--actions-list cmd))))))
+                   (cl-delete-duplicates
+                    (append (plist-get ivy--actions-list cmd) actions)
+                    :key #'car :test #'equal))))
 
 (defvar ivy--prompts-list nil)
 
