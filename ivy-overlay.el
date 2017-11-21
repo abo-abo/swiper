@@ -77,10 +77,13 @@ Then attach the overlay the character before point."
 
 (declare-function org-current-level "org")
 (defvar org-indent-indentation-per-level)
+(defvar ivy-height)
 (defvar ivy-last)
 (defvar ivy-text)
 (defvar ivy-completion-beg)
 (declare-function ivy--get-window "ivy")
+(declare-function ivy-state-current "ivy")
+(declare-function ivy-state-window "ivy")
 
 (defun ivy-overlay-impossible-p ()
   (or
