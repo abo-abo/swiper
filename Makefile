@@ -28,4 +28,4 @@ update-issues:
 clean:
 	$(RM) *.elc
 
-.PHONY: all compile clean test update-issues checkdoc
+.PHONY: all test checkdoc compile plain obsolete update-issues clean
