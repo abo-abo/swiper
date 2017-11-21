@@ -13,7 +13,7 @@ checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
 
 compile:
-	$(emacs) -batch --eval "(progn (add-to-list 'load-path default-directory) (mapc #'byte-compile-file '(\"ivy.el\" \"swiper.el\" \"counsel.el\" \"colir.el\" \"ivy-overlay.el\")))"
+	$(emacs) -batch -L . -f batch-byte-compile colir.el ivy-overlay.el ivy.el swiper.el counsel.el
 
 plain:
 	$(emacs) --version
