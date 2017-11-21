@@ -2,6 +2,7 @@ emacs ?= emacs
 elmake = $(emacs) -batch -l makefi.el -f
 
 LOAD = -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el
+RM ?= rm -f
 
 all: test
 
@@ -25,6 +26,6 @@ update-issues:
 	$(elmake) update-issues
 
 clean:
-	rm -f *.elc
+	$(RM) *.elc
 
 .PHONY: all compile clean test update-issues checkdoc
