@@ -574,17 +574,13 @@ will bring the behavior in line with the newer Emacsen."
            "bl")))
 
 (defmacro ivy-with-r (expr &rest keys)
-  `(let ((temp-buffer (generate-new-buffer " *temp*")))
-     (unwind-protect
-          (save-window-excursion
-            (switch-to-buffer temp-buffer)
-            ,expr
-            (ivy-mode)
-            (execute-kbd-macro
-             ,(apply 'vconcat (mapcar 'kbd keys)))
-            (buffer-string))
-       (and (buffer-name temp-buffer)
-            (kill-buffer temp-buffer)))))
+  `(with-output-to-string
+     (save-window-excursion
+       (switch-to-buffer standard-output t)
+       ,expr
+       (ivy-mode)
+       (execute-kbd-macro
+        ,(apply #'vconcat (mapcar #'kbd keys))))))
 
 (ert-deftest ivy-completion-in-region ()
   (should (string=
