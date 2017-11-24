@@ -2862,6 +2862,42 @@ The face can be customized through `counsel-org-goto-face-style'."
             :action 'counsel-locate-action-dired
             :caller 'counsel-org-file))
 
+;;** `counsel-org-capture'
+(defvar org-capture-templates)
+
+;;;###autoload
+(defun counsel-org-capture ()
+  "Capture something."
+  (interactive)
+  (require 'org-capture)
+  (ivy-read "Capture template: "
+	    (remove nil
+		    (mapcar (lambda (x)
+			      (when (> (length x) 2)
+				(format "%-5s %s" (nth 0 x) (nth 1 x))))
+			    (or org-capture-templates
+                                '(("t" "Task" entry (file+headline "" "Tasks")
+                                   "* TODO %?\n  %u\n  %a")))))
+	    :require-match t
+	    :action (lambda (x)
+		      (org-capture nil (car (split-string x))))
+	    :caller 'counsel-org-capture))
+
+(ivy-set-actions
+ 'counsel-org-capture
+ '(("t" (lambda (x)
+	  (org-capture-goto-target (car (split-string x))))
+    "go to target")
+   ("l" (lambda (_x)
+	  (org-capture-goto-last-stored))
+    "go to last stored")
+   ("p" (lambda (x)
+	  (org-capture 0 (car (split-string x))))
+    "insert template at point")
+   ("c" (lambda (_x)
+	  (customize-variable 'org-capture-templates))
+    "customize org-capture-templates")))
+
 ;;** `counsel-mark-ring'
 (defun counsel--pad (string length)
   "Pad STRING to LENGTH with spaces."
