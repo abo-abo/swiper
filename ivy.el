@@ -2340,11 +2340,11 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
-  (set (make-local-variable 'completion-show-inline-help) nil)
-  (set (make-local-variable 'minibuffer-default-add-function)
-       (lambda ()
-         (list ivy--default)))
-  (set (make-local-variable 'inhibit-field-text-motion) nil)
+  (setq-local completion-show-inline-help nil)
+  (setq-local minibuffer-default-add-function
+              (lambda ()
+                (list ivy--default)))
+  (setq-local inhibit-field-text-motion nil)
   (when (display-graphic-p)
     (setq truncate-lines ivy-truncate-lines))
   (setq-local max-mini-window-height ivy-height)
