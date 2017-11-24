@@ -1891,6 +1891,7 @@ string - the full shell command to run."
                   (format "%s %s"
                           (cl-case system-type
                             (darwin "open")
+                            (cygwin "cygstart")
                             (t "xdg-open"))
                           (shell-quote-argument x)))))
 
