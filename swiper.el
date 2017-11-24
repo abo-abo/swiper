@@ -443,6 +443,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 (defvar swiper--current-match-start nil)
 (defvar swiper--point-min nil)
 (defvar swiper--point-max nil)
+(defvar swiper--reveal-mode nil)
 
 (defun swiper--init ()
   "Perform initialization common to both completion methods."
@@ -452,6 +453,9 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
   (setq swiper--opoint (point))
   (setq swiper--point-min (point-min))
   (setq swiper--point-max (point-max))
+  (when (setq swiper--reveal-mode
+              (bound-and-true-p reveal-mode))
+    (reveal-mode -1))
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
@@ -520,7 +524,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  :caller 'swiper))
           (point))
       (unless res
-        (goto-char swiper--opoint)))))
+        (goto-char swiper--opoint))
+      (when swiper--reveal-mode
+        (reveal-mode 1)))))
 
 (defun swiper-toggle-face-matching ()
   "Toggle matching only the candidates with `swiper-invocation-face'."
