@@ -1350,7 +1350,7 @@ This string is inserted into the minibuffer."
 Prioritize directories."
   (if (get-text-property 0 'dirp x)
       (if (get-text-property 0 'dirp y)
-          (string< x y)
+          (string< (directory-file-name x) (directory-file-name y))
         t)
     (if (get-text-property 0 'dirp y)
         nil
