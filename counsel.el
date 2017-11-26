@@ -499,6 +499,11 @@ COUNT defaults to 1."
          (push (symbol-name vv) cands))))
     (delete "" cands)))
 
+(defcustom counsel-describe-variable-function 'describe-variable
+  "Function to call to describe a variable passed as parameter."
+  :type 'function
+  :group 'ivy)
+
 (defun counsel-describe-variable-transformer (var)
   "Propertize VAR if it's a custom variable."
   (if (custom-variable-p (intern var))
@@ -525,8 +530,7 @@ Variables declared using `defcustom' are highlighted according to
      :require-match t
      :sort t
      :action (lambda (x)
-               (describe-variable
-                (intern x)))
+               (funcall counsel-describe-variable-function (intern x)))
      :caller 'counsel-describe-variable)))
 
 ;;** `counsel-describe-function'
