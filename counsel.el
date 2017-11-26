@@ -535,6 +535,11 @@ Variables declared using `defcustom' are highlighted according to
  '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
+(defcustom counsel-describe-function-function 'describe-function
+  "Function to call to describe a function passed as parameter."
+  :type 'function
+  :group 'ivy)
+
 (defun counsel-describe-function-transformer (function-name)
   "Propertize FUNCTION-NAME if it's an interactive function."
   (if (commandp (intern function-name))
@@ -565,8 +570,7 @@ to `ivy-highlight-face'."
               :require-match t
               :sort t
               :action (lambda (x)
-                        (describe-function
-                         (intern x)))
+                        (funcall counsel-describe-function-function (intern x)))
               :caller 'counsel-describe-function)))
 
 ;;** `counsel-set-variable'
