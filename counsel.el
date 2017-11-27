@@ -4096,21 +4096,21 @@ candidate."
   (org-map-entries
    (lambda ()
      (let* ((components (org-heading-components))
-            (level (when (eq counsel-org-goto-display-style 'headline)
-                     (make-string
-                      (if org-odd-levels-only
-                          (nth 1 components)
-                        (nth 0 components))
-                      ?*)))
-            (todo (when counsel-org-goto-display-todo
-                    (nth 2 components)))
-            (path (when (eq counsel-org-goto-display-style 'path)
-                    (org-get-outline-path)))
-            (priority (when counsel-org-goto-display-priority
-                        (nth 3 components)))
+            (level (and (eq counsel-org-goto-display-style 'headline)
+                        (make-string
+                         (if org-odd-levels-only
+                             (nth 1 components)
+                           (nth 0 components))
+                         ?*)))
+            (todo (and counsel-org-goto-display-todo
+                       (nth 2 components)))
+            (path (and (eq counsel-org-goto-display-style 'path)
+                       (org-get-outline-path)))
+            (priority (and counsel-org-goto-display-priority
+                           (nth 3 components)))
             (text (nth 4 components))
-            (tags (when counsel-org-goto-display-tags
-                    (nth 5 components))))
+            (tags (and counsel-org-goto-display-tags
+                       (nth 5 components))))
        (list
         (mapconcat
          'identity
@@ -4118,7 +4118,7 @@ candidate."
                        (list
                         level
                         todo
-                        (if priority (format "[#%c]" priority))
+                        (and priority (format "[#%c]" priority))
                         (mapconcat 'identity
                                    (append path (list text))
                                    counsel-org-goto-separator)
