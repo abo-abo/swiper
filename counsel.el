@@ -2669,8 +2669,7 @@ otherwise continue prompting for tags."
       (fset 'org-set-tags store))))
 
 (defcustom counsel-org-goto-display-style 'path
-  "The style for displaying headlines in `counsel-org-goto' and \
-`counsel-org-agenda-headlines' functions.
+  "The style used when displaying matched `org-mode'-headlines.
 
 If headline, the title and the leading stars are displayed.
 
@@ -2688,27 +2687,25 @@ display tags and todo keywords respectively."
   :group 'ivy)
 
 (defcustom counsel-org-goto-separator "/"
-  "Character(s) to separate path entries in `counsel-org-goto' functions.
+  "Character(s) to separate path entries in matched `org-mode'-headlines.
+
 This variable has no effect unless `counsel-org-goto-display-style' is
 set to path."
   :type 'string
   :group 'ivy)
 
 (defcustom counsel-org-goto-display-tags nil
-  "If non-nil, display tags in `counsel-org-goto' and \
-`counsel-org-agenda-headlines' functions."
+  "If non-nil, display tags in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
 
 (defcustom counsel-org-goto-display-todo nil
-  "If non-nil, display todo keywords in `counsel-org-goto' and \
-`counsel-org-agenda-headlines' functions."
+  "If non-nil, display todo keywords in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
 
 (defcustom counsel-org-goto-display-priority nil
-  "If non-nil, display priorities in `counsel-org-goto' and \
-`counsel-org-agenda-headlines' functions."
+  "If non-nil, display priorities in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
 
