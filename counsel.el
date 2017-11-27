@@ -1728,7 +1728,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (cd ivy--directory)
   (counsel-cmd-to-dired
    (format
-    "ls | grep -i -E '%s' | xargs ls"
+    "ls | grep -i -E '%s' | xargs -d '\n' ls"
     (counsel-unquote-regex-parens ivy--old-re))))
 
 (defun counsel-up-directory ()
