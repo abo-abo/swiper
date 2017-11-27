@@ -2802,8 +2802,7 @@ to custom."
       (while start-pos
         (let ((name (org-get-heading
                      (not counsel-org-goto-display-tags)
-                     (not counsel-org-goto-display-todo)
-                     (not counsel-org-goto-display-priority)))
+                     (not counsel-org-goto-display-todo)))
               level)
           (search-forward " ")
           (setq level
