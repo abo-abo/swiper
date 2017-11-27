@@ -4120,10 +4120,9 @@ candidate."
                         level
                         todo
                         (if priority (format "[#%c]" priority))
-                        (if path (mapconcat 'identity
-                                            (append path (list text))
-                                            counsel-org-goto-separator)
-                          text)
+                        (mapconcat 'identity
+                                   (append path (list text))
+                                   counsel-org-goto-separator)
                         tags))
          " ")
         (buffer-file-name) (point))))
