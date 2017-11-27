@@ -2669,7 +2669,8 @@ otherwise continue prompting for tags."
       (fset 'org-set-tags store))))
 
 (defcustom counsel-org-goto-display-style 'path
-  "The style for displaying headlines in `counsel-org-goto' functions.
+  "The style for displaying headlines in `counsel-org-goto' and \
+`counsel-org-agenda-headlines' functions.
 
 If headline, the title and the leading stars are displayed.
 
@@ -2694,12 +2695,20 @@ set to path."
   :group 'ivy)
 
 (defcustom counsel-org-goto-display-tags nil
-  "If non-nil, display tags in `counsel-org-goto' functions."
+  "If non-nil, display tags in `counsel-org-goto' and \
+`counsel-org-agenda-headlines' functions."
   :type 'boolean
   :group 'ivy)
 
 (defcustom counsel-org-goto-display-todo nil
-  "If non-nil, display todo keywords in `counsel-org-goto' functions."
+  "If non-nil, display todo keywords in `counsel-org-goto' and \
+`counsel-org-agenda-headlines' functions."
+  :type 'boolean
+  :group 'ivy)
+
+(defcustom counsel-org-goto-display-priority nil
+  "If non-nil, display priorities in `counsel-org-goto' and \
+`counsel-org-agenda-headlines' functions."
   :type 'boolean
   :group 'ivy)
 
@@ -2796,7 +2805,8 @@ to custom."
       (while start-pos
         (let ((name (org-get-heading
                      (not counsel-org-goto-display-tags)
-                     (not counsel-org-goto-display-todo)))
+                     (not counsel-org-goto-display-todo)
+                     (not counsel-org-goto-display-priority)))
               level)
           (search-forward " ")
           (setq level
@@ -4090,15 +4100,21 @@ candidate."
   (org-map-entries
    (lambda ()
      (let* ((components (org-heading-components))
-            (level (make-string
-                    (if org-odd-levels-only
-                        (nth 1 components)
-                      (nth 0 components))
-                    ?*))
-            (todo (nth 2 components))
-            (priority (nth 3 components))
+            (level (when (eq counsel-org-goto-display-style 'headline)
+                     (make-string
+                      (if org-odd-levels-only
+                          (nth 1 components)
+                        (nth 0 components))
+                      ?*)))
+            (todo (when counsel-org-goto-display-todo
+                    (nth 2 components)))
+            (path (when (eq counsel-org-goto-display-style 'path)
+                    (org-get-outline-path)))
+            (priority (when counsel-org-goto-display-priority
+                        (nth 3 components)))
             (text (nth 4 components))
-            (tags (nth 5 components)))
+            (tags (when counsel-org-goto-display-tags
+                    (nth 5 components))))
        (list
         (mapconcat
          'identity
@@ -4107,7 +4123,10 @@ candidate."
                         level
                         todo
                         (if priority (format "[#%c]" priority))
-                        text
+                        (if path (mapconcat 'identity
+                                            (append path (list text))
+                                            counsel-org-goto-separator)
+                          text)
                         tags))
          " ")
         (buffer-file-name) (point))))
