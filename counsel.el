@@ -2802,21 +2802,33 @@ to custom."
   "Go to headline in candidate X."
   (org-goto-marker-or-bmk (cdr x)))
 
+(defun counsel--org-get-heading-args ()
+  "Return list of arguments for `org-get-heading'.
+Try to return the right number of arguments for the current Org
+version.  Argument values are based on the
+`counsel-org-headline-display-*' user options."
+  (nbutlast (mapcar #'not (list counsel-org-headline-display-tags
+                                counsel-org-headline-display-todo
+                                counsel-org-headline-display-priority))
+            (if (if (fboundp 'func-arity)
+                    (< (cdr (func-arity #'org-get-heading)) 3)
+                  (version< org-version "9.1.1"))
+                1 0)))
+
 (defun counsel-org-goto--get-headlines ()
   "Get all headlines from the current org buffer."
   (save-excursion
     (let (entries
           start-pos
           stack
-          (stack-level 0))
+          (stack-level 0)
+          (heading-args (counsel--org-get-heading-args)))
       (goto-char (point-min))
       (setq start-pos (or (and (org-at-heading-p)
                                (point))
                           (outline-next-heading)))
       (while start-pos
-        (let ((name (org-get-heading
-                     (not counsel-org-headline-display-tags)
-                     (not counsel-org-headline-display-todo)))
+        (let ((name (apply #'org-get-heading heading-args))
               level)
           (search-forward " ")
           (setq level
