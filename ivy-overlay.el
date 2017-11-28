@@ -36,20 +36,16 @@
 (defvar ivy-overlay-at nil
   "Overlay variable for `ivy-display-function-overlay'.")
 
+(declare-function ivy--truncate-string "ivy")
+
 (defun ivy-left-pad (str width)
-  "Pad STR from left with WIDTH spaces."
-  (let ((padding (make-string width ?\ )))
+  "Return STR, but with each line indented by WIDTH spaces.
+Lines are truncated to the window width."
+  (let ((padding (make-string width ?\s)))
     (mapconcat (lambda (x)
-                 (setq x (concat padding x))
-                 (if (> (length x) (window-width))
-                     (concat
-                      (substring x 0 (- (window-width) 4))
-                      "...")
-                   x))
+                 (ivy--truncate-string (concat padding x) (1- (window-width))))
                (split-string str "\n")
                "\n")))
-
-(declare-function company-abort "ext:company")
 
 (defun ivy-overlay-cleanup ()
   "Clean up after `ivy-display-function-overlay'."
