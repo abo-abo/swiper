@@ -669,6 +669,7 @@ input corresponding to the chosen variable."
 
 ;;** `counsel-info-lookup-symbol'
 (defvar info-lookup-mode)
+(declare-function info-lookup-guess-default "info-look")
 (declare-function info-lookup->completions "info-look")
 (declare-function info-lookup->mode-value "info-look")
 (declare-function info-lookup-select-mode "info-look")
@@ -677,10 +678,11 @@ input corresponding to the chosen variable."
 
 ;;;###autoload
 (defun counsel-info-lookup-symbol (symbol &optional mode)
-  "Forward to (`info-lookup-symbol' SYMBOL MODE) with ivy completion."
+  "Forward to `info-lookup-symbol' with ivy completion."
   (interactive
    (progn
      (require 'info-look)
+     ;; Courtesy of `info-lookup-interactive-arguments'
      (let* ((topic 'symbol)
             (mode (cond (current-prefix-arg
                          (info-lookup-change-mode topic))
@@ -688,16 +690,14 @@ input corresponding to the chosen variable."
                           topic (info-lookup-select-mode))
                          info-lookup-mode)
                         ((info-lookup-change-mode topic))))
-            (completions (info-lookup->completions topic mode))
-            (enable-recursive-minibuffers t)
-            (value (ivy-read
-                    "Describe symbol: "
-                    (mapcar #'car completions)
-                    :preselect (ivy-thing-at-point)
-                    :sort t)))
-       (list value info-lookup-mode))))
-  (require 'info-look)
-  (info-lookup 'symbol symbol mode))
+            (enable-recursive-minibuffers t))
+       (list (ivy-read "Describe symbol: " (info-lookup->completions topic mode)
+                       :history 'info-lookup-history
+                       :preselect (info-lookup-guess-default topic mode)
+                       :sort t
+                       :caller 'counsel-info-lookup-symbol)
+             mode))))
+  (info-lookup-symbol symbol mode))
 
 ;;** `counsel-M-x'
 (ivy-set-actions
@@ -1441,25 +1441,25 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
 (defun counsel-git-grep-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
-  (if (null (window-minibuffer-p))
-      (user-error
-       "Should only be called in the minibuffer through `counsel-git-grep-map'")
-    (let* ((enable-recursive-minibuffers t)
-           (from (ivy--regex ivy-text))
-           (to (query-replace-read-to from "Query replace" t)))
-      (ivy-exit-with-action
-       (lambda (_)
-         (let (done-buffers)
-           (dolist (cand ivy--old-cands)
-             (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" cand)
-               (with-ivy-window
-                 (let ((file-name (match-string-no-properties 1 cand)))
-                   (setq file-name (expand-file-name file-name counsel--git-dir))
-                   (unless (member file-name done-buffers)
-                     (push file-name done-buffers)
-                     (find-file file-name)
-                     (goto-char (point-min)))
-                   (perform-replace from to t t nil)))))))))))
+  (unless (window-minibuffer-p)
+    (user-error
+     "Should only be called in the minibuffer through `counsel-git-grep-map'"))
+  (let* ((enable-recursive-minibuffers t)
+         (from (ivy--regex ivy-text))
+         (to (query-replace-read-to from "Query replace" t)))
+    (ivy-exit-with-action
+     (lambda (_)
+       (let (done-buffers)
+         (dolist (cand ivy--old-cands)
+           (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" cand)
+             (with-ivy-window
+               (let ((file-name (match-string-no-properties 1 cand)))
+                 (setq file-name (expand-file-name file-name counsel--git-dir))
+                 (unless (member file-name done-buffers)
+                   (push file-name done-buffers)
+                   (find-file file-name)
+                   (goto-char (point-min)))
+                 (perform-replace from to t t nil))))))))))
 
 ;;** `counsel-git-stash'
 (defun counsel-git-stash-kill-action (x)
@@ -1894,7 +1894,7 @@ string - the full shell command to run."
 
 (defun counsel-locate-action-extern (x)
   "Use xdg-open shell command, or corresponding system command, on X."
-  (interactive (list (read-file-name "File: ")))
+  (interactive "FFile: ")
   (if (and (eq system-type 'windows-nt)
            (fboundp 'w32-shell-execute))
       (w32-shell-execute "open" x)
@@ -3633,16 +3633,13 @@ Any desktop entries that fail to parse are recorded in
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
-  (setq desktop-shortcut (cdr desktop-shortcut))
-  (call-process "gtk-launch" nil nil nil desktop-shortcut))
+  (call-process "gtk-launch" nil nil nil (cdr desktop-shortcut)))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
-  (setq desktop-shortcut (cdr desktop-shortcut))
-  (let ((file (read-file-name "Open: ")))
-    (if file
-        (call-process "gtk-launch" nil nil nil desktop-shortcut file)
-      (user-error "Cancelled"))))
+  (call-process "gtk-launch" nil nil nil
+                (cdr desktop-shortcut)
+                (read-file-name "File: ")))
 
 (defun counsel-linux-app-action-open-desktop (desktop-shortcut)
   "Open DESKTOP-SHORTCUT."
@@ -3651,7 +3648,7 @@ Any desktop entries that fail to parse are recorded in
          (cdr (assoc desktop-shortcut (counsel-linux-apps-list-desktop-files)))))
     (if file
         (find-file file)
-      (user-error "Cancelled"))))
+      (error "Could not find location of file %s" desktop-shortcut))))
 
 (ivy-set-actions
  'counsel-linux-app
