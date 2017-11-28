@@ -1645,7 +1645,8 @@ customizations apply to the current completion session."
                          (t resize-mini-windows))))
                  (if (and ivy-auto-select-single-candidate
                           (= (length ivy--all-candidates) 1)
-                          (not (file-remote-p ivy--directory)))
+                          (and (stringp ivy--directory)
+                               (not (file-remote-p ivy--directory))))
                      (progn
                        (setf (ivy-state-current ivy-last)
                              (car ivy--all-candidates))
