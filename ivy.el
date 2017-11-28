@@ -3127,10 +3127,7 @@ no sorting is done.")
 
 (defun ivy--truncate-string (str width)
   "Truncate STR to WIDTH."
-  (if (> (string-width str) width)
-      (concat (substring str 0 (min (- width 3)
-                                    (- (length str) 3))) "...")
-    str))
+  (truncate-string-to-width str width nil nil t))
 
 (defun ivy--format-function-generic (selected-fn other-fn cands separator)
   "Transform candidates into a string for minibuffer.
