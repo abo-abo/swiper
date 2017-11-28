@@ -280,7 +280,6 @@ Update the minibuffer with the amount of lines collected every
                    (car bnd)
                    (cdr bnd))
                 ""))
-         (ivy-height 7)
          (funp (eq (char-before (car bnd)) ?\())
          symbol-names)
     (if bnd
@@ -373,7 +372,6 @@ Update the minibuffer with the amount of lines collected every
          (str (buffer-substring-no-properties
                (car bnd) (cdr bnd)))
          (candidates (funcall completion-fn str))
-         (ivy-height 7)
          (res (ivy-read (format "pattern (%s): " str)
                         candidates)))
     (when (stringp res)
@@ -1595,8 +1593,7 @@ Does not list the currently checked out one."
   (let ((counsel-async-split-string-re counsel-git-log-split-string-re)
         (counsel-async-ignore-re "^[ \n]*$")
         (counsel-yank-pop-truncate-radius 5)
-        (ivy-format-function #'counsel--yank-pop-format-function)
-        (ivy-height 4))
+        (ivy-format-function #'counsel--yank-pop-format-function))
     (ivy-read "Grep log: " #'counsel-git-log-function
               :dynamic-collection t
               :action #'counsel-git-log-action
@@ -3132,8 +3129,7 @@ A is the left hand side, B the right hand side."
                   (lambda (s)
                     (string-match "\\`[\n[:blank:]]*\\'" s))
                   (delete-dups kill-ring)))))
-    (let ((ivy-format-function #'counsel--yank-pop-format-function)
-          (ivy-height 5))
+    (let ((ivy-format-function #'counsel--yank-pop-format-function))
       (ivy-read "kill-ring: " candidates
                 :action 'counsel-yank-pop-action
                 :caller 'counsel-yank-pop))))
