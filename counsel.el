@@ -2913,33 +2913,41 @@ The face can be customized through `counsel-org-goto-face-style'."
     "customize org-capture-templates")))
 
 ;;** `counsel-mark-ring'
-(defun counsel--pad (string length)
-  "Pad STRING to LENGTH with spaces."
-  (let ((padding (max 0 (- length (length string)))))
-    (concat string (make-string padding ?\s))))
-
 (defun counsel-mark-ring ()
-  "Browse `mark-ring' interactively."
+  "Browse `mark-ring' interactively.
+Obeys `widen-automatically', which see."
   (interactive)
-  (let ((candidates
-         (with-current-buffer (current-buffer)
-           (let ((padding (length (format "%s: " (line-number-at-pos (eobp))))))
-             (save-mark-and-excursion
-              (goto-char (point-min))
-              (sort (mapcar (lambda (mark)
-                              (let* ((position (marker-position mark))
-                                     (line-number (line-number-at-pos position))
-                                     (line-marker (counsel--pad (format "%s:" line-number) padding))
-                                     (bol (point-at-bol line-number))
-                                     (eol (point-at-eol line-number))
-                                     (line (buffer-substring bol eol)))
-                                (cons (format "%s%s" line-marker line) position)))
-                            (cl-remove-duplicates mark-ring :test #'equal))
-                    (lambda (m1 m2)
-                      (< (cdr m1) (cdr m2)))))))))
-    (ivy-read "Marks: " candidates
-              :action (lambda (elem)
-                        (goto-char (cdr elem))))))
+  (let ((cands
+         (save-excursion
+           (save-restriction
+             ;; Widen, both to save `line-number-at-pos' the trouble
+             ;; and for `buffer-substring' to work.
+             (widen)
+             (let ((fmt (format "%%%dd %%s"
+                                (length (number-to-string
+                                         (line-number-at-pos (point-max)))))))
+               (mapcar (lambda (mark)
+                         (goto-char (marker-position mark))
+                         (let ((linum (line-number-at-pos))
+                               (line  (buffer-substring
+                                       (line-beginning-position)
+                                       (line-end-position))))
+                           (cons (format fmt linum line) (point))))
+                       (sort (delete-dups (copy-sequence mark-ring)) #'<)))))))
+    (if cands
+        (ivy-read "Mark: " cands
+                  :require-match t
+                  :action (lambda (cand)
+                            (let ((pos (cdr-safe cand)))
+                              (when pos
+                                (unless (<= (point-min) pos (point-max))
+                                  (if widen-automatically
+                                      (widen)
+                                    (error "\
+Position of selected mark outside accessible part of buffer")))
+                                (goto-char pos))))
+                  :caller 'counsel-mark-ring)
+      (message "Mark ring is empty"))))
 
 ;;** `counsel-package'
 (defvar package--initialized)
@@ -4213,7 +4221,7 @@ a symbol and how to search for them."
                 (load-theme . counsel-load-theme)
                 (yank-pop . counsel-yank-pop)
                 (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-mark . counsel-mark-ring)))
+                (pop-to-mark-command . counsel-mark-ring)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'.
