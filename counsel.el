@@ -558,6 +558,18 @@ Variables declared using `defcustom' are highlighted according to
 (ivy-set-display-transformer
  'counsel-describe-function 'counsel-describe-function-transformer)
 
+(defun ivy-function-called-at-point ()
+  (let ((f (function-called-at-point)))
+    (and f (symbol-name f))))
+
+(defcustom counsel-describe-function-preselect 'ivy-thing-at-point
+  "Determine what `counsel-describe-function' should preselect."
+  :type
+  '(choice
+    (const ivy-thing-at-point)
+    (const ivy-function-called-at-point))
+  :group 'ivy)
+
 ;;;###autoload
 (defun counsel-describe-function ()
   "Forward to `describe-function'.
@@ -574,7 +586,7 @@ to `ivy-highlight-face'."
                      (push (symbol-name x) cands))))
                 cands)
               :keymap counsel-describe-map
-              :preselect (ivy-thing-at-point)
+              :preselect (funcall counsel-describe-function-preselect)
               :history 'counsel-describe-symbol-history
               :require-match t
               :sort t
