@@ -281,7 +281,8 @@ Update the minibuffer with the amount of lines collected every
                    (cdr bnd))
                 ""))
          (ivy-height 7)
-         (funp (eq (char-before (car bnd)) ?\())
+         (pred (and (eq (char-before (car bnd)) ?\()
+                    #'fboundp))
          symbol-names)
     (if bnd
         (progn
@@ -296,15 +297,9 @@ Update the minibuffer with the amount of lines collected every
          (lambda (x)
            (when (symbolp x)
              (push (symbol-name x) symbol-names))))
-      (setq symbol-names
-            (all-completions str obarray
-                             (and funp
-                                  (lambda (x)
-                                    (or (functionp x)
-                                        (macrop x)
-                                        (special-form-p x)))))))
+      (setq symbol-names (all-completions str obarray pred)))
     (ivy-read "Symbol name: " symbol-names
-              :predicate (and funp #'functionp)
+              :predicate pred
               :initial-input str
               :action #'ivy-completion-in-region-action)))
 
