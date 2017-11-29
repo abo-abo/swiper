@@ -621,9 +621,12 @@ candidate, not the prompt."
            (insert ivy-text)
            (ivy--exhibit)))))
 
-(defvar ivy-mouse-action-tooltip
+(defvar ivy-mouse-1-tooltip
   "Exit the minibuffer with the selected candidate."
   "The doc visible in the tooltip for mouse-1 binding in the minibuffer")
+(defvar ivy-mouse-3-tooltip
+  "Display alternative actions."
+  "The doc visible in the tooltip for mouse-3 binding in the minibuffer")
 
 (defun ivy-mouse-offset (event)
   "Compute the offset between the candidate at point and the selected one."
@@ -3287,11 +3290,16 @@ FACE is the face to apply to STR."
                  (funcall ivy--highlight-function (copy-sequence str))
                (copy-sequence str))))
     (add-text-properties
-         0 (length str)
-         `(mouse-face
-           ivy-minibuffer-match-highlight
-           help-echo ,(format "mouse-1: %s" ivy-mouse-action-tooltip))
-         str)
+     0 (length str)
+     '(mouse-face
+       ivy-minibuffer-match-highlight
+       help-echo
+       (format
+        (if tooltip-mode
+            "mouse-1: %s\nmouse-3: %s"
+          "mouse-1: %s   mouse-3: %s")
+        ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
+     str)
     str))
 
 (ivy-set-display-transformer
