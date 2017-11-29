@@ -295,8 +295,8 @@
 (defun swiper-font-lock-ensure-p ()
   "Return non-nil if we should `font-lock-ensure'."
   (or (derived-mode-p 'magit-mode)
-              (bound-and-true-p magit-blame-mode)
-              (memq major-mode swiper-font-lock-exclude)))
+      (bound-and-true-p magit-blame-mode)
+      (memq major-mode swiper-font-lock-exclude)))
 
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
@@ -817,19 +817,19 @@ otherwise continue prompting for buffers."
 
 (defun swiper-all-buffer-p (buffer)
   "Return non-nil if BUFFER should be considered by `swiper-all'."
-  (let ((major-mode (with-current-buffer buffer major-mode)))
+  (let ((mode (buffer-local-value 'major-mode (get-buffer buffer))))
     (cond
       ;; Ignore TAGS buffers, they tend to add duplicate results.
-      ((eq major-mode #'tags-table-mode) nil)
+      ((eq mode #'tags-table-mode) nil)
       ;; Always consider dired buffers, even though they're not backed
       ;; by a file.
-      ((eq major-mode #'dired-mode) t)
+      ((eq mode #'dired-mode) t)
       ;; Always consider stash buffers too, as they may have
       ;; interesting content not present in any buffers. We don't #'
       ;; quote to satisfy the byte-compiler.
-      ((eq major-mode 'magit-stash-mode) t)
+      ((eq mode 'magit-stash-mode) t)
       ;; Email buffers have no file, but are useful to search
-      ((eq major-mode 'gnus-article-mode) t)
+      ((eq mode 'gnus-article-mode) t)
       ;; Otherwise, only consider the file if it's backed by a file.
       (t (buffer-file-name buffer)))))
 
