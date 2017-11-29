@@ -102,4 +102,4 @@ A: Press <kbd>C-M-j</kbd>. Alternatively, you can make the prompt line selectabl
 
 # Contributing
 
-Please see the [guidelines](https://github.com/abo-abo/swiper/blob/master/CONTRIBUTING.md) for reporting issues and opening pull requests.
+Please see the [guidelines](https://github.com/abo-abo/swiper/blob/master/CONTRIBUTING.org) for reporting issues and opening pull requests.
