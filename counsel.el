@@ -1762,11 +1762,9 @@ further, make the remote prefix editable"
 (defun counsel-at-git-issue-p ()
   "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")
-       (or
-        (eq (vc-backend (buffer-file-name)) 'Git)
-        (or
-         (memq major-mode '(magit-commit-mode))
-         (bound-and-true-p magit-commit-mode)))
+       (or (eq (vc-backend buffer-file-name) 'Git)
+           (eq major-mode 'magit-commit-mode)
+           (bound-and-true-p magit-commit-mode))
        (match-string-no-properties 0)))
 
 (defun counsel-github-url-p ()
@@ -2759,12 +2757,10 @@ to custom."
 (defun counsel-org-goto ()
   "Go to a different location in the current file."
   (interactive)
-  (let ((entries (counsel-org-goto--get-headlines)))
-    (ivy-read "Goto: "
-              entries
-              :history 'counsel-org-goto-history
-              :action 'counsel-org-goto-action
-              :caller 'counsel-org-goto)))
+  (ivy-read "Goto: " (counsel-org-goto--get-headlines)
+            :history 'counsel-org-goto-history
+            :action 'counsel-org-goto-action
+            :caller 'counsel-org-goto))
 
 ;;;###autoload
 (defun counsel-org-goto-all ()
@@ -2774,11 +2770,8 @@ to custom."
     (dolist (b (buffer-list))
       (with-current-buffer b
         (when (derived-mode-p 'org-mode)
-          (if entries
-              (nconc entries (counsel-org-goto--get-headlines))
-            (setq entries (counsel-org-goto--get-headlines))))))
-    (ivy-read "Goto: "
-              entries
+          (setq entries (nconc entries (counsel-org-goto--get-headlines))))))
+    (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
               :action 'counsel-org-goto-action
               :caller 'counsel-org-goto-all)))
@@ -4225,16 +4218,11 @@ Remaps built-in functions to counsel replacements.")
   :type 'boolean)
 
 (defun counsel-list-buffers-with-mode (mode)
-  "List all buffers with `major-mode' MODE.
-
-MODE is a symbol."
-  (save-current-buffer
-    (let (bufs)
-      (dolist (buf (buffer-list))
-        (set-buffer buf)
-        (and (equal major-mode mode)
-             (push (buffer-name buf) bufs)))
-      (nreverse bufs))))
+  "Return names of buffers with `major-mode' `eq' to MODE."
+  (let (bufs)
+    (dolist (buf (buffer-list) (nreverse bufs))
+      (when (eq (buffer-local-value 'major-mode buf) mode)
+        (push (buffer-name buf) bufs)))))
 
 ;;;###autoload
 (defun counsel-switch-to-shell-buffer ()
