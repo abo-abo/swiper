@@ -300,6 +300,7 @@ action functions.")
     (define-key map (kbd "C-m") 'ivy-done)
     (define-key map [down-mouse-1] 'ignore)
     (define-key map [mouse-1] 'ivy-mouse-done)
+    (define-key map [mouse-3] 'ivy-mouse-dispatching-done)
     (define-key map (kbd "C-M-m") 'ivy-call)
     (define-key map (kbd "C-j") 'ivy-alt-done)
     (define-key map (kbd "C-M-j") 'ivy-immediate-done)
@@ -624,21 +625,35 @@ candidate, not the prompt."
   "Exit the minibuffer with the selected candidate."
   "The doc visible in the tooltip for mouse-1 binding in the minibuffer")
 
-(defun ivy-mouse-done (event)
-  "Exit the minibuffer with the selected candidate."
-  (interactive "@e")
-  (when event
-    (let* ((line-number-at-point
-            (max 2
-                 (line-number-at-pos (posn-point (event-start event)))))
+(defun ivy-mouse-offset (event)
+  "Compute the offset between the candidate at point and the selected one."
+  (if event
+      (let* ((line-number-at-point
+              (max 2
+                   (line-number-at-pos (posn-point (event-start event)))))
 
-           (line-number-candidate ;; convert to 0 based index
-            (- line-number-at-point 2))
-           (offset
-            (- line-number-candidate
-               ivy--window-index)))
-      (ivy-next-line-and-call offset))
-    (ivy-alt-done)))
+             (line-number-candidate ;; convert to 0 based index
+              (- line-number-at-point 2))
+             (offset
+              (- line-number-candidate
+                 ivy--window-index)))
+        offset)
+    nil))
+
+(defun ivy-mouse-done (event)
+  (interactive "@e")
+  (let* ((offet (ivy-mouse-offset event)))
+    (when offet
+      (ivy-next-line-and-call offet)
+      (ivy-alt-done))))
+
+(defun ivy-mouse-dispatching-done (event)
+  (interactive "@e")
+  (let* ((offet (ivy-mouse-offset event)))
+    (when offet
+      (ivy-next-line offet)
+      (ivy--exhibit)
+      (ivy-dispatching-done))))
 
 (defvar ivy-read-action-format-function 'ivy-read-action-format-default
   "Function used to transform the actions list into a docstring.")
