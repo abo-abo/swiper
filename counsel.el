@@ -4225,9 +4225,10 @@ Remaps built-in functions to counsel replacements.")
 (defun counsel-list-buffers-with-mode (mode)
   "Return names of buffers with `major-mode' `eq' to MODE."
   (let (bufs)
-    (dolist (buf (buffer-list) (nreverse bufs))
+    (dolist (buf (buffer-list))
       (when (eq (buffer-local-value 'major-mode buf) mode)
-        (push (buffer-name buf) bufs)))))
+        (push (buffer-name buf) bufs)))
+    (nreverse bufs)))
 
 ;;;###autoload
 (defun counsel-switch-to-shell-buffer ()
