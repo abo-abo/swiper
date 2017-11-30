@@ -3336,12 +3336,16 @@ CANDS is a list of strings."
         (with-ivy-window
           (with-current-buffer (ivy-state-buffer ivy-last)
             (setq wnd-cands (mapcar transformer-fn wnd-cands)))))
-      (let* ((wnd-cands (mapcar
-                         #'ivy--format-minibuffer-line
-                         wnd-cands))
-             (res (concat "\n" (funcall ivy-format-function wnd-cands))))
-        (put-text-property 0 (length res) 'read-only nil res)
-        res))))
+      (ivy--wnd-cands-to-str wnd-cands))))
+
+(defun ivy--wnd-cands-to-str (wnd-cands)
+  (let ((str (concat "\n"
+                     (funcall ivy-format-function
+                              (mapcar
+                               #'ivy--format-minibuffer-line
+                               wnd-cands)))))
+    (put-text-property 0 (length str) 'read-only nil str)
+    str))
 
 (defvar recentf-list)
 (defvar bookmark-alist)
