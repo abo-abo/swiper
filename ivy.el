@@ -647,7 +647,8 @@ candidate, not the prompt."
   (interactive "@e")
   (let ((offset (ivy-mouse-offset event)))
     (when offset
-      (ivy-next-line-and-call offset)
+      (ivy-next-line offset)
+      (ivy--exhibit)
       (ivy-alt-done))))
 
 (defun ivy-mouse-dispatching-done (event)
