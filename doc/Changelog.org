@@ -2895,3 +2895,723 @@ See [[https://github.com/abo-abo/swiper/issues/845][#845]], [[https://github.com
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 #+END_EXPORT
+* 0.10.0
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0
+:END:
+-----
+** Fixes
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fixes
+:END:
+*** counsel-ag
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-ag
+:END:
+Fix default ag command on Windows, see [[https://github.com/abo-abo/swiper/issues/1221][#1221]].
+-----
+*** counsel-ag-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-ag-occur
+:END:
+Don't break when search string begins with "-", see [[https://github.com/abo-abo/swiper/issues/1048][#1048]].
+
+Fix quoting, see [[https://github.com/abo-abo/swiper/issues/1240][#1240]].
+-----
+*** counsel-company
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-company
+:END:
+Various fixes, see [[https://github.com/abo-abo/swiper/issues/969][#969]].
+-----
+*** counsel-descbinds
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-descbinds
+:END:
+Fix regex, see [[https://github.com/abo-abo/swiper/issues/1089][#1089]].
+-----
+*** counsel-dired-jump
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-dired-jump
+:END:
+Obey =find-program=, see [[https://github.com/abo-abo/swiper/issues/1181][#1181]].
+-----
+*** counsel-find-file
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-find-file
+:END:
+Fix ~C-y~ when pasting a file path.
+
+Fix magic slash regression, see [[https://github.com/abo-abo/swiper/issues/1027][#1027]].
+
+Don't quote regex for =initial-input=.
+
+Don't bind =find-file-hook= if not necessary, see [[https://github.com/abo-abo/swiper/issues/627][#627]], [[https://github.com/abo-abo/swiper/issues/1118][#1118]].
+
+Fix completion of relative directories, see [[https://github.com/abo-abo/swiper/issues/1055][#1055]].
+
+Make sure foo/ directory goes before foo-bar/ directory, see [[https://github.com/abo-abo/swiper/issues/1315][#1315]].
+-----
+*** counsel-find-file-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-find-file-occur
+:END:
+Use =xargs -d '\n'=, see [[https://github.com/abo-abo/swiper/issues/1323][#1323]].
+-----
+*** counsel-git-grep
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-grep
+:END:
+Fix error on 24.5, see [[https://github.com/abo-abo/swiper/issues/1107][#1107]].
+Fix for Windows, see [[https://github.com/abo-abo/swiper/issues/1176][#1176]].
+-----
+*** counsel-git-grep-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-grep-occur
+:END:
+Fix output with negative pattern, see [[https://github.com/abo-abo/swiper/issues/1173][#1173]].
+
+Fix bug, see [[https://github.com/abo-abo/swiper/issues/1225][#1225]].
+-----
+*** counsel-git-grep-recenter
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-grep-recenter
+:END:
+Fix warning, see [[https://github.com/abo-abo/swiper/issues/1097][#1097]].
+-----
+*** counsel-git-grep-transformer
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-grep-transformer
+:END:
+Optimize text props, see [[https://github.com/abo-abo/swiper/issues/1264][#1264]].
+-----
+*** counsel-git-log
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-log
+:END:
+Ignore blank candidates, see [[https://github.com/abo-abo/swiper/issues/1122][#1122]].
+-----
+*** counsel-git-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-git-occur
+:END:
+Fix regex, see [[https://github.com/abo-abo/swiper/issues/1299][#1299]].
+-----
+*** counsel-grep-base-command
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-grep-base-command
+:END:
+Add "--", see [[https://github.com/abo-abo/swiper/issues/1266][#1266]].
+-----
+*** counsel-imenu
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-imenu
+:END:
+Add trailing space to prompt, see [[https://github.com/abo-abo/swiper/issues/1245][#1245]].
+-----
+*** counsel-irony
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-irony
+:END:
+Various fixes, see [[https://github.com/abo-abo/swiper/issues/1018][#1018]].
+-----
+*** counsel-locate-action-extern
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-locate-action-extern
+:END:
+Handle cygwin, see [[https://github.com/abo-abo/swiper/issues/1314][#1314]].
+-----
+*** counsel-M-x
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-m-x
+:END:
+Don't rebuild cache on every call, see [[https://github.com/abo-abo/swiper/issues/1085][#1085]].
+Add own history, see [[https://github.com/abo-abo/swiper/issues/1185][#1185]].
+-----
+*** counsel-package
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-package
+:END:
+Fix package removal, see [[https://github.com/abo-abo/swiper/issues/970][#970]].
+-----
+*** counsel-set-variable
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-set-variable
+:END:
+Handle defcustom with multiple entries, see [[https://github.com/abo-abo/swiper/issues/960][#960]].
+-----
+*** counsel-shell-history
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-shell-history
+:END:
+Work around =ring-elements=, see [[https://github.com/abo-abo/swiper/issues/1148][#1148]].
+-----
+*** counsel-unquote-regex-parens
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-counsel-unquote-regex-parens
+:END:
+Handle cons arg, see [[https://github.com/abo-abo/swiper/issues/1322][#1322]].
+-----
+*** ivy
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy
+:END:
+Various fixes, see [[https://github.com/abo-abo/swiper/issues/997][#997]], [[https://github.com/abo-abo/swiper/issues/1327][#1327]], [[https://github.com/abo-abo/swiper/issues/1334][#1334]], [[https://github.com/abo-abo/swiper/issues/1336][#1336]].
+
+Don't add =:preselect= to collection, see [[https://github.com/abo-abo/swiper/issues/1017][#1017]].
+
+Avoid setting ivy window as minibuffer, see [[https://github.com/abo-abo/swiper/issues/1051][#1051]], [[https://github.com/abo-abo/swiper/issues/1053][#1053]].
+
+Init index with 0, see [[https://github.com/abo-abo/swiper/issues/1080][#1080]].
+
+=ivy-initial-inputs-alist= should use =:caller= first, see [[https://github.com/abo-abo/swiper/issues/1068][#1068]].
+
+=ivy--sorted-files= should always use predicate, see [[https://github.com/abo-abo/swiper/issues/1121][#1121]].
+
+Simplify re-builder / highlight, see [[https://github.com/abo-abo/swiper/issues/1147][#1147]].
+
+Ensure bookmarks are loaded, see [[https://github.com/abo-abo/swiper/issues/1160][#1160]].
+
+Fix arrows not working for =ivy--regex-ignore-order=, see [[https://github.com/abo-abo/swiper/issues/1159][#1159]].
+
+Fix ~C-M-j~ for =ivy-completion-in-region-action=, see [[https://github.com/abo-abo/swiper/issues/1178][#1178]].
+
+Correct spelling, see [[https://github.com/abo-abo/swiper/issues/1179][#1179]].
+
+Ensure action and display transformer are called from initial
+buffer. See [[https://github.com/abo-abo/swiper/issues/1182][#1182]].
+
+Allow "!" and space to be escaped in =ivy--regex-ignore-order=. See [[https://github.com/abo-abo/swiper/issues/976][#976]].
+
+Call =ivy-overlay-cleanup= only when needed, see [[https://github.com/abo-abo/swiper/issues/1211][#1211]].
+
+Don't require prompt to end in ": ", see [[https://github.com/abo-abo/swiper/issues/1207][#1207]].
+
+Remove empty string from collection, see [[https://github.com/abo-abo/swiper/issues/1230][#1230]], [[https://github.com/abo-abo/swiper/issues/1236][#1236]].
+
+Fix "/sudo::" in current dir, see [[https://github.com/abo-abo/swiper/issues/1232][#1232]].
+
+Fix prefix issue, see [[https://github.com/abo-abo/swiper/issues/1244][#1244]].
+
+Update prompt even if there are no candidates. See [[https://github.com/abo-abo/swiper/issues/1183][#1183]].
+
+Also check =this-command= for sorting, see [[https://github.com/abo-abo/swiper/issues/1294][#1294]].
+-----
+*** ivy-add-actions
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-add-actions
+:END:
+Delete action duplicates by key, see [[https://github.com/abo-abo/swiper/issues/1296][#1296]].
+-----
+*** ivy-avy
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-avy
+:END:
+Fix logic when scrolled, see [[https://github.com/abo-abo/swiper/issues/1004][#1004]].
+
+Exit silently, see [[https://github.com/abo-abo/swiper/issues/1073][#1073]].
+
+Select correct candidate when using display transformer, see [[https://github.com/abo-abo/swiper/issues/1255][#1255]].
+-----
+*** ivy-completing-read-handlers-alist
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-completing-read-handlers-alist
+:END:
+Add some entries, and tests. See [[https://github.com/abo-abo/swiper/issues/1049][#1049]].
+-----
+*** ivy-completion-in-region
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-completion-in-region
+:END:
+Fix length bug, see [[https://github.com/abo-abo/swiper/issues/1251][#1251]].
+
+Fix sole match case, see [[https://github.com/abo-abo/swiper/issues/1252][#1252]].
+-----
+*** ivy-display-function-overlay
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-display-function-overlay
+:END:
+Fall back when there's no space, see [[https://github.com/abo-abo/swiper/issues/1136][#1136]].
+Fall back when there's no vertical space, see [[https://github.com/abo-abo/swiper/issues/1136][#1136]].
+Check for point-min, see [[https://github.com/abo-abo/swiper/issues/1267][#1267]].
+Fix for =org-indent-mode=.
+-----
+*** ivy-ffap-url-functions
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-ffap-url-functions
+:END:
+Check if git is present, see [[https://github.com/abo-abo/swiper/issues/1216][#1216]].
+
+-----
+*** ivy-format-function-arrow
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-format-function-arrow
+:END:
+Fixup, see [[https://github.com/abo-abo/swiper/issues/1004][#1004]].
+-----
+*** ivy-initial-inputs-alist
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-initial-inputs-alist
+:END:
+Fix entry for man, see [[https://github.com/abo-abo/swiper/issues/1226][#1226]].
+-----
+*** ivy-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-occur
+:END:
+Fix double =pop-to-buffer= issue, see [[https://github.com/abo-abo/swiper/issues/1284][#1284]].
+
+Don't fail if buffer was killed.
+
+Fix regex passed to grep, see [[https://github.com/abo-abo/swiper/issues/1299][#1299]].
+
+Use =setq-local=, see [[https://github.com/abo-abo/swiper/issues/1318][#1318]].
+
+Add =ivy--dirname-p=, see [[https://github.com/abo-abo/swiper/issues/1317][#1317]].
+-----
+*** ivy-partial
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-partial
+:END:
+Fix interaction with case-folding, see [[https://github.com/abo-abo/swiper/issues/1019][#1019]], [[https://github.com/abo-abo/swiper/issues/1021][#1021]].
+Fix downcase for non-string, see [[https://github.com/abo-abo/swiper/issues/1024][#1024]], [[https://github.com/abo-abo/swiper/issues/1036][#1036]].
+-----
+*** ivy-previous-line-or-history
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-previous-line-or-history
+:END:
+Should not insert the last history item unless the currently-selected
+completion candidate is the first in the list, otherwise it's
+impossible to navigate back up with successive applications of this
+command, see [[https://github.com/abo-abo/swiper/issues/1137][#1137]].
+-----
+*** ivy-re-builders-alist
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-re-builders-alist
+:END:
+Extend docstring, see [[https://github.com/abo-abo/swiper/issues/1308][#1308]].
+-----
+*** ivy-with-r
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-ivy-with-r
+:END:
+Use =with-output-to-string=, see [[https://github.com/abo-abo/swiper/issues/1300][#1300]].
+-----
+*** swiper
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-swiper
+:END:
+Protect against =match-beginning= / =match-end= not integerp. See [[https://github.com/abo-abo/swiper/issues/1188][#1188]],
+[[https://github.com/abo-abo/swiper/issues/1192][#1192]].
+-----
+*** swiper--init
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-swiper--init
+:END:
+Turn off =reveal-mode= for the duration, see [[https://github.com/abo-abo/swiper/issues/1312][#1312]].
+-----
+*** swiper-all-buffer-p
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-swiper-all-buffer-p
+:END:
+Various mode additions.
+-----
+*** swiper-font-lock-exclude
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-fx-swiper-font-lock-exclude
+:END:
+Add treemacs-mode, see [[https://github.com/abo-abo/swiper/issues/1212][#1212]].
+
+Add magit-popup-mode, see [[https://github.com/abo-abo/swiper/issues/1274][#1274]].
+
+Add adoc-mode, see [[https://github.com/abo-abo/swiper/issues/1275][#1275]].
+
+Add bbdb-mode, see [[https://github.com/abo-abo/swiper/issues/1276][#1276]].
+-----
+** New Features
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-new-features
+:END:
+*** counsel
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel
+:END:
+When an external program output is used, first check if the program is
+installed, see [[https://github.com/abo-abo/swiper/issues/1076][#1076]].
+
+Allow async commands on Tramp buffers, see [[https://github.com/abo-abo/swiper/issues/1229][#1229]], [[https://github.com/abo-abo/swiper/issues/1233][#1233]].
+-----
+*** counsel-async-filter-update-time
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-async-filter-update-time
+:END:
+Configure async delay. See [[https://github.com/abo-abo/swiper/issues/1149][#1149]].
+-----
+*** counsel-async-ignore-re
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-async-ignore-re
+:END:
+New defcustom. See [[https://github.com/abo-abo/swiper/issues/1122][#1122]].
+-----
+*** counsel-describe-function
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-describe-function
+:END:
+Highlight interactive functions, see [[https://github.com/abo-abo/swiper/issues/981][#981]], [[https://github.com/abo-abo/swiper/issues/982][#982]].
+-----
+*** counsel-describe-function-function
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-describe-function-function
+:END:
+Customize =counsel-describe-function=. Useful for
+https://github.com/Wilfred/helpful. See [[https://github.com/abo-abo/swiper/issues/1321][#1321]].
+-----
+*** counsel-describe-function-preselect
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-describe-function-preselect
+:END:
+Customize which symbol will be initial for =counsel-describe-function=,
+see [[https://github.com/abo-abo/swiper/issues/1088][#1088]], [[https://github.com/abo-abo/swiper/issues/1330][#1330]].
+-----
+*** counsel-describe-variable
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-describe-variable
+:END:
+Highlight custom variables, see [[https://github.com/abo-abo/swiper/issues/980][#980]], [[https://github.com/abo-abo/swiper/issues/982][#982]].
+-----
+*** counsel-find-file-ignore-regexp
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-find-file-ignore-regexp
+:END:
+Offer =completion-ignored-extensions=, see [[https://github.com/abo-abo/swiper/issues/1092][#1092]].
+-----
+*** counsel-fzf-dir-function
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-fzf-dir-function
+:END:
+Allow to customize fzf work directory.
+-----
+*** counsel-git
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-git
+:END:
+Add optional =initial-input=, see [[https://github.com/abo-abo/swiper/issues/1074][#1074]].
+-----
+*** counsel-git-grep-skip-counting-lines
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-git-grep-skip-counting-lines
+:END:
+New defcustom, see [[https://github.com/abo-abo/swiper/issues/524][#524]], [[https://github.com/abo-abo/swiper/issues/1042][#1042]].
+-----
+*** counsel-git-log-split-string-re
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-git-log-split-string-re
+:END:
+New defcustom. See [[https://github.com/abo-abo/swiper/issues/1122][#1122]].
+-----
+*** counsel-grep-or-swiper
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-grep-or-swiper
+:END:
+Don't attempt to save readonly files, see [[https://github.com/abo-abo/swiper/issues/999][#999]].
+
+Prevent opening an already opened file, see [[https://github.com/abo-abo/swiper/issues/1001][#1001]].
+
+Improve logic, see [[https://github.com/abo-abo/swiper/issues/1290][#1290]].
+
+More uniform interface, see [[https://github.com/abo-abo/swiper/issues/1313][#1313]].
+-----
+*** counsel-imenu-map
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-imenu-map
+:END:
+Allows to use ~C-l~ to recenter. See [[https://github.com/abo-abo/swiper/issues/1180][#1180]].
+-----
+*** counsel-linux-app
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-linux-app
+:END:
+Various improvements, see [[https://github.com/abo-abo/swiper/issues/897][#897]], [[https://github.com/abo-abo/swiper/issues/959][#959]].
+
+Press ~M-o d~ to open the desktop file, see [[https://github.com/abo-abo/swiper/issues/897][#897]].
+-----
+*** counsel-mark-ring
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-mark-ring
+:END:
+Sort by location, see [[https://github.com/abo-abo/swiper/issues/1006][#1006]].
+
+Fixes, see [[https://github.com/abo-abo/swiper/issues/1328][#1328]], [[https://github.com/abo-abo/swiper/issues/1329][#1329]].
+-----
+*** counsel-mode-map
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-mode-map
+:END:
+Add =counsel-faces=, see [[https://github.com/abo-abo/swiper/issues/1259][#1259]].
+-----
+*** counsel-rg
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-rg
+:END:
+Limit results to 150 columns, see [[https://github.com/abo-abo/swiper/issues/988][#988]].
+
+Never use color results, see [[https://github.com/abo-abo/swiper/issues/1060][#1060]].
+
+Search whole Git repository, not the current directory.
+-----
+*** counsel-unicode-char
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-unicode-char
+:END:
+Show candidates in order, see [[https://github.com/abo-abo/swiper/issues/1003][#1003]].
+
+Adapt to =ucs-names= being a hash table in emacs-26, see [[https://github.com/abo-abo/swiper/issues/1223][#1223]].
+
+Make lazy, see [[https://github.com/abo-abo/swiper/issues/1204][#1204]].
+-----
+*** counsel-up-directory
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-up-directory
+:END:
+If the current directory is remote and it's not possible to go up any
+further, make the remote prefix editable. See [[https://github.com/abo-abo/swiper/issues/1242][#1242]], [[https://github.com/abo-abo/swiper/issues/1227][#1227]].
+-----
+*** counsel-url-expand
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-url-expand
+:END:
+Added to =ivy-ffap-url-functions= by default.
+
+Customize =counsel-url-expansions= to be able to browse various links
+with ~C-x C-f M-n~. See [[https://github.com/abo-abo/swiper/issues/1164][#1164]].
+-----
+*** counsel-yank-pop
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-counsel-yank-pop
+:END:
+Don't restrict to 3 chars or more, see [[https://github.com/abo-abo/swiper/issues/973][#973]].
+
+Press ~M-o d~ to remove an item from the kill ring.
+
+Ignore empty candidates, see [[https://github.com/abo-abo/swiper/issues/1043][#1043]].
+-----
+*** ivy
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy
+:END:
+**** Add ~i~ and ~w~ as global actions
+:PROPERTIES:
+:CUSTOM_ID: add-~i~-and-~w~-as-global-actions
+:END:
+In any completion session:
+- Press ~M-o w~ to copy the current candidate to the kill ring.
+- Press ~M-o i~ to insert the current candidate into the buffer.
+**** Bind ~<next>~ and ~<prior>~
+:PROPERTIES:
+:CUSTOM_ID: bind-~<next>~-and-~<prior>~
+:END:
+**** Add CONTRIBUTING.org
+:PROPERTIES:
+:CUSTOM_ID: add-contributing.org
+:END:
+See [[https://github.com/abo-abo/swiper/issues/1260][#1260]], [[https://github.com/abo-abo/swiper/issues/1332][#1332]].
+-----
+*** ivy-auto-select-single-candidate
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-auto-select-single-candidate
+:END:
+Off by default. When on, and there's only one candidate, use it
+automatically without a completion session.
+-----
+*** ivy-backward-delete-char
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-backward-delete-char
+:END:
+Preselect last dir, see [[https://github.com/abo-abo/swiper/issues/1257][#1257]].
+-----
+*** ivy-completion-in-region
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-completion-in-region
+:END:
+Use =:initial-input= and =:unwind=. Previously, Ivy's "prefixing" and
+"perfect match" index logic was messed up for
+completion-in-region. The reason being is that the initial prefix was
+never passed to Ivy: instead, the collection was pre-filtered on the
+prefix and a "new" completion session didn't know about it.
+-----
+*** ivy-dispatching-done-hydra
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-dispatching-done-hydra
+:END:
+Quit with ~C-g~, see [[https://github.com/abo-abo/swiper/issues/922][#922]].
+
+Break hint into columns, see [[https://github.com/abo-abo/swiper/issues/953][#953]].
+-----
+*** ivy-magic-slash-non-match-action
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-magic-slash-non-match-action
+:END:
+Customize what ~/~ does when completing file names, see [[https://github.com/abo-abo/swiper/issues/998][#998]], [[https://github.com/abo-abo/swiper/issues/1009][#1009]].
+-----
+*** ivy-occur
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-occur
+:END:
+When completing file names, =counsel-cmd-to-dired= is called, resulting
+in a Dired buffer.
+-----
+*** ivy-occur-mode-map
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-occur-mode-map
+:END:
+Bind ~R~ to =read-only-mode=, see [[https://github.com/abo-abo/swiper/issues/1273][#1273]].
+-----
+*** ivy-read
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-read
+:END:
+Add new argument =def=, see [[https://github.com/abo-abo/swiper/issues/1047][#1047]], [[https://github.com/abo-abo/swiper/issues/1049][#1049]], [[https://github.com/abo-abo/swiper/issues/1052][#1052]], [[https://github.com/abo-abo/swiper/issues/1112][#1112]].
+-----
+*** ivy-read-action
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-read-action
+:END:
+Allow to quit with ~ESC~ for better work with evil, see [[https://github.com/abo-abo/swiper/issues/952][#952]].
+-----
+*** ivy-rotate-preferred-builders
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-rotate-preferred-builders
+:END:
+Bound to ~C-o m~. Customize with =ivy--preferred-re-builders=.
+See [[https://github.com/abo-abo/swiper/issues/1093][#1093]], [[https://github.com/abo-abo/swiper/issues/1094][#1094]].
+-----
+*** ivy-switch-buffer
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-switch-buffer
+:END:
+Compose faces better, see [[https://github.com/abo-abo/swiper/issues/992][#992]].
+
+~M-o f~ will call =counsel-find-file= from current directory, see [[https://github.com/abo-abo/swiper/issues/1298][#1298]],
+[[https://github.com/abo-abo/swiper/issues/1295][#1295]].
+-----
+*** ivy-truncate-lines
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-truncate-lines
+:END:
+New defcustom. See [[https://github.com/abo-abo/swiper/issues/1110][#1110]].
+-----
+*** ivy-use-selectable-prompt
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-ivy-use-selectable-prompt
+:END:
+When non-nil, make the prompt line selectable like a candidate.
+
+Calling =ivy-done= or =ivy-alt-done= on a selected prompt forwards to
+=ivy-immediate-done=, thus exiting with the current user input instead
+of the selected candidate.
+
+See [[https://github.com/abo-abo/swiper/issues/1059][#1059]], [[https://github.com/abo-abo/swiper/issues/1063][#1063]], [[https://github.com/abo-abo/swiper/issues/1090][#1090]].
+-----
+*** swiper-query-replace
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nf-swiper-query-replace
+:END:
+Disable read-only for the duration, see [[https://github.com/abo-abo/swiper/issues/1273][#1273]].
+-----
+** New Commands
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-new-commands
+:END:
+*** counsel-ack
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-ack
+:END:
+Like =counsel-ag=, but with [[https://beyondgrep.com/][ack]]. See [[https://github.com/abo-abo/swiper/issues/1075][#1075]].
+-----
+*** counsel-apropos
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-apropos
+:END:
+Completion for [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Apropos.html][apropos]], see [[https://github.com/abo-abo/swiper/issues/1014][#1014]].
+-----
+*** counsel-file-register
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-file-register
+:END:
+Completion for [[https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Registers.html][file registers]], see [[https://github.com/abo-abo/swiper/issues/1057][#1057]], [[https://github.com/abo-abo/swiper/issues/1066][#1066]].
+-----
+*** counsel-fzf
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-fzf
+:END:
+Completion for [[https://github.com/junegunn/fzf][fzf]]. See [[https://github.com/abo-abo/swiper/issues/1151][#1151]], [[https://github.com/abo-abo/swiper/issues/1263][#1263]].
+-----
+*** counsel-git-change-worktree
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-git-change-worktree
+:END:
+Completion for [[https://git-scm.com/docs/git-worktree][git-worktree]].
+See [[https://github.com/abo-abo/swiper/issues/989][#989]], [[https://github.com/abo-abo/swiper/issues/1114][#1114]], [[https://github.com/abo-abo/swiper/issues/1115][#1115]].
+-----
+*** counsel-git-checkout
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-git-checkout
+:END:
+Completion for [[https://git-scm.com/docs/git-checkout][git-checkout]]. See [[https://github.com/abo-abo/swiper/issues/1187][#1187]].
+-----
+*** counsel-minibuffer-history
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-minibuffer-history
+:END:
+Supersedes =counsel-expression-history= and
+=counsel-shell-command-history=. See [[https://github.com/abo-abo/swiper/issues/1237][#1237]].
+-----
+*** counsel-org-capture
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-org-capture
+:END:
+Completion for [[http://orgmode.org/manual/Capture.html][org-capture]]. See [[https://github.com/abo-abo/swiper/issues/1320][#1320]].
+-----
+*** counsel-org-file
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-org-file
+:END:
+Browse all attachments for the current Org file.
+-----
+*** counsel-org-goto
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-org-goto
+:END:
+Completion for Org headings. See [[https://github.com/abo-abo/swiper/issues/1005][#1005]], [[https://github.com/abo-abo/swiper/issues/1008][#1008]], [[https://github.com/abo-abo/swiper/issues/1011][#1011]], [[https://github.com/abo-abo/swiper/issues/1012][#1012]], [[https://github.com/abo-abo/swiper/issues/1013][#1013]].
+-----
+*** counsel-org-goto-all
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-org-goto-all
+:END:
+Completion for Org headings in all open buffers. See [[https://github.com/abo-abo/swiper/issues/1005][#1005]].
+-----
+*** counsel-switch-to-shell-buffer
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-counsel-switch-to-shell-buffer
+:END:
+Switch to a shell buffer, or create one. See [[https://github.com/abo-abo/swiper/issues/990][#990]].
+-----
+*** ivy-occur-delete-candidate
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-ivy-occur-delete-candidate
+:END:
+Bound to ~C-d~ in =ivy-occur-mode=. Allows a sort of a todo-list workflow.
+-----
+*** ivy-switch-view
+:PROPERTIES:
+:CUSTOM_ID: 0-10-0-nc-ivy-switch-view
+:END:
+Switch to one of the window views stored by =ivy-push-view=.
+You can use it separately from =ivy-switch-buffer= now.
+See [[https://github.com/abo-abo/swiper/issues/929][#929]], [[https://github.com/abo-abo/swiper/issues/1109][#1109]].
+-----
+#+BEGIN_EXPORT html
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+#+END_EXPORT
