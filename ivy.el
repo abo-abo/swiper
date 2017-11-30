@@ -764,9 +764,10 @@ When ARG is t, exit with current text, ignoring the candidates."
          (setq res (cl-delete-duplicates res :test #'equal))
          (let* ((old-ivy-last ivy-last)
                 (enable-recursive-minibuffers t)
-                (host (ivy-read "user@host: "
-                                (mapcar #'ivy-build-tramp-name res)
-                                :initial-input rest)))
+                (host (let ((ivy-auto-select-single-candidate nil))
+                        (ivy-read "user@host: "
+                                  (mapcar #'ivy-build-tramp-name res)
+                                  :initial-input rest))))
            (setq ivy-last old-ivy-last)
            (when host
              (setq ivy--directory "/")
@@ -1644,9 +1645,7 @@ customizations apply to the current completion session."
                          ((null resize-mini-windows) 'grow-only)
                          (t resize-mini-windows))))
                  (if (and ivy-auto-select-single-candidate
-                          (= (length ivy--all-candidates) 1)
-                          (and (stringp ivy--directory)
-                               (not (file-remote-p ivy--directory))))
+                          (= (length ivy--all-candidates) 1))
                      (progn
                        (setf (ivy-state-current ivy-last)
                              (car ivy--all-candidates))
