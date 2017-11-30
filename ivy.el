@@ -435,7 +435,9 @@ of `history-length'.")
   "Store the index of the current candidate.")
 
 (defvar ivy--window-index 0
-  "Store the index of the current candidate in the minibuffer window.")
+  "Store the index of the current candidate in the minibuffer window.
+
+This means it's between 0 and `ivy-height'.")
 
 (defvar ivy-exit nil
   "Store `done' if the completion was successfully selected.
@@ -3322,23 +3324,22 @@ CANDS is a list of strings."
     (ivy-set-index (max (1- ivy--length) 0)))
   (if (null cands)
       (setf (ivy-state-current ivy-last) "")
+    (setf (ivy-state-current ivy-last) (copy-sequence (nth ivy--index cands)))
     (let* ((half-height (/ ivy-height 2))
            (start (max 0 (- ivy--index half-height)))
            (end (min (+ start (1- ivy-height)) ivy--length))
            (start (max 0 (min start (- end (1- ivy-height)))))
-           (cands (cl-subseq cands start end))
-           (index (- ivy--index start))
+           (wnd-cands (cl-subseq cands start end))
            transformer-fn)
-      (setq ivy--window-index index)
-      (setf (ivy-state-current ivy-last) (copy-sequence (nth index cands)))
+      (setq ivy--window-index (- ivy--index start))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
           (with-current-buffer (ivy-state-buffer ivy-last)
-            (setq cands (mapcar transformer-fn cands)))))
-      (let* ((cands (mapcar
-                     #'ivy--format-minibuffer-line
-                     cands))
-             (res (concat "\n" (funcall ivy-format-function cands))))
+            (setq wnd-cands (mapcar transformer-fn wnd-cands)))))
+      (let* ((wnd-cands (mapcar
+                         #'ivy--format-minibuffer-line
+                         wnd-cands))
+             (res (concat "\n" (funcall ivy-format-function wnd-cands))))
         (put-text-property 0 (length res) 'read-only nil res)
         res))))
 
