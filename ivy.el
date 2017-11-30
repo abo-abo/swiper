@@ -645,16 +645,16 @@ candidate, not the prompt."
 
 (defun ivy-mouse-done (event)
   (interactive "@e")
-  (let* ((offet (ivy-mouse-offset event)))
-    (when offet
-      (ivy-next-line-and-call offet)
+  (let ((offset (ivy-mouse-offset event)))
+    (when offset
+      (ivy-next-line-and-call offset)
       (ivy-alt-done))))
 
 (defun ivy-mouse-dispatching-done (event)
   (interactive "@e")
-  (let* ((offet (ivy-mouse-offset event)))
-    (when offet
-      (ivy-next-line offet)
+  (let ((offset (ivy-mouse-offset event)))
+    (when offset
+      (ivy-next-line offset)
       (ivy--exhibit)
       (ivy-dispatching-done))))
 
