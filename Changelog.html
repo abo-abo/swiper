@@ -3,11 +3,18 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-10-17 di 10:19 -->
+<!-- 2017-11-30 Thu 20:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title></title>
 <meta name="generator" content="Org mode" />
+<meta name="author" content="oleh" />
+<link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="https://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+<script type="text/javascript" src="https://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
 <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
 <script type="text/javascript">
 /*
@@ -375,6 +382,113 @@ for the JavaScript code in this tag.
 <li><a href="#0-9-0-nc-counsel-shell-command-history"><code>counsel-shell-command-history</code></a></li>
 <li><a href="#0-9-0-nc-ivy-push-view"><code>ivy-push-view</code></a></li>
 <li><a href="#0-9-0-nc-ivy-rotate-sort"><code>ivy-rotate-sort</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#0-10-0">0.10.0</a>
+<ul>
+<li><a href="#0-10-0-fixes">Fixes</a>
+<ul>
+<li><a href="#0-10-0-fx-counsel-ag">counsel-ag</a></li>
+<li><a href="#0-10-0-fx-counsel-ag-occur">counsel-ag-occur</a></li>
+<li><a href="#0-10-0-fx-counsel-company">counsel-company</a></li>
+<li><a href="#0-10-0-fx-counsel-descbinds">counsel-descbinds</a></li>
+<li><a href="#0-10-0-fx-counsel-dired-jump">counsel-dired-jump</a></li>
+<li><a href="#0-10-0-fx-counsel-find-file">counsel-find-file</a></li>
+<li><a href="#0-10-0-fx-counsel-find-file-occur">counsel-find-file-occur</a></li>
+<li><a href="#0-10-0-fx-counsel-git-grep">counsel-git-grep</a></li>
+<li><a href="#0-10-0-fx-counsel-git-grep-occur">counsel-git-grep-occur</a></li>
+<li><a href="#0-10-0-fx-counsel-git-grep-recenter">counsel-git-grep-recenter</a></li>
+<li><a href="#0-10-0-fx-counsel-git-grep-transformer">counsel-git-grep-transformer</a></li>
+<li><a href="#0-10-0-fx-counsel-git-log">counsel-git-log</a></li>
+<li><a href="#0-10-0-fx-counsel-git-occur">counsel-git-occur</a></li>
+<li><a href="#0-10-0-fx-counsel-grep-base-command">counsel-grep-base-command</a></li>
+<li><a href="#0-10-0-fx-counsel-imenu">counsel-imenu</a></li>
+<li><a href="#0-10-0-fx-counsel-irony">counsel-irony</a></li>
+<li><a href="#0-10-0-fx-counsel-locate-action-extern">counsel-locate-action-extern</a></li>
+<li><a href="#0-10-0-fx-counsel-m-x">counsel-M-x</a></li>
+<li><a href="#0-10-0-fx-counsel-package">counsel-package</a></li>
+<li><a href="#0-10-0-fx-counsel-set-variable">counsel-set-variable</a></li>
+<li><a href="#0-10-0-fx-counsel-shell-history">counsel-shell-history</a></li>
+<li><a href="#0-10-0-fx-counsel-unquote-regex-parens">counsel-unquote-regex-parens</a></li>
+<li><a href="#0-10-0-fx-ivy">ivy</a></li>
+<li><a href="#0-10-0-fx-ivy-add-actions">ivy-add-actions</a></li>
+<li><a href="#0-10-0-fx-ivy-avy">ivy-avy</a></li>
+<li><a href="#0-10-0-fx-ivy-completing-read-handlers-alist">ivy-completing-read-handlers-alist</a></li>
+<li><a href="#0-10-0-fx-ivy-completion-in-region">ivy-completion-in-region</a></li>
+<li><a href="#0-10-0-fx-ivy-display-function-overlay">ivy-display-function-overlay</a></li>
+<li><a href="#0-10-0-fx-ivy-ffap-url-functions">ivy-ffap-url-functions</a></li>
+<li><a href="#0-10-0-fx-ivy-format-function-arrow">ivy-format-function-arrow</a></li>
+<li><a href="#0-10-0-fx-ivy-initial-inputs-alist">ivy-initial-inputs-alist</a></li>
+<li><a href="#0-10-0-fx-ivy-occur">ivy-occur</a></li>
+<li><a href="#0-10-0-fx-ivy-partial">ivy-partial</a></li>
+<li><a href="#0-10-0-fx-ivy-previous-line-or-history">ivy-previous-line-or-history</a></li>
+<li><a href="#0-10-0-fx-ivy-re-builders-alist">ivy-re-builders-alist</a></li>
+<li><a href="#0-10-0-fx-ivy-with-r">ivy-with-r</a></li>
+<li><a href="#0-10-0-fx-swiper">swiper</a></li>
+<li><a href="#0-10-0-fx-swiper--init">swiper&#x2013;init</a></li>
+<li><a href="#0-10-0-fx-swiper-all-buffer-p">swiper-all-buffer-p</a></li>
+<li><a href="#0-10-0-fx-swiper-font-lock-exclude">swiper-font-lock-exclude</a></li>
+</ul>
+</li>
+<li><a href="#0-10-0-new-features">New Features</a>
+<ul>
+<li><a href="#0-10-0-nf-counsel">counsel</a></li>
+<li><a href="#0-10-0-nf-counsel-async-filter-update-time">counsel-async-filter-update-time</a></li>
+<li><a href="#0-10-0-nf-counsel-async-ignore-re">counsel-async-ignore-re</a></li>
+<li><a href="#0-10-0-nf-counsel-describe-function">counsel-describe-function</a></li>
+<li><a href="#0-10-0-nf-counsel-describe-function-function">counsel-describe-function-function</a></li>
+<li><a href="#0-10-0-nf-counsel-describe-function-preselect">counsel-describe-function-preselect</a></li>
+<li><a href="#0-10-0-nf-counsel-describe-variable">counsel-describe-variable</a></li>
+<li><a href="#0-10-0-nf-counsel-find-file-ignore-regexp">counsel-find-file-ignore-regexp</a></li>
+<li><a href="#0-10-0-nf-counsel-fzf-dir-function">counsel-fzf-dir-function</a></li>
+<li><a href="#0-10-0-nf-counsel-git">counsel-git</a></li>
+<li><a href="#0-10-0-nf-counsel-git-grep-skip-counting-lines">counsel-git-grep-skip-counting-lines</a></li>
+<li><a href="#0-10-0-nf-counsel-git-log-split-string-re">counsel-git-log-split-string-re</a></li>
+<li><a href="#0-10-0-nf-counsel-grep-or-swiper">counsel-grep-or-swiper</a></li>
+<li><a href="#0-10-0-nf-counsel-imenu-map">counsel-imenu-map</a></li>
+<li><a href="#0-10-0-nf-counsel-linux-app">counsel-linux-app</a></li>
+<li><a href="#0-10-0-nf-counsel-mark-ring">counsel-mark-ring</a></li>
+<li><a href="#0-10-0-nf-counsel-mode-map">counsel-mode-map</a></li>
+<li><a href="#0-10-0-nf-counsel-rg">counsel-rg</a></li>
+<li><a href="#0-10-0-nf-counsel-unicode-char">counsel-unicode-char</a></li>
+<li><a href="#0-10-0-nf-counsel-up-directory">counsel-up-directory</a></li>
+<li><a href="#0-10-0-nf-counsel-url-expand">counsel-url-expand</a></li>
+<li><a href="#0-10-0-nf-counsel-yank-pop">counsel-yank-pop</a></li>
+<li><a href="#0-10-0-nf-ivy">ivy</a></li>
+<li><a href="#0-10-0-nf-ivy-auto-select-single-candidate">ivy-auto-select-single-candidate</a></li>
+<li><a href="#0-10-0-nf-ivy-backward-delete-char">ivy-backward-delete-char</a></li>
+<li><a href="#0-10-0-nf-ivy-completion-in-region">ivy-completion-in-region</a></li>
+<li><a href="#0-10-0-nf-ivy-dispatching-done-hydra">ivy-dispatching-done-hydra</a></li>
+<li><a href="#0-10-0-nf-ivy-magic-slash-non-match-action">ivy-magic-slash-non-match-action</a></li>
+<li><a href="#0-10-0-nf-ivy-occur">ivy-occur</a></li>
+<li><a href="#0-10-0-nf-ivy-occur-mode-map">ivy-occur-mode-map</a></li>
+<li><a href="#0-10-0-nf-ivy-read">ivy-read</a></li>
+<li><a href="#0-10-0-nf-ivy-read-action">ivy-read-action</a></li>
+<li><a href="#0-10-0-nf-ivy-rotate-preferred-builders">ivy-rotate-preferred-builders</a></li>
+<li><a href="#0-10-0-nf-ivy-switch-buffer">ivy-switch-buffer</a></li>
+<li><a href="#0-10-0-nf-ivy-truncate-lines">ivy-truncate-lines</a></li>
+<li><a href="#0-10-0-nf-ivy-use-selectable-prompt">ivy-use-selectable-prompt</a></li>
+<li><a href="#0-10-0-nf-swiper-query-replace">swiper-query-replace</a></li>
+</ul>
+</li>
+<li><a href="#0-10-0-new-commands">New Commands</a>
+<ul>
+<li><a href="#0-10-0-nc-counsel-ack">counsel-ack</a></li>
+<li><a href="#0-10-0-nc-counsel-apropos">counsel-apropos</a></li>
+<li><a href="#0-10-0-nc-counsel-file-register">counsel-file-register</a></li>
+<li><a href="#0-10-0-nc-counsel-fzf">counsel-fzf</a></li>
+<li><a href="#0-10-0-nc-counsel-git-change-worktree">counsel-git-change-worktree</a></li>
+<li><a href="#0-10-0-nc-counsel-git-checkout">counsel-git-checkout</a></li>
+<li><a href="#0-10-0-nc-counsel-minibuffer-history">counsel-minibuffer-history</a></li>
+<li><a href="#0-10-0-nc-counsel-org-capture">counsel-org-capture</a></li>
+<li><a href="#0-10-0-nc-counsel-org-file">counsel-org-file</a></li>
+<li><a href="#0-10-0-nc-counsel-org-goto">counsel-org-goto</a></li>
+<li><a href="#0-10-0-nc-counsel-org-goto-all">counsel-org-goto-all</a></li>
+<li><a href="#0-10-0-nc-counsel-switch-to-shell-buffer">counsel-switch-to-shell-buffer</a></li>
+<li><a href="#0-10-0-nc-ivy-occur-delete-candidate">ivy-occur-delete-candidate</a></li>
+<li><a href="#0-10-0-nc-ivy-switch-view">ivy-switch-view</a></li>
 </ul>
 </li>
 </ul>
@@ -5775,6 +5889,1114 @@ on.
 
 <p>
 See <a href="https://github.com/abo-abo/swiper/issues/845">#845</a>, <a href="https://github.com/abo-abo/swiper/issues/927">#927</a>.
+</p>
+<hr />
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-2">
+<h2 id="0-10-0"><a id="orgheadline"></a>0.10.0</h2>
+<div class="outline-text-2" id="text-0-10-0">
+<hr />
+</div>
+<div id="outline-container-orgheadline" class="outline-3">
+<h3 id="0-10-0-fixes"><a id="orgheadline"></a>Fixes</h3>
+<div class="outline-text-3" id="text-0-10-0-fixes">
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-ag"><a id="orgheadline"></a>counsel-ag</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-ag">
+<p>
+Fix default ag command on Windows, see <a href="https://github.com/abo-abo/swiper/issues/1221">#1221</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-ag-occur"><a id="orgheadline"></a>counsel-ag-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-ag-occur">
+<p>
+Don't break when search string begins with "-", see <a href="https://github.com/abo-abo/swiper/issues/1048">#1048</a>.
+</p>
+
+<p>
+Fix quoting, see <a href="https://github.com/abo-abo/swiper/issues/1240">#1240</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-company"><a id="orgheadline"></a>counsel-company</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-company">
+<p>
+Various fixes, see <a href="https://github.com/abo-abo/swiper/issues/969">#969</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-descbinds"><a id="orgheadline"></a>counsel-descbinds</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-descbinds">
+<p>
+Fix regex, see <a href="https://github.com/abo-abo/swiper/issues/1089">#1089</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-dired-jump"><a id="orgheadline"></a>counsel-dired-jump</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-dired-jump">
+<p>
+Obey <code>find-program</code>, see <a href="https://github.com/abo-abo/swiper/issues/1181">#1181</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-find-file"><a id="orgheadline"></a>counsel-find-file</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-find-file">
+<p>
+Fix <kbd>C-y</kbd> when pasting a file path.
+</p>
+
+<p>
+Fix magic slash regression, see <a href="https://github.com/abo-abo/swiper/issues/1027">#1027</a>.
+</p>
+
+<p>
+Don't quote regex for <code>initial-input</code>.
+</p>
+
+<p>
+Don't bind <code>find-file-hook</code> if not necessary, see <a href="https://github.com/abo-abo/swiper/issues/627">#627</a>, <a href="https://github.com/abo-abo/swiper/issues/1118">#1118</a>.
+</p>
+
+<p>
+Fix completion of relative directories, see <a href="https://github.com/abo-abo/swiper/issues/1055">#1055</a>.
+</p>
+
+<p>
+Make sure foo/ directory goes before foo-bar/ directory, see <a href="https://github.com/abo-abo/swiper/issues/1315">#1315</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-find-file-occur"><a id="orgheadline"></a>counsel-find-file-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-find-file-occur">
+<p>
+Use <code>xargs -d '\n'</code>, see <a href="https://github.com/abo-abo/swiper/issues/1323">#1323</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-grep"><a id="orgheadline"></a>counsel-git-grep</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-grep">
+<p>
+Fix error on 24.5, see <a href="https://github.com/abo-abo/swiper/issues/1107">#1107</a>.
+Fix for Windows, see <a href="https://github.com/abo-abo/swiper/issues/1176">#1176</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-grep-occur"><a id="orgheadline"></a>counsel-git-grep-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-grep-occur">
+<p>
+Fix output with negative pattern, see <a href="https://github.com/abo-abo/swiper/issues/1173">#1173</a>.
+</p>
+
+<p>
+Fix bug, see <a href="https://github.com/abo-abo/swiper/issues/1225">#1225</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-grep-recenter"><a id="orgheadline"></a>counsel-git-grep-recenter</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-grep-recenter">
+<p>
+Fix warning, see <a href="https://github.com/abo-abo/swiper/issues/1097">#1097</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-grep-transformer"><a id="orgheadline"></a>counsel-git-grep-transformer</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-grep-transformer">
+<p>
+Optimize text props, see <a href="https://github.com/abo-abo/swiper/issues/1264">#1264</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-log"><a id="orgheadline"></a>counsel-git-log</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-log">
+<p>
+Ignore blank candidates, see <a href="https://github.com/abo-abo/swiper/issues/1122">#1122</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-git-occur"><a id="orgheadline"></a>counsel-git-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-git-occur">
+<p>
+Fix regex, see <a href="https://github.com/abo-abo/swiper/issues/1299">#1299</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-grep-base-command"><a id="orgheadline"></a>counsel-grep-base-command</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-grep-base-command">
+<p>
+Add "&#x2013;", see <a href="https://github.com/abo-abo/swiper/issues/1266">#1266</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-imenu"><a id="orgheadline"></a>counsel-imenu</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-imenu">
+<p>
+Add trailing space to prompt, see <a href="https://github.com/abo-abo/swiper/issues/1245">#1245</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-irony"><a id="orgheadline"></a>counsel-irony</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-irony">
+<p>
+Various fixes, see <a href="https://github.com/abo-abo/swiper/issues/1018">#1018</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-locate-action-extern"><a id="orgheadline"></a>counsel-locate-action-extern</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-locate-action-extern">
+<p>
+Handle cygwin, see <a href="https://github.com/abo-abo/swiper/issues/1314">#1314</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-m-x"><a id="orgheadline"></a>counsel-M-x</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-m-x">
+<p>
+Don't rebuild cache on every call, see <a href="https://github.com/abo-abo/swiper/issues/1085">#1085</a>.
+Add own history, see <a href="https://github.com/abo-abo/swiper/issues/1185">#1185</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-package"><a id="orgheadline"></a>counsel-package</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-package">
+<p>
+Fix package removal, see <a href="https://github.com/abo-abo/swiper/issues/970">#970</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-set-variable"><a id="orgheadline"></a>counsel-set-variable</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-set-variable">
+<p>
+Handle defcustom with multiple entries, see <a href="https://github.com/abo-abo/swiper/issues/960">#960</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-shell-history"><a id="orgheadline"></a>counsel-shell-history</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-shell-history">
+<p>
+Work around <code>ring-elements</code>, see <a href="https://github.com/abo-abo/swiper/issues/1148">#1148</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-counsel-unquote-regex-parens"><a id="orgheadline"></a>counsel-unquote-regex-parens</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-counsel-unquote-regex-parens">
+<p>
+Handle cons arg, see <a href="https://github.com/abo-abo/swiper/issues/1322">#1322</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy"><a id="orgheadline"></a>ivy</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy">
+<p>
+Various fixes, see <a href="https://github.com/abo-abo/swiper/issues/997">#997</a>, <a href="https://github.com/abo-abo/swiper/issues/1327">#1327</a>, <a href="https://github.com/abo-abo/swiper/issues/1334">#1334</a>, <a href="https://github.com/abo-abo/swiper/issues/1336">#1336</a>.
+</p>
+
+<p>
+Don't add <code>:preselect</code> to collection, see <a href="https://github.com/abo-abo/swiper/issues/1017">#1017</a>.
+</p>
+
+<p>
+Avoid setting ivy window as minibuffer, see <a href="https://github.com/abo-abo/swiper/issues/1051">#1051</a>, <a href="https://github.com/abo-abo/swiper/issues/1053">#1053</a>.
+</p>
+
+<p>
+Init index with 0, see <a href="https://github.com/abo-abo/swiper/issues/1080">#1080</a>.
+</p>
+
+<p>
+<code>ivy-initial-inputs-alist</code> should use <code>:caller</code> first, see <a href="https://github.com/abo-abo/swiper/issues/1068">#1068</a>.
+</p>
+
+<p>
+<code>ivy--sorted-files</code> should always use predicate, see <a href="https://github.com/abo-abo/swiper/issues/1121">#1121</a>.
+</p>
+
+<p>
+Simplify re-builder / highlight, see <a href="https://github.com/abo-abo/swiper/issues/1147">#1147</a>.
+</p>
+
+<p>
+Ensure bookmarks are loaded, see <a href="https://github.com/abo-abo/swiper/issues/1160">#1160</a>.
+</p>
+
+<p>
+Fix arrows not working for <code>ivy--regex-ignore-order</code>, see <a href="https://github.com/abo-abo/swiper/issues/1159">#1159</a>.
+</p>
+
+<p>
+Fix <kbd>C-M-j</kbd> for <code>ivy-completion-in-region-action</code>, see <a href="https://github.com/abo-abo/swiper/issues/1178">#1178</a>.
+</p>
+
+<p>
+Correct spelling, see <a href="https://github.com/abo-abo/swiper/issues/1179">#1179</a>.
+</p>
+
+<p>
+Ensure action and display transformer are called from initial
+buffer. See <a href="https://github.com/abo-abo/swiper/issues/1182">#1182</a>.
+</p>
+
+<p>
+Allow "!" and space to be escaped in <code>ivy--regex-ignore-order</code>. See <a href="https://github.com/abo-abo/swiper/issues/976">#976</a>.
+</p>
+
+<p>
+Call <code>ivy-overlay-cleanup</code> only when needed, see <a href="https://github.com/abo-abo/swiper/issues/1211">#1211</a>.
+</p>
+
+<p>
+Don't require prompt to end in ": ", see <a href="https://github.com/abo-abo/swiper/issues/1207">#1207</a>.
+</p>
+
+<p>
+Remove empty string from collection, see <a href="https://github.com/abo-abo/swiper/issues/1230">#1230</a>, <a href="https://github.com/abo-abo/swiper/issues/1236">#1236</a>.
+</p>
+
+<p>
+Fix "/sudo::" in current dir, see <a href="https://github.com/abo-abo/swiper/issues/1232">#1232</a>.
+</p>
+
+<p>
+Fix prefix issue, see <a href="https://github.com/abo-abo/swiper/issues/1244">#1244</a>.
+</p>
+
+<p>
+Update prompt even if there are no candidates. See <a href="https://github.com/abo-abo/swiper/issues/1183">#1183</a>.
+</p>
+
+<p>
+Also check <code>this-command</code> for sorting, see <a href="https://github.com/abo-abo/swiper/issues/1294">#1294</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-add-actions"><a id="orgheadline"></a>ivy-add-actions</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-add-actions">
+<p>
+Delete action duplicates by key, see <a href="https://github.com/abo-abo/swiper/issues/1296">#1296</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-avy"><a id="orgheadline"></a>ivy-avy</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-avy">
+<p>
+Fix logic when scrolled, see <a href="https://github.com/abo-abo/swiper/issues/1004">#1004</a>.
+</p>
+
+<p>
+Exit silently, see <a href="https://github.com/abo-abo/swiper/issues/1073">#1073</a>.
+</p>
+
+<p>
+Select correct candidate when using display transformer, see <a href="https://github.com/abo-abo/swiper/issues/1255">#1255</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-completing-read-handlers-alist"><a id="orgheadline"></a>ivy-completing-read-handlers-alist</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-completing-read-handlers-alist">
+<p>
+Add some entries, and tests. See <a href="https://github.com/abo-abo/swiper/issues/1049">#1049</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-completion-in-region"><a id="orgheadline"></a>ivy-completion-in-region</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-completion-in-region">
+<p>
+Fix length bug, see <a href="https://github.com/abo-abo/swiper/issues/1251">#1251</a>.
+</p>
+
+<p>
+Fix sole match case, see <a href="https://github.com/abo-abo/swiper/issues/1252">#1252</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-display-function-overlay"><a id="orgheadline"></a>ivy-display-function-overlay</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-display-function-overlay">
+<p>
+Fall back when there's no space, see <a href="https://github.com/abo-abo/swiper/issues/1136">#1136</a>.
+Fall back when there's no vertical space, see <a href="https://github.com/abo-abo/swiper/issues/1136">#1136</a>.
+Check for point-min, see <a href="https://github.com/abo-abo/swiper/issues/1267">#1267</a>.
+Fix for <code>org-indent-mode</code>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-ffap-url-functions"><a id="orgheadline"></a>ivy-ffap-url-functions</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-ffap-url-functions">
+<p>
+Check if git is present, see <a href="https://github.com/abo-abo/swiper/issues/1216">#1216</a>.
+</p>
+
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-format-function-arrow"><a id="orgheadline"></a>ivy-format-function-arrow</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-format-function-arrow">
+<p>
+Fixup, see <a href="https://github.com/abo-abo/swiper/issues/1004">#1004</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-initial-inputs-alist"><a id="orgheadline"></a>ivy-initial-inputs-alist</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-initial-inputs-alist">
+<p>
+Fix entry for man, see <a href="https://github.com/abo-abo/swiper/issues/1226">#1226</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-occur"><a id="orgheadline"></a>ivy-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-occur">
+<p>
+Fix double <code>pop-to-buffer</code> issue, see <a href="https://github.com/abo-abo/swiper/issues/1284">#1284</a>.
+</p>
+
+<p>
+Don't fail if buffer was killed.
+</p>
+
+<p>
+Fix regex passed to grep, see <a href="https://github.com/abo-abo/swiper/issues/1299">#1299</a>.
+</p>
+
+<p>
+Use <code>setq-local</code>, see <a href="https://github.com/abo-abo/swiper/issues/1318">#1318</a>.
+</p>
+
+<p>
+Add <code>ivy--dirname-p</code>, see <a href="https://github.com/abo-abo/swiper/issues/1317">#1317</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-partial"><a id="orgheadline"></a>ivy-partial</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-partial">
+<p>
+Fix interaction with case-folding, see <a href="https://github.com/abo-abo/swiper/issues/1019">#1019</a>, <a href="https://github.com/abo-abo/swiper/issues/1021">#1021</a>.
+Fix downcase for non-string, see <a href="https://github.com/abo-abo/swiper/issues/1024">#1024</a>, <a href="https://github.com/abo-abo/swiper/issues/1036">#1036</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-previous-line-or-history"><a id="orgheadline"></a>ivy-previous-line-or-history</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-previous-line-or-history">
+<p>
+Should not insert the last history item unless the currently-selected
+completion candidate is the first in the list, otherwise it's
+impossible to navigate back up with successive applications of this
+command, see <a href="https://github.com/abo-abo/swiper/issues/1137">#1137</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-re-builders-alist"><a id="orgheadline"></a>ivy-re-builders-alist</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-re-builders-alist">
+<p>
+Extend docstring, see <a href="https://github.com/abo-abo/swiper/issues/1308">#1308</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-ivy-with-r"><a id="orgheadline"></a>ivy-with-r</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-ivy-with-r">
+<p>
+Use <code>with-output-to-string</code>, see <a href="https://github.com/abo-abo/swiper/issues/1300">#1300</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-swiper"><a id="orgheadline"></a>swiper</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-swiper">
+<p>
+Protect against <code>match-beginning</code> / <code>match-end</code> not integerp. See <a href="https://github.com/abo-abo/swiper/issues/1188">#1188</a>,
+<a href="https://github.com/abo-abo/swiper/issues/1192">#1192</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-swiper--init"><a id="orgheadline"></a>swiper&#x2013;init</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-swiper--init">
+<p>
+Turn off <code>reveal-mode</code> for the duration, see <a href="https://github.com/abo-abo/swiper/issues/1312">#1312</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-swiper-all-buffer-p"><a id="orgheadline"></a>swiper-all-buffer-p</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-swiper-all-buffer-p">
+<p>
+Various mode additions.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-fx-swiper-font-lock-exclude"><a id="orgheadline"></a>swiper-font-lock-exclude</h4>
+<div class="outline-text-4" id="text-0-10-0-fx-swiper-font-lock-exclude">
+<p>
+Add treemacs-mode, see <a href="https://github.com/abo-abo/swiper/issues/1212">#1212</a>.
+</p>
+
+<p>
+Add magit-popup-mode, see <a href="https://github.com/abo-abo/swiper/issues/1274">#1274</a>.
+</p>
+
+<p>
+Add adoc-mode, see <a href="https://github.com/abo-abo/swiper/issues/1275">#1275</a>.
+</p>
+
+<p>
+Add bbdb-mode, see <a href="https://github.com/abo-abo/swiper/issues/1276">#1276</a>.
+</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-3">
+<h3 id="0-10-0-new-features"><a id="orgheadline"></a>New Features</h3>
+<div class="outline-text-3" id="text-0-10-0-new-features">
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel"><a id="orgheadline"></a>counsel</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel">
+<p>
+When an external program output is used, first check if the program is
+installed, see <a href="https://github.com/abo-abo/swiper/issues/1076">#1076</a>.
+</p>
+
+<p>
+Allow async commands on Tramp buffers, see <a href="https://github.com/abo-abo/swiper/issues/1229">#1229</a>, <a href="https://github.com/abo-abo/swiper/issues/1233">#1233</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-async-filter-update-time"><a id="orgheadline"></a>counsel-async-filter-update-time</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-async-filter-update-time">
+<p>
+Configure async delay. See <a href="https://github.com/abo-abo/swiper/issues/1149">#1149</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-async-ignore-re"><a id="orgheadline"></a>counsel-async-ignore-re</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-async-ignore-re">
+<p>
+New defcustom. See <a href="https://github.com/abo-abo/swiper/issues/1122">#1122</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-describe-function"><a id="orgheadline"></a>counsel-describe-function</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-describe-function">
+<p>
+Highlight interactive functions, see <a href="https://github.com/abo-abo/swiper/issues/981">#981</a>, <a href="https://github.com/abo-abo/swiper/issues/982">#982</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-describe-function-function"><a id="orgheadline"></a>counsel-describe-function-function</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-describe-function-function">
+<p>
+Customize <code>counsel-describe-function</code>. Useful for
+<a href="https://github.com/Wilfred/helpful">https://github.com/Wilfred/helpful</a>. See <a href="https://github.com/abo-abo/swiper/issues/1321">#1321</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-describe-function-preselect"><a id="orgheadline"></a>counsel-describe-function-preselect</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-describe-function-preselect">
+<p>
+Customize which symbol will be initial for <code>counsel-describe-function</code>,
+see <a href="https://github.com/abo-abo/swiper/issues/1088">#1088</a>, <a href="https://github.com/abo-abo/swiper/issues/1330">#1330</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-describe-variable"><a id="orgheadline"></a>counsel-describe-variable</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-describe-variable">
+<p>
+Highlight custom variables, see <a href="https://github.com/abo-abo/swiper/issues/980">#980</a>, <a href="https://github.com/abo-abo/swiper/issues/982">#982</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-find-file-ignore-regexp"><a id="orgheadline"></a>counsel-find-file-ignore-regexp</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-find-file-ignore-regexp">
+<p>
+Offer <code>completion-ignored-extensions</code>, see <a href="https://github.com/abo-abo/swiper/issues/1092">#1092</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-fzf-dir-function"><a id="orgheadline"></a>counsel-fzf-dir-function</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-fzf-dir-function">
+<p>
+Allow to customize fzf work directory.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-git"><a id="orgheadline"></a>counsel-git</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-git">
+<p>
+Add optional <code>initial-input</code>, see <a href="https://github.com/abo-abo/swiper/issues/1074">#1074</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-git-grep-skip-counting-lines"><a id="orgheadline"></a>counsel-git-grep-skip-counting-lines</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-git-grep-skip-counting-lines">
+<p>
+New defcustom, see <a href="https://github.com/abo-abo/swiper/issues/524">#524</a>, <a href="https://github.com/abo-abo/swiper/issues/1042">#1042</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-git-log-split-string-re"><a id="orgheadline"></a>counsel-git-log-split-string-re</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-git-log-split-string-re">
+<p>
+New defcustom. See <a href="https://github.com/abo-abo/swiper/issues/1122">#1122</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-grep-or-swiper"><a id="orgheadline"></a>counsel-grep-or-swiper</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-grep-or-swiper">
+<p>
+Don't attempt to save readonly files, see <a href="https://github.com/abo-abo/swiper/issues/999">#999</a>.
+</p>
+
+<p>
+Prevent opening an already opened file, see <a href="https://github.com/abo-abo/swiper/issues/1001">#1001</a>.
+</p>
+
+<p>
+Improve logic, see <a href="https://github.com/abo-abo/swiper/issues/1290">#1290</a>.
+</p>
+
+<p>
+More uniform interface, see <a href="https://github.com/abo-abo/swiper/issues/1313">#1313</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-imenu-map"><a id="orgheadline"></a>counsel-imenu-map</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-imenu-map">
+<p>
+Allows to use <kbd>C-l</kbd> to recenter. See <a href="https://github.com/abo-abo/swiper/issues/1180">#1180</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-linux-app"><a id="orgheadline"></a>counsel-linux-app</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-linux-app">
+<p>
+Various improvements, see <a href="https://github.com/abo-abo/swiper/issues/897">#897</a>, <a href="https://github.com/abo-abo/swiper/issues/959">#959</a>.
+</p>
+
+<p>
+Press <kbd>M-o d</kbd> to open the desktop file, see <a href="https://github.com/abo-abo/swiper/issues/897">#897</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-mark-ring"><a id="orgheadline"></a>counsel-mark-ring</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-mark-ring">
+<p>
+Sort by location, see <a href="https://github.com/abo-abo/swiper/issues/1006">#1006</a>.
+</p>
+
+<p>
+Fixes, see <a href="https://github.com/abo-abo/swiper/issues/1328">#1328</a>, <a href="https://github.com/abo-abo/swiper/issues/1329">#1329</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-mode-map"><a id="orgheadline"></a>counsel-mode-map</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-mode-map">
+<p>
+Add <code>counsel-faces</code>, see <a href="https://github.com/abo-abo/swiper/issues/1259">#1259</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-rg"><a id="orgheadline"></a>counsel-rg</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-rg">
+<p>
+Limit results to 150 columns, see <a href="https://github.com/abo-abo/swiper/issues/988">#988</a>.
+</p>
+
+<p>
+Never use color results, see <a href="https://github.com/abo-abo/swiper/issues/1060">#1060</a>.
+</p>
+
+<p>
+Search whole Git repository, not the current directory.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-unicode-char"><a id="orgheadline"></a>counsel-unicode-char</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-unicode-char">
+<p>
+Show candidates in order, see <a href="https://github.com/abo-abo/swiper/issues/1003">#1003</a>.
+</p>
+
+<p>
+Adapt to <code>ucs-names</code> being a hash table in emacs-26, see <a href="https://github.com/abo-abo/swiper/issues/1223">#1223</a>.
+</p>
+
+<p>
+Make lazy, see <a href="https://github.com/abo-abo/swiper/issues/1204">#1204</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-up-directory"><a id="orgheadline"></a>counsel-up-directory</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-up-directory">
+<p>
+If the current directory is remote and it's not possible to go up any
+further, make the remote prefix editable. See <a href="https://github.com/abo-abo/swiper/issues/1242">#1242</a>, <a href="https://github.com/abo-abo/swiper/issues/1227">#1227</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-url-expand"><a id="orgheadline"></a>counsel-url-expand</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-url-expand">
+<p>
+Added to <code>ivy-ffap-url-functions</code> by default.
+</p>
+
+<p>
+Customize <code>counsel-url-expansions</code> to be able to browse various links
+with <kbd>C-x C-f M-n</kbd>. See <a href="https://github.com/abo-abo/swiper/issues/1164">#1164</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-counsel-yank-pop"><a id="orgheadline"></a>counsel-yank-pop</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-counsel-yank-pop">
+<p>
+Don't restrict to 3 chars or more, see <a href="https://github.com/abo-abo/swiper/issues/973">#973</a>.
+</p>
+
+<p>
+Press <kbd>M-o d</kbd> to remove an item from the kill ring.
+</p>
+
+<p>
+Ignore empty candidates, see <a href="https://github.com/abo-abo/swiper/issues/1043">#1043</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy"><a id="orgheadline"></a>ivy</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy">
+</div>
+<div id="outline-container-orgheadline" class="outline-5">
+<h5 id="add-~i~-and-~w~-as-global-actions"><a id="orgheadline"></a>Add <kbd>i</kbd> and <kbd>w</kbd> as global actions</h5>
+<div class="outline-text-5" id="text-add-~i~-and-~w~-as-global-actions">
+<p>
+In any completion session:
+</p>
+<ul class="org-ul">
+<li>Press <kbd>M-o w</kbd> to copy the current candidate to the kill ring.</li>
+<li>Press <kbd>M-o i</kbd> to insert the current candidate into the buffer.</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-5">
+<h5 id="bind-~<next>~-and-~<prior>~"><a id="orgheadline"></a>Bind <kbd>&lt;next&gt;</kbd> and <kbd>&lt;prior&gt;</kbd></h5>
+<div class="outline-text-5" id="text-bind-~<next>~-and-~<prior>~">
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-5">
+<h5 id="add-contributing.org"><a id="orgheadline"></a>Add CONTRIBUTING.org</h5>
+<div class="outline-text-5" id="text-add-contributing.org">
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/1260">#1260</a>, <a href="https://github.com/abo-abo/swiper/issues/1332">#1332</a>.
+</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-auto-select-single-candidate"><a id="orgheadline"></a>ivy-auto-select-single-candidate</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-auto-select-single-candidate">
+<p>
+Off by default. When on, and there's only one candidate, use it
+automatically without a completion session.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-backward-delete-char"><a id="orgheadline"></a>ivy-backward-delete-char</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-backward-delete-char">
+<p>
+Preselect last dir, see <a href="https://github.com/abo-abo/swiper/issues/1257">#1257</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-completion-in-region"><a id="orgheadline"></a>ivy-completion-in-region</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-completion-in-region">
+<p>
+Use <code>:initial-input</code> and <code>:unwind</code>. Previously, Ivy's "prefixing" and
+"perfect match" index logic was messed up for
+completion-in-region. The reason being is that the initial prefix was
+never passed to Ivy: instead, the collection was pre-filtered on the
+prefix and a "new" completion session didn't know about it.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-dispatching-done-hydra"><a id="orgheadline"></a>ivy-dispatching-done-hydra</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-dispatching-done-hydra">
+<p>
+Quit with <kbd>C-g</kbd>, see <a href="https://github.com/abo-abo/swiper/issues/922">#922</a>.
+</p>
+
+<p>
+Break hint into columns, see <a href="https://github.com/abo-abo/swiper/issues/953">#953</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-magic-slash-non-match-action"><a id="orgheadline"></a>ivy-magic-slash-non-match-action</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-magic-slash-non-match-action">
+<p>
+Customize what <kbd>/</kbd> does when completing file names, see <a href="https://github.com/abo-abo/swiper/issues/998">#998</a>, <a href="https://github.com/abo-abo/swiper/issues/1009">#1009</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-occur"><a id="orgheadline"></a>ivy-occur</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-occur">
+<p>
+When completing file names, <code>counsel-cmd-to-dired</code> is called, resulting
+in a Dired buffer.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-occur-mode-map"><a id="orgheadline"></a>ivy-occur-mode-map</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-occur-mode-map">
+<p>
+Bind <kbd>R</kbd> to <code>read-only-mode</code>, see <a href="https://github.com/abo-abo/swiper/issues/1273">#1273</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-read"><a id="orgheadline"></a>ivy-read</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-read">
+<p>
+Add new argument <code>def</code>, see <a href="https://github.com/abo-abo/swiper/issues/1047">#1047</a>, <a href="https://github.com/abo-abo/swiper/issues/1049">#1049</a>, <a href="https://github.com/abo-abo/swiper/issues/1052">#1052</a>, <a href="https://github.com/abo-abo/swiper/issues/1112">#1112</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-read-action"><a id="orgheadline"></a>ivy-read-action</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-read-action">
+<p>
+Allow to quit with <kbd>ESC</kbd> for better work with evil, see <a href="https://github.com/abo-abo/swiper/issues/952">#952</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-rotate-preferred-builders"><a id="orgheadline"></a>ivy-rotate-preferred-builders</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-rotate-preferred-builders">
+<p>
+Bound to <kbd>C-o m</kbd>. Customize with <code>ivy--preferred-re-builders</code>.
+See <a href="https://github.com/abo-abo/swiper/issues/1093">#1093</a>, <a href="https://github.com/abo-abo/swiper/issues/1094">#1094</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-switch-buffer"><a id="orgheadline"></a>ivy-switch-buffer</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-switch-buffer">
+<p>
+Compose faces better, see <a href="https://github.com/abo-abo/swiper/issues/992">#992</a>.
+</p>
+
+<p>
+<kbd>M-o f</kbd> will call <code>counsel-find-file</code> from current directory, see <a href="https://github.com/abo-abo/swiper/issues/1298">#1298</a>,
+<a href="https://github.com/abo-abo/swiper/issues/1295">#1295</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-truncate-lines"><a id="orgheadline"></a>ivy-truncate-lines</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-truncate-lines">
+<p>
+New defcustom. See <a href="https://github.com/abo-abo/swiper/issues/1110">#1110</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-ivy-use-selectable-prompt"><a id="orgheadline"></a>ivy-use-selectable-prompt</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-ivy-use-selectable-prompt">
+<p>
+When non-nil, make the prompt line selectable like a candidate.
+</p>
+
+<p>
+Calling <code>ivy-done</code> or <code>ivy-alt-done</code> on a selected prompt forwards to
+<code>ivy-immediate-done</code>, thus exiting with the current user input instead
+of the selected candidate.
+</p>
+
+<p>
+See <a href="https://github.com/abo-abo/swiper/issues/1059">#1059</a>, <a href="https://github.com/abo-abo/swiper/issues/1063">#1063</a>, <a href="https://github.com/abo-abo/swiper/issues/1090">#1090</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nf-swiper-query-replace"><a id="orgheadline"></a>swiper-query-replace</h4>
+<div class="outline-text-4" id="text-0-10-0-nf-swiper-query-replace">
+<p>
+Disable read-only for the duration, see <a href="https://github.com/abo-abo/swiper/issues/1273">#1273</a>.
+</p>
+<hr />
+</div>
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-3">
+<h3 id="0-10-0-new-commands"><a id="orgheadline"></a>New Commands</h3>
+<div class="outline-text-3" id="text-0-10-0-new-commands">
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-ack"><a id="orgheadline"></a>counsel-ack</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-ack">
+<p>
+Like <code>counsel-ag</code>, but with <a href="https://beyondgrep.com/">ack</a>. See <a href="https://github.com/abo-abo/swiper/issues/1075">#1075</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-apropos"><a id="orgheadline"></a>counsel-apropos</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-apropos">
+<p>
+Completion for <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Apropos.html">apropos</a>, see <a href="https://github.com/abo-abo/swiper/issues/1014">#1014</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-file-register"><a id="orgheadline"></a>counsel-file-register</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-file-register">
+<p>
+Completion for <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/File-Registers.html">file registers</a>, see <a href="https://github.com/abo-abo/swiper/issues/1057">#1057</a>, <a href="https://github.com/abo-abo/swiper/issues/1066">#1066</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-fzf"><a id="orgheadline"></a>counsel-fzf</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-fzf">
+<p>
+Completion for <a href="https://github.com/junegunn/fzf">fzf</a>. See <a href="https://github.com/abo-abo/swiper/issues/1151">#1151</a>, <a href="https://github.com/abo-abo/swiper/issues/1263">#1263</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-git-change-worktree"><a id="orgheadline"></a>counsel-git-change-worktree</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-git-change-worktree">
+<p>
+Completion for <a href="https://git-scm.com/docs/git-worktree">git-worktree</a>.
+See <a href="https://github.com/abo-abo/swiper/issues/989">#989</a>, <a href="https://github.com/abo-abo/swiper/issues/1114">#1114</a>, <a href="https://github.com/abo-abo/swiper/issues/1115">#1115</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-git-checkout"><a id="orgheadline"></a>counsel-git-checkout</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-git-checkout">
+<p>
+Completion for <a href="https://git-scm.com/docs/git-checkout">git-checkout</a>. See <a href="https://github.com/abo-abo/swiper/issues/1187">#1187</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-minibuffer-history"><a id="orgheadline"></a>counsel-minibuffer-history</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-minibuffer-history">
+<p>
+Supersedes <code>counsel-expression-history</code> and
+<code>counsel-shell-command-history</code>. See <a href="https://github.com/abo-abo/swiper/issues/1237">#1237</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-org-capture"><a id="orgheadline"></a>counsel-org-capture</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-org-capture">
+<p>
+Completion for <a href="http://orgmode.org/manual/Capture.html">org-capture</a>. See <a href="https://github.com/abo-abo/swiper/issues/1320">#1320</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-org-file"><a id="orgheadline"></a>counsel-org-file</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-org-file">
+<p>
+Browse all attachments for the current Org file.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-org-goto"><a id="orgheadline"></a>counsel-org-goto</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-org-goto">
+<p>
+Completion for Org headings. See <a href="https://github.com/abo-abo/swiper/issues/1005">#1005</a>, <a href="https://github.com/abo-abo/swiper/issues/1008">#1008</a>, <a href="https://github.com/abo-abo/swiper/issues/1011">#1011</a>, <a href="https://github.com/abo-abo/swiper/issues/1012">#1012</a>, <a href="https://github.com/abo-abo/swiper/issues/1013">#1013</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-org-goto-all"><a id="orgheadline"></a>counsel-org-goto-all</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-org-goto-all">
+<p>
+Completion for Org headings in all open buffers. See <a href="https://github.com/abo-abo/swiper/issues/1005">#1005</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-counsel-switch-to-shell-buffer"><a id="orgheadline"></a>counsel-switch-to-shell-buffer</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-counsel-switch-to-shell-buffer">
+<p>
+Switch to a shell buffer, or create one. See <a href="https://github.com/abo-abo/swiper/issues/990">#990</a>.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-ivy-occur-delete-candidate"><a id="orgheadline"></a>ivy-occur-delete-candidate</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-ivy-occur-delete-candidate">
+<p>
+Bound to <kbd>C-d</kbd> in <code>ivy-occur-mode</code>. Allows a sort of a todo-list workflow.
+</p>
+<hr />
+</div>
+</div>
+<div id="outline-container-orgheadline" class="outline-4">
+<h4 id="0-10-0-nc-ivy-switch-view"><a id="orgheadline"></a>ivy-switch-view</h4>
+<div class="outline-text-4" id="text-0-10-0-nc-ivy-switch-view">
+<p>
+Switch to one of the window views stored by <code>ivy-push-view</code>.
+You can use it separately from <code>ivy-switch-buffer</code> now.
+See <a href="https://github.com/abo-abo/swiper/issues/929">#929</a>, <a href="https://github.com/abo-abo/swiper/issues/1109">#1109</a>.
 </p>
 <hr />
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
