@@ -2875,9 +2875,11 @@ The face can be customized through `counsel-org-goto-face-style'."
           (cl-mapcan
            (lambda (id)
              (directory-files
-              (format "data/%s/%s"
-                      (substring id 0 2)
-                      (substring id 2))
+              (expand-file-name
+               (format "%s/%s"
+                       (substring id 0 2)
+                       (substring id 2))
+               org-attach-directory)
               t "^[^.]"))
            (counsel-org-file-ids))))
 
