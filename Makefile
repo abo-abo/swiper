@@ -1,7 +1,7 @@
 emacs ?= emacs
 elmake = $(emacs) -batch -l makefi.el -f
 
-LOAD = -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el
+LOAD = -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el -l ivy-lv-display.el
 RM ?= rm -f
 
 all: test
@@ -13,7 +13,7 @@ checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
 
 compile:
-	$(emacs) -batch -L . -f batch-byte-compile colir.el ivy-overlay.el ivy.el swiper.el counsel.el
+	$(emacs) -batch -L . -f batch-byte-compile colir.el ivy-overlay.el ivy.el swiper.el counsel.el ivy-lv-display.el
 
 plain:
 	$(emacs) --version
