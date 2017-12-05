@@ -2850,26 +2850,22 @@ The face can be customized through `counsel-org-goto-face-style'."
       (propertize name 'face 'minibuffer-prompt)))
 
 ;;** `counsel-org-file'
-(defun counsel-org-file-ids ()
-  (let (cands)
-    (save-excursion
-      (goto-char (point-min))
-      (while (re-search-forward "^:ID: *\\([^ \n]+\\)$" nil t)
-        (push (match-string-no-properties 1) cands)))
-    (nreverse cands)))
+(declare-function org-attach-dir "org-attach")
+(declare-function org-attach-file-list "org-attach")
 
 (defun counsel-org-files ()
-  (mapcar 'file-relative-name
-          (cl-mapcan
-           (lambda (id)
-             (directory-files
-              (expand-file-name
-               (format "%s/%s"
-                       (substring id 0 2)
-                       (substring id 2))
-               org-attach-directory)
-              t "^[^.]"))
-           (counsel-org-file-ids))))
+  "Return list of all files under current Org attachment directories.
+Filenames returned are relative to `default-directory'.  For each
+attachment directory associated with the current buffer, all
+contained files are listed, so the return value could conceivably
+include attachments of other Org buffers."
+  (require 'org-attach)
+  (cl-mapcan
+   (lambda (dir)
+     (mapcar (lambda (file)
+               (file-relative-name (expand-file-name file dir)))
+             (org-attach-file-list dir)))
+   (delete-dups (delq nil (org-map-entries #'org-attach-dir "ID={.}")))))
 
 ;;;###autoload
 (defun counsel-org-file ()
