@@ -3628,8 +3628,8 @@ BUFFER may be a string or nil."
     ,(lambda (x)
        (let* ((b (get-buffer x))
               (default-directory
-                (or (and b (buffer-local-value 'default-directory b))
-                    default-directory)))
+               (or (and b (buffer-local-value 'default-directory b))
+                   default-directory)))
          (call-interactively (if (functionp 'counsel-find-file)
                                  #'counsel-find-file
                                #'find-file))))
@@ -3640,6 +3640,9 @@ BUFFER may be a string or nil."
    ("k"
     ,(lambda (x)
        (kill-buffer x)
+       (unless (buffer-live-p (ivy-state-buffer ivy-last))
+         (setf (ivy-state-buffer ivy-last) (current-buffer)))
+       (setq ivy--index 0)
        (ivy--reset-state ivy-last))
     "kill")
    ("r"
