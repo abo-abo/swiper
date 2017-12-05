@@ -2420,9 +2420,11 @@ substituted by the search regexp and file, respectively.  Neither
 
 ;;;###autoload
 (defun counsel-grep (&optional initial-input)
-  "Grep for a string in the current file.
+  "Grep for a string in the file visited by the current buffer.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
+  (unless buffer-file-name
+    (user-error "Current buffer is not visiting a file"))
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
   (setq counsel--git-dir default-directory)
