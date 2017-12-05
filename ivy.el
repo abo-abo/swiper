@@ -765,6 +765,12 @@ When ARG is t, exit with current text, ignoring the candidates."
         (t
          (ivy-done))))
 
+(defvar ivy-auto-select-single-candidate nil
+  "When non-nil, auto-select the candidate if it is the only one.
+When t, it is the same as if the user were prompted and selected the candidate
+by calling the default action.  This variable has no use unless the collection
+contains a single candidate.")
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let (dir)
@@ -1555,12 +1561,6 @@ Directories come first."
       (if predicate
           (cl-remove-if-not predicate seq)
         seq))))
-
-(defvar ivy-auto-select-single-candidate nil
-  "When non-nil, auto-select the candidate if it is the only one.
-When t, it is the same as if the user were prompted and selected the candidate
-by calling the default action.  This variable has no use unless the collection
-contains a single candidate.")
 
 ;;** Entry Point
 ;;;###autoload
