@@ -2668,6 +2668,9 @@ otherwise continue prompting for tags."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
+(define-obsolete-variable-alias 'counsel-org-goto-display-style
+  'counsel-org-headline-display-style)
+
 (defcustom counsel-org-headline-display-style 'path
   "The style used when displaying matched `org-mode'-headlines.
 
@@ -2687,8 +2690,8 @@ Use `counsel-org-headline-display-tags' and
           (const :tag "Path" path))
   :group 'ivy)
 
-(defvaralias 'counsel-org-goto-display-style
-  'counsel-org-headline-display-style)
+(define-obsolete-variable-alias 'counsel-org-goto-separator
+  'counsel-org-headline-path-separator)
 
 (defcustom counsel-org-headline-path-separator "/"
   "Character(s) to separate path entries in matched `org-mode'-headlines.
@@ -2698,24 +2701,21 @@ set to path."
   :type 'string
   :group 'ivy)
 
-(defvaralias 'counsel-org-goto-separator
-  'counsel-org-headline-path-separator)
+(define-obsolete-variable-alias 'counsel-org-goto-display-tags
+  'counsel-org-headline-display-tags)
 
 (defcustom counsel-org-headline-display-tags nil
   "If non-nil, display tags in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
 
-(defvaralias 'counsel-org-goto-display-tags
-  'counsel-org-headline-display-tags)
+(define-obsolete-variable-alias 'counsel-org-goto-display-todo
+  'counsel-org-headline-display-todo)
 
 (defcustom counsel-org-headline-display-todo nil
   "If non-nil, display todo keywords in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
-
-(defvaralias 'counsel-org-goto-display-todo
-  'counsel-org-headline-display-todo)
 
 (defcustom counsel-org-headline-display-priority nil
   "If non-nil, display priorities in matched `org-mode' headlines."
