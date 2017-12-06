@@ -573,7 +573,9 @@ Matched candidates should have `swiper-invocation-face'."
     (delete-overlay (pop swiper--overlays)))
   (save-excursion
     (goto-char (point-min))
-    (isearch-clean-overlays)))
+    (isearch-clean-overlays))
+  (when (> (length ivy-text) 0)
+    (cl-pushnew ivy-text swiper-history)))
 
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
