@@ -3620,7 +3620,24 @@ BUFFER may be a string or nil."
     (with-current-buffer buffer
       (rename-buffer new-name))))
 
-(defvar ivy-switch-buffer-map (make-sparse-keymap))
+(defvar ivy-switch-buffer-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-k") 'ivy-switch-buffer-kill)
+    map))
+
+(defun ivy-switch-buffer-kill ()
+  "Kill the current buffer in `ivy-switch-buffer'."
+  (interactive)
+  (let ((bn (ivy-state-current ivy-last)))
+    (when (get-buffer bn)
+      (kill-buffer bn))
+    (unless (buffer-live-p (ivy-state-buffer ivy-last))
+      (setf (ivy-state-buffer ivy-last)
+            (with-ivy-window (current-buffer))))
+    (setf (ivy-state-preselect ivy-last) ivy--index)
+    (setq ivy--old-re nil)
+    (setq ivy--all-candidates (delete bn ivy--all-candidates))
+    (ivy--exhibit)))
 
 (ivy-set-actions
  'ivy-switch-buffer
