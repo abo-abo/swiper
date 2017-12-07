@@ -1501,7 +1501,7 @@ done") "\n" t)))
   (message "%S" (kill-new x)))
 
 (defcustom counsel-yank-pop-truncate-radius 2
-  "When non-nil, truncate the display of long strings."
+  "Number of context lines around `counsel-yank-pop' candidates."
   :type 'integer
   :group 'ivy)
 
