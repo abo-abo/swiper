@@ -1724,7 +1724,8 @@ customizations apply to the current completion session."
             (ivy-recursive-restore)))
       (ivy-call)
       (when (> (length (ivy-state-current ivy-last)) 0)
-        (remove-text-properties 0 1 '(idx) (ivy-state-current ivy-last))))))
+        (remove-list-of-text-properties
+         0 1 '(idx) (ivy-state-current ivy-last))))))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
@@ -2429,7 +2430,7 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy-cleanup-string (str)
   "Remove unwanted text properties from STR."
-  (remove-text-properties 0 (length str) '(field) str)
+  (remove-list-of-text-properties 0 (length str) '(field) str)
   str)
 
 (defvar ivy-set-prompt-text-properties-function
@@ -2530,7 +2531,7 @@ STD-PROPS is a property list containing the default text properties."
                   (= ivy--length 0))
               (add-face-text-property
                (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
-            (remove-text-properties
+            (remove-list-of-text-properties
              (minibuffer-prompt-end) (line-end-position) '(face))))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
