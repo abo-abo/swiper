@@ -1722,11 +1722,14 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
+(defvar counsel-find-file-occur-cmd "ls | grep -i -E '%s' | xargs -d '\n' ls"
+  "Format string for `counsel-find-file-occur'.")
+
 (defun counsel-find-file-occur ()
   (cd ivy--directory)
   (counsel-cmd-to-dired
    (format
-    "ls | grep -i -E '%s' | xargs -d '\n' ls"
+    counsel-find-file-occur-cmd
     (counsel-unquote-regex-parens ivy--old-re))))
 
 (defun counsel-up-directory ()
