@@ -3164,14 +3164,15 @@ S must exist in `kill-ring'."
     (setq ivy-completion-end (point))))
 
 (defun counsel-yank-pop-action-remove (s)
-  "Remove S from the kill ring."
-  (let ((next-ptr (cdr (member s kill-ring))))
-    (setq kill-ring (delete s kill-ring))
-    (setq kill-ring-yank-pointer (or next-ptr kill-ring))))
+  "Remove all occurences of S from the kill ring."
+  (setq kill-ring (delete s kill-ring))
+  (setq kill-ring-yank-pointer (delete s kill-ring-yank-pointer)))
 
 (defun counsel-yank-pop-action-rotate (s)
-  "Set yank position to S."
-  (setq kill-ring-yank-pointer (member s kill-ring)))
+  "Rotate the yanking point to S in the kill ring.
+See `current-kill' for how this interacts with the window system
+selection."
+  (current-kill (counsel--yank-pop-position s)))
 
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
