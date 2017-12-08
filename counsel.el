@@ -3169,7 +3169,7 @@ S must exist in `kill-ring'."
     (setq kill-ring (delete s kill-ring))
     (setq kill-ring-yank-pointer (or next-ptr kill-ring))))
 
-(defun counsel-yank-pop-action-position (s)
+(defun counsel-yank-pop-action-rotate (s)
   "Set yank position to S."
   (setq kill-ring-yank-pointer (member s kill-ring)))
 
@@ -3204,7 +3204,7 @@ ARG preselects the corresponding kill during completion."
 (ivy-set-actions
  'counsel-yank-pop
  '(("d" counsel-yank-pop-action-remove "delete")
-   ("p" counsel-yank-pop-action-position "position")))
+   ("r" counsel-yank-pop-action-rotate "rotate")))
 
 ;;** `counsel-imenu'
 (defvar imenu-auto-rescan)
