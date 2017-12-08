@@ -3133,15 +3133,14 @@ A is the left hand side, B the right hand side."
               (search-backward (car kill-ring)))
           (point)))
   (setq ivy-completion-end (point))
-  (let ((candidates
-         (mapcar #'ivy-cleanup-string
-                 (cl-remove-if
-                  (lambda (s)
-                    (string-match "\\`[\n\r[:blank:]]*\\'" s))
-                  (delete-dups kill-ring))))
+  (let ((cands (delete-dups
+                (cl-mapcan (lambda (s)
+                             (unless (string-match-p "\\`[\n\r[:blank:]]*\\'" s)
+                               (list (ivy-cleanup-string (copy-sequence s)))))
+                           kill-ring)))
         (ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height 5))
-    (ivy-read "kill-ring: " candidates
+    (ivy-read "kill-ring: " cands
               :action 'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
