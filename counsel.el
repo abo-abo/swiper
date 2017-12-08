@@ -2547,7 +2547,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
       ((and (equal current "") (equal tags "")))
       ((re-search-forward
         (concat "\\([ \t]*" (regexp-quote current) "\\)[ \t]*$")
-        (point-at-eol) t)
+        (line-end-position) t)
        (if (equal tags "")
            (delete-region
             (match-beginning 0)
