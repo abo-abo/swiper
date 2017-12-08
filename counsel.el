@@ -3156,6 +3156,14 @@ S must exist in `kill-ring'."
          (- (length kill-ring-yank-pointer)
             (length kill-ring)))))
 
+(defun counsel--yank-pop-kills ()
+  "Return list of kills for `counsel-yank-pop' to complete."
+  (delete-dups
+   (cl-mapcan (lambda (s)
+                (unless (string-match-p "\\`[\n\r[:blank:]]*\\'" s)
+                  (list (ivy-cleanup-string (copy-sequence s)))))
+              kill-ring)))
+
 (defun counsel-yank-pop-action (s)
   "Like `yank-pop', but insert the kill corresponding to S."
   (with-ivy-window
@@ -3166,13 +3174,25 @@ S must exist in `kill-ring'."
 (defun counsel-yank-pop-action-remove (s)
   "Remove all occurences of S from the kill ring."
   (setq kill-ring (delete s kill-ring))
-  (setq kill-ring-yank-pointer (delete s kill-ring-yank-pointer)))
+  (setq kill-ring-yank-pointer (delete s kill-ring-yank-pointer))
+  ;; Update collection and preselect for next `ivy-call'
+  (let ((kills (counsel--yank-pop-kills)))
+    (setf (ivy-state-collection ivy-last) kills)
+    (setf (ivy-state-preselect ivy-last)
+          (nth (min ivy--index (1- (length kills)))
+               kills)))
+  (ivy--reset-state ivy-last))
 
 (defun counsel-yank-pop-action-rotate (s)
   "Rotate the yanking point to S in the kill ring.
 See `current-kill' for how this interacts with the window system
 selection."
-  (current-kill (counsel--yank-pop-position s)))
+  ;; `current-kill' can modify both `kill-ring' and `kill-ring-yank-pointer',
+  ;; so update collection and preselect for next `ivy-call'
+  (setf (ivy-state-preselect ivy-last)
+        (current-kill (counsel--yank-pop-position s)))
+  (setf (ivy-state-collection ivy-last) (counsel--yank-pop-kills))
+  (ivy--reset-state ivy-last))
 
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
@@ -3181,22 +3201,18 @@ ARG preselects the corresponding kill during completion."
   (interactive "*p")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height 5)
-        (cands (delete-dups
-                (cl-mapcan (lambda (s)
-                             (unless (string-match-p "\\`[\n\r[:blank:]]*\\'" s)
-                               (list (ivy-cleanup-string (copy-sequence s)))))
-                           kill-ring))))
-    (unless cands
+        (kills (counsel--yank-pop-kills)))
+    (unless kills
       (error "Kill ring is empty or blank"))
     (unless (eq last-command 'yank)
       (push-mark))
     (setq ivy-completion-beg (mark t))
     (setq ivy-completion-end (point))
-    (ivy-read "kill-ring: " cands
+    (ivy-read "kill-ring: " kills
               :require-match t
-              :preselect (let ((kill-ring cands)
+              :preselect (let ((kill-ring kills)
                                (kill-ring-yank-pointer
-                                (member (car kill-ring-yank-pointer) cands))
+                                (member (car kill-ring-yank-pointer) kills))
                                interprogram-paste-function)
                            (current-kill (or arg 1) t))
               :action #'counsel-yank-pop-action
