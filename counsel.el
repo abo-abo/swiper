@@ -3164,26 +3164,23 @@ A is the left hand side, B the right hand side."
 (defun counsel-yank-pop ()
   "Ivy replacement for `yank-pop'."
   (interactive)
-  (if (eq last-command 'yank)
-      (progn
-        (setq ivy-completion-end (point))
-        (setq ivy-completion-beg
-              (save-excursion
-                (search-backward (car kill-ring))
-                (point))))
-    (setq ivy-completion-beg (point))
-    (setq ivy-completion-end (point)))
+  (setq ivy-completion-beg
+        (if (eq last-command 'yank)
+            (save-excursion
+              (search-backward (car kill-ring)))
+          (point)))
+  (setq ivy-completion-end (point))
   (let ((candidates
          (mapcar #'ivy-cleanup-string
                  (cl-remove-if
                   (lambda (s)
-                    (string-match "\\`[\n[:blank:]]*\\'" s))
-                  (delete-dups kill-ring)))))
-    (let ((ivy-format-function #'counsel--yank-pop-format-function)
-          (ivy-height 5))
-      (ivy-read "kill-ring: " candidates
-                :action 'counsel-yank-pop-action
-                :caller 'counsel-yank-pop))))
+                    (string-match "\\`[\n\r[:blank:]]*\\'" s))
+                  (delete-dups kill-ring))))
+        (ivy-format-function #'counsel--yank-pop-format-function)
+        (ivy-height 5))
+    (ivy-read "kill-ring: " candidates
+              :action 'counsel-yank-pop-action
+              :caller 'counsel-yank-pop)))
 
 (ivy-set-actions
  'counsel-yank-pop
