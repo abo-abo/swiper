@@ -1501,7 +1501,7 @@ done") "\n" t)))
   (message "%S" (kill-new x)))
 
 (defcustom counsel-yank-pop-truncate-radius 2
-  "When non-nil, truncate the display of long strings."
+  "Number of context lines around `counsel-yank-pop' candidates."
   :type 'integer
   :group 'ivy)
 
@@ -3148,12 +3148,19 @@ A is the left hand side, B the right hand side."
    cand-pairs
    counsel-yank-pop-separator))
 
+(defun counsel--yank-pop-position (s)
+  "Return position of S in `kill-ring' relative to last yank.
+S must exist in `kill-ring'."
+  (or (cl-position s kill-ring-yank-pointer :test #'equal-including-properties)
+      (+ (cl-position s kill-ring :test #'equal-including-properties)
+         (- (length kill-ring-yank-pointer)
+            (length kill-ring)))))
+
 (defun counsel-yank-pop-action (s)
-  "Insert S into the buffer, overwriting the previous yank."
+  "Like `yank-pop', but insert the kill corresponding to S."
   (with-ivy-window
-    (delete-region ivy-completion-beg
-                   ivy-completion-end)
-    (insert (substring-no-properties s))
+    (setq last-command 'yank)
+    (yank-pop (counsel--yank-pop-position s))
     (setq ivy-completion-end (point))))
 
 (defun counsel-yank-pop-action-remove (s)
@@ -3161,29 +3168,32 @@ A is the left hand side, B the right hand side."
   (setq kill-ring (delete s kill-ring)))
 
 ;;;###autoload
-(defun counsel-yank-pop ()
-  "Ivy replacement for `yank-pop'."
-  (interactive)
-  (if (eq last-command 'yank)
-      (progn
-        (setq ivy-completion-end (point))
-        (setq ivy-completion-beg
-              (save-excursion
-                (search-backward (car kill-ring))
-                (point))))
-    (setq ivy-completion-beg (point))
-    (setq ivy-completion-end (point)))
-  (let ((candidates
-         (mapcar #'ivy-cleanup-string
-                 (cl-remove-if
-                  (lambda (s)
-                    (string-match "\\`[\n[:blank:]]*\\'" s))
-                  (delete-dups kill-ring)))))
-    (let ((ivy-format-function #'counsel--yank-pop-format-function)
-          (ivy-height 5))
-      (ivy-read "kill-ring: " candidates
-                :action 'counsel-yank-pop-action
-                :caller 'counsel-yank-pop))))
+(defun counsel-yank-pop (&optional arg)
+  "Ivy replacement for `yank-pop'.
+ARG preselects the corresponding kill during completion."
+  (interactive "*p")
+  (let ((ivy-format-function #'counsel--yank-pop-format-function)
+        (ivy-height 5)
+        (cands (delete-dups
+                (cl-mapcan (lambda (s)
+                             (unless (string-match-p "\\`[\n\r[:blank:]]*\\'" s)
+                               (list (ivy-cleanup-string (copy-sequence s)))))
+                           kill-ring))))
+    (unless cands
+      (error "Kill ring is empty or blank"))
+    (unless (eq last-command 'yank)
+      (push-mark))
+    (setq ivy-completion-beg (mark t))
+    (setq ivy-completion-end (point))
+    (ivy-read "kill-ring: " cands
+              :require-match t
+              :preselect (let ((kill-ring cands)
+                               (kill-ring-yank-pointer
+                                (member (car kill-ring-yank-pointer) cands))
+                               interprogram-paste-function)
+                           (current-kill (or arg 1) t))
+              :action #'counsel-yank-pop-action
+              :caller 'counsel-yank-pop)))
 
 (ivy-set-actions
  'counsel-yank-pop
