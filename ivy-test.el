@@ -170,7 +170,7 @@ will bring the behavior in line with the newer Emacsen."
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
 
 (ert-deftest ivy-partial-2 ()
-  (unless (version<= emacs-version "24.3")
+  (when (fboundp 'read--expression)
     (should
      (equal
       (ivy-with '(read--expression "Eval: "
