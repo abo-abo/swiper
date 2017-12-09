@@ -3156,13 +3156,34 @@ S must exist in `kill-ring'."
          (- (length kill-ring-yank-pointer)
             (length kill-ring)))))
 
+(defun counsel-string-non-blank-p (s)
+  "Return non-nil if S includes non-blank characters.
+Newlines and carriage returns are considered blank."
+  (not (string-match-p "\\`[\n\r[:blank:]]*\\'" s)))
+
+(defcustom counsel-yank-pop-filter #'counsel-string-non-blank-p
+  "Unary filter function applied to `counsel-yank-pop' candidates.
+All elements of `kill-ring' for which this function returns nil
+will be permanently deleted from `kill-ring' before completion.
+All blank strings are deleted from `kill-ring' by default."
+  :group 'ivy
+  :type '(radio (function-item counsel-string-non-blank-p)
+                (function-item identity)
+                (function :tag "Other")))
+
 (defun counsel--yank-pop-kills ()
-  "Return list of kills for `counsel-yank-pop' to complete."
-  (delete-dups
-   (cl-mapcan (lambda (s)
-                (unless (string-match-p "\\`[\n\r[:blank:]]*\\'" s)
-                  (list (ivy-cleanup-string (copy-sequence s)))))
-              kill-ring)))
+  "Return list of kills for `counsel-yank-pop' to complete.
+Returned elements satisfy `counsel-yank-pop-filter' and are
+unique under `equal-including-properties'."
+  ;; Keep things consistent with the rest of Emacs
+  (dolist (sym '(kill-ring kill-ring-yank-pointer))
+    (set sym (cl-delete-duplicates
+              (cl-delete-if-not counsel-yank-pop-filter (symbol-value sym))
+              :test #'equal-including-properties)))
+  ;; Clean up completion candidates without modifying `kill-ring' elements
+  (mapcar (lambda (kill)
+            (ivy-cleanup-string (copy-sequence kill)))
+          kill-ring))
 
 (defun counsel-yank-pop-action (s)
   "Like `yank-pop', but insert the kill corresponding to S."
@@ -3173,8 +3194,9 @@ S must exist in `kill-ring'."
 
 (defun counsel-yank-pop-action-remove (s)
   "Remove all occurences of S from the kill ring."
-  (setq kill-ring (delete s kill-ring))
-  (setq kill-ring-yank-pointer (delete s kill-ring-yank-pointer))
+  (dolist (sym '(kill-ring kill-ring-yank-pointer))
+    (set sym (cl-delete s (symbol-value sym)
+                        :test #'equal-including-properties)))
   ;; Update collection and preselect for next `ivy-call'
   (let ((kills (counsel--yank-pop-kills)))
     (setf (ivy-state-collection ivy-last) kills)
@@ -3197,7 +3219,9 @@ selection."
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
   "Ivy replacement for `yank-pop'.
-ARG preselects the corresponding kill during completion."
+ARG preselects the corresponding kill during completion.
+See `counsel-yank-pop-filter' for filtering candidates.
+Note: Duplicate elements of `kill-ring' are always deleted."
   (interactive "*p")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height 5)
@@ -3212,7 +3236,8 @@ ARG preselects the corresponding kill during completion."
               :require-match t
               :preselect (let ((kill-ring kills)
                                (kill-ring-yank-pointer
-                                (member (car kill-ring-yank-pointer) kills))
+                                (cl-member (car kill-ring-yank-pointer) kills
+                                           :test #'equal-including-properties))
                                interprogram-paste-function)
                            (current-kill (or arg 1) t))
               :action #'counsel-yank-pop-action
