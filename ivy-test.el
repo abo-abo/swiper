@@ -72,7 +72,7 @@ will bring the behavior in line with the newer Emacsen."
       ad-do-it
     (void-function nil)))
 
-(ert-deftest ivy-partial ()
+(ert-deftest ivy-partial-1 ()
   (should (equal
            (ivy-with '(ivy-read "test: " '("case" "Case"))
                      "ca TAB C-m")
@@ -168,6 +168,14 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--regex
                   "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
+
+(ert-deftest ivy-partial-2 ()
+  (should
+   (equal
+    (ivy-with '(read--expression "Eval: "
+                "'s-c-t-st")
+              "<tab> C-m")
+    '(quote shell-command-to-string))))
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
