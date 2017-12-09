@@ -2026,23 +2026,15 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (set-marker (overlay-get cursor 'mark) (point)))))))
 
 (defun ivy-completion-common-length (str)
-  "Return the length of the first `completions-common-part' face in STR."
-  (let ((pos 0)
-        (len (length str))
-        face-sym)
-    (while (and (<= pos len)
-                (let ((prop (or (prog1 (get-text-property
-                                        pos 'face str)
-                                  (setq face-sym 'face))
-                                (prog1 (get-text-property
-                                        pos 'font-lock-face str)
-                                  (setq face-sym 'font-lock-face)))))
-                  (not (eq 'completions-common-part
-                           (if (listp prop) (car prop) prop)))))
-      (setq pos (1+ pos)))
-    (if (< pos len)
-        (or (next-single-property-change pos face-sym str) len)
-      0)))
+  "Return the amount of characters that match in  STR.
+
+`completion-all-completions' computes this and returns the result
+via text properties.
+
+The first non-matching part is propertized:
+- either with: (face (completions-first-difference))
+- or: (font-lock-face completions-first-difference)."
+  (previous-property-change (length str) str))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'.
