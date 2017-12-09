@@ -170,12 +170,13 @@ will bring the behavior in line with the newer Emacsen."
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
 
 (ert-deftest ivy-partial-2 ()
-  (should
-   (equal
-    (ivy-with '(read--expression "Eval: "
-                "'s-c-t-st")
-              "<tab> C-m")
-    '(quote shell-command-to-string))))
+  (unless (version<= emacs-version "24.3")
+    (should
+     (equal
+      (ivy-with '(read--expression "Eval: "
+                  "'s-c-t-st")
+                "<tab> C-m")
+      '(quote shell-command-to-string)))))
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
