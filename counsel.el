@@ -1102,7 +1102,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
          (when (equal state "finished\n")
            (goto-char (point-min))
            (forward-line 2)
-           (dired-move-to-filename)))))))
+           (dired-move-to-filename)
+           (dired-build-subdir-alist)))))))
 
 (ivy-set-occur 'counsel-git 'counsel-git-occur)
 
