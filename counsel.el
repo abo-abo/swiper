@@ -3366,7 +3366,8 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Reverse-i-search: " (delete-dups
-                                    (symbol-value minibuffer-history-variable))
+                                    (copy-sequence
+                                     (symbol-value minibuffer-history-variable)))
               :action #'insert
               :caller 'counsel-minibuffer-history)))
 (make-obsolete 'counsel-expression-history 'counsel-minibuffer-history "20171011")
