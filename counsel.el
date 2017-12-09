@@ -3133,6 +3133,11 @@ A is the left hand side, B the right hand side."
   :group 'ivy
   :type 'string)
 
+(defcustom counsel-yank-pop-height 5
+  "The `ivy-height' of `counsel-yank-pop'."
+  :group 'ivy
+  :type 'integer)
+
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
   (ivy--format-function-generic
@@ -3200,7 +3205,7 @@ selection."
 ARG preselects the corresponding kill during completion."
   (interactive "*p")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
-        (ivy-height 5)
+        (ivy-height counsel-yank-pop-height)
         (kills (counsel--yank-pop-kills)))
     (unless kills
       (error "Kill ring is empty or blank"))
