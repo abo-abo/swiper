@@ -3256,6 +3256,34 @@ Note: Duplicate elements of `kill-ring' are always deleted."
  '(("d" counsel-yank-pop-action-remove "delete")
    ("r" counsel-yank-pop-action-rotate "rotate")))
 
+;;** `counsel-evil-registers'
+(defcustom counsel-evil-registers-height 5
+  "The `ivy-height' of `counsel-evil-registers'."
+  :group 'ivy
+  :type 'integer)
+
+(defun counsel-evil-registers ()
+  "Ivy replacement for `evil-show-registers'."
+  (interactive)
+  (if (fboundp 'evil-register-list)
+      (let ((ivy-format-function #'counsel--yank-pop-format-function)
+            (ivy-height counsel-evil-registers-height))
+        (ivy-read "evil-registers: "
+                  (cl-loop for (key . val) in (evil-register-list)
+                     collect (format "[%c]: %s" key (if (stringp val) val "")))
+                  :require-match t
+                  :action #'counsel-evil-registers-action
+                  :caller 'counsel-evil-registers))
+    (user-error "Required feature `evil' not installed.")))
+
+(defun counsel-evil-registers-action (s)
+  "Paste contents of S, trimming the register part.
+
+S will be of the form \"[register]: content\"."
+  (with-ivy-window
+    (insert
+     (replace-regexp-in-string "\\`\\[.*?\\]: " "" s))))
+
 ;;** `counsel-imenu'
 (defvar imenu-auto-rescan)
 (defvar imenu-auto-rescan-maxout)
