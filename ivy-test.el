@@ -725,6 +725,18 @@ will bring the behavior in line with the newer Emacsen."
                     "c RET"))))
       (ivy-mode ivy-mode-reset-arg))))
 
+(ert-deftest ivy-completion-common-length ()
+  (should (= 2
+             (ivy-completion-common-length
+              #("test/"
+                0 2 (face completions-common-part)
+                2 3 (face (completions-first-difference))))))
+  (should (= 5
+             (ivy-completion-common-length
+              #("Math/E"
+                0 5 (face (completions-common-part))
+                5 6 (face (completions-first-difference)))))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here

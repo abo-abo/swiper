@@ -2034,7 +2034,10 @@ via text properties.
 The first non-matching part is propertized:
 - either with: (face (completions-first-difference))
 - or: (font-lock-face completions-first-difference)."
-  (1- (previous-property-change (length str) str)))
+  (let ((i (previous-property-change (length str) str)))
+    (if (text-properties-at i str)
+        i
+      (- i 1))))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'.
