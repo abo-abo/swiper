@@ -910,7 +910,8 @@ The libraries are offered from `load-path'."
   (let ((cands (counsel-library-candidates)))
     (ivy-read "Find library: " cands
               :action #'counsel--find-symbol
-              :keymap counsel-describe-map)))
+              :keymap counsel-describe-map
+              :caller 'counsel-find-library)))
 
 ;;** `counsel-load-theme'
 (declare-function powerline-reset "ext:powerline")
