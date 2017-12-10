@@ -735,7 +735,11 @@ will bring the behavior in line with the newer Emacsen."
              (ivy-completion-common-length
               #("Math/E"
                 0 5 (face (completions-common-part))
-                5 6 (face (completions-first-difference)))))))
+                5 6 (face (completions-first-difference))))))
+  (should (= 3
+             (ivy-completion-common-length
+              #("vec"
+                0 3 (face (completions-common-part)))))))
 
 (provide 'ivy-test)
 
