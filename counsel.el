@@ -3225,13 +3225,30 @@ selection."
   (setf (ivy-state-collection ivy-last) (counsel--yank-pop-kills))
   (ivy--reset-state ivy-last))
 
+(defcustom counsel-yank-pop-preselect-last nil
+  "Whether `counsel-yank-pop' preselects the last kill by default.
+
+The command `counsel-yank-pop' always preselects the same kill
+that `yank-pop' would have inserted, given the same prefix
+argument.
+
+When `counsel-yank-pop-preselect-last' is nil (the default), the
+prefix argument of `counsel-yank-pop' defaults to 1 (as per
+`yank-pop'), which causes the next-to-last kill to be
+preselected.  Otherwise, the prefix argument defaults to 0, which
+results in the most recent kill being preselected."
+  :group 'ivy
+  :type 'boolean)
+
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
   "Ivy replacement for `yank-pop'.
-ARG preselects the corresponding kill during completion.
-See `counsel-yank-pop-filter' for filtering candidates.
+ARG has the same meaning as in `yank-pop', but its default value
+can be controlled with `counsel-yank-pop-preselect-last', which
+see.  See also `counsel-yank-pop-filter' for how to filter
+candidates.
 Note: Duplicate elements of `kill-ring' are always deleted."
-  (interactive "*p")
+  (interactive "*P")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height counsel-yank-pop-height)
         (kills (counsel--yank-pop-kills)))
@@ -3248,7 +3265,11 @@ Note: Duplicate elements of `kill-ring' are always deleted."
                                 (cl-member (car kill-ring-yank-pointer) kills
                                            :test #'equal-including-properties))
                                interprogram-paste-function)
-                           (current-kill (or arg 1) t))
+                           (current-kill (cond
+                                          (arg (prefix-numeric-value arg))
+                                          (counsel-yank-pop-preselect-last 0)
+                                          (t 1))
+                                         t))
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
