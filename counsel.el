@@ -3197,6 +3197,7 @@ unique under `equal-including-properties'."
   "Like `yank-pop', but insert the kill corresponding to S."
   (with-ivy-window
     (setq last-command 'yank)
+    (setq yank-window-start (window-start))
     (yank-pop (counsel--yank-pop-position s))
     (setq ivy-completion-end (point))))
 
