@@ -3187,7 +3187,7 @@ unique under `equal-including-properties'."
   (dolist (sym '(kill-ring kill-ring-yank-pointer))
     (set sym (cl-delete-duplicates
               (cl-delete-if-not counsel-yank-pop-filter (symbol-value sym))
-              :test #'equal-including-properties)))
+              :test #'equal-including-properties :from-end t)))
   ;; Clean up completion candidates without modifying `kill-ring' elements
   (mapcar (lambda (kill)
             (ivy-cleanup-string (copy-sequence kill)))
