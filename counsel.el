@@ -1741,6 +1741,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
      (concat " -type " type exclude-dots " | grep") cmd)))
 
 (defun counsel-find-file-occur ()
+  (require 'find-dired)
   (cd ivy--directory)
   (counsel-cmd-to-dired
    (let ((cmd (format counsel-find-file-occur-cmd
