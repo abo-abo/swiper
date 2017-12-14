@@ -1070,32 +1070,31 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
   (cd counsel--git-dir)
   (counsel-cmd-to-dired
-   (format "%s | grep -i -E '%s' | xargs ls"
-           counsel-git-cmd
-           (counsel-unquote-regex-parens ivy--old-re))))
+   (counsel--expand-ls
+    (format "%s | grep -i -E '%s' | xargs ls"
+            counsel-git-cmd
+            (counsel-unquote-regex-parens ivy--old-re)))))
 
 (defvar counsel-dired-listing-switches "-alh"
   "Switches passed to `ls' for `counsel-cmd-to-dired'.")
 
-(defun counsel-cmd-to-dired (cmd)
+(defun counsel-cmd-to-dired (full-cmd &optional process-filter)
   "Adapted from `find-dired'."
-  (let ((inhibit-read-only t)
-        (full-cmd (format "%s %s | sed -e 's/^/  /'"
-                          cmd
-                          counsel-dired-listing-switches)))
+  (let ((inhibit-read-only t))
     (erase-buffer)
     (dired-mode default-directory counsel-dired-listing-switches)
     (insert "  " default-directory ":\n")
     (let ((point (point)))
-      (insert "  " cmd "\n")
+      (insert "  " full-cmd "\n")
       (dired-insert-set-properties point (point)))
     (setq-local dired-sort-inhibit t)
     (setq-local revert-buffer-function
-                (lambda (_1 _2) (counsel-cmd-to-dired cmd)))
+                (lambda (_1 _2) (counsel-cmd-to-dired full-cmd)))
     (setq-local dired-subdir-alist
                 (list (cons default-directory (point-min-marker))))
     (let ((proc (start-process-shell-command
                  "counsel-cmd" (current-buffer) full-cmd)))
+      (set-process-filter proc process-filter)
       (set-process-sentinel
        proc
        (lambda (_ state)
@@ -1725,15 +1724,32 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
-(defvar counsel-find-file-occur-cmd "ls | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 ls"
+(defvar counsel-find-file-occur-cmd "find . -maxdepth 1 | grep -i -E '%s' | xargs -I {} find {} -maxdepth 0 -ls"
   "Format string for `counsel-find-file-occur'.")
+
+(defun counsel--expand-ls (cmd)
+  "Expand CMD that ends in \"ls\" with switches."
+  (concat cmd " " counsel-dired-listing-switches " | sed -e 's/^/  /'"))
+
+(defun counsel--cmd-to-dired-by-type (type cmd)
+  (let ((exclude-dots
+         (if (string-match "^\\." ivy-text)
+             ""
+           " | grep -v '/\\\\.'")))
+    (replace-regexp-in-string
+     " | grep"
+     (concat " -type " type exclude-dots " | grep") cmd)))
 
 (defun counsel-find-file-occur ()
   (cd ivy--directory)
   (counsel-cmd-to-dired
-   (format
-    counsel-find-file-occur-cmd
-    (counsel-unquote-regex-parens ivy--old-re))))
+   (let ((cmd (format counsel-find-file-occur-cmd
+                      (counsel-unquote-regex-parens ivy--old-re))))
+     (concat
+      (counsel--cmd-to-dired-by-type "d" cmd)
+      " && "
+      (counsel--cmd-to-dired-by-type "f" cmd)))
+   'find-dired-filter))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
@@ -2029,9 +2045,10 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   "Occur function for `counsel-fzf' using `counsel-cmd-to-dired'."
   (cd counsel--fzf-dir)
   (counsel-cmd-to-dired
-   (format
-    "%s --print0 | xargs -0 ls"
-    (format counsel-fzf-cmd ivy-text))))
+   (counsel--expand-ls
+    (format
+     "%s --print0 | xargs -0 ls"
+     (format counsel-fzf-cmd ivy-text)))))
 
 (ivy-set-occur 'counsel-fzf 'counsel-fzf-occur)
 
