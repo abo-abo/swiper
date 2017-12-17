@@ -1321,7 +1321,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (setq counsel-gg-state -2)
   (counsel--gg-count regex)
   (let* ((default-directory counsel--git-dir)
-         (counsel-gg-process " *counsel-gg*")
+         (counsel-gg-process " *counsel*")
          (proc (get-process counsel-gg-process))
          (buff (get-buffer counsel-gg-process)))
     (when proc
