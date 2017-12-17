@@ -132,7 +132,7 @@ Additionally, here are the keys that are otherwise not bound:
 - ~<~ and ~>~ adjust the height of the minibuffer.
 - ~c~ (=ivy-toggle-calling=) - toggle calling the current action each
   time a different candidate is selected.
-- ~m~ (=ivy-toggle-fuzzy=) - toggle regex matcher.
+- ~m~ (=ivy-rotate-preferred-builders=) - rotate regex matcher.
 - ~w~ and ~s~ scroll the actions list.
 
 Minibuffer editing is disabled when Hydra is active.

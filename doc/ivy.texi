@@ -695,11 +695,11 @@ Hydra menu offers these additioanl bindings:
 Toggle calling the action after each candidate change. It
 modifies @kbd{j} to @kbd{jg}, @kbd{k} to @kbd{kg} etc.
 @end indentedblock
-@subsubheading @kbd{m} (@code{ivy-toggle-fuzzy})
-@vindex ivy-toggle-fuzzy
+@subsubheading @kbd{m} (@code{ivy-rotate-preferred-builders})
+@vindex ivy-rotate-preferred-builders
 @kindex m
 @indentedblock
-Toggle the current regexp matcher.
+Rotate the current regexp matcher.
 @end indentedblock
 @subsubheading @kbd{>} (@code{ivy-minibuffer-grow})
 @vindex ivy-minibuffer-grow
