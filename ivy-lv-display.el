@@ -39,13 +39,13 @@
 ;; This package addresses both those issues. It provides a
 ;; single-line informative display above the minibuffer, in the
 ;; form: "case[%s] regex[%s] action: %s%s", and optionally also
-;; display usage hints, which can be edited according to the user's
+;; displays usage hints, which can be edited according to the user's
 ;; need.
 ;;
 ;; These features are toggled by evaluating function
 ;; `ivy-lv-display-mode'. When the feature is enabled and focus is in
 ;; an ivy minibuffer, display of hints are toggled by keybinding
-;; `M-x ?'.
+;; `M-?'.
 ;;
 ;; TODO:
 ;; 1. Each function has a single action labeled 'default', which isn't
@@ -66,48 +66,96 @@
 
 (defface ivy-lv-hint-face
   '((t :foreground "yellow" :background "color-234"))
-  "Face used for elements in an `ivy-lv-hint-msg'."
+  "Face used for elements in an `ivy-lv-hint-msgs'."
   :group 'ivy)
 
-(defcustom ivy-lv-hint-msg-text '(
-"M-*   toggle regex method
-M-c   toggle manual / auto act
-M-^   toggle case-sensitivity"
-"M-;   act on what you typed, ie. not current selection
-C-w   insert word from point in main buffer
-M-i   insert current selection in mini-buffer"
-"M-+  grow list height
-M--  shrink list height"
-"M-=      begin new regex on current candiadate subset
-C-c C-o  copy list to actionable buffer
-M-w      copy list to kill-ring"
-"Act without exiting:
-  C-M-m  on current selection
-  C-M-n  on next selection
-  C-M-p  on prefv selection"
-"Change default action:
-  M-.    next action
-  M-,    prev action
-  C-M-a  choose from a list")
-"A list of messages to display above the ivy minibuffer when function `ivy-lv-display' is called with the optional HINT arg."
+(defcustom ivy-lv-hint-show-default-msgs t
+"Whether to display the default list of hints when function
+`ivy-lv-display' is called with the optional HINT arg."
+  :type 'boolean
+  :group 'ivy)
+
+(defcustom ivy-lv-custom-hint-msgs-text nil
+"A list of CUSTOM messages to display above the ivy minibuffer
+when function `ivy-lv-display' is called with the optional HINT
+arg. These will be displayed in addition to, and prior to, the
+default message list, if that feature is enabled (ie.
+`ivy-lv-hint-show-default-msgs' set to `t'."
   :type  '(repeat string)
   :group 'ivy)
 
-
 ;;* Globals
 (defvar ivy-show-lv-display t
-  "Whether the ivy-lv-display is enabled.
+  "Whether the ivy-lv-display is currently enabled.
 
 DO NOT set this variable directly. Instead, evaluate function `ivy-lv-display-mode'.")
 
-(defvar ivy-lv-hint-msg "")
+(defvar ivy-lv-hint-msgs-text ""
+"At run-time will hold the un-propertized CONS of `ivy-lv-custom-hint-msgs-text'
+and `ivy-lv-hint-default-msg-text'.")
 
-(defvar num-ivy-lv-hints (length ivy-lv-hint-msg))
+(defvar ivy-lv-hint-msgs ""
+"At run-time will hold the propertized CONS of `ivy-lv-hint-msgs-text'.")
 
-(defvar ivy-lv-hint num-ivy-lv-hints)
+(defvar num-ivy-lv-hints nil
+"At run-time will hold the integer number of hint messages.")
 
+(defvar curr-ivy-lv-hint nil
+"The current index into the list of hint messages.")
+
+(defvar ivy-lv-hints-default-template '(
+  (('ivy-rotate-preferred-builders "   toggle regex method")
+   ('ivy-toggle-calling      "   toggle manual / auto act")
+   ('ivy-toggle-case-fold    "   toggle case-sensitivity"))
+  (('ivy-immediate-done      "   act on what you typed, ie. not current selection")
+   ('ivy-yank-word           "   insert word from point in main buffer")
+   ('ivy-insert-current      "   insert current selection in mini-buffer"))
+  (('ivy-minibuffer-grow     "  grow list height")
+   ('ivy-minibuffer-shrink   "  shrink list height"))
+  (('ivy-restrict-to-matches "      begin new regex on current candiadate subset")
+   ('ivy-occur               "  copy list to actionable buffer")
+   ('ivy-kill-ring-save      "      copy list to kill-ring"))
+  ((nil "Act without exiting:")
+   ('ivy-call                    "  on current selection")
+   ('ivy-next-line-and-call      "  on next selection")
+   ('ivy-previous-line-and-call  "  on prev selection"))
+  ((nil "Change default action:")
+   ('ivy-next-action "    next action")
+   ('ivy-prev-action "    prev action")
+   ('ivy-read-action "  choose from a list"))))
+
+(defvar ivy-lv-hints-default-msgs-text ""
+  "When ivy is loaded it will construct the default hints, in order
+to accurately present any custom keybindings that the user has
+set.")
 
 ;;* Commands
+(defun ivy-lv-single-hint-build-default (hint)
+  "Construct a single default hint, respecting any custom keybinding
+the user has set."
+  (mapconcat (lambda(x)
+    (format "%s%s"
+      (if (car x)
+        (or (key-description
+              (where-is-internal (eval (car x)) ivy-minibuffer-map 'non-ascii))
+            "---")
+       "")
+      (cadr x)))
+    hint "\n"))
+
+(defun ivy-lv-hints-build-default ()
+  "Construct `ivy-lv-hints-default-msgs-text', based upon
+`ivy-lv-hints-default-template', respecting any custom keybinding
+the user has set."
+  (when ivy-lv-hint-show-default-msgs
+    (setq ivy-lv-hints-default-msgs-text
+      (mapcar 'ivy-lv-single-hint-build-default ivy-lv-hints-default-template))))
+
+(defun ivy-lv-build-hints ()
+  (setq ivy-lv-hint-msgs-text (ivy-lv-hints-build-default))
+  (when ivy-lv-custom-hint-msgs-text
+    (setq ivy-lv-hint-msgs-text (cons ivy-lv-custom-hint-msgs-text ivy-lv-hint-msgs-text))))
+
 (defun lv-hint-propertize (msg)
   "Apply `ivy-lv-hint-face' to all lines of the hint message, in a
 manner such that if the face includes a BACKGROUND property, that
@@ -129,8 +177,8 @@ property appears upon a rectangular region."
 
 This message contains the detailed status of `ivy'. When called with the optional HINT argument non-nil, this function also cycles through a user-configurable set of additional messages, originally meant as a local cheat sheet for ivy keybindings."
   (when hint
-    (setq num-ivy-lv-hints (length ivy-lv-hint-msg)
-          ivy-lv-hint (% (1+ ivy-lv-hint) (1+ num-ivy-lv-hints))))
+    (setq num-ivy-lv-hints (length ivy-lv-hint-msgs-text)
+          curr-ivy-lv-hint (% (1+ curr-ivy-lv-hint) (1+ num-ivy-lv-hints))))
   (lv-message "  case[%s] regex[%s] action: %s %s\n%s"
     (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-lv-item)
     (propertize (substring (symbol-name ivy--regex-function)
@@ -138,8 +186,8 @@ This message contains the detailed status of `ivy'. When called with the optiona
                         :from-end t)))             'face 'ivy-lv-item)
     (propertize (ivy-action-name)                  'face 'ivy-lv-item)
     (propertize (if ivy-calling "auto" "")         'face 'ivy-lv-item)
-    (if (< ivy-lv-hint num-ivy-lv-hints)
-      (nth ivy-lv-hint ivy-lv-hint-msg)
+    (if (< curr-ivy-lv-hint num-ivy-lv-hints)
+      (nth curr-ivy-lv-hint ivy-lv-hint-msgs)
      "")))
 
 (defun ivy-lv-display-mode(&optional arg)
@@ -158,7 +206,8 @@ because taht is word emacs user will expect."
   (cond
     (ivy-show-lv-display
        (message "ivy-lv-display enabled")
-       (setq ivy-lv-hint-msg (mapcar 'lv-hint-propertize ivy-lv-hint-msg-text))
+       (setq ivy-lv-hint-msgs (mapcar 'lv-hint-propertize (ivy-lv-build-hints)))
+       (setq num-ivy-lv-hints (length ivy-lv-hint-msgs))
        (define-key ivy-minibuffer-map (kbd "M-?")
          (lambda()(interactive)(ivy-lv-display t)))
        (define-key ivy-minibuffer-map [remap ivy-toggle-case-fold]
