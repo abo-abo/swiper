@@ -56,7 +56,7 @@
 ;;    more descriptive label.
 
 ;;; Code:
-(require 'lv) ; for function lv-message
+(require 'ivy-hint-lv) ; for function `lv-hint-lv-message'
 
 ;;* Customization
 (defface ivy-hint-item-face
@@ -167,7 +167,7 @@ originally meant as a local cheat sheet for ivy keybindings."
     (setq num-ivy-hints (length ivy-hint-msgs)
           curr-ivy-hint (if (not curr-ivy-hint) num-ivy-hints
                             (% (1+ curr-ivy-hint) (1+ num-ivy-hints)))))
-  (lv-message "  case[%s] regex[%s] action: %s %s\n%s"
+  (ivy-hint-lv-message "  case[%s] regex[%s] action: %s %s\n%s"
     (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-hint-item-face)
     (propertize (substring (symbol-name ivy--regex-function)
                   (1+ (search "-" (symbol-name ivy--regex-function)
