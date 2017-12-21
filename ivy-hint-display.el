@@ -1,4 +1,4 @@
-;; ivy-lv-display.el --- Alternative interface for ivy -*- lexical-binding: t -*-
+;; ivy-hint-display.el --- Alternative interface for ivy -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2017, Boruch Baum (assignable to Free Software Foundation, Inc.)
 
@@ -43,7 +43,7 @@
 ;; need.
 ;;
 ;; These features are toggled by evaluating function
-;; `ivy-lv-display-mode'. When the feature is enabled and focus is in
+;; `ivy-hint-display-mode'. When the feature is enabled and focus is in
 ;; an ivy minibuffer, display of hints are toggled by keybinding
 ;; `M-?'.
 ;;
@@ -56,54 +56,50 @@
 ;;    more descriptive label.
 
 ;;; Code:
-(require 'lv)
+(require 'lv) ; for function lv-message
 
 ;;* Customization
-(defface ivy-lv-item
+(defface ivy-hint-item-face
   '((t :foreground "00aaff"))
-  "Face used for elements in an ivy-lv-display prompt."
+  "Face used for elements in an ivy-hint-display prompt."
   :group 'ivy)
 
-(defface ivy-lv-hint-face
+(defface ivy-hint-face
   '((t :foreground "yellow" :background "color-234"))
-  "Face used for elements in an `ivy-lv-hint-msgs'."
+  "Face used for elements in an `ivy-hint-msgs'."
   :group 'ivy)
 
-(defcustom ivy-lv-hint-show-default-msgs t
+(defcustom ivy-hint-show-default-msgs t
 "Whether to display the default list of hints when function
-`ivy-lv-display' is called with the optional HINT arg."
+`ivy-hint-display' is called with the optional HINT arg."
   :type 'boolean
   :group 'ivy)
 
-(defcustom ivy-lv-custom-hint-msgs-text nil
+(defcustom ivy-hint-custom-msgs-text nil
 "A list of CUSTOM messages to display above the ivy minibuffer
-when function `ivy-lv-display' is called with the optional HINT
+when function `ivy-hint-display' is called with the optional HINT
 arg. These will be displayed in addition to, and prior to, the
 default message list, if that feature is enabled (ie.
-`ivy-lv-hint-show-default-msgs' set to `t'."
+`ivy-hint-show-default-msgs' set to `t'."
   :type  '(repeat string)
   :group 'ivy)
 
 ;;* Globals
-(defvar ivy-show-lv-display t
-  "Whether the ivy-lv-display is currently enabled.
+(defvar ivy-hint-show-display t
+  "Whether the ivy-hint-display is currently enabled.
 
-DO NOT set this variable directly. Instead, evaluate function `ivy-lv-display-mode'.")
+DO NOT set this variable directly. Instead, evaluate function `ivy-hint-display-mode'.")
 
-(defvar ivy-lv-hint-msgs-text ""
-"At run-time will hold the un-propertized CONS of `ivy-lv-custom-hint-msgs-text'
-and `ivy-lv-hint-default-msg-text'.")
+(defvar ivy-hint-msgs ""
+"At run-time will hold the propertized CONS of `ivy-hint-msgs-text'.")
 
-(defvar ivy-lv-hint-msgs ""
-"At run-time will hold the propertized CONS of `ivy-lv-hint-msgs-text'.")
-
-(defvar num-ivy-lv-hints nil
+(defvar num-ivy-hints nil
 "At run-time will hold the integer number of hint messages.")
 
-(defvar curr-ivy-lv-hint nil
+(defvar curr-ivy-hint nil
 "The current index into the list of hint messages.")
 
-(defvar ivy-lv-hints-default-template '(
+(defvar ivy-hints-default-template '(
   (('ivy-rotate-preferred-builders "   toggle regex method")
    ('ivy-toggle-calling      "   toggle manual / auto act")
    ('ivy-toggle-case-fold    "   toggle case-sensitivity"))
@@ -124,40 +120,10 @@ and `ivy-lv-hint-default-msg-text'.")
    ('ivy-prev-action "    prev action")
    ('ivy-read-action "  choose from a list"))))
 
-(defvar ivy-lv-hints-default-msgs-text ""
-  "When ivy is loaded it will construct the default hints, in order
-to accurately present any custom keybindings that the user has
-set.")
-
 ;;* Commands
-(defun ivy-lv-single-hint-build-default (hint)
-  "Construct a single default hint, respecting any custom keybinding
-the user has set."
-  (mapconcat (lambda(x)
-    (format "%s%s"
-      (if (car x)
-        (or (key-description
-              (where-is-internal (eval (car x)) ivy-minibuffer-map 'non-ascii))
-            "---")
-       "")
-      (cadr x)))
-    hint "\n"))
 
-(defun ivy-lv-hints-build-default ()
-  "Construct `ivy-lv-hints-default-msgs-text', based upon
-`ivy-lv-hints-default-template', respecting any custom keybinding
-the user has set."
-  (when ivy-lv-hint-show-default-msgs
-    (setq ivy-lv-hints-default-msgs-text
-      (mapcar 'ivy-lv-single-hint-build-default ivy-lv-hints-default-template))))
-
-(defun ivy-lv-build-hints ()
-  (setq ivy-lv-hint-msgs-text (ivy-lv-hints-build-default))
-  (when ivy-lv-custom-hint-msgs-text
-    (setq ivy-lv-hint-msgs-text (cons ivy-lv-custom-hint-msgs-text ivy-lv-hint-msgs-text))))
-
-(defun lv-hint-propertize (msg)
-  "Apply `ivy-lv-hint-face' to all lines of the hint message, in a
+(defun ivy-hints-propertize (msg)
+  "Apply `ivy-hint-face' to all lines of the hint message, in a
 manner such that if the face includes a BACKGROUND property, that
 property appears upon a rectangular region."
   (let* (
@@ -168,70 +134,92 @@ property appears upon a rectangular region."
     (fmt (format "%%-%ds" maxlen)))
    (seq-mapcat
      (lambda(x)
-       (concat (propertize (format fmt x) 'face 'ivy-lv-hint-face) "\n"))
+       (concat (propertize (format fmt x) 'face 'ivy-hint-face) "\n"))
      lines
      'string)))
 
-(defun ivy-lv-display(&optional hint)
+(defun ivy-hint-build-hints ()
+  (let* (
+    (make-hint-part (lambda(x) (format "%s%s"
+      (if (not (car x)) ""
+       (or (key-description (where-is-internal (eval (car x)) ivy-minibuffer-map 'non-ascii)) "---"))
+      (cadr x))))
+    (make-hint-whole (lambda(x) (mapconcat make-hint-part x "\n")))
+    (text
+      (if (not ivy-hint-show-default-msgs) nil
+       (mapcar make-hint-whole ivy-hints-default-template)))
+    (text (cond
+      ((and ivy-hint-custom-msgs-text ivy-hint-show-default-msgs)
+        (cons ivy-hint-custom-msgs-text text))
+      (ivy-hint-show-default-msgs text)
+      (ivy-hint-custom-msgs-text ivy-hint-custom-msgs-text)
+      (t nil))))
+  (if text (mapcar 'ivy-hints-propertize text) nil)))
+
+(defun ivy-hint-display(&optional hint)
   "Display an extended, possibly multi-line message above the minibuffer.
 
-This message contains the detailed status of `ivy'. When called with the optional HINT argument non-nil, this function also cycles through a user-configurable set of additional messages, originally meant as a local cheat sheet for ivy keybindings."
+This message contains the detailed status of `ivy'. When called
+with the optional HINT argument non-nil, this function also
+cycles through a user-configurable set of additional messages,
+originally meant as a local cheat sheet for ivy keybindings."
   (when hint
-    (setq num-ivy-lv-hints (length ivy-lv-hint-msgs-text)
-          curr-ivy-lv-hint (% (1+ curr-ivy-lv-hint) (1+ num-ivy-lv-hints))))
+    (setq num-ivy-hints (length ivy-hint-msgs)
+          curr-ivy-hint (if (not curr-ivy-hint) num-ivy-hints
+                            (% (1+ curr-ivy-hint) (1+ num-ivy-hints)))))
   (lv-message "  case[%s] regex[%s] action: %s %s\n%s"
-    (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-lv-item)
+    (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-hint-item-face)
     (propertize (substring (symbol-name ivy--regex-function)
                   (1+ (search "-" (symbol-name ivy--regex-function)
-                        :from-end t)))             'face 'ivy-lv-item)
-    (propertize (ivy-action-name)                  'face 'ivy-lv-item)
-    (propertize (if ivy-calling "auto" "")         'face 'ivy-lv-item)
-    (if (< curr-ivy-lv-hint num-ivy-lv-hints)
-      (nth curr-ivy-lv-hint ivy-lv-hint-msgs)
+                        :from-end t)))             'face 'ivy-hint-item-face)
+    (propertize (ivy-action-name)                  'face 'ivy-hint-item-face)
+    (propertize (if ivy-calling "auto" "")         'face 'ivy-hint-item-face)
+    (if (< curr-ivy-hint num-ivy-hints)
+      (nth curr-ivy-hint ivy-hint-msgs)
      "")))
 
-(defun ivy-lv-display-mode(&optional arg)
-  "Toggle display of the ivy LV display.
+(defun ivy-hint-display-mode(&optional arg)
+  "Toggle display of the ivy hint display.
 
 Interactively, toggles the mode. Programmatically, enables the
 mode when ARG is nil, and disables it when ARG is a negative
 integer. Note that this is NOT a 'mode'. The term is borrowed
 because taht is word emacs user will expect."
   (interactive "p")
-  (setq ivy-show-lv-display
+  (setq ivy-hint-show-display
     (cond
       ((not arg) t)
       ((< arg 0) nil)
-      (t (not ivy-show-lv-display))))
+      (t (not ivy-hint-show-display))))
   (cond
-    (ivy-show-lv-display
-       (message "ivy-lv-display enabled")
-       (setq ivy-lv-hint-msgs (mapcar 'lv-hint-propertize (ivy-lv-build-hints)))
-       (setq num-ivy-lv-hints (length ivy-lv-hint-msgs))
+    (ivy-hint-show-display
+       (message "ivy-hint-display enabled")
+       (setq ivy-hint-msgs (ivy-hint-build-hints))
+       (setq num-ivy-hints (length ivy-hint-msgs))
        (define-key ivy-minibuffer-map (kbd "M-?")
-         (lambda()(interactive)(ivy-lv-display t)))
+         (lambda()(interactive)(ivy-hint-display t)))
        (define-key ivy-minibuffer-map [remap ivy-toggle-case-fold]
          (lambda()(interactive)(ivy-toggle-case-fold)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-toggle-fuzzy]
          (lambda()(interactive)(ivy-toggle-fuzzy)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-rotate-preferred-builders]
          (lambda()(interactive)(ivy-rotate-preferred-builders)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-toggle-regexp-quote]
          (lambda()(interactive)(ivy-toggle-regexp-quote)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-toggle-calling]
          (lambda()(interactive)(ivy-toggle-calling)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-next-action]
          (lambda()(interactive)(ivy-next-action)
-            (ivy-lv-display)))
+            (ivy-hint-display)))
        (define-key ivy-minibuffer-map [remap ivy-prev-action]
          (lambda()(interactive)(ivy-prev-action)
-            (ivy-lv-display))))
-    (t (message "ivy-lv-display disabled")
+            (ivy-hint-display))))
+    (t (message "ivy-hint-display disabled")
        (define-key ivy-minibuffer-map (kbd "M-?") nil)
        (define-key ivy-minibuffer-map [remap ivy-toggle-case-fold] nil)
        (define-key ivy-minibuffer-map [remap ivy-toggle-fuzzy] nil)
@@ -241,6 +229,6 @@ because taht is word emacs user will expect."
        (define-key ivy-minibuffer-map [remap ivy-next-action] nil)
        (define-key ivy-minibuffer-map [remap ivy-prev-action] nil))))
 
-(provide 'ivy-lv-display)
+(provide 'ivy-hint-display)
 
-;;; ivy-lv-display.el ends here
+;;; ivy-hint-display.el ends here
