@@ -81,6 +81,20 @@ C1 and C2 are triples of floats in [0.0 1.0] range."
     ;; from available color palette).
     (color-name-to-rgb color)))
 
+(defun colir--blend-background (start next prevn face object)
+  (let ((background-prev (face-background prevn)))
+    (progn
+      (put-text-property
+       start next 'face
+       (if background-prev
+           (cons `(background-color
+                   . ,(colir-blend
+                       (colir-color-parse background-prev)
+                       (colir-color-parse (face-background face nil t))))
+                 prevn)
+         (list face prevn))
+       object))))
+
 (defun colir-blend-face-background (start end face &optional object)
   "Append to the face property of the text from START to END the face FACE.
 When the text already has a face with a non-plain background,
@@ -95,21 +109,10 @@ See also `font-lock-append-text-property'."
                       (cl-find-if #'atom prev)
                     prev))
       (cond
-        ((keywordp (car-safe prev))
+        ((or (keywordp (car-safe prev)) (consp (car-safe prev)))
          (put-text-property start next 'face (cons face prev) object))
         ((facep prevn)
-         (let ((background-prev (face-background prevn)))
-           (progn
-             (put-text-property
-              start next 'face
-              (if background-prev
-                  (cons `(background-color
-                          . ,(colir-blend
-                              (colir-color-parse background-prev)
-                              (colir-color-parse (face-background face nil t))))
-                        prevn)
-                (list face prevn))
-              object))))
+         (colir--blend-background start next prevn face object))
         (t
          (put-text-property start next 'face face object)))
       (setq start next))))
