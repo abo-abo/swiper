@@ -294,6 +294,20 @@ will bring the behavior in line with the newer Emacsen."
                    0.07058823529411765
                    0.20392156862745098))))
 
+(ert-deftest colir-blend-face-background ()
+  ;; Note: should be `equal-including-properties', but it doesn't work as I like
+  ;; `equal' doesn't test text properties
+  (should (equal
+           (let ((str #("One" 0 3 (face (:foreground "#badfad")))))
+             (ivy--add-face str 'ivy-current-match)
+             str)
+           #("One" 0 3 (face (ivy-current-match :foreground "#badfad")))))
+  (should (equal
+           (let ((str #("Desktop" 0 7 (face ((foreground-color . "#badfad") bold)))))
+             (colir-blend-face-background 0 (length str) 'ivy-current-match str)
+             str)
+           #("Desktop" 0 7 (face (ivy-current-match (foreground-color . "#8ac6f2") bold))))))
+
 
 ;;* prefix arg tests
 ;;** tests with no prefix
