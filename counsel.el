@@ -1724,12 +1724,25 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
-(defvar counsel-find-file-occur-cmd "find . -maxdepth 1 | grep -i -E '%s' | xargs -I {} find {} -maxdepth 0 -ls"
+(defvar counsel-find-file-occur-cmd "ls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
+
+(defvar counsel-find-file-occur-use-find nil
+  "When non-nil, `counsel-find-file-occur' will use \"find\" as the base cmd.")
 
 (defun counsel--expand-ls (cmd)
   "Expand CMD that ends in \"ls\" with switches."
   (concat cmd " " counsel-dired-listing-switches " | sed -e 's/^/  /'"))
+
+(defun counsel--occur-cmd-find ()
+  (let* ((regex (counsel-unquote-regex-parens ivy--old-re))
+         (cmd (format
+               "find . -maxdepth 1 | grep -i -E '%s' | xargs -I {} find {} -maxdepth 0 -ls"
+               regex)))
+    (concat
+     (counsel--cmd-to-dired-by-type "d" cmd)
+     " && "
+     (counsel--cmd-to-dired-by-type "f" cmd))))
 
 (defun counsel--cmd-to-dired-by-type (type cmd)
   (let ((exclude-dots
@@ -1743,14 +1756,14 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 (defun counsel-find-file-occur ()
   (require 'find-dired)
   (cd ivy--directory)
-  (counsel-cmd-to-dired
-   (let ((cmd (format counsel-find-file-occur-cmd
-                      (counsel-unquote-regex-parens ivy--old-re))))
-     (concat
-      (counsel--cmd-to-dired-by-type "d" cmd)
-      " && "
-      (counsel--cmd-to-dired-by-type "f" cmd)))
-   'find-dired-filter))
+  (if counsel-find-file-occur-use-find
+      (counsel-cmd-to-dired
+       (counsel--occur-cmd-find)
+       'find-dired-filter)
+    (counsel-cmd-to-dired
+     (counsel--expand-ls
+      (format counsel-find-file-occur-cmd
+              (counsel-unquote-regex-parens ivy--old-re))))))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
