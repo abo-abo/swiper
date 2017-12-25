@@ -4417,7 +4417,8 @@ a symbol and how to search for them."
                 (load-theme . counsel-load-theme)
                 (yank-pop . counsel-yank-pop)
                 (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-to-mark-command . counsel-mark-ring)))
+                (pop-to-mark-command . counsel-mark-ring)
+                (bookmark-jump . counsel-bookmark)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'.
