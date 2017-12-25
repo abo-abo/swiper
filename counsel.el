@@ -766,10 +766,17 @@ By default `counsel-bookmark' opens a dired buffer for directories."
                              (bookmark-set x))))
             :caller 'counsel-bookmark))
 
+(defun counsel--apply-bookmark-fn (fn)
+  "Return a function applyinig FN to a bookmark's location."
+  (lambda (bookmark)
+    (funcall fn (bookmark-location bookmark))))
+
 (ivy-set-actions
  'counsel-bookmark
- '(("d" bookmark-delete "delete")
-   ("e" bookmark-rename "edit")))
+ `(("d" bookmark-delete "delete")
+   ("e" bookmark-rename "edit")
+   ("x" ,(counsel--apply-bookmark-fn 'counsel-find-file-extern) "open externally")
+   ("r" ,(counsel--apply-bookmark-fn 'counsel-find-file-as-root) "open as root")))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
@@ -4404,20 +4411,21 @@ a symbol and how to search for them."
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (binding
-              '((execute-extended-command . counsel-M-x)
-                (describe-bindings . counsel-descbinds)
-                (describe-function . counsel-describe-function)
-                (describe-variable . counsel-describe-variable)
-                (describe-face . counsel-describe-face)
-                (list-faces-display . counsel-faces)
-                (find-file . counsel-find-file)
-                (find-library . counsel-find-library)
-                (imenu . counsel-imenu)
-                (load-library . counsel-load-library)
-                (load-theme . counsel-load-theme)
-                (yank-pop . counsel-yank-pop)
-                (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-to-mark-command . counsel-mark-ring)))
+             '((execute-extended-command . counsel-M-x)
+               (describe-bindings . counsel-descbinds)
+               (describe-function . counsel-describe-function)
+               (describe-variable . counsel-describe-variable)
+               (describe-face . counsel-describe-face)
+               (list-faces-display . counsel-faces)
+               (find-file . counsel-find-file)
+               (find-library . counsel-find-library)
+               (imenu . counsel-imenu)
+               (load-library . counsel-load-library)
+               (load-theme . counsel-load-theme)
+               (yank-pop . counsel-yank-pop)
+               (info-lookup-symbol . counsel-info-lookup-symbol)
+               (pop-to-mark-command . counsel-mark-ring)
+               (bookmark-jump . counsel-bookmark)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'.
