@@ -766,10 +766,17 @@ By default `counsel-bookmark' opens a dired buffer for directories."
                              (bookmark-set x))))
             :caller 'counsel-bookmark))
 
+(defun counsel--apply-bookmark-fn (fn)
+  "Return a function applyinig FN to a bookmark's location."
+  (lambda (bookmark)
+    (funcall fn (bookmark-location bookmark))))
+
 (ivy-set-actions
  'counsel-bookmark
- '(("d" bookmark-delete "delete")
-   ("e" bookmark-rename "edit")))
+ `(("d" bookmark-delete "delete")
+   ("e" bookmark-rename "edit")
+   ("x" ,(counsel--apply-bookmark-fn 'counsel-find-file-extern) "open externally")
+   ("r" ,(counsel--apply-bookmark-fn 'counsel-find-file-as-root) "open as root")))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
