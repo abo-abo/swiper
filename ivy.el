@@ -765,6 +765,12 @@ When ARG is t, exit with current text, ignoring the candidates."
         (t
          (ivy-done))))
 
+(defvar ivy-auto-select-single-candidate nil
+  "When non-nil, auto-select the candidate if it is the only one.
+When t, it is the same as if the user were prompted and selected the candidate
+by calling the default action.  This variable has no use unless the collection
+contains a single candidate.")
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let (dir)
@@ -1295,19 +1301,19 @@ On error (read-only), call `ivy-on-del-error-function'."
 (defun ivy-delete-char (arg)
   "Forward to `delete-char' ARG."
   (interactive "p")
-  (unless (= (point) (line-end-position))
+  (unless (eolp)
     (delete-char arg)))
 
 (defun ivy-forward-char (arg)
   "Forward to `forward-char' ARG."
   (interactive "p")
-  (unless (= (point) (line-end-position))
+  (unless (eolp)
     (forward-char arg)))
 
 (defun ivy-kill-word (arg)
   "Forward to `kill-word' ARG."
   (interactive "p")
-  (unless (= (point) (line-end-position))
+  (unless (eolp)
     (kill-word arg)))
 
 (defun ivy-kill-line ()
@@ -1556,12 +1562,6 @@ Directories come first."
           (cl-remove-if-not predicate seq)
         seq))))
 
-(defvar ivy-auto-select-single-candidate nil
-  "When non-nil, auto-select the candidate if it is the only one.
-When t, it is the same as if the user were prompted and selected the candidate
-by calling the default action.  This variable has no use unless the collection
-contains a single candidate.")
-
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1728,7 +1728,8 @@ customizations apply to the current completion session."
             (ivy-recursive-restore)))
       (ivy-call)
       (when (> (length (ivy-state-current ivy-last)) 0)
-        (remove-text-properties 0 1 '(idx) (ivy-state-current ivy-last))))))
+        (remove-list-of-text-properties
+         0 1 '(idx) (ivy-state-current ivy-last))))))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
@@ -2012,15 +2013,11 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (pt (point))
           (beg ivy-completion-beg)
           (end ivy-completion-end))
-      (when ivy-completion-beg
-        (delete-region
-         ivy-completion-beg
-         ivy-completion-end))
-      (setq ivy-completion-beg
-            (move-marker (make-marker) (point)))
+      (when beg
+        (delete-region beg end))
+      (setq ivy-completion-beg (point))
       (insert (substring-no-properties str))
-      (setq ivy-completion-end
-            (move-marker (make-marker) (point)))
+      (setq ivy-completion-end (point))
       (save-excursion
         (dolist (cursor fake-cursors)
           (goto-char (overlay-start cursor))
@@ -2029,27 +2026,27 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (insert (substring-no-properties str))
           ;; manually move the fake cursor
           (move-overlay cursor (point) (1+ (point)))
-          (move-marker (overlay-get cursor 'point) (point))
-          (move-marker (overlay-get cursor 'mark) (point)))))))
+          (set-marker (overlay-get cursor 'point) (point))
+          (set-marker (overlay-get cursor 'mark) (point)))))))
 
 (defun ivy-completion-common-length (str)
-  "Return the length of the first `completions-common-part' face in STR."
-  (let ((pos 0)
-        (len (length str))
-        face-sym)
-    (while (and (<= pos len)
-                (let ((prop (or (prog1 (get-text-property
-                                        pos 'face str)
-                                  (setq face-sym 'face))
-                                (prog1 (get-text-property
-                                        pos 'font-lock-face str)
-                                  (setq face-sym 'font-lock-face)))))
-                  (not (eq 'completions-common-part
-                           (if (listp prop) (car prop) prop)))))
-      (setq pos (1+ pos)))
-    (if (< pos len)
-        (or (next-single-property-change pos face-sym str) len)
-      0)))
+  "Return the amount of characters that match in  STR.
+
+`completion-all-completions' computes this and returns the result
+via text properties.
+
+The first non-matching part is propertized:
+- either with: (face (completions-first-difference))
+- or: (font-lock-face completions-first-difference)."
+  (let ((char-property-alias-alist '((face font-lock-face)))
+        (i (1- (length str))))
+    (catch 'done
+      (while (>= i 0)
+        (when (equal (get-text-property i 'face str)
+                     '(completions-first-difference))
+          (throw 'done i))
+        (cl-decf i))
+      (throw 'done (length str)))))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'.
@@ -2081,6 +2078,8 @@ See `completion-in-region' for further information."
                                   str)
                                  (t
                                   (substring str (- len))))))
+             (unless (ivy--filter initial comps)
+               (setq initial nil))
              (delete-region (- end len) end)
              (setq ivy-completion-beg (- end len))
              (setq ivy-completion-end ivy-completion-beg)
@@ -2437,7 +2436,7 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy-cleanup-string (str)
   "Remove unwanted text properties from STR."
-  (remove-text-properties 0 (length str) '(field) str)
+  (remove-list-of-text-properties 0 (length str) '(field) str)
   str)
 
 (defvar ivy-set-prompt-text-properties-function
@@ -2538,7 +2537,7 @@ STD-PROPS is a property list containing the default text properties."
                   (= ivy--length 0))
               (add-face-text-property
                (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
-            (remove-text-properties
+            (remove-list-of-text-properties
              (minibuffer-prompt-end) (line-end-position) '(face))))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
@@ -3628,7 +3627,24 @@ BUFFER may be a string or nil."
     (with-current-buffer buffer
       (rename-buffer new-name))))
 
-(defvar ivy-switch-buffer-map (make-sparse-keymap))
+(defvar ivy-switch-buffer-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-k") 'ivy-switch-buffer-kill)
+    map))
+
+(defun ivy-switch-buffer-kill ()
+  "Kill the current buffer in `ivy-switch-buffer'."
+  (interactive)
+  (let ((bn (ivy-state-current ivy-last)))
+    (when (get-buffer bn)
+      (kill-buffer bn))
+    (unless (buffer-live-p (ivy-state-buffer ivy-last))
+      (setf (ivy-state-buffer ivy-last)
+            (with-ivy-window (current-buffer))))
+    (setf (ivy-state-preselect ivy-last) ivy--index)
+    (setq ivy--old-re nil)
+    (setq ivy--all-candidates (delete bn ivy--all-candidates))
+    (ivy--exhibit)))
 
 (ivy-set-actions
  'ivy-switch-buffer
@@ -3636,8 +3652,8 @@ BUFFER may be a string or nil."
     ,(lambda (x)
        (let* ((b (get-buffer x))
               (default-directory
-                (or (and b (buffer-local-value 'default-directory b))
-                    default-directory)))
+               (or (and b (buffer-local-value 'default-directory b))
+                   default-directory)))
          (call-interactively (if (functionp 'counsel-find-file)
                                  #'counsel-find-file
                                #'find-file))))
@@ -3648,6 +3664,9 @@ BUFFER may be a string or nil."
    ("k"
     ,(lambda (x)
        (kill-buffer x)
+       (unless (buffer-live-p (ivy-state-buffer ivy-last))
+         (setf (ivy-state-buffer ivy-last) (current-buffer)))
+       (setq ivy--index 0)
        (ivy--reset-state ivy-last))
     "kill")
    ("r"

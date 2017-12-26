@@ -492,6 +492,10 @@ line numbers.  For the buffer, use `ivy--regex' instead."
 (defvar swiper-invocation-face nil
   "The face at the point of invocation of `swiper'.")
 
+(defcustom swiper-stay-on-quit nil
+  "When non-nil don't go back to search start on abort."
+  :type 'boolean)
+
 (defun swiper--ivy (candidates &optional initial-input)
   "Select one of CANDIDATES and move there.
 When non-nil, INITIAL-INPUT is the initial search pattern."
@@ -523,7 +527,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  :history 'swiper-history
                  :caller 'swiper))
           (point))
-      (unless res
+      (unless (or res swiper-stay-on-quit)
         (goto-char swiper--opoint))
       (when swiper--reveal-mode
         (reveal-mode 1)))))
@@ -573,7 +577,9 @@ Matched candidates should have `swiper-invocation-face'."
     (delete-overlay (pop swiper--overlays)))
   (save-excursion
     (goto-char (point-min))
-    (isearch-clean-overlays)))
+    (isearch-clean-overlays))
+  (when (> (length ivy-text) 0)
+    (cl-pushnew ivy-text swiper-history)))
 
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
@@ -914,7 +920,7 @@ See `ivy-format-function' for further information."
   "Keymap for `swiper-all'.")
 
 ;;;###autoload
-(defun swiper-all ()
+(defun swiper-all (&optional initial-input)
   "Run `swiper' for all open buffers."
   (interactive)
   (let* ((swiper-window-width (- (frame-width) (if (display-graphic-p) 0 1)))
@@ -926,6 +932,7 @@ See `ivy-format-function' for further information."
                            (swiper-all-action (ivy-state-current ivy-last)))
               :dynamic-collection t
               :keymap swiper-all-map
+              :initial-input initial-input
               :caller 'swiper-multi)))
 
 (defun swiper-all-action (x)

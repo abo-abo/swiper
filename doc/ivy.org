@@ -508,8 +508,8 @@ Hydra menu offers these additioanl bindings:
      Toggle calling the action after each candidate change. It
      modifies ~j~ to ~jg~, ~k~ to ~kg~ etc.
 
-- ~m~ (=ivy-toggle-fuzzy=) ::
-     Toggle the current regexp matcher.
+- ~m~ (=ivy-rotate-preferred-builders=) ::
+     Rotate the current regexp matcher.
 
 - ~>~ (=ivy-minibuffer-grow=) ::
      Increase =ivy-height= for the current minibuffer.
