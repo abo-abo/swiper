@@ -40,7 +40,6 @@
 (require 'cl-lib)
 (require 'ffap)
 (require 'ivy-overlay)
-(require 'ivy-hint-display)
 
 ;;* Customization
 (defgroup ivy nil

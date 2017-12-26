@@ -42,7 +42,7 @@
 ;; displays usage hints, which can be edited according to the user's
 ;; need.
 ;;
-;; These features are toggled by evaluating function
+;; The features of this package are toggled by evaluating function
 ;; `ivy-hint-display-mode'. When the feature is enabled and focus is in
 ;; an ivy minibuffer, display of hints are toggled by keybinding
 ;; `M-?'.
@@ -56,6 +56,7 @@
 ;;    more descriptive label.
 
 ;;; Code:
+(require 'ivy)
 (require 'ivy-hint-lv) ; for function `lv-hint-lv-message'
 
 ;;* Customization
@@ -120,6 +121,27 @@ DO NOT set this variable directly. Instead, evaluate function `ivy-hint-display-
    ('ivy-prev-action "    prev action")
    ('ivy-read-action "  choose from a list"))))
 
+(defvar ivy-hints-default-bindings '(
+  ("M-^" t   ivy-toggle-case-fold)
+  ("M-t" t   ivy-toggle-fuzzy)
+  ("M-*" t   ivy-rotate-preferred-builders)
+  ("M-q" t   ivy-toggle-regexp-quote)
+  ("M-c" t   ivy-toggle-calling)
+  ("M-+" nil ivy-minibuffer-grow)
+  ("M--" nil ivy-minibuffer-shrink)
+  ("M-." t   ivy-next-action)
+  ("M-," t   ivy-prev-action))
+"A list of default bindings for certain ivy functions.
+An entry should exist for each ivy function described in
+`ivy-hints-default-template'. For each entry, the first element
+is a default keybinding, the second element is a boolean value
+indicating whether the `ivy-hint-lv-display' should be refreshed
+after the function is called, and the final element is the
+function name. This list will be used at run-time to assign
+keybindings if they have not already been set, and to remap the
+functions to ensure that the `ivy-hint-lv-display' is always
+properly refreshed.")
+
 ;;* Commands
 
 (defun ivy-hints-propertize (msg)
@@ -142,7 +164,8 @@ property appears upon a rectangular region."
   (let* (
     (make-hint-part (lambda(x) (format "%s%s"
       (if (not (car x)) ""
-       (or (key-description (where-is-internal (eval (car x)) ivy-minibuffer-map 'non-ascii)) "---"))
+       (or (key-description (where-is-internal (eval (car x)) ivy-minibuffer-map 'non-ascii))
+           "---"))
       (cadr x))))
     (make-hint-whole (lambda(x) (mapconcat make-hint-part x "\n")))
     (text
@@ -159,14 +182,19 @@ property appears upon a rectangular region."
 (defun ivy-hint-display(&optional hint)
   "Display an extended, possibly multi-line message above the minibuffer.
 
-This message contains the detailed status of `ivy'. When called
-with the optional HINT argument non-nil, this function also
-cycles through a user-configurable set of additional messages,
-originally meant as a local cheat sheet for ivy keybindings."
+The basic message is a single-line status indication of
+currently-enabled `ivy' options: whether searches are case
+sensitive, which regex method is being used, what is the current
+action to be taken on a selection, and whether that action is
+performed automatically (\"calling\" in `ivy' terminology).
+
+When called with the optional HINT argument non-nil, this
+function also cycles through a user-configurable set of
+additional messages, originally meant as a local cheat sheet for
+ivy keybindings."
   (when hint
     (setq num-ivy-hints (length ivy-hint-msgs)
-          curr-ivy-hint (if (not curr-ivy-hint) num-ivy-hints
-                            (% (1+ curr-ivy-hint) (1+ num-ivy-hints)))))
+          curr-ivy-hint (% (1+ curr-ivy-hint) (1+ num-ivy-hints))))
   (ivy-hint-lv-message "  case[%s] regex[%s] action: %s %s\n%s"
     (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-hint-item-face)
     (propertize (substring (symbol-name ivy--regex-function)
@@ -177,6 +205,19 @@ originally meant as a local cheat sheet for ivy keybindings."
     (if (< curr-ivy-hint num-ivy-hints)
       (nth curr-ivy-hint ivy-hint-msgs)
      "")))
+
+(defun ivy-hint-remap ()
+  (dolist (this ivy-hints-default-bindings)
+    (unless (where-is-internal (caddr this) ivy-minibuffer-map)
+      (define-key ivy-minibuffer-map (kbd (car this)) (caddr this)))
+    (when (cadr this)
+      (define-key ivy-minibuffer-map (vector 'remap (caddr this))
+        (lambda()(interactive) (funcall (caddr this)) (ivy-hint-display))))))
+
+(defun ivy-hint-unmap ()
+  (dolist (this ivy-hints-default-bindings)
+    (when (cadr this)
+      (define-key ivy-minibuffer-map (vector 'remap (caddr this)) nil))))
 
 (defun ivy-hint-display-mode(&optional arg)
   "Toggle display of the ivy hint display.
@@ -193,41 +234,17 @@ because taht is word emacs user will expect."
       (t (not ivy-hint-show-display))))
   (cond
     (ivy-hint-show-display
-       (message "ivy-hint-display enabled")
-       (setq ivy-hint-msgs (ivy-hint-build-hints))
-       (setq num-ivy-hints (length ivy-hint-msgs))
-       (define-key ivy-minibuffer-map (kbd "M-?")
-         (lambda()(interactive)(ivy-hint-display t)))
-       (define-key ivy-minibuffer-map [remap ivy-toggle-case-fold]
-         (lambda()(interactive)(ivy-toggle-case-fold)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-toggle-fuzzy]
-         (lambda()(interactive)(ivy-toggle-fuzzy)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-rotate-preferred-builders]
-         (lambda()(interactive)(ivy-rotate-preferred-builders)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-toggle-regexp-quote]
-         (lambda()(interactive)(ivy-toggle-regexp-quote)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-toggle-calling]
-         (lambda()(interactive)(ivy-toggle-calling)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-next-action]
-         (lambda()(interactive)(ivy-next-action)
-            (ivy-hint-display)))
-       (define-key ivy-minibuffer-map [remap ivy-prev-action]
-         (lambda()(interactive)(ivy-prev-action)
-            (ivy-hint-display))))
-    (t (message "ivy-hint-display disabled")
-       (define-key ivy-minibuffer-map (kbd "M-?") nil)
-       (define-key ivy-minibuffer-map [remap ivy-toggle-case-fold] nil)
-       (define-key ivy-minibuffer-map [remap ivy-toggle-fuzzy] nil)
-       (define-key ivy-minibuffer-map [remap ivy-rotate-preferred-builders] nil)
-       (define-key ivy-minibuffer-map [remap ivy-toggle-regexp-quote] nil)
-       (define-key ivy-minibuffer-map [remap ivy-toggle-calling] nil)
-       (define-key ivy-minibuffer-map [remap ivy-next-action] nil)
-       (define-key ivy-minibuffer-map [remap ivy-prev-action] nil))))
+      (ivy-hint-remap)
+      (setq ivy-hint-msgs (ivy-hint-build-hints))
+      (setq num-ivy-hints (length ivy-hint-msgs))
+      (setq curr-ivy-hint num-ivy-hints)
+      (define-key ivy-minibuffer-map (kbd "M-?")
+        (lambda()(interactive)(ivy-hint-display t)))
+      (message "ivy-hint-display enabled"))
+    (t
+      (ivy-hint-unmap)
+      (define-key ivy-minibuffer-map (kbd "M-?") nil)
+      (message "ivy-hint-display disabled"))))
 
 (provide 'ivy-hint-display)
 
