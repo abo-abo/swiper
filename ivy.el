@@ -1657,7 +1657,7 @@ customizations apply to the current completion session."
         (ivy-display-function
          (unless (window-minibuffer-p)
            (cdr (assoc caller ivy-display-functions-alist)))))
-    (when ivy-hint-show-display
+    (when (and (fboundp ivy-hint-show-display) ivy-hint-show-display)
       (ivy-hint-display))
     (setq ivy-last
           (make-ivy-state
@@ -1675,7 +1675,7 @@ customizations apply to the current completion session."
            :frame (selected-frame)
            :window (selected-window)
            :buffer (current-buffer)
-           :unwind (if ivy-hint-show-display
+           :unwind (if (and (fboundp ivy-hint-show-display) ivy-hint-show-display)
                      (or unwind 'ivy-hint-lv-delete-window)
                     unwind)
            :re-builder re-builder
