@@ -154,11 +154,9 @@ property appears upon a rectangular region."
       (dolist (line lines maxlen)
         (setq maxlen (max maxlen (or (length line) 0)))))
     (fmt (format "%%-%ds" maxlen)))
-   (seq-mapcat
-     (lambda(x)
-       (concat (propertize (format fmt x) 'face 'ivy-hint-face) "\n"))
-     lines
-     'string)))
+   (mapconcat
+     (lambda(x) (concat (propertize (format fmt x) 'face 'ivy-hint-face) "\n"))
+     lines "")))
 
 (defun ivy-hint-build-hints ()
   (let* (
@@ -198,8 +196,8 @@ ivy keybindings."
   (ivy-hint-lv-message "  case[%s] regex[%s] action: %s %s\n%s"
     (propertize (symbol-name ivy-case-fold-search) 'face 'ivy-hint-item-face)
     (propertize (substring (symbol-name ivy--regex-function)
-                  (1+ (search "-" (symbol-name ivy--regex-function)
-                        :from-end t)))             'face 'ivy-hint-item-face)
+                  (string-match "[^-]+$" (symbol-name ivy--regex-function)))
+                                                   'face 'ivy-hint-item-face)
     (propertize (ivy-action-name)                  'face 'ivy-hint-item-face)
     (propertize (if ivy-calling "auto" "")         'face 'ivy-hint-item-face)
     (if (< curr-ivy-hint num-ivy-hints)
@@ -208,16 +206,17 @@ ivy keybindings."
 
 (defun ivy-hint-remap ()
   (dolist (this ivy-hints-default-bindings)
-    (unless (where-is-internal (caddr this) ivy-minibuffer-map)
-      (define-key ivy-minibuffer-map (kbd (car this)) (caddr this)))
-    (when (cadr this)
-      (define-key ivy-minibuffer-map (vector 'remap (caddr this))
-        (lambda()(interactive) (funcall (caddr this)) (ivy-hint-display))))))
+    (let ((fname (car (cdr (cdr this)))))
+      (unless (where-is-internal fname ivy-minibuffer-map)
+        (define-key ivy-minibuffer-map (kbd (car this)) fname))
+      (when (cadr this)
+        (define-key ivy-minibuffer-map (vector 'remap fname)
+          (lambda()(interactive) (funcall fname) (ivy-hint-display)))))))
 
 (defun ivy-hint-unmap ()
   (dolist (this ivy-hints-default-bindings)
     (when (cadr this)
-      (define-key ivy-minibuffer-map (vector 'remap (caddr this)) nil))))
+      (define-key ivy-minibuffer-map (vector 'remap (car (cdr (cdr this)))) nil))))
 
 (defun ivy-hint-display-mode(&optional arg)
   "Toggle display of the ivy hint display.
