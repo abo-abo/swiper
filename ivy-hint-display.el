@@ -5,7 +5,7 @@
 ;; Author: Boruch Baum <boruch_baum@gmx.com>
 ;; URL: https://github.com/Boruch-Baum/swiper
 ;; Version: 1
-;; Package-Requires: ((emacs "24.1") (ivy "0.9.0"))
+;; Package-Requires: ((emacs "24.1") (ivy "0.10.0"))
 ;; Keywords: matching
 
 ;; This file is part of GNU Emacs.

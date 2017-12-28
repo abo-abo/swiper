@@ -5,7 +5,7 @@
 ;; Author: Boruch Baum <boruch_baum@gmx.com>
 ;; URL: https://github.com/Boruch-Baum/swiper
 ;; Version: 1
-;; Package-Requires: ((emacs "24.1"))
+;; Package-Requires: ((emacs "24.1") (ivy "0.10.0"))
 ;; Keywords: matching
 
 ;; This file is part of GNU Emacs.
@@ -59,6 +59,8 @@
 ;;     --  Андрій Кузьменко, L.V.
 
 ;;; Code:
+
+(require 'ivy) ; for references to customization group
 
 (defcustom ivy-hint-lv-use-separator nil
   "Whether to draw a line between the IVY-HINT-LV window and the Echo Area."
