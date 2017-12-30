@@ -2074,6 +2074,7 @@ See `completion-in-region' for further information."
                                   str)
                                  (t
                                   (substring str (- len))))))
+             (setq ivy--old-re nil)
              (unless (ivy--filter initial comps)
                (setq initial nil))
              (delete-region (- end len) end)
