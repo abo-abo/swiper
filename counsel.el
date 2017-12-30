@@ -2932,6 +2932,7 @@ The face can be customized through `counsel-org-goto-face-style'."
 ;;** `counsel-org-file'
 (declare-function org-attach-dir "org-attach")
 (declare-function org-attach-file-list "org-attach")
+(defvar org-attach-directory)
 
 (defun counsel-org-files ()
   "Return list of all files under current Org attachment directories.
@@ -2940,12 +2941,26 @@ attachment directory associated with the current buffer, all
 contained files are listed, so the return value could conceivably
 include attachments of other Org buffers."
   (require 'org-attach)
-  (cl-mapcan
-   (lambda (dir)
-     (mapcar (lambda (file)
-               (file-relative-name (expand-file-name file dir)))
-             (org-attach-file-list dir)))
-   (delete-dups (delq nil (org-map-entries #'org-attach-dir "ID={.}")))))
+  (let* ((ids (let (res)
+                (save-excursion
+                  (goto-char (point-min))
+                  (while (re-search-forward "^:ID:[\t ]+\\(.*\\)$" nil t)
+                    (push (match-string-no-properties 1) res))
+                  (nreverse res))))
+         (files
+          (cl-remove-if-not
+           #'file-exists-p
+           (mapcar (lambda (id)
+                     (expand-file-name
+                      (concat (substring id 0 2) "/" (substring id 2))
+                      org-attach-directory))
+                   ids))))
+    (cl-mapcan
+     (lambda (dir)
+       (mapcar (lambda (file)
+                 (file-relative-name (expand-file-name file dir)))
+               (org-attach-file-list dir)))
+     files)))
 
 ;;;###autoload
 (defun counsel-org-file ()
