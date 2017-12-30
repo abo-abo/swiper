@@ -3565,28 +3565,27 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
 (declare-function semantic-tag-start "tag")
 (declare-function semantic-tag-of-class-p "tag")
 (declare-function semantic-fetch-tags "semantic")
+(declare-function semantic-format-tag-summarize "semantic/format")
 
-(defun counsel-semantic-action (tag)
+(defun counsel-semantic-action (x)
   "Got to semantic TAG."
-  (with-ivy-window
-    (goto-char (semantic-tag-start tag))))
+  (goto-char (semantic-tag-start (cdr x))))
+
+(defvar counsel-semantic-history nil
+  "History for `counsel-semantic'.")
 
 (defun counsel-semantic ()
   "Jump to a semantic tag in the current buffer."
   (interactive)
-  (let ((tags
-         (mapcar
-          (lambda (tag)
-            (if (semantic-tag-of-class-p tag 'function)
-                (cons
-                 (propertize
-                  (car tag)
-                  'face 'font-lock-function-name-face)
-                 (cdr tag))
-              tag))
-          (semantic-fetch-tags))))
+  (let ((tags (mapcar
+               (lambda (x)
+                 (cons (semantic-format-tag-summarize x nil t)
+                       x))
+               (semantic-fetch-tags))))
     (ivy-read "tag: " tags
-              :action 'counsel-semantic-action)))
+              :action 'counsel-semantic-action
+              :history 'counsel-semantic-history
+              :caller 'counsel-semantic)))
 
 ;;** `counsel-outline'
 (defun counsel-outline-candidates ()
