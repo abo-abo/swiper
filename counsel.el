@@ -3578,26 +3578,6 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
 (defvar counsel-semantic-history nil
   "History for `counsel-semantic'.")
 
-(defun counsel-semantic-reduce (func tags)
-  "Use FUNC to reduce the forest TAGS."
-  (cl-labels
-      ((ns-reduce (func tags out depth)
-         (dolist (tag tags)
-           (setq out
-                 (if (eq (semantic-tag-class tag) 'type)
-                     (ns-reduce
-                      func
-                      (mapcar
-                       (lambda (x)
-                         (semantic-tag-put-attribute
-                          x :parent (semantic-tag-name tag)))
-                       (semantic-tag-get-attribute tag :members))
-                      (funcall func out tag depth)
-                      (1+ depth))
-                   (funcall func out tag depth))))
-         out))
-    (nreverse (ns-reduce func tags nil 0))))
-
 (defun counsel-semantic-format-tag (tag)
   "Return a pretty string representation of TAG."
   (let ((depth (or (semantic-tag-get-attribute tag :depth) 0))
@@ -3608,6 +3588,34 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
               "")
             (semantic-format-tag-summarize tag nil t))))
 
+(defun counsel-flatten-forest (func treep forest)
+  "Use FUNC and TREEP to flatten FOREST.
+FUNC is applied to each node.
+TREEP is used to expand internal nodes."
+  (cl-labels ((reducer (forest out depth)
+                (dolist (tree forest)
+                  (let ((this (cons (funcall func tree depth) out))
+                        (leafs (funcall treep tree)))
+                    (setq out
+                          (if leafs
+                              (reducer leafs this (1+ depth))
+                            this))))
+                out))
+    (nreverse (reducer forest nil 0))))
+
+(defun counsel-semantic-tags ()
+  "Fetch semantic tags."
+  (counsel-flatten-forest
+   (lambda (tree depth)
+     (semantic-tag-put-attribute tree :depth depth))
+   (lambda (tag)
+     (when (eq (semantic-tag-class tag) 'type)
+       (let ((name (semantic-tag-name tag)))
+         (mapcar
+          (lambda (x) (semantic-tag-put-attribute x :parent name))
+          (semantic-tag-get-attribute tag :members)))))
+   (semantic-fetch-tags)))
+
 (defun counsel-semantic ()
   "Jump to a semantic tag in the current buffer."
   (interactive)
@@ -3616,10 +3624,7 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
                  (cons
                   (counsel-semantic-format-tag x)
                   x))
-               (counsel-semantic-reduce
-                (lambda (x y depth)
-                  (push (semantic-tag-put-attribute y :depth depth) x))
-                (semantic-fetch-tags)))))
+               (counsel-semantic-tags))))
     (ivy-read "tag: " tags
               :action 'counsel-semantic-action
               :history 'counsel-semantic-history
