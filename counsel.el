@@ -3632,6 +3632,7 @@ TREEP is used to expand internal nodes."
 
 (defun counsel-semantic-or-imenu ()
   (interactive)
+  (require 'semantic/fw)
   (if (semantic-active-p)
       (counsel-semantic)
     (counsel-imenu)))
