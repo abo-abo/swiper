@@ -3569,6 +3569,7 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
 (declare-function semantic-tag-get-attribute "semantic/tag")
 (declare-function semantic-fetch-tags "semantic")
 (declare-function semantic-format-tag-summarize "semantic/format")
+(declare-function semantic-active-p "semantic/fw")
 
 (defun counsel-semantic-action (x)
   "Got to semantic TAG."
@@ -3623,6 +3624,12 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
               :action 'counsel-semantic-action
               :history 'counsel-semantic-history
               :caller 'counsel-semantic)))
+
+(defun counsel-semantic-or-imenu ()
+  (interactive)
+  (if (semantic-active-p)
+      (counsel-semantic)
+    (counsel-imenu)))
 
 ;;** `counsel-outline'
 (defun counsel-outline-candidates ()
