@@ -3738,7 +3738,7 @@ TREEP is used to expand internal nodes."
 
 ;;** `counsel-linux-app'
 (defcustom counsel-linux-apps-directories
-  '("/usr/local/share/applications/" "/usr/share/applications/")
+  '("~/.local/share/applications/" "/usr/local/share/applications/" "/usr/share/applications/")
   "Directories in which to search for applications (.desktop files)."
   :group 'ivy
   :type '(list directory))
