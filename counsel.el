@@ -1371,7 +1371,7 @@ EVENT is a string describing the change."
   "Count the number of results matching REGEX in `counsel-git-grep'.
 The command to count the matches is called asynchronously.
 If NO-ASYNC is non-nil, do it synchronously instead."
-  (let ((default-directory counsel--git-dir)
+  (let ((default-directory (ivy-state-directory ivy-last))
         (cmd
          (concat
           (format
