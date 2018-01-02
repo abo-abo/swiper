@@ -529,7 +529,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (point))
       (unless (or res swiper-stay-on-quit)
         (goto-char swiper--opoint))
-      (when (> (length ivy-text) 0)
+      (when (and (null res) (> (length ivy-text) 0))
         (cl-pushnew ivy-text swiper-history))
       (when swiper--reveal-mode
         (reveal-mode 1)))))
