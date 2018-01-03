@@ -1035,9 +1035,6 @@ BUFFER defaults to the current one."
 (defvar counsel-git-cmd "git ls-files --full-name --"
   "Command for `counsel-git'.")
 
-(defvar counsel--git-dir nil
-  "Store the base git directory.")
-
 (ivy-set-actions
  'counsel-git
  '(("j" find-file-other-window "other window")
@@ -1055,9 +1052,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-git-cmd)))
   (ivy-set-prompt 'counsel-git counsel-prompt-function)
-  (setq counsel--git-dir (expand-file-name
-                          (counsel-locate-git-root)))
-  (let* ((default-directory counsel--git-dir)
+  (let* ((default-directory (expand-file-name (counsel-locate-git-root)))
          (cands (split-string
                  (shell-command-to-string counsel-git-cmd)
                  "\n"
@@ -1070,12 +1065,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-git-action (x)
   "Find file X in current Git repository."
   (with-ivy-window
-    (let ((default-directory counsel--git-dir))
+    (let ((default-directory (ivy-state-directory ivy-last)))
       (find-file x))))
 
 (defun counsel-git-occur ()
   "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
-  (cd counsel--git-dir)
+  (cd (ivy-state-directory ivy-last))
   (counsel-cmd-to-dired
    (counsel--expand-ls
     (format "%s | grep -i -E '%s' | xargs ls"
@@ -1148,7 +1143,7 @@ Typical value: '(recenter)."
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
   (ivy-add-prompt-count
-   (let ((directory counsel--git-dir))
+   (let ((directory (ivy-state-directory ivy-last)))
      (format "%s [%s]: "
              (ivy-state-prompt ivy-last)
              (let ((dir-list (eshell-split-path directory)))
@@ -1272,10 +1267,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
     (counsel-require-program (car (split-string counsel-git-grep-cmd)))
-    (setf (ivy-state-directory ivy-last)
-          (if proj
-              (car proj)
-            (counsel-locate-git-root)))
     (unless (or proj counsel-git-grep-skip-counting-lines)
       (setq counsel--git-grep-count
             (if (eq system-type 'windows-nt)
@@ -1291,7 +1282,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                  (counsel-delete-process)
                  (swiper--cleanup))
              (lambda ()
-               (swiper--cleanup)))))
+               (swiper--cleanup))))
+          (default-directory (if proj
+                                 (car proj)
+                               (counsel-locate-git-root))))
       (ivy-read "git grep" collection-function
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
@@ -1330,7 +1324,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Return git grep candidates for REGEX."
   (setq counsel-gg-state -2)
   (counsel--gg-count regex)
-  (let* ((default-directory counsel--git-dir)
+  (let* ((default-directory (ivy-state-directory ivy-last))
          (counsel-gg-process " *counsel*")
          (proc (get-process counsel-gg-process))
          (buff (get-buffer counsel-gg-process)))
@@ -1457,7 +1451,9 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
            (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" cand)
              (with-ivy-window
                (let ((file-name (match-string-no-properties 1 cand)))
-                 (setq file-name (expand-file-name file-name counsel--git-dir))
+                 (setq file-name (expand-file-name
+                                  file-name
+                                  (ivy-state-directory ivy-last)))
                  (unless (member file-name done-buffers)
                    (push file-name done-buffers)
                    (find-file file-name)
@@ -1475,9 +1471,9 @@ The git command applies the stash entry where candidate X was found in."
 (defun counsel-git-stash ()
   "Search through all available git stashes."
   (interactive)
-  (setq counsel--git-dir (counsel-locate-git-root))
-  (let ((cands (split-string (shell-command-to-string
-                              "IFS=$'\n'
+  (let* ((default-directory (counsel-locate-git-root))
+         (cands (split-string (shell-command-to-string
+                               "IFS=$'\n'
 for i in `git stash list --format=\"%gd\"`; do
     git stash show -p $i | grep -H --label=\"$i\" \"$1\"
 done") "\n" t)))
@@ -1528,8 +1524,8 @@ TREE is the selected candidate."
 
 (defun counsel-git-worktree-list ()
   "List worktrees in the git repository containing the current buffer."
-  (setq counsel--git-dir (counsel-locate-git-root))
-  (let ((cmd-output (shell-command-to-string "git worktree list")))
+  (let* ((default-directory (counsel-locate-git-root))
+         (cmd-output (shell-command-to-string "git worktree list")))
     (delete "" (split-string (string-trim-right cmd-output) "\n"))))
 
 (defun counsel-git-worktree-parse-root (tree)
@@ -1554,14 +1550,16 @@ TREE is the selected candidate."
 (defun counsel-git-change-worktree ()
   "Find the file corresponding to the current buffer on a different worktree."
   (interactive)
-  (setq counsel--git-dir (counsel-locate-git-root))
-  (ivy-read "Select worktree: "
-            (or (cl-delete counsel--git-dir (counsel-git-worktree-list)
-                           :key #'counsel-git-worktree-parse-root :test #'string=)
-                (error "No other worktrees!"))
-            :action (lambda (tree) (counsel-git-change-worktree-action counsel--git-dir tree))
-            :require-match t
-            :caller 'counsel-git-change-worktree))
+  (let ((default-directory (counsel-locate-git-root)))
+    (ivy-read "Select worktree: "
+              (or (cl-delete default-directory (counsel-git-worktree-list)
+                             :key #'counsel-git-worktree-parse-root :test #'string=)
+                  (error "No other worktrees!"))
+              :action (lambda (tree)
+                        (counsel-git-change-worktree-action
+                         (ivy-state-directory ivy-last) tree))
+              :require-match t
+              :caller 'counsel-git-change-worktree)))
 
 ;;** `counsel-git-checkout'
 (defun counsel-git-checkout-action (branch)
@@ -1575,8 +1573,8 @@ BRANCH is a string whose first word designates the command argument."
   "List branches in the git repository containing the current buffer.
 
 Does not list the currently checked out one."
-  (setq counsel--git-dir (counsel-locate-git-root))
-  (let ((cmd-output (shell-command-to-string "git branch -vv --all")))
+  (let* ((default-directory (counsel-locate-git-root))
+         (cmd-output (shell-command-to-string "git branch -vv --all")))
     (cl-mapcan
      (lambda (str)
        (when (string-prefix-p " " str)
@@ -2182,7 +2180,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
 ;;* Grep
 (defun counsel--grep-mode-occur (git-grep-dir-is-file)
   "Generate a custom occur buffer for grep like commands.
-If GIT-GREP-DIR-IS-FILE is t, then `counsel--git-dir' is treated as a full
+If GIT-GREP-DIR-IS-FILE is t, then `ivy-state-directory' is treated as a full
 path to a file rather than a directory (e.g. for `counsel-grep-occur').
 
 This function expects that the candidates have already been filtered.
@@ -2191,11 +2189,12 @@ It applies no filtering to ivy--all-candidates."
     (ivy-occur-grep-mode))
   (let* ((directory
           (if git-grep-dir-is-file
-              (file-name-directory counsel--git-dir)
-            counsel--git-dir))
+              (file-name-directory (ivy-state-directory ivy-last))
+            (ivy-state-directory ivy-last)))
          (prepend
           (if git-grep-dir-is-file
-              (concat (file-name-nondirectory counsel--git-dir) ":")
+              (concat (file-name-nondirectory
+                       (ivy-state-directory ivy-last)) ":")
             "")))
     (setq default-directory directory)
     ;; Need precise number of header lines for `wgrep' to work.
@@ -2232,7 +2231,7 @@ If non-nil, append EXTRA-AG-ARGS to BASE-CMD."
     (setq extra-ag-args ""))
   (if (< (length string) 3)
       (counsel-more-chars 3)
-    (let ((default-directory counsel--git-dir)
+    (let ((default-directory (ivy-state-directory ivy-last))
           (regex (counsel-unquote-regex-parens
                   (setq ivy--old-re
                         (ivy--regex string)))))
@@ -2274,24 +2273,24 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                "%s" "" (substring-no-properties counsel-ag-base-command pos))))
                 (read-string (format "(%s) args:" command) ag-args)))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
-  (setq counsel--git-dir (or initial-directory default-directory))
-  (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
-            (lambda (string)
-              (counsel-ag-function string counsel-ag-base-command extra-ag-args))
-            :initial-input initial-input
-            :dynamic-collection t
-            :keymap counsel-ag-map
-            :history 'counsel-git-grep-history
-            :action #'counsel-git-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-ag))
+  (let ((default-directory (or initial-directory default-directory)))
+    (ivy-read (or ag-prompt (car (split-string counsel-ag-base-command)))
+              (lambda (string)
+                (counsel-ag-function string counsel-ag-base-command extra-ag-args))
+              :initial-input initial-input
+              :dynamic-collection t
+              :keymap counsel-ag-map
+              :history 'counsel-git-grep-history
+              :action #'counsel-git-grep-action
+              :unwind (lambda ()
+                        (counsel-delete-process)
+                        (swiper--cleanup))
+              :caller 'counsel-ag)))
 
 (defun counsel-grep-like-occur (cmd-template)
   (unless (eq major-mode 'ivy-occur-grep-mode)
     (ivy-occur-grep-mode)
-    (setq default-directory counsel--git-dir))
+    (setq default-directory (ivy-state-directory ivy-last)))
   (setq ivy-text
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
@@ -2380,21 +2379,21 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
            (read-from-minibuffer "rg args: "))))
   (counsel-require-program (car (split-string counsel-rg-base-command)))
   (ivy-set-prompt 'counsel-rg counsel-prompt-function)
-  (setq counsel--git-dir (or initial-directory
-                             (locate-dominating-file default-directory ".git")
-                             default-directory))
-  (ivy-read (or rg-prompt (car (split-string counsel-rg-base-command)))
-            (lambda (string)
-              (counsel-ag-function string counsel-rg-base-command extra-rg-args))
-            :initial-input initial-input
-            :dynamic-collection t
-            :keymap counsel-ag-map
-            :history 'counsel-git-grep-history
-            :action #'counsel-git-grep-action
-            :unwind (lambda ()
-                      (counsel-delete-process)
-                      (swiper--cleanup))
-            :caller 'counsel-rg))
+  (let ((default-directory (or initial-directory
+                               (locate-dominating-file default-directory ".git")
+                               default-directory)))
+    (ivy-read (or rg-prompt (car (split-string counsel-rg-base-command)))
+              (lambda (string)
+                (counsel-ag-function string counsel-rg-base-command extra-rg-args))
+              :initial-input initial-input
+              :dynamic-collection t
+              :keymap counsel-ag-map
+              :history 'counsel-git-grep-history
+              :action #'counsel-git-grep-action
+              :unwind (lambda ()
+                        (counsel-delete-process)
+                        (swiper--cleanup))
+              :caller 'counsel-rg)))
 
 (defun counsel-rg-occur ()
   "Generate a custom occur buffer for `counsel-rg'."
@@ -2427,7 +2426,9 @@ substituted by the search regexp and file, respectively.  Neither
   "Go to candidate X."
   (with-ivy-window
     (swiper--cleanup)
-    (let ((default-directory (file-name-directory counsel--git-dir))
+    (let ((default-directory
+           (file-name-directory
+            (ivy-state-directory ivy-last)))
           file-name line-number)
       (when (cond ((string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
                    (setq file-name (buffer-file-name (ivy-state-buffer ivy-last)))
@@ -2476,7 +2477,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (user-error "Current buffer is not visiting a file"))
   (counsel-require-program (car (split-string counsel-grep-base-command)))
   (setq counsel-grep-last-line nil)
-  (setq counsel--git-dir default-directory)
   (setq counsel-grep-command
         (format counsel-grep-base-command
                 "%s" (shell-quote-argument buffer-file-name)))
