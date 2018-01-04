@@ -694,10 +694,14 @@ selection, non-nil otherwise."
         t
       (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
              (resize-mini-windows t)
-             (key (string (read-key hint)))
-             (action-idx (cl-position-if
-                          (lambda (x) (equal (car x) key))
-                          (cdr actions))))
+	     (key "")
+	     action-idx)
+	(while (and (setq action-idx (cl-position-if
+				      (lambda (x)
+					(string-prefix-p key (car x)))
+				      (cdr actions)))
+		    (not (string= key (car (nth (1+ action-idx) actions)))))
+	  (setq key (concat key (string (read-key hint)))))
         (cond ((member key '("" ""))
                nil)
               ((null action-idx)
