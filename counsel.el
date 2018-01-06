@@ -1174,20 +1174,19 @@ Typical value: '(recenter)."
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
   (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-    (with-ivy-window
-      (let ((file-name (match-string-no-properties 1 x))
-            (line-number (match-string-no-properties 2 x)))
-        (find-file (expand-file-name
-                    file-name
-                    (ivy-state-directory ivy-last)))
-        (goto-char (point-min))
-        (forward-line (1- (string-to-number line-number)))
-        (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-        (swiper--ensure-visible)
-        (run-hooks 'counsel-grep-post-action-hook)
-        (unless (eq ivy-exit 'done)
-          (swiper--cleanup)
-          (swiper--add-overlays (ivy--regex ivy-text)))))))
+    (let ((file-name (match-string-no-properties 1 x))
+          (line-number (match-string-no-properties 2 x)))
+      (find-file (expand-file-name
+                  file-name
+                  (ivy-state-directory ivy-last)))
+      (goto-char (point-min))
+      (forward-line (1- (string-to-number line-number)))
+      (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+      (swiper--ensure-visible)
+      (run-hooks 'counsel-grep-post-action-hook)
+      (unless (eq ivy-exit 'done)
+        (swiper--cleanup)
+        (swiper--add-overlays (ivy--regex ivy-text))))))
 
 (defun counsel-git-grep-matcher (regexp candidates)
   "Return REGEXP matching CANDIDATES for `counsel-git-grep'."
