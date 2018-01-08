@@ -1932,9 +1932,7 @@ string - the full shell command to run."
   (if (and (eq system-type 'windows-nt)
            (fboundp 'w32-shell-execute))
       (w32-shell-execute "open" x)
-    (call-process shell-file-name nil
-                  nil nil
-                  shell-command-switch
+    (start-process-shell-command shell-file-name nil
                   (format "%s %s"
                           (cl-case system-type
                             (darwin "open")
