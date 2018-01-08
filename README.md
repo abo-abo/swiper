@@ -42,6 +42,7 @@ The source file for the Info page is
 Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 
 ### Small config example
+
 ```elisp
 (ivy-mode 1)
 (setq ivy-use-virtual-buffers t)
@@ -64,6 +65,8 @@ Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 ```
 
+Note: parts of this config can be replaced by using `counsel-mode`.
+
 # Counsel
 
 `ivy-mode` ensures that any Emacs command using
@@ -73,6 +76,27 @@ Counsel takes this further, providing versions of common Emacs
 commands that are customised to make the best use of ivy. For example,
 `counsel-find-file` has some additional keybindings. Pressing
 <kbd>DEL</kbd> will move you to the parent directory.
+
+Enabling `counsel-mode` remaps built-in Emacs functions that have
+counsel replacements:
+
+| Emacs command            | Counsel equivalent         |
+|--------------------------|----------------------------|
+| execute-extended-command | counsel-M-x                |
+| describe-bindings        | counsel-descbinds          |
+| describe-function        | counsel-describe-function  |
+| describe-variable        | counsel-describe-variable  |
+| describe-face            | counsel-describe-face      |
+| list-faces-display       | counsel-faces              |
+| find-file                | counsel-find-file          |
+| find-library             | counsel-find-library       |
+| imenu                    | counsel-imenu              |
+| load-library             | counsel-load-library       |
+| load-theme               | counsel-load-theme         |
+| yank-pop                 | counsel-yank-pop           |
+| info-lookup-symbol       | counsel-info-lookup-symbol |
+| pop-to-mark-command      | counsel-mark-ring          |
+| bookmark-jump            | counsel-bookmark           |
 
 # Swiper
 
