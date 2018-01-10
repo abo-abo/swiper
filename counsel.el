@@ -1266,11 +1266,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
     (counsel-require-program (car (split-string counsel-git-grep-cmd)))
-    (unless (or proj counsel-git-grep-skip-counting-lines)
-      (setq counsel--git-grep-count
-            (if (eq system-type 'windows-nt)
-                0
-              (counsel--gg-count "" t))))
     (let ((collection-function
            (if proj
                #'counsel-git-grep-proj-function
@@ -1285,6 +1280,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
           (default-directory (if proj
                                  (car proj)
                                (counsel-locate-git-root))))
+      (unless (or proj counsel-git-grep-skip-counting-lines)
+        (setq counsel--git-grep-count
+              (if (eq system-type 'windows-nt)
+                  0
+                (counsel--gg-count "" t))))
       (ivy-read "git grep" collection-function
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
