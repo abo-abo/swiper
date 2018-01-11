@@ -531,6 +531,10 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char swiper--opoint))
       (when (and (null res) (> (length ivy-text) 0))
         (cl-pushnew ivy-text swiper-history))
+      ;; This allows evil mode to use swiper searches as defaults in
+      ;; s-expressions
+      (when (bound-and-true-p evil-mode)
+        (setq isearch-string ivy-text))
       (when swiper--reveal-mode
         (reveal-mode 1)))))
 
