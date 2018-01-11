@@ -45,7 +45,7 @@ exports.
 ** Exporting to texinfo
 
 ivy.texi is generated from ivy.org. To update the .texi file, eval
-ivy-ox.el then ~C-c C-e i t~ in the ivy.org bufer.
+ivy-ox.el then ~C-c C-e i t~ in the ivy.org buffer.
 * Copying
 :PROPERTIES:
 :COPYING:  t
@@ -502,7 +502,7 @@ display short aliases:
 Hydra reduces key strokes, for example: ~C-n C-n C-n C-n~ is ~C-o
 jjjj~ in Hydra.
 
-Hydra menu offers these additioanl bindings:
+Hydra menu offers these additional bindings:
 
 - ~c~ (=ivy-toggle-calling=) ::
      Toggle calling the action after each candidate change. It

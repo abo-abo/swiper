@@ -686,7 +686,7 @@ display short aliases:
 Hydra reduces key strokes, for example: @kbd{C-n C-n C-n C-n} is @kbd{C-o
 jjjj} in Hydra.
 
-Hydra menu offers these additioanl bindings:
+Hydra menu offers these additional bindings:
 
 @subsubheading @kbd{c} (@code{ivy-toggle-calling})
 @vindex ivy-toggle-calling
