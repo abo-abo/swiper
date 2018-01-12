@@ -21,6 +21,7 @@
 
 ;;* ox-texinfo
 (require 'ox-texinfo)
+(require 'subr-x)
 (org-export-define-backend 'texinfo
   '((bold . org-texinfo-bold)
     (center-block . org-texinfo-center-block)
