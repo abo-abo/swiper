@@ -1717,7 +1717,10 @@ Skip some dotfiles unless `ivy-text' requires them."
       (find-file (expand-file-name x ivy--directory)))))
 
 (defun counsel--preselect-file ()
-  "Chooses the file to preselect in find-file like completions depending on customizations"
+  "Return candidate to preselect during filename completion.
+The preselect behaviour can be customized via user options
+`counsel-find-file-at-point' and
+`counsel-preselect-current-file', which see."
   (or
     (when counsel-find-file-at-point
       (require 'ffap)
