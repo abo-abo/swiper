@@ -617,7 +617,7 @@ X is an item of a radio- or choice-type defcustom."
                 x))))))
 
 ;;;###autoload
-(defun counsel-set-variable ()
+(defun counsel-set-variable (sym)
   "Set a variable, with completion.
 
 When the selected variable is a `defcustom' with the type boolean
@@ -625,13 +625,12 @@ or radio, offer completion of all possible values.
 
 Otherwise, offer a variant of `eval-expression', with the initial
 input corresponding to the chosen variable."
-  (interactive)
-  (let ((sym (intern
-              (ivy-read "Variable: "
-                        (counsel-variable-list)
-                        :preselect (ivy-thing-at-point)
-                        :history 'counsel-set-variable-history)))
-        sym-type
+  (interactive (list (intern
+                      (ivy-read "Variable: "
+                                (counsel-variable-list)
+                                :preselect (ivy-thing-at-point)
+                                :history 'counsel-set-variable-history))))
+  (let (sym-type
         cands)
     (if (and (boundp sym)
              (setq sym-type (get sym 'custom-type))
