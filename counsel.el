@@ -3450,7 +3450,8 @@ PREFIX is used to create the key."
 The default action deletes the selected process.
 An extra action allows to switch to the process buffer."
   (interactive)
-  (list-processes--refresh)
+  (with-temp-buffer
+    (list-processes--refresh))
   (ivy-read "Process: " (mapcar #'process-name (process-list))
             :require-match t
             :action
