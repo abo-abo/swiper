@@ -574,7 +574,7 @@ Either a string or a list for `ivy-re-match'.")
 The prompt line can be selected by calling `ivy-previous-line' when the first
 regular candidate is selected.  Both actions `ivy-done' and `ivy-alt-done',
 when called on a selected prompt, are forwarded to `ivy-immediate-done', which
-results to the same as calling `ivy-immediate-done' explicitely when a regular
+results to the same as calling `ivy-immediate-done' explicitly when a regular
 candidate is selected.
 
 Note that if `ivy-wrap' is set to t, calling `ivy-previous-line' when the
