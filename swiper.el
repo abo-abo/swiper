@@ -255,9 +255,11 @@
     gnus-group-mode
     emms-playlist-mode
     emms-stream-mode
+    eshell-mode
     erc-mode
     forth-mode
     forth-block-mode
+    helpful-mode
     nix-mode
     org-agenda-mode
     dired-mode
