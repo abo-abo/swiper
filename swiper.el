@@ -322,7 +322,7 @@
 
 (defun swiper--line ()
   (let* ((beg (cond ((and (eq major-mode 'dired-mode)
-                          dired-isearch-filenames)
+                          (bound-and-true-p dired-isearch-filenames))
                      (dired-move-to-filename)
                      (point))
                     (swiper-use-visual-line
