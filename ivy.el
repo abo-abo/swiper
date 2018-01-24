@@ -2948,6 +2948,13 @@ Prefix matches to NAME are put ahead of the list."
 (defvar ivy--virtual-buffers nil
   "Store the virtual buffers alist.")
 
+(defun ivy-generic-regex-to-str (re)
+  "Transform RE to a string.
+
+Functions like `ivy--regex-ignore-order' return a cons list.
+This function extracts a string from the cons list."
+  (if (consp re) (caar re) re))
+
 (defun ivy-sort-function-buffer (name candidates)
   "Re-sort candidates by NAME.
 CANDIDATES is a list of buffer names each containing NAME.
@@ -2955,8 +2962,7 @@ Sort open buffers before virtual buffers, and prefix matches
 before substring matches."
   (if (or (string-match "^\\^" name) (string= name ""))
       candidates
-    (let* ((base-re (funcall ivy--regex-function name))
-           (base-re (if (consp base-re) (caar base-re) base-re))
+    (let* ((base-re (ivy-generic-regex-to-str (funcall ivy--regex-function name)))
            (re-prefix (concat "^\\*" base-re))
            res-prefix
            res-noprefix
@@ -3269,9 +3275,10 @@ FACE is the face to apply to STR."
                         '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
                   (string-match "^[^:]+:[^:]+:" str))
              (match-end 0)
-           0)))
+           0))
+        (re (ivy-generic-regex-to-str ivy--old-re)))
     (ignore-errors
-      (while (and (string-match ivy--old-re str start)
+      (while (and (string-match re str start)
                   (> (- (match-end 0) (match-beginning 0)) 0))
         (setq start (match-end 0))
         (let ((i 0))
