@@ -2358,7 +2358,7 @@ Returns a list suitable for `ivy-re-match'."
   "Build a regex sequence from STR.
 Spaces are wild card characters, everything before \"!\" should
 match.  Everything after \"!\" should not match."
-  (let ((parts (split-string str "!" t)))
+  (let ((parts (ivy--split-negation str)))
     (cl-case (length parts)
       (0
        "")
