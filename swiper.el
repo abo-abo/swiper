@@ -255,9 +255,11 @@
     gnus-group-mode
     emms-playlist-mode
     emms-stream-mode
+    eshell-mode
     erc-mode
     forth-mode
     forth-block-mode
+    helpful-mode
     nix-mode
     org-agenda-mode
     dired-mode
@@ -315,6 +317,32 @@
 (defvar swiper-use-visual-line nil
   "When non-nil, use `line-move' instead of `forward-line'.")
 
+(defvar dired-isearch-filenames)
+(declare-function dired-move-to-filename "dired")
+
+(defun swiper--line ()
+  (let* ((beg (cond ((and (eq major-mode 'dired-mode)
+                          (bound-and-true-p dired-isearch-filenames))
+                     (dired-move-to-filename)
+                     (point))
+                    (swiper-use-visual-line
+                     (save-excursion
+                       (beginning-of-visual-line)
+                       (point)))
+                    (t
+                     (point))))
+         (end (if swiper-use-visual-line
+                  (save-excursion
+                    (end-of-visual-line)
+                    (point))
+                (line-end-position))))
+
+    (concat
+     " "
+     (replace-regexp-in-string
+      "\t" "    "
+      (buffer-substring beg end)))))
+
 (declare-function outline-show-all "outline")
 
 (defun swiper--candidates (&optional numbers-width)
@@ -349,21 +377,7 @@ numbers; replaces calculating the width from buffer line count."
           (goto-char (point-min))
           (swiper-font-lock-ensure)
           (while (< (point) (point-max))
-            (let ((str (concat
-                        " "
-                        (replace-regexp-in-string
-                         "\t" "    "
-                         (if swiper-use-visual-line
-                             (buffer-substring
-                              (save-excursion
-                                (beginning-of-visual-line)
-                                (point))
-                              (save-excursion
-                                (end-of-visual-line)
-                                (point)))
-                           (buffer-substring
-                            (point)
-                            (line-end-position)))))))
+            (let ((str (swiper--line)))
               (setq str (ivy-cleanup-string str))
               (let ((line-number-str
                      (format swiper--format-spec (cl-incf line-number))))
@@ -529,6 +543,12 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (point))
       (unless (or res swiper-stay-on-quit)
         (goto-char swiper--opoint))
+      (when (and (null res) (> (length ivy-text) 0))
+        (cl-pushnew ivy-text swiper-history))
+      ;; This allows evil mode to use swiper searches as defaults in
+      ;; s-expressions
+      (when (bound-and-true-p evil-mode)
+        (setq isearch-string ivy-text))
       (when swiper--reveal-mode
         (reveal-mode 1)))))
 
@@ -577,9 +597,7 @@ Matched candidates should have `swiper-invocation-face'."
     (delete-overlay (pop swiper--overlays)))
   (save-excursion
     (goto-char (point-min))
-    (isearch-clean-overlays))
-  (when (> (length ivy-text) 0)
-    (cl-pushnew ivy-text swiper-history)))
+    (isearch-clean-overlays)))
 
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
@@ -659,14 +677,22 @@ WND, when specified is the window."
           ;; RE can become an invalid regexp
           (while (and (ignore-errors (re-search-forward re end t))
                       (> (- (match-end 0) (match-beginning 0)) 0))
-            (let ((mb (match-beginning 0))
-                  (me (match-end 0)))
-              (unless (> (- me mb) 2017)
-                (swiper--add-overlay mb me
-                                     (if (zerop ivy--subexps)
-                                         (cadr swiper-faces)
-                                       (car swiper-faces))
-                                     wnd 0)))
+            (unless (and (consp ivy--old-re)
+                         (null
+                          (save-match-data
+                            (ivy--re-filter ivy--old-re
+                                            (list
+                                             (buffer-substring-no-properties
+                                              (line-beginning-position)
+                                              (line-end-position)))))))
+              (let ((mb (match-beginning 0))
+                    (me (match-end 0)))
+                (unless (> (- me mb) 2017)
+                  (swiper--add-overlay mb me
+                                       (if (zerop ivy--subexps)
+                                           (cadr swiper-faces)
+                                         (car swiper-faces))
+                                       wnd 0))))
             (let ((i 1)
                   (j 0))
               (while (<= (cl-incf j) ivy--subexps)

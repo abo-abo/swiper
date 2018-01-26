@@ -1,6 +1,6 @@
 \input texinfo    @c -*- texinfo -*-
 @c %**start of header
-@setfilename ./ivy.info
+@setfilename ivy.info
 @settitle Ivy User Manual
 @documentencoding UTF-8
 @documentlanguage en
@@ -54,7 +54,6 @@ modify this GNU manual.''
 @ifnottex
 @node Top
 @top Ivy User Manual
-@insertcopying
 @end ifnottex
 
 @menu
@@ -94,8 +93,8 @@ Key bindings
 Minibuffer key bindings
 
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -146,7 +145,9 @@ Commands
 * Buffer Name Completion::
 * Counsel commands::
 
+File Name Completion
 
+* Using TRAMP::
 
 API
 
@@ -154,6 +155,7 @@ API
 * Optional arguments for @code{ivy-read}::
 * Example - @code{counsel-describe-function}::
 * Example - @code{counsel-locate}::
+* Example - @code{ivy-read-with-extra-properties}::
 @end detailmenu
 @end menu
 
@@ -228,24 +230,25 @@ oldest version that runs Ivy with fancy faces display.
 @node Installing from Emacs Package Manager
 @section Installing from Emacs Package Manager
 
-@kbd{M-x} @code{package-install} @kbd{RET} @code{swiper} @kbd{RET}
+@kbd{M-x} @code{package-install} @kbd{RET} @code{ivy} @kbd{RET}
 
-Ivy is installed as part of @code{swiper} package. @code{swiper} is available
-from two different package archives, GNU ELPA and MELPA. For the
-latest stable version, use the GNU ELPA archives using the above M-x
-command.
+Ivy is installed as part of @code{ivy} package, which is available from two
+different package archives, GNU ELPA and MELPA. For the latest stable
+version, use the GNU ELPA archives using the above M-x command.
 
-For current hourly builds, use the MELPA archives. See the code below
-for adding MELPA to the list of package archives:
+For current hourly builds, use the MELPA archives. In MELPA, Ivy is
+split into three packages: @code{ivy}, @code{swiper} and @code{counsel}; you can simply
+install @code{counsel} which will bring in the other two as dependencies.
+See the code below for adding MELPA to the list of package archives:
 
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/"))
+	     '("melpa" . "http://melpa.org/packages/"))
 @end lisp
 
-After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by
-@kbd{M-x} @code{package-install} @kbd{RET} @code{counsel} @kbd{RET}.
+After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by @kbd{M-x}
+@code{package-install} @kbd{RET} @code{counsel} @kbd{RET}.
 
 For package manager details, see @ref{Packages,,,emacs,}.
 
@@ -270,22 +273,22 @@ Contribute to Ivy's development; send patches; pull requests
 First clone the Swiper repository with:
 
 @example
-     cd ~/git && git clone https://github.com/abo-abo/swiper
-     cd swiper && make compile
+cd ~/git && git clone https://github.com/abo-abo/swiper
+cd swiper && make compile
 @end example
 
 Second, add these lines to the Emacs init file:
 
 @lisp
-     (add-to-list 'load-path "~/git/swiper/")
-     (require 'ivy)
+(add-to-list 'load-path "~/git/swiper/")
+(require 'ivy)
 @end lisp
 
 Then, update the code with:
 
 @example
-     git pull
-     make
+git pull
+make
 @end example
 @end indentedblock
 
@@ -338,24 +341,24 @@ The recommended key bindings are:
 @subsubheading Ivy-based interface to standard commands
 @indentedblock
 @lisp
-     (global-set-key (kbd "C-s") 'swiper)
-     (global-set-key (kbd "M-x") 'counsel-M-x)
-     (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-     (global-set-key (kbd "<f1> f") 'counsel-describe-function)
-     (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-     (global-set-key (kbd "<f1> l") 'counsel-find-library)
-     (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-     (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-s") 'swiper)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
 @end lisp
 @end indentedblock
 @subsubheading Ivy-based interface to shell and system tools
 @indentedblock
 @lisp
-     (global-set-key (kbd "C-c g") 'counsel-git)
-     (global-set-key (kbd "C-c j") 'counsel-git-grep)
-     (global-set-key (kbd "C-c k") 'counsel-ag)
-     (global-set-key (kbd "C-x l") 'counsel-locate)
-     (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
 @end lisp
 @end indentedblock
 @subsubheading Ivy-resume and other commands
@@ -363,7 +366,7 @@ The recommended key bindings are:
 @code{ivy-resume} resumes the last Ivy-based completion.
 
 @lisp
-     (global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
 @end lisp
 @end indentedblock
 
@@ -385,8 +388,8 @@ where the familiar @kbd{C-a}, @kbd{C-f}, @kbd{M-d}, @kbd{M-DEL}, @kbd{M-b}, @kbd
 
 @menu
 * Key bindings for navigation::
-* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer.
-* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open.
+* Key bindings for single selection, action, then exit minibuffer: Key bindings for single selection action then exit minibuffer. 
+* Key bindings for multiple selections and actions, keep minibuffer open: Key bindings for multiple selections and actions keep minibuffer open. 
 * Key bindings that alter the minibuffer input::
 * Other key bindings::
 * Hydra in the minibuffer::
@@ -472,13 +475,13 @@ possible. @kbd{TAB TAB} is the same as @kbd{C-j} (@code{ivy-alt-done}).
 Example ERT test:
 
 @lisp
-     (should
-      (equal (ivy-with
-              '(progn
-                (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-                ivy-text)
-              "c <tab>")
-             "can"))
+(should
+ (equal (ivy-with
+	 '(progn
+	   (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+	   ivy-text)
+	 "c <tab>")
+	"can"))
 @end lisp
 @end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
@@ -544,10 +547,9 @@ Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
 line.
 
 Comes in handy when opening multiple files from
-@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag},
-@code{counsel-rg}, or @code{counsel-locate} lists. Just hold
-@kbd{C-M-n} for rapid-fire default action on each successive element
-of the list.
+@code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag}, @code{counsel-rg}, or
+@code{counsel-locate} lists. Just hold @kbd{C-M-n} for rapid-fire default
+action on each successive element of the list.
 @end indentedblock
 @subsubheading @kbd{C-M-p} (@code{ivy-previous-line-and-call})
 @vindex ivy-previous-line-and-call
@@ -686,7 +688,7 @@ display short aliases:
 Hydra reduces key strokes, for example: @kbd{C-n C-n C-n C-n} is @kbd{C-o
 jjjj} in Hydra.
 
-Hydra menu offers these additioanl bindings:
+Hydra menu offers these additional bindings:
 
 @subsubheading @kbd{c} (@code{ivy-toggle-calling})
 @vindex ivy-toggle-calling
@@ -752,10 +754,10 @@ completion.
 
 The new buffer is read-only and has a few useful bindings defined.
 
-@subsubheading @kbd{RET} or @kbd{j} (@code{ivy-occur-press})
+@subsubheading @kbd{RET} or @kbd{f} (@code{ivy-occur-press})
 @vindex ivy-occur-press
 @kindex RET
-@kindex j
+@kindex f
 @indentedblock
 Call the current action on the selected candidate.
 @end indentedblock
@@ -839,7 +841,7 @@ completion:
 @lisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
-        (t . ivy--regex-plus)))
+	(t . ivy--regex-plus)))
 @end lisp
 
 Here, @code{read-file-name-internal} is a function that is passed as the
@@ -975,7 +977,7 @@ The confirmation prompt will use this face.
 For example:
 
 @lisp
-     (setq confirm-nonexistent-file-or-buffer t)
+(setq confirm-nonexistent-file-or-buffer t)
 @end lisp
 
 Then call @code{find-file}, enter "eldorado" and press @kbd{RET} - the
@@ -1016,7 +1018,7 @@ Virtual buffers correspond to bookmarks and recent files list,
 Enable virtual buffers with:
 
 @lisp
-     (setq ivy-use-virtual-buffers t)
+(setq ivy-use-virtual-buffers t)
 @end lisp
 @end indentedblock
 
@@ -1033,13 +1035,13 @@ padded integer value.
 To disable showing the number of candidates:
 
 @lisp
-     (setq ivy-count-format "")
+(setq ivy-count-format "")
 @end lisp
 
 To also display the current candidate:
 
 @lisp
-     (setq ivy-count-format "(%d/%d) ")
+(setq ivy-count-format "(%d/%d) ")
 @end lisp
 
 The @code{format}-style switches this variable uses are described
@@ -1091,9 +1093,9 @@ which the completion started, use the @code{with-ivy-window} wrapper
 macro.
 
 @lisp
-     (defun ivy-insert-action (x)
-       (with-ivy-window
-         (insert x)))
+(defun ivy-insert-action (x)
+  (with-ivy-window
+    (insert x)))
 @end lisp
 @end indentedblock
 
@@ -1192,10 +1194,10 @@ Use the command name as the key:
 (defun my-command-with-3-actions ()
   (interactive)
   (ivy-read "test: " '("foo" "bar" "baz")
-            :action '(1
-                      ("o" my-action-1 "action 1")
-                      ("j" my-action-2 "action 2")
-                      ("k" my-action-3 "action 3"))))
+	    :action '(1
+		      ("o" my-action-1 "action 1")
+		      ("j" my-action-2 "action 2")
+		      ("k" my-action-3 "action 3"))))
 @end lisp
 
 The number 1 above is the index of the default action. Each
@@ -1247,7 +1249,7 @@ headings with similar names to appreciate @code{ivy-mode}.
 Magit requires this setting for ivy completion:
 
 @lisp
-     (setq magit-completing-read-function 'ivy-completing-read)
+(setq magit-completing-read-function 'ivy-completing-read)
 @end lisp
 @end indentedblock
 @subsubheading @code{find-file-in-project}
@@ -1259,7 +1261,7 @@ It uses ivy by default if Ivy is installed.
 Projectile requires this setting for ivy completion:
 
 @lisp
-     (setq projectile-completion-system 'ivy)
+(setq projectile-completion-system 'ivy)
 @end lisp
 @end indentedblock
 @subsubheading @code{helm-make}
@@ -1267,7 +1269,7 @@ Projectile requires this setting for ivy completion:
 Helm-make requires this setting for ivy completion.
 
 @lisp
-     (setq helm-make-completion-method 'ivy)
+(setq helm-make-completion-method 'ivy)
 @end lisp
 @end indentedblock
 
@@ -1339,25 +1341,40 @@ and @kbd{C-j}.
 Likewise, @code{./} can be removed.
 @end defopt
 
-@subsubheading Using TRAMP
-@indentedblock
-From any directory, with the empty input, inputting @code{/ssh:} and
-pressing @kbd{C-j} (or @kbd{RET}, which is the same thing) completes for
-host and user names.
-
-For @code{/ssh:user@@} input, completes the domain name.
-
-@kbd{C-i} works in a similar way to the default completion.
-
-You can also get sudo access for the current directory by
-inputting @code{/sudo::} @kbd{RET}. Using @code{/sudo:} (i.e. single colon instead of
-double) will result in a completion session for the desired user.
-@end indentedblock
 @subsubheading History
 @indentedblock
 File history works the same with @kbd{M-p}, @kbd{M-n}, and @kbd{C-r}, but
 uses a custom code for file name completion that cycles through
 files previously opened. It also works with TRAMP files.
+@end indentedblock
+
+@menu
+* Using TRAMP::
+@end menu
+
+@node Using TRAMP
+@subsection Using TRAMP
+
+From any directory, with the empty input, inputting @code{/ssh:} and pressing
+@kbd{C-j} (or @kbd{RET}, which is the same thing) completes for host and user
+names.
+
+For @code{/ssh:user@@} input, completes the domain name.
+
+@kbd{C-i} works in a similar way to the default completion.
+
+You can also get sudo access for the current directory by inputting
+@code{/sudo::} @kbd{RET}. Using @code{/sudo:} (i.e. single colon instead of double) will
+result in a completion session for the desired user.
+
+Multi-hopping is possible, although a bit complex.
+
+@subsubheading Example : connect to a remote host @code{cloud} and open a file with @code{sudo} there
+@indentedblock
+@itemize
+@item
+@kbd{C-x C-f} @code{/ssh:cloud|sudo:root:/}.
+@end itemize
 @end indentedblock
 
 @node Buffer Name Completion
@@ -1370,7 +1387,7 @@ When non-nil, add @code{recentf-mode} and bookmarks to
 Adding this to Emacs init file:
 
 @lisp
-     (setq ivy-use-virtual-buffers t)
+(setq ivy-use-virtual-buffers t)
 @end lisp
 will add additional virtual buffers to the buffers list for recent
 files. Selecting such virtual buffers, which are highlighted with
@@ -1411,6 +1428,7 @@ features such as multi-actions, non-exiting actions, @code{ivy-occur} and
 * Optional arguments for @code{ivy-read}::
 * Example - @code{counsel-describe-function}::
 * Example - @code{counsel-locate}::
+* Example - @code{ivy-read-with-extra-properties}::
 @end menu
 
 @node Required arguments for @code{ivy-read}
@@ -1545,21 +1563,21 @@ later use yourself. However, it's recommended that you use the
   "Forward to `describe-function'."
   (interactive)
   (ivy-read "Describe function: "
-            (let (cands)
-              (mapatoms
-               (lambda (x)
-                 (when (fboundp x)
-                   (push (symbol-name x) cands))))
-              cands)
-            :keymap counsel-describe-map
-            :preselect (counsel-symbol-at-point)
-            :history 'counsel-describe-symbol-history
-            :require-match t
-            :sort t
-            :action (lambda (x)
-                      (describe-function
-                       (intern x)))
-            :caller 'counsel-describe-function))
+	    (let (cands)
+	      (mapatoms
+	       (lambda (x)
+		 (when (fboundp x)
+		   (push (symbol-name x) cands))))
+	      cands)
+	    :keymap counsel-describe-map
+	    :preselect (counsel-symbol-at-point)
+	    :history 'counsel-describe-symbol-history
+	    :require-match t
+	    :sort t
+	    :action (lambda (x)
+		      (describe-function
+		       (intern x)))
+	    :caller 'counsel-describe-function))
 @end lisp
 
 Here are the interesting features of the above function, in the order that they appear:
@@ -1630,9 +1648,9 @@ narrowing) or select a candidate from the visible collection.
       (counsel-more-chars 3)
     (counsel--async-command
      (format "locate %s '%s'"
-             (mapconcat #'identity counsel-locate-options " ")
-             (counsel-unquote-regex-parens
-              (ivy--regex str))))
+	     (mapconcat #'identity counsel-locate-options " ")
+	     (counsel-unquote-regex-parens
+	      (ivy--regex str))))
     '("" "working...")))
 
 ;;;###autoload
@@ -1641,15 +1659,15 @@ narrowing) or select a candidate from the visible collection.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (ivy-read "Locate: " #'counsel-locate-function
-            :initial-input initial-input
-            :dynamic-collection t
-            :history 'counsel-locate-history
-            :action (lambda (file)
-                      (with-ivy-window
-                        (when file
-                          (find-file file))))
-            :unwind #'counsel-delete-process
-            :caller 'counsel-locate))
+	    :initial-input initial-input
+	    :dynamic-collection t
+	    :history 'counsel-locate-history
+	    :action (lambda (file)
+		      (with-ivy-window
+			(when file
+			  (find-file file))))
+	    :unwind #'counsel-delete-process
+	    :caller 'counsel-locate))
 @end lisp
 
 Here are the interesting features of the above functions, in the order
@@ -1687,6 +1705,44 @@ we want to kill the running process created by
 @code{counsel--async-command}.
 @item
 @code{caller} argument identifies this command for easier customization.
+@end itemize
+
+@node Example - @code{ivy-read-with-extra-properties}
+@section Example - @code{ivy-read-with-extra-properties}
+
+This is another example to show how to associate additional values to each
+displayed strings.
+
+@lisp
+(defun find-candidates-function (str pred _)
+  (let ((props '(1 2))
+	(strs '("foo" "foo2")))
+    (cl-mapcar (lambda (s p) (propertize s 'property p))
+	       strs
+	       props)))
+
+(defun find-candidates ()
+  (interactive)
+  (ivy-read "Find symbols: "
+	    #'find-candidates-function
+	    :action (lambda (x)
+		      (message "Value: %s" (get-text-property 0 'property x)
+		       ))))
+@end lisp
+
+Here are the interesting features of the above function:
+
+@itemize
+@item
+@code{find-candidates-function} builds up a list of strings and associates "foo" with
+the value 1 and "foo2" with 2.
+@item
+@code{find-candidates} is an interactive function.
+@item
+@code{#'find-candidates} is passed as the @code{collection} argument.
+@item
+@code{action} gets passed the selected string with the associated value. It
+then retrieves that value and displays it.
 @end itemize
 
 @node Variable Index

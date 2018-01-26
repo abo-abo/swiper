@@ -169,6 +169,9 @@ will bring the behavior in line with the newer Emacsen."
                   "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
 
+(ert-deftest ivy--regex-plus ()
+  (should (equal (ivy--regex-plus "add path\\!") "\\(add\\).*?\\(path!\\)")))
+
 (ert-deftest ivy-partial-2 ()
   (when (fboundp 'read--expression)
     (should

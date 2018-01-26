@@ -574,7 +574,7 @@ Either a string or a list for `ivy-re-match'.")
 The prompt line can be selected by calling `ivy-previous-line' when the first
 regular candidate is selected.  Both actions `ivy-done' and `ivy-alt-done',
 when called on a selected prompt, are forwarded to `ivy-immediate-done', which
-results to the same as calling `ivy-immediate-done' explicitely when a regular
+results to the same as calling `ivy-immediate-done' explicitly when a regular
 candidate is selected.
 
 Note that if `ivy-wrap' is set to t, calling `ivy-previous-line' when the
@@ -694,10 +694,14 @@ selection, non-nil otherwise."
         t
       (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
              (resize-mini-windows t)
-             (key (string (read-key hint)))
-             (action-idx (cl-position-if
-                          (lambda (x) (equal (car x) key))
-                          (cdr actions))))
+	     (key "")
+	     action-idx)
+	(while (and (setq action-idx (cl-position-if
+				      (lambda (x)
+					(string-prefix-p key (car x)))
+				      (cdr actions)))
+		    (not (string= key (car (nth (1+ action-idx) actions)))))
+	  (setq key (concat key (string (read-key hint)))))
         (cond ((member key '("" ""))
                nil)
               ((null action-idx)
@@ -2055,7 +2059,8 @@ PREDICATE (a function called with no arguments) says when to exit.
 See `completion-in-region' for further information."
   (let* ((enable-recursive-minibuffers t)
          (str (buffer-substring-no-properties start end))
-         (completion-ignore-case case-fold-search)
+         (completion-ignore-case (and case-fold-search
+                                      (string= str (downcase str))))
          (comps
           (completion-all-completions str collection predicate (- end start)))
          (ivy--prompts-list (if (window-minibuffer-p)
@@ -2078,6 +2083,7 @@ See `completion-in-region' for further information."
                                   str)
                                  (t
                                   (substring str (- len))))))
+             (setq ivy--old-re nil)
              (unless (ivy--filter initial comps)
                (setq initial nil))
              (delete-region (- end len) end)
@@ -2356,7 +2362,7 @@ Returns a list suitable for `ivy-re-match'."
   "Build a regex sequence from STR.
 Spaces are wild card characters, everything before \"!\" should
 match.  Everything after \"!\" should not match."
-  (let ((parts (split-string str "!" t)))
+  (let ((parts (ivy--split-negation str)))
     (cl-case (length parts)
       (0
        "")
@@ -2946,6 +2952,13 @@ Prefix matches to NAME are put ahead of the list."
 (defvar ivy--virtual-buffers nil
   "Store the virtual buffers alist.")
 
+(defun ivy-generic-regex-to-str (re)
+  "Transform RE to a string.
+
+Functions like `ivy--regex-ignore-order' return a cons list.
+This function extracts a string from the cons list."
+  (if (consp re) (caar re) re))
+
 (defun ivy-sort-function-buffer (name candidates)
   "Re-sort candidates by NAME.
 CANDIDATES is a list of buffer names each containing NAME.
@@ -2953,8 +2966,7 @@ Sort open buffers before virtual buffers, and prefix matches
 before substring matches."
   (if (or (string-match "^\\^" name) (string= name ""))
       candidates
-    (let* ((base-re (funcall ivy--regex-function name))
-           (base-re (if (consp base-re) (caar base-re) base-re))
+    (let* ((base-re (ivy-generic-regex-to-str (funcall ivy--regex-function name)))
            (re-prefix (concat "^\\*" base-re))
            res-prefix
            res-noprefix
@@ -3267,9 +3279,10 @@ FACE is the face to apply to STR."
                         '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
                   (string-match "^[^:]+:[^:]+:" str))
              (match-end 0)
-           0)))
+           0))
+        (re (ivy-generic-regex-to-str ivy--old-re)))
     (ignore-errors
-      (while (and (string-match ivy--old-re str start)
+      (while (and (string-match re str start)
                   (> (- (match-end 0) (match-beginning 0)) 0))
         (setq start (match-end 0))
         (let ((i 0))
@@ -3827,7 +3840,7 @@ The selected history element will be inserted into the minibuffer."
         (old-last ivy-last)
         (ivy-recursive-restore nil))
     (ivy-read "Reverse-i-search: "
-              history
+              (delete-dups (copy-sequence history))
               :action (lambda (x)
                         (ivy--reset-state
                          (setq ivy-last old-last))
