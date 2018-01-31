@@ -3219,10 +3219,11 @@ A is the left hand side, B the right hand side."
    counsel-yank-pop-separator))
 
 (defun counsel--yank-pop-position (s)
-  "Return position of S in `kill-ring' relative to last yank.
-S must exist in `kill-ring'."
+  "Return position of S in `kill-ring' relative to last yank."
   (or (cl-position s kill-ring-yank-pointer :test #'equal-including-properties)
-      (+ (cl-position s kill-ring :test #'equal-including-properties)
+      (cl-position s kill-ring-yank-pointer :test #'equal)
+      (+ (or (cl-position s kill-ring :test #'equal-including-properties)
+             (cl-position s kill-ring :test #'equal))
          (- (length kill-ring-yank-pointer)
             (length kill-ring)))))
 
