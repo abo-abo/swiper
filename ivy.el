@@ -2800,19 +2800,14 @@ In any completion session, the case folding starts in
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
-  (let ((re-list (if (stringp re) (list (cons re t)) re))
-        (res candidates))
-    (dolist (re re-list)
-      (setq res
-            (ignore-errors
-              (funcall
-               (if (cdr re)
-                   #'cl-remove-if-not
-                 #'cl-remove-if)
-               (let ((re-str (car re)))
-                 (lambda (x) (string-match re-str x)))
-               res))))
-    res))
+  (ignore-errors
+    (dolist (re (if (stringp re) (list (cons re t)) re))
+      (setq candidates
+            (cl-remove nil candidates
+                       (if (cdr re) :if-not :if)
+                       (let ((re-str (car re)))
+                         (lambda (x) (string-match re-str x))))))
+    candidates))
 
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
@@ -2903,11 +2898,7 @@ The alist VAL is a sorting function with the signature of
 (defun ivy--sort-files-by-date (_name candidates)
   "Re-sort CANDIDATES according to file modification date."
   (let ((default-directory ivy--directory))
-    (cl-sort (copy-sequence candidates)
-             (lambda (f1 f2)
-               (time-less-p
-                (nth 5 (file-attributes f2))
-                (nth 5 (file-attributes f1)))))))
+    (sort (copy-sequence candidates) #'file-newer-than-file-p)))
 
 (defvar ivy--flx-featurep (require 'flx nil 'noerror))
 
