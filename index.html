@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-02-01 Thu 17:56 -->
+<!-- 2018-02-01 Thu 18:38 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -21,7 +21,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2017 Free Software Foundation, Inc.
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -157,7 +157,7 @@ for the JavaScript code in this tag.
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="copying"><a id="orgheadline"></a><span class="section-number-2">1</span> Copying</h2>
+<h2 id="copying"><span class="section-number-2">1</span> Copying</h2>
 <div class="outline-text-2" id="text-copying">
 <p>
 Ivy manual, version 0.8.0
@@ -197,7 +197,7 @@ modify this GNU manual.''
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="introduction"><a id="orgheadline"></a><span class="section-number-2">2</span> Introduction</h2>
+<h2 id="introduction"><span class="section-number-2">2</span> Introduction</h2>
 <div class="outline-text-2" id="text-introduction">
 <p>
 Ivy is for quick and easy selection from a list. When Emacs prompts
@@ -250,7 +250,7 @@ for documentation look-ups.</dd>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="installation"><a id="orgheadline"></a><span class="section-number-2">3</span> Installation</h2>
+<h2 id="installation"><span class="section-number-2">3</span> Installation</h2>
 <div class="outline-text-2" id="text-installation">
 <p>
 Install Ivy automatically through Emacs's package manager, or manually
@@ -264,7 +264,7 @@ oldest version that runs Ivy with fancy faces display.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="installing-from-emacs-package-manager"><a id="orgheadline"></a><span class="section-number-3">3.1</span> Installing from Emacs Package Manager</h3>
+<h3 id="installing-from-emacs-package-manager"><span class="section-number-3">3.1</span> Installing from Emacs Package Manager</h3>
 <div class="outline-text-3" id="text-installing-from-emacs-package-manager">
 <p>
 <kbd>M-x</kbd> <code>package-install</code> <kbd>RET</kbd> <code>ivy</code> <kbd>RET</kbd>
@@ -284,10 +284,10 @@ See the code below for adding MELPA to the list of package archives:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">package</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">package</span>)
 (add-to-list 'package-archives
              '(<span style="color: #2A00FF;">"melpa"</span> . <span style="color: #2A00FF;">"http://melpa.org/packages/"</span>))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -296,13 +296,13 @@ After this do <kbd>M-x</kbd> <code>package-refresh-contents</code> <kbd>RET</kbd
 </p>
 
 <p>
-For package manager details, see <a href="http://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">emacs#Packages</a>.
+For package manager details, see <a href="https://www.gnu.org/software/emacs/manual/html_mono/emacs.html#Packages">emacs#Packages</a>.
 </p>
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="installing-from-the-git-repository"><a id="orgheadline"></a><span class="section-number-3">3.2</span> Installing from the Git repository</h3>
+<h3 id="installing-from-the-git-repository"><span class="section-number-3">3.2</span> Installing from the Git repository</h3>
 <div class="outline-text-3" id="text-installing-from-the-git-repository">
 <dl class="org-dl">
 <dt>Why install from Git?</dt><dd><ul class="org-ul">
@@ -315,13 +315,13 @@ For package manager details, see <a href="http://www.gnu.org/software/emacs/manu
 
 <dl class="org-dl">
 <dt>Configuration steps</dt><dd><p>
-     First clone the Swiper repository with:
+First clone the Swiper repository with:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
+<pre class="src src-sh"><span style="color: #7F0055; font-weight: bold;">cd</span> ~/git &amp;&amp; git clone https://github.com/abo-abo/swiper
 <span style="color: #7F0055; font-weight: bold;">cd</span> swiper &amp;&amp; make compile
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -329,9 +329,9 @@ Second, add these lines to the Emacs init file:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
+<pre class="src src-elisp">(add-to-list 'load-path <span style="color: #2A00FF;">"~/git/swiper/"</span>)
 (<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ivy</span>)
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -339,9 +339,9 @@ Then, update the code with:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-sh">git pull
+<pre class="src src-sh">git pull
 make
-</code></pre>
+</pre>
 </div></dd>
 </dl>
 </div>
@@ -349,15 +349,15 @@ make
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="getting-started"><a id="orgheadline"></a><span class="section-number-2">4</span> Getting started</h2>
+<h2 id="getting-started"><span class="section-number-2">4</span> Getting started</h2>
 <div class="outline-text-2" id="text-getting-started">
 <p>
 First enable Ivy completion everywhere:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(ivy-mode 1)
-</code></pre>
+<pre class="src src-elisp">(ivy-mode 1)
+</pre>
 </div>
 
 <p>
@@ -365,16 +365,16 @@ Note: <code>ivy-mode</code> can be toggled on and off with <kbd>M-x</kbd> <code>
 </p>
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="basic-customization"><a id="orgheadline"></a><span class="section-number-3">4.1</span> Basic customization</h3>
+<h3 id="basic-customization"><span class="section-number-3">4.1</span> Basic customization</h3>
 <div class="outline-text-3" id="text-basic-customization">
 <p>
 Here are some basic settings particularly useful for new Ivy users:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-use-virtual-buffers t)
-(setq ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
+</pre>
 </div>
 
 <p>
@@ -393,11 +393,11 @@ documentation.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="key-bindings"><a id="orgheadline"></a><span class="section-number-2">5</span> Key bindings</h2>
+<h2 id="key-bindings"><span class="section-number-2">5</span> Key bindings</h2>
 <div class="outline-text-2" id="text-key-bindings">
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="global-key-bindings"><a id="orgheadline"></a><span class="section-number-3">5.1</span> Global key bindings</h3>
+<h3 id="global-key-bindings"><span class="section-number-3">5.1</span> Global key bindings</h3>
 <div class="outline-text-3" id="text-global-key-bindings">
 <p>
 The recommended key bindings are:
@@ -405,7 +405,7 @@ The recommended key bindings are:
 
 <dl class="org-dl">
 <dt>Ivy-based interface to standard commands</dt><dd><div class="org-src-container">
-<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-s"</span>) 'swiper)
 (global-set-key (kbd <span style="color: #2A00FF;">"M-x"</span>) 'counsel-M-x)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x C-f"</span>) 'counsel-find-file)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; f"</span>) 'counsel-describe-function)
@@ -413,32 +413,32 @@ The recommended key bindings are:
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f1&gt; l"</span>) 'counsel-find-library)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; i"</span>) 'counsel-info-lookup-symbol)
 (global-set-key (kbd <span style="color: #2A00FF;">"&lt;f2&gt; u"</span>) 'counsel-unicode-char)
-</code></pre>
+</pre>
 </div></dd>
 
 <dt>Ivy-based interface to shell and system tools</dt><dd><div class="org-src-container">
-<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c j"</span>) 'counsel-git-grep)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c k"</span>) 'counsel-ag)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x l"</span>) 'counsel-locate)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-S-o"</span>) 'counsel-rhythmbox)
-</code></pre>
+</pre>
 </div></dd>
 
 <dt>Ivy-resume and other commands</dt><dd><p>
-     <code>ivy-resume</code> resumes the last Ivy-based completion.
+<code>ivy-resume</code> resumes the last Ivy-based completion.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
-</code></pre>
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c C-r"</span>) 'ivy-resume)
+</pre>
 </div></dd>
 </dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="minibuffer-key-bindings"><a id="orgheadline"></a><span class="section-number-3">5.2</span> Minibuffer key bindings</h3>
+<h3 id="minibuffer-key-bindings"><span class="section-number-3">5.2</span> Minibuffer key bindings</h3>
 <div class="outline-text-3" id="text-minibuffer-key-bindings">
 <p>
 Ivy includes several minibuffer bindings, which are defined in the
@@ -460,7 +460,7 @@ where the familiar <kbd>C-a</kbd>, <kbd>C-f</kbd>, <kbd>M-d</kbd>, <kbd>M-DEL</k
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="key-bindings-for-navigation"><a id="orgheadline"></a><span class="section-number-4">5.2.1</span> Key bindings for navigation</h4>
+<h4 id="key-bindings-for-navigation"><span class="section-number-4">5.2.1</span> Key bindings for navigation</h4>
 <div class="outline-text-4" id="text-key-bindings-for-navigation">
 <ul class="org-ul">
 <li><kbd>C-n</kbd> (<code>ivy-next-line</code>) selects the next candidate</li>
@@ -474,7 +474,7 @@ where the familiar <kbd>C-a</kbd>, <kbd>C-f</kbd>, <kbd>M-d</kbd>, <kbd>M-DEL</k
 
 <dl class="org-dl">
 <dt>User Option <code>ivy-wrap</code></dt><dd><p>
-     Specifies the wrap-around behavior for <kbd>C-n</kbd> and <kbd>C-p</kbd>. When
+Specifies the wrap-around behavior for <kbd>C-n</kbd> and <kbd>C-p</kbd>. When
 <code>ivy-wrap</code> is set to <code>t</code>, <code>ivy-next-line</code> and <code>ivy-previous-line</code>
 will cycle past the last and the first candidates respectively.
 </p>
@@ -484,7 +484,7 @@ Warp-around behavior is off by default.
 </p></dd>
 
 <dt>User Option <code>ivy-height</code></dt><dd><p>
-     Use this option to adjust the minibuffer height, which also
+Use this option to adjust the minibuffer height, which also
 affects scroll size when using <kbd>C-v</kbd> and <kbd>M-v</kbd> key bindings.
 </p>
 
@@ -496,7 +496,7 @@ affects scroll size when using <kbd>C-v</kbd> and <kbd>M-v</kbd> key bindings.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><a id="orgheadline"></a><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
+<h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
 <div class="outline-text-4" id="text-key-bindings-for-single-selection-action-then-exit-minibuffer">
 <p>
 Ivy can offer several actions from which to choose which action to
@@ -521,7 +521,7 @@ candidate and starts a new completion session there. Otherwise,
 it is the same as <code>ivy-done</code>.</dd>
 
 <dt><kbd>TAB</kbd> (<code>ivy-partial-or-done</code>)</dt><dd><p>
-     Attempts partial completion, extending current input as much as
+Attempts partial completion, extending current input as much as
 possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd> (<code>ivy-alt-done</code>).
 </p>
 
@@ -530,18 +530,18 @@ Example ERT test:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(should
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">should</span>
  (equal (ivy-with
          '(<span style="color: #7F0055; font-weight: bold;">progn</span>
            (ivy-read <span style="color: #2A00FF;">"Test: "</span> '(<span style="color: #2A00FF;">"can do"</span> <span style="color: #2A00FF;">"can't, sorry"</span> <span style="color: #2A00FF;">"other"</span>))
            ivy-text)
          <span style="color: #2A00FF;">"c &lt;tab&gt;"</span>)
         <span style="color: #2A00FF;">"can"</span>))
-</code></pre>
+</pre>
 </div></dd>
 
 <dt><kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>)</dt><dd><p>
-     Exits with <i>the current input</i> instead of <i>the current candidate</i>
+Exits with <i>the current input</i> instead of <i>the current candidate</i>
 (like other commands).
 </p>
 
@@ -560,7 +560,7 @@ keystrokes followed by <kbd>C-m</kbd>.</dd>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open"><a id="orgheadline"></a><span class="section-number-4">5.2.3</span> Key bindings for multiple selections and actions, keep minibuffer open</h4>
+<h4 id="key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open"><span class="section-number-4">5.2.3</span> Key bindings for multiple selections and actions, keep minibuffer open</h4>
 <div class="outline-text-4" id="text-key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open">
 <p>
 For repeatedly applying multiple actions or acting on multiple
@@ -576,7 +576,7 @@ actions.
 
 <dl class="org-dl">
 <dt><kbd>C-M-m</kbd> (<code>ivy-call</code>)</dt><dd><p>
-     Is the non-exiting version of <kbd>C-m</kbd> (<code>ivy-done</code>).
+Is the non-exiting version of <kbd>C-m</kbd> (<code>ivy-done</code>).
 </p>
 
 <p>
@@ -588,7 +588,7 @@ succession.
 </p></dd>
 
 <dt><kbd>C-M-o</kbd> (<code>ivy-dispatching-call</code>)</dt><dd><p>
-     Is the non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
+Is the non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
 </p>
 
 <p>
@@ -599,7 +599,7 @@ the default one after <kbd>C-M-o</kbd>.
 </p></dd>
 
 <dt><kbd>C-M-n</kbd> (<code>ivy-next-line-and-call</code>)</dt><dd><p>
-     Combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies an action and moves to next
+Combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies an action and moves to next
 line.
 </p>
 
@@ -611,7 +611,7 @@ action on each successive element of the list.
 </p></dd>
 
 <dt><kbd>C-M-p</kbd> (<code>ivy-previous-line-and-call</code>)</dt><dd><p>
-     Combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>.
+Combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>.
 </p>
 
 <p>
@@ -620,7 +620,7 @@ other direction.
 </p></dd>
 
 <dt><code>ivy-resume</code></dt><dd><p>
-     Recalls the state of the completion session just before its last
+Recalls the state of the completion session just before its last
 exit.
 </p>
 
@@ -632,11 +632,11 @@ Useful after an accidental <kbd>C-m</kbd> (<code>ivy-done</code>).
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="key-bindings-that-alter-the-minibuffer-input"><a id="orgheadline"></a><span class="section-number-4">5.2.4</span> Key bindings that alter the minibuffer input</h4>
+<h4 id="key-bindings-that-alter-the-minibuffer-input"><span class="section-number-4">5.2.4</span> Key bindings that alter the minibuffer input</h4>
 <div class="outline-text-4" id="text-key-bindings-that-alter-the-minibuffer-input">
 <dl class="org-dl">
 <dt><kbd>M-n</kbd> (<code>ivy-next-history-element</code>)</dt><dd><p>
-     Cycles forward through the Ivy command history.
+Cycles forward through the Ivy command history.
 </p>
 
 <p>
@@ -648,7 +648,7 @@ into the minibuffer.
 <dt><kbd>M-p</kbd> (<code>ivy-previous-history-element</code>)</dt><dd>Cycles forward through the Ivy command history.</dd>
 
 <dt><kbd>M-i</kbd> (<code>ivy-insert-current</code>)</dt><dd><p>
-     Inserts the current candidate into the minibuffer.
+Inserts the current candidate into the minibuffer.
 </p>
 
 <p>
@@ -658,7 +658,7 @@ complete the renaming.
 </p></dd>
 
 <dt><kbd>M-j</kbd> (<code>ivy-yank-word</code>)</dt><dd><p>
-     Inserts the sub-word at point into the minibuffer.
+Inserts the sub-word at point into the minibuffer.
 </p>
 
 <p>
@@ -667,7 +667,7 @@ for <code>kill-region</code>.
 </p></dd>
 
 <dt><kbd>S-SPC</kbd> (<code>ivy-restrict-to-matches</code>)</dt><dd><p>
-     Deletes the current input, and resets the candidates list to the
+Deletes the current input, and resets the candidates list to the
 currently restricted matches.
 </p>
 
@@ -676,7 +676,7 @@ This is how Ivy provides narrowing in successive tiers.
 </p></dd>
 
 <dt><kbd>C-r</kbd> (<code>ivy-reverse-i-search</code>)</dt><dd><p>
-     Starts a recursive completion session through the command's
+Starts a recursive completion session through the command's
 history.
 </p>
 
@@ -690,11 +690,11 @@ selected candidate string is inserted into the minibuffer.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="other-key-bindings"><a id="orgheadline"></a><span class="section-number-4">5.2.5</span> Other key bindings</h4>
+<h4 id="other-key-bindings"><span class="section-number-4">5.2.5</span> Other key bindings</h4>
 <div class="outline-text-4" id="text-other-key-bindings">
 <dl class="org-dl">
 <dt><kbd>M-w</kbd> (<code>ivy-kill-ring-save</code>)</dt><dd><p>
-     Copies selected candidates to the kill ring.
+Copies selected candidates to the kill ring.
 </p>
 
 <p>
@@ -705,7 +705,7 @@ Copies the region if the region is active.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="hydra-in-the-minibuffer"><a id="orgheadline"></a><span class="section-number-4">5.2.6</span> Hydra in the minibuffer</h4>
+<h4 id="hydra-in-the-minibuffer"><span class="section-number-4">5.2.6</span> Hydra in the minibuffer</h4>
 <div class="outline-text-4" id="text-hydra-in-the-minibuffer">
 <dl class="org-dl">
 <dt><kbd>C-o</kbd> (<code>hydra-ivy/body</code>)</dt><dd>Invokes the hydra menu with short key bindings.</dd>
@@ -822,7 +822,7 @@ characters for lower case input).</dd>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="saving-the-current-completion-session-to-a-buffer"><a id="orgheadline"></a><span class="section-number-4">5.2.7</span> Saving the current completion session to a buffer</h4>
+<h4 id="saving-the-current-completion-session-to-a-buffer"><span class="section-number-4">5.2.7</span> Saving the current completion session to a buffer</h4>
 <div class="outline-text-4" id="text-saving-the-current-completion-session-to-a-buffer">
 <dl class="org-dl">
 <dt><kbd>C-c C-o</kbd> (<code>ivy-occur</code>)</dt><dd>Saves the current candidates to a new buffer and exits
@@ -865,7 +865,7 @@ names. For example: <code>*ivy-occur counsel-describe-variable
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="completion-styles"><a id="orgheadline"></a><span class="section-number-2">6</span> Completion Styles</h2>
+<h2 id="completion-styles"><span class="section-number-2">6</span> Completion Styles</h2>
 <div class="outline-text-2" id="text-completion-styles">
 <p>
 Ivy's completion functions rely on a regex builder - a function that
@@ -896,9 +896,9 @@ The default is:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-re-builders-alist
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((t . ivy--regex-plus)))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -907,10 +907,10 @@ completion:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-re-builders-alist
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
         (t . ivy--regex-plus)))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -934,7 +934,7 @@ entry on <code>ivy-re-builders-alist</code>.</li>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="ivy--regex-plus"><a id="orgheadline"></a><span class="section-number-3">6.1</span> ivy&#x2013;regex-plus</h3>
+<h3 id="ivy--regex-plus"><span class="section-number-3">6.1</span> ivy&#x2013;regex-plus</h3>
 <div class="outline-text-3" id="text-ivy--regex-plus">
 <p>
 <code>ivy--regex-plus</code> is Ivy's default completion method.
@@ -952,8 +952,8 @@ transformed into
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp"><span style="color: #2A00FF;">"</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">for</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">.*</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">example</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">"</span>
-</code></pre>
+<pre class="src src-elisp"><span style="color: #2A00FF;">"</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">for</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">.*</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">example</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">"</span>
+</pre>
 </div>
 
 <p>
@@ -987,7 +987,7 @@ beginning of a negation group.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="ivy--regex-ignore-order"><a id="orgheadline"></a><span class="section-number-3">6.2</span> ivy&#x2013;regex-ignore-order</h3>
+<h3 id="ivy--regex-ignore-order"><span class="section-number-3">6.2</span> ivy&#x2013;regex-ignore-order</h3>
 <div class="outline-text-3" id="text-ivy--regex-ignore-order">
 <p>
 <code>ivy--regex-ignore-order</code> ignores the order of regexp tokens when
@@ -998,7 +998,7 @@ searching for matching candidates. For instance, the input
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="ivy--regex-fuzzy"><a id="orgheadline"></a><span class="section-number-3">6.3</span> ivy&#x2013;regex-fuzzy</h3>
+<h3 id="ivy--regex-fuzzy"><span class="section-number-3">6.3</span> ivy&#x2013;regex-fuzzy</h3>
 <div class="outline-text-3" id="text-ivy--regex-fuzzy">
 <p>
 <code>ivy--regex-fuzzy</code> splits each character with a wild card. Searching
@@ -1016,11 +1016,11 @@ installed.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="customization"><a id="orgheadline"></a><span class="section-number-2">7</span> Customization</h2>
+<h2 id="customization"><span class="section-number-2">7</span> Customization</h2>
 <div class="outline-text-2" id="text-customization">
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="faces"><a id="orgheadline"></a><span class="section-number-3">7.1</span> Faces</h3>
+<h3 id="faces"><span class="section-number-3">7.1</span> Faces</h3>
 <div class="outline-text-3" id="text-faces">
 <dl class="org-dl">
 <dt><code>ivy-current-match</code></dt><dd>Highlights the currently selected candidate.</dd>
@@ -1029,7 +1029,7 @@ installed.
 <dt><code>ivy-minibuffer-match-face-3</code></dt><dd>Highlights the second (modulo 3) matched group.</dd>
 <dt><code>ivy-minibuffer-match-face-4</code></dt><dd>Highlights the third (modulo 3) matched group.</dd>
 <dt><code>ivy-confirm-face</code></dt><dd><p>
-     Highlights the "(confirm)" part of the prompt.
+Highlights the "(confirm)" part of the prompt.
 </p>
 
 <p>
@@ -1047,8 +1047,8 @@ For example:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq confirm-nonexistent-file-or-buffer t)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> confirm-nonexistent-file-or-buffer t)
+</pre>
 </div>
 
 <p>
@@ -1057,7 +1057,7 @@ prompt will be appended with "(confirm)". Press <kbd>RET</kbd> once more
 to confirm, or any key to continue the completion.
 </p></dd>
 <dt><code>ivy-match-required-face</code></dt><dd><p>
-     Highlights the "(match required)" part of the prompt.
+Highlights the "(match required)" part of the prompt.
 </p>
 
 <p>
@@ -1074,7 +1074,7 @@ Press any key for the prompt to disappear.
 <dt><code>ivy-subdir</code></dt><dd>Highlights directories when completing file names.</dd>
 <dt><code>ivy-remote</code></dt><dd>Highlights remote files when completing file names.</dd>
 <dt><code>ivy-virtual</code></dt><dd><p>
-     Highlights virtual buffers when completing buffer names.
+Highlights virtual buffers when completing buffer names.
 </p>
 
 <p>
@@ -1087,18 +1087,18 @@ Enable virtual buffers with:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-use-virtual-buffers t)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</pre>
 </div></dd>
 </dl>
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="defcustoms"><a id="orgheadline"></a><span class="section-number-3">7.2</span> Defcustoms</h3>
+<h3 id="defcustoms"><span class="section-number-3">7.2</span> Defcustoms</h3>
 <div class="outline-text-3" id="text-defcustoms">
 <dl class="org-dl">
 <dt>User Option <code>ivy-count-format</code></dt><dd><p>
-     A string that specifies display of number of candidates and
+A string that specifies display of number of candidates and
 current candidate, if one exists.
 </p>
 
@@ -1112,8 +1112,8 @@ To disable showing the number of candidates:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-count-format <span style="color: #2A00FF;">""</span>)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">""</span>)
+</pre>
 </div>
 
 <p>
@@ -1121,8 +1121,8 @@ To also display the current candidate:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-count-format <span style="color: #2A00FF;">"(%d/%d) "</span>)
+</pre>
 </div>
 
 <p>
@@ -1131,7 +1131,7 @@ in the <code>format</code> documentation.
 </p></dd>
 
 <dt>User Option <code>ivy-display-style</code></dt><dd><p>
-     Specifies highlighting candidates in the minibuffer.
+Specifies highlighting candidates in the minibuffer.
 </p>
 
 <p>
@@ -1144,7 +1144,7 @@ Set <code>ivy-display-style</code> to <code>nil</code> for a plain minibuffer.
 </p></dd>
 
 <dt>User Option <code>ivy-on-del-error-function</code></dt><dd><p>
-     Specify what when <kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>) throws.
+Specify what when <kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>) throws.
 </p>
 
 <p>
@@ -1156,11 +1156,11 @@ handy key to invoke after mistakenly triggering a completion.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="actions"><a id="orgheadline"></a><span class="section-number-3">7.3</span> Actions</h3>
+<h3 id="actions"><span class="section-number-3">7.3</span> Actions</h3>
 <div class="outline-text-3" id="text-actions">
 </div>
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="what-are-actions"><a id="orgheadline"></a><span class="section-number-4">7.3.1</span> What are actions?</h4>
+<h4 id="what-are-actions"><span class="section-number-4">7.3.1</span> What are actions?</h4>
 <div class="outline-text-4" id="text-what-are-actions">
 <p>
 An action is a function that is called after you select a candidate
@@ -1170,7 +1170,7 @@ is the selected candidate.
 
 <dl class="org-dl">
 <dt>Window context when calling an action</dt><dd><p>
-     Currently, the action is executed in the minibuffer window
+Currently, the action is executed in the minibuffer window
 context. This means e.g. that if you call <code>insert</code> the text will
 be inserted into the minibuffer.
 </p>
@@ -1182,17 +1182,17 @@ macro.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
-  (with-ivy-window
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-insert-action</span> (x)
+  (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
     (insert x)))
-</code></pre>
+</pre>
 </div></dd>
 </dl>
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="how-can-different-actions-be-called"><a id="orgheadline"></a><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
+<h4 id="how-can-different-actions-be-called"><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
 <div class="outline-text-4" id="text-how-can-different-actions-be-called">
 <ul class="org-ul">
 <li><kbd>C-m</kbd> (<code>ivy-done</code>) calls the current action.</li>
@@ -1205,7 +1205,7 @@ selection, calls it after selection, and then does not exit.</li>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="how-to-modify-the-actions-list"><a id="orgheadline"></a><span class="section-number-4">7.3.3</span> How to modify the actions list?</h4>
+<h4 id="how-to-modify-the-actions-list"><span class="section-number-4">7.3.3</span> How to modify the actions list?</h4>
 <div class="outline-text-4" id="text-how-to-modify-the-actions-list">
 <p>
 Currently, you can append any amount of your own actions to the
@@ -1223,7 +1223,7 @@ equivalent to <kbd>C-m</kbd>.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="example---add-two-actions-to-each-command"><a id="orgheadline"></a><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
+<h4 id="example---add-two-actions-to-each-command"><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
 <div class="outline-text-4" id="text-example---add-two-actions-to-each-command">
 <p>
 The first action inserts the current candidate into the Ivy window -
@@ -1235,18 +1235,18 @@ The second action copies the current candidate to the kill ring.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-yank-action</span> (x)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-yank-action</span> (x)
   (kill-new x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">ivy-copy-to-buffer-action</span> (x)
-  (with-ivy-window
+  (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
     (insert x)))
 
 (ivy-set-actions
  t
  '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
    (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -1256,7 +1256,7 @@ Then in any completion session, <kbd>M-o y</kbd> invokes <code>ivy-yank-action</
 </div>
 
 <div id="outline-container-orgheadline" class="outline-5">
-<h5 id="how-to-undo-adding-the-two-actions"><a id="orgheadline"></a><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
+<h5 id="how-to-undo-adding-the-two-actions"><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
 <div class="outline-text-5" id="text-how-to-undo-adding-the-two-actions">
 <p>
 Since <code>ivy-set-actions</code> modifies the internal dictionary with new
@@ -1265,35 +1265,35 @@ the <code>t</code> key as follows:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(ivy-set-actions t nil)
-</code></pre>
+<pre class="src src-elisp">(ivy-set-actions t nil)
+</pre>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-5">
-<h5 id="how-to-add-actions-to-a-specific-command"><a id="orgheadline"></a><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
+<h5 id="how-to-add-actions-to-a-specific-command"><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
 <div class="outline-text-5" id="text-how-to-add-actions-to-a-specific-command">
 <p>
 Use the command name as the key:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(ivy-set-actions
+<pre class="src src-elisp">(ivy-set-actions
  'swiper
  '((<span style="color: #2A00FF;">"i"</span> ivy-copy-to-buffer-action <span style="color: #2A00FF;">"insert"</span>)
    (<span style="color: #2A00FF;">"y"</span> ivy-yank-action <span style="color: #2A00FF;">"yank"</span>)))
-</code></pre>
+</pre>
 </div>
 </div>
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="example---define-a-new-command-with-several-actions"><a id="orgheadline"></a><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
+<h4 id="example---define-a-new-command-with-several-actions"><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
 <div class="outline-text-4" id="text-example---define-a-new-command-with-several-actions">
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-1</span> (x)
   (message <span style="color: #2A00FF;">"action-1: %s"</span> x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-action-2</span> (x)
@@ -1303,13 +1303,13 @@ Use the command name as the key:
   (message <span style="color: #2A00FF;">"action-3: %s"</span> x))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-command-with-3-actions</span> ()
-  (interactive)
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
   (ivy-read <span style="color: #2A00FF;">"test: "</span> '(<span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"bar"</span> <span style="color: #2A00FF;">"baz"</span>)
             <span style="color: #7F0055; font-weight: bold;">:action</span> '(1
                       (<span style="color: #2A00FF;">"o"</span> my-action-1 <span style="color: #2A00FF;">"action 1"</span>)
                       (<span style="color: #2A00FF;">"j"</span> my-action-2 <span style="color: #2A00FF;">"action 2"</span>)
                       (<span style="color: #2A00FF;">"k"</span> my-action-3 <span style="color: #2A00FF;">"action 3"</span>))))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -1319,7 +1319,7 @@ action has its own string description for easy selection.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-5">
-<h5 id="test-the-above-function-with-ivy-occur"><a id="orgheadline"></a><span class="section-number-5">7.3.5.1</span> Test the above function with <code>ivy-occur</code></h5>
+<h5 id="test-the-above-function-with-ivy-occur"><span class="section-number-5">7.3.5.1</span> Test the above function with <code>ivy-occur</code></h5>
 <div class="outline-text-5" id="text-test-the-above-function-with-ivy-occur">
 <p>
 To examine each action with each candidate in a key-efficient way, try:
@@ -1344,36 +1344,36 @@ likely at the end of the buffer</li>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="packages"><a id="orgheadline"></a><span class="section-number-3">7.4</span> Packages</h3>
+<h3 id="packages"><span class="section-number-3">7.4</span> Packages</h3>
 <div class="outline-text-3" id="text-packages">
 <dl class="org-dl">
 <dt><code>org-mode</code></dt><dd><code>org-mode</code> versions 8.3.3 or later obey
 <code>completing-read-function</code> (which <code>ivy-mode</code> sets). Try refiling
 headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 <dt><code>magit</code></dt><dd><p>
-     Magit requires this setting for ivy completion:
+Magit requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq magit-completing-read-function 'ivy-completing-read)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> magit-completing-read-function 'ivy-completing-read)
+</pre>
 </div></dd>
 <dt><code>find-file-in-project</code></dt><dd>It uses ivy by default if Ivy is installed.</dd>
 <dt><code>projectile</code></dt><dd><p>
-     Projectile requires this setting for ivy completion:
+Projectile requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq projectile-completion-system 'ivy)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> projectile-completion-system 'ivy)
+</pre>
 </div></dd>
 <dt><code>helm-make</code></dt><dd><p>
-     Helm-make requires this setting for ivy completion.
+Helm-make requires this setting for ivy completion.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq helm-make-completion-method 'ivy)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> helm-make-completion-method 'ivy)
+</pre>
 </div></dd>
 </dl>
 </div>
@@ -1381,11 +1381,11 @@ headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="commands"><a id="orgheadline"></a><span class="section-number-2">8</span> Commands</h2>
+<h2 id="commands"><span class="section-number-2">8</span> Commands</h2>
 <div class="outline-text-2" id="text-commands">
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="file-name-completion"><a id="orgheadline"></a><span class="section-number-3">8.1</span> File Name Completion</h3>
+<h3 id="file-name-completion"><span class="section-number-3">8.1</span> File Name Completion</h3>
 <div class="outline-text-3" id="text-file-name-completion">
 <p>
 Since file name completion is ubiquitous, Ivy provides extra
@@ -1395,7 +1395,7 @@ bindings that work here:
 
 <dl class="org-dl">
 <dt><kbd>C-j</kbd> (<code>ivy-alt-done</code>)</dt><dd><p>
-     On a directory, restarts completion from that directory.
+On a directory, restarts completion from that directory.
 </p>
 
 <p>
@@ -1408,7 +1408,7 @@ is empty.</dd>
 <dt><kbd>/</kbd> (<code>self-insert-command</code>)</dt><dd>If the current input matches an existing directory name exactly,
 switch the completion to that directory.</dd>
 <dt><kbd>M-r</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
-     Toggle between input as regexp or not.
+Toggle between input as regexp or not.
 </p>
 
 <p>
@@ -1417,7 +1417,7 @@ is for matching any char in regexp mode.
 </p></dd>
 
 <dt>User Option <code>ivy-extra-directories</code></dt><dd><p>
-     Decide if you want to see <code>../</code> and <code>./</code> during file name
+Decide if you want to see <code>../</code> and <code>./</code> during file name
 completion.
 </p>
 
@@ -1477,11 +1477,11 @@ Multi-hopping is possible, although a bit complex.
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="buffer-name-completion"><a id="orgheadline"></a><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
+<h3 id="buffer-name-completion"><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
 <div class="outline-text-3" id="text-buffer-name-completion">
 <dl class="org-dl">
 <dt>User Option <code>ivy-use-virtual-buffers</code></dt><dd><p>
-     When non-nil, add <code>recentf-mode</code> and bookmarks to
+When non-nil, add <code>recentf-mode</code> and bookmarks to
 <code>ivy-switch-buffer</code> completion candidates.
 </p>
 
@@ -1490,8 +1490,8 @@ Adding this to Emacs init file:
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(setq ivy-use-virtual-buffers t)
-</code></pre>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> ivy-use-virtual-buffers t)
+</pre>
 </div>
 <p>
 will add additional virtual buffers to the buffers list for recent
@@ -1503,7 +1503,7 @@ files. Selecting such virtual buffers, which are highlighted with
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="counsel-commands"><a id="orgheadline"></a><span class="section-number-3">8.3</span> Counsel commands</h3>
+<h3 id="counsel-commands"><span class="section-number-3">8.3</span> Counsel commands</h3>
 <div class="outline-text-3" id="text-counsel-commands">
 <p>
 The main advantages of <code>counsel-</code> functions over their basic
@@ -1523,7 +1523,7 @@ sessions.</li>
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="api"><a id="orgheadline"></a><span class="section-number-2">9</span> API</h2>
+<h2 id="api"><span class="section-number-2">9</span> API</h2>
 <div class="outline-text-2" id="text-api">
 <p>
 The main (and only) entry point is the <code>ivy-read</code> function. It takes
@@ -1535,11 +1535,11 @@ features such as multi-actions, non-exiting actions, <code>ivy-occur</code> and
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="required-arguments-for-ivy-read"><a id="orgheadline"></a><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
+<h3 id="required-arguments-for-ivy-read"><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
 <div class="outline-text-3" id="text-required-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>prompt</code></dt><dd><p>
-     A format string normally ending in a colon and a space.
+A format string normally ending in a colon and a space.
 </p>
 
 <p>
@@ -1549,7 +1549,7 @@ matching candidates. To use a literal <code>%</code> character, escape it as
 </p></dd>
 
 <dt><code>collection</code></dt><dd><p>
-     Either a list of strings, a function, an alist or a hash table.
+Either a list of strings, a function, an alist or a hash table.
 </p>
 
 <p>
@@ -1561,7 +1561,7 @@ If a function, then it has to be compatible with
 </div>
 
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="optional-arguments-for-ivy-read"><a id="orgheadline"></a><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
+<h3 id="optional-arguments-for-ivy-read"><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
 <div class="outline-text-3" id="text-optional-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>predicate</code></dt><dd>Is a function to filter the initial collection. It has to be
@@ -1571,7 +1571,7 @@ itself, e.g. <code>(cl-remove-if-not predicate collection)</code>.</dd>
 <dt><code>require-match</code></dt><dd>When set to a non-nil value, input must match one of the
 candidates. Custom input is not accepted.</dd>
 <dt><code>initial-input</code></dt><dd><p>
-     This string argument is included for compatibility with
+This string argument is included for compatibility with
 <code>completing-read</code>, which inserts it into the minibuffer.
 </p>
 
@@ -1580,7 +1580,7 @@ It's recommended to use the <code>preselect</code> argument instead of this.
 </p></dd>
 <dt><code>history</code></dt><dd>Name of the symbol to store history. See <code>completing-read</code>.</dd>
 <dt><code>preselect</code></dt><dd><p>
-     When set to a string value, select the first candidate matching
+When set to a string value, select the first candidate matching
 this value.
 </p>
 
@@ -1625,7 +1625,7 @@ strings. See <code>counsel-locate</code> for an example usage.</dd>
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="example---counsel-describe-function"><a id="orgheadline"></a><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
+<h3 id="example---counsel-describe-function"><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
 <div class="outline-text-3" id="text-example---counsel-describe-function">
 <p>
 This is a typical example of a function with a non-async collection,
@@ -1646,15 +1646,15 @@ later use yourself. However, it's recommended that you use the
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-describe-function</span> ()
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-describe-function</span> ()
   <span style="color: #2A00FF;">"Forward to `</span><span style="color: #110099;">describe-function</span><span style="color: #2A00FF;">'."</span>
-  (interactive)
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
   (ivy-read <span style="color: #2A00FF;">"Describe function: "</span>
             (<span style="color: #7F0055; font-weight: bold;">let</span> (cands)
               (mapatoms
                (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
                  (<span style="color: #7F0055; font-weight: bold;">when</span> (fboundp x)
-                   (push (symbol-name x) cands))))
+                   (<span style="color: #7F0055; font-weight: bold;">push</span> (symbol-name x) cands))))
               cands)
             <span style="color: #7F0055; font-weight: bold;">:keymap</span> counsel-describe-map
             <span style="color: #7F0055; font-weight: bold;">:preselect</span> (counsel-symbol-at-point)
@@ -1665,7 +1665,7 @@ later use yourself. However, it's recommended that you use the
                       (describe-function
                        (intern x)))
             <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-describe-function))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -1708,7 +1708,7 @@ another command called <code>counsel-describe-function</code>.</li>
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="example---counsel-locate"><a id="orgheadline"></a><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
+<h3 id="example---counsel-locate"><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
 <div class="outline-text-3" id="text-example---counsel-locate">
 <p>
 This is a typical example of a function with an async collection.
@@ -1733,7 +1733,7 @@ narrowing) or select a candidate from the visible collection.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
   (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
       (counsel-more-chars 3)
     (counsel--async-command
@@ -1747,18 +1747,18 @@ narrowing) or select a candidate from the visible collection.
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate</span> (<span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> initial-input)
   <span style="color: #2A00FF;">"Call the \"locate\" shell command.</span>
 <span style="color: #2A00FF;">INITIAL-INPUT can be given as the initial minibuffer input."</span>
-  (interactive)
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
   (ivy-read <span style="color: #2A00FF;">"Locate: "</span> #'counsel-locate-function
             <span style="color: #7F0055; font-weight: bold;">:initial-input</span> initial-input
             <span style="color: #7F0055; font-weight: bold;">:dynamic-collection</span> t
             <span style="color: #7F0055; font-weight: bold;">:history</span> 'counsel-locate-history
             <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (file)
-                      (with-ivy-window
+                      (<span style="color: #7F0055; font-weight: bold;">with-ivy-window</span>
                         (<span style="color: #7F0055; font-weight: bold;">when</span> file
                           (find-file file))))
             <span style="color: #7F0055; font-weight: bold;">:unwind</span> #'counsel-delete-process
             <span style="color: #7F0055; font-weight: bold;">:caller</span> 'counsel-locate))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -1793,7 +1793,7 @@ we want to kill the running process created by
 </div>
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
-<h3 id="example---ivy-read-with-extra-properties"><a id="orgheadline"></a><span class="section-number-3">9.5</span> Example - <code>ivy-read-with-extra-properties</code></h3>
+<h3 id="example---ivy-read-with-extra-properties"><span class="section-number-3">9.5</span> Example - <code>ivy-read-with-extra-properties</code></h3>
 <div class="outline-text-3" id="text-example---ivy-read-with-extra-properties">
 <p>
 This is another example to show how to associate additional values to each
@@ -1801,7 +1801,7 @@ displayed strings.
 </p>
 
 <div class="org-src-container">
-<pre><code class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates-function</span> (str pred _)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates-function</span> (str pred _)
   (<span style="color: #7F0055; font-weight: bold;">let</span> ((props '(1 2))
         (strs '(<span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"foo2"</span>)))
     (cl-mapcar (<span style="color: #7F0055; font-weight: bold;">lambda</span> (s p) (propertize s 'property p))
@@ -1809,13 +1809,13 @@ displayed strings.
                props)))
 
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">find-candidates</span> ()
-  (interactive)
+  (<span style="color: #7F0055; font-weight: bold;">interactive</span>)
   (ivy-read <span style="color: #2A00FF;">"Find symbols: "</span>
             #'find-candidates-function
             <span style="color: #7F0055; font-weight: bold;">:action</span> (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
                       (message <span style="color: #2A00FF;">"Value: %s"</span> (get-text-property 0 'property x)
                        ))))
-</code></pre>
+</pre>
 </div>
 
 <p>
@@ -1835,13 +1835,13 @@ then retrieves that value and displays it.</li>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="variable-index"><a id="orgheadline"></a><span class="section-number-2">10</span> Variable Index</h2>
+<h2 id="variable-index"><span class="section-number-2">10</span> Variable Index</h2>
 <div class="outline-text-2" id="text-variable-index">
 </div>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-2">
-<h2 id="key-index"><a id="orgheadline"></a><span class="section-number-2">11</span> Keystroke Index</h2>
+<h2 id="key-index"><span class="section-number-2">11</span> Keystroke Index</h2>
 <div class="outline-text-2" id="text-key-index">
 </div>
 </div>
