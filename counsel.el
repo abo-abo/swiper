@@ -2892,7 +2892,7 @@ version.  Argument values are based on the
                                (point))
                           (outline-next-heading)))
       (while start-pos
-        (let ((name (apply #'org-get-heading heading-args))
+        (let ((name (or (apply #'org-get-heading heading-args) ""))
               level)
           (search-forward " ")
           (setq level
