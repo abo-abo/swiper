@@ -1431,6 +1431,7 @@ This function is suitable as a replacement for
 (defcustom ivy-sort-functions-alist
   '((read-file-name-internal . ivy-sort-file-function-default)
     (internal-complete-buffer . nil)
+    (ivy-completion-in-region . nil)
     (counsel-git-grep-function . nil)
     (Man-goto-section . nil)
     (org-refile . nil)
@@ -2105,6 +2106,7 @@ See `completion-in-region' for further information."
                             (mapcar #'substring-no-properties comps)
                             :predicate predicate
                             :initial-input initial
+                            :sort t
                             :action #'ivy-completion-in-region-action
                             :unwind (lambda ()
                                       (unless (eq ivy-exit 'done)
