@@ -184,6 +184,8 @@ will bring the behavior in line with the newer Emacsen."
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
                    "\\(t\\).*?\\(m\\).*?\\(u\\).*?\\(x\\)"))
+  (should (string= (ivy--regex-fuzzy ".tmux")
+                   "\\(\\.\\).*?\\(t\\).*?\\(m\\).*?\\(u\\).*?\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux")
                    "^\\(t\\).*?\\(m\\).*?\\(u\\).*?\\(x\\)"))
   (should (string= (ivy--regex-fuzzy "^tmux$")
