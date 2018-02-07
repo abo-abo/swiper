@@ -2381,7 +2381,7 @@ Insert .* between each char."
           (concat (match-string 1 str)
                   (mapconcat
                    (lambda (x)
-                     (format "\\(%c\\)" x))
+                     (format "\\(%s\\)" (regexp-quote (string x))))
                    (string-to-list (match-string 2 str))
                    ".*?")
                   (match-string 3 str))
