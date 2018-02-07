@@ -2032,9 +2032,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      (format counsel-fzf-cmd
              (if (string-equal str "")
                  "\"\""
-               (progn
-                 (setq ivy--old-re (ivy--regex-fuzzy str))
-                 str)))))
+               (setq ivy--old-re (ivy--regex-fuzzy str))
+               str))))
   nil)
 
 ;;;###autoload
@@ -3078,7 +3077,7 @@ Additional Actions:
   (let ((cands (mapcar #'counsel-package-make-package-cell
                        package-archive-contents)))
     (ivy-read "Packages (install +pkg or delete -pkg): "
-              (cl-sort cands #'counsel--package-sort)
+              (sort cands #'counsel--package-sort)
               :action #'counsel-package-action
               :initial-input "^+ "
               :require-match t
@@ -3121,8 +3120,8 @@ Additional Actions:
 A is the left hand side, B the right hand side."
   (let* ((a (car a))
          (b (car b))
-         (a-inst (equal (substring a 0 1) "+"))
-         (b-inst (equal (substring b 0 1) "+")))
+         (a-inst (= (string-to-char a) ?+))
+         (b-inst (= (string-to-char b) ?+)))
     (or (and a-inst (not b-inst))
         (and (eq a-inst b-inst) (string-lessp a b)))))
 
@@ -4185,11 +4184,11 @@ candidate."
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
   "Eval the command CMD."
-    (eval (read cmd)))
+  (eval (read cmd)))
 
 (defun counsel-command-history-action-edit-and-eval (cmd)
   "Edit and eval the command CMD."
-    (edit-and-eval-command "Eval: " (read cmd)))
+  (edit-and-eval-command "Eval: " (read cmd)))
 
 (ivy-set-actions
  'counsel-command-history
@@ -4319,7 +4318,7 @@ a symbol and how to search for them."
             (counsel-symbol-list)
             :history 'counsel-apropos-history
             :action (lambda (pattern)
-                      (when (= (length pattern) 0)
+                      (when (string-equal pattern "")
                         (user-error "Please specify a pattern"))
                       ;; If the user selected a candidate form the list, we use
                       ;; a pattern which matches only the selected symbol.

@@ -690,18 +690,18 @@ Return nil for `minibuffer-keyboard-quit' or wrong key during the
 selection, non-nil otherwise."
   (interactive)
   (let ((actions (ivy-state-action ivy-last)))
-    (if (null (ivy--actionp actions))
+    (if (not (ivy--actionp actions))
         t
       (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
              (resize-mini-windows t)
-	     (key "")
-	     action-idx)
-	(while (and (setq action-idx (cl-position-if
-				      (lambda (x)
-					(string-prefix-p key (car x)))
-				      (cdr actions)))
-		    (not (string= key (car (nth (1+ action-idx) actions)))))
-	  (setq key (concat key (string (read-key hint)))))
+             (key "")
+             action-idx)
+        (while (and (setq action-idx (cl-position-if
+                                      (lambda (x)
+                                        (string-prefix-p key (car x)))
+                                      (cdr actions)))
+                    (not (string= key (car (nth action-idx (cdr actions))))))
+          (setq key (concat key (string (read-key hint)))))
         (cond ((member key '("" ""))
                nil)
               ((null action-idx)
@@ -1075,7 +1075,7 @@ If the input is empty, select the previous history element instead."
 
 (defun ivy--actionp (x)
   "Return non-nil when X is a list of actions."
-  (and x (listp x) (not (memq (car x) '(closure lambda)))))
+  (and (consp x) (not (memq (car x) '(closure lambda)))))
 
 (defcustom ivy-action-wrap nil
   "When non-nil, `ivy-next-action' and `ivy-prev-action' wrap."
@@ -3464,15 +3464,15 @@ TREE can be nested multiple times to have mulitple window splits.")
   (let* ((default-view-name
           (concat "{} "
                   (mapconcat #'identity
-                             (cl-sort
+                             (sort
                               (mapcar (lambda (w)
-                                        (with-current-buffer (window-buffer w)
-                                          (if (buffer-file-name)
-                                              (file-name-nondirectory
-                                               (buffer-file-name))
-                                            (buffer-name))))
+                                        (let* ((b (window-buffer w))
+                                               (f (buffer-file-name b)))
+                                          (if f
+                                              (file-name-nondirectory f)
+                                            (buffer-name b))))
                                       (window-list))
-                              #'string<)
+                              #'string-lessp)
                              " ")))
          (view-name-re (concat "\\`"
                                (regexp-quote default-view-name)
