@@ -544,9 +544,9 @@ Either a string or a list for `ivy-re-match'.")
 (defun ivy-exit-with-action (action)
   "Quit the minibuffer and call ACTION afterwards."
   (ivy-set-action
-   `(lambda (x)
-      (funcall ',action x)
-      (ivy-set-action ',(ivy-state-action ivy-last))))
+   (lambda (x)
+     (funcall action x)
+     (ivy-set-action (ivy-state-action ivy-last))))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
@@ -2062,7 +2062,7 @@ See `completion-in-region' for further information."
           (completion-all-completions str collection predicate (- end start)))
          (ivy--prompts-list (if (window-minibuffer-p)
                                 ivy--prompts-list
-                              '(ivy-completion-in-region (lambda nil)))))
+                              (list #'ivy-completion-in-region (lambda ())))))
     (cond ((null comps)
            (message "No matches"))
           ((progn
@@ -3677,8 +3677,8 @@ BUFFER may be a string or nil."
 
 (ivy-set-actions
  t
- '(("i" (lambda (x) (insert (if (stringp x) x (car x)))) "insert")
-   ("w" (lambda (x) (kill-new (if (stringp x) x (car x)))) "copy")))
+ `(("i" ,(lambda (x) (insert (if (stringp x) x (car x)))) "insert")
+   ("w" ,(lambda (x) (kill-new (if (stringp x) x (car x)))) "copy")))
 
 (defun ivy--switch-buffer-matcher (regexp candidates)
   "Return REGEXP matching CANDIDATES.
@@ -3985,7 +3985,7 @@ There is no limit on the number of *ivy-occur* buffers."
         (setq ivy-occur-last ivy-last)
         (setq-local ivy--directory ivy--directory))
       (ivy-exit-with-action
-       `(lambda (_) (pop-to-buffer ,buffer))))))
+       (lambda (_) (pop-to-buffer buffer))))))
 
 (defun ivy-occur-revert-buffer ()
   "Refresh the buffer making it up-to date with the collection.
