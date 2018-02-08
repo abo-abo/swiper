@@ -694,8 +694,8 @@ input corresponding to the chosen variable."
 ;;** `counsel-M-x'
 (ivy-set-actions
  'counsel-M-x
- '(("d" counsel--find-symbol "definition")
-   ("h" (lambda (x) (describe-function (intern x))) "help")))
+ `(("d" counsel--find-symbol "definition")
+   ("h" ,(lambda (x) (describe-function (intern x))) "help")))
 
 (ivy-set-display-transformer
  'counsel-M-x
@@ -774,8 +774,10 @@ By default `counsel-bookmark' opens a dired buffer for directories."
  'counsel-bookmark
  `(("d" bookmark-delete "delete")
    ("e" bookmark-rename "edit")
-   ("x" ,(counsel--apply-bookmark-fn 'counsel-find-file-extern) "open externally")
-   ("r" ,(counsel--apply-bookmark-fn 'counsel-find-file-as-root) "open as root")))
+   ("x" ,(counsel--apply-bookmark-fn #'counsel-find-file-extern)
+    "open externally")
+   ("r" ,(counsel--apply-bookmark-fn #'counsel-find-file-as-root)
+    "open as root")))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD appended with the corresponding binding in the current window."
@@ -2980,6 +2982,8 @@ include attachments of other Org buffers."
 
 ;;** `counsel-org-capture'
 (defvar org-capture-templates)
+(declare-function org-capture-goto-last-stored "org-capture")
+(declare-function org-capture-goto-target "org-capture")
 
 ;;;###autoload
 (defun counsel-org-capture ()
@@ -3002,17 +3006,17 @@ include attachments of other Org buffers."
 
 (ivy-set-actions
  'counsel-org-capture
- '(("t" (lambda (x)
-          (org-capture-goto-target (car (split-string x))))
+ `(("t" ,(lambda (x)
+           (org-capture-goto-target (car (split-string x))))
     "go to target")
-   ("l" (lambda (_x)
-          (org-capture-goto-last-stored))
+   ("l" ,(lambda (_x)
+           (org-capture-goto-last-stored))
     "go to last stored")
-   ("p" (lambda (x)
-          (org-capture 0 (car (split-string x))))
+   ("p" ,(lambda (x)
+           (org-capture 0 (car (split-string x))))
     "insert template at point")
-   ("c" (lambda (_x)
-          (customize-variable 'org-capture-templates))
+   ("c" ,(lambda (_x)
+           (customize-variable 'org-capture-templates))
     "customize org-capture-templates")))
 
 ;;** `counsel-mark-ring'
@@ -3125,9 +3129,10 @@ A is the left hand side, B the right hand side."
     (or (and a-inst (not b-inst))
         (and (eq a-inst b-inst) (string-lessp a b)))))
 
-(ivy-set-actions 'counsel-package
-                 '(("d" counsel-package-action-describe "describe package")
-                   ("h" counsel-package-action-homepage "open package homepage")))
+(ivy-set-actions
+ 'counsel-package
+ '(("d" counsel-package-action-describe "describe package")
+   ("h" counsel-package-action-homepage "open package homepage")))
 
 ;;** `counsel-tmm'
 (defvar tmm-km-list nil)
