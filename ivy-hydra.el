@@ -35,7 +35,7 @@
 
 (defun ivy--matcher-desc ()
   "Return description of `ivy--regex-function'."
-  (let ((cell (assoc ivy--regex-function ivy--preferred-re-builders)))
+  (let ((cell (assq ivy--regex-function ivy-preferred-re-builders)))
     (if cell
         (cdr cell)
       "other")))

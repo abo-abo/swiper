@@ -3482,7 +3482,7 @@ Allow to quit with ~ESC~ for better work with evil, see [[https://github.com/abo
 :PROPERTIES:
 :CUSTOM_ID: 0-10-0-nf-ivy-rotate-preferred-builders
 :END:
-Bound to ~C-o m~. Customize with =ivy--preferred-re-builders=.
+Bound to ~C-o m~. Customize with =ivy-preferred-re-builders=.
 See [[https://github.com/abo-abo/swiper/issues/1093][#1093]], [[https://github.com/abo-abo/swiper/issues/1094][#1094]].
 -----
 *** ivy-switch-buffer
