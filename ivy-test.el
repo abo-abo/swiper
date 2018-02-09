@@ -64,7 +64,7 @@
   "Suppress void-function errors.
 
 This advice makes `symbol-function' return nil when called on a
-symbol with no function rather than throwing a void-fucntion
+symbol with no function rather than throwing a void-function
 error. On Emacs 24.4 and above, this has no effect, because
 `symbol-function' already does this, but on 24.3 and earlier, it
 will bring the behavior in line with the newer Emacsen."
