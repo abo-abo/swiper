@@ -3467,7 +3467,7 @@ TREE is a nested list with the following valid cars:
 - file: open the specified file
 - buffer: open the specified buffer
 
-TREE can be nested multiple times to have mulitple window splits.")
+TREE can be nested multiple times to have multiple window splits.")
 
 (defun ivy-default-view-name ()
   "Return default name for new view."
