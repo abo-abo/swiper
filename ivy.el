@@ -3673,7 +3673,7 @@ BUFFER may be a string or nil."
     "kill")
    ("n"
     ,(lambda (x)
-       (insert "#<buffer " x ">"))
+       (insert-and-inherit (prin1-to-string (get-buffer x))))
     "insert buffer name")
    ("r"
     ivy--rename-buffer-action
