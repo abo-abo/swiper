@@ -669,8 +669,7 @@ WND, when specified is the window."
            (end (or end (save-excursion
                           (forward-line wh)
                           (point))))
-           (case-fold-search (and ivy-case-fold-search
-                                  (string= re (downcase re)))))
+           (case-fold-search (ivy--case-fold-p re)))
       (when (>= (length re) swiper-min-highlight)
         (save-excursion
           (goto-char beg)
@@ -874,9 +873,7 @@ otherwise continue prompting for buffers."
            (re-full (funcall ivy--regex-function str))
            re re-tail
            cands match
-           (case-fold-search
-            (and ivy-case-fold-search
-                 (string= str (downcase str)))))
+           (case-fold-search (ivy--case-fold-p str)))
       (if (stringp re-full)
           (setq re re-full)
         (setq re (caar re-full))
