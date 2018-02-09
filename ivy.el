@@ -1661,7 +1661,8 @@ customizations apply to the current completion session."
                                     collection))))
         (ivy-display-function
          (unless (window-minibuffer-p)
-           (cdr (assoc caller ivy-display-functions-alist)))))
+           (cdr (or (assq caller ivy-display-functions-alist)
+                    (assq t ivy-display-functions-alist))))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
