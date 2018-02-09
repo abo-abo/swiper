@@ -1640,7 +1640,8 @@ customizations apply to the current completion session."
                      ,@extra-actions))
                   (t
                    (delete-dups (append action extra-actions)))))))
-  (let ((extra-sources (plist-get ivy--sources-list caller)))
+  (let ((extra-sources (plist-get ivy--sources-list
+                                  (or caller this-command))))
     (if extra-sources
         (progn
           (setq ivy--extra-candidates nil)
@@ -1657,11 +1658,13 @@ customizations apply to the current completion session."
   (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
         (transformer-fn
          (plist-get ivy--display-transformers-list
-                    (or caller (and (functionp collection)
-                                    collection))))
+                    (or caller
+                        (and (functionp collection)
+                             collection)
+                        this-command)))
         (ivy-display-function
          (unless (window-minibuffer-p)
-           (cdr (assoc caller ivy-display-functions-alist)))))
+           (cdr (assoc (or caller this-command) ivy-display-functions-alist)))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1684,7 +1687,7 @@ customizations apply to the current completion session."
            :dynamic-collection dynamic-collection
            :display-transformer-fn transformer-fn
            :directory default-directory
-           :caller caller
+           :caller (or caller this-command)
            :def def))
     (ivy--reset-state ivy-last)
     (prog1
