@@ -502,15 +502,32 @@ Either a string or a list for `ivy-re-match'.")
 (defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
 
-(defcustom ivy-case-fold-search-default 'auto
-  "The default value for `ivy-case-fold-search'."
-  :type '(choice
-          (const :tag "Auto" auto)
-          (const :tag "Always" always)
-          (const :tag "Never" nil)))
+(defcustom ivy-case-fold-search-default
+  (if search-upper-case
+      'auto
+    case-fold-search)
+  "The default value for `case-fold-search' in Ivy operations.
+The special value `auto' means case folding is performed so long
+as the entire input string comprises lower-case characters.  This
+corresponds to the default behaviour of most Emacs search
+functionality, e.g. as seen in `isearch'."
+  :link '(info-link "(emacs)Lax Search")
+  :type '(choice (const :tag "Auto" auto)
+                 (const :tag "Always" t)
+                 (const :tag "Never" nil)))
 
 (defvar ivy-case-fold-search ivy-case-fold-search-default
   "Store the current overriding `case-fold-search'.")
+
+(defun ivy--case-fold-p (string)
+  "Return nil if STRING should be matched case-sensitively."
+  (if (eq ivy-case-fold-search 'auto)
+      (string= string (downcase string))
+    ivy-case-fold-search))
+
+(defun ivy--case-fold-string= (s1 s2)
+  "Like `string=', but obeys `case-fold-search'."
+  (eq t (compare-strings s1 nil nil s2 nil nil case-fold-search)))
 
 (defvar Info-current-file)
 
@@ -875,9 +892,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (let* ((parts (or (split-string ivy-text " " t) (list "")))
          (postfix (car (last parts)))
-         (case-fold-search (and ivy-case-fold-search
-                                (or (eq ivy-case-fold-search 'always)
-                                    (string= ivy-text (downcase ivy-text)))))
+         (case-fold-search (ivy--case-fold-p ivy-text))
          (completion-ignore-case case-fold-search)
          (startp (string-match "^\\^" postfix))
          (new (try-completion (if startp
@@ -2056,8 +2071,7 @@ PREDICATE (a function called with no arguments) says when to exit.
 See `completion-in-region' for further information."
   (let* ((enable-recursive-minibuffers t)
          (str (buffer-substring-no-properties start end))
-         (completion-ignore-case (and case-fold-search
-                                      (string= str (downcase str))))
+         (completion-ignore-case (ivy--case-fold-p str))
          (comps
           (completion-all-completions str collection predicate (- end start)))
          (ivy--prompts-list (if (window-minibuffer-p)
@@ -2778,23 +2792,20 @@ Should be run via minibuffer `post-command-hook'."
   '(setq ivy--flx-cache (flx-make-string-cache)))
 
 (defun ivy-toggle-case-fold ()
-  "Toggle the case folding between nil and auto/always.
+  "Toggle `case-fold-search' for Ivy operations.
 
-If auto, `case-fold-search' is t, when the input is all lower case,
-otherwise nil.
+Instead of modifying `case-fold-search' directly, this command
+toggles `ivy-case-fold-search', which can take on more values
+than the former, between nil and either `auto' or t.  See
+`ivy-case-fold-search-default' for the meaning of these values.
 
-If always, `case-fold-search' is always t, regardless of the input.
-
-Otherwise `case-fold-search' is always nil, regardless of the input.
-
-In any completion session, the case folding starts in
+In any Ivy completion session, the case folding starts with
 `ivy-case-fold-search-default'."
   (interactive)
   (setq ivy-case-fold-search
-        (if ivy-case-fold-search
-            nil
-          (or ivy-case-fold-search-default 'auto)))
-  ;; reset cache so that the candidate list updates
+        (and (not ivy-case-fold-search)
+             (or ivy-case-fold-search-default 'auto)))
+  ;; Reset cache so that the candidate list updates.
   (setq ivy--old-re nil))
 
 (defun ivy--re-filter (re candidates)
@@ -2823,10 +2834,7 @@ CANDIDATES are assumed to be static."
         ivy--old-cands
       (let* ((re-str (if (listp re) (caar re) re))
              (matcher (ivy-state-matcher ivy-last))
-             (case-fold-search
-              (and ivy-case-fold-search
-                   (or (eq ivy-case-fold-search 'always)
-                       (string= name (downcase name)))))
+             (case-fold-search (ivy--case-fold-p name))
              (cands (cond
                       (matcher
                        (funcall matcher re candidates))
@@ -2985,19 +2993,21 @@ RE-STR is the regexp, CANDS are the current candidates."
   (let* ((caller (ivy-state-caller ivy-last))
          (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
                    (cdr (assoc t ivy-index-functions-alist))
-                   #'ivy-recompute-index-zero)))
+                   #'ivy-recompute-index-zero))
+         (case-fold-search (ivy--case-fold-p name)))
     (unless (eq this-command 'ivy-resume)
       (ivy-set-index
        (or
         (cl-position (if (and (> (length name) 0)
                               (eq ?^ (aref name 0)))
                          (substring name 1)
-                       name) cands
-                       :test #'equal)
+                       name)
+                     cands
+                     :test #'ivy--case-fold-string=)
         (and ivy--directory
-             (cl-position
-              (concat re-str "/") cands
-              :test #'equal))
+             (cl-position (concat re-str "/")
+                          cands
+                          :test #'ivy--case-fold-string=))
         (and (eq caller 'ivy-switch-buffer)
              (> (length name) 0)
              0)
