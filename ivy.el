@@ -196,6 +196,11 @@ See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
           (const :tag "Popup" ivy-display-function-popup)
           (const :tag "Overlay" ivy-display-function-overlay)))
 
+(defvar ivy-display-functions-props
+  '((ivy-display-function-overlay :cleanup ivy-overlay-cleanup))
+    "Map Ivy display functions to their property lists.
+Examples of properties include associated `:cleanup' functions.")
+
 (defvar ivy-display-functions-alist
   '((ivy-completion-in-region . ivy-display-function-overlay))
   "An alist for customizing `ivy-display-function'.")
@@ -1722,8 +1727,9 @@ customizations apply to the current completion session."
                                                (cdr (symbol-value hist))))))))
                  (ivy-state-current ivy-last)))
           (remove-hook 'post-command-hook #'ivy--queue-exhibit)
-          (when (eq ivy-display-function 'ivy-display-function-overlay)
-            (ivy-overlay-cleanup))
+          (let ((cleanup (ivy--display-function-prop :cleanup)))
+            (when (functionp cleanup)
+              (funcall cleanup)))
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
           (unless (eq ivy-exit 'done)
@@ -1732,6 +1738,12 @@ customizations apply to the current completion session."
       (when (> (length (ivy-state-current ivy-last)) 0)
         (remove-list-of-text-properties
          0 1 '(idx) (ivy-state-current ivy-last))))))
+
+(defun ivy--display-function-prop (prop)
+  "Return PROP associated with current `ivy-display-function'."
+  (plist-get (cdr (assq ivy-display-function
+                        ivy-display-functions-props))
+             prop))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
