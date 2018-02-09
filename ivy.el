@@ -3673,9 +3673,7 @@ BUFFER may be a string or nil."
     "kill")
    ("n"
     ,(lambda (x)
-       (insert-and-inherit "#<buffer "
-                           (if (stringp x) x (car x))
-                           ">"))
+       (insert "#<buffer " x ">"))
     "insert buffer name")
    ("r"
     ivy--rename-buffer-action
