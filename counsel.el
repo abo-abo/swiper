@@ -3264,7 +3264,7 @@ unique under `equal-including-properties'."
     (setq ivy-completion-end (point))))
 
 (defun counsel-yank-pop-action-remove (s)
-  "Remove all occurences of S from the kill ring."
+  "Remove all occurrences of S from the kill ring."
   (dolist (sym '(kill-ring kill-ring-yank-pointer))
     (set sym (cl-delete s (symbol-value sym)
                         :test #'equal-including-properties)))
