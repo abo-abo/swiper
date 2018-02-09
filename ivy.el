@@ -3671,6 +3671,12 @@ BUFFER may be a string or nil."
        (setq ivy--index 0)
        (ivy--reset-state ivy-last))
     "kill")
+   ("n"
+    ,(lambda (x)
+       (insert-and-inherit "#<buffer "
+                           (if (stringp x) x (car x))
+                           ">"))
+    "insert buffer name")
    ("r"
     ivy--rename-buffer-action
     "rename")))
