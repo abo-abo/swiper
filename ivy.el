@@ -1,4 +1,4 @@
-;;; ivy.el --- Incremental Vertical completYon -*- lexical-binding: t -*-
+;; ivy.el --- Incremental Vertical completYon -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015-2017  Free Software Foundation, Inc.
 
@@ -1677,6 +1677,8 @@ customizations apply to the current completion session."
         (ivy-display-function
          (unless (window-minibuffer-p)
            (cdr (assoc caller ivy-display-functions-alist)))))
+    (when (and (boundp ivy-hint-show-display) ivy-hint-show-display)
+      (ivy-hint-display))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1693,7 +1695,9 @@ customizations apply to the current completion session."
            :frame (selected-frame)
            :window (selected-window)
            :buffer (current-buffer)
-           :unwind unwind
+           :unwind (if (and (boundp ivy-hint-show-display) ivy-hint-show-display)
+                     (or unwind 'ivy-hint-lv-delete-window)
+                    unwind)
            :re-builder re-builder
            :matcher matcher
            :dynamic-collection dynamic-collection
@@ -4157,6 +4161,7 @@ EVENT gives the mouse position."
         (pop-to-buffer buf)))
     (view-mode)
     (goto-char (point-min))))
+
 
 (provide 'ivy)
 

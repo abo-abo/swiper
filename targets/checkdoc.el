@@ -1,5 +1,7 @@
 (checkdoc-file "colir.el")
 (checkdoc-file "counsel.el")
+(checkdoc-file "ivy-hint-display.el")
+(checkdoc-file "ivy-hint-lv.el")
 (checkdoc-file "ivy-overlay.el")
 (checkdoc-file "ivy-test.el")
 (checkdoc-file "ivy.el")
