@@ -1745,7 +1745,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
-(defvar counsel-find-file-occur-cmd "ls -a | grep -i -E '%s' | tr '\\n' '\\0' | xargs -0 ls -d --group-directories-first"
+(defvar counsel-find-file-occur-cmd "ls -a | grep -i -E '%s' | xargs -d '\\n' ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
 
 (defvar counsel-find-file-occur-use-find nil
@@ -1753,7 +1753,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (defun counsel--expand-ls (cmd)
   "Expand CMD that ends in \"ls\" with switches."
-  (concat cmd " " counsel-dired-listing-switches " | sed -e 's/^/  /'"))
+  (concat cmd " " counsel-dired-listing-switches " | sed -e \"s/^/  /\""))
 
 (defun counsel--occur-cmd-find ()
   (let* ((regex (counsel-unquote-regex-parens ivy--old-re))
