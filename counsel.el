@@ -1607,7 +1607,13 @@ Does not list the currently checked out one."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
+    (define-key map (kbd "C-M-y") 'counsel-yank-directory)
     map))
+
+(defun counsel-yank-directory ()
+  "Yank the current directory into the minibuffer."
+  (interactive)
+  (insert ivy--directory))
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
