@@ -186,15 +186,27 @@ Only \"./\" and \"../\" apply here.  They appear in reverse order."
   :type 'boolean)
 
 (defcustom ivy-display-function nil
-  "Decide where to display the candidates.
-This function takes a string with the current matching candidates
-and has to display it somewhere.
-See https://github.com/abo-abo/swiper/wiki/ivy-display-function."
+  "Determine where to display candidates.
+When nil (the default), candidates are shown in the minibuffer.
+Otherwise, this can be set to a function which takes a string
+argument comprising the current matching candidates and displays
+it somewhere.
+
+This user option acts as a global default for Ivy-based
+completion commands.  You can customize the display function on a
+per-command basis via `ivy-display-functions-alist', which see.
+See also URL
+`https://github.com/abo-abo/swiper/wiki/ivy-display-function'."
   :type '(choice
           (const :tag "Minibuffer" nil)
           (const :tag "LV" ivy-display-function-lv)
           (const :tag "Popup" ivy-display-function-popup)
           (const :tag "Overlay" ivy-display-function-overlay)))
+
+(defvar ivy-display-functions-props
+  '((ivy-display-function-overlay :cleanup ivy-overlay-cleanup))
+    "Map Ivy display functions to their property lists.
+Examples of properties include associated `:cleanup' functions.")
 
 (defvar ivy-display-functions-alist
   '((ivy-completion-in-region . ivy-display-function-overlay))
@@ -1676,7 +1688,9 @@ customizations apply to the current completion session."
                                     collection))))
         (ivy-display-function
          (unless (window-minibuffer-p)
-           (cdr (assoc caller ivy-display-functions-alist)))))
+           (or ivy-display-function
+               (cdr (or (assq caller ivy-display-functions-alist)
+                        (assq t ivy-display-functions-alist)))))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1736,8 +1750,9 @@ customizations apply to the current completion session."
                                                (cdr (symbol-value hist))))))))
                  (ivy-state-current ivy-last)))
           (remove-hook 'post-command-hook #'ivy--queue-exhibit)
-          (when (eq ivy-display-function 'ivy-display-function-overlay)
-            (ivy-overlay-cleanup))
+          (let ((cleanup (ivy--display-function-prop :cleanup)))
+            (when (functionp cleanup)
+              (funcall cleanup)))
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
           (unless (eq ivy-exit 'done)
@@ -1746,6 +1761,12 @@ customizations apply to the current completion session."
       (when (> (length (ivy-state-current ivy-last)) 0)
         (remove-list-of-text-properties
          0 1 '(idx) (ivy-state-current ivy-last))))))
+
+(defun ivy--display-function-prop (prop)
+  "Return PROP associated with current `ivy-display-function'."
+  (plist-get (cdr (assq ivy-display-function
+                        ivy-display-functions-props))
+             prop))
 
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
