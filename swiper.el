@@ -545,10 +545,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char swiper--opoint))
       (when (and (null res) (> (length ivy-text) 0))
         (cl-pushnew ivy-text swiper-history))
-      ;; This allows evil mode to use swiper searches as defaults in
-      ;; s-expressions
-      (when (bound-and-true-p evil-mode)
-        (setq isearch-string ivy-text))
       (when swiper--reveal-mode
         (reveal-mode 1)))))
 
@@ -765,6 +761,9 @@ the face, window and priority of the overlay."
          regexp-search-ring-max)
         (when (and (bound-and-true-p evil-mode)
                    (eq evil-search-module 'evil-search))
+          ;; This allows evil mode to use swiper searches as defaults in
+          ;; s-expressions
+          (setq isearch-string ivy-text)
           (add-to-history 'evil-ex-search-history re)
           (setq evil-ex-search-pattern (list re t t))
           (setq evil-ex-search-direction 'forward)
