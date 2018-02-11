@@ -759,16 +759,16 @@ the face, window and priority of the overlay."
          'regexp-search-ring
          re
          regexp-search-ring-max)
-        (when (and (bound-and-true-p evil-mode)
-                   (eq evil-search-module 'evil-search))
+        (when (bound-and-true-p evil-mode)
           ;; This allows evil mode to use swiper searches as defaults in
           ;; s-expressions
           (setq isearch-string ivy-text)
-          (add-to-history 'evil-ex-search-history re)
-          (setq evil-ex-search-pattern (list re t t))
-          (setq evil-ex-search-direction 'forward)
-          (when evil-ex-search-persistent-highlight
-            (evil-ex-search-activate-highlight evil-ex-search-pattern)))))))
+          (when (eq evil-search-module 'evil-search)
+            (add-to-history 'evil-ex-search-history re)
+            (setq evil-ex-search-pattern (list re t t))
+            (setq evil-ex-search-direction 'forward)
+            (when evil-ex-search-persistent-highlight
+              (evil-ex-search-activate-highlight evil-ex-search-pattern))))))))
 
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
