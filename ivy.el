@@ -2739,6 +2739,12 @@ Should be run via minibuffer `post-command-hook'."
           (ivy--filter ivy-text ivy--all-candidates))))
       (setq ivy--old-text ivy-text))))
 
+(defun ivy-display-function-fallback (str)
+  (let ((buffer-undo-list t))
+    (save-excursion
+      (forward-line 1)
+      (insert str))))
+
 (defun ivy--insert-minibuffer (text)
   "Insert TEXT into minibuffer with appropriate cleanup."
   (let ((resize-mini-windows nil)
@@ -2753,10 +2759,7 @@ Should be run via minibuffer `post-command-hook'."
     (when (stringp text)
       (if ivy-display-function
           (funcall ivy-display-function text)
-        (let ((buffer-undo-list t))
-          (save-excursion
-            (forward-line 1)
-            (insert text)))))
+        (ivy-display-function-fallback text)))
     (when (display-graphic-p)
       (ivy--resize-minibuffer-to-fit))
     ;; prevent region growing due to text remove/add
