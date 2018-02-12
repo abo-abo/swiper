@@ -1688,9 +1688,10 @@ customizations apply to the current completion session."
                                     collection))))
         (ivy-display-function
          (unless (window-minibuffer-p)
-           (or ivy-display-function
-               (cdr (or (assq caller ivy-display-functions-alist)
-                        (assq t ivy-display-functions-alist)))))))
+           (ivy--check-display-function
+            (or ivy-display-function
+                (cdr (or (assq caller ivy-display-functions-alist)
+                         (assq t ivy-display-functions-alist))))))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1762,9 +1763,25 @@ customizations apply to the current completion session."
         (remove-list-of-text-properties
          0 1 '(idx) (ivy-state-current ivy-last))))))
 
+(defun ivy--check-display-function (display-function)
+  "Check the workable status of DISPLAY-FUNCTION.
+Return it when workable, otherwise return nil."
+  (let ((check (plist-get
+                (cdr (assq display-function
+                           ivy-display-functions-props))
+                :check)))
+    (cond
+     ((not (functionp display-function)) nil)
+     ((not check) display-function)
+     ((and (functionp check)
+           (funcall check))
+      display-function)
+     (t nil))))
+
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy-display-function'."
-  (plist-get (cdr (assq ivy-display-function
+  (plist-get (cdr (assq (ivy--check-display-function
+                         ivy-display-function)
                         ivy-display-functions-props))
              prop))
 
@@ -2751,12 +2768,15 @@ Should be run via minibuffer `post-command-hook'."
     (ivy--insert-prompt)
     ;; Do nothing if while-no-input was aborted.
     (when (stringp text)
-      (if ivy-display-function
-          (funcall ivy-display-function text)
-        (let ((buffer-undo-list t))
-          (save-excursion
-            (forward-line 1)
-            (insert text)))))
+      (let ((display-function
+             (ivy--check-display-function
+              ivy-display-function)))
+        (if display-function
+            (funcall display-function text)
+          (let ((buffer-undo-list t))
+            (save-excursion
+              (forward-line 1)
+              (insert text))))))
     (when (display-graphic-p)
       (ivy--resize-minibuffer-to-fit))
     ;; prevent region growing due to text remove/add
