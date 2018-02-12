@@ -417,7 +417,9 @@ the restoring themselves.")
   (or
    (thing-at-point 'url)
    (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
-        (ffap-file-at-point))
+        (let ((inhibit-message t))
+          (ignore-errors
+            (ffap-file-at-point))))
    (let (s)
      (cond ((stringp (setq s (thing-at-point 'symbol)))
             (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
