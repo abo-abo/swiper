@@ -575,9 +575,9 @@ functionality, e.g. as seen in `isearch'."
 (defun ivy-exit-with-action (action)
   "Quit the minibuffer and call ACTION afterwards."
   (ivy-set-action
-   (lambda (x)
-     (funcall action x)
-     (ivy-set-action (ivy-state-action ivy-last))))
+   `(lambda (x)
+      (funcall ',action x)
+      (ivy-set-action ',(ivy-state-action ivy-last))))
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
