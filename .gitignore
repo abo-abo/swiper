@@ -1,2 +1,5 @@
 *.elc
 *~
+/doc/dir
+*.info
+*-autoloads.el
