@@ -348,6 +348,7 @@ action functions.")
     (define-key map (kbd "M-o") 'ivy-dispatching-done)
     (define-key map (kbd "C-M-o") 'ivy-dispatching-call)
     (define-key map [remap kill-line] 'ivy-kill-line)
+    (define-key map [remap kill-whole-line] 'ivy-kill-whole-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (define-key map [remap kill-ring-save] 'ivy-kill-ring-save)
     (define-key map (kbd "C-'") 'ivy-avy)
@@ -1355,6 +1356,11 @@ On error (read-only), call `ivy-on-del-error-function'."
   (if (eolp)
       (kill-region (minibuffer-prompt-end) (point))
     (kill-line)))
+
+(defun ivy-kill-whole-line ()
+  "Forward to `kill-whole-line'."
+  (interactive)
+  (kill-region (minibuffer-prompt-end) (line-end-position)))
 
 (defun ivy-backward-kill-word ()
   "Forward to `backward-kill-word'."
