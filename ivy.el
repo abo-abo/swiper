@@ -3382,6 +3382,7 @@ CANDS is a list of strings."
   "The mode of abbreviation for virtual buffer names."
   :type '(choice
           (const :tag "Only name" name)
+          (const :tag "Abbreviated path" abbreviate)
           (const :tag "Full path" full)
           ;; eventually, uniquify
           ))
@@ -3405,9 +3406,12 @@ CANDS is a list of strings."
                          (cdr head)))
             name)
         (setq name
-              (if (eq ivy-virtual-abbreviate 'name)
-                  (file-name-nondirectory file-name)
-                (expand-file-name file-name)))
+              (cond ((eq ivy-virtual-abbreviate 'name)
+                     (file-name-nondirectory file-name))
+                    ((eq ivy-virtual-abbreviate 'abbreviate)
+                     (abbreviate-file-name file-name))
+                    (t
+                     (expand-file-name file-name))))
         (when (equal name "")
           (if (consp head)
               (setq name (car head))
