@@ -2968,23 +2968,24 @@ include attachments of other Org buffers."
             :action 'counsel-locate-action-dired
             :caller 'counsel-org-file))
 
+;;** `counsel-org-entity'
 (defvar org-entities)
 (defvar org-entities-user)
 
 ;;;###autoload
 (defun counsel-org-entity ()
-  "Insert an org-entity using ivy."
+  "Complete Org entities using Ivy."
   (interactive)
+  (require 'org)
   (ivy-read "Entity: " (cl-loop for element in (append org-entities org-entities-user)
-                          when (not (stringp element))
-                          collect
-                            (cons
-                             (format "%20s | %20s | %20s | %s"
-                                     (cl-first element) ;name
-                                     (cl-second element) ; latex
-                                     (cl-fourth element) ; html
-                                     (cl-seventh element)) ;utf-8
-                             element))
+                                unless (stringp element)
+                                collect (cons
+                                         (format "%20s | %20s | %20s | %s"
+                                                 (cl-first element)    ; name
+                                                 (cl-second element)   ; latex
+                                                 (cl-fourth element)   ; html
+                                                 (cl-seventh element)) ; utf-8
+                                         element))
             :require-match t
             :action '(1
                       ("u" (lambda (candidate)
