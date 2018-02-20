@@ -3718,6 +3718,7 @@ TREEP is used to expand internal nodes."
   (with-ivy-window
     (goto-char (cdr x))))
 
+;;;###autoload
 (defun counsel-outline ()
   "Jump to outline with completion."
   (interactive)
