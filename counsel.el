@@ -4476,6 +4476,72 @@ replacements. "
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
+;;** `counsel-ibuffer'
+(defvar counsel-ibuffer-buffer-name nil
+  "Name of the buffer to use for `counsel-ibuffer'.
+When nil, use the default value from vanilla ibuffer.")
+
+;;;###autoload
+(defun counsel-ibuffer (&optional name)
+  "Use ibuffer to switch to another buffer.
+NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
+  (interactive)
+  (let* ((counsel-ibuffer-buffer-name (or name "*Ibuffer*"))
+         (entries (counsel-ibuffer--get-buffers)))
+    (ivy-read "Switch to buffer: "
+              entries
+              :history 'counsel-ibuffer-history
+              :action 'counsel-ibuffer-visit-buffer
+              :caller 'counsel-ibuffer)))
+
+(declare-function ibuffer-update "ibuffer")
+(declare-function ibuffer-current-buffer "ibuffer")
+(declare-function ibuffer-forward-line "ibuffer")
+
+(defun counsel-ibuffer--get-buffers ()
+  "Get buffers listed in ibuffer."
+  (let* ((ibuffer-buf (get-buffer counsel-ibuffer-buffer-name))
+         (new-ibuffer-p (not ibuffer-buf))
+         entries)
+    (when new-ibuffer-p
+      (ibuffer nil counsel-ibuffer-buffer-name)
+      (setq ibuffer-buf (current-buffer))
+      (quit-window))
+    (with-current-buffer ibuffer-buf
+      ;; ibuffer might not be up to date in case we use an existing buffer.
+      (unless new-ibuffer-p
+        (ibuffer-update nil t))
+      (goto-char (point-min))
+      ;; `ibuffer-forward-line` wraps around, we guard against it
+      ;; by comparing line numbers.
+      (let ((prev-lineno 0)
+            lineno)
+        (while (> (setq lineno (line-number-at-pos)) prev-lineno)
+          (let ((current-buf (ibuffer-current-buffer)))
+            ;; We are only interested in buffers we can actually visit.
+            ;; This filters out headings and other unusable entries.
+            (when (buffer-live-p current-buf)
+              (push
+               (cons
+                (buffer-substring-no-properties (line-beginning-position) (line-end-position))
+                current-buf)
+               entries)))
+          (ibuffer-forward-line 1 t)
+          (setq prev-lineno lineno))))
+    (nreverse entries)))
+
+(defun counsel-ibuffer-visit-buffer (x)
+  "Switch to buffer of candidate X."
+  (switch-to-buffer (cdr x)))
+
+(defun counsel-ibuffer-visit-buffer-other-window (x)
+  "Switch to buffer of candidate X in other window."
+  (switch-to-buffer-other-window (cdr x)))
+
+(ivy-set-actions
+ 'counsel-ibuffer
+ '(("j" counsel-ibuffer-visit-buffer-other-window "other window")))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
