@@ -1700,9 +1700,11 @@ but the leading dot is a lot faster."
   "Return REGEXP matching CANDIDATES.
 Skip some dotfiles unless `ivy-text' requires them."
   (let ((res
-         (cl-remove-if-not
-          (lambda (x) (string-match regexp (directory-file-name x)))
-          candidates)))
+         (ivy--re-filter
+          regexp candidates
+          (lambda (re-str)
+            (lambda (x)
+              (string-match re-str (directory-file-name x)))))))
     (if (or (null ivy-use-ignore)
             (null counsel-find-file-ignore-regexp)
             (string-match "\\`\\." ivy-text))

@@ -2822,18 +2822,22 @@ In any Ivy completion session, the case folding starts with
   ;; Reset cache so that the candidate list updates.
   (setq ivy--old-re nil))
 
-(defun ivy--re-filter (re candidates)
+(defun ivy--re-filter (re candidates &optional mkpred)
   "Return all RE matching CANDIDATES.
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
   (ignore-errors
     (dolist (re (if (stringp re) (list (cons re t)) re))
-      (setq candidates
-            (cl-remove nil candidates
-                       (if (cdr re) :if-not :if)
-                       (let ((re-str (car re)))
-                         (lambda (x) (string-match re-str x))))))
+      (let* ((re-str (car re))
+             (pred
+              (if mkpred
+                  (funcall mkpred re-str)
+                (lambda (x) (string-match re-str x)))))
+        (setq candidates
+              (cl-remove nil candidates
+                         (if (cdr re) :if-not :if)
+                         pred))))
     candidates))
 
 (defun ivy--filter (name candidates)
