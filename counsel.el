@@ -4538,9 +4538,14 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
   "Switch to buffer of candidate X in other window."
   (switch-to-buffer-other-window (cdr x)))
 
+(defun counsel-ibuffer-visit-vanilla-ibuffer (_)
+  "Switch to vanilla ibuffer."
+  (switch-to-buffer counsel-ibuffer-buffer-name))
+
 (ivy-set-actions
  'counsel-ibuffer
- '(("j" counsel-ibuffer-visit-buffer-other-window "other window")))
+ '(("j" counsel-ibuffer-visit-buffer-other-window "other window")
+   ("v" counsel-ibuffer-visit-vanilla-ibuffer "open vanilla ibuffer")))
 
 (provide 'counsel)
 
