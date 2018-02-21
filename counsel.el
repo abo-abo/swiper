@@ -4479,17 +4479,16 @@ replacements. "
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
 ;;** `counsel-ibuffer'
-(defvar counsel-ibuffer-buffer-name nil
-  "Name of the buffer to use for `counsel-ibuffer'.
-When nil, use the default value from vanilla ibuffer.")
+(defvar counsel-ibuffer--buffer-name nil
+  "Name of the buffer to use for `counsel-ibuffer'.")
 
 ;;;###autoload
 (defun counsel-ibuffer (&optional name)
   "Use ibuffer to switch to another buffer.
 NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
   (interactive)
-  (let* ((counsel-ibuffer-buffer-name (or name "*Ibuffer*"))
-         (entries (counsel-ibuffer--get-buffers)))
+  (setq counsel-ibuffer--buffer-name (or name "*Ibuffer*"))
+  (let ((entries (counsel-ibuffer--get-buffers)))
     (ivy-read "Switch to buffer: "
               entries
               :history 'counsel-ibuffer-history
@@ -4502,11 +4501,11 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 
 (defun counsel-ibuffer--get-buffers ()
   "Get buffers listed in ibuffer."
-  (let* ((ibuffer-buf (get-buffer counsel-ibuffer-buffer-name))
+  (let* ((ibuffer-buf (get-buffer counsel-ibuffer--buffer-name))
          (new-ibuffer-p (not ibuffer-buf))
          entries)
     (when new-ibuffer-p
-      (ibuffer nil counsel-ibuffer-buffer-name)
+      (ibuffer nil counsel-ibuffer--buffer-name)
       (setq ibuffer-buf (current-buffer))
       (quit-window))
     (with-current-buffer ibuffer-buf
@@ -4542,7 +4541,7 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 
 (defun counsel-ibuffer-visit-vanilla-ibuffer (_)
   "Switch to vanilla ibuffer."
-  (switch-to-buffer counsel-ibuffer-buffer-name))
+  (switch-to-buffer counsel-ibuffer--buffer-name))
 
 (ivy-set-actions
  'counsel-ibuffer
