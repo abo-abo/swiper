@@ -1659,12 +1659,16 @@ Does not list the currently checked out one."
         (find-alternate-file file-name)
       (find-file file-name))))
 
+(defun counsel-find-file-mkdir-action (x)
+  (make-directory x))
+
 (ivy-set-actions
  'counsel-find-file
  '(("j" find-file-other-window "other window")
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
-   ("r" counsel-find-file-as-root "open as root")))
+   ("r" counsel-find-file-as-root "open as root")
+   ("d" counsel-find-file-mkdir-action "mkdir")))
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
