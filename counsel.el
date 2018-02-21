@@ -4513,22 +4513,27 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
       (unless new-ibuffer-p
         (ibuffer-update nil t))
       (goto-char (point-min))
-      ;; `ibuffer-forward-line` wraps around, we guard against it
-      ;; by comparing line numbers.
-      (let ((prev-lineno 0)
-            lineno)
-        (while (> (setq lineno (line-number-at-pos)) prev-lineno)
+      ;; `ibuffer-forward-line` wraps around, we guard against it by
+      ;; using the point of the first entry and make sure we abort as
+      ;; soon as we encounter it for the second time.
+      (let ((first-point 0))
+        (while (> (point) first-point)
           (let ((current-buf (ibuffer-current-buffer)))
             ;; We are only interested in buffers we can actually visit.
             ;; This filters out headings and other unusable entries.
             (when (buffer-live-p current-buf)
               (push
                (cons
-                (buffer-substring-no-properties (line-beginning-position) (line-end-position))
+                (buffer-substring-no-properties
+                 (line-beginning-position)
+                 (line-end-position))
                 current-buf)
-               entries)))
-          (ibuffer-forward-line 1 t)
-          (setq prev-lineno lineno))))
+               entries)
+              ;; Remember point of the first entry as we will wrap
+              ;; around to it.
+              (when (= first-point 0)
+                (setq first-point (point)))))
+          (ibuffer-forward-line 1 t))))
     (nreverse entries)))
 
 (defun counsel-ibuffer-visit-buffer (x)
