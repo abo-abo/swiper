@@ -4498,11 +4498,13 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 (declare-function ibuffer-update "ibuffer")
 (declare-function ibuffer-current-buffer "ibuffer")
 (declare-function ibuffer-forward-line "ibuffer")
+(defvar ibuffer-movement-cycle)
 
 (defun counsel-ibuffer--get-buffers ()
   "Get buffers listed in ibuffer."
   (let* ((ibuffer-buf (get-buffer counsel-ibuffer--buffer-name))
          (new-ibuffer-p (not ibuffer-buf))
+         (ibuffer-movement-cycle t)
          entries)
     (when new-ibuffer-p
       (ibuffer nil counsel-ibuffer--buffer-name)
