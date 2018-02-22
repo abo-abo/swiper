@@ -3631,7 +3631,8 @@ BUFFER may be a string or nil."
          ivy-text nil 'force-same-window)
       (let ((virtual (assoc buffer ivy--virtual-buffers))
             (view (assoc buffer ivy-views)))
-        (cond (virtual
+        (cond ((and virtual
+                    (not (get-buffer buffer)))
                (find-file (cdr virtual)))
               (view
                (delete-other-windows)
