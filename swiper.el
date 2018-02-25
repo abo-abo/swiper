@@ -66,7 +66,7 @@
                           swiper-match-face-4)
   "List of `swiper' faces for group matches."
   :group 'ivy-faces
-  :type 'list)
+  :type '(repeat face))
 
 (defcustom swiper-min-highlight 2
   "Only highlight matches for regexps at least this long."

@@ -168,7 +168,7 @@ earlier versions of Emacs."
           (const :tag "Plain" nil)
           (const :tag "Fancy" fancy)))
 
-(defcustom ivy-on-del-error-function 'minibuffer-keyboard-quit
+(defcustom ivy-on-del-error-function #'minibuffer-keyboard-quit
   "The handler for when `ivy-backward-delete-char' throws.
 Usually a quick exit out of the minibuffer."
   :type 'function)
@@ -1395,7 +1395,7 @@ On error (read-only), call `ivy-on-del-error-function'."
 (declare-function avy--process "ext:avy")
 (declare-function avy--style-fn "ext:avy")
 
-(defcustom ivy-format-function 'ivy-format-function-default
+(defcustom ivy-format-function #'ivy-format-function-default
   "Function to transform the list of candidates into a string.
 This string is inserted into the minibuffer."
   :type '(choice
@@ -2598,7 +2598,7 @@ If nil, the text properties are applied to the whole match."
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
 
-(defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
+(defcustom ivy-magic-slash-non-match-action #'ivy-magic-slash-non-match-cd-selected
   "Action to take when a slash is added to the end of a non existing directory.
 Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 'ivy-magic-slash-non-match-create, or nil"
@@ -2920,7 +2920,7 @@ The alist VAL is a sorting function with the signature of
           :value-type
           (choice
            (const :tag "Don't sort" nil)
-           (const :tag "Put prefix matches ahead" 'ivy--prefix-sort)
+           (const :tag "Put prefix matches ahead" ivy--prefix-sort)
            (function :tag "Custom sort function"))))
 
 (defun ivy--sort-files-by-date (_name candidates)
