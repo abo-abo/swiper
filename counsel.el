@@ -240,14 +240,13 @@ Update the minibuffer with the amount of lines collected every
          (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
-(defcustom counsel-prompt-function 'counsel-prompt-function-default
+(defcustom counsel-prompt-function #'counsel-prompt-function-default
   "A function to return a full prompt string from a basic prompt string."
-  :type
-  '(choice
-    (const :tag "Plain" counsel-prompt-function-default)
-    (const :tag "Directory" counsel-prompt-function-dir)
-    (function :tag "Custom"))
-  :group 'ivy)
+  :group 'ivy
+  :type '(radio
+          (function-item counsel-prompt-function-default)
+          (function-item counsel-prompt-function-dir)
+          (function :tag "Custom")))
 
 (make-obsolete-variable
  'counsel-prompt-function
@@ -485,7 +484,7 @@ COUNT defaults to 1."
          (push (symbol-name vv) cands))))
     (delete "" cands)))
 
-(defcustom counsel-describe-variable-function 'describe-variable
+(defcustom counsel-describe-variable-function #'describe-variable
   "Function to call to describe a variable passed as parameter."
   :type 'function
   :group 'ivy)
@@ -525,7 +524,7 @@ Variables declared using `defcustom' are highlighted according to
  '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
-(defcustom counsel-describe-function-function 'describe-function
+(defcustom counsel-describe-function-function #'describe-function
   "Function to call to describe a function passed as parameter."
   :type 'function
   :group 'ivy)
@@ -543,13 +542,11 @@ Variables declared using `defcustom' are highlighted according to
   (let ((f (function-called-at-point)))
     (and f (symbol-name f))))
 
-(defcustom counsel-describe-function-preselect 'ivy-thing-at-point
+(defcustom counsel-describe-function-preselect #'ivy-thing-at-point
   "Determine what `counsel-describe-function' should preselect."
-  :type
-  '(choice
-    (const ivy-thing-at-point)
-    (const ivy-function-called-at-point))
-  :group 'ivy)
+  :group 'ivy
+  :type '(radio (function-item ivy-thing-at-point)
+                (function-item ivy-function-called-at-point)))
 
 ;;;###autoload
 (defun counsel-describe-function ()
@@ -3800,7 +3797,7 @@ TREEP is used to expand internal nodes."
   :group 'ivy
   :type '(repeat directory))
 
-(defcustom counsel-linux-app-format-function 'counsel-linux-app-format-function-default
+(defcustom counsel-linux-app-format-function #'counsel-linux-app-format-function-default
   "Function to format Linux application names the `counsel-linux-app' menu.
 The format function will be passed the application's name, comment, and command
 as arguments."
