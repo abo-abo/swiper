@@ -3798,7 +3798,7 @@ TREEP is used to expand internal nodes."
     "/usr/share/applications/")
   "Directories in which to search for applications (.desktop files)."
   :group 'ivy
-  :type '(list directory))
+  :type '(repeat directory))
 
 (defcustom counsel-linux-app-format-function 'counsel-linux-app-format-function-default
   "Function to format Linux application names the `counsel-linux-app' menu.
