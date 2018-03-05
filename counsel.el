@@ -113,23 +113,24 @@ Or the time of the last minibuffer update.")
   "Store the time a process takes to gather all its candidates.
 The time is measured in seconds.")
 
-(defvar counsel--async-exit-code-plist nil
-  "Associates exit codes with reasons.")
+(defvar counsel--async-exit-code-plist ()
+  "Associate commands with their exit code descriptions.
+This plist maps commands to a plist mapping their exit codes to
+descriptions.")
 
 (defun counsel-set-async-exit-code (cmd number str)
   "For CMD, associate NUMBER exit code with STR."
   (let ((plist (plist-get counsel--async-exit-code-plist cmd)))
     (setq counsel--async-exit-code-plist
-          (plist-put
-           counsel--async-exit-code-plist
-           cmd
-           (plist-put plist number str)))))
+          (plist-put counsel--async-exit-code-plist
+                     cmd
+                     (plist-put plist number str)))))
 
 (defvar counsel-async-split-string-re "\n"
   "Store the regexp for splitting shell command output.")
 
 (defvar counsel-async-ignore-re nil
-  "Candidates matched the regexp will be ignored by `counsel--async-command'.")
+  "Regexp matching candidates to ignore in `counsel--async-filter'.")
 
 (defun counsel--async-command (cmd &optional process-sentinel process-filter)
   "Start new counsel process by calling CMD.
@@ -1968,18 +1969,18 @@ string - the full shell command to run."
   "History for `counsel-locate'.")
 
 (defun counsel-locate-action-extern (x)
-  "Use xdg-open shell command, or corresponding system command, on X."
+  "Pass X to `xdg-open' or equivalent command via the shell."
   (interactive "FFile: ")
   (if (and (eq system-type 'windows-nt)
            (fboundp 'w32-shell-execute))
       (w32-shell-execute "open" x)
     (start-process-shell-command shell-file-name nil
-                  (format "%s %s"
-                          (cl-case system-type
-                            (darwin "open")
-                            (cygwin "cygstart")
-                            (t "xdg-open"))
-                          (shell-quote-argument x)))))
+                                 (format "%s %s"
+                                         (cl-case system-type
+                                           (darwin "open")
+                                           (cygwin "cygstart")
+                                           (t "xdg-open"))
+                                         (shell-quote-argument x)))))
 
 (defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
 
@@ -2031,8 +2032,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :dynamic-collection t
             :history 'counsel-locate-history
             :action (lambda (file)
-                      (with-ivy-window
-                        (when file
+                      (when file
+                        (with-ivy-window
                           (find-file file))))
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))

@@ -2598,7 +2598,7 @@ If nil, the text properties are applied to the whole match."
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
 
-(defcustom ivy-magic-slash-non-match-action #'ivy-magic-slash-non-match-cd-selected
+(defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
   "Action to take when a slash is added to the end of a non existing directory.
 Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 'ivy-magic-slash-non-match-create, or nil"
