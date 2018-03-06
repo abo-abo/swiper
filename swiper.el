@@ -339,9 +339,7 @@
 
     (concat
      " "
-     (replace-regexp-in-string
-      "\t" "    "
-      (buffer-substring beg end)))))
+     (buffer-substring beg end))))
 
 (declare-function outline-show-all "outline")
 
