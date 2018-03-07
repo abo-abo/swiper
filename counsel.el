@@ -168,13 +168,11 @@ for handling the output of the process instead of `counsel--async-filter'."
                    counsel-async-split-string-re
                    t)))
                ((eq (process-status process) 'exit)
-                (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
-                                                   (ivy-state-caller ivy-last)))
-                       (exit-num (process-exit-status process))
-                       (exit-code (plist-get exit-code-plist exit-num)))
-                  (list
-                   (or exit-code
-                       (format "error code %d" exit-num))))))))
+                (let ((status (process-exit-status process))
+                      (plist (plist-get counsel--async-exit-code-plist
+                                        (ivy-state-caller ivy-last))))
+                  (list (or (plist-get plist status)
+                            (format "error code %d" status))))))))
     (cond ((and (eq (process-status process) 'exit)
                 (zerop (process-exit-status process)))
            (ivy--set-candidates
@@ -184,22 +182,18 @@ for handling the output of the process instead of `counsel--async-filter'."
            (when counsel--async-start
              (setq counsel--async-duration
                    (time-to-seconds (time-since counsel--async-start))))
-           (let ((re (funcall ivy--regex-function ivy-text)))
-             (unless (stringp re)
-               (setq re (caar re)))
-             (if (null ivy--old-cands)
-                 (unless (ivy-set-index
-                          (ivy--preselect-index
-                           (ivy-state-preselect ivy-last)
-                           ivy--all-candidates))
-                   (ivy--recompute-index
-                    ivy-text re ivy--all-candidates))
-               (ivy--recompute-index
-                ivy-text re ivy--all-candidates)))
+           (let ((re (ivy-re-to-str (funcall ivy--regex-function ivy-text))))
+             (if ivy--old-cands
+                 (ivy--recompute-index ivy-text re ivy--all-candidates)
+               (unless (ivy-set-index
+                        (ivy--preselect-index
+                         (ivy-state-preselect ivy-last)
+                         ivy--all-candidates))
+                 (ivy--recompute-index ivy-text re ivy--all-candidates))))
            (setq ivy--old-cands ivy--all-candidates)
-           (if (null ivy--all-candidates)
-               (ivy--insert-minibuffer "")
-             (ivy--exhibit)))
+           (if ivy--all-candidates
+               (ivy--exhibit)
+             (ivy--insert-minibuffer "")))
           ((eq (process-status process) 'exit)
            (setq ivy--all-candidates cands)
            (setq ivy--old-cands ivy--all-candidates)
