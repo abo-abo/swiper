@@ -3936,13 +3936,13 @@ Any desktop entries that fail to parse are recorded in
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
-  (call-process "gtk-launch" nil nil nil (cdr desktop-shortcut)))
+  (let ((app (cdr desktop-shortcut)))
+    (start-process app nil "gtk-launch" app)))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
-  (call-process "gtk-launch" nil nil nil
-                (cdr desktop-shortcut)
-                (read-file-name "File: ")))
+  (let ((app (cdr desktop-shortcut)))
+    (start-process app nil "gtk-launch" app (read-file-name "File: "))))
 
 (defun counsel-linux-app-action-open-desktop (desktop-shortcut)
   "Open DESKTOP-SHORTCUT."
