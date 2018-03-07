@@ -203,29 +203,23 @@ Update the minibuffer with the amount of lines collected every
 `counsel-async-filter-update-time' microseconds since the last update."
   (with-current-buffer (process-buffer process)
     (insert str))
-  (let (size)
-    (when (time-less-p
-           `(0 0 ,counsel-async-filter-update-time 0)
-           (time-since counsel--async-time))
+  (when (time-less-p (list 0 0 counsel-async-filter-update-time)
+                     (time-since counsel--async-time))
+    (let (numlines)
       (with-current-buffer (process-buffer process)
-        (goto-char (point-min))
-        (setq size (- (buffer-size) (forward-line (buffer-size))))
+        (setq numlines (count-lines (point-min) (point-max)))
         (ivy--set-candidates
-         (let ((strings (split-string (buffer-string)
-                                      counsel-async-split-string-re
-                                      t)))
-           (if (and counsel-async-ignore-re
-                    (stringp counsel-async-ignore-re))
-               (cl-remove-if
-                (lambda (str)
-                  (string-match-p counsel-async-ignore-re str))
-                strings)
-             strings))))
-      (let ((ivy--prompt (format
-                          (concat "%d++ " (ivy-state-prompt ivy-last))
-                          size)))
-        (ivy--insert-minibuffer
-         (ivy--format ivy--all-candidates)))
+         (let ((lines (split-string (buffer-string)
+                                    counsel-async-split-string-re
+                                    t)))
+           (if (stringp counsel-async-ignore-re)
+               (cl-remove-if (lambda (line)
+                               (string-match-p counsel-async-ignore-re line))
+                             lines)
+             lines))))
+      (let ((ivy--prompt (format (concat "%d++ " (ivy-state-prompt ivy-last))
+                                 numlines)))
+        (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
 (defcustom counsel-prompt-function #'counsel-prompt-function-default
