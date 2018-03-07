@@ -157,25 +157,26 @@ for handling the output of the process instead of `counsel--async-filter'."
 
 (defvar counsel-grep-last-line nil)
 
-(defun counsel--async-sentinel (process event)
-  "Sentinel function for an asynchronous counsel PROCESS.
-EVENT is a string describing the change."
+(defun counsel--async-sentinel (process _msg)
+  "Sentinel function for an asynchronous counsel PROCESS."
   (let ((cands
-         (cond ((string= event "finished\n")
+         (cond ((and (eq (process-status process) 'exit)
+                     (zerop (process-exit-status process)))
                 (with-current-buffer (process-buffer process)
                   (split-string
                    (buffer-string)
                    counsel-async-split-string-re
                    t)))
-               ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
+               ((eq (process-status process) 'exit)
                 (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
                                                    (ivy-state-caller ivy-last)))
-                       (exit-num (read (match-string 1 event)))
+                       (exit-num (process-exit-status process))
                        (exit-code (plist-get exit-code-plist exit-num)))
                   (list
                    (or exit-code
                        (format "error code %d" exit-num))))))))
-    (cond ((string= event "finished\n")
+    (cond ((and (eq (process-status process) 'exit)
+                (zerop (process-exit-status process)))
            (ivy--set-candidates
             (ivy--sort-maybe
              cands))
@@ -199,7 +200,7 @@ EVENT is a string describing the change."
            (if (null ivy--all-candidates)
                (ivy--insert-minibuffer "")
              (ivy--exhibit)))
-          ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
+          ((eq (process-status process) 'exit)
            (setq ivy--all-candidates cands)
            (setq ivy--old-cands ivy--all-candidates)
            (ivy--exhibit)))))
@@ -1079,7 +1080,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel-dired-listing-switches "-alh"
   "Switches passed to `ls' for `counsel-cmd-to-dired'.")
 
-(defun counsel-cmd-to-dired (full-cmd &optional process-filter)
+(defun counsel-cmd-to-dired (full-cmd &optional filter)
   "Adapted from `find-dired'."
   (let ((inhibit-read-only t))
     (erase-buffer)
@@ -1095,11 +1096,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 (list (cons default-directory (point-min-marker))))
     (let ((proc (start-process-shell-command
                  "counsel-cmd" (current-buffer) full-cmd)))
-      (set-process-filter proc process-filter)
+      (set-process-filter proc filter)
       (set-process-sentinel
        proc
-       (lambda (_ state)
-         (when (equal state "finished\n")
+       (lambda (process _msg)
+         (when (and (eq (process-status process) 'exit)
+                    (zerop (process-exit-status process)))
            (goto-char (point-min))
            (forward-line 2)
            (dired-move-to-filename)))))))
@@ -1350,11 +1352,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      proc
      #'counsel--gg-sentinel)))
 
-(defun counsel--gg-sentinel (process event)
-  "Sentinel function for a `counsel-git-grep' PROCESS.
-EVENT is a string describing the change."
-  (if (member event '("finished\n"
-                      "exited abnormally with code 141\n"))
+(defun counsel--gg-sentinel (process _msg)
+  "Sentinel function for a `counsel-git-grep' PROCESS."
+  (if (and (eq (process-status process) 'exit)
+           (memq (process-exit-status process) '(0 141)))
       (progn
         (with-current-buffer (process-buffer process)
           (setq ivy--all-candidates
@@ -1363,7 +1364,8 @@ EVENT is a string describing the change."
           (setq ivy--old-cands ivy--all-candidates))
         (when (= 0 (cl-incf counsel-gg-state))
           (ivy--exhibit)))
-    (if (string= event "exited abnormally with code 1\n")
+    (if (and (eq (process-status process) 'exit)
+             (= (process-exit-status process) 1))
         (progn
           (setq ivy--all-candidates '("Error"))
           (setq ivy--old-cands ivy--all-candidates)
@@ -1402,8 +1404,9 @@ If NO-ASYNC is non-nil, do it synchronously instead."
                     cmd))
         (set-process-sentinel
          proc
-         #'(lambda (process event)
-             (when (string= event "finished\n")
+         #'(lambda (process _msg)
+             (when (and (eq (process-status process) 'exit)
+                        (zerop (process-exit-status process)))
                (with-current-buffer (process-buffer process)
                  (setq ivy--full-length (string-to-number (buffer-string))))
                (when (= 0 (cl-incf counsel-gg-state))
