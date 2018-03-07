@@ -132,28 +132,24 @@ descriptions.")
 (defvar counsel-async-ignore-re nil
   "Regexp matching candidates to ignore in `counsel--async-filter'.")
 
-(defun counsel--async-command (cmd &optional process-sentinel process-filter)
-  "Start new counsel process by calling CMD.
-If a counsel process is already running, kill it and its associated buffer
-before starting a new one.  If non-nil, use PROCESS-SENTINEL as the sentinel
-function instead of `counsel--async-sentinel'.  If non-nil, use PROCESS-FILTER
-for handling the output of the process instead of `counsel--async-filter'."
-  (let* ((counsel--process " *counsel*")
-         (proc (get-process counsel--process))
-         (buff (get-buffer counsel--process)))
-    (when proc
-      (delete-process proc))
-    (when buff
-      (kill-buffer buff))
-    (setq buff (generate-new-buffer counsel--process))
-    (setq proc (start-file-process-shell-command
-                counsel--process
-                counsel--process
-                cmd))
-    (setq counsel--async-start
-          (setq counsel--async-time (current-time)))
-    (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
-    (set-process-filter proc (or process-filter #'counsel--async-filter))))
+(defun counsel--async-command (cmd &optional sentinel filter name)
+  "Start and return new counsel process by calling CMD.
+If the default counsel process or one with NAME already exists,
+kill it and its associated buffer before starting a new one.
+Give the process the functions SENTINEL and FILTER, which default
+to `counsel--async-sentinel' and `counsel--async-filter',
+respectively."
+  (counsel-delete-process name)
+  (let ((name (or name " *counsel*"))
+        proc)
+    (when (get-buffer name)
+      (kill-buffer name))
+    (setq proc (start-file-process-shell-command name name cmd))
+    (setq counsel--async-time (current-time))
+    (setq counsel--async-start counsel--async-time)
+    (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
+    (set-process-filter proc (or filter #'counsel--async-filter))
+    proc))
 
 (defvar counsel-grep-last-line nil)
 
@@ -240,9 +236,9 @@ Update the minibuffer with the amount of lines collected every
   (ivy-add-prompt-count
    (format "%s: " (ivy-state-prompt ivy-last))))
 
-(defun counsel-delete-process ()
-  "Delete current counsel process."
-  (let ((process (get-process " *counsel*")))
+(defun counsel-delete-process (&optional name)
+  "Delete current counsel process or that with NAME."
+  (let ((process (get-process (or name " *counsel*"))))
     (when process
       (delete-process process))))
 
@@ -1310,27 +1306,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Return git grep candidates for REGEX."
   (setq counsel-gg-state -2)
   (counsel--gg-count regex)
-  (let* ((default-directory (ivy-state-directory ivy-last))
-         (counsel-gg-process " *counsel*")
-         (proc (get-process counsel-gg-process))
-         (buff (get-buffer counsel-gg-process)))
-    (when proc
-      (delete-process proc))
-    (when buff
-      (kill-buffer buff))
-    (setq proc (start-file-process
-                counsel-gg-process
-                counsel-gg-process
-                shell-file-name
-                shell-command-switch
-                (concat
-                 (format
-                  counsel-git-grep-cmd
-                  regex)
-                 " | head -n 200")))
-    (set-process-sentinel
-     proc
-     #'counsel--gg-sentinel)))
+  (let ((default-directory (ivy-state-directory ivy-last)))
+    (set-process-filter
+     (counsel--async-command (concat (format counsel-git-grep-cmd regex)
+                                     " | head -n 200")
+                             #'counsel--gg-sentinel)
+     nil)))
 
 (defun counsel--gg-sentinel (process _msg)
   "Sentinel function for a `counsel-git-grep' PROCESS."
@@ -1349,6 +1330,16 @@ INITIAL-INPUT can be given as the initial minibuffer input."
        (setq ivy--old-cands ivy--all-candidates)
        (ivy--exhibit)))))
 
+(defun counsel--gg-count-sentinel (process _msg)
+  "Sentinel function for a `counsel--gg-count' PROCESS."
+  (when (and (eq (process-status process) 'exit)
+             (zerop (process-exit-status process)))
+    (with-current-buffer (process-buffer process)
+      (goto-char (point-min))
+      (setq ivy--full-length (read (current-buffer))))
+    (when (zerop (cl-incf counsel-gg-state))
+      (ivy--exhibit))))
+
 (defun counsel--gg-count (regex &optional no-async)
   "Count the number of results matching REGEX in `counsel-git-grep'.
 The command to count the matches is called asynchronously.
@@ -1362,32 +1353,13 @@ If NO-ASYNC is non-nil, do it synchronously instead."
                       (replace-regexp-in-string
                        "-" "\\\\-"
                        (replace-regexp-in-string "'" "''" regex)))
-              " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
-        (counsel-ggc-process " *counsel-gg-count*"))
+              " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'")))
     (if no-async
         (string-to-number (shell-command-to-string cmd))
-      (let ((proc (get-process counsel-ggc-process))
-            (buff (get-buffer counsel-ggc-process)))
-        (when proc
-          (delete-process proc))
-        (when buff
-          (kill-buffer buff))
-        (setq proc (start-file-process
-                    counsel-ggc-process
-                    counsel-ggc-process
-                    shell-file-name
-                    shell-command-switch
-                    cmd))
-        (set-process-sentinel
-         proc
-         (lambda (process _msg)
-           (when (and (eq (process-status process) 'exit)
-                      (zerop (process-exit-status process)))
-             (with-current-buffer (process-buffer process)
-               (goto-char (point-min))
-               (setq ivy--full-length (read (current-buffer))))
-             (when (zerop (cl-incf counsel-gg-state))
-               (ivy--exhibit)))))))))
+      (set-process-filter
+       (counsel--async-command cmd #'counsel--gg-count-sentinel
+                               nil " *counsel-gg-count*")
+       nil))))
 
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'.
