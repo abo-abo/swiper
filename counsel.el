@@ -1334,22 +1334,20 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel--gg-sentinel (process _msg)
   "Sentinel function for a `counsel-git-grep' PROCESS."
-  (if (and (eq (process-status process) 'exit)
-           (memq (process-exit-status process) '(0 141)))
-      (progn
-        (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates
-                (or (split-string (buffer-string) "\n" t)
-                    '("")))
-          (setq ivy--old-cands ivy--all-candidates))
-        (when (= 0 (cl-incf counsel-gg-state))
-          (ivy--exhibit)))
-    (if (and (eq (process-status process) 'exit)
-             (= (process-exit-status process) 1))
-        (progn
-          (setq ivy--all-candidates '("Error"))
-          (setq ivy--old-cands ivy--all-candidates)
-          (ivy--exhibit)))))
+  (when (eq (process-status process) 'exit)
+    (cl-case (process-exit-status process)
+      ((0 141)
+       (with-current-buffer (process-buffer process)
+         (setq ivy--all-candidates
+               (or (split-string (buffer-string) "\n" t)
+                   '("")))
+         (setq ivy--old-cands ivy--all-candidates))
+       (when (zerop (cl-incf counsel-gg-state))
+         (ivy--exhibit)))
+      (1
+       (setq ivy--all-candidates '("Error"))
+       (setq ivy--old-cands ivy--all-candidates)
+       (ivy--exhibit)))))
 
 (defun counsel--gg-count (regex &optional no-async)
   "Count the number of results matching REGEX in `counsel-git-grep'.
