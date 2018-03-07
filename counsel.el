@@ -132,77 +132,60 @@ descriptions.")
 (defvar counsel-async-ignore-re nil
   "Regexp matching candidates to ignore in `counsel--async-filter'.")
 
-(defun counsel--async-command (cmd &optional process-sentinel process-filter)
-  "Start new counsel process by calling CMD.
-If a counsel process is already running, kill it and its associated buffer
-before starting a new one.  If non-nil, use PROCESS-SENTINEL as the sentinel
-function instead of `counsel--async-sentinel'.  If non-nil, use PROCESS-FILTER
-for handling the output of the process instead of `counsel--async-filter'."
-  (let* ((counsel--process " *counsel*")
-         (proc (get-process counsel--process))
-         (buff (get-buffer counsel--process)))
-    (when proc
-      (delete-process proc))
-    (when buff
-      (kill-buffer buff))
-    (setq buff (generate-new-buffer counsel--process))
-    (setq proc (start-file-process-shell-command
-                counsel--process
-                counsel--process
-                cmd))
-    (setq counsel--async-start
-          (setq counsel--async-time (current-time)))
-    (set-process-sentinel proc (or process-sentinel #'counsel--async-sentinel))
-    (set-process-filter proc (or process-filter #'counsel--async-filter))))
+(defun counsel--async-command (cmd &optional sentinel filter name)
+  "Start and return new counsel process by calling CMD.
+If the default counsel process or one with NAME already exists,
+kill it and its associated buffer before starting a new one.
+Give the process the functions SENTINEL and FILTER, which default
+to `counsel--async-sentinel' and `counsel--async-filter',
+respectively."
+  (counsel-delete-process name)
+  (let ((name (or name " *counsel*"))
+        proc)
+    (when (get-buffer name)
+      (kill-buffer name))
+    (setq proc (start-file-process-shell-command name name cmd))
+    (setq counsel--async-time (current-time))
+    (setq counsel--async-start counsel--async-time)
+    (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
+    (set-process-filter proc (or filter #'counsel--async-filter))
+    proc))
 
 (defvar counsel-grep-last-line nil)
 
-(defun counsel--async-sentinel (process event)
-  "Sentinel function for an asynchronous counsel PROCESS.
-EVENT is a string describing the change."
-  (let ((cands
-         (cond ((string= event "finished\n")
-                (with-current-buffer (process-buffer process)
-                  (split-string
-                   (buffer-string)
-                   counsel-async-split-string-re
-                   t)))
-               ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
-                (let* ((exit-code-plist (plist-get counsel--async-exit-code-plist
-                                                   (ivy-state-caller ivy-last)))
-                       (exit-num (read (match-string 1 event)))
-                       (exit-code (plist-get exit-code-plist exit-num)))
-                  (list
-                   (or exit-code
-                       (format "error code %d" exit-num))))))))
-    (cond ((string= event "finished\n")
-           (ivy--set-candidates
-            (ivy--sort-maybe
-             cands))
-           (setq counsel-grep-last-line nil)
-           (when counsel--async-start
-             (setq counsel--async-duration
-                   (time-to-seconds (time-since counsel--async-start))))
-           (let ((re (funcall ivy--regex-function ivy-text)))
-             (unless (stringp re)
-               (setq re (caar re)))
-             (if (null ivy--old-cands)
-                 (unless (ivy-set-index
-                          (ivy--preselect-index
-                           (ivy-state-preselect ivy-last)
-                           ivy--all-candidates))
-                   (ivy--recompute-index
-                    ivy-text re ivy--all-candidates))
-               (ivy--recompute-index
-                ivy-text re ivy--all-candidates)))
-           (setq ivy--old-cands ivy--all-candidates)
-           (if (null ivy--all-candidates)
-               (ivy--insert-minibuffer "")
-             (ivy--exhibit)))
-          ((string-match "exited abnormally with code \\([0-9]+\\)\n" event)
-           (setq ivy--all-candidates cands)
-           (setq ivy--old-cands ivy--all-candidates)
-           (ivy--exhibit)))))
+(defun counsel--async-sentinel (process _msg)
+  "Sentinel function for an asynchronous counsel PROCESS."
+  (when (eq (process-status process) 'exit)
+    (if (zerop (process-exit-status process))
+        (progn
+          (ivy--set-candidates
+           (ivy--sort-maybe
+            (with-current-buffer (process-buffer process)
+              (split-string (buffer-string) counsel-async-split-string-re t))))
+          (setq counsel-grep-last-line nil)
+          (when counsel--async-start
+            (setq counsel--async-duration
+                  (time-to-seconds (time-since counsel--async-start))))
+          (let ((re (ivy-re-to-str (funcall ivy--regex-function ivy-text))))
+            (if ivy--old-cands
+                (ivy--recompute-index ivy-text re ivy--all-candidates)
+              (unless (ivy-set-index
+                       (ivy--preselect-index
+                        (ivy-state-preselect ivy-last)
+                        ivy--all-candidates))
+                (ivy--recompute-index ivy-text re ivy--all-candidates))))
+          (setq ivy--old-cands ivy--all-candidates)
+          (if ivy--all-candidates
+              (ivy--exhibit)
+            (ivy--insert-minibuffer "")))
+      (setq ivy--all-candidates
+            (let ((status (process-exit-status process))
+                  (plist (plist-get counsel--async-exit-code-plist
+                                    (ivy-state-caller ivy-last))))
+              (list (or (plist-get plist status)
+                        (format "error code %d" status)))))
+      (setq ivy--old-cands ivy--all-candidates)
+      (ivy--exhibit))))
 
 (defcustom counsel-async-filter-update-time 500000
   "The amount of time in microseconds to wait until updating
@@ -216,29 +199,23 @@ Update the minibuffer with the amount of lines collected every
 `counsel-async-filter-update-time' microseconds since the last update."
   (with-current-buffer (process-buffer process)
     (insert str))
-  (let (size)
-    (when (time-less-p
-           `(0 0 ,counsel-async-filter-update-time 0)
-           (time-since counsel--async-time))
+  (when (time-less-p (list 0 0 counsel-async-filter-update-time)
+                     (time-since counsel--async-time))
+    (let (numlines)
       (with-current-buffer (process-buffer process)
-        (goto-char (point-min))
-        (setq size (- (buffer-size) (forward-line (buffer-size))))
+        (setq numlines (count-lines (point-min) (point-max)))
         (ivy--set-candidates
-         (let ((strings (split-string (buffer-string)
-                                      counsel-async-split-string-re
-                                      t)))
-           (if (and counsel-async-ignore-re
-                    (stringp counsel-async-ignore-re))
-               (cl-remove-if
-                (lambda (str)
-                  (string-match-p counsel-async-ignore-re str))
-                strings)
-             strings))))
-      (let ((ivy--prompt (format
-                          (concat "%d++ " (ivy-state-prompt ivy-last))
-                          size)))
-        (ivy--insert-minibuffer
-         (ivy--format ivy--all-candidates)))
+         (let ((lines (split-string (buffer-string)
+                                    counsel-async-split-string-re
+                                    t)))
+           (if (stringp counsel-async-ignore-re)
+               (cl-remove-if (lambda (line)
+                               (string-match-p counsel-async-ignore-re line))
+                             lines)
+             lines))))
+      (let ((ivy--prompt (format (concat "%d++ " (ivy-state-prompt ivy-last))
+                                 numlines)))
+        (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
 (defcustom counsel-prompt-function #'counsel-prompt-function-default
@@ -259,9 +236,9 @@ Update the minibuffer with the amount of lines collected every
   (ivy-add-prompt-count
    (format "%s: " (ivy-state-prompt ivy-last))))
 
-(defun counsel-delete-process ()
-  "Delete current counsel process."
-  (let ((process (get-process " *counsel*")))
+(defun counsel-delete-process (&optional name)
+  "Delete current counsel process or that with NAME."
+  (let ((process (get-process (or name " *counsel*"))))
     (when process
       (delete-process process))))
 
@@ -1079,7 +1056,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel-dired-listing-switches "-alh"
   "Switches passed to `ls' for `counsel-cmd-to-dired'.")
 
-(defun counsel-cmd-to-dired (full-cmd &optional process-filter)
+(defun counsel-cmd-to-dired (full-cmd &optional filter)
   "Adapted from `find-dired'."
   (let ((inhibit-read-only t))
     (erase-buffer)
@@ -1095,11 +1072,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 (list (cons default-directory (point-min-marker))))
     (let ((proc (start-process-shell-command
                  "counsel-cmd" (current-buffer) full-cmd)))
-      (set-process-filter proc process-filter)
+      (set-process-filter proc filter)
       (set-process-sentinel
        proc
-       (lambda (_ state)
-         (when (equal state "finished\n")
+       (lambda (process _msg)
+         (when (and (eq (process-status process) 'exit)
+                    (zerop (process-exit-status process)))
            (goto-char (point-min))
            (forward-line 2)
            (dired-move-to-filename)))))))
@@ -1328,86 +1306,60 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   "Return git grep candidates for REGEX."
   (setq counsel-gg-state -2)
   (counsel--gg-count regex)
-  (let* ((default-directory (ivy-state-directory ivy-last))
-         (counsel-gg-process " *counsel*")
-         (proc (get-process counsel-gg-process))
-         (buff (get-buffer counsel-gg-process)))
-    (when proc
-      (delete-process proc))
-    (when buff
-      (kill-buffer buff))
-    (setq proc (start-file-process
-                counsel-gg-process
-                counsel-gg-process
-                shell-file-name
-                shell-command-switch
-                (concat
-                 (format
-                  counsel-git-grep-cmd
-                  regex)
-                 " | head -n 200")))
-    (set-process-sentinel
-     proc
-     #'counsel--gg-sentinel)))
+  (let ((default-directory (ivy-state-directory ivy-last)))
+    (set-process-filter
+     (counsel--async-command (concat (format counsel-git-grep-cmd regex)
+                                     " | head -n 200")
+                             #'counsel--gg-sentinel)
+     nil)))
 
-(defun counsel--gg-sentinel (process event)
-  "Sentinel function for a `counsel-git-grep' PROCESS.
-EVENT is a string describing the change."
-  (if (member event '("finished\n"
-                      "exited abnormally with code 141\n"))
-      (progn
-        (with-current-buffer (process-buffer process)
-          (setq ivy--all-candidates
-                (or (split-string (buffer-string) "\n" t)
-                    '("")))
-          (setq ivy--old-cands ivy--all-candidates))
-        (when (= 0 (cl-incf counsel-gg-state))
-          (ivy--exhibit)))
-    (if (string= event "exited abnormally with code 1\n")
-        (progn
-          (setq ivy--all-candidates '("Error"))
-          (setq ivy--old-cands ivy--all-candidates)
-          (ivy--exhibit)))))
+(defun counsel--gg-sentinel (process _msg)
+  "Sentinel function for a `counsel-git-grep' PROCESS."
+  (when (eq (process-status process) 'exit)
+    (cl-case (process-exit-status process)
+      ((0 141)
+       (with-current-buffer (process-buffer process)
+         (setq ivy--all-candidates
+               (or (split-string (buffer-string) "\n" t)
+                   '("")))
+         (setq ivy--old-cands ivy--all-candidates))
+       (when (zerop (cl-incf counsel-gg-state))
+         (ivy--exhibit)))
+      (1
+       (setq ivy--all-candidates '("Error"))
+       (setq ivy--old-cands ivy--all-candidates)
+       (ivy--exhibit)))))
+
+(defun counsel--gg-count-sentinel (process _msg)
+  "Sentinel function for a `counsel--gg-count' PROCESS."
+  (when (and (eq (process-status process) 'exit)
+             (zerop (process-exit-status process)))
+    (with-current-buffer (process-buffer process)
+      (goto-char (point-min))
+      (setq ivy--full-length (read (current-buffer))))
+    (when (zerop (cl-incf counsel-gg-state))
+      (ivy--exhibit))))
 
 (defun counsel--gg-count (regex &optional no-async)
   "Count the number of results matching REGEX in `counsel-git-grep'.
 The command to count the matches is called asynchronously.
 If NO-ASYNC is non-nil, do it synchronously instead."
   (let ((default-directory (ivy-state-directory ivy-last))
-        (cmd
-         (concat
-          (format
-           (replace-regexp-in-string
-            "--full-name" "-c"
-            counsel-git-grep-cmd)
-           ;; "git grep -i -c '%s'"
-           (replace-regexp-in-string
-            "-" "\\\\-"
-            (replace-regexp-in-string "'" "''" regex)))
-          " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
-        (counsel-ggc-process " *counsel-gg-count*"))
+        (cmd (concat
+              (format (replace-regexp-in-string
+                       "--full-name" "-c"
+                       counsel-git-grep-cmd)
+                      ;; "git grep -i -c '%s'"
+                      (replace-regexp-in-string
+                       "-" "\\\\-"
+                       (replace-regexp-in-string "'" "''" regex)))
+              " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'")))
     (if no-async
         (string-to-number (shell-command-to-string cmd))
-      (let ((proc (get-process counsel-ggc-process))
-            (buff (get-buffer counsel-ggc-process)))
-        (when proc
-          (delete-process proc))
-        (when buff
-          (kill-buffer buff))
-        (setq proc (start-file-process
-                    counsel-ggc-process
-                    counsel-ggc-process
-                    shell-file-name
-                    shell-command-switch
-                    cmd))
-        (set-process-sentinel
-         proc
-         #'(lambda (process event)
-             (when (string= event "finished\n")
-               (with-current-buffer (process-buffer process)
-                 (setq ivy--full-length (string-to-number (buffer-string))))
-               (when (= 0 (cl-incf counsel-gg-state))
-                 (ivy--exhibit)))))))))
+      (set-process-filter
+       (counsel--async-command cmd #'counsel--gg-count-sentinel
+                               nil " *counsel-gg-count*")
+       nil))))
 
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'.
@@ -3956,22 +3908,21 @@ Any desktop entries that fail to parse are recorded in
 
 (defun counsel-linux-app-action-default (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT."
-  (call-process "gtk-launch" nil nil nil (cdr desktop-shortcut)))
+  (let ((app (cdr desktop-shortcut)))
+    (start-process app nil "gtk-launch" app)))
 
 (defun counsel-linux-app-action-file (desktop-shortcut)
   "Launch DESKTOP-SHORTCUT with a selected file."
-  (call-process "gtk-launch" nil nil nil
-                (cdr desktop-shortcut)
-                (read-file-name "File: ")))
+  (let ((app (cdr desktop-shortcut)))
+    (start-process app nil "gtk-launch" app (read-file-name "File: "))))
 
 (defun counsel-linux-app-action-open-desktop (desktop-shortcut)
   "Open DESKTOP-SHORTCUT."
-  (setq desktop-shortcut (cdr desktop-shortcut))
-  (let ((file
-         (cdr (assoc desktop-shortcut (counsel-linux-apps-list-desktop-files)))))
+  (let* ((app (cdr desktop-shortcut))
+         (file (cdr (assoc app (counsel-linux-apps-list-desktop-files)))))
     (if file
         (find-file file)
-      (error "Could not find location of file %s" desktop-shortcut))))
+      (error "Could not find location of file %s" app))))
 
 (ivy-set-actions
  'counsel-linux-app
