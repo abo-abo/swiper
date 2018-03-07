@@ -1354,17 +1354,15 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 The command to count the matches is called asynchronously.
 If NO-ASYNC is non-nil, do it synchronously instead."
   (let ((default-directory (ivy-state-directory ivy-last))
-        (cmd
-         (concat
-          (format
-           (replace-regexp-in-string
-            "--full-name" "-c"
-            counsel-git-grep-cmd)
-           ;; "git grep -i -c '%s'"
-           (replace-regexp-in-string
-            "-" "\\\\-"
-            (replace-regexp-in-string "'" "''" regex)))
-          " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
+        (cmd (concat
+              (format (replace-regexp-in-string
+                       "--full-name" "-c"
+                       counsel-git-grep-cmd)
+                      ;; "git grep -i -c '%s'"
+                      (replace-regexp-in-string
+                       "-" "\\\\-"
+                       (replace-regexp-in-string "'" "''" regex)))
+              " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'"))
         (counsel-ggc-process " *counsel-gg-count*"))
     (if no-async
         (string-to-number (shell-command-to-string cmd))
@@ -1382,13 +1380,14 @@ If NO-ASYNC is non-nil, do it synchronously instead."
                     cmd))
         (set-process-sentinel
          proc
-         #'(lambda (process _msg)
-             (when (and (eq (process-status process) 'exit)
-                        (zerop (process-exit-status process)))
-               (with-current-buffer (process-buffer process)
-                 (setq ivy--full-length (string-to-number (buffer-string))))
-               (when (= 0 (cl-incf counsel-gg-state))
-                 (ivy--exhibit)))))))))
+         (lambda (process _msg)
+           (when (and (eq (process-status process) 'exit)
+                      (zerop (process-exit-status process)))
+             (with-current-buffer (process-buffer process)
+               (goto-char (point-min))
+               (setq ivy--full-length (read (current-buffer))))
+             (when (zerop (cl-incf counsel-gg-state))
+               (ivy--exhibit)))))))))
 
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'.
@@ -3947,12 +3946,11 @@ Any desktop entries that fail to parse are recorded in
 
 (defun counsel-linux-app-action-open-desktop (desktop-shortcut)
   "Open DESKTOP-SHORTCUT."
-  (setq desktop-shortcut (cdr desktop-shortcut))
-  (let ((file
-         (cdr (assoc desktop-shortcut (counsel-linux-apps-list-desktop-files)))))
+  (let* ((app (cdr desktop-shortcut))
+         (file (cdr (assoc app (counsel-linux-apps-list-desktop-files)))))
     (if file
         (find-file file)
-      (error "Could not find location of file %s" desktop-shortcut))))
+      (error "Could not find location of file %s" app))))
 
 (ivy-set-actions
  'counsel-linux-app
