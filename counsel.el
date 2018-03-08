@@ -1335,8 +1335,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (when (and (eq (process-status process) 'exit)
              (zerop (process-exit-status process)))
     (with-current-buffer (process-buffer process)
-      (goto-char (point-min))
-      (setq ivy--full-length (read (current-buffer))))
+      (setq ivy--full-length (string-to-number (buffer-string))))
     (when (zerop (cl-incf counsel-gg-state))
       (ivy--exhibit))))
 
