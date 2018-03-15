@@ -3661,6 +3661,24 @@ BUFFER may be a string or nil."
     (with-current-buffer buffer
       (rename-buffer new-name))))
 
+(defun ivy--find-file-action (buffer)
+  "Find file from BUFFER's directory."
+  (let* ((b (get-buffer buffer))
+         (default-directory
+           (or (and b (buffer-local-value 'default-directory b))
+               default-directory)))
+    (call-interactively (if (functionp 'counsel-find-file)
+                            #'counsel-find-file
+                          #'find-file))))
+
+(defun ivy--kill-buffer-action (buffer)
+  "Kill BUFFER."
+  (kill-buffer buffer)
+  (unless (buffer-live-p (ivy-state-buffer ivy-last))
+    (setf (ivy-state-buffer ivy-last) (current-buffer)))
+  (setq ivy--index 0)
+  (ivy--reset-state ivy-last))
+
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-k") 'ivy-switch-buffer-kill)
@@ -3682,26 +3700,14 @@ BUFFER may be a string or nil."
 
 (ivy-set-actions
  'ivy-switch-buffer
- `(("f"
-    ,(lambda (x)
-       (let* ((b (get-buffer x))
-              (default-directory
-               (or (and b (buffer-local-value 'default-directory b))
-                   default-directory)))
-         (call-interactively (if (functionp 'counsel-find-file)
-                                 #'counsel-find-file
-                               #'find-file))))
+ '(("f"
+    ivy--find-file-action
     "find file")
    ("j"
     ivy--switch-buffer-other-window-action
     "other window")
    ("k"
-    ,(lambda (x)
-       (kill-buffer x)
-       (unless (buffer-live-p (ivy-state-buffer ivy-last))
-         (setf (ivy-state-buffer ivy-last) (current-buffer)))
-       (setq ivy--index 0)
-       (ivy--reset-state ivy-last))
+    ivy--kill-buffer-action
     "kill")
    ("r"
     ivy--rename-buffer-action
