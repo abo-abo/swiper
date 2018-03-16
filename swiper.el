@@ -996,6 +996,7 @@ See `ivy-format-function' for further information."
                        ?\ )
                       (buffer-name))
                      s)
+                    (put-text-property 0 len 'buffer buf s)
                     s))
                 (swiper--candidates 4))
                res))
