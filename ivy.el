@@ -969,9 +969,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          :require-match (ivy-state-require-match ivy-last)
          :initial-input ivy-text
          :history (ivy-state-history ivy-last)
-         :preselect (unless (eq (ivy-state-collection ivy-last)
-                                'read-file-name-internal)
-                      (ivy-state-current ivy-last))
+         :preselect (ivy-state-current ivy-last)
          :keymap (ivy-state-keymap ivy-last)
          :update-fn (ivy-state-update-fn ivy-last)
          :sort (ivy-state-sort ivy-last)
