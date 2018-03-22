@@ -3796,18 +3796,25 @@ Skip buffers that match `ivy-ignore-buffers'."
 (define-obsolete-function-alias 'ivy-recentf 'counsel-recentf "0.8.0")
 
 (defun ivy-yank-word ()
-  "Pull next word from buffer into search string."
+  "Pull next word from buffer into search string. If the next
+character is not a word character, pull a single character. Regex
+operators are escaped."
   (interactive)
   (let (amend)
     (with-ivy-window
       (let ((pt (point))
             (le (line-end-position)))
-        (forward-word 1)
+        (if (or (= (char-syntax (or (char-after) 0)) ?w)
+                (= (char-syntax (or (char-after (1+ (point))) 0)) ?w))
+            (forward-word 1)
+          (forward-char 1))
         (if (> (point) le)
             (goto-char pt)
           (setq amend (buffer-substring-no-properties pt (point))))))
     (when amend
-      (insert (replace-regexp-in-string "  +" " " amend)))))
+      (unless (eq ivy--regex-function 'regexp-quote)
+        (setq amend (replace-regexp-in-string "[! ]" "\\\\\\&" (regexp-quote amend) t nil)))
+      (insert amend))))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
