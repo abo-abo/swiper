@@ -406,6 +406,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "Extract captured REGEX groups from CANDS."
   (let (res)
     (dolist (cand cands)
+      (setq cand (substring cand 1))
       (when (string-match regex cand)
         (push (mapconcat (lambda (n) (match-string-no-properties n cand))
                          (number-sequence
