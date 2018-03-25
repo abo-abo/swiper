@@ -162,9 +162,13 @@ will bring the behavior in line with the newer Emacsen."
                    "and  I  am"
                    "your  king.")))
   (should (equal (ivy--split "^[^ ]") '("^[^ ]")))
-  (should (equal (ivy--split "^[^ ] bar") '("^[^ ]" "bar"))))
+  (should (equal (ivy--split "^[^ ] bar") '("^[^ ]" "bar")))
+  (should (equal (ivy--split "defun [^ ]+") '("defun" "[^ ]+"))))
 
 (ert-deftest ivy--regex ()
+  (should (equal (ivy--regex
+                  "defun [^ ]+")
+                 "\\(defun\\).*?\\([^ ]+\\)"))
   (should (equal (ivy--regex
                   "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))

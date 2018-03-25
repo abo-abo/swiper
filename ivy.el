@@ -2243,8 +2243,8 @@ This allows to \"quote\" N spaces by inputting N+1 spaces."
                               (- (match-beginning 0) 2)
                               (match-beginning 0))))
           (progn
-            (setq start1 (match-end 0))
-            (setq start0 0))
+            (setq start0 start1)
+            (setq start1 (match-end 0)))
         (setq match-len (- (match-end 0) (match-beginning 0)))
         (if (= match-len 1)
             (progn
