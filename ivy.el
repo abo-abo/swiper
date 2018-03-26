@@ -1312,6 +1312,7 @@ If so, move to that directory, while keeping only the file name."
     (setq ivy--all-candidates
           (ivy--sorted-files (setq ivy--directory dir)))
     (setq ivy-text "")
+    (setf (ivy-state-directory ivy-last) dir)
     (delete-minibuffer-contents)))
 
 (defun ivy-backward-delete-char ()
