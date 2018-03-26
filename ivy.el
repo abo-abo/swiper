@@ -3796,18 +3796,19 @@ Skip buffers that match `ivy-ignore-buffers'."
 (define-obsolete-function-alias 'ivy-recentf 'counsel-recentf "0.8.0")
 
 (defun ivy-yank-word ()
-  "Pull next word from buffer into search string. If the next
-character is not a word character, pull a single character. Regex
-operators are escaped."
+  "Pull next word from buffer into search string.
+If the next character is whitespace, pull all proceeding whitespace. Else,
+if the next character is not a word character, pull a single character.
+Regex operators are escaped."
   (interactive)
   (let (amend)
     (with-ivy-window
       (let ((pt (point))
             (le (line-end-position)))
         (if (or (= (char-syntax (or (char-after) 0)) ?w)
-                (= (char-syntax (or (char-after (1+ (point))) 0)) ?w))
+                (= (char-syntax (or (char-after (1+ pt)) 0)) ?w))
             (forward-word 1)
-          (forward-char 1))
+          (re-search-forward "\s+\\|." le t))
         (if (> (point) le)
             (goto-char pt)
           (setq amend (buffer-substring-no-properties pt (point))))))
