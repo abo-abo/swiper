@@ -629,7 +629,8 @@ Matched candidates should have `swiper-invocation-face'."
              (num (if (string-match "^[0-9]+" str)
                       (string-to-number (match-string 0 str))
                     0)))
-        (unless (eq this-command 'ivy-yank-word)
+        (unless (memq this-command '(ivy-yank-word
+                                     scroll-other-window))
           (when (cl-plusp num)
             (unless (if swiper--current-line
                         (eq swiper--current-line num)
