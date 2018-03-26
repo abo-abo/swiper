@@ -1853,14 +1853,16 @@ This is useful for recursive `ivy-read'."
                             (file-name-nondirectory initial-input)))))
              (require 'dired)
              (when preselect
-               (let ((preselect-directory (file-name-directory preselect)))
+               (let ((preselect-directory (file-name-directory
+                                           (directory-file-name preselect))))
                  (unless (or (null preselect-directory)
                              (string= preselect-directory
                                       default-directory))
                    (setq ivy--directory preselect-directory))
                  (setf
                   (ivy-state-preselect state)
-                  (setq preselect (file-name-nondirectory preselect)))))
+                  (setq preselect (file-relative-name preselect
+                                                      preselect-directory)))))
              (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
