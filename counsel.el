@@ -885,18 +885,21 @@ The libraries are offered from `load-path'."
  '(("d" counsel--find-symbol "definition")))
 
 ;;** `counsel-find-library'
+(declare-function find-library-name "find-func")
+(defun counsel-find-library-other-window (library)
+  (let ((buf (find-file-noselect (find-library-name library))))
+    (pop-to-buffer buf 'other-window)))
+
+(defun counsel-find-library-other-frame (library)
+  (let ((buf (find-file-noselect (find-library-name library))))
+    (condition-case nil
+        (switch-to-buffer-other-frame buf)
+      (error (pop-to-buffer buf)))))
+
 (ivy-set-actions
  'counsel-find-library
- '(("j" (lambda (library)
-          (let ((buf (find-file-noselect (find-library-name library))))
-            (pop-to-buffer buf 'other-window)))
-    "other window")
-   ("f" (lambda (library)
-          (let ((buf (find-file-noselect (find-library-name library))))
-            (condition-case nil
-                (switch-to-buffer-other-frame buf)
-              (error (pop-to-buffer buf)))))
-    "other frame")))
+ '(("j" counsel-find-library-other-window "other window")
+   ("f" counsel-find-library-other-frame "other frame")))
 
 ;;;###autoload
 (defun counsel-find-library ()
