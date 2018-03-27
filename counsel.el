@@ -885,6 +885,19 @@ The libraries are offered from `load-path'."
  '(("d" counsel--find-symbol "definition")))
 
 ;;** `counsel-find-library'
+(ivy-set-actions
+ 'counsel-find-library
+ '(("j" (lambda (library)
+          (let ((buf (find-file-noselect (find-library-name library))))
+            (pop-to-buffer buf 'other-window)))
+    "other window")
+   ("f" (lambda (library)
+          (let ((buf (find-file-noselect (find-library-name library))))
+            (condition-case nil
+                (switch-to-buffer-other-frame buf)
+              (error (pop-to-buffer buf)))))
+    "other frame")))
+
 ;;;###autoload
 (defun counsel-find-library ()
   "Visit a selected the Emacs Lisp library.
@@ -1623,6 +1636,7 @@ Does not list the currently checked out one."
 (ivy-set-actions
  'counsel-find-file
  '(("j" find-file-other-window "other window")
+   ("f" find-file-other-frame "other frame")
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
@@ -1888,6 +1902,7 @@ result as a URL."
 (ivy-set-actions
  'counsel-recentf
  '(("j" find-file-other-window "other window")
+   ("f" find-file-other-frame "other frame")
    ("x" counsel-find-file-extern "open externally")))
 
 ;;** `counsel-locate'
