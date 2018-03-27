@@ -1232,7 +1232,7 @@ files in a project.")
   "Default defun to calculate `counsel--git-grep-count'."
   (if (eq system-type 'windows-nt)
       0
-    (read (shell-command-to-string "du -s 2>/dev/null"))))
+    (read (shell-command-to-string "du -s .git 2>/dev/null"))))
 
 (defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
   "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'.")
