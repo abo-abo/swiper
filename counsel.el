@@ -1633,8 +1633,8 @@ Does not list the currently checked out one."
         (find-alternate-file file-name)
       (find-file file-name))))
 
-(defun counsel-find-file-mkdir-action (x)
-  (make-directory x))
+(defun counsel-find-file-mkdir-action (_x)
+  (make-directory (expand-file-name ivy-text ivy--directory)))
 
 (ivy-set-actions
  'counsel-find-file
