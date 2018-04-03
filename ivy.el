@@ -565,13 +565,15 @@ functionality, e.g. as seen in `isearch'."
 
 (defmacro ivy-quit-and-run (&rest body)
   "Quit the minibuffer and run BODY afterwards."
+  (declare (indent 0))
   `(progn
      (put 'quit 'error-message "")
      (run-at-time nil nil
                   (lambda ()
                     (put 'quit 'error-message "Quit")
-                    ,@body))
-     (minibuffer-keyboard-quit)))
+                    (with-demoted-errors "Error: %S"
+                      ,@body)))
+     (abort-recursive-edit)))
 
 (defun ivy-exit-with-action (action)
   "Quit the minibuffer and call ACTION afterwards."
@@ -792,11 +794,11 @@ When ARG is t, exit with current text, ignoring the candidates."
         ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
          (if (member (ivy-state-current ivy-last) '("(./)" "(../)"))
              (ivy-quit-and-run
-              (ivy-read "Go to file: " 'read-file-name-internal
-                        :action (lambda (x)
-                                  (Info-find-node
-                                   (expand-file-name x ivy--directory)
-                                   "Top"))))
+               (ivy-read "Go to file: " 'read-file-name-internal
+                         :action (lambda (x)
+                                   (Info-find-node
+                                    (expand-file-name x ivy--directory)
+                                    "Top"))))
            (ivy-done)))
         (t
          (ivy-done))))
