@@ -30,6 +30,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'color)
 
 (defcustom colir-compose-method #'colir-compose-alpha
