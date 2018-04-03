@@ -126,7 +126,8 @@ Hide the minibuffer contents and cursor."
                       (current-column)))))))
           (add-face-text-property cursor-pos (1+ cursor-pos)
                                   'ivy-cursor t overlay-str)
-          (ivy-overlay-show-after overlay-str))))))
+          (ivy-overlay-show-after overlay-str)
+          (run-hooks 'post-command-hook))))))
 
 (provide 'ivy-overlay)
 ;;; ivy-overlay.el ends here
