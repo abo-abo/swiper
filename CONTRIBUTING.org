@@ -29,7 +29,7 @@ It is provided for you in [[https://github.com/abo-abo/swiper/blob/master/.dir-l
 Before submitting a change, run:
 - =make compile= - check for new compilation warnings
 - =make test= - check for failing tests
-- =make checkdock= - check documentation guidelines
+- =make checkdoc= - check documentation guidelines
 
 Use your own judgment for the commit messages, I recommend a verbose
 style using =magit-commit-add-log=.
