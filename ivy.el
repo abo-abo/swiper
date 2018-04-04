@@ -863,8 +863,8 @@ contains a single candidate.")
                (ivy-done))
              ivy-text))))
       ((or (and (equal ivy--directory "/")
-                (string-match "\\`[^/]+:.*:.*\\'" ivy-text))
-           (string-match "\\`/[^/]+:.*:.*\\'" ivy-text))
+                (string-match-p "\\`[^/]+:.*:.*\\'" ivy-text))
+           (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
        (ivy-done))
       ((or (and (equal ivy--directory "/")
                 (cond ((string-match
@@ -924,8 +924,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (if (and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
            (or (and (equal ivy--directory "/")
-                    (string-match "\\`[^/]+:.*\\'" ivy-text))
-               (string-match "\\`/" ivy-text)))
+                    (string-match-p "\\`[^/]+:.*\\'" ivy-text))
+               (string-match-p "\\`/" ivy-text)))
       (let ((default-directory ivy--directory)
             dir)
         (minibuffer-complete)
@@ -944,14 +944,14 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (postfix (car (last parts)))
          (case-fold-search (ivy--case-fold-p ivy-text))
          (completion-ignore-case case-fold-search)
-         (startp (string-match "^\\^" postfix))
+         (startp (string-match-p "^\\^" postfix))
          (new (try-completion (if startp
                                   (substring postfix 1)
                                 postfix)
                               (if (ivy-state-dynamic-collection ivy-last)
                                   ivy--all-candidates
                                 (mapcar (lambda (str)
-                                          (let ((i (string-match postfix str)))
+                                          (let ((i (string-match-p postfix str)))
                                             (when i
                                               (substring str i))))
                                         ivy--old-cands)))))
@@ -1997,7 +1997,7 @@ This is useful for recursive `ivy-read'."
 
 (defun ivy-add-prompt-count (prompt)
   "Add count information to PROMPT."
-  (cond ((string-match "%.*d" prompt)
+  (cond ((string-match-p "%.*d" prompt)
          prompt)
         ((null ivy-count-format)
          (error
@@ -2006,14 +2006,12 @@ This is useful for recursive `ivy-read'."
          (let ((w (length (number-to-string
                            (length ivy--all-candidates))))
                (s (copy-sequence ivy-count-format)))
-           (string-match "%d" s)
-           (match-end 0)
            (string-match "%d" s (match-end 0))
            (setq s (replace-match (format "%%-%dd" w) nil nil s))
            (string-match "%d" s)
            (concat (replace-match (format "%%%dd" w) nil nil s)
                    prompt)))
-        ((string-match "%.*d" ivy-count-format)
+        ((string-match-p "%.*d" ivy-count-format)
          (concat ivy-count-format prompt))
         (ivy--directory
          prompt)
@@ -2062,7 +2060,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                                       (car initial-input))
                                      ((and (stringp initial-input)
                                            (not (eq collection #'read-file-name-internal))
-                                           (string-match "\\+" initial-input))
+                                           (string-match-p "\\+" initial-input))
                                       (replace-regexp-in-string
                                        "\\+" "\\\\+" initial-input))
                                      (t
@@ -2244,7 +2242,7 @@ Minibuffer bindings:
          (let ((re preselect))
            (cl-position-if
             (lambda (x)
-              (string-match re x))
+              (string-match-p re x))
             candidates)))))
 
 ;;* Implementation
@@ -2874,7 +2872,7 @@ Otherwise, the car must not match."
              (pred
               (if mkpred
                   (funcall mkpred re-str)
-                (lambda (x) (string-match re-str x)))))
+                (lambda (x) (string-match-p re-str x)))))
         (setq candidates
               (cl-remove nil candidates
                          (if (cdr re) :if-not :if)
@@ -2900,17 +2898,17 @@ CANDIDATES are assumed to be static."
                       ((and ivy--old-re
                             (stringp re)
                             (stringp ivy--old-re)
-                            (not (string-match "\\\\" ivy--old-re))
+                            (not (string-match-p "\\\\" ivy--old-re))
                             (not (equal ivy--old-re ""))
                             (memq (cl-search
-                                   (if (string-match "\\\\)\\'" ivy--old-re)
+                                   (if (string-match-p "\\\\)\\'" ivy--old-re)
                                        (substring ivy--old-re 0 -2)
                                      ivy--old-re)
                                    re)
                                   '(0 2)))
                        (ignore-errors
                          (cl-remove-if-not
-                          (lambda (x) (string-match re x))
+                          (lambda (x) (string-match-p re x))
                           ivy--old-cands)))
                       (t
                        (ivy--re-filter re candidates)))))
@@ -2991,13 +2989,13 @@ All CANDIDATES are assumed to match NAME."
   "Re-sort candidates by NAME.
 All CANDIDATES are assumed to match NAME.
 Prefix matches to NAME are put ahead of the list."
-  (if (or (string-match "^\\^" name) (string= name ""))
+  (if (or (string-match-p "^\\^" name) (string= name ""))
       candidates
     (let ((re-prefix (concat "^" (funcall ivy--regex-function name)))
           res-prefix
           res-noprefix)
       (dolist (s candidates)
-        (if (string-match re-prefix s)
+        (if (string-match-p re-prefix s)
             (push s res-prefix)
           (push s res-noprefix)))
       (nconc
@@ -3019,7 +3017,7 @@ This function extracts a string from the cons list."
 CANDIDATES is a list of buffer names each containing NAME.
 Sort open buffers before virtual buffers, and prefix matches
 before substring matches."
-  (if (or (string-match "^\\^" name) (string= name ""))
+  (if (or (string-match-p "^\\^" name) (string= name ""))
       candidates
     (let* ((base-re (ivy-generic-regex-to-str (funcall ivy--regex-function name)))
            (re-prefix (concat "^\\*" base-re))
@@ -3027,15 +3025,15 @@ before substring matches."
            res-noprefix
            res-virtual-prefix
            res-virtual-noprefix)
-      (unless (cl-find-if (lambda (s) (string-match re-prefix s)) candidates)
+      (unless (cl-find-if (lambda (s) (string-match-p re-prefix s)) candidates)
         (setq re-prefix (concat "^" base-re)))
       (dolist (s candidates)
         (cond
-          ((and (assoc s ivy--virtual-buffers) (string-match re-prefix s))
+          ((and (assoc s ivy--virtual-buffers) (string-match-p re-prefix s))
            (push s res-virtual-prefix))
           ((assoc s ivy--virtual-buffers)
            (push s res-virtual-noprefix))
-          ((string-match re-prefix s)
+          ((string-match-p re-prefix s)
            (push s res-prefix))
           (t
            (push s res-noprefix))))
@@ -3317,7 +3315,7 @@ Note: The usual last two arguments are flipped for convenience.")
 (defun ivy--highlight-fuzzy (str)
   "Highlight STR, using the fuzzy method."
   (if ivy--flx-featurep
-      (let ((flx-name (if (string-match "^\\^" ivy-text)
+      (let ((flx-name (if (string-match-p "^\\^" ivy-text)
                           (substring ivy-text 1)
                         ivy-text)))
         (ivy--flx-propertize
@@ -3895,7 +3893,7 @@ Don't finish completion."
   (interactive)
   (delete-minibuffer-contents)
   (if (and ivy--directory
-           (string-match "/$" (ivy-state-current ivy-last)))
+           (string-match-p "/$" (ivy-state-current ivy-last)))
       (insert (substring (ivy-state-current ivy-last) 0 -1))
     (insert (ivy-state-current ivy-last))))
 
