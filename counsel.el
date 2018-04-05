@@ -3255,6 +3255,8 @@ All blank strings are deleted from `kill-ring' by default."
   "Return list of kills for `counsel-yank-pop' to complete.
 Returned elements satisfy `counsel-yank-pop-filter' and are
 unique under `equal-including-properties'."
+  ;; Refresh `kill-ring' in the presence of `interprogram-paste-function'
+  (current-kill 0)
   ;; Keep things consistent with the rest of Emacs
   (dolist (sym '(kill-ring kill-ring-yank-pointer))
     (set sym (cl-delete-duplicates
