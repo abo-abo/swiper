@@ -214,6 +214,9 @@ Examples of properties include associated `:cleanup' functions.")
   '((ivy-completion-in-region . ivy-display-function-overlay))
   "An alist for customizing `ivy-display-function'.")
 
+(defvar ivy-completing-read-dynamic-collection nil
+  "Run `ivy-completing-read' with `:dynamic-collection t`.")
+
 (defcustom ivy-completing-read-handlers-alist
   '((tmm-menubar . completing-read-default)
     (tmm-shortcut . completing-read-default)
@@ -2046,6 +2049,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                 :history history
                 :keymap nil
                 :sort t
+                :dynamic-collection ivy-completing-read-dynamic-collection
                 :caller (cond ((called-interactively-p 'any)
                                this-command)
                               ((and collection (symbolp collection))
