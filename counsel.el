@@ -3266,8 +3266,11 @@ unique under `equal-including-properties'."
           kill-ring))
 
 (defun counsel-yank-pop-action (s)
-  "Like `yank-pop', but insert the kill corresponding to S."
+  "Like `yank-pop', but insert the kill corresponding to S.
+Signal a `buffer-read-only' error if called from a read-only
+buffer position."
   (with-ivy-window
+    (barf-if-buffer-read-only)
     (setq last-command 'yank)
     (setq yank-window-start (window-start))
     (yank-pop (counsel--yank-pop-position s))
@@ -3320,7 +3323,8 @@ can be controlled with `counsel-yank-pop-preselect-last', which
 see.  See also `counsel-yank-pop-filter' for how to filter
 candidates.
 Note: Duplicate elements of `kill-ring' are always deleted."
-  (interactive "*P")
+  ;; Do not specify `*' to allow browsing `kill-ring' in read-only buffers
+  (interactive "P")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
         (ivy-height counsel-yank-pop-height)
         (kills (counsel--yank-pop-kills)))
