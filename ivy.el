@@ -132,7 +132,9 @@
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
-  "Number of lines for the minibuffer window."
+  "Number of lines for the minibuffer window.
+
+See also `ivy-height-alist'."
   :type 'integer)
 
 (defcustom ivy-count-format "%-4d "
@@ -226,6 +228,13 @@ Examples of properties include associated `:cleanup' functions.")
     (webjump . ivy-completing-read-with-empty-string-def))
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
   :type '(alist :key-type function :value-type function))
+
+(defcustom ivy-height-alist nil
+  "An alist to customize `ivy-height'.
+
+It is a list of (CALLER . HEIGHT).  CALLER is a caller of
+`ivy-read' and HEIGHT is the number of lines displayed."
+  :type '(alist :key-type function :value-type integer))
 
 (defvar ivy-completing-read-ignore-handlers-depth -1
   "Used to avoid infinite recursion.
@@ -1700,7 +1709,12 @@ customizations apply to the current completion session."
          (unless (window-minibuffer-p)
            (or ivy-display-function
                (cdr (or (assq caller ivy-display-functions-alist)
-                        (assq t ivy-display-functions-alist)))))))
+                        (assq t ivy-display-functions-alist))))))
+        (height
+         (if caller
+             (let ((entry (assoc caller ivy-height-alist)))
+               (if entry (cdr entry) ivy-height))
+           ivy-height)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -1733,6 +1747,7 @@ customizations apply to the current completion session."
                (let* ((hist (or history 'ivy-history))
                       (minibuffer-completion-table collection)
                       (minibuffer-completion-predicate predicate)
+                      (ivy-height height)
                       (resize-mini-windows
                        (cond
                          ((display-graphic-p) nil)
