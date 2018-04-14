@@ -256,7 +256,6 @@ Update the minibuffer with the amount of lines collected every
                    (car bnd)
                    (cdr bnd))
                 ""))
-         (ivy-height 7)
          (pred (and (eq (char-before (car bnd)) ?\()
                     #'fboundp))
          symbol-names)
@@ -269,9 +268,12 @@ Update the minibuffer with the amount of lines collected every
              (push (symbol-name x) symbol-names))))
       (setq symbol-names (all-completions str obarray pred)))
     (ivy-read "Symbol name: " symbol-names
+              :caller 'counsel-el
               :predicate pred
               :initial-input str
               :action #'ivy-completion-in-region-action)))
+
+(add-to-list 'ivy-height-alist '(counsel-el . 7))
 
 ;;** `counsel-cl'
 (declare-function slime-symbol-start-pos "ext:slime")
@@ -331,13 +333,15 @@ Update the minibuffer with the amount of lines collected every
          (str (buffer-substring-no-properties
                (car bnd) (cdr bnd)))
          (candidates (funcall completion-fn str))
-         (ivy-height 7)
          (res (ivy-read (format "pattern (%s): " str)
-                        candidates)))
+                        candidates
+                        :caller 'counsel--generic)))
     (when (stringp res)
       (when bnd
         (delete-region (car bnd) (cdr bnd)))
       (insert res))))
+
+(add-to-list 'ivy-height-alist '(counsel--generic . 7))
 
 ;;;###autoload
 (defun counsel-clj ()
@@ -1573,13 +1577,14 @@ Does not list the currently checked out one."
   (let ((counsel-async-split-string-re counsel-git-log-split-string-re)
         (counsel-async-ignore-re "^[ \n]*$")
         (counsel-yank-pop-truncate-radius 5)
-        (ivy-format-function #'counsel--yank-pop-format-function)
-        (ivy-height 4))
+        (ivy-format-function #'counsel--yank-pop-format-function))
     (ivy-read "Grep log: " #'counsel-git-log-function
               :dynamic-collection t
               :action #'counsel-git-log-action
               :unwind #'counsel-delete-process
               :caller 'counsel-git-log)))
+
+(add-to-list 'ivy-height-alist '(counsel-git-log . 4))
 
 ;;* File
 ;;** `counsel-find-file'
@@ -3207,11 +3212,6 @@ A is the left hand side, B the right hand side."
   :group 'ivy
   :type 'string)
 
-(defcustom counsel-yank-pop-height 5
-  "The `ivy-height' of `counsel-yank-pop'."
-  :group 'ivy
-  :type 'integer)
-
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
   (ivy--format-function-generic
@@ -3328,7 +3328,6 @@ Note: Duplicate elements of `kill-ring' are always deleted."
   ;; Do not specify `*' to allow browsing `kill-ring' in read-only buffers
   (interactive "P")
   (let ((ivy-format-function #'counsel--yank-pop-format-function)
-        (ivy-height counsel-yank-pop-height)
         (kills (counsel--yank-pop-kills)))
     (unless kills
       (error "Kill ring is empty or blank"))
@@ -3351,23 +3350,19 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
+(add-to-list 'ivy-height-alist '(counsel-yank-pop . 5))
+
 (ivy-set-actions
  'counsel-yank-pop
  '(("d" counsel-yank-pop-action-remove "delete")
    ("r" counsel-yank-pop-action-rotate "rotate")))
 
 ;;** `counsel-evil-registers'
-(defcustom counsel-evil-registers-height 5
-  "The `ivy-height' of `counsel-evil-registers'."
-  :group 'ivy
-  :type 'integer)
-
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
   (interactive)
   (if (fboundp 'evil-register-list)
-      (let ((ivy-format-function #'counsel--yank-pop-format-function)
-            (ivy-height counsel-evil-registers-height))
+      (let ((ivy-format-function #'counsel--yank-pop-format-function))
         (ivy-read "evil-registers: "
                   (cl-loop for (key . val) in (evil-register-list)
                      collect (format "[%c]: %s" key (if (stringp val) val "")))
@@ -3375,6 +3370,8 @@ Note: Duplicate elements of `kill-ring' are always deleted."
                   :action #'counsel-evil-registers-action
                   :caller 'counsel-evil-registers))
     (user-error "Required feature `evil' not installed.")))
+
+(add-to-list 'ivy-height-alist '(counsel-evil-registers . 5))
 
 (defun counsel-evil-registers-action (s)
   "Paste contents of S, trimming the register part.
