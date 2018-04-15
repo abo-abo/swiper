@@ -3212,6 +3212,16 @@ A is the left hand side, B the right hand side."
   :group 'ivy
   :type 'string)
 
+(defcustom counsel-yank-pop-height 5
+  "The `ivy-height' of `counsel-yank-pop'."
+  :group 'ivy
+  :type 'integer)
+
+(make-obsolete-variable
+ 'counsel-yank-pop-height
+ "use `ivy-height-alist' instead."
+ "<2018-04-14 Fri>") ;; TODO add version
+
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
   (ivy--format-function-generic
@@ -3358,6 +3368,16 @@ Note: Duplicate elements of `kill-ring' are always deleted."
    ("r" counsel-yank-pop-action-rotate "rotate")))
 
 ;;** `counsel-evil-registers'
+(defcustom counsel-evil-registers-height 5
+  "The `ivy-height' of `counsel-evil-registers'."
+  :group 'ivy
+  :type 'integer)
+
+(make-obsolete-variable
+ 'counsel-evil-registers
+ "use `ivy-height-alist' instead."
+ "<2018-04-14 Fri>") ;; TODO add version
+
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
   (interactive)

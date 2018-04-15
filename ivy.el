@@ -134,7 +134,7 @@
 (defcustom ivy-height 10
   "Number of lines for the minibuffer window.
 
-Also see `ivy-height-alist'."
+See also `ivy-height-alist'."
   :type 'integer)
 
 (defcustom ivy-count-format "%-4d "
@@ -232,7 +232,7 @@ Examples of properties include associated `:cleanup' functions.")
 (defcustom ivy-height-alist nil
   "An alist to customize `ivy-height'.
 
-It is a list of (CALLER . HEIGHT).  CALLER is either a caller of
+It is a list of (CALLER . HEIGHT).  CALLER is a caller of
 `ivy-read' and HEIGHT is the number of lines displayed."
   :type '(alist :key-type function :value-type integer))
 
@@ -1712,8 +1712,8 @@ customizations apply to the current completion session."
                         (assq t ivy-display-functions-alist))))))
         (height
          (if caller
-             (let ((try-assoc (assoc caller ivy-height-alist)))
-               (if try-assoc (cdr try-assoc) ivy-height))
+             (let ((entry (assoc caller ivy-height-alist)))
+               (if entry (cdr entry) ivy-height))
            ivy-height)))
     (setq ivy-last
           (make-ivy-state
