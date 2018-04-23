@@ -775,7 +775,10 @@ installed.
      Set =ivy-display-style= to =nil= for a plain minibuffer.
 
 - User Option =ivy-on-del-error-function= ::
-     Specify what when ~DEL~ (=ivy-backward-delete-char=) throws.
+     Specifies what to do when ~DEL~ (=ivy-backward-delete-char=) fails.
+
+     This is usually the case when there is no text left to delete,
+     i.e., when ~DEL~ is typed at the beginning of the minibuffer.
 
      The default behavior is to quit the completion after ~DEL~ -- a
      handy key to invoke after mistakenly triggering a completion.

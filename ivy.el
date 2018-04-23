@@ -171,9 +171,14 @@ earlier versions of Emacs."
           (const :tag "Fancy" fancy)))
 
 (defcustom ivy-on-del-error-function #'minibuffer-keyboard-quit
-  "The handler for when `ivy-backward-delete-char' throws.
-Usually a quick exit out of the minibuffer."
-  :type 'function)
+  "Function to call when deletion fails during completion.
+The usual reason for `ivy-backward-delete-char' to fail is when
+there is no text left to delete, i.e., when it is called at the
+beginning of the minibuffer.
+The default setting provides a quick exit from completion."
+  :type '(choice (const :tag "Exit completion" minibuffer-keyboard-quit)
+                 (const :tag "Do nothing" ignore)
+                 (function :tag "Custom function")))
 
 (defcustom ivy-extra-directories '("../" "./")
   "Add this to the front of the list when completing file names.
@@ -1330,8 +1335,10 @@ If so, move to that directory, while keeping only the file name."
     (delete-minibuffer-contents)))
 
 (defun ivy-backward-delete-char ()
-  "Forward to `backward-delete-char'.
-On error (read-only), call `ivy-on-del-error-function'."
+  "Forward to `delete-backward-char'.
+Call `ivy-on-del-error-function' if an error occurs, usually when
+there is no more text to delete at the beginning of the
+minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
@@ -1341,7 +1348,7 @@ On error (read-only), call `ivy-on-del-error-function'."
                     ivy--directory))))
         (ivy--exhibit))
     (condition-case nil
-        (backward-delete-char 1)
+        (delete-backward-char 1)
       (error
        (when ivy-on-del-error-function
          (funcall ivy-on-del-error-function))))))
