@@ -763,13 +763,15 @@ By default `counsel-bookmark' opens a dired buffer for directories."
   (let ((key (where-is-internal (intern cmd) nil t)))
     (if (not key)
         cmd
-      (setq key (key-description key))
       ;; Prefer `<f2>' over `C-x 6' where applicable
-      (let ((dup (replace-regexp-in-string "C-x 6" "<f2>" key t t))
-            (map (current-global-map)))
-        (when (equal (lookup-key map (kbd key))
-                     (lookup-key map (kbd dup)))
-          (setq key dup)))
+      (let ((i (cl-search [?\C-x ?6] key)))
+        (when i
+          (let ((dup (vconcat (substring key 0 i) [f2] (substring key (+ i 2))))
+                (map (current-global-map)))
+            (when (equal (lookup-key map key)
+                         (lookup-key map dup))
+              (setq key dup)))))
+      (setq key (key-description key))
       (put-text-property 0 (length key) 'face 'font-lock-keyword-face key)
       (format "%s (%s)" cmd key))))
 
