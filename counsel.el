@@ -760,17 +760,18 @@ By default `counsel-bookmark' opens a dired buffer for directories."
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD annotated with its active key binding, if any."
-  (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
-    (if (string-match-p "\\`M-x" binding)
+  (let ((key (where-is-internal (intern cmd) nil t)))
+    (if (not key)
         cmd
+      (setq key (key-description key))
       ;; Prefer `<f2>' over `C-x 6' where applicable
-      (let ((dup (replace-regexp-in-string "C-x 6" "<f2>" binding t t))
+      (let ((dup (replace-regexp-in-string "C-x 6" "<f2>" key t t))
             (map (current-global-map)))
-        (when (equal (lookup-key map (kbd binding))
+        (when (equal (lookup-key map (kbd key))
                      (lookup-key map (kbd dup)))
-          (setq binding dup)))
-      (format "%s (%s)"
-              cmd (propertize binding 'face 'font-lock-keyword-face)))))
+          (setq key dup)))
+      (put-text-property 0 (length key) 'face 'font-lock-keyword-face key)
+      (format "%s (%s)" cmd key))))
 
 (defvar smex-initialized-p)
 (defvar smex-ido-cache)
