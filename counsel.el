@@ -759,11 +759,16 @@ By default `counsel-bookmark' opens a dired buffer for directories."
     "open as root")))
 
 (defun counsel-M-x-transformer (cmd)
-  "Return CMD appended with the corresponding binding in the current window."
+  "Return CMD annotated with its active key binding, if any."
   (let ((binding (substitute-command-keys (format "\\[%s]" cmd))))
-    (setq binding (replace-regexp-in-string "C-x 6" "<f2>" binding))
-    (if (string-match "^M-x" binding)
+    (if (string-match-p "\\`M-x" binding)
         cmd
+      ;; Prefer `<f2>' over `C-x 6' where applicable
+      (let ((dup (replace-regexp-in-string "C-x 6" "<f2>" binding t t))
+            (map (current-global-map)))
+        (when (equal (lookup-key map (kbd binding))
+                     (lookup-key map (kbd dup)))
+          (setq binding dup)))
       (format "%s (%s)"
               cmd (propertize binding 'face 'font-lock-keyword-face)))))
 
