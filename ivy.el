@@ -1347,8 +1347,9 @@ minibuffer."
                    (expand-file-name
                     ivy--directory))))
         (ivy--exhibit))
+    (setq prefix-arg current-prefix-arg)
     (condition-case nil
-        (delete-backward-char 1)
+        (call-interactively #'delete-backward-char)
       (error
        (when ivy-on-del-error-function
          (funcall ivy-on-del-error-function))))))
