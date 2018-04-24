@@ -218,6 +218,11 @@ Update the minibuffer with the amount of lines collected every
         (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
+(make-obsolete-variable
+ 'counsel-prompt-function
+ 'ivy-set-prompt
+ "0.8.0 <2016-06-20 Mon>")
+
 (defcustom counsel-prompt-function #'counsel-prompt-function-default
   "A function to return a full prompt string from a basic prompt string."
   :group 'ivy
@@ -225,11 +230,6 @@ Update the minibuffer with the amount of lines collected every
           (function-item counsel-prompt-function-default)
           (function-item counsel-prompt-function-dir)
           (function :tag "Custom")))
-
-(make-obsolete-variable
- 'counsel-prompt-function
- "Use `ivy-set-prompt' instead"
- "0.8.0 <2016-06-20 Mon>")
 
 (defun counsel-prompt-function-default ()
   "Return prompt appended with a semicolon."
@@ -3220,15 +3220,15 @@ A is the left hand side, B the right hand side."
   :group 'ivy
   :type 'string)
 
+(make-obsolete-variable
+ 'counsel-yank-pop-height
+ 'ivy-height-alist
+ "<2018-04-14 Fri>") ;; TODO: Add version tag
+
 (defcustom counsel-yank-pop-height 5
   "The `ivy-height' of `counsel-yank-pop'."
   :group 'ivy
   :type 'integer)
-
-(make-obsolete-variable
- 'counsel-yank-pop-height
- "use `ivy-height-alist' instead."
- "<2018-04-14 Fri>") ;; TODO add version
 
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
@@ -3376,15 +3376,15 @@ Note: Duplicate elements of `kill-ring' are always deleted."
    ("r" counsel-yank-pop-action-rotate "rotate")))
 
 ;;** `counsel-evil-registers'
+(make-obsolete-variable
+ 'counsel-evil-registers-height
+ 'ivy-height-alist
+ "<2018-04-14 Fri>") ;; TODO: Add version tag
+
 (defcustom counsel-evil-registers-height 5
   "The `ivy-height' of `counsel-evil-registers'."
   :group 'ivy
   :type 'integer)
-
-(make-obsolete-variable
- 'counsel-evil-registers
- "use `ivy-height-alist' instead."
- "<2018-04-14 Fri>") ;; TODO add version
 
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
@@ -3527,7 +3527,18 @@ An extra action allows to switch to the process buffer."
                 :action (lambda (x) (funcall action (cdr x)))
                 :require-match t
                 :caller 'counsel-ace-link))))
-;;** `counsel-expression-history'
+
+;;** `counsel-minibuffer-history'
+(make-obsolete
+ 'counsel-expression-history
+ 'counsel-minibuffer-history
+ "0.10.0 <2017-11-13 Mon>")
+
+(make-obsolete
+ 'counsel-shell-command-history
+ 'counsel-minibuffer-history
+ "0.10.0 <2017-11-13 Mon>")
+
 ;;;###autoload
 (defun counsel-expression-history ()
   "Select an element of `read-expression-history'.
@@ -3537,7 +3548,6 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
     (ivy-read "Expr: " (delete-dups read-expression-history)
               :action #'insert)))
 
-;;** `counsel-shell-command-history'
 ;;;###autoload
 (defun counsel-shell-command-history ()
   "Browse shell command history."
@@ -3546,7 +3556,6 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
             :action #'insert
             :caller 'counsel-shell-command-history))
 
-;;** `counsel-minibuffer-history'
 ;;;###autoload
 (defun counsel-minibuffer-history ()
   "Browse minibuffer history."
@@ -3557,8 +3566,6 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
                                      (symbol-value minibuffer-history-variable)))
               :action #'insert
               :caller 'counsel-minibuffer-history)))
-(make-obsolete 'counsel-expression-history 'counsel-minibuffer-history "20171011")
-(make-obsolete 'counsel-shell-command-history 'counsel-minibuffer-history "20171011")
 
 ;;** `counsel-esh-history'
 (defun counsel--browse-history (elements)
