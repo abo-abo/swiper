@@ -1495,11 +1495,6 @@ done") "\n" t)))
   "Add candidate X to kill ring."
   (message "%S" (kill-new x)))
 
-(defcustom counsel-yank-pop-truncate-radius 2
-  "Number of context lines around `counsel-yank-pop' candidates."
-  :type 'integer
-  :group 'ivy)
-
 ;;** `counsel-git-change-worktree'
 (autoload 'string-trim-right "subr-x")
 (defun counsel-git-change-worktree-action (git-root-dir tree)
@@ -1577,6 +1572,8 @@ Does not list the currently checked out one."
   (ivy-read "Checkout branch: " (counsel-git-branch-list)
             :action #'counsel-git-checkout-action
             :caller 'counsel-git-checkout))
+
+(defvar counsel-yank-pop-truncate-radius)
 
 ;;;###autoload
 (defun counsel-git-log ()
@@ -2738,8 +2735,8 @@ If path, the path hierarchy is displayed.  For each entry the title is shown.
 If title or any other value, only the title of the headline is displayed.
 
 Use `counsel-org-headline-display-tags' and
- `counsel-org-headline-display-todo' to display tags and todo keywords
- respectively."
+`counsel-org-headline-display-todo' to display tags and todo
+keywords, respectively."
   :type '(choice
           (const :tag "Title only" title)
           (const :tag "Headline" headline)
@@ -3192,6 +3189,11 @@ A is the left hand side, B the right hand side."
   (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
 
 ;;** `counsel-yank-pop'
+(defcustom counsel-yank-pop-truncate-radius 2
+  "Number of context lines around `counsel-yank-pop' candidates."
+  :type 'integer
+  :group 'ivy)
+
 (defun counsel--yank-pop-truncate (str)
   "Truncate STR for use in `counsel-yank-pop'."
   (condition-case nil
@@ -3264,7 +3266,7 @@ Newlines and carriage returns are considered blank."
 (defcustom counsel-yank-pop-filter #'counsel-string-non-blank-p
   "Unary filter function applied to `counsel-yank-pop' candidates.
 All elements of `kill-ring' for which this function returns nil
-will be permanently deleted from `kill-ring' before completion.
+will be destructively removed from `kill-ring' before completion.
 All blank strings are deleted from `kill-ring' by default."
   :group 'ivy
   :type '(radio (function-item counsel-string-non-blank-p)
