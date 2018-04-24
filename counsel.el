@@ -368,8 +368,8 @@ so this function ensures lexicographic order."
                                     'code code)
                         cands))))
     (if (not (hash-table-p table))
-        ;; Support `ucs-names' returning an alist in Emacs < 26. The result of
-        ;; `ucs-names' comes pre-reversed so no need to repeat.
+        ;; Support `ucs-names' returning an alist in Emacs < 26.
+        ;; The result of `ucs-names' comes pre-reversed so no need to repeat.
         (dolist (entry table)
           (funcall fmt (car entry) (cdr entry)))
       (maphash fmt table)
@@ -2499,7 +2499,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 ;;** `counsel-grep-or-swiper'
 (defcustom counsel-grep-swiper-limit 300000
-  "When the buffer is larger than this, use `counsel-grep' instead of `swiper'."
+  "Buffer size threshold for `counsel-grep-or-swiper'.
+When the number of characters in a buffer exceeds this threshold,
+`counsel-grep' will be used instead of `swiper'."
   :type 'integer
   :group 'ivy)
 
@@ -3545,14 +3547,16 @@ An extra action allows to switch to the process buffer."
 And insert it into the minibuffer.  Useful during `eval-expression'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "Expr: " (delete-dups read-expression-history)
-              :action #'insert)))
+    (ivy-read "Expression: "
+              (delete-dups (copy-sequence read-expression-history))
+              :action #'insert
+              :caller 'counsel-expression-history)))
 
 ;;;###autoload
 (defun counsel-shell-command-history ()
   "Browse shell command history."
   (interactive)
-  (ivy-read "cmd: " shell-command-history
+  (ivy-read "Command: " shell-command-history
             :action #'insert
             :caller 'counsel-shell-command-history))
 
@@ -3561,9 +3565,9 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
   "Browse minibuffer history."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "Reverse-i-search: " (delete-dups
-                                    (copy-sequence
-                                     (symbol-value minibuffer-history-variable)))
+    (ivy-read "History: "
+              (delete-dups (copy-sequence
+                            (symbol-value minibuffer-history-variable)))
               :action #'insert
               :caller 'counsel-minibuffer-history)))
 
