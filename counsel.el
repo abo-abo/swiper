@@ -3274,20 +3274,20 @@ All blank strings are deleted from `kill-ring' by default."
                 (function :tag "Other")))
 
 (defun counsel--yank-pop-kills ()
-  "Return list of kills for `counsel-yank-pop' to complete.
-Returned elements satisfy `counsel-yank-pop-filter' and are
-unique under `equal-including-properties'."
-  ;; Refresh `kill-ring' in the presence of `interprogram-paste-function'
-  (current-kill 0)
+  "Return filtered `kill-ring' for `counsel-yank-pop' completion.
+Both `kill-ring' and `kill-ring-yank-pointer' may be
+destructively modifed to eliminate duplicates under
+`equal-including-properties', satisfy `counsel-yank-pop-filter',
+and incorporate `interprogram-paste-function'."
+  ;; Protect against `kill-ring' and result of
+  ;; `interprogram-paste-function' both being nil
+  (ignore-errors (current-kill 0))
   ;; Keep things consistent with the rest of Emacs
   (dolist (sym '(kill-ring kill-ring-yank-pointer))
     (set sym (cl-delete-duplicates
               (cl-delete-if-not counsel-yank-pop-filter (symbol-value sym))
               :test #'equal-including-properties :from-end t)))
-  ;; Clean up completion candidates without modifying `kill-ring' elements
-  (mapcar (lambda (kill)
-            (ivy-cleanup-string (copy-sequence kill)))
-          kill-ring))
+  kill-ring)
 
 (defun counsel-yank-pop-action (s)
   "Like `yank-pop', but insert the kill corresponding to S.
@@ -3297,7 +3297,9 @@ buffer position."
     (barf-if-buffer-read-only)
     (setq last-command 'yank)
     (setq yank-window-start (window-start))
-    (yank-pop (counsel--yank-pop-position s))
+    ;; Avoid unexpected additions to `kill-ring'
+    (let (interprogram-paste-function)
+      (yank-pop (counsel--yank-pop-position s)))
     (setq ivy-completion-end (point))))
 
 (defun counsel-yank-pop-action-remove (s)
@@ -3306,22 +3308,25 @@ buffer position."
     (set sym (cl-delete s (symbol-value sym)
                         :test #'equal-including-properties)))
   ;; Update collection and preselect for next `ivy-call'
-  (let ((kills (counsel--yank-pop-kills)))
-    (setf (ivy-state-collection ivy-last) kills)
-    (setf (ivy-state-preselect ivy-last)
-          (nth (min ivy--index (1- (length kills)))
-               kills)))
+  (setf (ivy-state-collection ivy-last) kill-ring)
+  (setf (ivy-state-preselect ivy-last)
+        (nth (min ivy--index (1- (length kill-ring)))
+             kill-ring))
   (ivy--reset-state ivy-last))
 
 (defun counsel-yank-pop-action-rotate (s)
   "Rotate the yanking point to S in the kill ring.
 See `current-kill' for how this interacts with the window system
 selection."
-  ;; `current-kill' can modify both `kill-ring' and `kill-ring-yank-pointer',
-  ;; so update collection and preselect for next `ivy-call'
-  (setf (ivy-state-preselect ivy-last)
-        (current-kill (counsel--yank-pop-position s)))
-  (setf (ivy-state-collection ivy-last) (counsel--yank-pop-kills))
+  (let ((i (counsel--yank-pop-position s)))
+    ;; Avoid unexpected additions to `kill-ring'
+    (let (interprogram-paste-function)
+      (setf (ivy-state-preselect ivy-last) (current-kill i)))
+    ;; Manually change window system selection because `current-kill' won't
+    (when (and (zerop i)
+               yank-pop-change-selection
+               interprogram-cut-function)
+      (funcall interprogram-cut-function (car kill-ring-yank-pointer))))
   (ivy--reset-state ivy-last))
 
 (defcustom counsel-yank-pop-preselect-last nil
@@ -3359,11 +3364,7 @@ Note: Duplicate elements of `kill-ring' are always deleted."
     (setq ivy-completion-end (point))
     (ivy-read "kill-ring: " kills
               :require-match t
-              :preselect (let ((kill-ring kills)
-                               (kill-ring-yank-pointer
-                                (cl-member (car kill-ring-yank-pointer) kills
-                                           :test #'equal-including-properties))
-                               interprogram-paste-function)
+              :preselect (let (interprogram-paste-function)
                            (current-kill (cond
                                           (arg (prefix-numeric-value arg))
                                           (counsel-yank-pop-preselect-last 0)
