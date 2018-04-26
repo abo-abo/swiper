@@ -2006,8 +2006,8 @@ This is useful for recursive `ivy-read'."
          (let ((w (length (number-to-string
                            (length ivy--all-candidates))))
                (s (copy-sequence ivy-count-format)))
-           (string-match "%d" s (match-end 0))
-           (setq s (replace-match (format "%%-%dd" w) nil nil s))
+           (string-match "%d.*\\(%d\\)" s)
+           (setq s (replace-match (format "%%-%dd" w) nil nil s 1))
            (string-match "%d" s)
            (concat (replace-match (format "%%%dd" w) nil nil s)
                    prompt)))
