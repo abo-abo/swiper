@@ -2002,14 +2002,11 @@ This is useful for recursive `ivy-read'."
         ((null ivy-count-format)
          (error
           "`ivy-count-format' can't be nil.  Set it to \"\" instead"))
-        ((string-match "%d.*%d" ivy-count-format)
-         (let ((w (length (number-to-string
-                           (length ivy--all-candidates))))
-               (s (copy-sequence ivy-count-format)))
-           (string-match "%d.*\\(%d\\)" s)
-           (setq s (replace-match (format "%%-%dd" w) nil nil s 1))
+        ((string-match "%d.*\\(%d\\)" ivy-count-format)
+         (let* ((w (1+ (floor (log (max 1 (length ivy--all-candidates)) 10))))
+                (s (replace-match (format "%%-%dd" w) t t ivy-count-format 1)))
            (string-match "%d" s)
-           (concat (replace-match (format "%%%dd" w) nil nil s)
+           (concat (replace-match (format "%%%dd" w) t t s)
                    prompt)))
         ((string-match-p "%.*d" ivy-count-format)
          (concat ivy-count-format prompt))
