@@ -542,6 +542,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
               (point-min)
               (save-excursion (beginning-of-visual-line) (point)))
            (1- (line-number-at-pos))))
+        (ivy-highlight-functions-alist
+         `((swiper--re-builder
+            . ,(or (cdr (assq #'swiper--re-builder
+                              ivy-highlight-functions-alist))
+                   (cdr (assq ivy--regex-function
+                              ivy-highlight-functions-alist))))
+           ,@ivy-highlight-functions-alist))
         (minibuffer-allow-text-properties t)
         res)
     (unwind-protect
