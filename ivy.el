@@ -2259,10 +2259,12 @@ This concept is used to generalize regular expressions for
   "Store pre-computed regex.")
 
 (defun ivy--split (str)
-  "Split STR into a list by single spaces.
-The remaining spaces stick to their left.
-This allows to \"quote\" N spaces by inputting N+1 spaces.
-Each part is regex escaped if it is not a valid regex."
+"Split STR into list of substrings bounded by spaces.
+Single spaces act as splitting points.  Consecutive spaces
+\"quote\" their preceding spaces, i.e., guard them from being
+split.  This allows the literal interpretation of N spaces by
+inputting N+1 spaces.  Any substring not constituting a valid
+regexp is passed to `regexp-quote'."
   (let ((len (length str))
         start0
         (start1 0)
@@ -2364,9 +2366,9 @@ text after delimiter if it is empty.  Modifies match data."
                 (list str))))))
 
 (defun ivy--split-spaces (str)
-  "Split STR on spaces, unless they're preceded by \\.
-No unescaped spaces are present in the output.
-Each part is regex escaped if it is not a valid regex."
+ "Split STR on spaces, unless they're preceded by \\.
+No unescaped spaces are left in the output.  Any substring not
+constituting a valid regexp is passed to `regexp-quote'."
   (when str
     (let ((i 0) ; End of last search.
           (j 0) ; End of last delimiter.
