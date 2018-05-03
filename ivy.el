@@ -2296,7 +2296,7 @@ Each part is regex escaped if it is not a valid regex."
       (setq s (substring str start1))
       (unless (= (length s) 0)
         (push s res)))
-    (mapcar 'ivy--regex-or-literal (nreverse res))))
+    (mapcar #'ivy--regex-or-literal (nreverse res))))
 
 (defun ivy--regex (str &optional greedy)
   "Re-build regex pattern from STR in case it has a space.
