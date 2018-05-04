@@ -171,7 +171,10 @@ will bring the behavior in line with the newer Emacsen."
                  "\\(defun\\).*?\\([^ ]+\\)"))
   (should (equal (ivy--regex
                   "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
-                 "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)")))
+                 "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)"))
+  (should (equal (ivy--regex
+                  "foo[")
+                 "foo\\[")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))
@@ -208,7 +211,11 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--split-spaces "a\\ b") '("a b")))
   (should (equal (ivy--split-spaces " a b\\ ") '("a" "b ")))
   (should (equal (ivy--split-spaces "\\  a b ") '(" " "a" "b")))
-  (should (equal (ivy--split-spaces " a\\  \\ b ") '("a " " b"))))
+  (should (equal (ivy--split-spaces " a\\  \\ b ") '("a " " b")))
+
+  (should (equal (ivy--split-spaces "foo[") '("foo\\[")))
+  (should (equal (ivy--split-spaces "foo[a]") '("foo[a]")))
+  (should (equal (ivy--split-spaces "foo[ ]") '("foo\\[" "]"))))
 
 (ert-deftest ivy--regex-plus ()
   (should (equal (ivy--regex-plus "add path\\!") "\\(add\\).*?\\(path!\\)")))

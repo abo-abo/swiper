@@ -2259,9 +2259,12 @@ This concept is used to generalize regular expressions for
   "Store pre-computed regex.")
 
 (defun ivy--split (str)
-  "Split STR into a list by single spaces.
-The remaining spaces stick to their left.
-This allows to \"quote\" N spaces by inputting N+1 spaces."
+"Split STR into list of substrings bounded by spaces.
+Single spaces act as splitting points.  Consecutive spaces
+\"quote\" their preceding spaces, i.e., guard them from being
+split.  This allows the literal interpretation of N spaces by
+inputting N+1 spaces.  Any substring not constituting a valid
+regexp is passed to `regexp-quote'."
   (let ((len (length str))
         start0
         (start1 0)
@@ -2295,7 +2298,7 @@ This allows to \"quote\" N spaces by inputting N+1 spaces."
       (setq s (substring str start1))
       (unless (= (length s) 0)
         (push s res)))
-    (nreverse res)))
+    (mapcar #'ivy--regex-or-literal (nreverse res))))
 
 (defun ivy--regex (str &optional greedy)
   "Re-build regex pattern from STR in case it has a space.
@@ -2363,8 +2366,9 @@ text after delimiter if it is empty.  Modifies match data."
                 (list str))))))
 
 (defun ivy--split-spaces (str)
-  "Split STR on spaces, unless they're preceded by \\.
-No unescaped spaces are present in the output."
+ "Split STR on spaces, unless they're preceded by \\.
+No unescaped spaces are left in the output.  Any substring not
+constituting a valid regexp is passed to `regexp-quote'."
   (when str
     (let ((i 0) ; End of last search.
           (j 0) ; End of last delimiter.
@@ -2382,7 +2386,7 @@ No unescaped spaces are present in the output."
           (setq i (1- i))))
       (when (< j (length str))
         (push (substring str j) parts))
-      (nreverse parts))))
+      (mapcar #'ivy--regex-or-literal (nreverse parts)))))
 
 (defun ivy--regex-ignore-order (str)
   "Re-build regex from STR by splitting at spaces and using ! for negation.
@@ -2398,17 +2402,14 @@ Escaping examples:
 foo\!bar -> matches \"foo!bar\"
 foo\ bar -> matches \"foo bar\"
 
-If STR isn't a valid input, fall back to exact matching:
-foo[     -> matches \"foo\[\" (invalid regex, so literal [ character)
-
 Returns a list suitable for `ivy-re-match'."
   (let* (regex-parts
          (raw-parts (ivy--split-negation str)))
     (dolist (part (ivy--split-spaces (car raw-parts)))
-      (push (cons (ivy--regex-or-literal part) t) regex-parts))
+      (push (cons part t) regex-parts))
     (when (cdr raw-parts)
       (dolist (part (ivy--split-spaces (cadr raw-parts)))
-        (push (cons (ivy--regex-or-literal part) nil) regex-parts)))
+        (push (cons part nil) regex-parts)))
     (if regex-parts (nreverse regex-parts)
       "")))
 
