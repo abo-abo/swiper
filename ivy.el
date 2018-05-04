@@ -2015,7 +2015,9 @@ This interface conforms to `completing-read' and can be used for
 `completing-read-function'.
 
 PROMPT is a string that normally ends in a colon and a space.
-COLLECTION is either a list of strings, an alist, an obarray, or a hash table.
+COLLECTION is either a list of strings, an alist, an obarray, a hash table, or a
+  completion function with signature specified in
+  https://www.gnu.org/software/emacs/manual/html_node/elisp/Programmed-Completion.html.
 PREDICATE limits completion to a subset of COLLECTION.
 REQUIRE-MATCH is a boolean value.  See `completing-read'.
 INITIAL-INPUT is a string inserted into the minibuffer initially.
@@ -2024,7 +2026,8 @@ DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
   (let ((handler
          (when (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
-           (assoc this-command ivy-completing-read-handlers-alist))))
+           (assoc this-command ivy-completing-read-handlers-alist)))
+        (final-collection collection))
     (if handler
         (let ((completion-in-region-function #'completion--in-region)
               (ivy-completing-read-ignore-handlers-depth (1+ (minibuffer-depth))))
@@ -2039,8 +2042,13 @@ INHERIT-INPUT-METHOD is currently ignored."
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
+
+      (when (functionp collection)
+        (setq final-collection
+              (lambda (completion-string)
+                (funcall collection completion-string predicate t))))
       (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-                collection
+                final-collection
                 :predicate predicate
                 :require-match (and collection require-match)
                 :initial-input (cond ((consp initial-input)
