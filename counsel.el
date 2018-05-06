@@ -2459,18 +2459,46 @@ regex string."
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-ag 'counsel-git-grep-transformer)
 
-(defun counsel-ag-function (str)
-  "Grep in the current directory for STRING using BASE-CMD.
-If non-nil, append EXTRA-AG-ARGS to BASE-CMD."
-  (or
-   (counsel-more-chars)
-   (let ((default-directory (ivy-state-directory ivy-last))
-         (regex (counsel-unquote-regex-parens
-                 (setq ivy--old-re
-                       (ivy--regex str)))))
-     (counsel--async-command (format counsel-ag-command
-                                     (shell-quote-argument regex)))
-     nil)))
+(defconst counsel--command-args-separator "-- ")
+
+(defun counsel--split-command-args (arguments)
+  "Split ARGUMENTS into its switches and search-term parts.
+Return pair of corresponding strings (SWITCHES . SEARCH-TERM)."
+  (let ((switches "")
+        (search-term arguments))
+    (when (string-prefix-p "-" arguments)
+      (let ((index (string-match counsel--command-args-separator arguments)))
+        (when index
+          (setq search-term
+                (substring arguments (+ (length counsel--command-args-separator) index)))
+          (setq switches (substring arguments 0 index)))))
+    (cons switches search-term)))
+
+(defun counsel--format-ag-command (extra-args needle)
+  "Construct a complete `counsel-ag-command' as a string.
+EXTRA-ARGS is a string of the additional arguments.
+NEEDLE is the search string."
+  (format counsel-ag-command
+          (if (string-match " \\(--\\) " extra-args)
+              (replace-match needle t t extra-args 1)
+            (concat extra-args " " needle))))
+
+(defun counsel-ag-function (string)
+  "Grep in the current directory for STRING."
+  (let ((command-args (counsel--split-command-args string)))
+    (let ((switches (car command-args))
+          (search-term (cdr command-args)))
+      (if (< (length search-term) 3)
+          (let ((ivy-text search-term))
+            (counsel-more-chars))
+        (let ((default-directory (ivy-state-directory ivy-last))
+              (regex (counsel-unquote-regex-parens
+                      (setq ivy--old-re
+                            (ivy--regex search-term)))))
+          (counsel--async-command (counsel--format-ag-command
+                                   switches
+                                   (shell-quote-argument regex)))
+          nil)))))
 
 ;;;###autoload
 (defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
@@ -2493,19 +2521,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               (read-from-minibuffer (format
                                      "%s args: "
                                      (car (split-string counsel-ag-command)))))))
-  (when (null extra-ag-args)
-    (setq extra-ag-args ""))
-  (let* ((args-end (string-match "-- " extra-ag-args))
-         (file (if args-end
-                   (substring-no-properties extra-ag-args (match-end 0))
-                 ""))
-         (extra-ag-args (if args-end
-                            (substring-no-properties extra-ag-args 0 args-end)
-                          extra-ag-args)))
-    (setq counsel-ag-command (format counsel-ag-command
-                                     (concat extra-ag-args
-                                             " -- %s "
-                                             file))))
+  (setq counsel-ag-command (counsel--format-ag-command (or extra-ag-args "") "%s"))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (let ((default-directory (or initial-directory
                                (locate-dominating-file default-directory ".git")
@@ -2530,10 +2546,13 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (setq ivy-text
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
-  (let* ((cmd (format cmd-template
-                      (shell-quote-argument
-                       (counsel-unquote-regex-parens
-                        (ivy--regex ivy-text)))))
+  (let* ((command-args (counsel--split-command-args ivy-text))
+         (cmd (format cmd-template
+                      (concat
+                       (car command-args)
+                       (shell-quote-argument
+                        (counsel-unquote-regex-parens
+                         (ivy--regex (cdr command-args)))))))
          (cands (split-string (shell-command-to-string cmd) "\n" t)))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
