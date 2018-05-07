@@ -2023,7 +2023,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :caller 'counsel-locate))
 
 ;;** `counsel-fzf'
-(defvar counsel-fzf-cmd "fzf -f %s"
+(defvar counsel-fzf-cmd "fzf -f \"%s\""
   "Command for `counsel-fzf'.")
 
 (defvar counsel--fzf-dir nil
