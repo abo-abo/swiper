@@ -3066,8 +3066,8 @@ RE-STR is the regexp, CANDS are the current candidates."
                        (eq ivy--regex-function 'ivy--regex-fuzzy)
                        (< (length cands) 200)))
              ivy--old-cands
-             (cl-position (nth ivy--index ivy--old-cands)
-                          cands))
+             (cl-position (ivy-state-current ivy-last) cands
+                          :test #'equal))
         (funcall func re-str cands))))
     (when (or (string= name "")
               (string= name "^"))

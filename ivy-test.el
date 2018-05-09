@@ -133,7 +133,12 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("can do" "can" "can't do"))
                      "can C-m")
-           "can")))
+           "can"))
+  (should (equal
+           (ivy-with '(ivy-read "pattern: "
+                       '("ignore" "build" "build-1" "build-2") :preselect "build")
+                     "b C-m")
+           "build")))
 
 (ert-deftest ivy-read-remap ()
   (should (equal
