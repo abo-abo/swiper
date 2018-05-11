@@ -1522,7 +1522,8 @@ See also `ivy-sort-max-size'."
 
 (defun ivy--sort-function (collection)
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'."
-  (cdr (assoc collection ivy-sort-functions-alist)))
+  (cdr (or (assq collection ivy-sort-functions-alist)
+           (assq t ivy-sort-functions-alist))))
 
 (defun ivy-rotate-sort ()
   "Rotate through sorting functions available for current collection.
@@ -2623,9 +2624,9 @@ If nil, the text properties are applied to the whole match."
   (let ((sort (ivy-state-sort ivy-last)))
     (if (null sort)
         collection
-      (let ((sort-fn (or (and (functionp sort) sort)
-                         (ivy--sort-function (ivy-state-collection ivy-last))
-                         (ivy--sort-function t))))
+      (let ((sort-fn (if (functionp sort)
+                         sort
+                       (ivy--sort-function (ivy-state-collection ivy-last)))))
         (if (functionp sort-fn)
             (cl-sort (copy-sequence collection) sort-fn)
           collection)))))
