@@ -4410,90 +4410,6 @@ a symbol and how to search for them."
          (push (symbol-name symbol) cands))))
     (delete "" cands)))
 
-;;** `counsel-mode'
-(defvar counsel-mode-map
-  (let ((map (make-sparse-keymap)))
-    (dolist (binding
-              '((execute-extended-command . counsel-M-x)
-                (describe-bindings . counsel-descbinds)
-                (describe-function . counsel-describe-function)
-                (describe-variable . counsel-describe-variable)
-                (describe-face . counsel-describe-face)
-                (list-faces-display . counsel-faces)
-                (find-file . counsel-find-file)
-                (find-library . counsel-find-library)
-                (imenu . counsel-imenu)
-                (load-library . counsel-load-library)
-                (load-theme . counsel-load-theme)
-                (yank-pop . counsel-yank-pop)
-                (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-to-mark-command . counsel-mark-ring)
-                (bookmark-jump . counsel-bookmark)))
-      (define-key map (vector 'remap (car binding)) (cdr binding)))
-    map)
-  "Map for `counsel-mode'.
-Remaps built-in functions to counsel replacements.")
-
-(defcustom counsel-mode-override-describe-bindings nil
-  "Whether to override `describe-bindings' when `counsel-mode' is active."
-  :group 'ivy
-  :type 'boolean)
-
-(defun counsel-list-buffers-with-mode (mode)
-  "Return names of buffers with `major-mode' `eq' to MODE."
-  (let (bufs)
-    (dolist (buf (buffer-list))
-      (when (eq (buffer-local-value 'major-mode buf) mode)
-        (push (buffer-name buf) bufs)))
-    (nreverse bufs)))
-
-;;;###autoload
-(defun counsel-switch-to-shell-buffer ()
-  "Switch to a shell buffer, or create one."
-  (interactive)
-  (ivy-read "Switch to shell buffer: "
-            (counsel-list-buffers-with-mode 'shell-mode)
-            :action #'counsel-switch-to-buffer-or-window
-            :caller 'counsel-switch-to-shell-buffer))
-
-(defun counsel-switch-to-buffer-or-window (buffer-name)
-  "Display buffer BUFFER-NAME and select its window.
-
-This behaves as `switch-to-buffer', except when the buffer is
-already visible; in that case, select the window corresponding to
-the buffer."
-  (let ((buffer (get-buffer buffer-name)))
-    (if (not buffer)
-        (shell buffer-name)
-      (let (window-of-buffer-visible)
-        (catch 'found
-          (walk-windows (lambda (window)
-                          (and (equal (window-buffer window) buffer)
-                               (throw 'found (setq window-of-buffer-visible window))))))
-        (if window-of-buffer-visible
-            (select-window window-of-buffer-visible)
-          (switch-to-buffer buffer))))))
-
-;;;###autoload
-(define-minor-mode counsel-mode
-  "Toggle Counsel mode on or off.
-Turn Counsel mode on if ARG is positive, off otherwise. Counsel
-mode remaps built-in emacs functions that have counsel
-replacements. "
-  :group 'ivy
-  :global t
-  :keymap counsel-mode-map
-  :lighter " counsel"
-  (if counsel-mode
-      (progn
-        (when (and (fboundp 'advice-add)
-                   counsel-mode-override-describe-bindings)
-          (advice-add #'describe-bindings :override #'counsel-descbinds))
-        (define-key minibuffer-local-map (kbd "C-r")
-          'counsel-minibuffer-history))
-    (when (fboundp 'advice-remove)
-      (advice-remove #'describe-bindings #'counsel-descbinds))))
-
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
   "Name of the buffer to use for `counsel-ibuffer'.")
@@ -4562,6 +4478,91 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
  'counsel-ibuffer
  '(("j" counsel-ibuffer-visit-buffer-other-window "other window")
    ("v" counsel-ibuffer-visit-ibuffer "switch to Ibuffer")))
+
+;;** `counsel-switch-to-shell-buffer'
+(defun counsel-list-buffers-with-mode (mode)
+  "Return names of buffers with `major-mode' `eq' to MODE."
+  (let (bufs)
+    (dolist (buf (buffer-list))
+      (when (eq (buffer-local-value 'major-mode buf) mode)
+        (push (buffer-name buf) bufs)))
+    (nreverse bufs)))
+
+;;;###autoload
+(defun counsel-switch-to-shell-buffer ()
+  "Switch to a shell buffer, or create one."
+  (interactive)
+  (ivy-read "Switch to shell buffer: "
+            (counsel-list-buffers-with-mode 'shell-mode)
+            :action #'counsel-switch-to-buffer-or-window
+            :caller 'counsel-switch-to-shell-buffer))
+
+(defun counsel-switch-to-buffer-or-window (buffer-name)
+  "Display buffer BUFFER-NAME and select its window.
+
+This behaves as `switch-to-buffer', except when the buffer is
+already visible; in that case, select the window corresponding to
+the buffer."
+  (let ((buffer (get-buffer buffer-name)))
+    (if (not buffer)
+        (shell buffer-name)
+      (let (window-of-buffer-visible)
+        (catch 'found
+          (walk-windows (lambda (window)
+                          (and (equal (window-buffer window) buffer)
+                               (throw 'found (setq window-of-buffer-visible window))))))
+        (if window-of-buffer-visible
+            (select-window window-of-buffer-visible)
+          (switch-to-buffer buffer))))))
+
+;;** `counsel-mode'
+(defvar counsel-mode-map
+  (let ((map (make-sparse-keymap)))
+    (dolist (binding
+              '((execute-extended-command . counsel-M-x)
+                (describe-bindings . counsel-descbinds)
+                (describe-function . counsel-describe-function)
+                (describe-variable . counsel-describe-variable)
+                (describe-face . counsel-describe-face)
+                (list-faces-display . counsel-faces)
+                (find-file . counsel-find-file)
+                (find-library . counsel-find-library)
+                (imenu . counsel-imenu)
+                (load-library . counsel-load-library)
+                (load-theme . counsel-load-theme)
+                (yank-pop . counsel-yank-pop)
+                (info-lookup-symbol . counsel-info-lookup-symbol)
+                (pop-to-mark-command . counsel-mark-ring)
+                (bookmark-jump . counsel-bookmark)))
+      (define-key map (vector 'remap (car binding)) (cdr binding)))
+    map)
+  "Map for `counsel-mode'.
+Remaps built-in functions to counsel replacements.")
+
+(defcustom counsel-mode-override-describe-bindings nil
+  "Whether to override `describe-bindings' when `counsel-mode' is active."
+  :group 'ivy
+  :type 'boolean)
+
+;;;###autoload
+(define-minor-mode counsel-mode
+  "Toggle Counsel mode on or off.
+Turn Counsel mode on if ARG is positive, off otherwise. Counsel
+mode remaps built-in emacs functions that have counsel
+replacements. "
+  :group 'ivy
+  :global t
+  :keymap counsel-mode-map
+  :lighter " counsel"
+  (if counsel-mode
+      (progn
+        (when (and (fboundp 'advice-add)
+                   counsel-mode-override-describe-bindings)
+          (advice-add #'describe-bindings :override #'counsel-descbinds))
+        (define-key minibuffer-local-map (kbd "C-r")
+          'counsel-minibuffer-history))
+    (when (fboundp 'advice-remove)
+      (advice-remove #'describe-bindings #'counsel-descbinds))))
 
 (provide 'counsel)
 
