@@ -1538,9 +1538,9 @@ This only has an effect if multiple sorting functions are
 specified for the current collection in
 `ivy-sort-functions-alist'."
   (interactive)
-  (let ((cell (assoc (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
+  (let ((cell (assq (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
     (when (consp (cdr cell))
-      (setcdr cell `(,@(cddr cell) ,(cadr cell)))
+      (setcdr cell (nconc (cddr cell) (list (cadr cell))))
       (ivy--reset-state ivy-last))))
 
 (defvar ivy-index-functions-alist
@@ -1625,7 +1625,7 @@ Directories come first."
                             (propertize x 'dirp (ivy--dirname-p x)))
                           seq)))
       (when sort-fn
-        (setq seq (cl-sort seq sort-fn)))
+        (setq seq (sort seq sort-fn)))
       (dolist (dir ivy-extra-directories)
         (push dir seq))
       (if predicate
@@ -1917,9 +1917,8 @@ This is useful for recursive `ivy-read'."
                  (progn
                    (setq sort nil)
                    (setq coll (mapcar #'car
-                                      (cl-sort
-                                       (copy-sequence collection)
-                                       sort-fn))))
+                                      (sort (copy-sequence collection)
+                                            sort-fn))))
                (setq collection
                      (setf (ivy-state-collection ivy-last)
                            (cl-remove-if-not predicate collection)))
@@ -1950,11 +1949,11 @@ This is useful for recursive `ivy-read'."
         (if (and (functionp collection)
                  (setq sort-fn (ivy--sort-function collection)))
             (when (not (eq collection 'read-file-name-internal))
-              (setq coll (cl-sort coll sort-fn)))
+              (setq coll (sort coll sort-fn)))
           (when (and (not (eq history 'org-refile-history))
                      (<= (length coll) ivy-sort-max-size)
                      (setq sort-fn (ivy--sort-function caller)))
-            (setq coll (cl-sort (copy-sequence coll) sort-fn)))))
+            (setq coll (sort (copy-sequence coll) sort-fn)))))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
@@ -2628,14 +2627,12 @@ If nil, the text properties are applied to the whole match."
 (defun ivy--sort-maybe (collection)
   "Sort COLLECTION if needed."
   (let ((sort (ivy-state-sort ivy-last)))
-    (if (null sort)
-        collection
-      (let ((sort-fn (if (functionp sort)
-                         sort
-                       (ivy--sort-function (ivy-state-collection ivy-last)))))
-        (if (functionp sort-fn)
-            (cl-sort (copy-sequence collection) sort-fn)
-          collection)))))
+    (if (and sort
+             (or (functionp sort)
+                 (functionp (setq sort (ivy--sort-function
+                                        (ivy-state-collection ivy-last))))))
+        (sort (copy-sequence collection) sort)
+      collection)))
 
 (defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
   "Action to take when a slash is added to the end of a non existing directory.
@@ -2980,8 +2977,8 @@ All CANDIDATES are assumed to match NAME."
     (cond ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
-          ((setq fun (cdr (or (assoc key ivy-sort-matches-functions-alist)
-                              (assoc t ivy-sort-matches-functions-alist))))
+          ((setq fun (cdr (or (assq key ivy-sort-matches-functions-alist)
+                              (assq t ivy-sort-matches-functions-alist))))
            (funcall fun name candidates))
           (t
            candidates))))
@@ -3179,71 +3176,53 @@ no sorting is done.")
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
-      (let* (
-             ;; an optimized regex for fuzzy matching
-             ;; "abc" → "\\`[^a]*a[^b]*b[^c]*c"
-             (fuzzy-regex (if (= (elt name 0) ?^)
-                              (concat "^"
-                                      (regexp-quote (substring name 1 2))
-                                      (mapconcat
-                                       (lambda (x)
-                                         (setq x (string x))
-                                         (concat "[^" x "]*" (regexp-quote x)))
-                                       (substring name 2)
-                                       ""))
-                            (concat "^"
-                                    (mapconcat
-                                     (lambda (x)
-                                       (setq x (string x))
-                                       (concat "[^" x "]*" (regexp-quote x)))
-                                     name
-                                     ""))))
+      (let* ((bolp (= (string-to-char name) ?^))
+             ;; An optimized regex for fuzzy matching
+             ;; "abc" → "^[^a]*a[^b]*b[^c]*c"
+             (fuzzy-regex (concat "^"
+                                  (and bolp (regexp-quote (substring name 1 2)))
+                                  (mapconcat
+                                   (lambda (x)
+                                     (setq x (char-to-string x))
+                                     (concat "[^" x "]*" (regexp-quote x)))
+                                   (if bolp (substring name 2) name)
+                                   "")))
+             ;; Strip off the leading "^" for flx matching
+             (flx-name (if bolp (substring name 1) name))
+             cands-left
+             cands-to-sort)
 
-             ;; strip off the leading "^" for flx matching
-             (flx-name (if (string-match "^\\^" name)
-                           (substring name 1)
-                         name))
-
-             (cands-left)
-             (cands-to-sort))
-
-        ;; filter out non-matching candidates
+        ;; Filter out non-matching candidates
         (dolist (cand cands)
-          (when (string-match fuzzy-regex cand)
+          (when (string-match-p fuzzy-regex cand)
             (push cand cands-left)))
 
         ;; pre-sort the candidates by length before partitioning
-        (setq cands-left (sort cands-left
-                               (lambda (c1 c2)
-                                 (< (length c1)
-                                    (length c2)))))
+        (setq cands-left (cl-sort cands-left #'< :key #'length))
 
         ;; partition the candidates into sorted and unsorted groups
-        (dotimes (_n (min (length cands-left) ivy-flx-limit))
+        (dotimes (_ (min (length cands-left) ivy-flx-limit))
           (push (pop cands-left) cands-to-sort))
 
-        (append
-         ;; compute all of the flx scores in one pass and sort
+        (nconc
+         ;; Compute all of the flx scores in one pass and sort
          (mapcar #'car
                  (sort (mapcar
                         (lambda (cand)
                           (cons cand
-                                (car (flx-score cand
-                                                flx-name
-                                                ivy--flx-cache))))
+                                (car (flx-score cand flx-name ivy--flx-cache))))
                         cands-to-sort)
                        (lambda (c1 c2)
-                         ;; break ties by length
+                         ;; Break ties by length
                          (if (/= (cdr c1) (cdr c2))
                              (> (cdr c1)
                                 (cdr c2))
                            (< (length (car c1))
                               (length (car c2)))))))
 
-         ;; add the unsorted candidates
+         ;; Add the unsorted candidates
          cands-left))
-    (error
-     cands)))
+    (error cands)))
 
 (defun ivy--truncate-string (str width)
   "Truncate STR to WIDTH."
