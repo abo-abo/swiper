@@ -2263,7 +2263,7 @@ This concept is used to generalize regular expressions for
   "Store pre-computed regex.")
 
 (defun ivy--split (str)
-"Split STR into list of substrings bounded by spaces.
+  "Split STR into list of substrings bounded by spaces.
 Single spaces act as splitting points.  Consecutive spaces
 \"quote\" their preceding spaces, i.e., guard them from being
 split.  This allows the literal interpretation of N spaces by
