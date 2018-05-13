@@ -4504,12 +4504,10 @@ replacements. "
 NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
   (interactive)
   (setq counsel-ibuffer--buffer-name (or name "*Ibuffer*"))
-  (let ((entries (counsel-ibuffer--get-buffers)))
-    (ivy-read "Switch to buffer: "
-              entries
-              :history 'counsel-ibuffer-history
-              :action 'counsel-ibuffer-visit-buffer
-              :caller 'counsel-ibuffer)))
+  (ivy-read "Switch to buffer: " (counsel-ibuffer--get-buffers)
+            :history 'counsel-ibuffer-history
+            :action #'counsel-ibuffer-visit-buffer
+            :caller 'counsel-ibuffer))
 
 (declare-function ibuffer-update "ibuffer")
 (declare-function ibuffer-current-buffer "ibuffer")
@@ -4517,10 +4515,8 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 (defvar ibuffer-movement-cycle)
 
 (defun counsel-ibuffer--get-buffers ()
-  "Get buffers listed in ibuffer."
-  (let ((oldbuf (get-buffer counsel-ibuffer--buffer-name))
-        (ibuffer-movement-cycle t)
-        entries)
+  "Return list of buffer-related lines in Ibuffer as strings."
+  (let ((oldbuf (get-buffer counsel-ibuffer--buffer-name)))
     (unless oldbuf
       ;; Avoid messing with the user's precious window/frame configuration.
       (save-window-excursion
@@ -4532,45 +4528,40 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
         ;; Forcibly update possibly stale existing buffer.
         (ibuffer-update nil t))
       (goto-char (point-min))
-      ;; `ibuffer-forward-line` wraps around, we guard against it by
-      ;; using the point of the first entry and make sure we abort as
-      ;; soon as we encounter it for the second time.
-      (let ((first-point 0))
-        (while (> (point) first-point)
-          (let ((current-buf (ibuffer-current-buffer)))
+      (let ((ibuffer-movement-cycle nil)
+            entries)
+        (while (not (eobp))
+          (ibuffer-forward-line 1 t)
+          (let ((buf (ibuffer-current-buffer)))
             ;; We are only interested in buffers we can actually visit.
             ;; This filters out headings and other unusable entries.
-            (when (buffer-live-p current-buf)
-              (push
-               (cons
-                (buffer-substring-no-properties
-                 (line-beginning-position)
-                 (line-end-position))
-                current-buf)
-               entries)
-              ;; Remember point of the first entry as we will wrap
-              ;; around to it.
-              (when (= first-point 0)
-                (setq first-point (point)))))
-          (ibuffer-forward-line 1 t))))
-    (nreverse entries)))
+            (when (buffer-live-p buf)
+              (push (cons (buffer-substring-no-properties
+                           (line-beginning-position)
+                           (line-end-position))
+                          buf)
+                    entries))))
+        (nreverse entries)))))
 
 (defun counsel-ibuffer-visit-buffer (x)
   "Switch to buffer of candidate X."
   (switch-to-buffer (cdr x)))
 
 (defun counsel-ibuffer-visit-buffer-other-window (x)
-  "Switch to buffer of candidate X in other window."
+  "Switch to buffer of candidate X in another window."
   (switch-to-buffer-other-window (cdr x)))
 
-(defun counsel-ibuffer-visit-vanilla-ibuffer (_)
-  "Switch to vanilla ibuffer."
+(define-obsolete-function-alias 'counsel-ibuffer-visit-vanilla-ibuffer
+  'counsel-ibuffer-visit-ibuffer "0.11.0")
+
+(defun counsel-ibuffer-visit-ibuffer (_)
+  "Switch to Ibuffer buffer."
   (switch-to-buffer counsel-ibuffer--buffer-name))
 
 (ivy-set-actions
  'counsel-ibuffer
  '(("j" counsel-ibuffer-visit-buffer-other-window "other window")
-   ("v" counsel-ibuffer-visit-vanilla-ibuffer "open vanilla ibuffer")))
+   ("v" counsel-ibuffer-visit-ibuffer "switch to Ibuffer")))
 
 (provide 'counsel)
 
