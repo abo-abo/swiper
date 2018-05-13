@@ -508,12 +508,12 @@ line numbers.  For the buffer, use `ivy--regex' instead."
                ((equal str "^")
                 (setq ivy--subexps 0)
                 ".")
-               ((string-match "^\\^" str)
+               ((string-match-p "\\`\\^" str)
                 (let ((re (funcall re-builder (substring str 1))))
-                  (if (zerop ivy--subexps)
-                      (prog1 (format "^ ?\\(%s\\)" re)
-                        (setq ivy--subexps 1))
-                    (format "^ %s" re))))
+                  (if (/= 0 ivy--subexps)
+                      (format "^ %s" re)
+                    (setq ivy--subexps 1)
+                    (format "^ ?\\(%s\\)" re))))
                ((eq (bound-and-true-p search-default-mode) 'char-fold-to-regexp)
                 (mapconcat #'char-fold-to-regexp (ivy--split str) ".*"))
                (t
@@ -542,6 +542,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
               (point-min)
               (save-excursion (beginning-of-visual-line) (point)))
            (1- (line-number-at-pos))))
+        (ivy-highlight-functions-alist
+         `((swiper--re-builder
+            . ,(or (cdr (assq #'swiper--re-builder
+                              ivy-highlight-functions-alist))
+                   (cdr (assq ivy--regex-function
+                              ivy-highlight-functions-alist))))
+           ,@ivy-highlight-functions-alist))
         (minibuffer-allow-text-properties t)
         res)
     (unwind-protect
