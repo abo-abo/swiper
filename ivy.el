@@ -1485,6 +1485,12 @@ This function is suitable as a replacement for
       (ido-file-extension-lessp x y)
     (ivy-sort-file-function-default x y)))
 
+(defun ivy-string< (x y)
+  "Like `string<', but operate on CARs when given cons cells."
+  (if (consp x)
+      (string< (car x) (car y))
+    (string< x y)))
+
 (defcustom ivy-sort-functions-alist
   '((read-file-name-internal . ivy-sort-file-function-default)
     (internal-complete-buffer . nil)
@@ -1492,7 +1498,7 @@ This function is suitable as a replacement for
     (counsel-git-grep-function . nil)
     (Man-goto-section . nil)
     (org-refile . nil)
-    (t . string-lessp))
+    (t . ivy-string<))
   "An alist of sorting functions for each collection function.
 Interactive functions that call completion fit in here as well.
 
