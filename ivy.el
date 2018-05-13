@@ -1399,7 +1399,7 @@ minibuffer."
         (forward-word -1)
         (delete-region (point) pt)))))
 
-(defvar ivy--regexp-quote 'regexp-quote
+(defvar ivy--regexp-quote #'regexp-quote
   "Store the regexp quoting state.")
 
 (defun ivy-toggle-regexp-quote ()
@@ -1817,33 +1817,31 @@ customizations apply to the current completion session."
 This is useful for recursive `ivy-read'."
   (unless (equal (selected-frame) (ivy-state-frame state))
     (select-window (active-minibuffer-window)))
-  (let ((prompt (or (ivy-state-prompt state) ""))
-        (collection (ivy-state-collection state))
-        (predicate (ivy-state-predicate state))
-        (history (ivy-state-history state))
-        (preselect (ivy-state-preselect state))
-        (sort (ivy-state-sort state))
-        (re-builder (ivy-state-re-builder state))
-        (dynamic-collection (ivy-state-dynamic-collection state))
-        (initial-input (ivy-state-initial-input state))
-        (require-match (ivy-state-require-match state))
-        (caller (or (ivy-state-caller state) this-command))
-        (def (ivy-state-def state)))
-    (unless initial-input
-      (setq initial-input (cdr (assoc caller
-                                      ivy-initial-inputs-alist))))
+  (let* ((prompt (or (ivy-state-prompt state) ""))
+         (collection (ivy-state-collection state))
+         (predicate (ivy-state-predicate state))
+         (history (ivy-state-history state))
+         (preselect (ivy-state-preselect state))
+         (sort (ivy-state-sort state))
+         (re-builder (ivy-state-re-builder state))
+         (dynamic-collection (ivy-state-dynamic-collection state))
+         (require-match (ivy-state-require-match state))
+         (caller (or (ivy-state-caller state) this-command))
+         (initial-input (or (ivy-state-initial-input state)
+                            (cdr (assq caller ivy-initial-inputs-alist))))
+         (def (ivy-state-def state)))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
     (setq ivy--regex-function
           (or re-builder
               (and (functionp collection)
-                   (cdr (assoc collection ivy-re-builders-alist)))
+                   (cdr (assq collection ivy-re-builders-alist)))
               (and caller
-                   (cdr (assoc caller ivy-re-builders-alist)))
-              (cdr (assoc t ivy-re-builders-alist))
-              'ivy--regex))
+                   (cdr (assq caller ivy-re-builders-alist)))
+              (cdr (assq t ivy-re-builders-alist))
+              #'ivy--regex))
     (setq ivy--subexps 0)
-    (setq ivy--regexp-quote 'regexp-quote)
+    (setq ivy--regexp-quote #'regexp-quote)
     (setq ivy--old-text "")
     (setq ivy--full-length nil)
     (setq ivy-text "")
@@ -1851,7 +1849,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
     (setq ivy--highlight-function
-          (or (cdr (assoc ivy--regex-function ivy-highlight-functions-alist))
+          (or (cdr (assq ivy--regex-function ivy-highlight-functions-alist))
               #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection 'Info-read-node-name-1)
