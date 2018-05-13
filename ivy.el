@@ -1827,10 +1827,10 @@ This is useful for recursive `ivy-read'."
         (dynamic-collection (ivy-state-dynamic-collection state))
         (initial-input (ivy-state-initial-input state))
         (require-match (ivy-state-require-match state))
-        (caller (ivy-state-caller state))
+        (caller (or (ivy-state-caller state) this-command))
         (def (ivy-state-def state)))
     (unless initial-input
-      (setq initial-input (cdr (assoc (or caller this-command)
+      (setq initial-input (cdr (assoc caller
                                       ivy-initial-inputs-alist))))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
@@ -1840,7 +1840,6 @@ This is useful for recursive `ivy-read'."
                    (cdr (assoc collection ivy-re-builders-alist)))
               (and caller
                    (cdr (assoc caller ivy-re-builders-alist)))
-              (cdr (assoc this-command ivy-re-builders-alist))
               (cdr (assoc t ivy-re-builders-alist))
               'ivy--regex))
     (setq ivy--subexps 0)
