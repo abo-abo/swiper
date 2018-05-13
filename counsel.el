@@ -4518,17 +4518,18 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 
 (defun counsel-ibuffer--get-buffers ()
   "Get buffers listed in ibuffer."
-  (let* ((ibuffer-buf (get-buffer counsel-ibuffer--buffer-name))
-         (new-ibuffer-p (not ibuffer-buf))
-         (ibuffer-movement-cycle t)
-         entries)
-    (when new-ibuffer-p
-      (ibuffer nil counsel-ibuffer--buffer-name)
-      (setq ibuffer-buf (current-buffer))
-      (quit-window))
-    (with-current-buffer ibuffer-buf
-      ;; ibuffer might not be up to date in case we use an existing buffer.
-      (unless new-ibuffer-p
+  (let ((oldbuf (get-buffer counsel-ibuffer--buffer-name))
+        (ibuffer-movement-cycle t)
+        entries)
+    (unless oldbuf
+      ;; Avoid messing with the user's precious window/frame configuration.
+      (save-window-excursion
+        (let ((display-buffer-overriding-action
+               '(display-buffer-same-window (inhibit-same-window . nil))))
+          (ibuffer nil counsel-ibuffer--buffer-name nil t))))
+    (with-current-buffer counsel-ibuffer--buffer-name
+      (when oldbuf
+        ;; Forcibly update possibly stale existing buffer.
         (ibuffer-update nil t))
       (goto-char (point-min))
       ;; `ibuffer-forward-line` wraps around, we guard against it by
