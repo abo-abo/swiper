@@ -4480,8 +4480,8 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
    ("v" counsel-ibuffer-visit-ibuffer "switch to Ibuffer")))
 
 ;;** `counsel-switch-to-shell-buffer'
-(defun counsel-list-buffers-with-mode (mode)
-  "Return names of buffers with `major-mode' `eq' to MODE."
+(defun counsel--buffers-with-mode (mode)
+  "Return names of buffers with MODE as their `major-mode'."
   (let (bufs)
     (dolist (buf (buffer-list))
       (when (eq (buffer-local-value 'major-mode buf) mode)
@@ -4492,28 +4492,20 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
 (defun counsel-switch-to-shell-buffer ()
   "Switch to a shell buffer, or create one."
   (interactive)
-  (ivy-read "Switch to shell buffer: "
-            (counsel-list-buffers-with-mode 'shell-mode)
-            :action #'counsel-switch-to-buffer-or-window
+  (ivy-read "Shell buffer: " (counsel--buffers-with-mode #'shell-mode)
+            :action #'counsel--switch-to-shell
             :caller 'counsel-switch-to-shell-buffer))
 
-(defun counsel-switch-to-buffer-or-window (buffer-name)
-  "Display buffer BUFFER-NAME and select its window.
-
-This behaves as `switch-to-buffer', except when the buffer is
-already visible; in that case, select the window corresponding to
-the buffer."
-  (let ((buffer (get-buffer buffer-name)))
-    (if (not buffer)
-        (shell buffer-name)
-      (let (window-of-buffer-visible)
-        (catch 'found
-          (walk-windows (lambda (window)
-                          (and (equal (window-buffer window) buffer)
-                               (throw 'found (setq window-of-buffer-visible window))))))
-        (if window-of-buffer-visible
-            (select-window window-of-buffer-visible)
-          (switch-to-buffer buffer))))))
+(defun counsel--switch-to-shell (name)
+  "Display shell buffer with NAME and select its window.
+Reuse any existing window already displaying the named buffer.
+If there is no such buffer, start a new `shell' with NAME."
+  (if (get-buffer name)
+      (pop-to-buffer name '((display-buffer-reuse-window
+                             display-buffer-same-window)
+                            (inhibit-same-window . nil)
+                            (reusable-frames . visible)))
+    (shell name)))
 
 ;;** `counsel-mode'
 (defvar counsel-mode-map
