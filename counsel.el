@@ -4467,9 +4467,6 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
   "Switch to buffer of candidate X in another window."
   (switch-to-buffer-other-window (cdr x)))
 
-(define-obsolete-function-alias 'counsel-ibuffer-visit-vanilla-ibuffer
-  'counsel-ibuffer-visit-ibuffer "0.11.0")
-
 (defun counsel-ibuffer-visit-ibuffer (_)
   "Switch to Ibuffer buffer."
   (switch-to-buffer counsel-ibuffer--buffer-name))
