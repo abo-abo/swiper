@@ -1530,7 +1530,9 @@ See also `ivy-sort-max-size'."
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'."
   (let ((entry (cdr (or (assq collection ivy-sort-functions-alist)
                         (assq t ivy-sort-functions-alist)))))
-    (or (car-safe entry) entry)))
+    (and (or (functionp entry)
+             (functionp (setq entry (car-safe entry))))
+         entry)))
 
 (defun ivy-rotate-sort ()
   "Rotate through sorting functions available for current collection.

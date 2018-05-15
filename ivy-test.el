@@ -813,6 +813,40 @@ will bring the behavior in line with the newer Emacsen."
               #("vec"
                 0 3 (face (completions-common-part)))))))
 
+(ert-deftest ivy--sort-function ()
+  "Test `ivy--sort-function' behavior."
+  ;; No enabled collections
+  (dolist (alist '(() ((t)) ((t nil)) ((a)) ((a nil))))
+    (let ((ivy-sort-functions-alist alist))
+      (dolist (coll '(a b))
+        (should (not (ivy--sort-function coll))))))
+  (dolist (fn (list #'identity (lambda ()) '(lambda ())))
+    ;; No fallback
+    (dolist (alist `(((a . ,fn))
+                     ((a ,fn))))
+      (let ((ivy-sort-functions-alist alist))
+        (should (eq (ivy--sort-function 'a) fn))
+        (should (not (ivy--sort-function 'b)))))
+    ;; Only fallback
+    (dolist (alist `(((t . ,fn))
+                     ((t ,fn))))
+      (let ((ivy-sort-functions-alist alist))
+        (dolist (coll '(a b))
+          (should (eq (ivy--sort-function coll) fn)))))
+    ;; Fallback with disabled collection
+    (dolist (alist `(((a) (t . ,fn))
+                     ((a) (t ,fn))))
+      (let ((ivy-sort-functions-alist alist))
+        (should (not (ivy--sort-function 'a)))
+        (should (eq (ivy--sort-function 'b) fn)))))
+  ;; Fallback with enabled collection
+  (let* ((fn0 #'identity)
+         (fn1 (lambda ()))
+         (ivy-sort-functions-alist `((a ,fn0) (b) (t ,fn1))))
+    (should (eq (ivy--sort-function 'a) fn0))
+    (should (not (ivy--sort-function 'b)))
+    (should (eq (ivy--sort-function 'c) fn1))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
