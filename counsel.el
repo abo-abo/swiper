@@ -4485,6 +4485,8 @@ NAME specifies the name of the buffer (defaults to \"*Ibuffer*\")."
         (push (buffer-name buf) bufs)))
     (nreverse bufs)))
 
+(declare-function shell-mode "shell")
+
 ;;;###autoload
 (defun counsel-switch-to-shell-buffer ()
   "Switch to a shell buffer, or create one."
