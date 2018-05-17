@@ -155,7 +155,8 @@ respectively."
         proc)
     (when (get-buffer name)
       (kill-buffer name))
-    (setq proc (start-file-process-shell-command name name cmd))
+    (setq proc (start-file-process-shell-command
+                name (get-buffer-create name) cmd))
     (setq counsel--async-time (current-time))
     (setq counsel--async-start counsel--async-time)
     (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
