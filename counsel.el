@@ -1601,7 +1601,6 @@ done") "\n" t)))
   (message "%S" (kill-new x)))
 
 ;;** `counsel-git-change-worktree'
-(autoload 'string-trim-right "subr-x")
 (defun counsel-git-change-worktree-action (git-root-dir tree)
   "Find the corresponding file in the worktree located at tree.
 The current buffer is assumed to be in a subdirectory of GIT-ROOT-DIR.
@@ -1613,9 +1612,8 @@ TREE is the selected candidate."
 
 (defun counsel-git-worktree-list ()
   "List worktrees in the git repository containing the current buffer."
-  (let* ((default-directory (counsel-locate-git-root))
-         (cmd-output (shell-command-to-string "git worktree list")))
-    (delete "" (split-string (string-trim-right cmd-output) "\n"))))
+  (let ((default-directory (counsel-locate-git-root)))
+    (split-string (shell-command-to-string "git worktree list") "\n" t)))
 
 (defun counsel-git-worktree-parse-root (tree)
   "Return worktree from candidate TREE."
@@ -1659,16 +1657,15 @@ BRANCH is a string whose first word designates the command argument."
    (format "git checkout %s" (substring branch 0 (string-match " " branch)))))
 
 (defun counsel-git-branch-list ()
-  "List branches in the git repository containing the current buffer.
-
-Does not list the currently checked out one."
-  (let* ((default-directory (counsel-locate-git-root))
-         (cmd-output (shell-command-to-string "git branch -vv --all")))
-    (cl-mapcan
-     (lambda (str)
-       (when (string-prefix-p " " str)
-         (list (substring str (string-match "[^[:blank:]]" str)))))
-     (split-string (string-trim-right cmd-output) "\n"))))
+  "Return list of branches in the current git repository.
+Value comprises all local and remote branches bar the one
+currently checked out."
+  (cl-mapcan (lambda (line)
+               (and (string-match "\\`[[:blank:]]+" line)
+                    (list (substring line (match-end 0)))))
+             (let ((default-directory (counsel-locate-git-root)))
+               (split-string (shell-command-to-string "git branch -vv --all")
+                             "\n" t))))
 
 ;;;###autoload
 (defun counsel-git-checkout ()
