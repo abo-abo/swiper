@@ -3463,10 +3463,10 @@ PREFIX is used to create the key."
 
 (defun counsel-imenu-categorize-functions (items)
   "Categorize all the functions of imenu."
-  (let* ((others (remove-if-not (lambda (x) (listp (cdr x))) items))
-         (functions (remove-if (lambda (x) (listp (cdr x))) items)))
+  (let* ((others (cl-remove-if-not (lambda (x) (listp (cdr x))) items))
+         (functions (cl-remove-if (lambda (x) (listp (cdr x))) items)))
     (if functions
-        (append others `(("Function" ,@functions)))
+        (append others `(("Functions" ,@functions)))
       items)))
 
 ;;;###autoload
