@@ -90,10 +90,11 @@
                (error "Unexpected"))))
       str)))
 
-(defun counsel-directory-parent (dir)
-  "Return the directory parent of directory DIR."
-  (concat (file-name-nondirectory
-           (directory-file-name dir)) "/"))
+(defun counsel-directory-name (dir)
+  "Return the name of directory DIR with a slash."
+  (file-name-as-directory
+   (file-name-nondirectory
+    (directory-file-name dir))))
 
 (defun counsel-string-compose (prefix str)
   "Make PREFIX the display prefix of STR through text properties."
@@ -869,13 +870,13 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               (if (setq old-val (gethash short-name cands))
                   (progn
                     ;; assume going up directory once will resolve name clash
-                    (setq dir-parent (counsel-directory-parent (cdr old-val)))
+                    (setq dir-parent (counsel-directory-name (cdr old-val)))
                     (puthash short-name
                              (cons
                               (counsel-string-compose dir-parent (car old-val))
                               (cdr old-val))
                              cands)
-                    (setq dir-parent (counsel-directory-parent dir))
+                    (setq dir-parent (counsel-directory-name dir))
                     (puthash (concat dir-parent short-name)
                              (cons
                               (propertize
