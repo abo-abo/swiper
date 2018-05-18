@@ -788,12 +788,26 @@ By default `counsel-bookmark' opens a dired buffer for directories."
       (put-text-property 0 (length key) 'face 'counsel-key-binding key)
       (format "%s (%s)" cmd key))))
 
-(defvar smex-initialized-p)
-(defvar smex-ido-cache)
-(declare-function smex-initialize "ext:smex")
-(declare-function smex-detect-new-commands "ext:smex")
-(declare-function smex-update "ext:smex")
-(declare-function smex-rank "ext:smex")
+
+(defvar smex-initialized-p nil)
+(defvar amx-initialized nil)
+
+(cond ((require 'smex nil 'noerror)
+       (defvar smex-ido-cache)
+       (declare-function smex-initialize "ext:smex")
+       (declare-function smex-detect-new-commands "ext:smex")
+       (declare-function smex-update "ext:smex")
+       (declare-function smex-rank "ext:smex")
+       (unless smex-initialized-p
+         (smex-initialize)))
+      ((require 'amx nil 'noerror)
+       (defvar amx-cache)
+       (declare-function amx-initialize "ext:amx")
+       (declare-function amx-detect-new-commands "ext:amx")
+       (declare-function amx-update "ext:amx")
+       (declare-function amx-rank "ext:amx")
+       (unless amx-initialized
+         (amx-initialize))))
 
 (defun counsel--M-x-prompt ()
   "String for `M-x' plus the string representation of `current-prefix-arg'."
@@ -820,14 +834,18 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
   (let* ((cands obarray)
          (pred 'commandp)
          (sort t))
-    (when (require 'smex nil 'noerror)
-      (unless smex-initialized-p
-        (smex-initialize))
-      (when (smex-detect-new-commands)
-        (smex-update))
-      (setq cands smex-ido-cache)
-      (setq pred nil)
-      (setq sort nil))
+    (cond (smex-initialized-p
+           (when (smex-detect-new-commands)
+             (smex-update))
+           (setq cands smex-ido-cache)
+           (setq pred nil)
+           (setq sort nil))
+          (amx-initialized
+           (when (amx-detect-new-commands)
+             (amx-update))
+           (setq cands amx-cache)
+           (setq pred nil)
+           (setq sort nil)))
     ;; When `counsel-M-x' returns, `last-command' would be set to
     ;; `counsel-M-x' because :action hasn't been invoked yet.
     ;; Instead, preserve the old value of `this-command'.
@@ -839,8 +857,10 @@ Optional INITIAL-INPUT is the initial input in the minibuffer."
               :history 'counsel-M-x-history
               :action
               (lambda (cmd)
-                (when (featurep 'smex)
-                  (smex-rank (intern cmd)))
+                (cond (smex-initialized-p
+                       (smex-rank (intern cmd)))
+                      (amx-initialized
+                       (amx-rank (intern cmd))))
                 (let ((prefix-arg current-prefix-arg))
                   (setq real-this-command
                         (setq this-command (intern cmd)))
