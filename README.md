@@ -90,6 +90,7 @@ counsel replacements:
 | describe-bindings        | counsel-descbinds          |
 | describe-function        | counsel-describe-function  |
 | describe-variable        | counsel-describe-variable  |
+| apropos-command          | counsel-apropos            |
 | describe-face            | counsel-describe-face      |
 | list-faces-display       | counsel-faces              |
 | find-file                | counsel-find-file          |
