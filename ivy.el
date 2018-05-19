@@ -38,6 +38,7 @@
 
 ;;; Code:
 (require 'cl-lib)
+(require 'pulse)
 (require 'ffap)
 (require 'ivy-overlay)
 
@@ -3823,6 +3824,7 @@ Skip buffers that match `ivy-ignore-buffers'."
         (forward-word 1)
         (if (> (point) le)
             (goto-char pt)
+          (pulse-momentary-highlight-region pt (point))
           (setq amend (buffer-substring-no-properties pt (point))))))
     (when amend
       (insert (replace-regexp-in-string "  +" " " amend)))))
