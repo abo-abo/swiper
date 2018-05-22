@@ -788,12 +788,35 @@ By default `counsel-bookmark' opens a dired buffer for directories."
       (put-text-property 0 (length key) 'face 'counsel-key-binding key)
       (format "%s (%s)" cmd key))))
 
+(defvar amx-initialized)
+(defvar amx-cache)
+(declare-function amx-initialize "ext:amx")
+(declare-function amx-detect-new-commands "ext:amx")
+(declare-function amx-update "ext:amx")
+(declare-function amx-rank "ext:amx")
 (defvar smex-initialized-p)
 (defvar smex-ido-cache)
 (declare-function smex-initialize "ext:smex")
 (declare-function smex-detect-new-commands "ext:smex")
 (declare-function smex-update "ext:smex")
 (declare-function smex-rank "ext:smex")
+
+(defun counsel--M-x-externs ()
+  "Return `counsel-M-x' candidates from external packages.
+The currently supported packages are, in order of precedence,
+`amx' and `smex'."
+  (cond ((require 'amx nil t)
+         (unless amx-initialized
+           (amx-initialize))
+         (when (amx-detect-new-commands)
+           (amx-update))
+         amx-cache)
+        ((require 'smex nil t)
+         (unless smex-initialized-p
+           (smex-initialize))
+         (when (smex-detect-new-commands)
+           (smex-update))
+         smex-ido-cache)))
 
 (defun counsel--M-x-prompt ()
   "String for `M-x' plus the string representation of `current-prefix-arg'."
@@ -815,37 +838,31 @@ By default `counsel-bookmark' opens a dired buffer for directories."
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
-Optional INITIAL-INPUT is the initial input in the minibuffer."
+Optional INITIAL-INPUT is the initial input in the minibuffer.
+This function integrates with either the `amx' or `smex' package
+when available, in that order of precedence."
   (interactive)
-  (let* ((cands obarray)
-         (pred 'commandp)
-         (sort t))
-    (when (require 'smex nil 'noerror)
-      (unless smex-initialized-p
-        (smex-initialize))
-      (when (smex-detect-new-commands)
-        (smex-update))
-      (setq cands smex-ido-cache)
-      (setq pred nil)
-      (setq sort nil))
-    ;; When `counsel-M-x' returns, `last-command' would be set to
-    ;; `counsel-M-x' because :action hasn't been invoked yet.
-    ;; Instead, preserve the old value of `this-command'.
-    (setq this-command last-command)
-    (setq real-this-command real-last-command)
-    (ivy-read (counsel--M-x-prompt) cands
-              :predicate pred
+  ;; When `counsel-M-x' returns, `last-command' would be set to
+  ;; `counsel-M-x' because :action hasn't been invoked yet.
+  ;; Instead, preserve the old value of `this-command'.
+  (setq this-command last-command)
+  (setq real-this-command real-last-command)
+  (let ((externs (counsel--M-x-externs)))
+    (ivy-read (counsel--M-x-prompt) (or externs obarray)
+              :predicate (and (not externs) #'commandp)
               :require-match t
               :history 'counsel-M-x-history
-              :action
-              (lambda (cmd)
-                (when (featurep 'smex)
-                  (smex-rank (intern cmd)))
-                (let ((prefix-arg current-prefix-arg))
-                  (setq real-this-command
-                        (setq this-command (intern cmd)))
-                  (command-execute (intern cmd) 'record)))
-              :sort sort
+              :action (lambda (cmd)
+                        (setq cmd (intern cmd))
+                        (cond ((bound-and-true-p amx-initialized)
+                               (amx-rank cmd))
+                              ((bound-and-true-p smex-initialized-p)
+                               (smex-rank cmd)))
+                        (setq prefix-arg current-prefix-arg)
+                        (setq this-command cmd)
+                        (setq real-this-command cmd)
+                        (command-execute cmd 'record))
+              :sort (not externs)
               :keymap counsel-describe-map
               :initial-input initial-input
               :caller 'counsel-M-x)))
