@@ -621,47 +621,51 @@ Matched candidates should have `swiper-invocation-face'."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length (ivy-state-current ivy-last)) 0)
-      (let* ((re (funcall ivy--regex-function ivy-text))
-             (re (if (stringp re) re (caar re)))
-             (re (replace-regexp-in-string
-                  "    " "\t"
-                  re))
-             (str (get-text-property 0 'swiper-line-number (ivy-state-current ivy-last)))
-             (num (if (string-match "^[0-9]+" str)
-                      (string-to-number (match-string 0 str))
-                    0)))
-        (unless (memq this-command '(ivy-yank-word
-                                     ivy-yank-symbol
-                                     ivy-yank-char
-                                     scroll-other-window))
-          (when (cl-plusp num)
-            (unless (if swiper--current-line
-                        (eq swiper--current-line num)
-                      (eq (line-number-at-pos) num))
-              (goto-char swiper--point-min)
-              (if swiper-use-visual-line
-                  (line-move (1- num))
-                (forward-line (1- num))))
-            (if (and (equal ivy-text "")
-                     (>= swiper--opoint (line-beginning-position))
-                     (<= swiper--opoint (line-end-position)))
-                (goto-char swiper--opoint)
-              (if (eq swiper--current-line num)
-                  (when swiper--current-match-start
-                    (goto-char swiper--current-match-start))
-                (setq swiper--current-line num))
-              (when (re-search-forward re (line-end-position) t)
-                (setq swiper--current-match-start (match-beginning 0))))
-            (isearch-range-invisible (line-beginning-position)
-                                     (line-end-position))
-            (unless (and (>= (point) (window-start))
-                         (<= (point) (window-end (ivy-state-window ivy-last) t)))
-              (recenter))
-            (setq swiper--current-window-start (window-start))))
-        (swiper--add-overlays
-         re
-         (max (window-start) swiper--point-min)
-         (min (window-end (selected-window) t) swiper--point-max))))))
+      (let* ((regexp-or-regexps (funcall ivy--regex-function ivy-text))
+             (regexps
+              (if (listp regexp-or-regexps)
+                  (mapcar #'car (cl-remove-if-not #'cdr regexp-or-regexps))
+                (list regexp-or-regexps))))
+        (dolist (re regexps)
+          (let* ((re (replace-regexp-in-string
+                      "    " "\t"
+                      re))
+                 (str (get-text-property 0 'swiper-line-number (ivy-state-current ivy-last)))
+                 (num (if (string-match "^[0-9]+" str)
+                          (string-to-number (match-string 0 str))
+                        0)))
+            (unless (memq this-command '(ivy-yank-word
+                                         ivy-yank-symbol
+                                         ivy-yank-char
+                                         scroll-other-window))
+              (when (cl-plusp num)
+                (unless (if swiper--current-line
+                            (eq swiper--current-line num)
+                          (eq (line-number-at-pos) num))
+                  (goto-char swiper--point-min)
+                  (if swiper-use-visual-line
+                      (line-move (1- num))
+                    (forward-line (1- num))))
+                (if (and (equal ivy-text "")
+                         (>= swiper--opoint (line-beginning-position))
+                         (<= swiper--opoint (line-end-position)))
+                    (goto-char swiper--opoint)
+                  (if (eq swiper--current-line num)
+                      (when swiper--current-match-start
+                        (goto-char swiper--current-match-start))
+                    (setq swiper--current-line num))
+                  (when (re-search-forward re (line-end-position) t)
+                    (setq swiper--current-match-start (match-beginning 0))))
+                (isearch-range-invisible (line-beginning-position)
+                                         (line-end-position))
+                (unless (and (>= (point) (window-start))
+                             (<= (point) (window-end (ivy-state-window ivy-last) t)))
+                  (recenter))
+                (setq swiper--current-window-start (window-start))))
+            (swiper--add-overlays
+             re
+             (max (window-start) swiper--point-min)
+             (min (window-end (selected-window) t) swiper--point-max))))))))
 
 (defun swiper--add-overlays (re &optional beg end wnd)
   "Add overlays for RE regexp in visible part of the current buffer.
