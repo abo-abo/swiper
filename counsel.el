@@ -4723,16 +4723,23 @@ Any desktop entries that fail to parse are recorded in
 
 ;;** `counsel-firefox-bookmarks`
 (defvar counsel-firefox-bookmarks-html-file
-  (car (directory-files-recursively "~/.mozilla/firefox/" "bookmarks.html"))
+  (if (file-directory-p "~/.mozilla/firefox/")
+      (car (directory-files-recursively "~/.mozilla/firefox/" "bookmarks.html")))
   "Firefox's auto exported html bookmarks file.")
 
 (defvar counsel-firefox-bookmarks-org-file
-  (concat (file-name-sans-extension counsel-firefox-bookmarks-html-file) ".org")
+  (if counsel-firefox-bookmarks-html-file (concat (file-name-sans-extension counsel-firefox-bookmarks-html-file) ".org") nil)
   "Firefox's auto exported html bookmarks file imported to org file.")
 
 (defun counsel-firefox-bookmarks-import ()
   "Import firefox bookmarks html file to org file."
   (interactive)
+  (unless (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
+    (user-error
+     "`counsel-firefox-bookmarks-html-file` not exists"))
+  (unless counsel-firefox-bookmarks-org-file
+    (user-error
+     "`counsel-firefox-bookmarks-org-file` invalid"))
   (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file))
         (html-buffer (find-file-noselect counsel-firefox-bookmarks-html-file)))
     (with-current-buffer html-buffer
@@ -4772,6 +4779,9 @@ You should have now:
 
 After closing firefox, you will be able to browse your bookmarks."
   (interactive)
+  (unless (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
+    (user-error
+     "`counsel-firefox-bookmarks-html-file` not exists"))
   (if (file-newer-than-file-p counsel-firefox-bookmarks-html-file counsel-firefox-bookmarks-org-file)
       (counsel-firefox-bookmarks-import))
   (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file)))
