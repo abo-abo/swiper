@@ -4721,6 +4721,66 @@ Any desktop entries that fail to parse are recorded in
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
+;;** `counsel-firefox-bookmarks`
+(defvar counsel-firefox-bookmarks-html-file
+  (car (directory-files-recursively "~/.mozilla/firefox/" "bookmarks.html"))
+  "Firefox's auto exported html bookmarks file.")
+
+(defvar counsel-firefox-bookmarks-org-file
+  (concat (file-name-sans-extension counsel-firefox-bookmarks-html-file) ".org")
+  "Firefox's auto exported html bookmarks file imported to org file.")
+
+(defun counsel-firefox-bookmarks-import ()
+  "Import firefox bookmarks html file to org file."
+  (interactive)
+  (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file))
+        (html-buffer (find-file-noselect counsel-firefox-bookmarks-html-file)))
+    (with-current-buffer html-buffer
+      (goto-char (point-min))
+      (with-current-buffer org-buffer
+        (erase-buffer)
+        (insert "#+TITLE: Firefox Bookmarks\n\n"))
+      (while
+          (re-search-forward "*?<A HREF=\"\\([^\"]+\\)\"[^>]*>\\([^<]+\\)</A>" nil t)
+        (let ((link (match-string 0))
+              (url (match-string 1))
+              (title (match-string 2))
+              (tags nil))
+          (if (string-match "TAGS=\"\\([^\"]+\\)\"" link)
+              (setq tags (match-string 1 link)))
+          (with-current-buffer org-buffer
+            (insert (format "* [[%s][%s]]%s\n" (org-link-escape url) (replace-regexp-in-string "\\]" "}" (replace-regexp-in-string "\\[" "{" title)) (if tags (concat "    :" (replace-regexp-in-string "," ":" tags) ":") ""))))))
+      (with-current-buffer org-buffer
+        (save-buffer)))))
+
+(defun counsel-firefox-bookmarks-goto-action (x)
+  "Open the candidate X as org link."
+  (org-open-link-from-string (car x)))
+
+;;;###autoload
+(defun counsel-firefox-bookmarks ()
+  "Ivy interface of firefox bookmarks.
+You will have to enable html bookmarks in firefox:
+open \"about:config\" in firefox and double click on this line to enable value
+to true:
+
+    user_pref(\"browser.bookmarks.autoExportHTML\", false);
+
+You should have now:
+
+    user_pref(\"browser.bookmarks.autoExportHTML\", true);
+
+After closing firefox, you will be able to browse your bookmarks."
+  (interactive)
+  (if (file-newer-than-file-p counsel-firefox-bookmarks-html-file counsel-firefox-bookmarks-org-file)
+      (counsel-firefox-bookmarks-import))
+  (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file)))
+    (with-current-buffer org-buffer
+      (ivy-read "Firefox Bookmarks: " (counsel-org-goto--get-headlines)
+                :history 'counsel-org-goto-history
+                :action 'counsel-firefox-bookmarks-goto-action
+                :caller 'counsel-firefox-bookmarks-goto))))
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
