@@ -1952,6 +1952,7 @@ This is useful for recursive `ivy-read'."
       (when sort
         (if (functionp collection)
             (when (and (not (eq collection 'read-file-name-internal))
+                       (<= (length coll) ivy-sort-max-size)
                        (setq sort-fn (ivy--sort-function collection caller)))
               (setq coll (sort (copy-sequence coll) sort-fn)))
           (when (and (not (eq history 'org-refile-history))
