@@ -43,6 +43,7 @@
 (require 'swiper)
 (require 'compile)
 (require 'dired)
+(require 'files)
 
 ;;* Utility
 (defvar counsel-more-chars-alist
