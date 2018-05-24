@@ -41,7 +41,7 @@
   :prefix "swiper-")
 
 (defface swiper-match-face-1
-  '((t (:inherit isearch-lazy-highlight-face)))
+  '((t (:inherit lazy-highlight)))
   "The background face for `swiper' matches.")
 
 (defface swiper-match-face-2
