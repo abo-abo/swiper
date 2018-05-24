@@ -1529,6 +1529,7 @@ See also `ivy-sort-max-size'."
 (defun ivy--sort-function (collection)
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'."
   (let ((entry (cdr (or (assq collection ivy-sort-functions-alist)
+                        (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist)
                         (assq t ivy-sort-functions-alist)))))
     (and (or (functionp entry)
              (functionp (setq entry (car-safe entry))))
@@ -1540,7 +1541,8 @@ This only has an effect if multiple sorting functions are
 specified for the current collection in
 `ivy-sort-functions-alist'."
   (interactive)
-  (let ((cell (assq (ivy-state-collection ivy-last) ivy-sort-functions-alist)))
+  (let ((cell (or (assq (ivy-state-collection ivy-last) ivy-sort-functions-alist)
+                  (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist))))
     (when (consp (cdr cell))
       (setcdr cell (nconc (cddr cell) (list (cadr cell))))
       (ivy--reset-state ivy-last))))
@@ -1946,9 +1948,10 @@ This is useful for recursive `ivy-read'."
               (t
                (push def coll))))
       (when sort
-        (if (and (functionp collection)
-                 (setq sort-fn (ivy--sort-function collection)))
-            (when (not (eq collection 'read-file-name-internal))
+        (if (functionp collection)
+            (when (and (not (eq collection 'read-file-name-internal))
+                       (<= (length coll) ivy-sort-max-size)
+                       (setq sort-fn (ivy--sort-function collection)))
               (setq coll (sort coll sort-fn)))
           (when (and (not (eq history 'org-refile-history))
                      (<= (length coll) ivy-sort-max-size)
