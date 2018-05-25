@@ -622,34 +622,45 @@ input corresponding to the chosen variable."
                                 (counsel-variable-list)
                                 :preselect (ivy-thing-at-point)
                                 :history 'counsel-set-variable-history))))
-  (let (sym-type
+  (let ((doc (and (require 'cus-edit)
+                  (require 'lv nil t)
+                  (not (string= "nil" (custom-variable-documentation sym)))
+                  (propertize (custom-variable-documentation sym)
+                              'face 'font-lock-comment-face)))
+        sym-type
         cands)
-    (if (and (boundp sym)
-             (setq sym-type (get sym 'custom-type))
-             (cond
-               ((and (consp sym-type)
-                     (memq (car sym-type) '(choice radio)))
-                (setq cands (delq nil (mapcar #'counsel--setq-doconst (cdr sym-type)))))
-               ((eq sym-type 'boolean)
-                (setq cands '(("nil" . nil) ("t" . t))))
-               (t nil)))
-        (let* ((sym-val (symbol-value sym))
-               ;; Escape '%' chars if present
-               (sym-val-str (replace-regexp-in-string "%" "%%" (format "%s" sym-val)))
-               (res (ivy-read (format "Set (%S <%s>): " sym sym-val-str)
-                              cands
-                              :preselect (prin1-to-string sym-val))))
-          (when res
-            (setq res
-                  (if (assoc res cands)
-                      (cdr (assoc res cands))
-                    (read res)))
-            (set sym (if (and (listp res) (eq (car res) 'quote))
-                         (cadr res)
-                       res))))
-      (unless (boundp sym)
-        (set sym nil))
-      (counsel-read-setq-expression sym))))
+    (unwind-protect
+        (progn
+          (when doc
+            (lv-message doc))
+          (if (and (boundp sym)
+                   (setq sym-type (get sym 'custom-type))
+                   (cond
+                    ((and (consp sym-type)
+                          (memq (car sym-type) '(choice radio)))
+                     (setq cands (delq nil (mapcar #'counsel--setq-doconst (cdr sym-type)))))
+                    ((eq sym-type 'boolean)
+                     (setq cands '(("nil" . nil) ("t" . t))))
+                    (t nil)))
+              (let* ((sym-val (symbol-value sym))
+                     ;; Escape '%' chars if present
+                     (sym-val-str (replace-regexp-in-string "%" "%%" (format "%s" sym-val)))
+                     (res (ivy-read (format "Set (%S <%s>): " sym sym-val-str)
+                                    cands
+                                    :preselect (prin1-to-string sym-val))))
+                (when res
+                  (setq res
+                        (if (assoc res cands)
+                            (cdr (assoc res cands))
+                          (read res)))
+                  (set sym (if (and (listp res) (eq (car res) 'quote))
+                               (cadr res)
+                             res))))
+            (unless (boundp sym)
+              (set sym nil))
+            (counsel-read-setq-expression sym)))
+      (when doc
+        (lv-delete-window)))))
 
 ;;** `counsel-info-lookup-symbol'
 (defvar info-lookup-mode)
