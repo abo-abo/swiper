@@ -4727,42 +4727,26 @@ Any desktop entries that fail to parse are recorded in
   (car (file-expand-wildcards "~/.mozilla/firefox/*/bookmarks.html"))
   "Firefox's auto exported html bookmarks file.")
 
-(defvar counsel-firefox-bookmarks-org-file
-  (if counsel-firefox-bookmarks-html-file (concat (file-name-sans-extension counsel-firefox-bookmarks-html-file) ".org") nil)
-  "Firefox's auto exported html bookmarks file imported to org file.")
+(defun counsel-firefox-bookmarks-action (x)
+  "Browse candidate X."
+  (browse-url (get-text-property 0 'href x)))
 
-(defun counsel-firefox-bookmarks-import ()
-  "Import firefox bookmarks html file to org file."
-  (interactive)
-  (unless (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
-    (user-error
-     "`counsel-firefox-bookmarks-html-file` not exists"))
-  (unless counsel-firefox-bookmarks-org-file
-    (user-error
-     "`counsel-firefox-bookmarks-org-file` invalid"))
-  (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file))
-        (html-buffer (find-file-noselect counsel-firefox-bookmarks-html-file)))
-    (with-current-buffer html-buffer
-      (goto-char (point-min))
-      (with-current-buffer org-buffer
-        (erase-buffer)
-        (insert "#+TITLE: Firefox Bookmarks\n\n"))
-      (while
-          (re-search-forward "*?<A HREF=\"\\([^\"]+\\)\"[^>]*>\\([^<]+\\)</A>" nil t)
-        (let ((link (match-string 0))
-              (url (match-string 1))
-              (title (match-string 2))
-              (tags nil))
-          (if (string-match "TAGS=\"\\([^\"]+\\)\"" link)
-              (setq tags (match-string 1 link)))
-          (with-current-buffer org-buffer
-            (insert (format "* [[%s][%s]]%s\n" (org-link-escape url) (replace-regexp-in-string "\\]" "}" (replace-regexp-in-string "\\[" "{" title)) (if tags (concat "    :" (replace-regexp-in-string "," ":" tags) ":") ""))))))
-      (with-current-buffer org-buffer
-        (save-buffer)))))
-
-(defun counsel-firefox-bookmarks-goto-action (x)
-  "Open the candidate X as org link."
-  (org-open-link-from-string (car x)))
+(defun counsel-firefox-bookmarks--candidates ()
+  (let ((candidates))
+    (if (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
+      (with-temp-buffer
+        (insert-file-contents counsel-firefox-bookmarks-html-file)
+        (goto-char (point-min))
+        (while (re-search-forward "*?<A HREF=\"\\([^\"]+\\)\"[^>]*>\\([^<]+\\)</A>" nil t)
+          (let ((a (match-string 0))
+                (href (match-string 1))
+                (text (match-string 2))
+                (tags nil))
+            (if (string-match "TAGS=\"\\([^\"]+\\)\"" a)
+                (setq tags (match-string 1 a)))
+            (push (propertize (format "%s%s" text (if tags (concat "    :" (replace-regexp-in-string "," ":" tags) ":") "")) 'href href) candidates))))
+      (warn "`counsel-firefox-bookmarks-html-file` not exists"))
+      candidates))
 
 ;;;###autoload
 (defun counsel-firefox-bookmarks ()
@@ -4779,17 +4763,11 @@ You should have now:
 
 After closing firefox, you will be able to browse your bookmarks."
   (interactive)
-  (unless (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
-    (user-error
-     "`counsel-firefox-bookmarks-html-file` not exists"))
-  (if (file-newer-than-file-p counsel-firefox-bookmarks-html-file counsel-firefox-bookmarks-org-file)
-      (counsel-firefox-bookmarks-import))
-  (let ((org-buffer (find-file-noselect counsel-firefox-bookmarks-org-file)))
-    (with-current-buffer org-buffer
-      (ivy-read "Firefox Bookmarks: " (counsel-org-goto--get-headlines)
-                :history 'counsel-org-goto-history
-                :action 'counsel-firefox-bookmarks-goto-action
-                :caller 'counsel-firefox-bookmarks-goto))))
+  (ivy-read "Firefox Bookmarks: " (counsel-firefox-bookmarks--candidates)
+            :history 'counsel-firefox-bookmarks-history
+            :action 'counsel-firefox-bookmarks-action
+            :caller 'counsel-firefox-bookmarks
+            :require-match t))
 
 ;;* `counsel-mode'
 (defvar counsel-mode-map
