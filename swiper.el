@@ -693,8 +693,7 @@ WND, when specified is the window."
           ;; RE can become an invalid regexp
           (while (and (ignore-errors (re-search-forward re end t))
                       (> (- (match-end 0) (match-beginning 0)) 0))
-            ;; Don't highlight a match if it goes across
-            ;; multiple lines.
+            ;; Don't highlight a match if it spans multiple lines.
             (unless (> (line-number-at-pos (match-end 0))
                        (line-number-at-pos (match-beginning 0)))
               (unless (and (consp ivy--old-re)
