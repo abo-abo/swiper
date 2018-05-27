@@ -26,8 +26,8 @@
 
 ;;; Code:
 (defface ivy-cursor
-  '((t (:background "black"
-        :foreground "white")))
+    '((t (:background "black"
+          :foreground "white")))
   "Cursor face for inline completion."
   :group 'ivy-faces)
 

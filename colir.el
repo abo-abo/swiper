@@ -37,8 +37,8 @@
   "Select a method to compose two color channels."
   :group 'ivy
   :type '(radio (function-item colir-compose-alpha)
-                (function-item colir-compose-overlay)
-                (function-item colir-compose-soft-light)))
+          (function-item colir-compose-overlay)
+          (function-item colir-compose-soft-light)))
 
 (defun colir-compose-soft-light (a b)
   "Compose A and B channels."

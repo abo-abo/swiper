@@ -41,23 +41,23 @@
   :prefix "swiper-")
 
 (defface swiper-match-face-1
-  '((t (:inherit isearch-lazy-highlight-face)))
+    '((t (:inherit isearch-lazy-highlight-face)))
   "The background face for `swiper' matches.")
 
 (defface swiper-match-face-2
-  '((t (:inherit isearch)))
+    '((t (:inherit isearch)))
   "Face for `swiper' matches modulo 1.")
 
 (defface swiper-match-face-3
-  '((t (:inherit match)))
+    '((t (:inherit match)))
   "Face for `swiper' matches modulo 2.")
 
 (defface swiper-match-face-4
-  '((t (:inherit isearch-fail)))
+    '((t (:inherit isearch-fail)))
   "Face for `swiper' matches modulo 3.")
 
 (defface swiper-line-face
-  '((t (:inherit highlight)))
+    '((t (:inherit highlight)))
   "Face for current `swiper' line.")
 
 (defcustom swiper-faces '(swiper-match-face-1
