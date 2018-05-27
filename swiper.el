@@ -700,9 +700,12 @@ WND, when specified is the window."
           ;; RE can become an invalid regexp
           (while (and (ignore-errors (re-search-forward re end t))
                       (> (- (match-end 0) (match-beginning 0)) 0))
-            ;; Don't highlight a match if it spans multiple lines.
-            (unless (> (line-number-at-pos (match-end 0))
-                       (line-number-at-pos (match-beginning 0)))
+            ;; Don't highlight a match if it spans multiple
+            ;; lines. `count-lines' returns 1 if the match is within a
+            ;; single line, even if it includes the newline, and 2 or
+            ;; greater otherwise. We hope that the inclusion of the
+            ;; newline will not ever be a problem in practice.
+            (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
               (unless (and (consp ivy--old-re)
                            (null
                             (save-match-data
