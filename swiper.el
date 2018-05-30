@@ -631,6 +631,7 @@ Matched candidates should have `swiper-invocation-face'."
                       (string-to-number (match-string 0 str))
                     0)))
         (unless (memq this-command '(ivy-yank-word
+                                     ivy-yank-char
                                      scroll-other-window))
           (when (cl-plusp num)
             (unless (if swiper--current-line
