@@ -3823,8 +3823,8 @@ point before and after applying FN to ARGS."
             (le (line-end-position)))
         (unwind-protect
             (progn (apply fn args)
-                   (when (<= (point) le)
-                     (setq text (buffer-substring-no-properties pt (point)))))
+                   (setq text (buffer-substring-no-properties
+                               pt (goto-char (min (point) le)))))
           (unless text
             (goto-char pt)))))
     (when text
