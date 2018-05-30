@@ -449,8 +449,8 @@ actions.
 - ~M-j~ (=ivy-yank-word=) ::
      Inserts the sub-word at point into the minibuffer.
 
-     This is similar to ~C-s C-w~ with =isearch=. Ivy reserves ~C-w~
-     for =kill-region=.
+     This is similar to ~C-s C-w~ with =isearch=.  Ivy reserves ~C-w~
+     for =kill-region=.  See also =ivy-yank-char=.
 
 - ~S-SPC~ (=ivy-restrict-to-matches=) ::
      Deletes the current input, and resets the candidates list to the

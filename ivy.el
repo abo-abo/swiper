@@ -3813,19 +3813,30 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (define-obsolete-function-alias 'ivy-recentf 'counsel-recentf "0.8.0")
 
-(defun ivy-yank-word ()
-  "Pull next word from buffer into search string."
-  (interactive)
+(defun ivy--yank-by (fn &rest args)
+  "Pull buffer text from current line into search string.
+The region to extract is determined by the respective values of
+point before and after applying FN to ARGS."
   (let (amend)
     (with-ivy-window
       (let ((pt (point))
             (le (line-end-position)))
-        (forward-word 1)
+        (apply fn args)
         (if (> (point) le)
             (goto-char pt)
           (setq amend (buffer-substring-no-properties pt (point))))))
     (when amend
       (insert (replace-regexp-in-string "  +" " " amend)))))
+
+(defun ivy-yank-word ()
+  "Pull next word from buffer into search string."
+  (interactive)
+  (ivy--yank-by #'forward-word))
+
+(defun ivy-yank-char ()
+  "Pull next character from buffer into search string."
+  (interactive)
+  (ivy--yank-by #'forward-char))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
