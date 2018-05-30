@@ -3833,6 +3833,14 @@ point before and after applying FN to ARGS."
   (interactive)
   (ivy--yank-by #'forward-word))
 
+(defun ivy-yank-symbol ()
+  "Pull next symbol from buffer into search string."
+  (interactive)
+  ;; Emacs < 24.4 compatibility
+  (unless (fboundp 'forward-symbol)
+    (require 'thingatpt))
+  (ivy--yank-by #'forward-symbol 1))
+
 (defun ivy-yank-char ()
   "Pull next character from buffer into search string."
   (interactive)
