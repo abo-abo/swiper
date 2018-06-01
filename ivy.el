@@ -1219,6 +1219,7 @@ See variable `ivy-recursive-restore' for further information."
           (if (eq action 'identity)
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
+            (set-buffer (ivy-state-buffer ivy-last))
             (prog1 (with-current-buffer (ivy-state-buffer ivy-last)
                      (unwind-protect (funcall action x)
                        (ivy-recursive-restore)))
