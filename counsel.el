@@ -4723,49 +4723,67 @@ Any desktop entries that fail to parse are recorded in
               :caller 'counsel-wmctrl)))
 
 ;;** `counsel-firefox-bookmarks`
-(defvar counsel-firefox-bookmarks-html-file
+(defvar counsel-firefox-bookmarks-file
   (car (file-expand-wildcards "~/.mozilla/firefox/*/bookmarks.html"))
-  "Firefox's auto exported html bookmarks file.")
+  "Firefox's automatically exported HTML bookmarks file.")
+
+(defface counsel-firefox-bookmarks-tag
+  '((t :inherit font-lock-comment-face))
+  "Face used by `counsel-firefox-bookmarks' for tag."
+  :group 'ivy-faces)
 
 (defun counsel-firefox-bookmarks-action (x)
   "Browse candidate X."
-  (browse-url (get-text-property 0 'href x)))
+  (browse-url (cdr x)))
+
+(declare-function xml-substitute-special "xml")
 
 (defun counsel-firefox-bookmarks--candidates ()
-  (let ((candidates))
-    (if (and counsel-firefox-bookmarks-html-file (file-exists-p counsel-firefox-bookmarks-html-file))
-      (with-temp-buffer
-        (insert-file-contents counsel-firefox-bookmarks-html-file)
-        (goto-char (point-min))
-        (while (re-search-forward "*?<A HREF=\"\\([^\"]+\\)\"[^>]*>\\([^<]+\\)</A>" nil t)
-          (let ((a (match-string 0))
-                (href (match-string 1))
-                (text (match-string 2))
-                (tags nil))
-            (if (string-match "TAGS=\"\\([^\"]+\\)\"" a)
-                (setq tags (match-string 1 a)))
-            (push (propertize (format "%s%s" text (if tags (concat "    :" (replace-regexp-in-string "," ":" tags) ":") "")) 'href href) candidates))))
-      (warn "`counsel-firefox-bookmarks-html-file` not exists"))
-      candidates))
+  "Return a list of completion candidates for `counsel-firefox-bookmarks'."
+  (unless (and counsel-firefox-bookmarks-file
+               (file-readable-p counsel-firefox-bookmarks-file))
+    (signal 'file-error (list "Opening `counsel-firefox-bookmarks-file'"
+                              "No such readable file"
+                              counsel-firefox-bookmarks-file)))
+  (require 'xml)
+  (with-temp-buffer
+    (insert-file-contents counsel-firefox-bookmarks-file)
+    (let ((case-fold-search t)
+          candidates)
+      (while (re-search-forward
+              "<a href=\"\\([^\"]+?\\)\"[^>]*?>\\([^<]*?\\)</a>" nil t)
+        (let* ((a (match-string 0))
+               (href (match-string 1))
+               (text (if (= (match-beginning 2) (match-end 2))
+                         href
+                       (save-match-data
+                         (xml-substitute-special (match-string 2)))))
+               (tags (and (string-match "tags=\"\\([^\"]+?\\)\"" a)
+                          (match-string 1 a))))
+          (push (cons (if tags
+                          (concat text
+                                  " :"
+                                  (string-join
+                                   (mapcar #'(lambda (tag)
+                                               (propertize tag 'face 'counsel-firefox-bookmarks-tag))
+                                           (split-string (match-string 1 a) "," t)) ":")
+                                  ":")
+                        text)
+                      href)
+                candidates)))
+      candidates)))
 
 ;;;###autoload
 (defun counsel-firefox-bookmarks ()
-  "Ivy interface of firefox bookmarks.
-You will have to enable html bookmarks in firefox:
-open \"about:config\" in firefox and double click on this line to enable value
-to true:
-
-    user_pref(\"browser.bookmarks.autoExportHTML\", false);
-
-You should have now:
-
-    user_pref(\"browser.bookmarks.autoExportHTML\", true);
-
-After closing firefox, you will be able to browse your bookmarks."
+  "Complete Firefox bookmarks with Ivy.
+This requires HTML bookmark export to be enabled in Firefox.
+To do this, open URL `about:config' in Firefox, make sure that
+the value of the setting \"browser.bookmarks.autoExportHTML\" is
+\"true\" by, say, double-clicking it, and then restart Firefox."
   (interactive)
-  (ivy-read "Firefox Bookmarks: " (counsel-firefox-bookmarks--candidates)
+  (ivy-read "bookmark: " (counsel-firefox-bookmarks--candidates)
             :history 'counsel-firefox-bookmarks-history
-            :action 'counsel-firefox-bookmarks-action
+            :action #'counsel-firefox-bookmarks-action
             :caller 'counsel-firefox-bookmarks
             :require-match t))
 
