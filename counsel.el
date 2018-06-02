@@ -43,7 +43,6 @@
 (require 'swiper)
 (require 'compile)
 (require 'dired)
-(require 'files)
 
 ;;* Utility
 (defvar counsel-more-chars-alist
@@ -4722,7 +4721,7 @@ Any desktop entries that fail to parse are recorded in
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
-;;** `counsel-firefox-bookmarks`
+;;** `counsel-firefox-bookmarks'
 (defvar counsel-firefox-bookmarks-file
   (car (file-expand-wildcards "~/.mozilla/firefox/*/bookmarks.html"))
   "Firefox's automatically exported HTML bookmarks file.")
