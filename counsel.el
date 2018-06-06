@@ -47,7 +47,7 @@
 (require 'dired)
 
 (defface counsel-key-binding
-  '((t :inherit font-lock-keyword-face))
+    '((t :inherit font-lock-keyword-face))
   "Face used by `counsel-M-x' for key bindings."
   :group 'ivy-faces)
 
@@ -541,7 +541,7 @@ Variables declared using `defcustom' are highlighted according to
   "Determine what `counsel-describe-function' should preselect."
   :group 'ivy
   :type '(radio (function-item ivy-thing-at-point)
-                (function-item ivy-function-called-at-point)))
+          (function-item ivy-function-called-at-point)))
 
 ;;;###autoload
 (defun counsel-describe-function ()
@@ -715,7 +715,7 @@ can use `C-x r j i' to open that file."
             (mapcar (lambda (register-alist-entry)
                       (if (eq 'file (cadr register-alist-entry))
                           (cddr register-alist-entry)))
-                      register-alist)
+                    register-alist)
             :sort t
             :require-match t
             :history 'counsel-file-register
@@ -767,9 +767,9 @@ By default `counsel-bookmark' opens a dired buffer for directories."
  `(("d" bookmark-delete "delete")
    ("e" bookmark-rename "edit")
    ("x" ,(counsel--apply-bookmark-fn #'counsel-find-file-extern)
-    "open externally")
+        "open externally")
    ("r" ,(counsel--apply-bookmark-fn #'counsel-find-file-as-root)
-    "open as root")))
+        "open as root")))
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD annotated with its active key binding, if any."
@@ -1739,13 +1739,13 @@ The preselect behaviour can be customized via user options
 `counsel-find-file-at-point' and
 `counsel-preselect-current-file', which see."
   (or
-    (when counsel-find-file-at-point
-      (require 'ffap)
-      (let ((f (ffap-guesser)))
-        (when f (expand-file-name f))))
-    (and counsel-preselect-current-file
-         buffer-file-name
-         (file-name-nondirectory buffer-file-name))))
+   (when counsel-find-file-at-point
+     (require 'ffap)
+     (let ((f (ffap-guesser)))
+       (when f (expand-file-name f))))
+   (and counsel-preselect-current-file
+        buffer-file-name
+        (file-name-nondirectory buffer-file-name))))
 
 ;;;###autoload
 (defun counsel-find-file (&optional initial-input)
@@ -1923,7 +1923,7 @@ result as a URL."
   (ivy-read "Recentf: " (mapcar #'substring-no-properties recentf-list)
             :action (lambda (f)
                       (with-ivy-window
-                       (find-file f)))
+                        (find-file f)))
             :caller 'counsel-recentf))
 (ivy-set-actions
  'counsel-recentf
@@ -2297,10 +2297,10 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                             (substring-no-properties extra-ag-args 0 args-end)
                           extra-ag-args)))
     (setq counsel-ag-command (format counsel-ag-command
-                                      (concat extra-ag-args
-                                              " -- "
-                                              "%s"
-                                              file))))
+                                     (concat extra-ag-args
+                                             " -- "
+                                             "%s"
+                                             file))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (let ((default-directory (or initial-directory
                                (locate-dominating-file default-directory ".git")
@@ -2988,14 +2988,14 @@ include attachments of other Org buffers."
   (interactive)
   (require 'org)
   (ivy-read "Entity: " (cl-loop for element in (append org-entities org-entities-user)
-                                unless (stringp element)
-                                collect (cons
-                                         (format "%20s | %20s | %20s | %s"
-                                                 (cl-first element)    ; name
-                                                 (cl-second element)   ; latex
-                                                 (cl-fourth element)   ; html
-                                                 (cl-seventh element)) ; utf-8
-                                         element))
+                          unless (stringp element)
+                          collect (cons
+                                   (format "%20s | %20s | %20s | %s"
+                                           (cl-first element)    ; name
+                                           (cl-second element)   ; latex
+                                           (cl-fourth element)   ; html
+                                           (cl-seventh element)) ; utf-8
+                                   element))
             :require-match t
             :action '(1
                       ("u" (lambda (candidate)
@@ -3039,16 +3039,16 @@ include attachments of other Org buffers."
  'counsel-org-capture
  `(("t" ,(lambda (x)
            (org-capture-goto-target (car (split-string x))))
-    "go to target")
+        "go to target")
    ("l" ,(lambda (_x)
            (org-capture-goto-last-stored))
-    "go to last stored")
+        "go to last stored")
    ("p" ,(lambda (x)
            (org-capture 0 (car (split-string x))))
-    "insert template at point")
+        "insert template at point")
    ("c" ,(lambda (_x)
            (customize-variable 'org-capture-templates))
-    "customize org-capture-templates")))
+        "customize org-capture-templates")))
 
 ;;** `counsel-mark-ring'
 (defun counsel-mark-ring ()
@@ -3284,8 +3284,8 @@ will be destructively removed from `kill-ring' before completion.
 All blank strings are deleted from `kill-ring' by default."
   :group 'ivy
   :type '(radio (function-item counsel-string-non-blank-p)
-                (function-item identity)
-                (function :tag "Other")))
+          (function-item identity)
+          (function :tag "Other")))
 
 (defun counsel--yank-pop-kills ()
   "Return filtered `kill-ring' for `counsel-yank-pop' completion.
@@ -3380,9 +3380,9 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :require-match t
               :preselect (let (interprogram-paste-function)
                            (current-kill (cond
-                                          (arg (prefix-numeric-value arg))
-                                          (counsel-yank-pop-preselect-last 0)
-                                          (t 1))
+                                           (arg (prefix-numeric-value arg))
+                                           (counsel-yank-pop-preselect-last 0)
+                                           (t 1))
                                          t))
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
@@ -4280,9 +4280,9 @@ candidate."
   "Show the history of commands."
   (interactive)
   (ivy-read "%d Command: " (mapcar #'prin1-to-string command-history)
-          :require-match t
-          :action #'counsel-command-history-action-eval
-          :caller 'counsel-command-history))
+            :require-match t
+            :action #'counsel-command-history-action-eval
+            :caller 'counsel-command-history))
 
 ;;** `counsel-org-agenda-headlines'
 (defvar org-odd-levels-only)
@@ -4369,8 +4369,8 @@ candidate."
          (beg (car symbol-bounds))
          (end (cdr symbol-bounds))
          (prefix (buffer-substring-no-properties beg end)))
-  (setq ivy-completion-beg beg
-        ivy-completion-end end)
+    (setq ivy-completion-beg beg
+          ivy-completion-end end)
     (ivy-read "code: " (mapcar #'counsel-irony-annotate candidates)
               :predicate (lambda (candidate)
                            (string-prefix-p prefix (car candidate)))
@@ -4548,7 +4548,7 @@ Remaps built-in functions to counsel replacements.")
 
 ;;;###autoload
 (define-minor-mode counsel-mode
-  "Toggle Counsel mode on or off.
+    "Toggle Counsel mode on or off.
 Turn Counsel mode on if ARG is positive, off otherwise. Counsel
 mode remaps built-in emacs functions that have counsel
 replacements. "

@@ -52,81 +52,81 @@
   :group 'faces)
 
 (defface ivy-current-match
-  '((((class color) (background light))
-     :background "#1a4b77" :foreground "white")
-    (((class color) (background dark))
-     :background "#65a7e2" :foreground "black"))
+    '((((class color) (background light))
+       :background "#1a4b77" :foreground "white")
+      (((class color) (background dark))
+       :background "#65a7e2" :foreground "black"))
   "Face used by Ivy for highlighting the current match.")
 
 (defface ivy-minibuffer-match-highlight
-  '((t :inherit highlight))
+    '((t :inherit highlight))
   "Face used by Ivy for highlighting the match under the cursor.")
 
 (defface ivy-minibuffer-match-face-1
-  '((((class color) (background light))
-     :background "#d3d3d3")
-    (((class color) (background dark))
-     :background "#555555"))
+    '((((class color) (background light))
+       :background "#d3d3d3")
+      (((class color) (background dark))
+       :background "#555555"))
   "The background face for `ivy' minibuffer matches.")
 
 (defface ivy-minibuffer-match-face-2
-  '((((class color) (background light))
-     :background "#e99ce8" :weight bold)
-    (((class color) (background dark))
-     :background "#777777" :weight bold))
+    '((((class color) (background light))
+       :background "#e99ce8" :weight bold)
+      (((class color) (background dark))
+       :background "#777777" :weight bold))
   "Face for `ivy' minibuffer matches numbered 1 modulo 3.")
 
 (defface ivy-minibuffer-match-face-3
-  '((((class color) (background light))
-     :background "#bbbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#7777ff" :weight bold))
+    '((((class color) (background light))
+       :background "#bbbbff" :weight bold)
+      (((class color) (background dark))
+       :background "#7777ff" :weight bold))
   "Face for `ivy' minibuffer matches numbered 2 modulo 3.")
 
 (defface ivy-minibuffer-match-face-4
-  '((((class color) (background light))
-     :background "#ffbbff" :weight bold)
-    (((class color) (background dark))
-     :background "#8a498a" :weight bold))
+    '((((class color) (background light))
+       :background "#ffbbff" :weight bold)
+      (((class color) (background dark))
+       :background "#8a498a" :weight bold))
   "Face for `ivy' minibuffer matches numbered 3 modulo 3.")
 
 (defface ivy-confirm-face
-  '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
+    '((t :foreground "ForestGreen" :inherit minibuffer-prompt))
   "Face used by Ivy for a confirmation prompt.")
 
 (defface ivy-match-required-face
-  '((t :foreground "red" :inherit minibuffer-prompt))
+    '((t :foreground "red" :inherit minibuffer-prompt))
   "Face used by Ivy for a match required prompt.")
 
 (defface ivy-subdir
-  '((t :inherit dired-directory))
+    '((t :inherit dired-directory))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
 (defface ivy-modified-buffer
-  '((t :inherit default))
+    '((t :inherit default))
   "Face used by Ivy for highlighting modified file visiting buffers.")
 
 (defface ivy-remote
-  '((((class color) (background light))
-     :foreground "#110099")
-    (((class color) (background dark))
-     :foreground "#7B6BFF"))
+    '((((class color) (background light))
+       :foreground "#110099")
+      (((class color) (background dark))
+       :foreground "#7B6BFF"))
   "Face used by Ivy for highlighting remotes in the alternatives.")
 
 (defface ivy-virtual
-  '((t :inherit font-lock-builtin-face))
+    '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for matching virtual buffer names.")
 
 (defface ivy-action
-  '((t :inherit font-lock-builtin-face))
+    '((t :inherit font-lock-builtin-face))
   "Face used by Ivy for displaying keys in `ivy-read-action'.")
 
 (defface ivy-highlight-face
-  '((t :inherit highlight))
+    '((t :inherit highlight))
   "Face used by Ivy to highlight certain candidates.")
 
 (defface ivy-prompt-match
-  '((t :inherit ivy-current-match))
+    '((t :inherit ivy-current-match))
   "Face used by Ivy for highlighting the selected prompt line.")
 
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
@@ -177,8 +177,8 @@ there is no text left to delete, i.e., when it is called at the
 beginning of the minibuffer.
 The default setting provides a quick exit from completion."
   :type '(choice (const :tag "Exit completion" minibuffer-keyboard-quit)
-                 (const :tag "Do nothing" ignore)
-                 (function :tag "Custom function")))
+          (const :tag "Do nothing" ignore)
+          (function :tag "Custom function")))
 
 (defcustom ivy-extra-directories '("../" "./")
   "Add this to the front of the list when completing file names.
@@ -212,7 +212,7 @@ See also URL
 
 (defvar ivy-display-functions-props
   '((ivy-display-function-overlay :cleanup ivy-overlay-cleanup))
-    "Map Ivy display functions to their property lists.
+  "Map Ivy display functions to their property lists.
 Examples of properties include associated `:cleanup' functions.")
 
 (defvar ivy-display-functions-alist
@@ -545,8 +545,8 @@ corresponds to the default behaviour of most Emacs search
 functionality, e.g. as seen in `isearch'."
   :link '(info-link "(emacs)Lax Search")
   :type '(choice (const :tag "Auto" auto)
-                 (const :tag "Always" t)
-                 (const :tag "Never" nil)))
+          (const :tag "Always" t)
+          (const :tag "Never" nil)))
 
 (defvar ivy-case-fold-search ivy-case-fold-search-default
   "Store the current overriding `case-fold-search'.")
@@ -1602,11 +1602,11 @@ like.")
   :type 'integer)
 
 (defalias 'ivy--dirname-p
-  (if (fboundp 'directory-name-p)
-      #'directory-name-p
-    (lambda (name)
-      "Return non-nil if NAME ends with a directory separator."
-      (string-match-p "/\\'" name))))
+    (if (fboundp 'directory-name-p)
+        #'directory-name-p
+      (lambda (name)
+        "Return non-nil if NAME ends with a directory separator."
+        (string-match-p "/\\'" name))))
 
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
@@ -2071,8 +2071,8 @@ INHERIT-INPUT-METHOD is currently ignored."
 
 (defun ivy-completing-read-with-empty-string-def
     (prompt collection
-            &optional predicate require-match initial-input
-            history def inherit-input-method)
+     &optional predicate require-match initial-input
+       history def inherit-input-method)
   "Same as `ivy-completing-read' but with different handling of DEF.
 
 Specifically, if DEF is nil, it is treated the same as if DEF was
@@ -2201,7 +2201,7 @@ See `completion-in-region' for further information."
 
 ;;;###autoload
 (define-minor-mode ivy-mode
-  "Toggle Ivy mode on or off.
+    "Toggle Ivy mode on or off.
 Turn Ivy mode on if ARG is positive, off otherwise.
 Turning on Ivy mode sets `completing-read-function' to
 `ivy-completing-read'.
@@ -2372,7 +2372,7 @@ text after delimiter if it is empty.  Modifies match data."
                 (list str))))))
 
 (defun ivy--split-spaces (str)
- "Split STR on spaces, unless they're preceded by \\.
+  "Split STR on spaces, unless they're preceded by \\.
 No unescaped spaces are left in the output.  Any substring not
 constituting a valid regexp is passed to `regexp-quote'."
   (when str
@@ -2640,11 +2640,11 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 'ivy-magic-slash-non-match-create, or nil"
   :type '(choice
           (const :tag "Use currently selected directory"
-                 ivy-magic-slash-non-match-cd-selected)
+           ivy-magic-slash-non-match-cd-selected)
           (const :tag "Create and use new directory"
-                 ivy-magic-slash-non-match-create)
+           ivy-magic-slash-non-match-create)
           (const :tag "Do nothing"
-                 nil)))
+           nil)))
 
 (defun ivy--create-and-cd (dir)
   "When completing file names, create directory DIR and move there."
@@ -3683,8 +3683,8 @@ BUFFER may be a string or nil."
   "Find file from BUFFER's directory."
   (let* ((b (get-buffer buffer))
          (default-directory
-           (or (and b (buffer-local-value 'default-directory b))
-               default-directory)))
+          (or (and b (buffer-local-value 'default-directory b))
+              default-directory)))
     (call-interactively (if (functionp 'counsel-find-file)
                             #'counsel-find-file
                           #'find-file))))
@@ -3850,7 +3850,7 @@ Don't finish completion."
     (insert (ivy-state-current ivy-last))))
 
 (define-obsolete-variable-alias 'ivy--preferred-re-builders
-  'ivy-preferred-re-builders "0.10.0")
+    'ivy-preferred-re-builders "0.10.0")
 
 (defcustom ivy-preferred-re-builders
   '((ivy--regex-plus . "ivy")
@@ -3954,10 +3954,10 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
     (ivy-occur-press)))
 
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
-  "Major mode for output from \\[ivy-occur].
+                     "Major mode for output from \\[ivy-occur].
 
 \\{ivy-occur-mode-map}"
-  (setq-local view-read-only nil))
+                     (setq-local view-read-only nil))
 
 (defvar ivy-occur-grep-mode-map
   (let ((map (copy-keymap ivy-occur-mode-map)))
@@ -3973,12 +3973,12 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
                    (1+ (line-end-position)))))
 
 (define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
-  "Major mode for output from \\[ivy-occur].
+                     "Major mode for output from \\[ivy-occur].
 
 \\{ivy-occur-grep-mode-map}"
-  (setq-local view-read-only nil)
-  (when (fboundp 'wgrep-setup)
-    (wgrep-setup)))
+                     (setq-local view-read-only nil)
+                     (when (fboundp 'wgrep-setup)
+                       (wgrep-setup)))
 
 (defvar ivy--occurs-list nil
   "A list of custom occur generators per command.")
