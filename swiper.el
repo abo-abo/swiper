@@ -432,6 +432,7 @@ When capture groups are present in the input, print them instead of lines."
                  'compilation-info))
          (re (progn (string-match "\"\\(.*\\)\"" (buffer-name))
                     (match-string 1 (buffer-name))))
+         (re (mapconcat #'identity (ivy--split re) ".*?"))
          (cands
           (mapcar
            (lambda (s)
