@@ -3813,19 +3813,47 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (define-obsolete-function-alias 'ivy-recentf 'counsel-recentf "0.8.0")
 
-(defun ivy-yank-word ()
-  "Pull next word from buffer into search string."
-  (interactive)
-  (let (amend)
+(defun ivy--yank-by (fn &rest args)
+  "Pull buffer text from current line into search string.
+The region to extract is determined by the respective values of
+point before and after applying FN to ARGS."
+  (let (text)
     (with-ivy-window
-      (let ((pt (point))
-            (le (line-end-position)))
-        (forward-word 1)
-        (if (> (point) le)
-            (goto-char pt)
-          (setq amend (buffer-substring-no-properties pt (point))))))
-    (when amend
-      (insert (replace-regexp-in-string "  +" " " amend)))))
+      (let ((pos (point))
+            (bol (line-beginning-position))
+            (eol (line-end-position)))
+        (unwind-protect
+            (progn (apply fn args)
+                   (setq text (buffer-substring-no-properties
+                               pos (goto-char (max bol (min (point) eol))))))
+          (unless text
+            (goto-char pos)))))
+    (when text
+      (insert (replace-regexp-in-string "  +" " " text t t)))))
+
+(defun ivy-yank-word (&optional arg)
+  "Pull next word from buffer into search string.
+If optional ARG is non-nil, pull in the next ARG
+words (previous if ARG is negative)."
+  (interactive "p")
+  (ivy--yank-by #'forward-word arg))
+
+(defun ivy-yank-symbol (&optional arg)
+  "Pull next symbol from buffer into search string.
+If optional ARG is non-nil, pull in the next ARG
+symbols (previous if ARG is negative)."
+  (interactive "p")
+  ;; Emacs < 24.4 compatibility
+  (unless (fboundp 'forward-symbol)
+    (require 'thingatpt))
+  (ivy--yank-by #'forward-symbol (or arg 1)))
+
+(defun ivy-yank-char (&optional arg)
+  "Pull next character from buffer into search string.
+If optional ARG is non-nil, pull in the next ARG
+characters (previous if ARG is negative)."
+  (interactive "p")
+  (ivy--yank-by #'forward-char arg))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
