@@ -11,7 +11,7 @@ It is important that we can rule out interference with other Emacs
 packages or customizations, therefore use =emacs -Q= to bypass your
 init file.
 
-This shortcut will start =emacs -Q= for you with ~ivy-mode~ already
+This shortcut will start =emacs -Q= for you with =ivy-mode= already
 loaded:
 #+begin_src sh
 git clone https://github.com/abo-abo/swiper/
@@ -23,12 +23,21 @@ make plain
 Here are the important settings for code style:
 #+begin_src elisp
 (setq indent-tabs-mode nil)
+(require 'cl-indent)
 (setq lisp-indent-function #'common-lisp-indent-function)
+(put 'if 'common-lisp-indent-function 2)
+(put 'defface 'common-lisp-indent-function 1)
+(put 'define-minor-mode 'common-lisp-indent-function 1)
+(put 'define-derived-mode 'common-lisp-indent-function 3)
+(put 'cl-flet 'common-lisp-indent-function
+     (get 'flet 'common-lisp-indent-function))
+(put 'cl-labels 'common-lisp-indent-function
+     (get 'labels 'common-lisp-indent-function))
 #+end_src
 
-The setting for ~indent-tabs-mode~ is automatically applied by
+The setting for =indent-tabs-mode= is automatically applied by
 =.dir-locals.el=.  Emacs produces a warning when setting
-~lisp-indent-function~ in =.dir-locals.el=, so that line is commented
+=lisp-indent-function= in =.dir-locals.el=, so that line is commented
 out.  Please uncomment it and add the following code to disable the
 warning:
 
@@ -43,7 +52,7 @@ Before submitting a change, run:
 - =make checkdoc= - check documentation guidelines
 
 Use your own judgment for the commit messages, I recommend a verbose
-style using ~magit-commit-add-log~.
+style using =magit-commit-add-log=.
 
 * Copyright Assignment
 These packages are subject to the same [[http://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
