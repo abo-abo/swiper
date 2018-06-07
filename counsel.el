@@ -4728,7 +4728,7 @@ Any desktop entries that fail to parse are recorded in
 
 (defface counsel-firefox-bookmarks-tag
   '((t :inherit font-lock-comment-face))
-  "Face used by `counsel-firefox-bookmarks' for tag."
+  "Face used by `counsel-firefox-bookmarks' for tags."
   :group 'ivy-faces)
 
 (defun counsel-firefox-bookmarks-action (x)
@@ -4738,7 +4738,7 @@ Any desktop entries that fail to parse are recorded in
 (declare-function xml-substitute-special "xml")
 
 (defun counsel-firefox-bookmarks--candidates ()
-  "Return a list of completion candidates for `counsel-firefox-bookmarks'."
+  "Return list of `counsel-firefox-bookmarks' candidates."
   (unless (and counsel-firefox-bookmarks-file
                (file-readable-p counsel-firefox-bookmarks-file))
     (signal 'file-error (list "Opening `counsel-firefox-bookmarks-file'"
@@ -4758,16 +4758,15 @@ Any desktop entries that fail to parse are recorded in
                        (save-match-data
                          (xml-substitute-special (match-string 2)))))
                (tags (and (string-match "tags=\"\\([^\"]+?\\)\"" a)
-                          (match-string 1 a))))
-          (push (cons (if tags
-                          (concat text
-                                  " :"
-                                  (string-join
-                                   (mapcar #'(lambda (tag)
-                                               (propertize tag 'face 'counsel-firefox-bookmarks-tag))
-                                           (split-string (match-string 1 a) "," t)) ":")
-                                  ":")
-                        text)
+                          (mapconcat
+                           (lambda (tag)
+                             (put-text-property 0 (length tag) 'face
+                                                'counsel-firefox-bookmarks-tag
+                                                tag)
+                             tag)
+                           (split-string (match-string 1 a) "," t)
+                           ":"))))
+          (push (cons (if tags (concat text " :" tags ":") text)
                       href)
                 candidates)))
       candidates)))
