@@ -177,8 +177,8 @@ there is no text left to delete, i.e., when it is called at the
 beginning of the minibuffer.
 The default setting provides a quick exit from completion."
   :type '(choice (const :tag "Exit completion" minibuffer-keyboard-quit)
-                 (const :tag "Do nothing" ignore)
-                 (function :tag "Custom function")))
+          (const :tag "Do nothing" ignore)
+          (function :tag "Custom function")))
 
 (defcustom ivy-extra-directories '("../" "./")
   "Add this to the front of the list when completing file names.
@@ -212,7 +212,7 @@ See also URL
 
 (defvar ivy-display-functions-props
   '((ivy-display-function-overlay :cleanup ivy-overlay-cleanup))
-    "Map Ivy display functions to their property lists.
+  "Map Ivy display functions to their property lists.
 Examples of properties include associated `:cleanup' functions.")
 
 (defvar ivy-display-functions-alist
@@ -545,8 +545,8 @@ corresponds to the default behaviour of most Emacs search
 functionality, e.g. as seen in `isearch'."
   :link '(info-link "(emacs)Lax Search")
   :type '(choice (const :tag "Auto" auto)
-                 (const :tag "Always" t)
-                 (const :tag "Never" nil)))
+          (const :tag "Always" t)
+          (const :tag "Never" nil)))
 
 (defvar ivy-case-fold-search ivy-case-fold-search-default
   "Store the current overriding `case-fold-search'.")
@@ -1604,11 +1604,11 @@ like.")
   :type 'integer)
 
 (defalias 'ivy--dirname-p
-  (if (fboundp 'directory-name-p)
-      #'directory-name-p
-    (lambda (name)
-      "Return non-nil if NAME ends with a directory separator."
-      (string-match-p "/\\'" name))))
+    (if (fboundp 'directory-name-p)
+        #'directory-name-p
+      (lambda (name)
+        "Return non-nil if NAME ends with a directory separator."
+        (string-match-p "/\\'" name))))
 
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
@@ -2074,8 +2074,8 @@ INHERIT-INPUT-METHOD is currently ignored."
 
 (defun ivy-completing-read-with-empty-string-def
     (prompt collection
-            &optional predicate require-match initial-input
-            history def inherit-input-method)
+     &optional predicate require-match initial-input
+       history def inherit-input-method)
   "Same as `ivy-completing-read' but with different handling of DEF.
 
 Specifically, if DEF is nil, it is treated the same as if DEF was
@@ -2375,7 +2375,7 @@ text after delimiter if it is empty.  Modifies match data."
                 (list str))))))
 
 (defun ivy--split-spaces (str)
- "Split STR on spaces, unless they're preceded by \\.
+  "Split STR on spaces, unless they're preceded by \\.
 No unescaped spaces are left in the output.  Any substring not
 constituting a valid regexp is passed to `regexp-quote'."
   (when str
@@ -2643,11 +2643,11 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 'ivy-magic-slash-non-match-create, or nil"
   :type '(choice
           (const :tag "Use currently selected directory"
-                 ivy-magic-slash-non-match-cd-selected)
+           ivy-magic-slash-non-match-cd-selected)
           (const :tag "Create and use new directory"
-                 ivy-magic-slash-non-match-create)
+           ivy-magic-slash-non-match-create)
           (const :tag "Do nothing"
-                 nil)))
+           nil)))
 
 (defun ivy--create-and-cd (dir)
   "When completing file names, create directory DIR and move there."
@@ -3686,8 +3686,8 @@ BUFFER may be a string or nil."
   "Find file from BUFFER's directory."
   (let* ((b (get-buffer buffer))
          (default-directory
-           (or (and b (buffer-local-value 'default-directory b))
-               default-directory)))
+          (or (and b (buffer-local-value 'default-directory b))
+              default-directory)))
     (call-interactively (if (functionp 'counsel-find-file)
                             #'counsel-find-file
                           #'find-file))))
@@ -3826,9 +3826,9 @@ point before and after applying FN to ARGS."
             (bol (line-beginning-position))
             (eol (line-end-position)))
         (unwind-protect
-            (progn (apply fn args)
-                   (setq text (buffer-substring-no-properties
-                               pos (goto-char (max bol (min (point) eol))))))
+             (progn (apply fn args)
+                    (setq text (buffer-substring-no-properties
+                                pos (goto-char (max bol (min (point) eol))))))
           (unless text
             (goto-char pos)))))
     (when text
@@ -3881,7 +3881,7 @@ Don't finish completion."
     (insert (ivy-state-current ivy-last))))
 
 (define-obsolete-variable-alias 'ivy--preferred-re-builders
-  'ivy-preferred-re-builders "0.10.0")
+    'ivy-preferred-re-builders "0.10.0")
 
 (defcustom ivy-preferred-re-builders
   '((ivy--regex-plus . "ivy")
