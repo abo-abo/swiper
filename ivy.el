@@ -176,7 +176,8 @@ The usual reason for `ivy-backward-delete-char' to fail is when
 there is no text left to delete, i.e., when it is called at the
 beginning of the minibuffer.
 The default setting provides a quick exit from completion."
-  :type '(choice (const :tag "Exit completion" minibuffer-keyboard-quit)
+  :type '(choice
+          (const :tag "Exit completion" minibuffer-keyboard-quit)
           (const :tag "Do nothing" ignore)
           (function :tag "Custom function")))
 
@@ -544,7 +545,8 @@ as the entire input string comprises lower-case characters.  This
 corresponds to the default behaviour of most Emacs search
 functionality, e.g. as seen in `isearch'."
   :link '(info-link "(emacs)Lax Search")
-  :type '(choice (const :tag "Auto" auto)
+  :type '(choice
+          (const :tag "Auto" auto)
           (const :tag "Always" t)
           (const :tag "Never" nil)))
 

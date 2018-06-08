@@ -36,7 +36,8 @@
 (defcustom colir-compose-method #'colir-compose-alpha
   "Select a method to compose two color channels."
   :group 'ivy
-  :type '(radio (function-item colir-compose-alpha)
+  :type '(radio
+          (function-item colir-compose-alpha)
           (function-item colir-compose-overlay)
           (function-item colir-compose-soft-light)))
 

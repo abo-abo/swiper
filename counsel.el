@@ -540,7 +540,8 @@ Variables declared using `defcustom' are highlighted according to
 (defcustom counsel-describe-function-preselect #'ivy-thing-at-point
   "Determine what `counsel-describe-function' should preselect."
   :group 'ivy
-  :type '(radio (function-item ivy-thing-at-point)
+  :type '(radio
+          (function-item ivy-thing-at-point)
           (function-item ivy-function-called-at-point)))
 
 ;;;###autoload
@@ -3311,7 +3312,8 @@ All elements of `kill-ring' for which this function returns nil
 will be destructively removed from `kill-ring' before completion.
 All blank strings are deleted from `kill-ring' by default."
   :group 'ivy
-  :type '(radio (function-item counsel-string-non-blank-p)
+  :type '(radio
+          (function-item counsel-string-non-blank-p)
           (function-item identity)
           (function :tag "Other")))
 
