@@ -609,6 +609,10 @@ X is an item of a radio- or choice-type defcustom."
                   (list 'quote x)
                 x))))))
 
+(declare-function lv-message "ext:lv")
+(declare-function lv-delete-window "ext:lv")
+(declare-function custom-variable-documentation "cus-edit")
+
 ;;;###autoload
 (defun counsel-set-variable (sym)
   "Set a variable, with completion.
