@@ -826,7 +826,7 @@ The currently supported packages are, in order of precedence,
            (amx-initialize))
          (when (amx-detect-new-commands)
            (amx-update))
-         amx-cache)
+         (mapcar #'car amx-cache))
         ((require 'smex nil t)
          (unless smex-initialized-p
            (smex-initialize))
