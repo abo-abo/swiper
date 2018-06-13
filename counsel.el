@@ -1069,7 +1069,15 @@ BUFFER defaults to the current one."
             :action #'counsel-descbinds-action-describe
             :history 'counsel-descbinds-history
             :caller 'counsel-descbinds))
+
 ;;** `counsel-describe-face'
+(defun counsel--face-at-point ()
+  "Return name of face around point.
+Try detecting a face name in the text around point before falling
+back to the face of the character after point, and finally the
+`default' face."
+  (symbol-name (or (face-at-point t) 'default)))
+
 (defun counsel-describe-face ()
   "Completion for `describe-face'."
   (interactive)
@@ -1079,7 +1087,7 @@ BUFFER defaults to the current one."
        (if (facep s)
            (push (symbol-name s) cands))))
     (ivy-read "Face: " cands
-              :preselect (symbol-name (face-at-point t))
+              :preselect (counsel--face-at-point)
               :action #'describe-face
               :caller 'counsel-describe-face)))
 ;;* Git
@@ -4292,6 +4300,7 @@ selected face."
          (ivy-format-function #'counsel--faces-format-function))
     (ivy-read "%d Face: " (face-list)
               :require-match t
+              :preselect (counsel--face-at-point)
               :action #'counsel-faces-action-describe
               :history 'counsel-faces-history
               :caller 'counsel-faces
