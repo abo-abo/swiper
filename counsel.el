@@ -1087,7 +1087,9 @@ back to the face of the character after point, and finally the
        (if (facep s)
            (push (symbol-name s) cands))))
     (ivy-read "Face: " cands
+              :require-match t
               :preselect (counsel--face-at-point)
+              :sort t
               :action #'describe-face
               :caller 'counsel-describe-face)))
 ;;* Git
@@ -4300,11 +4302,11 @@ selected face."
          (ivy-format-function #'counsel--faces-format-function))
     (ivy-read "%d Face: " (face-list)
               :require-match t
-              :preselect (counsel--face-at-point)
-              :action #'counsel-faces-action-describe
               :history 'counsel-faces-history
-              :caller 'counsel-faces
-              :sort t)))
+              :preselect (counsel--face-at-point)
+              :sort t
+              :action #'counsel-faces-action-describe
+              :caller 'counsel-faces)))
 
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
