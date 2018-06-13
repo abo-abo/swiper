@@ -1083,6 +1083,7 @@ back to the face of the character after point, and finally the
   (interactive)
   (ivy-read "Face: " (face-list)
             :require-match t
+            :history 'face-name-history
             :preselect (counsel--face-at-point)
             :sort t
             :action #'describe-face
@@ -4257,9 +4258,6 @@ selected color."
    ("i" insert "insert face name")
    ("k" kill-new "kill face name")))
 
-(defvar counsel-faces-history nil
-  "History for `counsel-faces'.")
-
 (defvar counsel-faces--sample-text
   "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
   "Text string to display as the sample text for `counsel-faces'.")
@@ -4299,7 +4297,7 @@ selected face."
          (ivy-format-function #'counsel--faces-format-function))
     (ivy-read "%d Face: " (face-list)
               :require-match t
-              :history 'counsel-faces-history
+              :history 'face-name-history
               :preselect (counsel--face-at-point)
               :sort t
               :action #'counsel-faces-action-describe
