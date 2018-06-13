@@ -1071,6 +1071,11 @@ BUFFER defaults to the current one."
             :caller 'counsel-descbinds))
 
 ;;** `counsel-describe-face'
+(defcustom counsel-describe-face-function #'describe-face
+  "Function to call to describe a face or face name argument."
+  :type 'function
+  :group 'ivy)
+
 (defun counsel--face-at-point ()
   "Return name of face around point.
 Try detecting a face name in the text around point before falling
@@ -1086,8 +1091,21 @@ back to the face of the character after point, and finally the
             :history 'face-name-history
             :preselect (counsel--face-at-point)
             :sort t
-            :action #'describe-face
+            :action counsel-describe-face-function
             :caller 'counsel-describe-face))
+
+(defun counsel-customize-face (name)
+  "Customize face with NAME."
+  (customize-face (intern name)))
+
+(defun counsel-customize-face-other-window (name)
+  "Customize face with NAME in another window."
+  (customize-face-other-window (intern name)))
+
+(ivy-set-actions
+ 'counsel-describe-face
+ '(("c" counsel-customize-face "customize")
+   ("C" counsel-customize-face-other-window "customize other window")))
 
 ;;* Git
 ;;** `counsel-git'
@@ -4243,21 +4261,6 @@ selected color."
    ("H" counsel-colors-action-kill-hex "kill hexadecimal value")))
 
 ;;** `counsel-faces'
-(defun counsel-faces-action-describe (x)
-  "Describe the face X."
-  (describe-face (intern x)))
-
-(defun counsel-faces-action-customize (x)
-  "Customize the face X."
-  (customize-face (intern x)))
-
-(ivy-set-actions
- 'counsel-faces
- '(("d" counsel-faces-action-describe "describe face")
-   ("c" counsel-faces-action-customize "customize face")
-   ("i" insert "insert face name")
-   ("k" kill-new "kill face name")))
-
 (defvar counsel-faces--sample-text
   "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
   "Text string to display as the sample text for `counsel-faces'.")
@@ -4300,8 +4303,13 @@ selected face."
               :history 'face-name-history
               :preselect (counsel--face-at-point)
               :sort t
-              :action #'counsel-faces-action-describe
+              :action counsel-describe-face-function
               :caller 'counsel-faces)))
+
+(ivy-set-actions
+ 'counsel-faces
+ '(("c" counsel-customize-face "customize")
+   ("C" counsel-customize-face-other-window "customize other window")))
 
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
