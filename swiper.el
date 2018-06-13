@@ -700,39 +700,45 @@ WND, when specified is the window."
           ;; RE can become an invalid regexp
           (while (and (ignore-errors (re-search-forward re end t))
                       (> (- (match-end 0) (match-beginning 0)) 0))
-            (unless (and (consp ivy--old-re)
-                         (null
-                          (save-match-data
-                            (ivy--re-filter ivy--old-re
-                                            (list
-                                             (buffer-substring-no-properties
-                                              (line-beginning-position)
-                                              (line-end-position)))))))
-              (let ((mb (match-beginning 0))
-                    (me (match-end 0)))
-                (unless (> (- me mb) 2017)
-                  (swiper--add-overlay mb me
-                                       (if (zerop ivy--subexps)
-                                           (cadr swiper-faces)
-                                         (car swiper-faces))
-                                       wnd 0))))
-            (let ((i 1)
-                  (j 0))
-              (while (<= (cl-incf j) ivy--subexps)
-                (let ((bm (match-beginning j))
-                      (em (match-end j)))
-                  (when (and (integerp em)
-                             (integerp bm))
-                    (while (and (< j ivy--subexps)
-                                (integerp (match-beginning (+ j 1)))
-                                (= em (match-beginning (+ j 1))))
-                      (setq em (match-end (cl-incf j))))
-                    (swiper--add-overlay
-                     bm em
-                     (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                          swiper-faces)
-                     wnd i)
-                    (cl-incf i)))))))))))
+            ;; Don't highlight a match if it spans multiple
+            ;; lines. `count-lines' returns 1 if the match is within a
+            ;; single line, even if it includes the newline, and 2 or
+            ;; greater otherwise. We hope that the inclusion of the
+            ;; newline will not ever be a problem in practice.
+            (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
+              (unless (and (consp ivy--old-re)
+                           (null
+                            (save-match-data
+                              (ivy--re-filter ivy--old-re
+                                              (list
+                                               (buffer-substring-no-properties
+                                                (line-beginning-position)
+                                                (line-end-position)))))))
+                (let ((mb (match-beginning 0))
+                      (me (match-end 0)))
+                  (unless (> (- me mb) 2017)
+                    (swiper--add-overlay mb me
+                                         (if (zerop ivy--subexps)
+                                             (cadr swiper-faces)
+                                           (car swiper-faces))
+                                         wnd 0))))
+              (let ((i 1)
+                    (j 0))
+                (while (<= (cl-incf j) ivy--subexps)
+                  (let ((bm (match-beginning j))
+                        (em (match-end j)))
+                    (when (and (integerp em)
+                               (integerp bm))
+                      (while (and (< j ivy--subexps)
+                                  (integerp (match-beginning (+ j 1)))
+                                  (= em (match-beginning (+ j 1))))
+                        (setq em (match-end (cl-incf j))))
+                      (swiper--add-overlay
+                       bm em
+                       (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
+                            swiper-faces)
+                       wnd i)
+                      (cl-incf i))))))))))))
 
 (defun swiper--add-overlay (beg end face wnd priority)
   "Add overlay bound by BEG and END to `swiper--overlays'.
