@@ -4286,6 +4286,7 @@ selected color."
    cands
    "\n"))
 
+;;;###autoload
 (defun counsel-faces ()
   "Complete faces with preview.
 Actions are provided by default for describing or customizing the
