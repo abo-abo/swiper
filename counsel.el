@@ -1080,7 +1080,8 @@ BUFFER defaults to the current one."
            (push (symbol-name s) cands))))
     (ivy-read "Face: " cands
               :preselect (symbol-name (face-at-point t))
-              :action #'describe-face)))
+              :action #'describe-face
+              :caller 'counsel-describe-face)))
 ;;* Git
 ;;** `counsel-git'
 (defvar counsel-git-cmd "git ls-files --full-name --"
