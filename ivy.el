@@ -1712,6 +1712,8 @@ customizations apply to the current completion session."
                      ,@extra-actions))
                   (t
                    (delete-dups (append action extra-actions)))))))
+  (unless caller
+    (setq caller this-command))
   (let ((extra-sources (plist-get ivy--sources-list caller)))
     (if extra-sources
         (progn
@@ -1729,18 +1731,17 @@ customizations apply to the current completion session."
   (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
         (transformer-fn
          (plist-get ivy--display-transformers-list
-                    (or caller (and (functionp collection)
-                                    collection))))
+                    (cond (caller)
+                          ((functionp collection)
+                           collection))))
         (ivy-display-function
          (unless (window-minibuffer-p)
            (or ivy-display-function
                (cdr (or (assq caller ivy-display-functions-alist)
                         (assq t ivy-display-functions-alist))))))
         (height
-         (if caller
-             (let ((entry (assoc caller ivy-height-alist)))
-               (if entry (cdr entry) ivy-height))
-           ivy-height)))
+         (or (cdr (assq caller ivy-height-alist))
+             ivy-height)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
