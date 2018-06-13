@@ -4261,27 +4261,17 @@ selected color."
    ("H" counsel-colors-action-kill-hex "kill hexadecimal value")))
 
 ;;** `counsel-faces'
-(defvar counsel-faces--sample-text
-  "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
-  "Text string to display as the sample text for `counsel-faces'.")
-
-(defvar counsel--faces-fmt nil)
-
-(defun counsel--faces-format-function (cands)
-  "Transform CANDS into a string for `counsel-faces'."
-  (ivy--format-function-generic
-   (lambda (str)
-     (concat
-      (format counsel--faces-fmt
-              (ivy--add-face str 'ivy-current-match))
-      (propertize counsel-faces--sample-text 'face (intern str))))
-   (lambda (str)
-     (concat
-      (format counsel--faces-fmt
-              str)
-      (propertize counsel-faces--sample-text 'face (intern str))))
-   cands
-   "\n"))
+(defun counsel--faces-format-function (format)
+  "Return an `ivy-format-function' for `counsel-faces'.
+Each candidate is formatted based on the given FORMAT string."
+  (let ((formatter (lambda (name)
+                     (format format name (propertize list-faces-sample-text
+                                                     'face (intern name))))))
+    (lambda (names)
+      (ivy--format-function-generic
+       (lambda (name)
+         (funcall formatter (ivy--add-face name 'ivy-current-match)))
+       formatter names "\n"))))
 
 ;;;###autoload
 (defun counsel-faces ()
@@ -4289,16 +4279,12 @@ selected color."
 Actions are provided by default for describing or customizing the
 selected face."
   (interactive)
-  (let* ((minibuffer-allow-text-properties t)
-         (max-length
-          (apply #'max
-                 (mapcar
-                  (lambda (x)
-                    (length (symbol-name x)))
-                  (face-list))))
-         (counsel--faces-fmt (format "%%-%ds  " max-length))
-         (ivy-format-function #'counsel--faces-format-function))
-    (ivy-read "%d Face: " (face-list)
+  (let* ((names (mapcar #'symbol-name (face-list)))
+         (ivy-format-function
+          (counsel--faces-format-function
+           (format "%%-%ds %%s"
+                   (apply #'max 0 (mapcar #'string-width names))))))
+    (ivy-read "Face: " names
               :require-match t
               :history 'face-name-history
               :preselect (counsel--face-at-point)
