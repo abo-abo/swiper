@@ -4277,10 +4277,9 @@ selected color."
    "\n"))
 
 (defun counsel-faces ()
-  "Show a list of all defined faces.
-
-You can describe, customize, insert or kill the name or selected
-candidate."
+  "Complete faces with preview.
+Actions are provided by default for describing or customizing the
+selected face."
   (interactive)
   (let* ((minibuffer-allow-text-properties t)
          (max-length
