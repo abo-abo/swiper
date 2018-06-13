@@ -3345,9 +3345,10 @@ FACE is the face to apply to STR."
 
 (defun ivy--format-minibuffer-line (str)
   "Format line STR for use in minibuffer."
-  (let ((str (if (eq ivy-display-style 'fancy)
-                 (funcall ivy--highlight-function (copy-sequence str))
-               (copy-sequence str))))
+  (let* ((str (ivy-cleanup-string str))
+         (str (if (eq ivy-display-style 'fancy)
+                  (funcall ivy--highlight-function (copy-sequence str))
+                (copy-sequence str))))
     (add-text-properties
      0 (length str)
      '(mouse-face
