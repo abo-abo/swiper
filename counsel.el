@@ -1081,17 +1081,13 @@ back to the face of the character after point, and finally the
 (defun counsel-describe-face ()
   "Completion for `describe-face'."
   (interactive)
-  (let (cands)
-    (mapatoms
-     (lambda (s)
-       (if (facep s)
-           (push (symbol-name s) cands))))
-    (ivy-read "Face: " cands
-              :require-match t
-              :preselect (counsel--face-at-point)
-              :sort t
-              :action #'describe-face
-              :caller 'counsel-describe-face)))
+  (ivy-read "Face: " (face-list)
+            :require-match t
+            :preselect (counsel--face-at-point)
+            :sort t
+            :action #'describe-face
+            :caller 'counsel-describe-face))
+
 ;;* Git
 ;;** `counsel-git'
 (defvar counsel-git-cmd "git ls-files --full-name --"
