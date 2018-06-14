@@ -24,7 +24,7 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This package gives an overview of the current regex search
 ;; candidates.  The search regex can be split into groups with a
 ;; space.  Each group is highlighted with a different face.
@@ -33,6 +33,7 @@
 ;; lines will be matched.
 
 ;;; Code:
+
 (require 'ivy)
 
 (defgroup swiper nil

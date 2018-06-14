@@ -24,7 +24,7 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This package provides `ivy-read' as an alternative to
 ;; `completing-read' and similar functions.
 ;;
@@ -37,6 +37,7 @@
 ;; So "for example" is transformed into "\\(for\\).*\\(example\\)".
 
 ;;; Code:
+
 (require 'cl-lib)
 (require 'ffap)
 (require 'ivy-overlay)

@@ -19,12 +19,13 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This package allows to setup Ivy's completion at point to actually
 ;; show the candidates and the input at point, instead of in the
 ;; minibuffer.
 
 ;;; Code:
+
 (defface ivy-cursor
   '((t (:background "black"
         :foreground "white")))
@@ -129,4 +130,5 @@ Hide the minibuffer contents and cursor."
           (ivy-overlay-show-after overlay-str))))))
 
 (provide 'ivy-overlay)
+
 ;;; ivy-overlay.el ends here

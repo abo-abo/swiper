@@ -20,13 +20,14 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This package solves the problem of adding a face with a background
 ;; to text which may already have a background.  In all conflicting
 ;; areas, instead of choosing either the original or the new
 ;; background face, their blended sum is used.
 ;;
-;; The blend mode functions are taken from http://en.wikipedia.org/wiki/Blend_modes.
+;; The blend mode functions are taken from URL
+;; `http://en.wikipedia.org/wiki/Blend_modes'.
 
 ;;; Code:
 

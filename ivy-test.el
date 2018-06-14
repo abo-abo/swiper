@@ -20,15 +20,16 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-;;
+
 ;; This packages provides the tests for `ert'.  They can be executed
 ;; from the command line as well by calling "make test".
 
 ;;; Code:
+
 (require 'ert)
 (require 'colir)
 
-;; useful for #'ivy-read-remap. It must arrive before (require 'ivy)
+;; Useful for #'ivy-read-remap.  It must arrive before (require 'ivy).
 (define-key global-map (kbd "<S-right>") #'end-of-buffer)
 
 (require 'ivy)

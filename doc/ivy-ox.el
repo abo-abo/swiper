@@ -1,4 +1,4 @@
-;;; ivy-ox.el --- org-export settings for Ivy
+;;; ivy-ox.el --- org-export settings for Ivy -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2015-2018  Free Software Foundation, Inc.
 
@@ -18,6 +18,10 @@
 
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;;; Code:
 
 ;;* ox-texinfo
 (require 'ox-texinfo)
@@ -192,3 +196,5 @@ contextual information."
    "Top"))
 
 (provide 'ivy-ox)
+
+;;; ivy-ox.el ends here
