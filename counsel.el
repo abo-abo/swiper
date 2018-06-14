@@ -41,7 +41,6 @@
 ;;; Code:
 
 (require 'swiper)
-(require 'esh-util)
 (require 'compile)
 (require 'dired)
 
@@ -124,8 +123,11 @@
   (ivy-add-prompt-count
    (format "%s: " (ivy-state-prompt ivy-last))))
 
+(declare-function eshell-split-path "esh-util")
+
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
+  (require 'esh-util)
   (ivy-add-prompt-count
    (let ((directory (ivy-state-directory ivy-last)))
      (format "%s [%s]: "
