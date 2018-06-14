@@ -61,37 +61,19 @@ N is obtained from `counsel-more-chars-alist'."
       (list "" (format "%d chars more" diff)))))
 
 (defun counsel-unquote-regex-parens (str)
-  "Unquote regex parenthesis in STR."
+  "Unquote regexp parentheses in STR."
   (if (consp str)
-      (mapconcat
-       #'car
-       (cl-remove-if-not #'cdr str)
-       ".*")
-    (let ((start 0)
-          ms)
-      (while (setq start (string-match "\\\\)\\|\\\\(\\|\\\\{\\|\\\\}\\|[()]" str start))
-        (setq ms (match-string-no-properties 0 str))
-        (cond ((equal ms "\\(")
-               (setq str (replace-match "(" nil t str))
-               (setq start (+ start 1)))
-              ((equal ms "\\{")
-               (setq str (replace-match "{" nil t str))
-               (setq start (+ start 1)))
-              ((equal ms "\\}")
-               (setq str (replace-match "}" nil t str))
-               (setq start (+ start 1)))
-              ((equal ms "\\)")
-               (setq str (replace-match ")" nil t str))
-               (setq start (+ start 1)))
-              ((equal ms "(")
-               (setq str (replace-match "\\(" nil t str))
-               (setq start (+ start 2)))
-              ((equal ms ")")
-               (setq str (replace-match "\\)" nil t str))
-               (setq start (+ start 2)))
-              (t
-               (error "Unexpected"))))
-      str)))
+      (mapconcat #'car (cl-remove-if-not #'cdr str) ".*")
+    (replace-regexp-in-string "\\\\[(){}]\\|[()]"
+                              (lambda (s)
+                                (or (cdr (assoc s '(("\\(" . "(")
+                                                    ("\\)" . ")")
+                                                    ("(" . "\\(")
+                                                    (")" . "\\)")
+                                                    ("\\{" . "{")
+                                                    ("\\}" . "}"))))
+                                    (error "Unexpected")))
+                              str t t)))
 
 (defun counsel-directory-name (dir)
   "Return the name of directory DIR with a slash."
