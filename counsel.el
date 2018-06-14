@@ -1069,18 +1069,44 @@ BUFFER defaults to the current one."
             :action #'counsel-descbinds-action-describe
             :history 'counsel-descbinds-history
             :caller 'counsel-descbinds))
+
 ;;** `counsel-describe-face'
+(defcustom counsel-describe-face-function #'describe-face
+  "Function to call to describe a face or face name argument."
+  :type 'function
+  :group 'ivy)
+
+(defun counsel--face-at-point ()
+  "Return name of face around point.
+Try detecting a face name in the text around point before falling
+back to the face of the character after point, and finally the
+`default' face."
+  (symbol-name (or (face-at-point t) 'default)))
+
 (defun counsel-describe-face ()
   "Completion for `describe-face'."
   (interactive)
-  (let (cands)
-    (mapatoms
-     (lambda (s)
-       (if (facep s)
-           (push (symbol-name s) cands))))
-    (ivy-read "Face: " cands
-              :preselect (symbol-name (face-at-point t))
-              :action #'describe-face)))
+  (ivy-read "Face: " (face-list)
+            :require-match t
+            :history 'face-name-history
+            :preselect (counsel--face-at-point)
+            :sort t
+            :action counsel-describe-face-function
+            :caller 'counsel-describe-face))
+
+(defun counsel-customize-face (name)
+  "Customize face with NAME."
+  (customize-face (intern name)))
+
+(defun counsel-customize-face-other-window (name)
+  "Customize face with NAME in another window."
+  (customize-face-other-window (intern name)))
+
+(ivy-set-actions
+ 'counsel-describe-face
+ '(("c" counsel-customize-face "customize")
+   ("C" counsel-customize-face-other-window "customize other window")))
+
 ;;* Git
 ;;** `counsel-git'
 (defvar counsel-git-cmd "git ls-files --full-name --"
@@ -4235,67 +4261,41 @@ selected color."
    ("H" counsel-colors-action-kill-hex "kill hexadecimal value")))
 
 ;;** `counsel-faces'
-(defun counsel-faces-action-describe (x)
-  "Describe the face X."
-  (describe-face (intern x)))
+(defun counsel--faces-format-function (format)
+  "Return an `ivy-format-function' for `counsel-faces'.
+Each candidate is formatted based on the given FORMAT string."
+  (let ((formatter (lambda (name)
+                     (format format name (propertize list-faces-sample-text
+                                                     'face (intern name))))))
+    (lambda (names)
+      (ivy--format-function-generic
+       (lambda (name)
+         (funcall formatter (ivy--add-face name 'ivy-current-match)))
+       formatter names "\n"))))
 
-(defun counsel-faces-action-customize (x)
-  "Customize the face X."
-  (customize-face (intern x)))
+;;;###autoload
+(defun counsel-faces ()
+  "Complete faces with preview.
+Actions are provided by default for describing or customizing the
+selected face."
+  (interactive)
+  (let* ((names (mapcar #'symbol-name (face-list)))
+         (ivy-format-function
+          (counsel--faces-format-function
+           (format "%%-%ds %%s"
+                   (apply #'max 0 (mapcar #'string-width names))))))
+    (ivy-read "Face: " names
+              :require-match t
+              :history 'face-name-history
+              :preselect (counsel--face-at-point)
+              :sort t
+              :action counsel-describe-face-function
+              :caller 'counsel-faces)))
 
 (ivy-set-actions
  'counsel-faces
- '(("d" counsel-faces-action-describe "describe face")
-   ("c" counsel-faces-action-customize "customize face")
-   ("i" insert "insert face name")
-   ("k" kill-new "kill face name")))
-
-(defvar counsel-faces-history nil
-  "History for `counsel-faces'.")
-
-(defvar counsel-faces--sample-text
-  "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789"
-  "Text string to display as the sample text for `counsel-faces'.")
-
-(defvar counsel--faces-fmt nil)
-
-(defun counsel--faces-format-function (cands)
-  "Transform CANDS into a string for `counsel-faces'."
-  (ivy--format-function-generic
-   (lambda (str)
-     (concat
-      (format counsel--faces-fmt
-              (ivy--add-face str 'ivy-current-match))
-      (propertize counsel-faces--sample-text 'face (intern str))))
-   (lambda (str)
-     (concat
-      (format counsel--faces-fmt
-              str)
-      (propertize counsel-faces--sample-text 'face (intern str))))
-   cands
-   "\n"))
-
-(defun counsel-faces ()
-  "Show a list of all defined faces.
-
-You can describe, customize, insert or kill the name or selected
-candidate."
-  (interactive)
-  (let* ((minibuffer-allow-text-properties t)
-         (max-length
-          (apply #'max
-                 (mapcar
-                  (lambda (x)
-                    (length (symbol-name x)))
-                  (face-list))))
-         (counsel--faces-fmt (format "%%-%ds  " max-length))
-         (ivy-format-function #'counsel--faces-format-function))
-    (ivy-read "%d Face: " (face-list)
-              :require-match t
-              :action #'counsel-faces-action-describe
-              :history 'counsel-faces-history
-              :caller 'counsel-faces
-              :sort t)))
+ '(("c" counsel-customize-face "customize")
+   ("C" counsel-customize-face-other-window "customize other window")))
 
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
