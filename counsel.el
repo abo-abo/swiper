@@ -6,7 +6,7 @@
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.10.0
 ;; Package-Requires: ((emacs "24.3") (swiper "0.9.0"))
-;; Keywords: completion, matching
+;; Keywords: convenience, matching, tools
 
 ;; This file is part of GNU Emacs.
 
