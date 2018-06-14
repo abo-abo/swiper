@@ -453,8 +453,10 @@ Update the minibuffer with the amount of lines collected every
  '(("I" counsel-info-lookup-symbol "info")
    ("d" counsel--find-symbol "definition")))
 
-(defvar counsel-describe-symbol-history nil
-  "History for `counsel-describe-variable' and `counsel-describe-function'.")
+(defvar counsel-describe-symbol-history ()
+  "History list for variable and function names.
+Used by commands `counsel-describe-variable' and
+`counsel-describe-function'.")
 
 (defun counsel-find-symbol ()
   "Jump to the definition of the current symbol."
