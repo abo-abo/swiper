@@ -20,7 +20,7 @@ final candidate is either through simple keyboard character inputs or
 through powerful regular expressions.
 @end ifnottex
 
-Copyright (C) 2015 Free Software Foundation, Inc.
+Copyright (C) 2015-2018 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -71,24 +71,19 @@ modify this GNU manual.''
 @detailmenu
 --- The Detailed Node Listing ---
 
-
 Installation
 
 * Installing from Emacs Package Manager::
 * Installing from the Git repository::
 
-
-
 Getting started
 
 * Basic customization::
-
 
 Key bindings
 
 * Global key bindings::
 * Minibuffer key bindings::
-
 
 Minibuffer key bindings
 
@@ -106,16 +101,12 @@ Completion Styles
 * ivy--regex-ignore-order::
 * ivy--regex-fuzzy::
 
-
-
 Customization
 
 * Faces::
 * Defcustoms::
 * Actions::
 * Packages::
-
-
 
 Actions
 
@@ -125,15 +116,10 @@ Actions
 * Example - add two actions to each command::
 * Example - define a new command with several actions::
 
-
-
-
 Example - add two actions to each command
 
 * How to undo adding the two actions::
 * How to add actions to a specific command::
-
-
 
 Example - define a new command with several actions
 
@@ -156,6 +142,7 @@ API
 * Example - @code{counsel-describe-function}::
 * Example - @code{counsel-locate}::
 * Example - @code{ivy-read-with-extra-properties}::
+
 @end detailmenu
 @end menu
 
@@ -604,8 +591,9 @@ complete the renaming.
 @indentedblock
 Inserts the sub-word at point into the minibuffer.
 
-This is similar to @kbd{C-s C-w} with @code{isearch}. Ivy reserves @kbd{C-w}
-for @code{kill-region}.
+This is similar to @kbd{C-s C-w} with @code{isearch}.  Ivy reserves @kbd{C-w}
+for @code{kill-region}.  See also @code{ivy-yank-symbol} and
+@code{ivy-yank-char}.
 @end indentedblock
 @subsubheading @kbd{S-SPC} (@code{ivy-restrict-to-matches})
 @vindex ivy-restrict-to-matches
@@ -1058,7 +1046,10 @@ Set @code{ivy-display-style} to @code{nil} for a plain minibuffer.
 @end defopt
 
 @defopt ivy-on-del-error-function
-Specify what when @kbd{DEL} (@code{ivy-backward-delete-char}) throws.
+Specifies what to do when @kbd{DEL} (@code{ivy-backward-delete-char}) fails.
+
+This is usually the case when there is no text left to delete,
+i.e., when @kbd{DEL} is typed at the beginning of the minibuffer.
 
 The default behavior is to quit the completion after @kbd{DEL} -- a
 handy key to invoke after mistakenly triggering a completion.
