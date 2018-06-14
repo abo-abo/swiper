@@ -41,7 +41,6 @@
 ;;; Code:
 
 (require 'swiper)
-(require 'etags)
 (require 'esh-util)
 (require 'compile)
 (require 'dired)
@@ -455,11 +454,21 @@ Update the minibuffer with the amount of lines collected every
   (interactive)
   (ivy-exit-with-action #'counsel-info-lookup-symbol))
 
+(defvar find-tag-marker-ring)
+(declare-function xref-push-marker-stack "xref")
+
+(defalias 'counsel--push-xref-marker
+  (if (require 'xref nil t)
+      #'xref-push-marker-stack
+    (require 'etags)
+    (lambda (&optional m)
+      (ring-insert find-tag-marker-ring (or m (point-marker)))))
+  "Compatibility shim for `xref-push-marker-stack'.")
+
 (defun counsel--find-symbol (x)
   "Find symbol definition that corresponds to string X."
   (with-ivy-window
-    (with-no-warnings
-      (ring-insert find-tag-marker-ring (point-marker)))
+    (counsel--push-xref-marker)
     (let ((full-name (get-text-property 0 'full-name x)))
       (if full-name
           (find-library full-name)
