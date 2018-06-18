@@ -2171,7 +2171,7 @@ string - the full shell command to run."
 (defun counsel-locate-cmd-es (input)
   "Return a shell command based on INPUT."
   (counsel-require-program "es.exe")
-  (format "es.exe -i -r %s"
+  (format "es.exe -i -r -p %s"
           (counsel-unquote-regex-parens
            (ivy--regex input t))))
 
