@@ -3282,6 +3282,7 @@ include attachments of other Org buffers."
 (defun counsel-org-agenda-headlines ()
   "Choose from headers of `org-mode' files in the agenda."
   (interactive)
+  (require 'org)
   (let ((minibuffer-allow-text-properties t))
     (ivy-read "Org headline: "
               (counsel-org-agenda-headlines--candidates)
