@@ -41,6 +41,7 @@
 (require 'cl-lib)
 (require 'ffap)
 (require 'ivy-overlay)
+(require 'colir)
 
 ;;* Customization
 (defgroup ivy nil
@@ -2823,13 +2824,10 @@ Should be run via minibuffer `post-command-hook'."
           (when (> text-height body-height)
             (window-resize nil (- text-height body-height) nil t)))))))
 
-(declare-function colir-blend-face-background "ext:colir")
-
 (defun ivy--add-face (str face)
   "Propertize STR with FACE.
 `font-lock-append-text-property' is used, since it's better than
 `propertize' or `add-face-text-property' in this case."
-  (require 'colir)
   (let ((len (length str)))
     (condition-case nil
         (progn
