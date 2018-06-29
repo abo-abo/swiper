@@ -647,10 +647,19 @@ When the selected variable is a `defcustom' with the type boolean
 or radio, offer completion of all possible values.
 
 Otherwise, offer a variant of `eval-expression', with the initial
-input corresponding to the chosen variable."
+input corresponding to the chosen variable.
+
+With a prefix arg, restrict list to variables defined using
+`defcustom'."
   (interactive (list (intern
                       (ivy-read "Variable: "
-                                (counsel-variable-list)
+                                (let ((vars (counsel-variable-list)))
+                                  (if current-prefix-arg
+                                      (cl-remove-if-not
+                                       (lambda (var)
+                                         (get (intern var) 'custom-type))
+                                       vars)
+                                    vars))
                                 :preselect (ivy-thing-at-point)
                                 :history 'counsel-set-variable-history))))
   (let ((doc (and (require 'cus-edit)
