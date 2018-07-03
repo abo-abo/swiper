@@ -1948,7 +1948,10 @@ This is useful for recursive `ivy-read'."
                  (and (listp collection) (symbolp (car collection))))
              (setq coll (all-completions "" collection predicate)))
             (t
-             (setq coll collection)))
+             (setq coll
+                   (if predicate
+                       (cl-remove-if-not predicate collection)
+                     collection))))
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
       (when def
