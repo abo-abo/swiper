@@ -3091,6 +3091,7 @@ RE-STR is the regexp, CANDS are the current candidates."
                         (= ivy--index preselect))
                    (equal current preselect)
                    (and (stringp preselect)
+                        (stringp current)
                         (string-match-p preselect current))))
              ivy--old-cands
              (cl-position current cands :test #'equal))
