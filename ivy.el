@@ -2200,7 +2200,8 @@ See `completion-in-region' for further information."
                               (replace-regexp-in-string "%" "%%" prompt))
                             ;; remove 'completions-first-difference face
                             (mapcar #'substring-no-properties comps)
-                            :predicate predicate
+                            ;; predicate was already applied by `completion-all-completions'
+                            :predicate nil
                             :initial-input initial
                             :sort t
                             :action #'ivy-completion-in-region-action
