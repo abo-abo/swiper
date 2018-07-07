@@ -2883,13 +2883,16 @@ otherwise continue prompting for tags."
       (setq counsel-org-tags (split-string (org-get-tags-string) ":" t)))
     (let ((org-setting-tags t)
           (org-last-tags-completion-table
-           (append org-tag-persistent-alist
-                   (or org-tag-alist (org-get-buffer-tags))
-                   (and
-                    (or org-complete-tags-always-offer-all-agenda-tags
-                        (eq major-mode 'org-agenda-mode))
-                    (org-global-tags-completion-table
-                     (org-agenda-files))))))
+           (append (and (or org-complete-tags-always-offer-all-agenda-tags
+                            (eq major-mode 'org-agenda-mode))
+                        (org-global-tags-completion-table
+                         (org-agenda-files)))
+                   (unless (boundp 'org-current-tag-alist)
+                     org-tag-persistent-alist)
+                   (or (if (boundp 'org-current-tag-alist)
+                           org-current-tag-alist
+                         org-tag-alist)
+                       (org-get-buffer-tags)))))
       (ivy-read (counsel-org-tag-prompt)
                 (lambda (str &rest _unused)
                   (delete-dups
