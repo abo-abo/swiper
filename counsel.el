@@ -2863,6 +2863,7 @@ otherwise continue prompting for tags."
 (declare-function org-global-tags-completion-table "org")
 (declare-function org-agenda-files "org")
 (declare-function org-agenda-set-tags "org-agenda")
+(declare-function org-tags-completion-function "org")
 
 ;;;###autoload
 (defun counsel-org-tag ()
@@ -2894,11 +2895,11 @@ otherwise continue prompting for tags."
                          org-tag-alist)
                        (org-get-buffer-tags)))))
       (ivy-read (counsel-org-tag-prompt)
-                (lambda (str &rest _unused)
+                (lambda (str _pred _action)
                   (delete-dups
-                   (all-completions str 'org-tags-completion-function)))
+                   (all-completions str #'org-tags-completion-function)))
                 :history 'org-tags-history
-                :action 'counsel-org-tag-action
+                :action #'counsel-org-tag-action
                 :caller 'counsel-org-tag))))
 
 ;;;###autoload
