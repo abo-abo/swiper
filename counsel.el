@@ -2069,6 +2069,36 @@ By default `counsel-bookmark' opens a dired buffer for directories."
    ("r" ,(counsel--apply-bookmark-fn #'counsel-find-file-as-root)
         "open as root")))
 
+;;** `counsel-bookmarked-directory'
+(defun counsel-bookmarked-directory--candidates ()
+  "Get a list of bookmarked directories sorted by file path."
+  (bookmark-maybe-load-default-file)
+  (sort (cl-remove-if-not
+         #'ivy--dirname-p
+         (delq nil (mapcar #'bookmark-get-filename bookmark-alist)))
+        #'string<))
+
+;;;###autoload
+(defun counsel-bookmarked-directory ()
+  "Ivy interface for bookmarked directories.
+
+With a prefix argument, this command creates a new bookmark which points to the
+current value of `default-directory'."
+  (interactive)
+  (ivy-read "Bookmarked directory: "
+            (counsel-bookmarked-directory--candidates)
+            :caller 'counsel-bookmarked-directory
+            :action #'dired))
+
+(ivy-set-actions 'counsel-bookmarked-directory
+                 '(("j" dired-other-window "other window")
+                   ("x" counsel-find-file-extern "open externally")
+                   ("r" counsel-find-file-as-root "open as root")
+                   ("f" (lambda (dir)
+                          (let ((default-directory dir))
+                            (call-interactively #'find-file)))
+                    "find-file")))
+
 ;;** `counsel-file-register'
 ;;;###autoload
 (defun counsel-file-register ()
