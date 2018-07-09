@@ -2461,17 +2461,16 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                      (car (split-string counsel-ag-command)))))))
   (when (null extra-ag-args)
     (setq extra-ag-args ""))
-  (let* ((args-end (string-match " -- " extra-ag-args))
+  (let* ((args-end (string-match "-- " extra-ag-args))
          (file (if args-end
-                   (substring-no-properties extra-ag-args (+ args-end 3))
+                   (substring-no-properties extra-ag-args (match-end 0))
                  ""))
          (extra-ag-args (if args-end
                             (substring-no-properties extra-ag-args 0 args-end)
                           extra-ag-args)))
     (setq counsel-ag-command (format counsel-ag-command
                                      (concat extra-ag-args
-                                             " -- "
-                                             "%s"
+                                             " -- %s "
                                              file))))
   (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (let ((default-directory (or initial-directory
