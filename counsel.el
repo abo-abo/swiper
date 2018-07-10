@@ -2881,8 +2881,7 @@ otherwise continue prompting for tags."
       (unless (org-at-heading-p)
         (org-back-to-heading t))
       (setq counsel-org-tags (split-string (org-get-tags-string) ":" t)))
-    (let ((org-setting-tags t)
-          (org-last-tags-completion-table
+    (let ((org-last-tags-completion-table
            (append (and (or org-complete-tags-always-offer-all-agenda-tags
                             (eq major-mode 'org-agenda-mode))
                         (org-global-tags-completion-table
