@@ -253,11 +253,8 @@ It is a list of (CALLER . HEIGHT).  CALLER is a caller of
 If `(minibuffer-depth)' equals this, `ivy-completing-read' will
 act as if `ivy-completing-read-handlers-alist' is empty.")
 
-(defvar counsel--search-commands '(counsel-git-grep
-                                   counsel-ag
-                                   counsel-rg
-                                   counsel-pt)
-  "counsel search commands")
+(defvar counsel--search-commands nil
+  "List of Counsel search commands.")
 
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
