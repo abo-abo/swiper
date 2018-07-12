@@ -253,6 +253,9 @@ It is a list of (CALLER . HEIGHT).  CALLER is a caller of
 If `(minibuffer-depth)' equals this, `ivy-completing-read' will
 act as if `ivy-completing-read-handlers-alist' is empty.")
 
+(defvar ivy-highlight-grep-commands nil
+  "List of counsel grep-like commands.")
+
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
 
@@ -3338,8 +3341,7 @@ Note: The usual last two arguments are flipped for convenience.")
   (unless ivy--old-re
     (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
   (let ((start
-         (if (and (memq (ivy-state-caller ivy-last)
-                        '(counsel-git-grep counsel-ag counsel-rg counsel-pt))
+         (if (and (memq (ivy-state-caller ivy-last) ivy-highlight-grep-commands)
                   (string-match "^[^:]+:[^:]+:" str))
              (match-end 0)
            0))
