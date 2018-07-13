@@ -206,8 +206,8 @@ for documentation look-ups.
 Install Ivy automatically through Emacs's package manager, or manually
 from Ivy's development repository.
 
-Emacs 24.3.1 is the oldest version to run Ivy. Emacs 24.5.1 is the
-oldest version that runs Ivy with fancy faces display.
+Emacs 24.3 is the oldest version to run Ivy. Emacs 24.4 is the oldest
+version that runs Ivy with fancy faces display.
 
 @menu
 * Installing from Emacs Package Manager::
@@ -1039,8 +1039,7 @@ in the @code{format} documentation.
 @defopt ivy-display-style
 Specifies highlighting candidates in the minibuffer.
 
-The default setting is @code{'fancy} and valid only in Emacs versions
-24.5 or newer.
+The default setting is @code{'fancy} in Emacs versions 24.4 or newer.
 
 Set @code{ivy-display-style} to @code{nil} for a plain minibuffer.
 @end defopt
@@ -1635,14 +1634,15 @@ narrowing) or select a candidate from the visible collection.
 
 @lisp
 (defun counsel-locate-function (str)
-  (if (< (length str) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (format "locate %s '%s'"
-	     (mapconcat #'identity counsel-locate-options " ")
-	     (counsel-unquote-regex-parens
-	      (ivy--regex str))))
-    '("" "working...")))
+  (or
+   (counsel-more-chars 3)
+   (progn
+     (counsel--async-command
+      (format "locate %s '%s'"
+	      (mapconcat #'identity counsel-locate-options " ")
+	      (counsel-unquote-regex-parens
+	       (ivy--regex str))))
+     '("" "working..."))))
 
 ;;;###autoload
 (defun counsel-locate (&optional initial-input)

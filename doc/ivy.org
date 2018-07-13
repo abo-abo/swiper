@@ -1237,14 +1237,15 @@ narrowing) or select a candidate from the visible collection.
 
 #+begin_src elisp
 (defun counsel-locate-function (str)
-  (if (< (length str) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (format "locate %s '%s'"
-             (mapconcat #'identity counsel-locate-options " ")
-             (counsel-unquote-regex-parens
-              (ivy--regex str))))
-    '("" "working...")))
+  (or
+   (counsel-more-chars 3)
+   (progn
+     (counsel--async-command
+      (format "locate %s '%s'"
+              (mapconcat #'identity counsel-locate-options " ")
+              (counsel-unquote-regex-parens
+               (ivy--regex str))))
+     '("" "working..."))))
 
 ;;;###autoload
 (defun counsel-locate (&optional initial-input)

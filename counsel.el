@@ -47,8 +47,10 @@
 ;;* Utility
 (defun counsel-more-chars (n)
   "Return two fake candidates prompting for at least N input."
-  (list ""
-        (format "%d chars more" (- n (length ivy-text)))))
+  (let ((len (length ivy-text)))
+    (when (< len 3)
+      (list ""
+            (format "%d chars more" (- n len))))))
 
 (defun counsel-unquote-regex-parens (str)
   "Unquote regex parenthesis in STR."
@@ -1271,18 +1273,18 @@ Typical value: '(recenter)."
   :type 'hook
   :group 'ivy)
 
-(defun counsel-git-grep-function (string &optional _pred &rest _unused)
+(defun counsel-git-grep-function (str &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
-  (if (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
-           (< (length string) 3))
-      (counsel-more-chars 3)
-    (let* ((default-directory (ivy-state-directory ivy-last))
-           (cmd (format counsel-git-grep-cmd
-                        (setq ivy--old-re (ivy--regex string t)))))
-      (if (<= counsel--git-grep-count counsel--git-grep-count-threshold)
-          (split-string (shell-command-to-string cmd) "\n" t)
-        (counsel--gg-candidates (ivy--regex string))
-        nil))))
+  (or
+   (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
+        (counsel-more-chars 3))
+   (let* ((default-directory (ivy-state-directory ivy-last))
+          (cmd (format counsel-git-grep-cmd
+                       (setq ivy--old-re (ivy--regex str t)))))
+     (if (<= counsel--git-grep-count counsel--git-grep-count-threshold)
+         (split-string (shell-command-to-string cmd) "\n" t)
+       (counsel--gg-candidates (ivy--regex str))
+       nil))))
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
@@ -1417,12 +1419,12 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current git repository."
-  (if (< (length str) 3)
-      (counsel-more-chars 3)
-    (let ((regex (setq ivy--old-re
-                       (ivy--regex str t))))
-      (counsel--async-command (format counsel-git-grep-cmd regex))
-      nil)))
+  (or
+   (counsel-more-chars 3)
+   (let ((regex (setq ivy--old-re
+                      (ivy--regex str t))))
+     (counsel--async-command (format counsel-git-grep-cmd regex))
+     nil)))
 
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
@@ -1586,19 +1588,20 @@ done") "\n" t)))
 (defvar counsel-git-log-split-string-re "\ncommit "
   "The `split-string' separates when split output of `counsel-git-log-cmd'.")
 
-(defun counsel-git-log-function (input)
-  "Search for INPUT in git log."
-  (if (< (length input) 3)
-      (counsel-more-chars 3)
-    ;; `counsel--yank-pop-format-function' uses this
-    (setq ivy--old-re (funcall ivy--regex-function input))
-    (counsel--async-command
-     ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
-     ;; But it doesn't like the non-greedy ".*?".
-     (format counsel-git-log-cmd
-             (replace-regexp-in-string "\\.\\*\\?" ".*"
-                                       (ivy-re-to-str ivy--old-re))))
-    nil))
+(defun counsel-git-log-function (str)
+  "Search for STR in git log."
+  (or
+   (counsel-more-chars 3)
+   (progn
+     ;; `counsel--yank-pop-format-function' uses this
+     (setq ivy--old-re (funcall ivy--regex-function str))
+     (counsel--async-command
+      ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
+      ;; But it doesn't like the non-greedy ".*?".
+      (format counsel-git-log-cmd
+              (replace-regexp-in-string "\\.\\*\\?" ".*"
+                                        (ivy-re-to-str ivy--old-re))))
+     nil)))
 
 (defun counsel-git-log-action (x)
   "Add candidate X to kill ring."
@@ -2181,11 +2184,12 @@ string - the full shell command to run."
 
 (defun counsel-locate-function (input)
   "Call the \"locate\" shell command with INPUT."
-  (if (< (length input) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (funcall counsel-locate-cmd input))
-    '("" "working...")))
+  (or
+   (counsel-more-chars 3)
+   (progn
+     (counsel--async-command
+      (funcall counsel-locate-cmd input))
+     '("" "working..."))))
 
 ;;;###autoload
 (defun counsel-locate (&optional initial-input)
@@ -2426,18 +2430,18 @@ regex string."
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-ag 'counsel-git-grep-transformer)
 
-(defun counsel-ag-function (string)
+(defun counsel-ag-function (str)
   "Grep in the current directory for STRING using BASE-CMD.
 If non-nil, append EXTRA-AG-ARGS to BASE-CMD."
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
-    (let ((default-directory (ivy-state-directory ivy-last))
-          (regex (counsel-unquote-regex-parens
-                  (setq ivy--old-re
-                        (ivy--regex string)))))
-      (counsel--async-command (format counsel-ag-command
-                                      (shell-quote-argument regex)))
-      nil)))
+  (or
+   (counsel-more-chars 3)
+   (let ((default-directory (ivy-state-directory ivy-last))
+         (regex (counsel-unquote-regex-parens
+                 (setq ivy--old-re
+                       (ivy--regex str)))))
+     (counsel--async-command (format counsel-ag-command
+                                     (shell-quote-argument regex)))
+     nil)))
 
 ;;;###autoload
 (defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
@@ -2591,14 +2595,14 @@ substituted by the search regexp and file, respectively.  Neither
 
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
-  (if (< (length string) 2)
-      (counsel-more-chars 2)
-    (let ((regex (counsel-unquote-regex-parens
-                  (setq ivy--old-re
-                        (ivy--regex string)))))
-      (counsel--async-command
-       (format counsel-grep-command (shell-quote-argument regex)))
-      nil)))
+  (or
+   (counsel-more-chars 2)
+   (let ((regex (counsel-unquote-regex-parens
+                 (setq ivy--old-re
+                       (ivy--regex string)))))
+     (counsel--async-command
+      (format counsel-grep-command (shell-quote-argument regex)))
+     nil)))
 
 (defun counsel-grep-action (x)
   "Go to candidate X."
@@ -2712,14 +2716,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (counsel-grep initial-input)))
 
 ;;** `counsel-recoll'
-(defun counsel-recoll-function (string)
-  "Run recoll for STRING."
-  (if (< (length string) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (format "recoll -t -b %s"
-             (shell-quote-argument string)))
-    nil))
+(defun counsel-recoll-function (str)
+  "Run recoll for STR."
+  (or
+   (counsel-more-chars 3)
+   (progn
+     (counsel--async-command
+      (format "recoll -t -b %s"
+              (shell-quote-argument str)))
+     nil)))
 
 ;; This command uses the recollq command line tool that comes together
 ;; with the recoll (the document indexing database) source:
