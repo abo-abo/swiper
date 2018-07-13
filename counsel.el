@@ -45,10 +45,17 @@
 (require 'dired)
 
 ;;* Utility
-(defun counsel-more-chars (n)
-  "Return two fake candidates prompting for at least N input."
-  (let ((len (length ivy-text)))
-    (when (< len 3)
+(defvar counsel-more-chars-alist
+  '((counsel-grep . 2)
+    (t . 3))
+  "Minimum amount of characters to prompt for before fetching candidates.")
+
+(defun counsel-more-chars ()
+  "Return two fake candidates prompting for at least N input.
+N is obtained from `counsel-more-chars-alist'."
+  (let ((len (length ivy-text))
+        (n (ivy-alist-setting counsel-more-chars-alist)))
+    (when (< len n)
       (list ""
             (format "%d chars more" (- n len))))))
 
@@ -1277,7 +1284,7 @@ Typical value: '(recenter)."
   "Grep in the current git repository for STRING."
   (or
    (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
-        (counsel-more-chars 3))
+        (counsel-more-chars))
    (let* ((default-directory (ivy-state-directory ivy-last))
           (cmd (format counsel-git-grep-cmd
                        (setq ivy--old-re (ivy--regex str t)))))
@@ -1420,7 +1427,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current git repository."
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (let ((regex (setq ivy--old-re
                       (ivy--regex str t))))
      (counsel--async-command (format counsel-git-grep-cmd regex))
@@ -1591,7 +1598,7 @@ done") "\n" t)))
 (defun counsel-git-log-function (str)
   "Search for STR in git log."
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (progn
      ;; `counsel--yank-pop-format-function' uses this
      (setq ivy--old-re (funcall ivy--regex-function str))
@@ -2185,7 +2192,7 @@ string - the full shell command to run."
 (defun counsel-locate-function (input)
   "Call the \"locate\" shell command with INPUT."
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (progn
      (counsel--async-command
       (funcall counsel-locate-cmd input))
@@ -2434,7 +2441,7 @@ regex string."
   "Grep in the current directory for STRING using BASE-CMD.
 If non-nil, append EXTRA-AG-ARGS to BASE-CMD."
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (let ((default-directory (ivy-state-directory ivy-last))
          (regex (counsel-unquote-regex-parens
                  (setq ivy--old-re
@@ -2596,7 +2603,7 @@ substituted by the search regexp and file, respectively.  Neither
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
   (or
-   (counsel-more-chars 2)
+   (counsel-more-chars)
    (let ((regex (counsel-unquote-regex-parens
                  (setq ivy--old-re
                        (ivy--regex string)))))
@@ -2719,7 +2726,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defun counsel-recoll-function (str)
   "Run recoll for STR."
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (progn
      (counsel--async-command
       (format "recoll -t -b %s"

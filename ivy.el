@@ -1648,6 +1648,11 @@ Directories come first."
           (cl-remove-if-not predicate seq)
         seq))))
 
+(defun ivy-alist-setting (alist &optional key)
+  (let ((caller (or key (ivy-state-caller ivy-last))))
+    (or (and caller (cdr (assq caller alist)))
+        (cdr (assq t alist)))))
+
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1746,8 +1751,7 @@ customizations apply to the current completion session."
         (ivy-display-function
          (unless (window-minibuffer-p)
            (or ivy-display-function
-               (cdr (or (assq caller ivy-display-functions-alist)
-                        (assq t ivy-display-functions-alist))))))
+               (ivy-alist-setting ivy-display-functions-alist caller))))
         (height
          (or (cdr (assq caller ivy-height-alist))
              ivy-height)))
@@ -1853,9 +1857,7 @@ This is useful for recursive `ivy-read'."
           (or re-builder
               (and (functionp collection)
                    (cdr (assq collection ivy-re-builders-alist)))
-              (and caller
-                   (cdr (assq caller ivy-re-builders-alist)))
-              (cdr (assq t ivy-re-builders-alist))
+              (ivy-alist-setting ivy-re-builders-alist)
               #'ivy--regex))
     (setq ivy--subexps 0)
     (setq ivy--regexp-quote #'regexp-quote)
@@ -2992,8 +2994,7 @@ All CANDIDATES are assumed to match NAME."
     (cond ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
-          ((setq fun (cdr (or (assq key ivy-sort-matches-functions-alist)
-                              (assq t ivy-sort-matches-functions-alist))))
+          ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist key))
            (funcall fun name candidates))
           (t
            candidates))))
@@ -3060,9 +3061,9 @@ before substring matches."
   "Recompute index of selected candidate matching NAME.
 RE-STR is the regexp, CANDS are the current candidates."
   (let* ((caller (ivy-state-caller ivy-last))
-         (func (or (and caller (cdr (assoc caller ivy-index-functions-alist)))
-                   (cdr (assoc t ivy-index-functions-alist))
-                   #'ivy-recompute-index-zero))
+         (func (or
+                (ivy-alist-setting ivy-index-functions-alist)
+                #'ivy-recompute-index-zero))
          (case-fold-search (ivy--case-fold-p name))
          (preselect (ivy-state-preselect ivy-last))
          (current (ivy-state-current ivy-last)))

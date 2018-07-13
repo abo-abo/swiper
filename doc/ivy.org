@@ -1238,7 +1238,7 @@ narrowing) or select a candidate from the visible collection.
 #+begin_src elisp
 (defun counsel-locate-function (str)
   (or
-   (counsel-more-chars 3)
+   (counsel-more-chars)
    (progn
      (counsel--async-command
       (format "locate %s '%s'"
