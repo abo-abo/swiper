@@ -2502,13 +2502,15 @@ tries to ensure that it does not change depending on the number of candidates."
   (when (display-graphic-p)
     (setq truncate-lines ivy-truncate-lines))
   (setq-local max-mini-window-height ivy-height)
-  (when (and ivy-fixed-height-minibuffer
-             (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
-    (set-window-text-height (selected-window)
-                            (+ ivy-height
-                               (if ivy-add-newline-after-prompt
-                                   1
-                                 0))))
+  (if (and ivy-fixed-height-minibuffer
+           (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
+      (set-window-text-height (selected-window)
+                              (+ ivy-height
+                                 (if ivy-add-newline-after-prompt
+                                     1
+                                   0)))
+    (when ivy-add-newline-after-prompt
+      (set-window-text-height (selected-window) 2)))
   (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
   ;; show completions with empty input
   (ivy--exhibit))
@@ -2609,9 +2611,7 @@ STD-PROPS is a property list containing the default text properties."
                         (t
                          (concat n-str d-str)))))
           (when ivy-add-newline-after-prompt
-            (setq n-str (concat n-str "\n"))
-            (when (= (window-text-height (selected-window)) 1)
-              (set-window-text-height (selected-window) 2)))
+            (setq n-str (concat n-str "\n")))
           (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
             (while (string-match regex n-str)
               (setq n-str (replace-match
