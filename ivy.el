@@ -2609,7 +2609,9 @@ STD-PROPS is a property list containing the default text properties."
                         (t
                          (concat n-str d-str)))))
           (when ivy-add-newline-after-prompt
-            (setq n-str (concat n-str "\n")))
+            (setq n-str (concat n-str "\n"))
+            (when (= (window-text-height (selected-window)) 1)
+              (set-window-text-height (selected-window) 2)))
           (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
             (while (string-match regex n-str)
               (setq n-str (replace-match
