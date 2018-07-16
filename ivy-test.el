@@ -848,6 +848,13 @@ will bring the behavior in line with the newer Emacsen."
     (should (not (ivy--sort-function 'b)))
     (should (eq (ivy--sort-function 'c) fn1))))
 
+(ert-deftest ivy-read-directory-name ()
+  (should
+   (equal "/tmp/"
+          (ivy-with
+           '(read-directory-name "cd: " "/tmp")
+           "RET"))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here

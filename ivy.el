@@ -1880,6 +1880,9 @@ This is useful for recursive `ivy-read'."
                                 :test #'equal)))
                (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
+             (when (and (equal def initial-input)
+                        (member "./" ivy-extra-directories))
+               (setf (ivy-state-def state) (setq def nil)))
              (setq ivy--directory default-directory)
              (when (and initial-input
                         (not (equal initial-input "")))
@@ -1887,7 +1890,7 @@ This is useful for recursive `ivy-read'."
                       (when (equal (file-name-nondirectory initial-input) "")
                         (setf (ivy-state-preselect state) (setq preselect nil))
                         (setf (ivy-state-def state) (setq def nil)))
-                      (setq ivy--directory initial-input)
+                      (setq ivy--directory (file-name-as-directory initial-input))
                       (setq initial-input nil)
                       (when preselect
                         (let ((preselect-directory
