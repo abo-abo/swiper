@@ -3221,7 +3221,11 @@ include attachments of other Org buffers."
                    (lambda (x)
                      (when (> (length x) 2)
                        (format "%-5s %s" (nth 0 x) (nth 1 x))))
-                   (or org-capture-templates
+                   ;; We build the list of capture templates as in
+                   ;; `org-capture-select-template':
+                   (or (org-contextualize-keys
+                        (org-capture-upgrade-templates org-capture-templates)
+                        org-capture-templates-contexts)
                        '(("t" "Task" entry (file+headline "" "Tasks")
                           "* TODO %?\n  %u\n  %a")))))
             :require-match t
