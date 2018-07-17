@@ -914,6 +914,20 @@ When this directory doesn't exist, return nil."
   "When non-nil, `ivy-partial-or-done' should insert a space."
   :type 'boolean)
 
+(defun ivy-complete-or-done()
+  "Complete the minibuffer text with selected.
+if selected text is directory, expand directory,
+and if the text has been completed, forward to `ivy-alt-done' when second call."
+  (interactive)
+  (ivy-partial-or-done)
+  (when (not (eq this-command last-command))
+    (delete-minibuffer-contents)
+    (let ((ivy-text (ivy-state-current ivy-last)) dir)
+      (insert ivy-text)
+      (when (and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
+                 (setq dir (ivy-expand-file-if-directory ivy-text)))
+        (ivy--cd dir)))))
+
 (defun ivy-partial-or-done ()
   "Complete the minibuffer text as much as possible.
 If the text hasn't changed as a result, forward to `ivy-alt-done'."
