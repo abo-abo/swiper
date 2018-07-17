@@ -1814,6 +1814,8 @@ customizations apply to the current completion session."
                                        (delete item
                                                (cdr (symbol-value hist))))))))
                  (ivy-state-current ivy-last)))
+          ;; Fixes a bug in ESS, #1660
+          (put 'post-command-hook 'permanent-local nil)
           (remove-hook 'post-command-hook #'ivy--queue-exhibit)
           (let ((cleanup (ivy--display-function-prop :cleanup)))
             (when (functionp cleanup)
