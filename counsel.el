@@ -48,7 +48,9 @@
 (defvar counsel-more-chars-alist
   '((counsel-grep . 2)
     (t . 3))
-  "Minimum amount of characters to prompt for before fetching candidates.")
+  "Map commands to their minimum required input length.
+That is the number of characters prompted for before fetching
+candidates.  The special key t is used as a fallback.")
 
 (defun counsel-more-chars ()
   "Return two fake candidates prompting for at least N input.
