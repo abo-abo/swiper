@@ -1759,6 +1759,10 @@ currently checked out."
         (find-alternate-file file-name)
       (find-file file-name))))
 
+(defun counsel-find-file-delete (x)
+  "Delete file X."
+  (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash))
+
 (defun counsel-find-file-mkdir-action (_x)
   (make-directory (expand-file-name ivy-text ivy--directory)))
 
@@ -1769,6 +1773,7 @@ currently checked out."
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
+   ("k" counsel-find-file-delete "delete")
    ("d" counsel-find-file-mkdir-action "mkdir")))
 
 (defcustom counsel-find-file-at-point nil
