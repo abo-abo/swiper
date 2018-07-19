@@ -4024,7 +4024,7 @@ TREEP is used to expand internal nodes."
   (let (cands)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward outline-regexp nil t)
+      (while (re-search-forward (concat "^\\(?:" outline-regexp "\\)") nil t)
         (skip-chars-forward " ")
         (push (cons (buffer-substring-no-properties
                      (point) (line-end-position))
