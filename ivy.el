@@ -1649,9 +1649,12 @@ Directories come first."
         seq))))
 
 (defun ivy-alist-setting (alist &optional key)
-  (let ((caller (or key (ivy-state-caller ivy-last))))
-    (or (and caller (cdr (assq caller alist)))
-        (cdr (assq t alist)))))
+  "Return the value associated with KEY in ALIST, using `assq'.
+KEY defaults to the last caller of `ivy-read'; if no entry is
+found, it falls back to the key t."
+  (cdr (or (let ((caller (or key (ivy-state-caller ivy-last))))
+             (and caller (assq caller alist)))
+           (assq t alist))))
 
 ;;** Entry Point
 ;;;###autoload
