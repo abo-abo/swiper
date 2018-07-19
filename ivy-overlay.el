@@ -85,19 +85,21 @@ Then attach the overlay the character before point."
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
 
-(defun ivy-overlay-impossible-p ()
+(defun ivy-overlay-impossible-p (str)
   (or
-   (< (- (window-width) (current-column))
-      (length (ivy-state-current ivy-last)))
    (<= (window-height) (+ ivy-height 3))
-   (= (point) (point-min))))
+   (= (point) (point-min))
+   (< (- (+ (window-width) (window-hscroll)) (current-column))
+      (apply #'max
+             (mapcar #'length
+                     (split-string str "\n"))))))
 
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
 Hide the minibuffer contents and cursor."
   (if (save-selected-window
         (select-window (ivy-state-window ivy-last))
-        (ivy-overlay-impossible-p))
+        (ivy-overlay-impossible-p str))
       (let ((buffer-undo-list t))
         (save-excursion
           (forward-line 1)
