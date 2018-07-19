@@ -44,7 +44,9 @@
 Lines are truncated to the window width."
   (let ((padding (make-string width ?\s)))
     (mapconcat (lambda (x)
-                 (ivy--truncate-string (concat padding x) (1- (window-width))))
+                 (ivy--truncate-string (concat padding x)
+                                       (1- (+ (window-width)
+                                              (window-hscroll)))))
                (split-string str "\n")
                "\n")))
 
