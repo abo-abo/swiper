@@ -3890,7 +3890,7 @@ Don't finish completion."
   (interactive)
   (delete-minibuffer-contents)
   (if (and ivy--directory
-           (string-match-p "/$" (ivy-state-current ivy-last)))
+           (ivy--dirname-p (ivy-state-current ivy-last)))
       (insert (substring (ivy-state-current ivy-last) 0 -1))
     (insert (ivy-state-current ivy-last))))
 
