@@ -408,6 +408,10 @@ Update the minibuffer with the amount of lines collected every
               :action #'ivy-completion-in-region-action)))
 
 ;;** `counsel-irony'
+(declare-function irony-completion-candidates-async "ext:irony-completion")
+(declare-function irony-completion-symbol-bounds "ext:irony-completion")
+(declare-function irony-completion-annotation "ext:irony-completion")
+
 ;;;###autoload
 (defun counsel-irony ()
   "Inline C/C++ completion using Irony."
@@ -435,10 +439,6 @@ Update the minibuffer with the amount of lines collected every
         (car x)))
 
 (add-to-list 'ivy-display-functions-alist '(counsel-irony . ivy-display-function-overlay))
-
-(declare-function irony-completion-candidates-async "ext:irony-completion")
-(declare-function irony-completion-symbol-bounds "ext:irony-completion")
-(declare-function irony-completion-annotation "ext:irony-completion")
 
 ;;* Elisp symbols
 ;;** `counsel-describe-variable'
