@@ -1942,8 +1942,9 @@ This is useful for recursive `ivy-read'."
                  (progn
                    (setq sort nil)
                    (setq coll (mapcar #'car
-                                      (sort (copy-sequence collection)
-                                            sort-fn))))
+                                      (setf (ivy-state-collection ivy-last)
+                                            (sort (copy-sequence collection)
+                                                  sort-fn)))))
                (setq collection
                      (setf (ivy-state-collection ivy-last)
                            (cl-remove-if-not predicate collection)))
