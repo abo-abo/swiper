@@ -91,7 +91,7 @@ Then attach the overlay the character before point."
    (= (point) (point-min))
    (< (- (+ (window-width) (window-hscroll)) (current-column))
       (apply #'max
-             (mapcar #'length
+             (mapcar #'string-width
                      (split-string str "\n"))))))
 
 (defun ivy-display-function-overlay (str)
