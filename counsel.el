@@ -3092,8 +3092,9 @@ version.  Argument values are based on the
 
 (defun counsel-org-goto--get-headlines ()
   "Get all headlines from the current org buffer."
-  (let ((counsel-outline-title 'counsel-outline-title-org))
-    (counsel-outline-candidates)))
+  (counsel-outline-candidates
+   '(:outline-title counsel-outline-title-org
+     :action counsel-org-goto-action)))
 
 (defun counsel-org-goto--add-face (name level)
   "Add face to headline NAME on LEVEL.
@@ -3982,21 +3983,57 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
-(defvar counsel-outline-title 'counsel-outline-title-default
-  "Function used by `counsel-outline' to get the title of the current outline heading.
+(defvar counsel-outline-settings
+  '((emacs-lisp-mode
+     :outline-regexp ";;[;*]+[\s\t]+"
+     :outline-level counsel-outline-level-emacs-lisp)
+    (org-mode
+     :outline-title counsel-outline-title-org
+     :action counsel-org-goto-action)
+    (markdown-mode
+     :outline-title counsel-outline-title-markdown)
+    (latex-mode
+     :outline-title counsel-outline-title-latex))
+  "An alist holding `counsel-outline' settings for particular
+major modes.
 
-It is called with point at the end of `outline-regexp' and with the match data reflecting `outline-regexp'.  It must take no argument and return the title string.")
-;;;###autoload(put 'counsel-outline-title-function 'risky-local-variable t)
+Each entry is a pair \(MAJOR-MODE . PLIST\).  `counsel-outline'
+checks whether an entry exists for the current buffer's
+MAJOR-MODE and, if so, loads the settings specified by PLIST
+instead of the default settings.  The following settings are
+recognized:
 
-(defun counsel-outline-title-default ()
+- `:outline-regexp' is a regexp to match the beggining of an
+  outline heading.  It is only checked at the start of a line and
+  so need not start with `^'.  The default is to use the value of
+  the variable `outline-regexp'.
+
+- `:outline-level' is a function of no args to compute the level of
+  an outline heading.  It is called with point at the beginning
+  of `outline-regexp' and with the match data reflicting
+  `outline-regexp'.  The default is to use the value of the
+  variable `outline-level'.
+
+- `:outline-title' is a function of no args to get the title of an
+  outline heading.  It is called with point at the end of
+  `outline-regexp' and with the match data reflicting
+  `outline-regexp'.  The default is to use the function
+  `counsel-outline-title'.
+
+- `:action' is a function of one arg, a marker corresponding to the
+  beginning of the selected outline heading, performing
+  `counsel-outline''s action to jump to this heading.  The
+  default is to use the function `counsel-outline-action'.")
+
+(defun counsel-outline-title ()
   "Default function used by `counsel-outline' to get the title of
-the current outline heading. See `counsel-outline-title'."
+the current outline heading. See `counsel-outline-settings'."
   (buffer-substring (point) (line-end-position)))
 
 (defun counsel-outline-title-org ()
   "Function used by `counsel-outline' to get the title of the
 current outline heading in org-mode buffers. See
-`counsel-outline-title'."
+`counsel-outline-settings'."
   (apply 'org-get-heading (counsel--org-get-heading-args)))
 
 (defun counsel-outline-title-markdown ()
@@ -4009,11 +4046,11 @@ current outline heading in markdown-mode buffers. See
   (or (match-string 1) ; setext heading title
       (match-string 5))) ; atx heading title
         
-(defun counsel-outline-title-LaTeX ()
+(defun counsel-outline-title-latex ()
   "Function used by `counsel-outline' to get the title of the
-current outline heading in LaTeX-mode buffers. See
-`counsel-outline-title'."
-  ;; `outline-regexp' is set by `LaTeX-mode' (see
+current outline heading in latex-mode buffers. See
+`counsel-outline-settings'."
+  ;; `outline-regexp' is set by `latex-mode' (see
   ;; `LaTeX-outline-regexp') to match section macros, in which case we
   ;; get the section name, as well as `\appendix', `\documentclass',
   ;; `\begin{document}' and `\end{document}', in which case we simply
@@ -4028,7 +4065,9 @@ current outline heading in LaTeX-mode buffers. See
     (buffer-substring (line-beginning-position) (point))))
 
 (defun counsel-outline-level-emacs-lisp ()
-  "Replacement for `lisp-outline-level', adequate for `counsel-outline'."
+  "Function used by `counsel-outline' to compute the level of the
+current outline heading in emacs-lisp-mode buffers. See
+`counsel-outline-settings'."
   (if (looking-at ";;\\([;*]+\\)")
       (length (match-string 1))
     (funcall outline-level)))
@@ -4036,7 +4075,7 @@ current outline heading in LaTeX-mode buffers. See
 (defvar counsel-outline--preselect nil
   "Index of the presected candidate in `counsel-outline'.")
 
-(defun counsel-outline-candidates ()
+(defun counsel-outline-candidates (&optional settings)
   "Return outline candidates."
   (save-excursion
     (let (cands
@@ -4048,14 +4087,20 @@ current outline heading in LaTeX-mode buffers. See
           (orig-point (point)))
       (setq counsel-outline--preselect 0)
       (goto-char (point-min))
-      (while (re-search-forward (concat "^\\(?:" outline-regexp "\\)") nil t)
+      (while (re-search-forward (concat "^\\(?:"
+                                        (or (plist-get settings :outline-regexp)
+                                                     outline-regexp)
+                                        "\\)")
+                                nil t)
         (save-excursion
           (setq name (or (save-match-data
-                           (funcall counsel-outline-title))
+                           (funcall (or (plist-get settings :outline-title)
+                                        'counsel-outline-title)))
                          ""))
           (goto-char (match-beginning 0))
           (setq marker (point-marker))
-          (setq level (funcall outline-level))
+          (setq level (funcall (or (plist-get settings :outline-level)
+                                   outline-level)))
           (cond ((eq counsel-org-headline-display-style 'path)
                      ;; Update stack. The empty entry guards against incorrect
                      ;; headline hierarchies e.g. a level 3 headline immediately
@@ -4094,32 +4139,13 @@ This command relies on `outline-regexp', `outline-level', and
 level and title, respectively.  For major modes where this is not
 adequate or optimal, these variables can be rebound locally in
 the major mode hook.  Replacements are provided for some such
-modes. To set them up, add this to your init file:
-
-(add-hook
- 'emacs-lisp-mode-hook 
- (defun counsel-outline-emacs-lisp-setup ()
-   (setq-local outline-regexp \";;[;*]+[\s\t]+\")
-   (setq-local outline-level 'counsel-outline-level-emacs-lisp)))
-
-(add-hook
- 'org-mode-hook
- (defun counsel-outline-org-setup ()
-   (setq-local counsel-outline-title 'counsel-outline-title-org)))
-
-(add-hook
- 'markdown-mode-hook
- (defun counsel-outline-markdown-setup ()
-   (setq-local counsel-outline-title 'counsel-outline-title-markdown)))
-
-(add-hook
- 'LaTeX-mode-hook
- (defun counsel-outline-LaTeX-setup ()
-   (setq-local counsel-outline-title 'counsel-outline-title-LaTeX)))"
+modes. To set them up, add this to your init file:"
   (interactive)
-  (ivy-read "outline: " (counsel-outline-candidates)
-            :action #'counsel-outline-action
-            :preselect (max (1- counsel-outline--preselect) 0)))
+  (let ((settings (cdr (assoc major-mode counsel-outline-settings))))
+    (ivy-read "outline: " (counsel-outline-candidates settings)
+              :action (or (plist-get settings :action)
+                          #'counsel-outline-action)
+              :preselect (max (1- counsel-outline--preselect) 0))))
 
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
