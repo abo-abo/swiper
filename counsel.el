@@ -4142,12 +4142,7 @@ current outline heading in emacs-lisp-mode buffers. See
 (defun counsel-outline ()
   "Jump to outline with completion.
 
-This command relies on `outline-regexp', `outline-level', and
-`counsel-outline-title' to match an outline heading and get its
-level and title, respectively.  For major modes where this is not
-adequate or optimal, these variables can be rebound locally in
-the major mode hook.  Replacements are provided for some such
-modes. To set them up, add this to your init file:"
+This command's behavior can be customized based on the current buffer's major mode.  See variable `counsel-outline-settings'."
   (interactive)
   (let ((settings (cdr (assoc major-mode counsel-outline-settings))))
     (ivy-read "outline: " (counsel-outline-candidates settings)
