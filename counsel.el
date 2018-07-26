@@ -4045,7 +4045,9 @@ current outline heading in markdown-mode buffers. See
   ;; `markdown-regex-header').
   (or (match-string 1) ; setext heading title
       (match-string 5))) ; atx heading title
-        
+
+(defvar LaTeX-section-list)
+
 (defun counsel-outline-title-latex ()
   "Function used by `counsel-outline' to get the title of the
 current outline heading in latex-mode buffers. See
@@ -4077,55 +4079,57 @@ current outline heading in emacs-lisp-mode buffers. See
 
 (defun counsel-outline-candidates (&optional settings)
   "Return outline candidates."
-  (save-excursion
-    (let (cands
-          name
-          level
-          marker
-          stack
-          (stack-level 0)
-          (orig-point (point)))
-      (setq counsel-outline--preselect 0)
-      (goto-char (point-min))
-      (while (re-search-forward (concat "^\\(?:"
-                                        (or (plist-get settings :outline-regexp)
-                                                     outline-regexp)
-                                        "\\)")
-                                nil t)
-        (save-excursion
-          (setq name (or (save-match-data
-                           (funcall (or (plist-get settings :outline-title)
-                                        'counsel-outline-title)))
-                         ""))
-          (goto-char (match-beginning 0))
-          (setq marker (point-marker))
-          (setq level (funcall (or (plist-get settings :outline-level)
-                                   outline-level)))
-          (cond ((eq counsel-org-headline-display-style 'path)
-                     ;; Update stack. The empty entry guards against incorrect
-                     ;; headline hierarchies e.g. a level 3 headline immediately
-                     ;; following a level 1 entry.
-                     (while (<= level stack-level)
-                       (pop stack)
-                       (cl-decf stack-level))
-                     (while (> level stack-level)
-                       (push "" stack)
-                       (cl-incf stack-level))
-                     (setf (car stack) (counsel-org-goto--add-face name level))
-                     (setq name (mapconcat
-                                 #'identity
-                                 (reverse stack)
-                                 counsel-org-headline-path-separator)))
-                    (t
-                     (when (eq counsel-org-headline-display-style 'headline)
-                       (setq name (concat (make-string level ?*) " " name)))
-                     (setq name (counsel-org-goto--add-face name level))))
-          (push (cons name marker) cands))
-        (unless (or (string= name "")
-                    (< orig-point marker))
-          (cl-incf counsel-outline--preselect)))
-      (nreverse cands))))
-  
+  (let ((bol-regex (concat "^\\(?:"
+                           (or (plist-get settings :outline-regexp)
+                               outline-regexp)
+                           "\\)"))
+        (outline-title-fn (or (plist-get settings :outline-title)
+                              'counsel-outline-title))
+        (outline-level-fn (or (plist-get settings :outline-level)
+                              outline-level)))
+    (save-excursion
+      (let (cands
+            name
+            level
+            marker
+            stack
+            (stack-level 0)
+            (orig-point (point)))
+        (setq counsel-outline--preselect 0)
+        (goto-char (point-min))
+        (while (re-search-forward bol-regex nil t)
+          (save-excursion
+            (setq name (or (save-match-data
+                             (funcall outline-title-fn))
+                           ""))
+            (goto-char (match-beginning 0))
+            (setq marker (point-marker))
+            (setq level (funcall outline-level-fn))
+            (cond ((eq counsel-org-headline-display-style 'path)
+                   ;; Update stack. The empty entry guards against incorrect
+                   ;; headline hierarchies e.g. a level 3 headline immediately
+                   ;; following a level 1 entry.
+                   (while (<= level stack-level)
+                     (pop stack)
+                     (cl-decf stack-level))
+                   (while (> level stack-level)
+                     (push "" stack)
+                     (cl-incf stack-level))
+                   (setf (car stack) (counsel-org-goto--add-face name level))
+                   (setq name (mapconcat
+                               #'identity
+                               (reverse stack)
+                               counsel-org-headline-path-separator)))
+                  (t
+                   (when (eq counsel-org-headline-display-style 'headline)
+                     (setq name (concat (make-string level ?*) " " name)))
+                   (setq name (counsel-org-goto--add-face name level))))
+            (push (cons name marker) cands))
+          (unless (or (string= name "")
+                      (< orig-point marker))
+            (cl-incf counsel-outline--preselect)))
+        (nreverse cands)))))
+
 (defun counsel-outline-action (x)
   "Go to outline X."
     (goto-char (cdr x)))
