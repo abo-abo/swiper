@@ -3990,9 +3990,9 @@ TREEP is used to expand internal nodes."
     (org-mode
      :outline-title counsel-outline-title-org
      :action counsel-org-goto-action)
-    (markdown-mode
+    (markdown-mode ; markdown-mode package
      :outline-title counsel-outline-title-markdown)
-    (latex-mode
+    (latex-mode ; AUCTeX package
      :outline-title counsel-outline-title-latex))
   "An alist holding `counsel-outline' settings for particular
 major modes.
@@ -4020,10 +4020,11 @@ recognized:
   `outline-regexp'.  The default is to use the function
   `counsel-outline-title'.
 
-- `:action' is a function of one arg, a marker corresponding to the
-  beginning of the selected outline heading, performing
-  `counsel-outline''s action to jump to this heading.  The
-  default is to use the function `counsel-outline-action'.")
+- `:action' is a function of one arg, the selected outline
+  heading, performing the action to jump to this heading.  It
+  corresponds directly to the `:action' keyword of
+  `counsel-outline''s `ivy-read' call.  The default is to use the
+  function `counsel-outline-action'.")
 
 (defun counsel-outline-title ()
   "Default function used by `counsel-outline' to get the title of
@@ -4038,8 +4039,8 @@ current outline heading in org-mode buffers. See
 
 (defun counsel-outline-title-markdown ()
   "Function used by `counsel-outline' to get the title of the
-current outline heading in markdown-mode buffers. See
-`counsel-outline-title'."
+current outline heading in markdown-mode buffers (markdown-mode
+package). See `counsel-outline-title'."
   ;; `outline-regexp' is set by `markdown-mode' to match both setext
   ;; (underline) and atx (hash) headings (see
   ;; `markdown-regex-header').
@@ -4050,7 +4051,7 @@ current outline heading in markdown-mode buffers. See
 
 (defun counsel-outline-title-latex ()
   "Function used by `counsel-outline' to get the title of the
-current outline heading in latex-mode buffers. See
+current outline heading in latex-mode buffers (AUCTeX package). See
 `counsel-outline-settings'."
   ;; `outline-regexp' is set by `latex-mode' (see
   ;; `LaTeX-outline-regexp') to match section macros, in which case we
