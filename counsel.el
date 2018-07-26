@@ -4075,7 +4075,7 @@ AUCTeX package). See `counsel-outline-settings'."
 current outline heading in emacs-lisp-mode buffers. See
 `counsel-outline-settings'."
   (if (looking-at ";;\\([;*]+\\)")
-      (length (match-string 1))
+      (- (match-end 1) (match-beginning 1))
     (funcall outline-level)))
 
 (defvar counsel-outline--preselect nil
