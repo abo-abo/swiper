@@ -3093,8 +3093,7 @@ version.  Argument values are based on the
 (defun counsel-org-goto--get-headlines ()
   "Get all headlines from the current org buffer."
   (counsel-outline-candidates
-   '(:outline-title counsel-outline-title-org
-     :action counsel-org-goto-action)))
+   '(:outline-title counsel-outline-title-org)))
 
 (defun counsel-org-goto--add-face (name level)
   "Add face to headline NAME on LEVEL.
@@ -3989,7 +3988,9 @@ TREEP is used to expand internal nodes."
      :outline-level counsel-outline-level-emacs-lisp)
     (org-mode
      :outline-title counsel-outline-title-org
-     :action counsel-org-goto-action)
+     :action counsel-org-goto-action
+     :history counsel-org-goto-history
+     :caller counsel-org-goto)
     (markdown-mode ; markdown-mode package
      :outline-title counsel-outline-title-markdown)
     (latex-mode ; built-in mode or AUCTeX package
@@ -4024,7 +4025,17 @@ recognized:
   heading, performing the action to jump to this heading.  It
   corresponds directly to the `:action' keyword of
   `counsel-outline''s `ivy-read' call.  The default is to use the
-  function `counsel-outline-action'.")
+  function `counsel-outline-action'.
+
+- `:history' is the name of a history variable to hold the
+  completion session history.  It corresponds directly to the
+  `:history' keyword of `counsel-outline''s `ivy-read' call.  The
+  default is `\'counsel-outline-history'.
+
+- `:caller' is a symbol to uniquely idendify the caller to
+  `ivy-read'.  It corresponds directly to the `:caller' keyword
+  of `counsel-outline''s `ivy-read' call.  The default is
+  `\'counsel-outline'.")
 
 (defun counsel-outline-title ()
   "Default function used by `counsel-outline' to get the title of
@@ -4146,7 +4157,11 @@ This command's behavior can be customized based on the current buffer's major mo
     (ivy-read "outline: " (counsel-outline-candidates settings)
               :action (or (plist-get settings :action)
                           #'counsel-outline-action)
-              :preselect (max (1- counsel-outline--preselect) 0))))
+              :preselect (max (1- counsel-outline--preselect) 0)
+              :history (or (plist-get settings :history)
+                           'counsel-outline-history)
+              :caller (or (plist-get settings :caller)
+                          'counsel-outline))))
 
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
