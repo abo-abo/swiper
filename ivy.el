@@ -2213,7 +2213,9 @@ See `completion-in-region' for further information."
                                 prompt
                               (replace-regexp-in-string "%" "%%" prompt))
                             ;; remove 'completions-first-difference face
-                            (mapcar #'substring-no-properties comps)
+                            (mapcar
+                             (lambda (s) (remove-text-properties 0 (length s) '(face) s) s)
+                             comps)
                             ;; predicate was already applied by `completion-all-completions'
                             :predicate nil
                             :initial-input initial
@@ -3400,7 +3402,10 @@ Note: The usual last two arguments are flipped for convenience.")
           "mouse-1: %s   mouse-3: %s")
         ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
      str)
-    str))
+    (let ((annotation-function (plist-get completion-extra-properties :annotation-function)))
+      (if annotation-function
+          (concat str (funcall annotation-function str))
+        str))))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
