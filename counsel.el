@@ -4047,8 +4047,6 @@ package). See `counsel-outline-title'."
   (or (match-string 1) ; setext heading title
       (match-string 5))) ; atx heading title
 
-(defvar LaTeX-section-list)
-
 (defun counsel-outline-title-latex ()
   "Function used by `counsel-outline' to get the title of the
 current outline heading in latex-mode buffers (built-in mode or
@@ -4059,9 +4057,9 @@ AUCTeX package). See `counsel-outline-settings'."
   ;; macros, in which case we get the section name, as well as
   ;; `\appendix', `\documentclass', `\begin{document}' and
   ;; `\end{document}', in which case we simply return that.
-  (if (and (assoc (match-string 1) (if (boundp 'LaTeX-section-list)
-                                       LaTeX-section-list
-                                     latex-section-alist)) ; section macro
+  (if (and (assoc (match-string 1) ; macro name
+                  (or (bound-and-true-p LaTeX-section-list) ; AUCTeX
+                      (bound-and-true-p latex-section-alist))) ; built-in
            (progn ; point is at end of macro name, skip stars and optional args
              (skip-chars-forward "*")
              (while (looking-at "\\[")
