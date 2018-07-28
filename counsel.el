@@ -4722,11 +4722,6 @@ Any desktop entries that fail to parse are recorded in
               :caller 'counsel-wmctrl)))
 
 ;;** `counsel-firefox-bookmarks'
-(ivy-set-actions
- 'counsel-firefox-bookmarks
- `(("n" ,(lambda (x) (kill-new (second x))) "copy name")
-   ("l" ,(lambda (x) (kill-new (third x))) "copy location")))
-
 (defvar counsel-firefox-bookmarks-file
   (car (file-expand-wildcards "~/.mozilla/firefox/*/bookmarks.html"))
   "Firefox's automatically exported HTML bookmarks file.")
@@ -4743,7 +4738,7 @@ Any desktop entries that fail to parse are recorded in
 
 (defun counsel-firefox-bookmarks-action (x)
   "Browse candidate X."
-  (browse-url (third x)))
+  (browse-url (cadr x)))
 
 (declare-function xml-substitute-special "xml")
 
@@ -4774,11 +4769,18 @@ Any desktop entries that fail to parse are recorded in
                              tag)
                            (split-string (match-string 1 a) "," t)
                            ":"))))
+          (put-text-property 0 (length href)
+                             'face
+                             'counsel-firefox-bookmarks-location
+                             href)
           (push (list
-                 (concat (if tags (concat name " :" tags ":") name)
-                         " "
-                         (propertize href 'face 'counsel-firefox-bookmarks-location))
-                 name
+                 (mapconcat #'identity
+                            (remove nil
+                                    (list name
+                                          (when tags (concat ":" tags ":"))
+                                          (unless (string= name href)
+                                            href)))
+                            "  ")
                  href)
                 candidates)))
       candidates)))
