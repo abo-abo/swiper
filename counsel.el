@@ -4176,9 +4176,7 @@ CUSTOM-FACES are given."
 
 ;;;###autoload
 (defun counsel-outline ()
-  "Jump to outline with completion.
-
-This command's behavior can be customized based on the current buffer's major mode.  See variable `counsel-outline-settings'."
+  "Jump to outline with completion."
   (interactive)
   (let ((settings (cdr (assoc major-mode counsel-outline-settings))))
     (ivy-read "outline: " (counsel-outline-candidates settings)
