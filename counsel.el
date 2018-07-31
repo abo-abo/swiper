@@ -1887,7 +1887,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 (defvar counsel-find-file-occur-cmd "ls -a | grep -i -E '%s' | xargs -d '\\n' ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
 
-(defvar counsel-find-file-occur-use-find nil
+(defvar counsel-find-file-occur-use-find (not (eq system-type 'gnu/linux))
   "When non-nil, `counsel-find-file-occur' will use \"find\" as the base cmd.")
 
 (defun counsel--expand-ls (cmd)
