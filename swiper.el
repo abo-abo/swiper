@@ -349,19 +349,20 @@
 
 NUMBERS-WIDTH, when specified, is used for width spec of line
 numbers; replaces calculating the width from buffer line count."
-  (if (and visual-line-mode
-           ;; super-slow otherwise
-           (< (buffer-size) 20000))
-      (progn
-        (when (eq major-mode 'org-mode)
-          (require 'outline)
-          (if (fboundp 'outline-show-all)
-              (outline-show-all)
-            (with-no-warnings
-              (show-all))))
-        (setq swiper-use-visual-line t))
-    (setq swiper-use-visual-line nil))
   (let ((n-lines (count-lines (point-min) (point-max))))
+    (if (and visual-line-mode
+             ;; super-slow otherwise
+             (< (buffer-size) 20000)
+             (< n-lines 400))
+        (progn
+          (when (eq major-mode 'org-mode)
+            (require 'outline)
+            (if (fboundp 'outline-show-all)
+                (outline-show-all)
+              (with-no-warnings
+                (show-all))))
+          (setq swiper-use-visual-line t))
+      (setq swiper-use-visual-line nil))
     (unless (zerop n-lines)
       (setq swiper--width (or numbers-width
                               (1+ (floor (log n-lines 10)))))
