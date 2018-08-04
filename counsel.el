@@ -2068,6 +2068,7 @@ By default `counsel-bookmark' opens a dired buffer for directories."
   (require 'bookmark)
   (ivy-read "Create or jump to bookmark: "
             (bookmark-all-names)
+            :history 'bookmark-history
             :action (lambda (x)
                       (cond ((and counsel-bookmark-avoid-dired
                                   (member x (bookmark-all-names))
