@@ -2947,16 +2947,6 @@ otherwise continue prompting for tags."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
-(define-obsolete-variable-alias 'counsel-org-goto-display-style
-    'counsel-outline-display-style "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-display-style
-    'counsel-outline-display-style "0.10.0")
-
-(define-obsolete-variable-alias 'counsel-org-goto-separator
-    'counsel-outline-path-separator "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-path-separator
-    'counsel-outline-path-separator "0.10.0")
-
 (define-obsolete-variable-alias 'counsel-org-goto-display-tags
     'counsel-org-headline-display-tags "0.10.0")
 
@@ -2977,12 +2967,6 @@ otherwise continue prompting for tags."
   "If non-nil, display priorities in matched `org-mode' headlines."
   :type 'boolean
   :group 'ivy)
-
-(define-obsolete-variable-alias 'counsel-org-goto-face-style
-    'counsel-outline-face-style "0.10.0")
-
-(define-obsolete-variable-alias 'counsel-org-goto-custom-faces
-    'counsel-outline-custom-faces "0.10.0")
 
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
@@ -3164,6 +3148,45 @@ include attachments of other Org buffers."
 
 (defvar counsel-org-agenda-headlines-history nil
   "History for `counsel-org-agenda-headlines'.")
+
+(define-obsolete-variable-alias 'counsel-org-goto-display-style
+    'counsel-outline-display-style "0.10.0")
+(define-obsolete-variable-alias 'counsel-org-headline-display-style
+    'counsel-outline-display-style "0.10.0")
+
+(defcustom counsel-outline-display-style 'path
+  "The style used when displaying matched outline headings.
+
+If `headline', the title is displayed with leading stars
+indicating the outline level.
+
+If `path', the path hierarchy is displayed.  For each entry the
+title is shown.  Entries are separated with
+`counsel-outline-path-separator'.
+
+If `title' or any other value, only the title of the heading is
+displayed.
+
+For displaying tags and TODO keywords in `org-mode' buffers, see
+`counsel-org-headline-display-tags' and
+`counsel-org-headline-display-todo', respectively."
+  :type '(choice
+          (const :tag "Title only" title)
+          (const :tag "Headline" headline)
+          (const :tag "Path" path))
+  :group 'ivy)
+
+(define-obsolete-variable-alias 'counsel-org-goto-separator
+    'counsel-outline-path-separator "0.10.0")
+(define-obsolete-variable-alias 'counsel-org-headline-path-separator
+    'counsel-outline-path-separator "0.10.0")
+
+(defcustom counsel-outline-path-separator "/"
+  "String separating path entries in matched outline headings.
+This variable has no effect unless
+`counsel-outline-display-style' is set to `path'."
+  :type 'string
+  :group 'ivy)
 
 (declare-function org-get-outline-path "org")
 
@@ -3892,34 +3915,8 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
-(defcustom counsel-outline-display-style 'path
-  "The style used when displaying matched outline headings.
-
-If `headline', the title is displayed with leading stars
-indicating the outline level.
-
-If `path', the path hierarchy is displayed.  For each entry the
-title is shown.  Entries are separated with
-`counsel-outline-path-separator'.
-
-If `title' or any other value, only the title of the heading is
-displayed.
-
-For displaying tags and TODO keywords in `org-mode' buffers, see
-`counsel-org-headline-display-tags' and
-`counsel-org-headline-display-todo', respectively."
-  :type '(choice
-          (const :tag "Title only" title)
-          (const :tag "Headline" headline)
-          (const :tag "Path" path))
-  :group 'ivy)
-
-(defcustom counsel-outline-path-separator "/"
-  "String separating path entries in matched outline headings.
-This variable has no effect unless
-`counsel-outline-display-style' is set to `path'."
-  :type 'string
-  :group 'ivy)
+(define-obsolete-variable-alias 'counsel-org-goto-face-style
+    'counsel-outline-face-style "0.10.0")
 
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
@@ -3957,6 +3954,9 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
           (const :tag "Custom" custom)
           (const :tag "No style" nil))
   :group 'ivy)
+
+(define-obsolete-variable-alias 'counsel-org-goto-custom-faces
+    'counsel-outline-custom-faces "0.10.0")
 
 (defcustom counsel-outline-custom-faces nil
   "List of faces for custom display of outline headings.
