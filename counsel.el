@@ -4115,70 +4115,62 @@ plist entry from `counsel-outline-settings', which see."
         (face-style (or (plist-get settings :face-style)
                         counsel-outline-face-style))
         (custom-faces (or (plist-get settings :custom-faces)
-                          counsel-outline-custom-faces)))
+                          counsel-outline-custom-faces))
+        (stack-level 0)
+        (orig-point (point))
+        cands name level marker stack)
     (save-excursion
-      (let (cands
-            name
-            level
-            marker
-            stack
-            (stack-level 0)
-            (orig-point (point)))
-        (setq counsel-outline--preselect 0)
-        (goto-char (point-min))
-        (while (re-search-forward bol-regex nil t)
-          (save-excursion
-            (setq name (or (save-match-data
-                             (funcall outline-title-fn))
-                           ""))
-            (goto-char (match-beginning 0))
-            (setq marker (point-marker))
-            (setq level (funcall outline-level-fn))
-            (cond ((eq display-style 'path)
-                   ;; Update stack.  The empty entry guards against incorrect
-                   ;; headline hierarchies, e.g. a level 3 headline
-                   ;; immediately following a level 1 entry.
-                   (while (<= level stack-level)
-                     (pop stack)
-                     (cl-decf stack-level))
-                   (while (> level stack-level)
-                     (push "" stack)
-                     (cl-incf stack-level))
-                   (setf (car stack)
-                         (counsel-outline--add-face
-                          name level face-style custom-faces))
-                   (setq name (mapconcat #'identity
-                                         (reverse stack)
-                                         path-separator)))
-                  (t
-                   (when (eq display-style 'headline)
-                     (setq name (concat (make-string level ?*) " " name)))
-                   (setq name (counsel-outline--add-face
-                               name level face-style custom-faces))))
-            (push (cons name marker) cands))
-          (unless (or (string= name "")
-                      (< orig-point marker))
-            (cl-incf counsel-outline--preselect)))
-        (nreverse cands)))))
+      (setq counsel-outline--preselect 0)
+      (goto-char (point-min))
+      (while (re-search-forward bol-regex nil t)
+        (save-excursion
+          (setq name (or (save-match-data
+                           (funcall outline-title-fn))
+                         ""))
+          (goto-char (match-beginning 0))
+          (setq marker (point-marker))
+          (setq level (funcall outline-level-fn))
+          (cond ((eq display-style 'path)
+                 ;; Update stack.  The empty entry guards against incorrect
+                 ;; headline hierarchies, e.g. a level 3 headline
+                 ;; immediately following a level 1 entry.
+                 (while (<= level stack-level)
+                   (pop stack)
+                   (cl-decf stack-level))
+                 (while (> level stack-level)
+                   (push "" stack)
+                   (cl-incf stack-level))
+                 (setf (car stack)
+                       (counsel-outline--add-face
+                        name level face-style custom-faces))
+                 (setq name (mapconcat #'identity
+                                       (reverse stack)
+                                       path-separator)))
+                (t
+                 (when (eq display-style 'headline)
+                   (setq name (concat (make-string level ?*) " " name)))
+                 (setq name (counsel-outline--add-face
+                             name level face-style custom-faces))))
+          (push (cons name marker) cands))
+        (unless (or (string= name "")
+                    (< orig-point marker))
+          (cl-incf counsel-outline--preselect))))
+    (nreverse cands)))
 
 (defun counsel-outline--add-face (name level &optional face-style custom-faces)
   "Set the `face' property on headline NAME according to LEVEL.
 FACE-STYLE and CUSTOM-FACES override `counsel-outline-face-style'
 and `counsel-outline-custom-faces', respectively, which determine
 the face to apply."
-  (or (and (eq (or face-style counsel-outline-face-style) 'org)
-           (propertize
-            name
-            'face
-            (concat "org-level-" (number-to-string level))))
-      (and (eq (or face-style counsel-outline-face-style) 'verbatim)
-           name)
-      (and (eq (or face-style counsel-org-goto-face-style) 'custom)
-           (propertize
-            name
-            'face
-            (nth (1- level) (or custom-faces counsel-outline-custom-faces))))
-      (propertize name 'face 'minibuffer-prompt)))
+  (let ((face (cl-case (or face-style counsel-outline-face-style)
+                (verbatim)
+                (custom (nth (1- level)
+                             (or custom-faces counsel-outline-custom-faces)))
+                (org (format "org-level-%d" level))
+                (t 'minibuffer-prompt))))
+    (when face
+      (put-text-property 0 (length name) 'face face name)))
+  name)
 
 (defun counsel-outline-action (x)
   "Go to outline X."
