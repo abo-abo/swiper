@@ -470,11 +470,11 @@ Update the minibuffer with the amount of lines collected every
 (declare-function xref-push-marker-stack "xref")
 
 (defalias 'counsel--push-xref-marker
-    (if (require 'xref nil t)
-        #'xref-push-marker-stack
-      (require 'etags)
-      (lambda (&optional m)
-        (ring-insert (with-no-warnings find-tag-marker-ring) (or m (point-marker)))))
+  (if (require 'xref nil t)
+      #'xref-push-marker-stack
+    (require 'etags)
+    (lambda (&optional m)
+      (ring-insert (with-no-warnings find-tag-marker-ring) (or m (point-marker)))))
   "Compatibility shim for `xref-push-marker-stack'.")
 
 (defun counsel--find-symbol (x)

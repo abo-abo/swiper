@@ -1616,11 +1616,11 @@ like.")
   :type 'integer)
 
 (defalias 'ivy--dirname-p
-    (if (fboundp 'directory-name-p)
-        #'directory-name-p
-      (lambda (name)
-        "Return non-nil if NAME ends with a directory separator."
-        (string-match-p "/\\'" name))))
+  (if (fboundp 'directory-name-p)
+      #'directory-name-p
+    (lambda (name)
+      "Return non-nil if NAME ends with a directory separator."
+      (string-match-p "/\\'" name))))
 
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
