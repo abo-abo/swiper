@@ -3457,26 +3457,24 @@ CANDS is a list of strings."
   (let (virtual-buffers)
     (bookmark-maybe-load-default-file)
     (dolist (head (append
-                   (copy-sequence recentf-list)
+                   recentf-list
                    (delete "   - no file -"
                            (delq nil (mapcar #'bookmark-get-filename
-                                             (copy-sequence bookmark-alist))))))
-      (let ((file-name (if (stringp head)
-                           head
-                         (cdr head)))
-            name)
-        (setq name
-              (cond ((eq ivy-virtual-abbreviate 'name)
-                     (file-name-nondirectory file-name))
-                    ((eq ivy-virtual-abbreviate 'abbreviate)
-                     (abbreviate-file-name file-name))
-                    (t
-                     (expand-file-name file-name))))
+                                             bookmark-alist)))))
+      (let* ((file-name (if (stringp head)
+                            head
+                          (cdr head)))
+             (name (cond ((eq ivy-virtual-abbreviate 'name)
+                          (file-name-nondirectory file-name))
+                         ((eq ivy-virtual-abbreviate 'abbreviate)
+                          (abbreviate-file-name file-name))
+                         (t
+                          (expand-file-name file-name)))))
         (when (equal name "")
-          (if (consp head)
-              (setq name (car head))
-            (setq name (file-name-nondirectory
-                        (directory-file-name file-name)))))
+          (setq name
+                (if (consp head)
+                    (car head)
+                  (file-name-nondirectory (directory-file-name file-name)))))
         (and (not (equal name ""))
              (null (get-file-buffer file-name))
              (not (assoc name virtual-buffers))
