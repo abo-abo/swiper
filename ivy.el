@@ -3819,13 +3819,13 @@ Skip buffers that match `ivy-ignore-buffers'."
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
-  (let ((this-command 'ivy-switch-buffer))
-    (ivy-read "Switch to buffer: " 'internal-complete-buffer
-              :matcher #'ivy--switch-buffer-matcher
-              :preselect (buffer-name (other-buffer (current-buffer)))
-              :action #'ivy--switch-buffer-action
-              :keymap ivy-switch-buffer-map
-              :caller 'ivy-switch-buffer)))
+  (setq this-command #'ivy-switch-buffer)
+  (ivy-read "Switch to buffer: " #'internal-complete-buffer
+            :keymap ivy-switch-buffer-map
+            :preselect (buffer-name (other-buffer (current-buffer)))
+            :action #'ivy--switch-buffer-action
+            :matcher #'ivy--switch-buffer-matcher
+            :caller 'ivy-switch-buffer))
 
 ;;;###autoload
 (defun ivy-switch-view ()
