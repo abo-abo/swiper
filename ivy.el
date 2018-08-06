@@ -3070,18 +3070,17 @@ before substring matches."
 (defun ivy--recompute-index (name re-str cands)
   "Recompute index of selected candidate matching NAME.
 RE-STR is the regexp, CANDS are the current candidates."
-  (let* ((caller (ivy-state-caller ivy-last))
-         (func (or
-                (ivy-alist-setting ivy-index-functions-alist)
-                #'ivy-recompute-index-zero))
-         (case-fold-search (ivy--case-fold-p name))
-         (preselect (ivy-state-preselect ivy-last))
-         (current (ivy-state-current ivy-last)))
+  (let ((caller (ivy-state-caller ivy-last))
+        (func (or (ivy-alist-setting ivy-index-functions-alist)
+                  #'ivy-recompute-index-zero))
+        (case-fold-search (ivy--case-fold-p name))
+        (preselect (ivy-state-preselect ivy-last))
+        (current (ivy-state-current ivy-last))
+        (empty (string= name "")))
     (unless (eq this-command 'ivy-resume)
       (ivy-set-index
        (or
-        (cl-position (if (and (> (length name) 0)
-                              (eq ?^ (aref name 0)))
+        (cl-position (if (= (string-to-char name) ?^)
                          (substring name 1)
                        name)
                      cands
@@ -3091,12 +3090,13 @@ RE-STR is the regexp, CANDS are the current candidates."
                           cands
                           :test #'ivy--case-fold-string=))
         (and (eq caller 'ivy-switch-buffer)
-             (> (length name) 0)
+             (not empty)
              0)
-        (and (not (string= name ""))
+        (and (not empty)
              (not (and ivy--flx-featurep
                        (eq ivy--regex-function 'ivy--regex-fuzzy)
-                       (< (length cands) 200)))
+                       ;; Limit to 200 candidates
+                       (null (nthcdr 200 cands))))
              ;; If there was a preselected candidate, don't try to
              ;; keep it selected even if the regexp still matches it.
              ;; See issue #1563.  See also `ivy--preselect-index',
@@ -3111,8 +3111,7 @@ RE-STR is the regexp, CANDS are the current candidates."
              ivy--old-cands
              (cl-position current cands :test #'equal))
         (funcall func re-str cands))))
-    (when (or (string= name "")
-              (string= name "^"))
+    (when (or empty (string= name "^"))
       (ivy-set-index
        (or (ivy--preselect-index preselect cands)
            ivy--index)))))
