@@ -3387,9 +3387,11 @@ Note: The usual last two arguments are flipped for convenience.")
   (let* ((str (ivy-cleanup-string str))
          (str (if (eq ivy-display-style 'fancy)
                   (funcall ivy--highlight-function (copy-sequence str))
-                (copy-sequence str))))
+                (copy-sequence str)))
+         (olen (length str))
+         (annot (plist-get completion-extra-properties :annotation-function)))
     (add-text-properties
-     0 (length str)
+     0 olen
      '(mouse-face
        ivy-minibuffer-match-highlight
        help-echo
@@ -3399,10 +3401,11 @@ Note: The usual last two arguments are flipped for convenience.")
           "mouse-1: %s   mouse-3: %s")
         ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
      str)
-    (let ((annotation-function (plist-get completion-extra-properties :annotation-function)))
-      (if annotation-function
-          (concat str (funcall annotation-function str))
-        str))))
+    (when annot
+      (setq str (concat str (funcall annot str)))
+      (ivy-add-face-text-property
+       olen (length str) 'completions-annotations str))
+    str))
 
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
