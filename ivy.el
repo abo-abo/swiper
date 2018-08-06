@@ -437,6 +437,8 @@ the restoring themselves.")
   "Set the current `ivy-last' field to ACTION."
   (setf (ivy-state-action ivy-last) action))
 
+(defvar inhibit-message)
+
 (defun ivy-thing-at-point ()
   "Return a string that corresponds to the current thing at point."
   (substring-no-properties
@@ -569,8 +571,6 @@ functionality, e.g. as seen in `isearch'."
 (defun ivy--case-fold-string= (s1 s2)
   "Like `string=', but obeys `case-fold-search'."
   (eq t (compare-strings s1 nil nil s2 nil nil case-fold-search)))
-
-(defvar Info-current-file)
 
 (defun ivy-re-to-str (re)
   (if (stringp re)
@@ -804,8 +804,10 @@ Is is a cons cell, related to `tramp-get-completion-function'."
         (concat user "@" domain)
       domain)))
 
-(declare-function tramp-get-completion-function "tramp")
+(defvar Info-current-file)
 (declare-function Info-find-node "info")
+(declare-function Info-read-node-name-1 "info")
+(declare-function tramp-get-completion-function "tramp")
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
@@ -2642,8 +2644,6 @@ If nil, the text properties are applied to the whole match."
      (match-end subexp)
      props
      str)))
-
-(defvar inhibit-message)
 
 (defun ivy--sort-maybe (collection)
   "Sort COLLECTION if needed."

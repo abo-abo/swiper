@@ -116,6 +116,8 @@
              (perform-replace from to
                               t t nil))))))))
 
+(defvar inhibit-message)
+
 (defun swiper-all-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
