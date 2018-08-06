@@ -706,6 +706,8 @@ a symbol and how to search for them."
                              (facep sym)
                              (symbol-plist sym)))
             :history 'counsel-apropos-history
+            :preselect (ivy-thing-at-point)
+            :sort t
             :action (lambda (pattern)
                       (when (string= pattern "")
                         (user-error "Please specify a pattern"))
