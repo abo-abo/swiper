@@ -1346,6 +1346,10 @@ If so, move to that directory, while keeping only the file name."
     (setf (ivy-state-directory ivy-last) dir)
     (delete-minibuffer-contents)))
 
+(defun ivy--parent-dir (filename)
+  "Return parent directory of absolute FILENAME."
+  (file-name-directory (directory-file-name filename)))
+
 (defun ivy-backward-delete-char ()
   "Forward to `delete-backward-char'.
 Call `ivy-on-del-error-function' if an error occurs, usually when
@@ -1354,10 +1358,7 @@ minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
-        (ivy--cd (file-name-directory
-                  (directory-file-name
-                   (expand-file-name
-                    ivy--directory))))
+        (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
         (ivy--exhibit))
     (setq prefix-arg current-prefix-arg)
     (condition-case nil
@@ -1401,10 +1402,7 @@ minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
-        (ivy--cd (file-name-directory
-                  (directory-file-name
-                   (expand-file-name
-                    ivy--directory))))
+        (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
         (ivy--exhibit))
     (ignore-errors
       (let ((pt (point)))
@@ -1914,8 +1912,7 @@ This is useful for recursive `ivy-read'."
                             (file-name-nondirectory initial-input)))))
              (require 'dired)
              (when preselect
-               (let ((preselect-directory (file-name-directory
-                                           (directory-file-name preselect))))
+               (let ((preselect-directory (ivy--parent-dir preselect)))
                  (unless (or (null preselect-directory)
                              (string= preselect-directory
                                       default-directory))
