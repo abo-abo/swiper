@@ -4305,10 +4305,10 @@ The result of `ucs-names' is mostly, but not completely, sorted,
 so this function ensures lexicographic order."
   (let* (cands
          (table (ucs-names))            ; Either hash map or alist
-         (fmt   (lambda (name code)     ; Common format function
-                  (push (propertize (format "%06X %-58s %c" code name code)
-                                    'code code)
-                        cands))))
+         (fmt (lambda (name code)       ; Common format function
+                (let ((cand (format "%06X %-58s %c" code name code)))
+                  (put-text-property 0 1 'code code cand)
+                  (push cand cands)))))
     (if (not (hash-table-p table))
         ;; Support `ucs-names' returning an alist in Emacs < 26.
         ;; The result of `ucs-names' comes pre-reversed so no need to repeat.
@@ -4333,15 +4333,15 @@ COUNT defaults to 1."
     (setq ivy-completion-beg (point))
     (setq ivy-completion-end (point))
     (ivy-read "Unicode name: " counsel--unicode-table
+              :history 'counsel-unicode-char-history
+              :sort t
               :action (lambda (name)
                         (with-ivy-window
                           (delete-region ivy-completion-beg ivy-completion-end)
                           (setq ivy-completion-beg (point))
                           (insert-char (get-text-property 0 'code name) count)
                           (setq ivy-completion-end (point))))
-              :history 'counsel-unicode-char-history
-              :caller 'counsel-unicode-char
-              :sort t)))
+              :caller 'counsel-unicode-char)))
 
 ;;** `counsel-colors'
 (defun counsel-colors-action-insert-hex (color)
