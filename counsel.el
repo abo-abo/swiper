@@ -792,15 +792,16 @@ a symbol and how to search for them."
 
 (defun counsel--M-x-externs ()
   "Return `counsel-M-x' candidates from external packages.
-The currently supported packages are, in order of precedence,
-`amx' and `smex'."
+The return value is a list of strings.  The currently supported
+packages are, in order of precedence, `amx' and `smex'."
   (cond ((require 'amx nil t)
          (unless amx-initialized
            (amx-initialize))
          (when (amx-detect-new-commands)
            (amx-update))
-         (mapcar
-          (lambda (command-item) (symbol-name (car command-item))) amx-cache))
+         (mapcar (lambda (entry)
+                   (symbol-name (car entry)))
+                 amx-cache))
         ((require 'smex nil t)
          (unless smex-initialized-p
            (smex-initialize))
