@@ -892,43 +892,40 @@ when available, in that order of precedence."
 ;;** `counsel-load-library'
 (defun counsel-library-candidates ()
   "Return a list of completion candidates for `counsel-load-library'."
-  (interactive)
-  (let ((dirs load-path)
-        (suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
+  (let ((suffix (concat (regexp-opt '(".el" ".el.gz") t) "\\'"))
         (cands (make-hash-table :test #'equal))
         short-name
         old-val
         dir-parent
         res)
-    (dolist (dir dirs)
-      (when (file-directory-p dir)
-        (dolist (file (file-name-all-completions "" dir))
-          (when (string-match suffix file)
-            (unless (string-match "pkg.elc?$" file)
-              (setq short-name (substring file 0 (match-beginning 0)))
-              (if (setq old-val (gethash short-name cands))
-                  (progn
-                    ;; assume going up directory once will resolve name clash
-                    (setq dir-parent (counsel-directory-name (cdr old-val)))
-                    (puthash short-name
-                             (cons
-                              (counsel-string-compose dir-parent (car old-val))
-                              (cdr old-val))
-                             cands)
-                    (setq dir-parent (counsel-directory-name dir))
-                    (puthash (concat dir-parent short-name)
-                             (cons
-                              (propertize
-                               (counsel-string-compose
-                                dir-parent short-name)
-                               'full-name (expand-file-name file dir))
-                              dir)
-                             cands))
-                (puthash short-name
-                         (cons (propertize
-                                short-name
-                                'full-name (expand-file-name file dir))
-                               dir) cands)))))))
+    (dolist (dir load-path)
+      (dolist (file (file-name-all-completions "" (or dir default-directory)))
+        (when (string-match suffix file)
+          (unless (string-match "pkg.elc?$" file)
+            (setq short-name (substring file 0 (match-beginning 0)))
+            (if (setq old-val (gethash short-name cands))
+                (progn
+                  ;; assume going up directory once will resolve name clash
+                  (setq dir-parent (counsel-directory-name (cdr old-val)))
+                  (puthash short-name
+                           (cons
+                            (counsel-string-compose dir-parent (car old-val))
+                            (cdr old-val))
+                           cands)
+                  (setq dir-parent (counsel-directory-name dir))
+                  (puthash (concat dir-parent short-name)
+                           (cons
+                            (propertize
+                             (counsel-string-compose
+                              dir-parent short-name)
+                             'full-name (expand-file-name file dir))
+                            dir)
+                           cands))
+              (puthash short-name
+                       (cons (propertize
+                              short-name
+                              'full-name (expand-file-name file dir))
+                             dir) cands))))))
     (maphash (lambda (_k v) (push (car v) res)) cands)
     (nreverse res)))
 
