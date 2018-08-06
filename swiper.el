@@ -833,10 +833,10 @@ Run `swiper' for those buffers."
   (setq swiper-multi-buffers nil)
   (let ((ivy-use-virtual-buffers nil))
     (ivy-read (swiper-multi-prompt)
-              'internal-complete-buffer
-              :action 'swiper-multi-action-1))
+              #'internal-complete-buffer
+              :action #'swiper-multi-action-1))
   (ivy-read "Swiper: " swiper-multi-candidates
-            :action 'swiper-multi-action-2
+            :action #'swiper-multi-action-2
             :unwind #'swiper--cleanup
             :caller 'swiper-multi))
 
@@ -984,7 +984,7 @@ See `ivy-format-function' for further information."
   (let* ((swiper-window-width (- (frame-width) (if (display-graphic-p) 0 1)))
          (ivy-format-function #'swiper--all-format-function))
     (ivy-read "swiper-all: " 'swiper-all-function
-              :action 'swiper-all-action
+              :action #'swiper-all-action
               :unwind #'swiper--cleanup
               :update-fn (lambda ()
                            (swiper-all-action (ivy-state-current ivy-last)))

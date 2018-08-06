@@ -413,7 +413,7 @@ Update the minibuffer with the amount of lines collected every
               :predicate (lambda (candidate)
                            (string-prefix-p prefix (car candidate)))
               :caller 'counsel-irony
-              :action 'ivy-completion-in-region-action)))
+              :action #'ivy-completion-in-region-action)))
 
 (defun counsel-irony-annotate (x)
   "Make Ivy candidate from Irony candidate X."
@@ -1565,7 +1565,7 @@ for i in `git stash list --format=\"%gd\"`; do
     git stash show -p $i | grep -H --label=\"$i\" \"$1\"
 done") "\n" t)))
     (ivy-read "git stash: " cands
-              :action 'counsel-git-stash-kill-action
+              :action #'counsel-git-stash-kill-action
               :caller 'counsel-git-stash)))
 
 ;;** `counsel-git-log'
@@ -1745,7 +1745,7 @@ currently checked out."
 
 (defun counsel-find-file-move (x)
   "Move or rename file X."
-  (ivy-read "Rename file to: " 'read-file-name-internal
+  (ivy-read "Rename file to: " #'read-file-name-internal
             :matcher #'counsel--find-file-matcher
             :action (lambda (new-name)
                       (require 'dired-aux)
@@ -1851,7 +1851,7 @@ The preselect behaviour can be customized via user options
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
-  (ivy-read "Find file: " 'read-file-name-internal
+  (ivy-read "Find file: " #'read-file-name-internal
             :matcher #'counsel--find-file-matcher
             :initial-input initial-input
             :action #'counsel-find-file-action
@@ -3026,7 +3026,7 @@ include attachments of other Org buffers."
   "Browse all attachments for current Org file."
   (interactive)
   (ivy-read "file: " (counsel-org-files)
-            :action 'counsel-locate-action-dired
+            :action #'counsel-locate-action-dired
             :caller 'counsel-org-file))
 
 ;;** `counsel-org-entity'
@@ -3884,7 +3884,7 @@ TREEP is used to expand internal nodes."
                   x))
                (counsel-semantic-tags))))
     (ivy-read "tag: " tags
-              :action 'counsel-semantic-action
+              :action #'counsel-semantic-action
               :history 'counsel-semantic-history
               :caller 'counsel-semantic)))
 

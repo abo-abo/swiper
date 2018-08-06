@@ -442,7 +442,7 @@ the restoring themselves.")
   (substring-no-properties
    (cond
     ((thing-at-point 'url))
-    ((and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+    ((and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
           (let ((inhibit-message t))
             (ignore-errors
               (ffap-file-at-point)))))
@@ -817,10 +817,10 @@ When ARG is t, exit with current text, ignoring the candidates."
          (ivy-immediate-done))
         (ivy--directory
          (ivy--directory-done))
-        ((eq (ivy-state-collection ivy-last) 'Info-read-node-name-1)
+        ((eq (ivy-state-collection ivy-last) #'Info-read-node-name-1)
          (if (member (ivy-state-current ivy-last) '("(./)" "(../)"))
              (ivy-quit-and-run
-               (ivy-read "Go to file: " 'read-file-name-internal
+               (ivy-read "Go to file: " #'read-file-name-internal
                          :action (lambda (x)
                                    (Info-find-node
                                     (expand-file-name x ivy--directory)
@@ -1619,14 +1619,14 @@ Directories come first."
   (let* ((default-directory dir)
          (predicate (ivy-state-predicate ivy-last))
          (seq (condition-case nil
-                  (all-completions "" 'read-file-name-internal)
+                  (all-completions "" #'read-file-name-internal)
                 (error
                  (directory-files dir))))
          sort-fn)
     (if (equal dir "/")
         seq
       (setq seq (delete "./" (delete "../" seq)))
-      (when (eq (setq sort-fn (ivy--sort-function 'read-file-name-internal))
+      (when (eq (setq sort-fn (ivy--sort-function #'read-file-name-internal))
                 #'ivy-sort-file-function-default)
         (setq seq (mapcar (lambda (x)
                             (propertize x 'dirp (ivy--dirname-p x)))
@@ -1867,14 +1867,14 @@ This is useful for recursive `ivy-read'."
           (or (cdr (assq ivy--regex-function ivy-highlight-functions-alist))
               #'ivy--highlight-default))
     (let (coll sort-fn)
-      (cond ((eq collection 'Info-read-node-name-1)
+      (cond ((eq collection #'Info-read-node-name-1)
              (if (equal Info-current-file "dir")
                  (setq coll
                        (mapcar (lambda (x) (format "(%s)" x))
                                (delete-dups
                                 (all-completions "(" collection predicate))))
                (setq coll (all-completions "" collection predicate))))
-            ((eq collection 'read-file-name-internal)
+            ((eq collection #'read-file-name-internal)
              (when (and (equal def initial-input)
                         (member "./" ivy-extra-directories))
                (setf (ivy-state-def state) (setq def nil)))
@@ -1922,7 +1922,7 @@ This is useful for recursive `ivy-read'."
                (unless (and (ivy-state-action ivy-last)
                             (not (equal (ivy--get-action ivy-last) 'identity)))
                  (setq initial-input nil))))
-            ((eq collection 'internal-complete-buffer)
+            ((eq collection #'internal-complete-buffer)
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
@@ -1962,7 +1962,7 @@ This is useful for recursive `ivy-read'."
                (push def coll))))
       (when sort
         (if (functionp collection)
-            (when (and (not (eq collection 'read-file-name-internal))
+            (when (and (not (eq collection #'read-file-name-internal))
                        (<= (length coll) ivy-sort-max-size)
                        (setq sort-fn (ivy--sort-function collection)))
               (setq coll (sort (copy-sequence coll) sort-fn)))
@@ -2068,7 +2068,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                 :initial-input (cond ((consp initial-input)
                                       (car initial-input))
                                      ((and (stringp initial-input)
-                                           (not (eq collection 'read-file-name-internal))
+                                           (not (eq collection #'read-file-name-internal))
                                            (string-match "\\+" initial-input))
                                       (replace-regexp-in-string
                                        "\\+" "\\\\+" initial-input))
@@ -2768,7 +2768,7 @@ Should be run via minibuffer `post-command-hook'."
                     (ivy--cd (expand-file-name "~/")))
                    ((string-match "/\\'" ivy-text)
                     (ivy--magic-file-slash))))
-            ((eq (ivy-state-collection ivy-last) 'internal-complete-buffer)
+            ((eq (ivy-state-collection ivy-last) #'internal-complete-buffer)
              (when (or (and (string-match "\\` " ivy-text)
                             (not (string-match "\\` " ivy--old-text)))
                        (and (string-match "\\` " ivy--old-text)
@@ -3835,7 +3835,7 @@ Skip buffers that match `ivy-ignore-buffers'."
 (defun ivy-switch-buffer-other-window ()
   "Switch to another buffer in another window."
   (interactive)
-  (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
+  (ivy-read "Switch to buffer in other window: " #'internal-complete-buffer
             :matcher #'ivy--switch-buffer-matcher
             :preselect (buffer-name (other-buffer (current-buffer)))
             :action #'ivy--switch-buffer-other-window-action
