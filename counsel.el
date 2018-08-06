@@ -3264,6 +3264,7 @@ Position of selected mark outside accessible part of buffer")))
 (defvar package-archive-contents)
 (declare-function package-installed-p "package")
 (declare-function package-delete "package")
+(declare-function package-desc-extras "package")
 
 (defun counsel-package ()
   "Install or delete packages.
@@ -3276,6 +3277,7 @@ Additional Actions:
 
   \\<ivy-minibuffer-map>\\[ivy-dispatching-done] d: describe package"
   (interactive)
+  (require 'package)
   (unless package--initialized
     (package-initialize t))
   (unless package-archive-contents
@@ -3309,8 +3311,6 @@ Additional Actions:
 (defun counsel-package-action-describe (pkg-cons)
   "Call `describe-package' for package in PKG-CONS."
   (describe-package (cadr pkg-cons)))
-
-(declare-function package-desc-extras "package")
 
 (defun counsel-package-action-homepage (pkg-cons)
   "Open homepage for package in PKG-CONS."
