@@ -1174,7 +1174,7 @@ later use yourself. However, it's recommended that you use the
                    (push (symbol-name x) cands))))
               cands)
             :keymap counsel-describe-map
-            :preselect (counsel-symbol-at-point)
+            :preselect (ivy-thing-at-point)
             :history 'counsel-describe-symbol-history
             :require-match t
             :sort t
@@ -1189,7 +1189,7 @@ Here are the interesting features of the above function, in the order that they 
 - The =prompt= argument is a simple string ending in ": ".
 - The =collection= argument evaluates to a (large) list of strings.
 - The =keymap= argument is for a custom keymap to supplement =ivy-minibuffer-map=.
-- The =preselect= is provided by =counsel-symbol-at-point=, which
+- The =preselect= is provided by =ivy-thing-at-point=, which
   returns a symbol near the point. Ivy then selects the first
   candidate from the collection that matches this symbol. To select
   this pre-selected candidate, a ~RET~ will suffice. No further user
