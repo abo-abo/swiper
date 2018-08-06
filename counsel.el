@@ -3302,26 +3302,23 @@ Additional actions:\\<ivy-minibuffer-map>
 
 (cl-pushnew '(counsel-package . "^+ ") ivy-initial-inputs-alist :key #'car)
 
-(defun counsel-package-action (pkg-cons)
-  "Delete or install package in PKG-CONS."
-  (let ((pkg (cadr pkg-cons)))
-    (if (package-installed-p pkg)
-        (package-delete
-         (cadr (assoc pkg package-alist)))
-      (package-install pkg))))
+(defun counsel-package-action (package)
+  "Delete or install PACKAGE."
+  (setq package (cadr package))
+  (if (package-installed-p package)
+      (package-delete (cadr (assq package package-alist)))
+    (package-install package)))
 
-(defun counsel-package-action-describe (pkg-cons)
-  "Call `describe-package' for package in PKG-CONS."
-  (describe-package (cadr pkg-cons)))
+(defun counsel-package-action-describe (package)
+  "Call `describe-package' on PACKAGE."
+  (describe-package (cadr package)))
 
-(defun counsel-package-action-homepage (pkg-cons)
-  "Open homepage for package in PKG-CONS."
-  (let* ((desc-list (cddr pkg-cons))
-         (desc (if (listp desc-list) (car desc-list) desc-list))
-         (url (cdr (assoc :url (package-desc-extras desc)))))
-    (when url
-      (require 'browse-url)
-      (browse-url url))))
+(defun counsel-package-action-homepage (package)
+  "Open homepage for PACKAGE in a WWW browser."
+  (let ((url (cdr (assq :url (package-desc-extras (nth 2 package))))))
+    (if url
+        (browse-url url)
+      (message "No homepage specified for package `%s'" (nth 1 package)))))
 
 (defun counsel--package-sort (a b)
   "Sort function for `counsel-package' candidates."
