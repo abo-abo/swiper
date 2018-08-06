@@ -1560,7 +1560,7 @@ later use yourself. However, it's recommended that you use the
 		   (push (symbol-name x) cands))))
 	      cands)
 	    :keymap counsel-describe-map
-	    :preselect (counsel-symbol-at-point)
+	    :preselect (ivy-thing-at-point)
 	    :history 'counsel-describe-symbol-history
 	    :require-match t
 	    :sort t
@@ -1580,7 +1580,7 @@ The @code{collection} argument evaluates to a (large) list of strings.
 @item
 The @code{keymap} argument is for a custom keymap to supplement @code{ivy-minibuffer-map}.
 @item
-The @code{preselect} is provided by @code{counsel-symbol-at-point}, which
+The @code{preselect} is provided by @code{ivy-thing-at-point}, which
 returns a symbol near the point. Ivy then selects the first
 candidate from the collection that matches this symbol. To select
 this pre-selected candidate, a @kbd{RET} will suffice. No further user
