@@ -3287,9 +3287,10 @@ Additional Actions:
     (ivy-read "Packages (install +pkg or delete -pkg): "
               (sort cands #'counsel--package-sort)
               :action #'counsel-package-action
-              :initial-input "^+ "
               :require-match t
               :caller 'counsel-package)))
+
+(cl-pushnew '(counsel-package . "^+ ") ivy-initial-inputs-alist :key #'car)
 
 (defun counsel-package-make-package-cell (pkg)
   "Make candidate for package PKG."
