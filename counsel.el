@@ -2176,7 +2176,7 @@ string - the full shell command to run."
                                            (t "xdg-open"))
                                          (shell-quote-argument x)))))
 
-(defalias 'counsel-find-file-extern 'counsel-locate-action-extern)
+(defalias 'counsel-find-file-extern #'counsel-locate-action-extern)
 
 (declare-function dired-jump "dired-x")
 
@@ -2973,7 +2973,7 @@ otherwise continue prompting for tags."
 (declare-function outline-next-heading "outline")
 
 ;;;###autoload
-(defalias 'counsel-org-goto 'counsel-outline)
+(defalias 'counsel-org-goto #'counsel-outline)
 
 ;;;###autoload
 (defun counsel-org-goto-all ()
