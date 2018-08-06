@@ -3518,20 +3518,19 @@ If VIRTUAL is non-nil, add virtual buffers.
 If optional argument PREDICATE is non-nil, use it to test each
 possible match.  See `all-completions' for further information."
   (delete-dups
-   (append
+   (nconc
     (mapcar
      (lambda (x)
-       (if (with-current-buffer x
-             (and default-directory
-                  (file-remote-p
-                   (abbreviate-file-name default-directory))))
-           (propertize x 'face 'ivy-remote)
-         (let ((face (with-current-buffer x
-                       (cdr (assq major-mode ivy-switch-buffer-faces-alist)))))
-           (if face
-               (propertize x 'face face)
-             x))))
-     (all-completions str 'internal-complete-buffer predicate))
+       (let* ((buf (get-buffer x))
+              (dir (buffer-local-value 'default-directory buf))
+              (face (if (and dir (file-remote-p (abbreviate-file-name dir)))
+                        'ivy-remote
+                      (cdr (assq (buffer-local-value 'major-mode buf)
+                                 ivy-switch-buffer-faces-alist)))))
+         (when face
+           (put-text-property 0 (length x) 'face face x))
+         x))
+     (all-completions str #'internal-complete-buffer predicate))
     (and virtual
          (ivy--virtual-buffers)))))
 
