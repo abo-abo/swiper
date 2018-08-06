@@ -3607,8 +3607,8 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
                             (cons 'horz
                                   (mapcar #'ft (cddr tr))))
                         (with-current-buffer (window-buffer tr)
-                          (cond ((buffer-file-name)
-                                 (list 'file (buffer-file-name) (point)))
+                          (cond (buffer-file-name
+                                 (list 'file buffer-file-name (point)))
                                 ((eq major-mode 'dired-mode)
                                  (list 'file default-directory (point)))
                                 (t

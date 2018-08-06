@@ -1605,7 +1605,7 @@ done") "\n" t)))
 The current buffer is assumed to be in a subdirectory of GIT-ROOT-DIR.
 TREE is the selected candidate."
   (let* ((new-root-dir (counsel-git-worktree-parse-root tree))
-         (tree-filename (file-relative-name (buffer-file-name) git-root-dir))
+         (tree-filename (file-relative-name buffer-file-name git-root-dir))
          (file-name (expand-file-name tree-filename new-root-dir)))
     (find-file file-name)))
 
@@ -3208,7 +3208,8 @@ This variable has no effect unless
                                    counsel-outline-path-separator)
                         tags))
          " ")
-        (buffer-file-name) (point))))
+        buffer-file-name
+        (point))))
    nil
    'agenda))
 

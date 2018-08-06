@@ -184,7 +184,7 @@ contextual information."
 
 (defvar ivy-info-dir (file-name-directory
                       (or load-file-name
-                          (buffer-file-name))))
+                          buffer-file-name)))
 
 (defun info-ivy ()
   (interactive)
