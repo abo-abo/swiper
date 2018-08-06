@@ -2057,7 +2057,7 @@ DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
   (let ((handler
          (when (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
-           (assoc this-command ivy-completing-read-handlers-alist))))
+           (assq this-command ivy-completing-read-handlers-alist))))
     (if handler
         (let ((completion-in-region-function #'completion--in-region)
               (ivy-completing-read-ignore-handlers-depth (1+ (minibuffer-depth))))
@@ -2936,8 +2936,8 @@ CANDIDATES are assumed to be static."
                           ivy--old-cands)))
                       (t
                        (ivy--re-filter re candidates)))))
-        (if (memq (cdr (assoc (ivy-state-caller ivy-last)
-                              ivy-index-functions-alist))
+        (if (memq (cdr (assq (ivy-state-caller ivy-last)
+                             ivy-index-functions-alist))
                   '(ivy-recompute-index-swiper
                     ivy-recompute-index-swiper-async))
             (progn
@@ -3527,8 +3527,7 @@ possible match.  See `all-completions' for further information."
                    (abbreviate-file-name default-directory))))
            (propertize x 'face 'ivy-remote)
          (let ((face (with-current-buffer x
-                       (cdr (assoc major-mode
-                                   ivy-switch-buffer-faces-alist)))))
+                       (cdr (assq major-mode ivy-switch-buffer-faces-alist)))))
            (if face
                (propertize x 'face face)
              x))))
