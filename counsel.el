@@ -3324,8 +3324,7 @@ Additional actions:\\<ivy-minibuffer-map>
       (browse-url url))))
 
 (defun counsel--package-sort (a b)
-  "Sort function for `counsel-package'.
-A is the left hand side, B the right hand side."
+  "Sort function for `counsel-package' candidates."
   (let* ((a (car a))
          (b (car b))
          (a-inst (= (string-to-char a) ?+))
