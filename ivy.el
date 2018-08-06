@@ -1193,41 +1193,35 @@ See variable `ivy-recursive-restore' for further information."
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
-  (unless
-      (or
-       ;; this is needed for testing in ivy-with which seems to call ivy-call
-       ;; again, and this-command is nil in that case.
-       (null this-command)
-       (memq this-command '(ivy-done
-                            ivy-alt-done
-                            ivy-dispatching-done)))
+  ;; Testing with `ivy-with' seems to call `ivy-call' again,
+  ;; in which case `this-command' is nil; so check for this.
+  (unless (memq this-command '(nil
+                               ivy-done
+                               ivy-alt-done
+                               ivy-dispatching-done))
     (setq ivy-current-prefix-arg current-prefix-arg))
   (unless ivy-inhibit-action
     (let ((action (ivy--get-action ivy-last)))
       (when action
         (let* ((collection (ivy-state-collection ivy-last))
+               (current (ivy-state-current ivy-last))
                (x (cond
                     ;; Alist type.
-                    ((and (consp collection)
-                          (consp (car collection))
+                    ((and (consp (car-safe collection))
                           ;; Previously, the cdr of the selected
                           ;; candidate would be returned.  Now, the
                           ;; whole candidate is returned.
-                          (let (idx)
-                            (if (setq idx (get-text-property
-                                           0 'idx (ivy-state-current ivy-last)))
+                          (let ((idx (get-text-property 0 'idx current)))
+                            (if idx
                                 (nth idx collection)
-                              (assoc (ivy-state-current ivy-last)
-                                     collection)))))
+                              (assoc current collection)))))
                     (ivy--directory
-                     (expand-file-name
-                      (ivy-state-current ivy-last)
-                      ivy--directory))
-                    ((equal (ivy-state-current ivy-last) "")
+                     (expand-file-name current ivy--directory))
+                    ((equal current "")
                      ivy-text)
                     (t
-                     (ivy-state-current ivy-last)))))
-          (if (eq action 'identity)
+                     current))))
+          (if (eq action #'identity)
               (funcall action x)
             (select-window (ivy--get-window ivy-last))
             (set-buffer (ivy-state-buffer ivy-last))
@@ -1235,8 +1229,7 @@ See variable `ivy-recursive-restore' for further information."
                      (unwind-protect (funcall action x)
                        (ivy-recursive-restore)))
               (unless (or (eq ivy-exit 'done)
-                          (equal (selected-window)
-                                 (active-minibuffer-window))
+                          (minibuffer-window-active-p (selected-window))
                           (null (active-minibuffer-window)))
                 (select-window (active-minibuffer-window))))))))))
 
