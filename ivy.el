@@ -3384,10 +3384,10 @@ Note: The usual last two arguments are flipped for convenience.")
 
 (defun ivy--format-minibuffer-line (str)
   "Format line STR for use in minibuffer."
-  (let* ((str (ivy-cleanup-string str))
+  (let* ((str (ivy-cleanup-string (copy-sequence str)))
          (str (if (eq ivy-display-style 'fancy)
-                  (funcall ivy--highlight-function (copy-sequence str))
-                (copy-sequence str)))
+                  (funcall ivy--highlight-function str)
+                str))
          (olen (length str))
          (annot (plist-get completion-extra-properties :annotation-function)))
     (add-text-properties
