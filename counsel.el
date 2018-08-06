@@ -3266,6 +3266,20 @@ Position of selected mark outside accessible part of buffer")))
 (declare-function package-delete "package")
 (declare-function package-desc-extras "package")
 
+(defun counsel--package-candidates ()
+  "Return completion alist for `counsel-package'."
+  (unless package--initialized
+    (package-initialize t))
+  (unless package-archive-contents
+    (package-refresh-contents))
+  (sort (mapcar (lambda (entry)
+                  (cons (let ((pkg (car entry)))
+                          (concat (if (package-installed-p pkg) "-" "+")
+                                  (symbol-name pkg)))
+                        entry))
+                package-archive-contents)
+        #'counsel--package-sort))
+
 (defun counsel-package ()
   "Install or delete packages.
 
@@ -3280,28 +3294,13 @@ Additional actions:\\<ivy-minibuffer-map>
   \\[ivy-dispatching-done] h: Visit package's homepage"
   (interactive)
   (require 'package)
-  (unless package--initialized
-    (package-initialize t))
-  (unless package-archive-contents
-    (package-refresh-contents))
-  (let ((cands (mapcar #'counsel-package-make-package-cell
-                       package-archive-contents)))
-    (ivy-read "Packages (install +pkg or delete -pkg): "
-              (sort cands #'counsel--package-sort)
-              :action #'counsel-package-action
-              :require-match t
-              :caller 'counsel-package)))
+  (ivy-read "Packages (install +pkg or delete -pkg): "
+            (counsel--package-candidates)
+            :action #'counsel-package-action
+            :require-match t
+            :caller 'counsel-package))
 
 (cl-pushnew '(counsel-package . "^+ ") ivy-initial-inputs-alist :key #'car)
-
-(defun counsel-package-make-package-cell (pkg)
-  "Make candidate for package PKG."
-  (let* ((pkg-sym (car pkg))
-         (pkg-name (symbol-name pkg-sym)))
-    (cons (format "%s%s"
-                  (if (package-installed-p pkg-sym) "-" "+")
-                  pkg-name)
-          pkg)))
 
 (defun counsel-package-action (pkg-cons)
   "Delete or install package in PKG-CONS."
