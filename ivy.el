@@ -440,21 +440,21 @@ the restoring themselves.")
 (defun ivy-thing-at-point ()
   "Return a string that corresponds to the current thing at point."
   (substring-no-properties
-   (or
-    (thing-at-point 'url)
-    (and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
-         (let ((inhibit-message t))
-           (ignore-errors
-             (ffap-file-at-point))))
-    (let (s)
-      (cond ((stringp (setq s (thing-at-point 'symbol)))
-             (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
-                 (match-string 1 s)
-               s))
-            ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
-             (match-string-no-properties 1))
-            (t
-             ""))))))
+   (cond
+    ((thing-at-point 'url))
+    ((and (eq (ivy-state-collection ivy-last) 'read-file-name-internal)
+          (let ((inhibit-message t))
+            (ignore-errors
+              (ffap-file-at-point)))))
+    ((let ((s (thing-at-point 'symbol)))
+       (and (stringp s)
+            (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
+                (match-string 1 s)
+              s))))
+    ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
+     (match-string-no-properties 1))
+    (t
+     ""))))
 
 (defvar ivy-history nil
   "History list of candidates entered in the minibuffer.
