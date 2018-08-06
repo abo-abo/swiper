@@ -3269,13 +3269,15 @@ Position of selected mark outside accessible part of buffer")))
 (defun counsel-package ()
   "Install or delete packages.
 
-Packages not currently installed have a \"+\" prepended.  Selecting one
-of these will try to install it.  Currently installed packages have a
-\"-\" prepended, and selecting one of these will delete the package.
+Packages not currently installed are prefixed with \"+\", and
+selecting one of these will try to install it.
+Packages currently installed are prefixed with \"-\", and
+selecting one of these will try to delete it.
 
-Additional Actions:
+Additional actions:\\<ivy-minibuffer-map>
 
-  \\<ivy-minibuffer-map>\\[ivy-dispatching-done] d: describe package"
+  \\[ivy-dispatching-done] d: Describe package
+  \\[ivy-dispatching-done] h: Visit package's homepage"
   (interactive)
   (require 'package)
   (unless package--initialized
