@@ -3731,10 +3731,9 @@ BUFFER may be a string or nil."
 
 (defun ivy--find-file-action (buffer)
   "Find file from BUFFER's directory."
-  (let* ((b (get-buffer buffer))
-         (default-directory
-          (or (and b (buffer-local-value 'default-directory b))
-              default-directory)))
+  (let ((default-directory (buffer-local-value 'default-directory
+                                               (or (get-buffer buffer)
+                                                   (current-buffer)))))
     (call-interactively (if (functionp 'counsel-find-file)
                             #'counsel-find-file
                           #'find-file))))
