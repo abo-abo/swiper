@@ -1644,11 +1644,12 @@ TREE is the selected candidate."
 
 ;;** `counsel-git-checkout'
 (defun counsel-git-checkout-action (branch)
-  "Call the \"git checkout BRANCH\" command.
-
-BRANCH is a string whose first word designates the command argument."
+  "Switch branch by invoking git-checkout(1).
+The command is passed a single argument comprising all characters
+in BRANCH up to, but not including, the first space
+character (#x20), or the string's end if it lacks a space."
   (shell-command
-   (format "git checkout %s" (substring branch 0 (string-match " " branch)))))
+   (format "git checkout %s" (substring branch 0 (string-match-p " " branch)))))
 
 (defun counsel-git-branch-list ()
   "Return list of branches in the current git repository.
