@@ -884,7 +884,7 @@ contains a single candidate.")
          (when user
            (dolist (x res)
              (setcar x user)))
-         (setq res (cl-delete-duplicates res :test #'equal))
+         (setq res (delete-dups res))
          (let* ((old-ivy-last ivy-last)
                 (enable-recursive-minibuffers t)
                 (host (let ((ivy-auto-select-single-candidate nil))
@@ -1871,9 +1871,8 @@ This is useful for recursive `ivy-read'."
              (if (equal Info-current-file "dir")
                  (setq coll
                        (mapcar (lambda (x) (format "(%s)" x))
-                               (cl-delete-duplicates
-                                (all-completions "(" collection predicate)
-                                :test #'equal)))
+                               (delete-dups
+                                (all-completions "(" collection predicate))))
                (setq coll (all-completions "" collection predicate))))
             ((eq collection 'read-file-name-internal)
              (when (and (equal def initial-input)
