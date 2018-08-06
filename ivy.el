@@ -3456,11 +3456,10 @@ CANDS is a list of strings."
     (recentf-mode 1))
   (let (virtual-buffers)
     (bookmark-maybe-load-default-file)
-    (dolist (head (append
-                   recentf-list
-                   (delete "   - no file -"
-                           (delq nil (mapcar #'bookmark-get-filename
-                                             bookmark-alist)))))
+    (dolist (head (append recentf-list
+                          (delete "   - no file -"
+                                  (delq nil (mapcar #'bookmark-get-filename
+                                                    bookmark-alist)))))
       (let* ((file-name (if (stringp head)
                             head
                           (cdr head)))
@@ -3475,10 +3474,10 @@ CANDS is a list of strings."
                 (if (consp head)
                     (car head)
                   (file-name-nondirectory (directory-file-name file-name)))))
-        (and (not (equal name ""))
-             (null (get-file-buffer file-name))
-             (not (assoc name virtual-buffers))
-             (push (cons name file-name) virtual-buffers))))
+        (unless (or (equal name "")
+                    (get-file-buffer file-name)
+                    (assoc name virtual-buffers))
+          (push (cons name file-name) virtual-buffers))))
     (when virtual-buffers
       (dolist (comp virtual-buffers)
         (put-text-property 0 (length (car comp))
