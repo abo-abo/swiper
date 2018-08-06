@@ -2844,9 +2844,7 @@ Should be run via minibuffer `post-command-hook'."
             (window-resize nil (- text-height body-height) nil t)))))))
 
 (defun ivy--add-face (str face)
-  "Propertize STR with FACE.
-`font-lock-append-text-property' is used, since it's better than
-`propertize' or `add-face-text-property' in this case."
+  "Propertize STR with FACE."
   (let ((len (length str)))
     (condition-case nil
         (progn
