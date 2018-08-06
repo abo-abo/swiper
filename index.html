@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-02-01 Thu 18:38 -->
+<!-- 2018-08-06 Mon 20:29 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -21,7 +21,7 @@
 @licstart  The following is the entire license notice for the
 JavaScript code in this tag.
 
-Copyright (C) 2012-2018 Free Software Foundation, Inc.
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
 
 The JavaScript code in this tag is free software: you can
 redistribute it and/or modify it under the terms of the GNU
@@ -174,7 +174,7 @@ final candidate is either through simple keyboard character inputs or
 through powerful regular expressions.
 </p>
 <p>
-Copyright (C) 2015 Free Software Foundation, Inc.
+Copyright (C) 2015-2018 Free Software Foundation, Inc.
 </p>
 
 <blockquote>
@@ -258,8 +258,8 @@ from Ivy's development repository.
 </p>
 
 <p>
-Emacs 24.3.1 is the oldest version to run Ivy. Emacs 24.5.1 is the
-oldest version that runs Ivy with fancy faces display.
+Emacs 24.3 is the oldest version to run Ivy. Emacs 24.4 is the oldest
+version that runs Ivy with fancy faces display.
 </p>
 </div>
 
@@ -315,7 +315,7 @@ For package manager details, see <a href="https://www.gnu.org/software/emacs/man
 
 <dl class="org-dl">
 <dt>Configuration steps</dt><dd><p>
-First clone the Swiper repository with:
+     First clone the Swiper repository with:
 </p>
 
 <div class="org-src-container">
@@ -426,7 +426,7 @@ The recommended key bindings are:
 </div></dd>
 
 <dt>Ivy-resume and other commands</dt><dd><p>
-<code>ivy-resume</code> resumes the last Ivy-based completion.
+     <code>ivy-resume</code> resumes the last Ivy-based completion.
 </p>
 
 <div class="org-src-container">
@@ -474,7 +474,7 @@ where the familiar <kbd>C-a</kbd>, <kbd>C-f</kbd>, <kbd>M-d</kbd>, <kbd>M-DEL</k
 
 <dl class="org-dl">
 <dt>User Option <code>ivy-wrap</code></dt><dd><p>
-Specifies the wrap-around behavior for <kbd>C-n</kbd> and <kbd>C-p</kbd>. When
+     Specifies the wrap-around behavior for <kbd>C-n</kbd> and <kbd>C-p</kbd>. When
 <code>ivy-wrap</code> is set to <code>t</code>, <code>ivy-next-line</code> and <code>ivy-previous-line</code>
 will cycle past the last and the first candidates respectively.
 </p>
@@ -484,7 +484,7 @@ Warp-around behavior is off by default.
 </p></dd>
 
 <dt>User Option <code>ivy-height</code></dt><dd><p>
-Use this option to adjust the minibuffer height, which also
+     Use this option to adjust the minibuffer height, which also
 affects scroll size when using <kbd>C-v</kbd> and <kbd>M-v</kbd> key bindings.
 </p>
 
@@ -521,7 +521,7 @@ candidate and starts a new completion session there. Otherwise,
 it is the same as <code>ivy-done</code>.</dd>
 
 <dt><kbd>TAB</kbd> (<code>ivy-partial-or-done</code>)</dt><dd><p>
-Attempts partial completion, extending current input as much as
+     Attempts partial completion, extending current input as much as
 possible. <kbd>TAB TAB</kbd> is the same as <kbd>C-j</kbd> (<code>ivy-alt-done</code>).
 </p>
 
@@ -541,7 +541,7 @@ Example ERT test:
 </div></dd>
 
 <dt><kbd>C-M-j</kbd> (<code>ivy-immediate-done</code>)</dt><dd><p>
-Exits with <i>the current input</i> instead of <i>the current candidate</i>
+     Exits with <i>the current input</i> instead of <i>the current candidate</i>
 (like other commands).
 </p>
 
@@ -576,7 +576,7 @@ actions.
 
 <dl class="org-dl">
 <dt><kbd>C-M-m</kbd> (<code>ivy-call</code>)</dt><dd><p>
-Is the non-exiting version of <kbd>C-m</kbd> (<code>ivy-done</code>).
+     Is the non-exiting version of <kbd>C-m</kbd> (<code>ivy-done</code>).
 </p>
 
 <p>
@@ -588,7 +588,7 @@ succession.
 </p></dd>
 
 <dt><kbd>C-M-o</kbd> (<code>ivy-dispatching-call</code>)</dt><dd><p>
-Is the non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
+     Is the non-exiting version of <kbd>M-o</kbd> (<code>ivy-dispatching-done</code>).
 </p>
 
 <p>
@@ -599,7 +599,7 @@ the default one after <kbd>C-M-o</kbd>.
 </p></dd>
 
 <dt><kbd>C-M-n</kbd> (<code>ivy-next-line-and-call</code>)</dt><dd><p>
-Combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies an action and moves to next
+     Combines <kbd>C-n</kbd> and <kbd>C-M-m</kbd>. Applies an action and moves to next
 line.
 </p>
 
@@ -611,7 +611,7 @@ action on each successive element of the list.
 </p></dd>
 
 <dt><kbd>C-M-p</kbd> (<code>ivy-previous-line-and-call</code>)</dt><dd><p>
-Combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>.
+     Combines <kbd>C-p</kbd> and <kbd>C-M-m</kbd>.
 </p>
 
 <p>
@@ -620,7 +620,7 @@ other direction.
 </p></dd>
 
 <dt><code>ivy-resume</code></dt><dd><p>
-Recalls the state of the completion session just before its last
+     Recalls the state of the completion session just before its last
 exit.
 </p>
 
@@ -636,7 +636,7 @@ Useful after an accidental <kbd>C-m</kbd> (<code>ivy-done</code>).
 <div class="outline-text-4" id="text-key-bindings-that-alter-the-minibuffer-input">
 <dl class="org-dl">
 <dt><kbd>M-n</kbd> (<code>ivy-next-history-element</code>)</dt><dd><p>
-Cycles forward through the Ivy command history.
+     Cycles forward through the Ivy command history.
 </p>
 
 <p>
@@ -648,7 +648,7 @@ into the minibuffer.
 <dt><kbd>M-p</kbd> (<code>ivy-previous-history-element</code>)</dt><dd>Cycles forward through the Ivy command history.</dd>
 
 <dt><kbd>M-i</kbd> (<code>ivy-insert-current</code>)</dt><dd><p>
-Inserts the current candidate into the minibuffer.
+     Inserts the current candidate into the minibuffer.
 </p>
 
 <p>
@@ -658,16 +658,17 @@ complete the renaming.
 </p></dd>
 
 <dt><kbd>M-j</kbd> (<code>ivy-yank-word</code>)</dt><dd><p>
-Inserts the sub-word at point into the minibuffer.
+     Inserts the sub-word at point into the minibuffer.
 </p>
 
 <p>
-This is similar to <kbd>C-s C-w</kbd> with <code>isearch</code>. Ivy reserves <kbd>C-w</kbd>
-for <code>kill-region</code>.
+This is similar to <kbd>C-s C-w</kbd> with <code>isearch</code>.  Ivy reserves <kbd>C-w</kbd>
+for <code>kill-region</code>.  See also <code>ivy-yank-symbol</code> and
+<code>ivy-yank-char</code>.
 </p></dd>
 
 <dt><kbd>S-SPC</kbd> (<code>ivy-restrict-to-matches</code>)</dt><dd><p>
-Deletes the current input, and resets the candidates list to the
+     Deletes the current input, and resets the candidates list to the
 currently restricted matches.
 </p>
 
@@ -676,7 +677,7 @@ This is how Ivy provides narrowing in successive tiers.
 </p></dd>
 
 <dt><kbd>C-r</kbd> (<code>ivy-reverse-i-search</code>)</dt><dd><p>
-Starts a recursive completion session through the command's
+     Starts a recursive completion session through the command's
 history.
 </p>
 
@@ -694,7 +695,7 @@ selected candidate string is inserted into the minibuffer.
 <div class="outline-text-4" id="text-other-key-bindings">
 <dl class="org-dl">
 <dt><kbd>M-w</kbd> (<code>ivy-kill-ring-save</code>)</dt><dd><p>
-Copies selected candidates to the kill ring.
+     Copies selected candidates to the kill ring.
 </p>
 
 <p>
@@ -1029,7 +1030,7 @@ installed.
 <dt><code>ivy-minibuffer-match-face-3</code></dt><dd>Highlights the second (modulo 3) matched group.</dd>
 <dt><code>ivy-minibuffer-match-face-4</code></dt><dd>Highlights the third (modulo 3) matched group.</dd>
 <dt><code>ivy-confirm-face</code></dt><dd><p>
-Highlights the "(confirm)" part of the prompt.
+     Highlights the "(confirm)" part of the prompt.
 </p>
 
 <p>
@@ -1057,7 +1058,7 @@ prompt will be appended with "(confirm)". Press <kbd>RET</kbd> once more
 to confirm, or any key to continue the completion.
 </p></dd>
 <dt><code>ivy-match-required-face</code></dt><dd><p>
-Highlights the "(match required)" part of the prompt.
+     Highlights the "(match required)" part of the prompt.
 </p>
 
 <p>
@@ -1074,7 +1075,7 @@ Press any key for the prompt to disappear.
 <dt><code>ivy-subdir</code></dt><dd>Highlights directories when completing file names.</dd>
 <dt><code>ivy-remote</code></dt><dd>Highlights remote files when completing file names.</dd>
 <dt><code>ivy-virtual</code></dt><dd><p>
-Highlights virtual buffers when completing buffer names.
+     Highlights virtual buffers when completing buffer names.
 </p>
 
 <p>
@@ -1098,7 +1099,7 @@ Enable virtual buffers with:
 <div class="outline-text-3" id="text-defcustoms">
 <dl class="org-dl">
 <dt>User Option <code>ivy-count-format</code></dt><dd><p>
-A string that specifies display of number of candidates and
+     A string that specifies display of number of candidates and
 current candidate, if one exists.
 </p>
 
@@ -1131,12 +1132,11 @@ in the <code>format</code> documentation.
 </p></dd>
 
 <dt>User Option <code>ivy-display-style</code></dt><dd><p>
-Specifies highlighting candidates in the minibuffer.
+     Specifies highlighting candidates in the minibuffer.
 </p>
 
 <p>
-The default setting is <code>'fancy</code> and valid only in Emacs versions
-24.5 or newer.
+The default setting is <code>'fancy</code> in Emacs versions 24.4 or newer.
 </p>
 
 <p>
@@ -1144,7 +1144,12 @@ Set <code>ivy-display-style</code> to <code>nil</code> for a plain minibuffer.
 </p></dd>
 
 <dt>User Option <code>ivy-on-del-error-function</code></dt><dd><p>
-Specify what when <kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>) throws.
+     Specifies what to do when <kbd>DEL</kbd> (<code>ivy-backward-delete-char</code>) fails.
+</p>
+
+<p>
+This is usually the case when there is no text left to delete,
+i.e., when <kbd>DEL</kbd> is typed at the beginning of the minibuffer.
 </p>
 
 <p>
@@ -1170,7 +1175,7 @@ is the selected candidate.
 
 <dl class="org-dl">
 <dt>Window context when calling an action</dt><dd><p>
-Currently, the action is executed in the minibuffer window
+     Currently, the action is executed in the minibuffer window
 context. This means e.g. that if you call <code>insert</code> the text will
 be inserted into the minibuffer.
 </p>
@@ -1351,7 +1356,7 @@ likely at the end of the buffer</li>
 <code>completing-read-function</code> (which <code>ivy-mode</code> sets). Try refiling
 headings with similar names to appreciate <code>ivy-mode</code>.</dd>
 <dt><code>magit</code></dt><dd><p>
-Magit requires this setting for ivy completion:
+     Magit requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
@@ -1360,7 +1365,7 @@ Magit requires this setting for ivy completion:
 </div></dd>
 <dt><code>find-file-in-project</code></dt><dd>It uses ivy by default if Ivy is installed.</dd>
 <dt><code>projectile</code></dt><dd><p>
-Projectile requires this setting for ivy completion:
+     Projectile requires this setting for ivy completion:
 </p>
 
 <div class="org-src-container">
@@ -1368,7 +1373,7 @@ Projectile requires this setting for ivy completion:
 </pre>
 </div></dd>
 <dt><code>helm-make</code></dt><dd><p>
-Helm-make requires this setting for ivy completion.
+     Helm-make requires this setting for ivy completion.
 </p>
 
 <div class="org-src-container">
@@ -1395,7 +1400,7 @@ bindings that work here:
 
 <dl class="org-dl">
 <dt><kbd>C-j</kbd> (<code>ivy-alt-done</code>)</dt><dd><p>
-On a directory, restarts completion from that directory.
+     On a directory, restarts completion from that directory.
 </p>
 
 <p>
@@ -1408,7 +1413,7 @@ is empty.</dd>
 <dt><kbd>/</kbd> (<code>self-insert-command</code>)</dt><dd>If the current input matches an existing directory name exactly,
 switch the completion to that directory.</dd>
 <dt><kbd>M-r</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
-Toggle between input as regexp or not.
+     Toggle between input as regexp or not.
 </p>
 
 <p>
@@ -1417,7 +1422,7 @@ is for matching any char in regexp mode.
 </p></dd>
 
 <dt>User Option <code>ivy-extra-directories</code></dt><dd><p>
-Decide if you want to see <code>../</code> and <code>./</code> during file name
+     Decide if you want to see <code>../</code> and <code>./</code> during file name
 completion.
 </p>
 
@@ -1481,7 +1486,7 @@ Multi-hopping is possible, although a bit complex.
 <div class="outline-text-3" id="text-buffer-name-completion">
 <dl class="org-dl">
 <dt>User Option <code>ivy-use-virtual-buffers</code></dt><dd><p>
-When non-nil, add <code>recentf-mode</code> and bookmarks to
+     When non-nil, add <code>recentf-mode</code> and bookmarks to
 <code>ivy-switch-buffer</code> completion candidates.
 </p>
 
@@ -1539,7 +1544,7 @@ features such as multi-actions, non-exiting actions, <code>ivy-occur</code> and
 <div class="outline-text-3" id="text-required-arguments-for-ivy-read">
 <dl class="org-dl">
 <dt><code>prompt</code></dt><dd><p>
-A format string normally ending in a colon and a space.
+     A format string normally ending in a colon and a space.
 </p>
 
 <p>
@@ -1549,7 +1554,7 @@ matching candidates. To use a literal <code>%</code> character, escape it as
 </p></dd>
 
 <dt><code>collection</code></dt><dd><p>
-Either a list of strings, a function, an alist or a hash table.
+     Either a list of strings, a function, an alist or a hash table.
 </p>
 
 <p>
@@ -1571,7 +1576,7 @@ itself, e.g. <code>(cl-remove-if-not predicate collection)</code>.</dd>
 <dt><code>require-match</code></dt><dd>When set to a non-nil value, input must match one of the
 candidates. Custom input is not accepted.</dd>
 <dt><code>initial-input</code></dt><dd><p>
-This string argument is included for compatibility with
+     This string argument is included for compatibility with
 <code>completing-read</code>, which inserts it into the minibuffer.
 </p>
 
@@ -1580,7 +1585,7 @@ It's recommended to use the <code>preselect</code> argument instead of this.
 </p></dd>
 <dt><code>history</code></dt><dd>Name of the symbol to store history. See <code>completing-read</code>.</dd>
 <dt><code>preselect</code></dt><dd><p>
-When set to a string value, select the first candidate matching
+     When set to a string value, select the first candidate matching
 this value.
 </p>
 
@@ -1657,7 +1662,7 @@ later use yourself. However, it's recommended that you use the
                    (<span style="color: #7F0055; font-weight: bold;">push</span> (symbol-name x) cands))))
               cands)
             <span style="color: #7F0055; font-weight: bold;">:keymap</span> counsel-describe-map
-            <span style="color: #7F0055; font-weight: bold;">:preselect</span> (counsel-symbol-at-point)
+            <span style="color: #7F0055; font-weight: bold;">:preselect</span> (ivy-thing-at-point)
             <span style="color: #7F0055; font-weight: bold;">:history</span> 'counsel-describe-symbol-history
             <span style="color: #7F0055; font-weight: bold;">:require-match</span> t
             <span style="color: #7F0055; font-weight: bold;">:sort</span> t
@@ -1676,7 +1681,7 @@ Here are the interesting features of the above function, in the order that they 
 <li>The <code>prompt</code> argument is a simple string ending in ": ".</li>
 <li>The <code>collection</code> argument evaluates to a (large) list of strings.</li>
 <li>The <code>keymap</code> argument is for a custom keymap to supplement <code>ivy-minibuffer-map</code>.</li>
-<li>The <code>preselect</code> is provided by <code>counsel-symbol-at-point</code>, which
+<li>The <code>preselect</code> is provided by <code>ivy-thing-at-point</code>, which
 returns a symbol near the point. Ivy then selects the first
 candidate from the collection that matches this symbol. To select
 this pre-selected candidate, a <kbd>RET</kbd> will suffice. No further user
@@ -1734,14 +1739,15 @@ narrowing) or select a candidate from the visible collection.
 
 <div class="org-src-container">
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (&lt; (length str) 3)
-      (counsel-more-chars 3)
-    (counsel--async-command
-     (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
-             (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
-             (counsel-unquote-regex-parens
-              (ivy--regex str))))
-    '(<span style="color: #2A00FF;">""</span> <span style="color: #2A00FF;">"working..."</span>)))
+  (<span style="color: #7F0055; font-weight: bold;">or</span>
+   (counsel-more-chars)
+   (<span style="color: #7F0055; font-weight: bold;">progn</span>
+     (counsel--async-command
+      (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
+              (mapconcat #'identity counsel-locate-options <span style="color: #2A00FF;">" "</span>)
+              (counsel-unquote-regex-parens
+               (ivy--regex str))))
+     '(<span style="color: #2A00FF;">""</span> <span style="color: #2A00FF;">"working..."</span>))))
 
 <span style="color: #3F7F5F;">;;;</span><span style="color: #3F7F5F;">###</span><span style="color: #FF0000;">autoload</span>
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate</span> (<span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> initial-input)
