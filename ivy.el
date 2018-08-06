@@ -1200,38 +1200,38 @@ See variable `ivy-recursive-restore' for further information."
                                ivy-alt-done
                                ivy-dispatching-done))
     (setq ivy-current-prefix-arg current-prefix-arg))
-  (unless ivy-inhibit-action
-    (let ((action (ivy--get-action ivy-last)))
-      (when action
-        (let* ((collection (ivy-state-collection ivy-last))
-               (current (ivy-state-current ivy-last))
-               (x (cond
-                    ;; Alist type.
-                    ((and (consp (car-safe collection))
-                          ;; Previously, the cdr of the selected
-                          ;; candidate would be returned.  Now, the
-                          ;; whole candidate is returned.
-                          (let ((idx (get-text-property 0 'idx current)))
-                            (if idx
-                                (nth idx collection)
-                              (assoc current collection)))))
-                    (ivy--directory
-                     (expand-file-name current ivy--directory))
-                    ((equal current "")
-                     ivy-text)
-                    (t
-                     current))))
-          (if (eq action #'identity)
-              (funcall action x)
-            (select-window (ivy--get-window ivy-last))
-            (set-buffer (ivy-state-buffer ivy-last))
-            (prog1 (with-current-buffer (ivy-state-buffer ivy-last)
-                     (unwind-protect (funcall action x)
-                       (ivy-recursive-restore)))
-              (unless (or (eq ivy-exit 'done)
-                          (minibuffer-window-active-p (selected-window))
-                          (null (active-minibuffer-window)))
-                (select-window (active-minibuffer-window))))))))))
+  (let ((action (and (not ivy-inhibit-action)
+                     (ivy--get-action ivy-last))))
+    (when action
+      (let* ((collection (ivy-state-collection ivy-last))
+             (current (ivy-state-current ivy-last))
+             (x (cond
+                 ;; Alist type.
+                 ((and (consp (car-safe collection))
+                       ;; Previously, the cdr of the selected
+                       ;; candidate would be returned.  Now, the
+                       ;; whole candidate is returned.
+                       (let ((idx (get-text-property 0 'idx current)))
+                         (if idx
+                             (nth idx collection)
+                           (assoc current collection)))))
+                 (ivy--directory
+                  (expand-file-name current ivy--directory))
+                 ((equal current "")
+                  ivy-text)
+                 (t
+                  current))))
+        (if (eq action #'identity)
+            (funcall action x)
+          (select-window (ivy--get-window ivy-last))
+          (set-buffer (ivy-state-buffer ivy-last))
+          (prog1 (with-current-buffer (ivy-state-buffer ivy-last)
+                   (unwind-protect (funcall action x)
+                     (ivy-recursive-restore)))
+            (unless (or (eq ivy-exit 'done)
+                        (minibuffer-window-active-p (selected-window))
+                        (null (active-minibuffer-window)))
+              (select-window (active-minibuffer-window)))))))))
 
 (defun ivy-call-and-recenter ()
   "Call action and recenter window according to the selected candidate."
