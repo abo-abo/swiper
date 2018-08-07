@@ -2947,16 +2947,6 @@ otherwise continue prompting for tags."
            (org-agenda-set-tags nil nil))
       (fset 'org-set-tags store))))
 
-(define-obsolete-variable-alias 'counsel-org-goto-display-style
-  'counsel-outline-display-style "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-display-style
-  'counsel-outline-display-style "0.10.0")
-
-(define-obsolete-variable-alias 'counsel-org-goto-separator
-    'counsel-outline-path-separator "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-path-separator
-    'counsel-outline-path-separator "0.10.0")
-
 (define-obsolete-variable-alias 'counsel-org-goto-display-tags
     'counsel-org-headline-display-tags "0.10.0")
 
@@ -2978,12 +2968,6 @@ otherwise continue prompting for tags."
   :type 'boolean
   :group 'ivy)
 
-(define-obsolete-variable-alias 'counsel-org-goto-face-style
-    'counsel-outline-face-style "0.10.0")
-
-(define-obsolete-variable-alias 'counsel-org-goto-custom-faces
-    'counsel-outline-custom-faces "0.10.0")
-
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
 (declare-function outline-next-heading "outline")
@@ -3002,8 +2986,9 @@ otherwise continue prompting for tags."
           (setq entries (nconc entries (counsel-outline-candidates))))))
     (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
-              :action 'counsel-org-goto-action
-              :caller 'counsel-org-goto-all)))
+              :action #'counsel-org-goto-action
+              :caller 'counsel-org-goto-all)
+    (counsel--outline-free-markers entries)))
 
 (defun counsel-org-goto-action (x)
   "Go to headline in candidate X."
@@ -3023,10 +3008,6 @@ version.  Argument values are based on the
                     (< (cdr (func-arity #'org-get-heading)) 3)
                   (version< org-version "9.1.1"))
                 1 0)))
-
-(defalias 'counsel-org-goto--get-headlines 'counsel-outline-candidates)
-
-(defalias 'counsel-org-goto--add-face 'counsel-outline--add-face)
 
 ;;** `counsel-org-file'
 (declare-function org-attach-dir "org-attach")
@@ -3169,6 +3150,45 @@ include attachments of other Org buffers."
 (defvar counsel-org-agenda-headlines-history nil
   "History for `counsel-org-agenda-headlines'.")
 
+(define-obsolete-variable-alias 'counsel-org-goto-display-style
+    'counsel-outline-display-style "0.10.0")
+(define-obsolete-variable-alias 'counsel-org-headline-display-style
+    'counsel-outline-display-style "0.10.0")
+
+(defcustom counsel-outline-display-style 'path
+  "The style used when displaying matched outline headings.
+
+If `headline', the title is displayed with leading stars
+indicating the outline level.
+
+If `path', the path hierarchy is displayed.  For each entry the
+title is shown.  Entries are separated with
+`counsel-outline-path-separator'.
+
+If `title' or any other value, only the title of the heading is
+displayed.
+
+For displaying tags and TODO keywords in `org-mode' buffers, see
+`counsel-org-headline-display-tags' and
+`counsel-org-headline-display-todo', respectively."
+  :type '(choice
+          (const :tag "Title only" title)
+          (const :tag "Headline" headline)
+          (const :tag "Path" path))
+  :group 'ivy)
+
+(define-obsolete-variable-alias 'counsel-org-goto-separator
+    'counsel-outline-path-separator "0.10.0")
+(define-obsolete-variable-alias 'counsel-org-headline-path-separator
+    'counsel-outline-path-separator "0.10.0")
+
+(defcustom counsel-outline-path-separator "/"
+  "String separating path entries in matched outline headings.
+This variable has no effect unless
+`counsel-outline-display-style' is set to `path'."
+  :type 'string
+  :group 'ivy)
+
 (declare-function org-get-outline-path "org")
 
 (defun counsel-org-agenda-headlines--candidates ()
@@ -3176,7 +3196,7 @@ include attachments of other Org buffers."
   (org-map-entries
    (lambda ()
      (let* ((components (org-heading-components))
-            (level (and (eq counsel-org-headline-display-style 'headline)
+            (level (and (eq counsel-outline-display-style 'headline)
                         (make-string
                          (if org-odd-levels-only
                              (nth 1 components)
@@ -3184,7 +3204,7 @@ include attachments of other Org buffers."
                          ?*)))
             (todo (and counsel-org-headline-display-todo
                        (nth 2 components)))
-            (path (and (eq counsel-org-headline-display-style 'path)
+            (path (and (eq counsel-outline-display-style 'path)
                        (org-get-outline-path)))
             (priority (and counsel-org-headline-display-priority
                            (nth 3 components)))
@@ -3201,7 +3221,7 @@ include attachments of other Org buffers."
                         (and priority (format "[#%c]" priority))
                         (mapconcat 'identity
                                    (append path (list text))
-                                   counsel-org-headline-path-separator)
+                                   counsel-outline-path-separator)
                         tags))
          " ")
         (buffer-file-name) (point))))
@@ -3896,76 +3916,58 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
-(defcustom counsel-outline-display-style 'path
-  "The style used when displaying matched outline headings.
-
-If headline, the title is displayed with leading stars indicating the outline level.
-
-If path, the path hierarchy is displayed.  For each entry the title is shown.
-`counsel-outline-path-separator' is used as separator between entries.
-
-If title or any other value, only the title of the heading is displayed.
-
-For org-mode buffers, use `counsel-org-headline-display-tags' and
-`counsel-org-headline-display-todo' to display tags and todo
-keywords, respectively."
-  :type '(choice
-          (const :tag "Title only" title)
-          (const :tag "Headline" headline)
-          (const :tag "Path" path))
-  :group 'ivy)
-
-(defcustom counsel-outline-path-separator "/"
-  "Character(s) to separate path entries in matched outline headings.
-
-This variable has no effect unless `counsel-outline-display-style' is
-set to path."
-  :type 'string
-  :group 'ivy)
+(define-obsolete-variable-alias 'counsel-org-goto-face-style
+    'counsel-outline-face-style "0.10.0")
 
 (defcustom counsel-outline-face-style nil
-  "The face used for displaying outline headings.
+  "Determines how to style outline headings during completion.
 
-If org, the default faces from `org-mode' are applied, i.e. org-level-1
-through org-level-8.  Note that no cycling is in effect, therefore headings
-on levels 9 and higher will not be styled.
+If `org', the default faces from `org-mode' are applied,
+i.e. `org-level-1' through `org-level-8'.  Note that no cycling
+is performed, so headings on levels 9 and higher are not styled.
 
-If verbatim, the face used in the buffer is applied.  For simple
-headlines in org-mode buffers, this is usually the same as org
-except that it depends on how much of the buffer has been
-completely loaded.  If your buffer exceeds a certain size,
-headlines are styled lazily depending on which parts of the tree
-are visible.  Headlines which are not styled yet in the buffer
-will appear unstyled in the minibuffer as well.  If your
-headlines contain parts which are fontified differently than the
-headline itself (eg. todo keywords, tags, links) and you want
-these parts to be styled properly, verbatim is the way to go,
-otherwise you are probably better off using org instead.
+If `verbatim', the faces used in the buffer are applied.  For
+simple headlines in `org-mode' buffers, this is usually the same
+as the `org' setting, except that it depends on how much of the
+buffer has been completely fontified.  If your buffer exceeds a
+certain size, headlines are styled lazily depending on which
+parts of the tree are visible.  Headlines which are not yet
+styled in the buffer will appear unstyled in the minibuffer as
+well.  If your headlines contain parts which are fontified
+differently than the headline itself (e.g. TODO keywords, tags,
+links) and you want these parts to be styled properly, verbatim
+is the way to go; otherwise you are probably better off using the
+`org' setting instead.
 
-If custom, the faces defined in `counsel-outline-custom-faces' are applied.
-Note that no cycling is in effect, therefore if there is no face defined
-for a certain level, headlines on that level will not be styled.
+If `custom', the faces defined in `counsel-outline-custom-faces'
+are applied.  Note that no cycling is performed, so if there is
+no face defined for a certain level, headlines on that level will
+not be styled.
 
-If nil or any other value, no face is applied to the headline.
+If `nil', no faces are applied to the headlines.
 
-For org-mode buffers, See `counsel-org-headline-display-tags' and
-`counsel-org-headline-display-todo' if you want to display tags
-and todo keywords in your headlines."
+For displaying tags and TODO keywords in `org-mode' buffers, see
+`counsel-org-headline-display-tags' and
+`counsel-org-headline-display-todo', respectively."
   :type '(choice
           (const :tag "Same as org-mode" org)
           (const :tag "Verbatim" verbatim)
-          (const :tag "Custom" custom))
+          (const :tag "Custom" custom)
+          (const :tag "No style" nil))
   :group 'ivy)
 
+(define-obsolete-variable-alias 'counsel-org-goto-custom-faces
+    'counsel-outline-custom-faces "0.10.0")
+
 (defcustom counsel-outline-custom-faces nil
-  "Custom faces for displaying outline headings.
+  "List of faces for custom display of outline headings.
 
-The n-th entry is used for headlines on level n, starting with n = 1.  If
-a headline is an a level for which there is no entry in the list, it will
-not be styled.
+Headlines on level N are fontified with the Nth entry of this
+list, starting with N = 1.  Headline levels with no corresponding
+entry in this list will not be styled.
 
-This variable has no effect unless `counsel-outline-face-style' is set
-to custom."
+This variable has no effect unless `counsel-outline-face-style'
+is set to `custom'."
   :type '(repeat face)
   :group 'ivy)
 
@@ -3978,14 +3980,13 @@ to custom."
      :action counsel-org-goto-action
      :history counsel-org-goto-history
      :caller counsel-org-goto)
-    (markdown-mode ; markdown-mode package
+    (markdown-mode                      ; markdown-mode package
      :outline-title counsel-outline-title-markdown)
-    (latex-mode ; built-in mode or AUCTeX package
+    (latex-mode                         ; Built-in mode or AUCTeX package
      :outline-title counsel-outline-title-latex))
-  "An alist holding `counsel-outline' settings for particular
-major modes.
+  "Alist mapping major modes to their `counsel-outline' settings.
 
-Each entry is a pair \(MAJOR-MODE . PLIST\).  `counsel-outline'
+Each entry is a pair (MAJOR-MODE . PLIST).  `counsel-outline'
 checks whether an entry exists for the current buffer's
 MAJOR-MODE and, if so, loads the settings specified by PLIST
 instead of the default settings.  The following settings are
@@ -3993,36 +3994,37 @@ recognized:
 
 - `:outline-regexp' is a regexp to match the beggining of an
   outline heading.  It is only checked at the start of a line and
-  so need not start with `^'.  The default is to use the value of
-  the variable `outline-regexp'.
+  so need not start with \"^\".
+  Defaults to the value of the variable `outline-regexp'.
 
-- `:outline-level' is a function of no args to compute the level of
-  an outline heading.  It is called with point at the beginning
-  of `outline-regexp' and with the match data reflicting
-  `outline-regexp'.  The default is to use the value of the
-  variable `outline-level'.
+- `:outline-level' is a function of no arguments which computes
+  the level of an outline heading.  It is called with point at
+  the beginning of `outline-regexp' and with the match data
+  corresponding to `outline-regexp'.
+  Defaults to the value of the variable `outline-level'.
 
-- `:outline-title' is a function of no args to get the title of an
-  outline heading.  It is called with point at the end of
-  `outline-regexp' and with the match data reflicting
-  `outline-regexp'.  The default is to use the function
-  `counsel-outline-title'.
+- `:outline-title' is a function of no arguments which returns
+  the title of an outline heading.  It is called with point at
+  the end of `outline-regexp' and with the match data
+  corresponding to `outline-regexp'.
+  Defaults to the function `counsel-outline-title'.
 
-- `:action' is a function of one arg, the selected outline
-  heading, performing the action to jump to this heading.  It
-  corresponds directly to the `:action' keyword of
-  `counsel-outline''s `ivy-read' call.  The default is to use the
-  function `counsel-outline-action'.
+- `:action' is a function of one argument, the selected outline
+  heading to jump to.  This setting corresponds directly to its
+  eponymous `ivy-read' keyword, as used by `counsel-outline', so
+  the type of the function's argument depends on the value
+  returned by `counsel-outline-candidates'.
+  Defaults to the function `counsel-outline-action'.
 
-- `:history' is the name of a history variable to hold the
-  completion session history.  It corresponds directly to the
-  `:history' keyword of `counsel-outline''s `ivy-read' call.  The
-  default is to use the variable `counsel-outline-history'.
+- `:history' is a history list, usually a symbol representing a
+  history list variable.  It corresponds directly to its
+  eponymous `ivy-read' keyword, as used by `counsel-outline'.
+  Defaults to the symbol `counsel-outline-history'.
 
 - `:caller' is a symbol to uniquely idendify the caller to
-  `ivy-read'.  It corresponds directly to the `:caller' keyword
-  of `counsel-outline''s `ivy-read' call.  The default is to use
-  the symbol `counsel-outline'.
+  `ivy-read'.  It corresponds directly to its eponymous
+  `ivy-read' keyword, as used by `counsel-outline'.
+  Defaults to the symbol `counsel-outline'.
 
 - `:display-style' overrides the variable
   `counsel-outline-display-style'.
@@ -4037,66 +4039,74 @@ recognized:
   `counsel-outline-custom-faces'.")
 
 (defun counsel-outline-title ()
-  "Default function used by `counsel-outline' to get the title of
-the current outline heading. See `counsel-outline-settings'."
+  "Return title of current outline heading.
+Intended as a value for the `:outline-title' setting in
+`counsel-outline-settings', which see."
   (buffer-substring (point) (line-end-position)))
 
 (defun counsel-outline-title-org ()
-  "Function used by `counsel-outline' to get the title of the
-current outline heading in org-mode buffers. See
-`counsel-outline-settings'."
-  (apply 'org-get-heading (counsel--org-get-heading-args)))
+  "Return title of current outline heading.
+Like `counsel-outline-title' (which see), but for `org-mode'
+buffers."
+  (apply #'org-get-heading (counsel--org-get-heading-args)))
 
 (defun counsel-outline-title-markdown ()
-  "Function used by `counsel-outline' to get the title of the
-current outline heading in markdown-mode buffers (markdown-mode
-package). See `counsel-outline-title'."
+  "Return title of current outline heading.
+Like `counsel-outline-title' (which see), but for
+`markdown-mode' (from the eponymous package) buffers."
   ;; `outline-regexp' is set by `markdown-mode' to match both setext
   ;; (underline) and atx (hash) headings (see
   ;; `markdown-regex-header').
-  (or (match-string 1) ; setext heading title
-      (match-string 5))) ; atx heading title
+  (or (match-string 1)                  ; setext heading title
+      (match-string 5)))                ; atx heading title
 
 (defun counsel-outline-title-latex ()
-  "Function used by `counsel-outline' to get the title of the
-current outline heading in latex-mode buffers (built-in mode or
-AUCTeX package). See `counsel-outline-settings'."
+  "Return title of current outline heading.
+Like `counsel-outline-title' (which see), but for `latex-mode'
+buffers."
   ;; `outline-regexp' is set by `latex-mode' (see variable
   ;; `latex-section-alist' for the built-in mode or function
   ;; `LaTeX-outline-regexp' for the AUCTeX package) to match section
   ;; macros, in which case we get the section name, as well as
-  ;; `\appendix', `\documentclass', `\begin{document}' and
+  ;; `\appendix', `\documentclass', `\begin{document}', and
   ;; `\end{document}', in which case we simply return that.
-  (if (and (assoc (match-string 1) ; macro name
-                  (or (bound-and-true-p LaTeX-section-list) ; AUCTeX
-                      (bound-and-true-p latex-section-alist))) ; built-in
-           (progn ; point is at end of macro name, skip stars and optional args
+  (if (and (assoc (match-string 1)                             ; Macro name
+                  (or (bound-and-true-p LaTeX-section-list)    ; AUCTeX
+                      (bound-and-true-p latex-section-alist))) ; Built-in
+           (progn
+             ;; Point is at end of macro name, skip stars and optional args
              (skip-chars-forward "*")
-             (while (looking-at "\\[")
+             (while (looking-at-p "\\[")
                (forward-list))
-             (looking-at "{"))) ; first mandatory arg should be section title
-      (buffer-substring (1+ (point)) (1- (forward-list)))
+             ;; First mandatory arg should be section title
+             (looking-at-p "{")))
+      (buffer-substring (1+ (point)) (1- (progn (forward-list) (point))))
     (buffer-substring (line-beginning-position) (point))))
 
 (defun counsel-outline-level-emacs-lisp ()
-  "Function used by `counsel-outline' to compute the level of the
-current outline heading in emacs-lisp-mode buffers. See
-`counsel-outline-settings'."
+  "Return level of current outline heading.
+Like `lisp-outline-level', but adapted for the `:outline-level'
+setting in `counsel-outline-settings', which see."
   (if (looking-at ";;\\([;*]+\\)")
       (- (match-end 1) (match-beginning 1))
     (funcall outline-level)))
 
-(defvar counsel-outline--preselect nil
+(defvar counsel-outline--preselect 0
   "Index of the presected candidate in `counsel-outline'.")
 
 (defun counsel-outline-candidates (&optional settings)
-  "Return outline candidates."
+  "Return an alist of outline heading completion candidates.
+Each element is a pair (HEADING . MARKER), where the string
+HEADING is located at the position of MARKER.  SETTINGS is a
+plist entry from `counsel-outline-settings', which see.
+The caller is responsible for pointing each MARKER to nil when it
+is no longer needed."
   (let ((bol-regex (concat "^\\(?:"
                            (or (plist-get settings :outline-regexp)
                                outline-regexp)
                            "\\)"))
         (outline-title-fn (or (plist-get settings :outline-title)
-                              'counsel-outline-title))
+                              #'counsel-outline-title))
         (outline-level-fn (or (plist-get settings :outline-level)
                               outline-level))
         (display-style (or (plist-get settings :display-style)
@@ -4106,86 +4116,88 @@ current outline heading in emacs-lisp-mode buffers. See
         (face-style (or (plist-get settings :face-style)
                         counsel-outline-face-style))
         (custom-faces (or (plist-get settings :custom-faces)
-                          counsel-outline-custom-faces)))
+                          counsel-outline-custom-faces))
+        (stack-level 0)
+        (orig-point (point))
+        cands name level marker stack)
     (save-excursion
-      (let (cands
-            name
-            level
-            marker
-            stack
-            (stack-level 0)
-            (orig-point (point)))
-        (setq counsel-outline--preselect 0)
-        (goto-char (point-min))
-        (while (re-search-forward bol-regex nil t)
-          (save-excursion
-            (setq name (or (save-match-data
-                             (funcall outline-title-fn))
-                           ""))
-            (goto-char (match-beginning 0))
-            (setq marker (point-marker))
-            (setq level (funcall outline-level-fn))
-            (cond ((eq display-style 'path)
-                   ;; Update stack. The empty entry guards against incorrect
-                   ;; headline hierarchies e.g. a level 3 headline immediately
-                   ;; following a level 1 entry.
-                   (while (<= level stack-level)
-                     (pop stack)
-                     (cl-decf stack-level))
-                   (while (> level stack-level)
-                     (push "" stack)
-                     (cl-incf stack-level))
-                   (setf (car stack) (counsel-outline--add-face name level face-style custom-faces))
-                   (setq name (mapconcat
-                               #'identity
-                               (reverse stack)
-                               path-separator)))
-                  (t
-                   (when (eq display-style 'headline)
-                     (setq name (concat (make-string level ?*) " " name)))
-                   (setq name (counsel-outline--add-face name level face-style custom-faces))))
-            (push (cons name marker) cands))
-          (unless (or (string= name "")
-                      (< orig-point marker))
-            (cl-incf counsel-outline--preselect)))
-        (nreverse cands)))))
+      (setq counsel-outline--preselect 0)
+      (goto-char (point-min))
+      (while (re-search-forward bol-regex nil t)
+        (save-excursion
+          (setq name (or (save-match-data
+                           (funcall outline-title-fn))
+                         ""))
+          (goto-char (match-beginning 0))
+          (setq marker (point-marker))
+          (setq level (funcall outline-level-fn))
+          (cond ((eq display-style 'path)
+                 ;; Update stack.  The empty entry guards against incorrect
+                 ;; headline hierarchies, e.g. a level 3 headline
+                 ;; immediately following a level 1 entry.
+                 (while (<= level stack-level)
+                   (pop stack)
+                   (cl-decf stack-level))
+                 (while (> level stack-level)
+                   (push "" stack)
+                   (cl-incf stack-level))
+                 (setf (car stack)
+                       (counsel-outline--add-face
+                        name level face-style custom-faces))
+                 (setq name (mapconcat #'identity
+                                       (reverse stack)
+                                       path-separator)))
+                (t
+                 (when (eq display-style 'headline)
+                   (setq name (concat (make-string level ?*) " " name)))
+                 (setq name (counsel-outline--add-face
+                             name level face-style custom-faces))))
+          (push (cons name marker) cands))
+        (unless (or (string= name "")
+                    (< orig-point marker))
+          (cl-incf counsel-outline--preselect))))
+    (nreverse cands)))
+
+(defun counsel--outline-free-markers (outlines)
+  "Point all markers in OUTLINES to nil.
+OUTLINES is an alist as per `counsel-outline-candidates'."
+  (dolist (outline outlines)
+    (set-marker (cdr outline) nil)))
 
 (defun counsel-outline--add-face (name level &optional face-style custom-faces)
-  "Add face to headline NAME on LEVEL.
-The face can be customized through `counsel-outline-face-style'
-and `counsel-outline-custom-faces', unless FACE-STYLE and
-CUSTOM-FACES are given."
-  (or (and (eq (or face-style counsel-outline-face-style) 'org)
-           (propertize
-            name
-            'face
-            (concat "org-level-" (number-to-string level))))
-      (and (eq (or face-style counsel-outline-face-style) 'verbatim)
-           name)
-      (and (eq (or face-style counsel-org-goto-face-style) 'custom)
-           (propertize
-            name
-            'face
-            (nth (1- level) (or custom-faces counsel-outline-custom-faces))))
-      (propertize name 'face 'minibuffer-prompt)))
+  "Set the `face' property on headline NAME according to LEVEL.
+FACE-STYLE and CUSTOM-FACES override `counsel-outline-face-style'
+and `counsel-outline-custom-faces', respectively, which determine
+the face to apply."
+  (let ((face (cl-case (or face-style counsel-outline-face-style)
+                (verbatim)
+                (custom (nth (1- level)
+                             (or custom-faces counsel-outline-custom-faces)))
+                (org (format "org-level-%d" level))
+                (t 'minibuffer-prompt))))
+    (when face
+      (put-text-property 0 (length name) 'face face name)))
+  name)
 
 (defun counsel-outline-action (x)
   "Go to outline X."
-    (goto-char (cdr x)))
+  (goto-char (cdr x)))
 
 ;;;###autoload
 (defun counsel-outline ()
-  "Jump to outline with completion."
+  "Jump to an outline heading with completion."
   (interactive)
-  (let ((settings (cdr (assoc major-mode counsel-outline-settings))))
-    (ivy-read "outline: " (counsel-outline-candidates settings)
+  (let* ((settings (cdr (assq major-mode counsel-outline-settings)))
+         (outlines (counsel-outline-candidates settings)))
+    (ivy-read "Outline: " outlines
               :action (or (plist-get settings :action)
                           #'counsel-outline-action)
-              :preselect (max (1- counsel-outline--preselect) 0)
               :history (or (plist-get settings :history)
                            'counsel-outline-history)
+              :preselect (max (1- counsel-outline--preselect) 0)
               :caller (or (plist-get settings :caller)
-                          'counsel-outline))))
+                          'counsel-outline))
+    (counsel--outline-free-markers outlines)))
 
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
