@@ -1913,6 +1913,7 @@ This is useful for recursive `ivy-read'."
                  (setq preselect (file-relative-name preselect
                                                      preselect-directory))
                  (setf (ivy-state-preselect state) preselect)))
+             (setq sort nil)
              (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
@@ -1959,16 +1960,13 @@ This is useful for recursive `ivy-read'."
                (setq coll (cl-union def coll :test #'equal)))
               ((not (member def coll))
                (push def coll))))
-      (when sort
-        (if (functionp collection)
-            (when (and (not (eq collection #'read-file-name-internal))
-                       (<= (length coll) ivy-sort-max-size)
-                       (setq sort-fn (ivy--sort-function collection)))
-              (setq coll (sort (copy-sequence coll) sort-fn)))
-          (when (and (not (eq history 'org-refile-history))
-                     (<= (length coll) ivy-sort-max-size)
-                     (setq sort-fn (ivy--sort-function caller)))
-            (setq coll (sort (copy-sequence coll) sort-fn)))))
+      (when (and sort
+                 (or (functionp collection)
+                     (not (eq history 'org-refile-history)))
+                 (setq sort-fn (ivy--sort-function
+                                (if (functionp collection) collection caller)))
+                 (null (nthcdr ivy-sort-max-size coll)))
+        (setq coll (sort (copy-sequence coll) sort-fn)))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
