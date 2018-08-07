@@ -3264,66 +3264,64 @@ Position of selected mark outside accessible part of buffer")))
 (defvar package-archive-contents)
 (declare-function package-installed-p "package")
 (declare-function package-delete "package")
+(declare-function package-desc-extras "package")
 
-(defun counsel-package ()
-  "Install or delete packages.
-
-Packages not currently installed have a \"+\" prepended.  Selecting one
-of these will try to install it.  Currently installed packages have a
-\"-\" prepended, and selecting one of these will delete the package.
-
-Additional Actions:
-
-  \\<ivy-minibuffer-map>\\[ivy-dispatching-done] d: describe package"
-  (interactive)
+(defun counsel--package-candidates ()
+  "Return completion alist for `counsel-package'."
   (unless package--initialized
     (package-initialize t))
   (unless package-archive-contents
     (package-refresh-contents))
-  (let ((cands (mapcar #'counsel-package-make-package-cell
-                       package-archive-contents)))
-    (ivy-read "Packages (install +pkg or delete -pkg): "
-              (sort cands #'counsel--package-sort)
-              :action #'counsel-package-action
-              :initial-input "^+ "
-              :require-match t
-              :caller 'counsel-package)))
+  (sort (mapcar (lambda (entry)
+                  (cons (let ((pkg (car entry)))
+                          (concat (if (package-installed-p pkg) "-" "+")
+                                  (symbol-name pkg)))
+                        entry))
+                package-archive-contents)
+        #'counsel--package-sort))
 
-(defun counsel-package-make-package-cell (pkg)
-  "Make candidate for package PKG."
-  (let* ((pkg-sym (car pkg))
-         (pkg-name (symbol-name pkg-sym)))
-    (cons (format "%s%s"
-                  (if (package-installed-p pkg-sym) "-" "+")
-                  pkg-name)
-          pkg)))
+(defun counsel-package ()
+  "Install or delete packages.
 
-(defun counsel-package-action (pkg-cons)
-  "Delete or install package in PKG-CONS."
-  (let ((pkg (cadr pkg-cons)))
-    (if (package-installed-p pkg)
-        (package-delete
-         (cadr (assoc pkg package-alist)))
-      (package-install pkg))))
+Packages not currently installed are prefixed with \"+\", and
+selecting one of these will try to install it.
+Packages currently installed are prefixed with \"-\", and
+selecting one of these will try to delete it.
 
-(defun counsel-package-action-describe (pkg-cons)
-  "Call `describe-package' for package in PKG-CONS."
-  (describe-package (cadr pkg-cons)))
+Additional actions:\\<ivy-minibuffer-map>
 
-(declare-function package-desc-extras "package")
+  \\[ivy-dispatching-done] d: Describe package
+  \\[ivy-dispatching-done] h: Visit package's homepage"
+  (interactive)
+  (require 'package)
+  (ivy-read "Packages (install +pkg or delete -pkg): "
+            (counsel--package-candidates)
+            :action #'counsel-package-action
+            :require-match t
+            :caller 'counsel-package))
 
-(defun counsel-package-action-homepage (pkg-cons)
-  "Open homepage for package in PKG-CONS."
-  (let* ((desc-list (cddr pkg-cons))
-         (desc (if (listp desc-list) (car desc-list) desc-list))
-         (url (cdr (assoc :url (package-desc-extras desc)))))
-    (when url
-      (require 'browse-url)
-      (browse-url url))))
+(cl-pushnew '(counsel-package . "^+ ") ivy-initial-inputs-alist :key #'car)
+
+(defun counsel-package-action (package)
+  "Delete or install PACKAGE."
+  (setq package (cadr package))
+  (if (package-installed-p package)
+      (package-delete (cadr (assq package package-alist)))
+    (package-install package)))
+
+(defun counsel-package-action-describe (package)
+  "Call `describe-package' on PACKAGE."
+  (describe-package (cadr package)))
+
+(defun counsel-package-action-homepage (package)
+  "Open homepage for PACKAGE in a WWW browser."
+  (let ((url (cdr (assq :url (package-desc-extras (nth 2 package))))))
+    (if url
+        (browse-url url)
+      (message "No homepage specified for package `%s'" (nth 1 package)))))
 
 (defun counsel--package-sort (a b)
-  "Sort function for `counsel-package'.
-A is the left hand side, B the right hand side."
+  "Sort function for `counsel-package' candidates."
   (let* ((a (car a))
          (b (car b))
          (a-inst (= (string-to-char a) ?+))
