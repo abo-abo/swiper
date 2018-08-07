@@ -563,21 +563,18 @@ Variables declared using `defcustom' are highlighted according to
 (defun counsel-describe-function ()
   "Forward to `describe-function'.
 
-Interactive functions \(i.e., commands) are highlighted according
+Interactive functions (i.e., commands) are highlighted according
 to `ivy-highlight-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "Describe function: "
-              (let (cands)
-                (mapatoms
-                 (lambda (x)
-                   (when (fboundp x)
-                     (push (symbol-name x) cands))))
-                cands)
+    (ivy-read "Describe function: " obarray
+              :predicate (lambda (sym)
+                           (or (fboundp sym)
+                               (get sym 'function-documentation)))
+              :require-match t
+              :history 'counsel-describe-symbol-history
               :keymap counsel-describe-map
               :preselect (funcall counsel-describe-function-preselect)
-              :history 'counsel-describe-symbol-history
-              :require-match t
               :sort t
               :action (lambda (x)
                         (funcall counsel-describe-function-function (intern x)))
