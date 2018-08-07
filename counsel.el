@@ -643,8 +643,7 @@ With a prefix arg, restrict list to variables defined using
   (interactive (list (intern
                       (ivy-read "Set variable: " obarray
                                 :predicate (if current-prefix-arg
-                                               (lambda (sym)
-                                                 (get sym 'custom-type))
+                                               #'custom-variable-p
                                              #'counsel--variable-p)
                                 :history 'counsel-set-variable-history
                                 :preselect (ivy-thing-at-point)))))
