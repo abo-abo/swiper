@@ -1929,13 +1929,11 @@ This is useful for recursive `ivy-read'."
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
             ((and (consp collection) (listp (car collection)))
-             (setq collection
-                   (setf (ivy-state-collection ivy-last)
-                         (if (and sort (setq sort-fn (ivy--sort-function caller)))
-                             (progn
-                               (setq sort nil)
-                               (sort (copy-sequence collection) sort-fn))
-                           (cl-remove-if-not predicate collection))))
+             (setq collection (cl-remove-if-not predicate collection))
+             (when (and sort (setq sort-fn (ivy--sort-function caller)))
+               (setq collection (sort collection sort-fn))
+               (setq sort nil))
+             (setf (ivy-state-collection ivy-last) collection)
              (setq coll (all-completions "" collection))
              (let ((i 0))
                (ignore-errors
