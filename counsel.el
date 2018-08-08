@@ -489,15 +489,11 @@ Used by commands `counsel-describe-variable' and
 (define-obsolete-function-alias 'counsel-symbol-at-point
     'ivy-thing-at-point "0.7.0")
 
-(defun counsel-variable-list ()
-  "Return the list of all currently bound variables."
-  (let (cands)
-    (mapatoms
-     (lambda (vv)
-       (when (or (get vv 'variable-documentation)
-                 (and (boundp vv) (not (keywordp vv))))
-         (push (symbol-name vv) cands))))
-    (delete "" cands)))
+(defun counsel--variable-p (symbol)
+  "Return non-nil if SYMBOL is a bound or documented variable."
+  (or (and (boundp symbol)
+           (not (keywordp symbol)))
+      (get symbol 'variable-documentation)))
 
 (defcustom counsel-describe-variable-function #'describe-variable
   "Function to call to describe a variable passed as parameter."
@@ -521,17 +517,16 @@ Variables declared using `defcustom' are highlighted according to
 `ivy-highlight-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read
-     "Describe variable: "
-     (counsel-variable-list)
-     :keymap counsel-describe-map
-     :preselect (ivy-thing-at-point)
-     :history 'counsel-describe-symbol-history
-     :require-match t
-     :sort t
-     :action (lambda (x)
-               (funcall counsel-describe-variable-function (intern x)))
-     :caller 'counsel-describe-variable)))
+    (ivy-read "Describe variable: " obarray
+              :predicate #'counsel--variable-p
+              :require-match t
+              :history 'counsel-describe-symbol-history
+              :keymap counsel-describe-map
+              :preselect (ivy-thing-at-point)
+              :sort t
+              :action (lambda (x)
+                        (funcall counsel-describe-variable-function (intern x)))
+              :caller 'counsel-describe-variable)))
 
 ;;** `counsel-describe-function'
 (ivy-set-actions
@@ -568,21 +563,18 @@ Variables declared using `defcustom' are highlighted according to
 (defun counsel-describe-function ()
   "Forward to `describe-function'.
 
-Interactive functions \(i.e., commands) are highlighted according
+Interactive functions (i.e., commands) are highlighted according
 to `ivy-highlight-face'."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "Describe function: "
-              (let (cands)
-                (mapatoms
-                 (lambda (x)
-                   (when (fboundp x)
-                     (push (symbol-name x) cands))))
-                cands)
+    (ivy-read "Describe function: " obarray
+              :predicate (lambda (sym)
+                           (or (fboundp sym)
+                               (get sym 'function-documentation)))
+              :require-match t
+              :history 'counsel-describe-symbol-history
               :keymap counsel-describe-map
               :preselect (funcall counsel-describe-function-preselect)
-              :history 'counsel-describe-symbol-history
-              :require-match t
               :sort t
               :action (lambda (x)
                         (funcall counsel-describe-function-function (intern x)))
@@ -646,12 +638,12 @@ input corresponding to the chosen variable.
 With a prefix arg, restrict list to variables defined using
 `defcustom'."
   (interactive (list (intern
-                      (ivy-read "Variable: " (counsel-variable-list)
-                                :predicate (and current-prefix-arg
-                                                (lambda (varname)
-                                                  (get (intern varname) 'custom-type)))
-                                :preselect (ivy-thing-at-point)
-                                :history 'counsel-set-variable-history))))
+                      (ivy-read "Set variable: " obarray
+                                :predicate (if current-prefix-arg
+                                               #'custom-variable-p
+                                             #'counsel--variable-p)
+                                :history 'counsel-set-variable-history
+                                :preselect (ivy-thing-at-point)))))
   (let ((doc (and (require 'cus-edit)
                   (require 'lv nil t)
                   (not (string= "nil" (custom-variable-documentation sym)))
