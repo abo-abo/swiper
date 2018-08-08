@@ -3510,9 +3510,9 @@ possible match.  See `all-completions' for further information."
                         'ivy-remote
                       (cdr (assq (buffer-local-value 'major-mode buf)
                                  ivy-switch-buffer-faces-alist)))))
-         (when face
-           (put-text-property 0 (length x) 'face face x))
-         x))
+         (if face
+             (propertize x 'face face)
+           x)))
      (all-completions str #'internal-complete-buffer predicate))
     (and virtual
          (ivy--virtual-buffers)))))
