@@ -804,7 +804,6 @@ Is is a cons cell, related to `tramp-get-completion-function'."
         (concat user "@" domain)
       domain)))
 
-(defvar Info-current-file)
 (declare-function Info-find-node "info")
 (declare-function Info-read-node-name-1 "info")
 (declare-function tramp-get-completion-function "tramp")
@@ -1870,12 +1869,12 @@ This is useful for recursive `ivy-read'."
               #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection #'Info-read-node-name-1)
-             (if (equal Info-current-file "dir")
-                 (setq coll
+             (setq coll
+                   (if (equal (bound-and-true-p Info-current-file) "dir")
                        (mapcar (lambda (x) (format "(%s)" x))
                                (delete-dups
-                                (all-completions "(" collection predicate))))
-               (setq coll (all-completions "" collection predicate))))
+                                (all-completions "(" collection predicate)))
+                     (all-completions "" collection predicate))))
             ((eq collection #'read-file-name-internal)
              (when (and (equal def initial-input)
                         (member "./" ivy-extra-directories))
@@ -1907,41 +1906,41 @@ This is useful for recursive `ivy-read'."
              (require 'dired)
              (when preselect
                (let ((preselect-directory (ivy--parent-dir preselect)))
-                 (unless (or (null preselect-directory)
-                             (string= preselect-directory
-                                      default-directory))
+                 (when (and preselect-directory
+                            (not (string= preselect-directory
+                                          default-directory)))
                    (setq ivy--directory preselect-directory))
-                 (setf
-                  (ivy-state-preselect state)
-                  (setq preselect (file-relative-name preselect
-                                                      preselect-directory)))))
+                 (setq preselect (file-relative-name preselect
+                                                     preselect-directory))
+                 (setf (ivy-state-preselect state) preselect)))
+             (setq sort nil)
              (setq coll (ivy--sorted-files ivy--directory))
              (when initial-input
                (unless (or require-match
                            (equal initial-input default-directory)
                            (equal initial-input ""))
                  (setq coll (cons initial-input coll)))
-               (unless (and (ivy-state-action ivy-last)
-                            (not (equal (ivy--get-action ivy-last) 'identity)))
+               (when (or (not (ivy-state-action ivy-last))
+                         (equal (ivy--get-action ivy-last) 'identity))
                  (setq initial-input nil))))
             ((eq collection #'internal-complete-buffer)
              (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
-            ((and (consp collection) (listp (car collection)))
-             (setq collection
-                   (setf (ivy-state-collection ivy-last)
-                         (if (and sort (setq sort-fn (ivy--sort-function caller)))
-                             (progn
-                               (setq sort nil)
-                               (sort (copy-sequence collection) sort-fn))
-                           (cl-remove-if-not predicate collection))))
+            ((consp (car-safe collection))
+             (setq collection (cl-remove-if-not predicate collection))
+             (when (and sort (setq sort-fn (ivy--sort-function caller)))
+               ;; The `copy-sequence' is required because `cl-remove' does not
+               ;; make a copy; see PR #1706.
+               (setq collection (sort (copy-sequence collection) sort-fn))
+               (setq sort nil))
+             (setf (ivy-state-collection ivy-last) collection)
              (setq coll (all-completions "" collection))
              (let ((i 0))
+               ;; cm can be read-only
                (ignore-errors
-                 ;; cm can be read-only
                  (dolist (cm coll)
-                   (add-text-properties 0 1 `(idx ,i) cm)
+                   (put-text-property 0 1 'idx i cm)
                    (cl-incf i)))))
             ((or (functionp collection)
                  (byte-code-function-p collection)
@@ -1958,20 +1957,16 @@ This is useful for recursive `ivy-read'."
         (setq coll (delete "" coll)))
       (when def
         (cond ((listp def)
-               (setq coll (cl-union def coll :test 'equal)))
-              ((member def coll))
-              (t
+               (setq coll (cl-union def coll :test #'equal)))
+              ((not (member def coll))
                (push def coll))))
-      (when sort
-        (if (functionp collection)
-            (when (and (not (eq collection #'read-file-name-internal))
-                       (<= (length coll) ivy-sort-max-size)
-                       (setq sort-fn (ivy--sort-function collection)))
-              (setq coll (sort (copy-sequence coll) sort-fn)))
-          (when (and (not (eq history 'org-refile-history))
-                     (<= (length coll) ivy-sort-max-size)
-                     (setq sort-fn (ivy--sort-function caller)))
-            (setq coll (sort (copy-sequence coll) sort-fn)))))
+      (when (and sort
+                 (or (functionp collection)
+                     (not (eq history 'org-refile-history)))
+                 (setq sort-fn (ivy--sort-function
+                                (if (functionp collection) collection caller)))
+                 (null (nthcdr ivy-sort-max-size coll)))
+        (setq coll (sort (copy-sequence coll) sort-fn)))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
@@ -1997,9 +1992,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy-exit nil)
     (setq ivy--default
           (if (region-active-p)
-              (buffer-substring
-               (region-beginning)
-               (region-end))
+              (buffer-substring (region-beginning) (region-end))
             (ivy-thing-at-point)))
     (setq ivy--prompt (ivy-add-prompt-count prompt))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
