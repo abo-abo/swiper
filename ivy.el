@@ -810,7 +810,10 @@ Is is a cons cell, related to `tramp-get-completion-function'."
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
-When ARG is t, exit with current text, ignoring the candidates."
+When ARG is t, exit with current text, ignoring the candidates.
+When the current candidate during file name completion is a
+directory, continue completion from within that directory instead
+of exiting.  This function is otherwise like `ivy-done'."
   (interactive "P")
   (setq ivy-current-prefix-arg current-prefix-arg)
   (cond ((or arg
