@@ -314,8 +314,16 @@ will bring the behavior in line with the newer Emacsen."
                   (ivy--regex "foo bar"))
                  "(foo).*?(bar)"))
   (should (equal (counsel-unquote-regex-parens
-                  (ivy--regex "(foo bar"))
-                 "(\\(foo).*?(bar)")))
+                  (ivy--regex "(foo bar)"))
+                 "(\\(foo).*?(bar\\))"))
+  (should (equal (counsel-unquote-regex-parens
+                  (ivy--regex "{foo bar}"))
+                 "({foo).*?(bar})"))
+  (should (equal (counsel-unquote-regex-parens "\\{foo bar\\}")
+                 "{foo bar}"))
+  (should (equal (counsel-unquote-regex-parens
+                  '(("foo") ("bar" . t) ("baz" . t)))
+                 "bar.*baz")))
 
 (defmacro ivy--string-buffer (text &rest body)
   "Test helper that wraps TEXT in a temp buffer while running BODY."

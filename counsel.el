@@ -72,7 +72,7 @@ N is obtained from `counsel-more-chars-alist'."
                                                     (")" . "\\)")
                                                     ("\\{" . "{")
                                                     ("\\}" . "}"))))
-                                    (error "Unexpected")))
+                                    (error "Unexpected parenthesis: %S" s)))
                               str t t)))
 
 (defun counsel-directory-name (dir)
