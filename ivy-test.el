@@ -123,7 +123,7 @@ will bring the behavior in line with the newer Emacsen."
               (ivy-read "test" '(("foo" . "bar"))
                :action (lambda (x) (prin1 x))))
             "f C-m")
-           "(#(\"foo\" 0 1 (idx 0)) . \"bar\")"))
+           "(\"foo\" . \"bar\")"))
   (should (equal
            (ivy-with
             '(with-output-to-string
@@ -140,6 +140,14 @@ will bring the behavior in line with the newer Emacsen."
                        '("ignore" "build" "build-1" "build-2") :preselect "build")
                      "b C-m")
            "build")))
+
+(ert-deftest ivy-read-sort-alist ()
+  (should (equal (ivy-with '(let ((coll '(("b" . "1") ("a" . "2"))))
+                             (ivy-read "test:" coll
+                              :sort t)
+                             coll)
+                           "C-m")
+                 '(("b" . "1") ("a" . "2")))))
 
 (ert-deftest ivy-read-remap ()
   (should (equal
