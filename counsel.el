@@ -2581,6 +2581,12 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
 ;;** `counsel-grep'
+(defvar counsel-grep-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-l") 'ivy-call-and-recenter)
+    (define-key map (kbd "M-q") 'swiper-query-replace)
+    map))
+
 (defcustom counsel-grep-base-command "grep -E -n -e %s %s"
   "Format string used by `counsel-grep' to build a shell command.
 It should contain two %-sequences (see function `format') to be
@@ -2675,6 +2681,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                                          (line-beginning-position)
                                          (line-end-position)))))
 
+                             :keymap counsel-grep-map
                              :history 'counsel-git-grep-history
                              :update-fn (lambda ()
                                           (counsel-grep-action (ivy-state-current ivy-last)))
