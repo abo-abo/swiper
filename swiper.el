@@ -351,7 +351,8 @@
 
 NUMBERS-WIDTH, when specified, is used for width spec of line
 numbers; replaces calculating the width from buffer line count."
-  (let ((n-lines (count-lines (point-min) (point-max))))
+  (let* ((inhibit-field-text-motion t)
+         (n-lines (count-lines (point-min) (point-max))))
     (if (and visual-line-mode
              ;; super-slow otherwise
              (< (buffer-size) 20000)
