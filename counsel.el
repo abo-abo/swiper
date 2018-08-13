@@ -2030,8 +2030,11 @@ By default `counsel-bookmark' opens a dired buffer for directories."
   :type 'boolean
   :group 'ivy)
 
-(declare-function bookmark-all-names "bookmark")
+(defvar bookmark-alist)
 (declare-function bookmark-location "bookmark")
+(declare-function bookmark-all-names "bookmark")
+(declare-function bookmark-get-filename "bookmark")
+(declare-function bookmark-maybe-load-default-file "bookmark")
 
 ;;;###autoload
 (defun counsel-bookmark ()
@@ -2085,6 +2088,7 @@ By default `counsel-bookmark' opens a dired buffer for directories."
 With a prefix argument, this command creates a new bookmark which points to the
 current value of `default-directory'."
   (interactive)
+  (require 'bookmark)
   (ivy-read "Bookmarked directory: "
             (counsel-bookmarked-directory--candidates)
             :caller 'counsel-bookmarked-directory
