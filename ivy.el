@@ -1013,7 +1013,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                 (if (and ivy--directory
                          (not (eq (ivy-state-history ivy-last)
                                   'grep-files-history)))
-                    (expand-file-name ivy-text ivy--directory)
+                    (if (string= ivy-text "")
+                        ivy--directory ; in abbreviated form if input not edited
+                      (expand-file-name ivy-text ivy--directory))
                   ivy-text)))
   (setq ivy-completion-beg ivy-completion-end)
   (setq ivy-exit 'done)
