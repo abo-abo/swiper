@@ -3021,8 +3021,7 @@ otherwise continue prompting for tags."
     (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
               :action #'counsel-org-goto-action
-              :caller 'counsel-org-goto-all)
-    (counsel--outline-free-markers entries)))
+              :caller 'counsel-org-goto-all)))
 
 (defun counsel-org-goto-action (x)
   "Go to headline in candidate X."
@@ -4133,9 +4132,7 @@ setting in `counsel-outline-settings', which see."
   "Return an alist of outline heading completion candidates.
 Each element is a pair (HEADING . MARKER), where the string
 HEADING is located at the position of MARKER.  SETTINGS is a
-plist entry from `counsel-outline-settings', which see.
-The caller is responsible for pointing each MARKER to nil when it
-is no longer needed."
+plist entry from `counsel-outline-settings', which see."
   (let ((bol-regex (concat "^\\(?:"
                            (or (plist-get settings :outline-regexp)
                                outline-regexp)
@@ -4193,12 +4190,6 @@ is no longer needed."
           (cl-incf counsel-outline--preselect))))
     (nreverse cands)))
 
-(defun counsel--outline-free-markers (outlines)
-  "Point all markers in OUTLINES to nil.
-OUTLINES is an alist as per `counsel-outline-candidates'."
-  (dolist (outline outlines)
-    (set-marker (cdr outline) nil)))
-
 (defun counsel-outline--add-face (name level &optional face-style custom-faces)
   "Set the `face' property on headline NAME according to LEVEL.
 FACE-STYLE and CUSTOM-FACES override `counsel-outline-face-style'
@@ -4222,17 +4213,15 @@ the face to apply."
 (defun counsel-outline ()
   "Jump to an outline heading with completion."
   (interactive)
-  (let* ((settings (cdr (assq major-mode counsel-outline-settings)))
-         (outlines (counsel-outline-candidates settings)))
-    (ivy-read "Outline: " outlines
+  (let ((settings (cdr (assq major-mode counsel-outline-settings))))
+    (ivy-read "Outline: " (counsel-outline-candidates settings)
               :action (or (plist-get settings :action)
                           #'counsel-outline-action)
               :history (or (plist-get settings :history)
                            'counsel-outline-history)
               :preselect (max (1- counsel-outline--preselect) 0)
               :caller (or (plist-get settings :caller)
-                          'counsel-outline))
-    (counsel--outline-free-markers outlines)))
+                          'counsel-outline))))
 
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
