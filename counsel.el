@@ -4839,7 +4839,10 @@ Remaps built-in functions to counsel replacements.")
   "Toggle Counsel mode on or off.
 Turn Counsel mode on if ARG is positive, off otherwise. Counsel
 mode remaps built-in emacs functions that have counsel
-replacements. "
+replacements.
+
+Local bindings (`counsel-mode-map'):
+\\{counsel-mode-map}"
   :group 'ivy
   :global t
   :keymap counsel-mode-map
