@@ -421,7 +421,8 @@ action functions.")
   directory
   caller
   current
-  def)
+  def
+  initial-def)
 
 (defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
@@ -813,7 +814,7 @@ Is is a cons cell, related to `tramp-get-completion-function'."
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
-When ARG is t, exit with current text, ignoring the candidates.
+When ARG is non-nil, exit with current text, ignoring the candidates.
 When the current candidate during file name completion is a
 directory, continue completion from within that directory instead
 of exiting.  This function is otherwise like `ivy-done'."
@@ -976,16 +977,43 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defvar ivy-completion-end nil
   "Completion bounds end.")
 
-(defun ivy-immediate-done ()
-  "Exit the minibuffer with current input instead of current candidate."
-  (interactive)
+(defun ivy-immediate-done (&optional arg)
+  "Exit the minibuffer with current input instead of current candidate.
+When ARG is non-nil, exit with empty input."
+  (interactive "P")
+  (if arg
+      (ivy--empty-input-done)
+    (delete-minibuffer-contents)
+    (insert (setf (ivy-state-current ivy-last)
+                  (if (and ivy--directory
+                           (not (eq (ivy-state-history ivy-last)
+                                    'grep-files-history)))
+                      (expand-file-name ivy-text ivy--directory)
+                    ivy-text)))
+    (setq ivy-completion-beg ivy-completion-end)
+    (setq ivy-exit 'done)
+    (exit-minibuffer)))
+
+(defun ivy--empty-input-done ()
+  "Exit the minibuffer with empty input.
+Empty input is either the callers default or \"\" if such default is nil."
   (delete-minibuffer-contents)
-  (insert (setf (ivy-state-current ivy-last)
-                (if (and ivy--directory
-                         (not (eq (ivy-state-history ivy-last)
-                                  'grep-files-history)))
-                    (expand-file-name ivy-text ivy--directory)
-                  ivy-text)))
+  (let ((def (ivy-state-initial-def ivy-last)))
+    ;; For `completing-read' compat, empty input means that
+    ;; `ivy-read' shall return DEF rather than a new string,
+    ;; or "" if DEF is nil.
+    ;; A CALLER, i.e. `read-file-name-default', may `eq' the
+    ;; return value with provided DEF to detect empty input
+    ;; and return "" in order to let the CALLERs caller
+    ;; distinguish, just like DEF returned by
+    ;; `completing-read-default' when the result from
+    ;; `read-from-minibuffer' (READ is nil) is "".
+    ;; If DEF is nil, the user explicitly wants to return "",
+    ;; just like "" returned by `completing-read-default' with
+    ;; the "" result from `read-from-minibuffer' (READ is nil).
+    (setf (ivy-state-current ivy-last) (if def def "")))
+  (setq ivy--directory nil)
+  (setq ivy-text "")
   (setq ivy-completion-beg ivy-completion-end)
   (setq ivy-exit 'done)
   (exit-minibuffer))
@@ -1786,7 +1814,8 @@ customizations apply to the current completion session."
            :display-transformer-fn transformer-fn
            :directory default-directory
            :caller caller
-           :def def))
+           :def def
+           :initial-def def))
     (ivy--reset-state ivy-last)
     (prog1
         (unwind-protect
@@ -1834,7 +1863,8 @@ customizations apply to the current completion session."
             (ivy-recursive-restore)))
       (ivy-call)
       (let ((cur (ivy-state-current ivy-last)))
-        (remove-list-of-text-properties 0 (length cur) '(idx) cur)))))
+        (when (stringp cur)
+          (remove-list-of-text-properties 0 (length cur) '(idx) cur))))))
 
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy-display-function'."
@@ -1963,9 +1993,9 @@ This is useful for recursive `ivy-read'."
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
       (when def
-        (cond ((listp def)
+        (cond ((and (listp def) (stringp (car def)))
                (setq coll (cl-union def coll :test #'equal)))
-              ((not (member def coll))
+              ((and (stringp def) (not (member def coll)))
                (push def coll))))
       (when (and sort
                  (or (functionp collection)

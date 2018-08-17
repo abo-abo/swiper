@@ -875,6 +875,80 @@ will bring the behavior in line with the newer Emacsen."
            '(read-directory-name "cd: " "/tmp")
            "RET"))))
 
+(ert-deftest ivy-empty-input-set-visited-file-name-ivy-immediate-done ()
+  "Test empty input and `set-visited-file-name' command to set current buffer
+visit no file using prefix argument and command `ivy-immediate-done'."
+  (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
+    (ivy-mode 1)
+    (should
+     (equal nil
+            (ivy-with
+             '(with-temp-buffer
+                (set-visited-file-name "~/dummy-dir/dummy-file")
+                (command-execute-setting-this-command
+                 'set-visited-file-name)
+                (not-modified)
+                buffer-file-name)
+             "random-dummy-file C-u C-M-j")))
+    (ivy-mode ivy-mode-reset-arg)))
+
+(ert-deftest ivy-empty-input-read-file-name-ivy-immediate-done ()
+  "Test empty input with `read-file-name' as caller and variations in
+DEFAULT-FILENAME using prefix argument and command `ivy-immediate-done'."
+  (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
+    (ivy-mode 1)
+    (should
+     (equal ""
+            (ivy-with
+             '(read-file-name "p" nil nil 'mustmatch nil)
+             "random-dummy-file C-u C-M-j")))
+    (should
+     (equal ""
+            (ivy-with
+             '(read-file-name "p" nil "dummy-file" 'mustmatch nil)
+             "random-dummy-file C-u C-M-j")))
+    (should
+     (equal ""
+            (ivy-with
+             '(read-file-name "p" nil '("dummy-file" "file2") 'mustmatch nil)
+             "random-dummy-file C-u C-M-j")))
+    (ivy-mode ivy-mode-reset-arg)))
+
+(ert-deftest ivy-empty-input-completing-read-ivy-immediate-done ()
+  "Test empty input with `completing-read' as caller and variations in DEF
+using prefix argument and command `ivy-immediate-done'."
+  (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
+    (ivy-mode 1)
+    ;; Text default
+    (should
+     (equal ""
+            (ivy-with
+             '(completing-read "p" '("a" "b") nil 'require-match nil nil nil)
+             "random-text C-u C-M-j")))
+    (should
+     (equal "c"
+            (ivy-with
+             '(completing-read "p" '("a" "b") nil 'require-match nil nil "c")
+             "random-text C-u C-M-j")))
+    (should
+     (equal "c"
+            (ivy-with
+             '(completing-read "p" '("a") nil 'require-match nil nil '("c" "d"))
+             "random-text C-u C-M-j")))
+    ;; Non-text default
+    (should
+     (eq 'c
+         (ivy-with
+          '(completing-read "p" nil nil 'require-match nil nil '(c d))
+          "random-text C-u C-M-j")))
+    (let ((def '((a b))))
+      (should
+       (eq (car def)
+           (ivy-with
+            (eval `'(completing-read "p" nil nil 'require-match nil nil ',def))
+            "random-textx C-u C-M-j"))))
+    (ivy-mode ivy-mode-reset-arg)))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
