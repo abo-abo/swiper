@@ -1013,8 +1013,18 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                 (if (and ivy--directory
                          (not (eq (ivy-state-history ivy-last)
                                   'grep-files-history)))
-                    (if (string= ivy-text "")
-                        ivy--directory ; in abbreviated form if input not edited
+                    (if (and (string= ivy-text "")
+                             (eq (ivy-state-collection ivy-last)
+                                 #'read-file-name-internal))
+                        ;; For `read-file-name' compat, unchanged initial input
+                        ;; means that `ivy-read' shall return INITIAL-INPUT.
+                        ;; `read-file-name-default' `string-equal' return value
+                        ;; with provided INITIAL-INPUT to detect that the user
+                        ;; choose the default, `default-filename'.
+                        ;; We must return `ivy--directory' in unchanged form
+                        ;; in cased `ivy--directory' started out as
+                        ;; INITIAL-INPUT in abbreviated form.
+                        ivy--directory  ;unchanged (unexpanded)
                       (expand-file-name ivy-text ivy--directory))
                   ivy-text)))
   (setq ivy-completion-beg ivy-completion-end)
