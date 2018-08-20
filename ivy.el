@@ -244,8 +244,11 @@ Examples of properties include associated `:cleanup' functions.")
   "An alist to customize `ivy-height'.
 
 It is a list of (CALLER . HEIGHT).  CALLER is a caller of
-`ivy-read' and HEIGHT is the number of lines displayed."
-  :type '(alist :key-type function :value-type integer))
+`ivy-read' and HEIGHT is the number of lines displayed.
+HEIGHT can also be a function that returns the number of lines."
+  :type '(alist
+          :key-type function
+          :value-type (choice integer function)))
 
 (defvar ivy-completing-read-ignore-handlers-depth -1
   "Used to avoid infinite recursion.
@@ -1651,6 +1654,15 @@ found, it falls back to the key t."
              (and caller (assq caller alist)))
            (assq t alist))))
 
+(defun ivy--height (caller)
+  (let ((v (or (ivy-alist-setting ivy-height-alist caller)
+               ivy-height)))
+    (if (integerp v)
+        v
+      (if (functionp v)
+          (funcall v caller)
+        (error "Unexpected value: %S" v)))))
+
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1750,9 +1762,7 @@ customizations apply to the current completion session."
          (unless (window-minibuffer-p)
            (or ivy-display-function
                (ivy-alist-setting ivy-display-functions-alist caller))))
-        (height
-         (or (cdr (assq caller ivy-height-alist))
-             ivy-height)))
+        (height (ivy--height caller)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
