@@ -113,6 +113,10 @@ will bring the behavior in line with the newer Emacsen."
            (ivy-with '(ivy-read "test" '("aaab" "aaac"))
                      "a C-n <tab> C-m")
            "aaac"))
+  (should (equal-including-properties
+           (ivy-with '(ivy-read "test" '(("foo" . "bar")))
+                     "C-m")
+           "foo"))
   (should (equal
            (ivy-with '(ivy-read "test" '(("foo" . "bar")))
                      "asdf C-m")

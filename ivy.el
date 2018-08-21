@@ -1833,9 +1833,8 @@ customizations apply to the current completion session."
           (unless (eq ivy-exit 'done)
             (ivy-recursive-restore)))
       (ivy-call)
-      (when (> (length (ivy-state-current ivy-last)) 0)
-        (remove-list-of-text-properties
-         0 1 '(idx) (ivy-state-current ivy-last))))))
+      (let ((cur (ivy-state-current ivy-last)))
+        (remove-list-of-text-properties 0 (length cur) '(idx) cur)))))
 
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy-display-function'."
