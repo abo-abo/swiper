@@ -2697,12 +2697,15 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
                    (not (equal (ivy-state-current ivy-last) ""))
                    (file-directory-p (ivy-state-current ivy-last))
                    (file-exists-p (ivy-state-current ivy-last)))))
-           (when (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected)
-             (ivy--cd
-              (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
-           (when (and (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
-                      (not (string= ivy-text "/")))
-             (ivy--create-and-cd (expand-file-name ivy-text ivy--directory))))
+           (cond
+             ((or (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected)
+                  (eq this-command 'ivy-partial-or-done))
+              (ivy--cd
+               (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+
+             ((and (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
+                   (not (string= ivy-text "/")))
+              (ivy--create-and-cd (expand-file-name ivy-text ivy--directory)))))
           (t
            (when (and
                   (eq ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-create)
