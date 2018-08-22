@@ -1737,7 +1737,8 @@ currently checked out."
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
-  (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash))
+  (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash)
+  (ivy--reset-state ivy-last))
 
 (defun counsel-find-file-move (x)
   "Move or rename file X."
