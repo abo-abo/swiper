@@ -2805,8 +2805,7 @@ Should be run via minibuffer `post-command-hook'."
       (if ivy-display-function
           (funcall ivy-display-function text)
         (ivy-display-function-fallback text)))
-    (when (display-graphic-p)
-      (ivy--resize-minibuffer-to-fit))
+    (ivy--resize-minibuffer-to-fit)
     ;; prevent region growing due to text remove/add
     (when (region-active-p)
       (set-mark old-mark))))
