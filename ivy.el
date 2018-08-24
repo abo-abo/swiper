@@ -384,6 +384,7 @@ action functions.")
     (define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
     (define-key map (kbd "C-c C-s") 'ivy-rotate-sort)
     (define-key map [remap describe-mode] 'ivy-help)
+    (define-key map (kbd "C-M-S-j") 'ivy-empty-input-done)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -977,26 +978,27 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defvar ivy-completion-end nil
   "Completion bounds end.")
 
-(defun ivy-immediate-done (&optional arg)
-  "Exit the minibuffer with current input instead of current candidate.
-When ARG is non-nil, exit with empty input."
-  (interactive "P")
-  (if arg
-      (ivy--empty-input-done)
-    (delete-minibuffer-contents)
-    (insert (setf (ivy-state-current ivy-last)
-                  (if (and ivy--directory
-                           (not (eq (ivy-state-history ivy-last)
-                                    'grep-files-history)))
-                      (expand-file-name ivy-text ivy--directory)
-                    ivy-text)))
-    (setq ivy-completion-beg ivy-completion-end)
-    (setq ivy-exit 'done)
-    (exit-minibuffer)))
+(defun ivy-immediate-done ()
+  "Exit the minibuffer with current input instead of current candidate."
+  (interactive)
+  (delete-minibuffer-contents)
+  (insert (setf (ivy-state-current ivy-last)
+                (if (and ivy--directory
+                         (not (eq (ivy-state-history ivy-last)
+                                  'grep-files-history)))
+                    (expand-file-name ivy-text ivy--directory)
+                  ivy-text)))
+  (setq ivy-completion-beg ivy-completion-end)
+  (setq ivy-exit 'done)
+  (exit-minibuffer))
 
-(defun ivy--empty-input-done ()
+(defun ivy-empty-input-done ()
   "Exit the minibuffer with empty input.
+This command will explicitly exit with empty input regardless of what's been
+provided or entered.
+
 Empty input is either the callers default or \"\" if such default is nil."
+  (interactive)
   (delete-minibuffer-contents)
   (let ((def (ivy-state-initial-def ivy-last)))
     ;; For `completing-read' compat, empty input means that
