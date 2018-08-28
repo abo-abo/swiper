@@ -2238,7 +2238,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :action (lambda (file)
                       (when file
                         (with-ivy-window
-                          (find-file file))))
+                          (find-file
+                           (concat (file-remote-p default-directory) file)))))
             :unwind #'counsel-delete-process
             :caller 'counsel-locate))
 
