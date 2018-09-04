@@ -108,6 +108,10 @@
   '((t :inherit default))
   "Face used by Ivy for highlighting modified file visiting buffers.")
 
+(defface ivy-modified-outside-buffer
+  '((t :inherit default))
+  "Face used by Ivy for highlighting file visiting buffers modified outside Emacs.")
+
 (defface ivy-remote
   '((((class color) (background light))
      :foreground "#110099")
@@ -3797,10 +3801,14 @@ Skip buffers that match `ivy-ignore-buffers'."
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
   (let ((b (get-buffer str)))
-    (if (and b
-             (buffer-file-name b)
-             (buffer-modified-p b))
-        (ivy-append-face str 'ivy-modified-buffer)
+    (if (and b (buffer-file-name b))
+        (cond
+          ((buffer-modified-p b)
+           (ivy-append-face str 'ivy-modified-buffer))
+          ((and (not (file-remote-p (buffer-file-name b)))
+                (not (verify-visited-file-modtime b)))
+           (ivy-append-face str 'ivy-modified-outside-buffer))
+          (t str))
       str)))
 
 (defun ivy-switch-buffer-occur ()
