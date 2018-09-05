@@ -3673,24 +3673,23 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
 (defun ivy--switch-buffer-action (buffer)
   "Switch to BUFFER.
 BUFFER may be a string or nil."
-  (with-ivy-window
-    (if (zerop (length buffer))
-        (switch-to-buffer
-         ivy-text nil 'force-same-window)
-      (let ((virtual (assoc buffer ivy--virtual-buffers))
-            (view (assoc buffer ivy-views)))
-        (cond ((and virtual
-                    (not (get-buffer buffer)))
-               (find-file (cdr virtual)))
-              (view
-               (delete-other-windows)
-               (let (
-                     ;; silence "Directory has changed on disk"
-                     (inhibit-message t))
-                 (ivy-set-view-recur (cadr view))))
-              (t
-               (switch-to-buffer
-                buffer nil 'force-same-window)))))))
+  (if (zerop (length buffer))
+      (switch-to-buffer
+       ivy-text nil 'force-same-window)
+    (let ((virtual (assoc buffer ivy--virtual-buffers))
+          (view (assoc buffer ivy-views)))
+      (cond ((and virtual
+                  (not (get-buffer buffer)))
+             (find-file (cdr virtual)))
+            (view
+             (delete-other-windows)
+             (let (
+                   ;; silence "Directory has changed on disk"
+                   (inhibit-message t))
+               (ivy-set-view-recur (cadr view))))
+            (t
+             (switch-to-buffer
+              buffer nil 'force-same-window))))))
 
 (defun ivy--switch-buffer-other-window-action (buffer)
   "Switch to BUFFER in other window.
