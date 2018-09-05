@@ -2546,7 +2546,7 @@ STD-PROPS is a property list containing the default text properties."
         (condition-case nil
             (funcall fn)
           (error
-           (warn "`counsel-prompt-function' should take 0 args")
+           (warn "function set by `ivy-set-prompt' should take 0 args")
            ;; old behavior
            (funcall fn (ivy-state-prompt ivy-last))))
       ivy--prompt)))

@@ -97,19 +97,6 @@ N is obtained from `counsel-more-chars-alist'."
            (executable-find program))
       (user-error "Required program \"%s\" not found in your path" program)))
 
-(make-obsolete-variable
- 'counsel-prompt-function
- 'ivy-set-prompt
- "0.8.0 <2016-06-20 Mon>")
-
-(defcustom counsel-prompt-function #'counsel-prompt-function-default
-  "A function to return a full prompt string from a basic prompt string."
-  :group 'ivy
-  :type '(radio
-          (function-item counsel-prompt-function-default)
-          (function-item counsel-prompt-function-dir)
-          (function :tag "Custom")))
-
 (defun counsel-prompt-function-default ()
   "Return prompt appended with a semicolon."
   (ivy-add-prompt-count
@@ -1162,7 +1149,6 @@ selected face."
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program (car (split-string counsel-git-cmd)))
-  (ivy-set-prompt 'counsel-git counsel-prompt-function)
   (let* ((default-directory (expand-file-name (counsel-locate-git-root)))
          (cands (split-string
                  (shell-command-to-string counsel-git-cmd)
@@ -1172,6 +1158,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
               :initial-input initial-input
               :action #'counsel-git-action
               :caller 'counsel-git)))
+
+(ivy-set-prompt 'counsel-git #'counsel-prompt-function-default)
 
 (defun counsel-git-action (x)
   "Find file X in current Git repository."
@@ -1364,7 +1352,6 @@ When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive "P")
-  (ivy-set-prompt 'counsel-git-grep counsel-prompt-function)
   (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
         proj)
     (setq proj (car proj-and-cmd))
@@ -1397,6 +1384,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 :unwind unwind-function
                 :history 'counsel-git-grep-history
                 :caller 'counsel-git-grep))))
+(ivy-set-prompt 'counsel-git-grep #'counsel-prompt-function-default)
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
 (defun counsel-git-grep-proj-function (str)
@@ -2290,7 +2278,6 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
     (setq counsel--fzf-dir
           (or initial-directory
               (funcall counsel-fzf-dir-function)))
-    (ivy-set-prompt 'counsel-fzf counsel-prompt-function)
     (ivy-read (or fzf-prompt (concat fzf-basename ": "))
               #'counsel-fzf-function
               :initial-input initial-input
@@ -2299,6 +2286,8 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :action #'counsel-fzf-action
               :unwind #'counsel-delete-process
               :caller 'counsel-fzf)))
+
+(ivy-set-prompt 'counsel-fzf #'counsel-prompt-function-default)
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
@@ -2530,7 +2519,6 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                      "%s args: "
                                      (car (split-string counsel-ag-command)))))))
   (setq counsel-ag-command (counsel--format-ag-command (or extra-ag-args "") "%s"))
-  (ivy-set-prompt 'counsel-ag counsel-prompt-function)
   (let ((default-directory (or initial-directory
                                (locate-dominating-file default-directory ".git")
                                default-directory)))
@@ -2545,6 +2533,8 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (counsel-delete-process)
                         (swiper--cleanup))
               :caller 'counsel-ag)))
+
+(ivy-set-prompt 'counsel-ag #'counsel-prompt-function-default)
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
 (defun counsel-grep-like-occur (cmd-template)
