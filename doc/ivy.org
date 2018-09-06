@@ -239,7 +239,8 @@ documentation.
 :PROPERTIES:
 :CUSTOM_ID: global-key-bindings
 :END:
-The recommended key bindings are:
+Here is a list of commands that are useful to be bound globally, along
+with some sample bindings:
 
 - Ivy-based interface to standard commands ::
 
