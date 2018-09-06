@@ -1501,9 +1501,8 @@ This function is suitable as a replacement for
 
 (defun ivy-string< (x y)
   "Like `string<', but operate on CARs when given cons cells."
-  (if (consp x)
-      (string< (car x) (car y))
-    (string< x y)))
+  (string< (if (consp x) (car x) x)
+           (if (consp y) (car y) y)))
 
 (defcustom ivy-sort-functions-alist
   '((read-file-name-internal . ivy-sort-file-function-default)
