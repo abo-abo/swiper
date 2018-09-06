@@ -87,6 +87,8 @@ Then attach the overlay the character before point."
 
 (defun ivy-overlay-impossible-p (str)
   (or
+   (and (eq major-mode 'org-mode)
+        (plist-get (text-properties-at (point)) 'src-block))
    (<= (window-height) (+ ivy-height 3))
    (= (point) (point-min))
    (< (- (+ (window-width) (window-hscroll)) (current-column))
