@@ -3575,12 +3575,15 @@ TREE can be nested multiple times to have multiple window splits.")
           (t
            default-view-name))))
 
-(defun ivy-push-view ()
+(defun ivy-push-view (&optional arg)
   "Push the current window tree on `ivy-views'.
+
+When ARG is non-nil, replace a selected item on `ivy-views'.
+
 Currently, the split configuration (i.e. horizonal or vertical)
 and point positions are saved, but the split positions aren't.
 Use `ivy-pop-view' to delete any item from `ivy-views'."
-  (interactive)
+  (interactive "P")
   (let* ((view (cl-labels
                    ((ft (tr)
                       (if (consp tr)
@@ -3597,10 +3600,16 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
                                 (t
                                  (list 'buffer (buffer-name) (point))))))))
                  (ft (car (window-tree)))))
-         (view-name (ivy-read "Name view: " nil
-                              :initial-input (ivy-default-view-name))))
+         (view-name
+          (if arg
+              (ivy-read "Update view: " ivy-views)
+            (ivy-read "Name view: " nil
+                      :initial-input (ivy-default-view-name)))))
     (when view-name
-      (push (list view-name view) ivy-views))))
+      (let ((x (assoc view-name ivy-views)))
+        (if x
+            (setcdr x (list view))
+          (push (list view-name view) ivy-views))))))
 
 (defun ivy-pop-view-action (view)
   "Delete VIEW from `ivy-views'."
