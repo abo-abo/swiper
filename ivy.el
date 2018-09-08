@@ -3811,11 +3811,11 @@ Skip buffers that match `ivy-ignore-buffers'."
   (let ((b (get-buffer str)))
     (if (and b (buffer-file-name b))
         (cond
-          ((buffer-modified-p b)
-           (ivy-append-face str 'ivy-modified-buffer))
           ((and (not (file-remote-p (buffer-file-name b)))
                 (not (verify-visited-file-modtime b)))
            (ivy-append-face str 'ivy-modified-outside-buffer))
+          ((buffer-modified-p b)
+           (ivy-append-face str 'ivy-modified-buffer))
           (t str))
       str)))
 
