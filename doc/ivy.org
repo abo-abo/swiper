@@ -742,6 +742,14 @@ installed.
      #+begin_src elisp
      (setq ivy-use-virtual-buffers t)
      #+end_src
+
+- =ivy-modified-buffer= ::
+     Highlights modified buffers when switching buffer.
+- =ivy-modified-outside-buffer= ::
+     Highlights buffers modified outside Emacs when switching buffer.
+
+     This takes precedence over =ivy-modified-buffer=.
+
 ** Defcustoms
 :PROPERTIES:
 :CUSTOM_ID: defcustoms
