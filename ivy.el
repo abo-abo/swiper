@@ -876,7 +876,8 @@ contains a single candidate.")
       ((or (and (equal ivy--directory "/")
                 (cond ((string-match
                         "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        ivy-text))
+                        ivy-text)
+                       (setq ivy-text (ivy-state-current ivy-last)))
                       ((string-match
                         "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                         (ivy-state-current ivy-last))
