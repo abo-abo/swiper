@@ -875,6 +875,24 @@ will bring the behavior in line with the newer Emacsen."
            '(read-directory-name "cd: " "/tmp")
            "RET"))))
 
+(ert-deftest ivy-partial-files ()
+  (delete-directory "/tmp/ivy-partial-test" t)
+  (mkdir "/tmp/ivy-partial-test/test1" t)
+  (mkdir "/tmp/ivy-partial-test/test2")
+  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial)
+  (should
+   (equal
+    (save-window-excursion
+      (condition-case nil
+          (ivy-with
+           '(let ((default-directory "/tmp/ivy-partial-test/"))
+             (counsel-find-file))
+           "t TAB TAB TAB C-g")
+        (quit ivy--old-cands)))
+    '("test1/" "test2/")))
+  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial-or-done)
+  (delete-directory "/tmp/ivy-partial-test" t))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here

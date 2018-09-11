@@ -970,8 +970,18 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                    (if startp
                        (concat "^" new)
                      new))
-           (insert (mapconcat #'identity parts " ")
-                   (if ivy-tab-space " " ""))
+           (insert
+            (setq ivy-text
+                  (concat
+                   (mapconcat #'identity parts " ")
+                   (if ivy-tab-space " " ""))))
+           (when (and
+                  (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
+                  (= 1 (length
+                        (all-completions ivy-text ivy--all-candidates)))
+                  (let ((default-directory ivy--directory))
+                    (file-directory-p (ivy-state-current ivy-last))))
+             (ivy--directory-done))
            t))))
 
 (defvar ivy-completion-beg nil
