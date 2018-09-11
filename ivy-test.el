@@ -876,7 +876,8 @@ will bring the behavior in line with the newer Emacsen."
            "RET"))))
 
 (ert-deftest ivy-partial-files ()
-  (delete-directory "/tmp/ivy-partial-test" t)
+  (when (file-exists-p "/tmp/ivy-partial-test")
+    (delete-directory "/tmp/ivy-partial-test" t))
   (mkdir "/tmp/ivy-partial-test/test1" t)
   (mkdir "/tmp/ivy-partial-test/test2")
   (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial)
