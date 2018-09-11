@@ -1348,6 +1348,8 @@ If so, move to that directory, while keeping only the file name."
       (ivy--exhibit)
       (ivy-set-index idx))))
 
+(declare-function tramp-get-completion-methods "tramp")
+
 (defun ivy--cd (dir)
   "When completing file names, move to directory DIR."
   (if (null ivy--directory)
@@ -1356,7 +1358,10 @@ If so, move to that directory, while keeping only the file name."
     (setq ivy--old-re nil)
     (ivy-set-index 0)
     (setq ivy--all-candidates
-          (ivy--sorted-files (setq ivy--directory dir)))
+          (append
+           (ivy--sorted-files (setq ivy--directory dir))
+           (when (and (string= dir "/") (featurep 'tramp))
+             (sort (mapcar #'file-name-nondirectory (tramp-get-completion-methods "")) #'string<))))
     (setq ivy-text "")
     (setf (ivy-state-directory ivy-last) dir)
     (delete-minibuffer-contents)))
@@ -1643,22 +1648,23 @@ Directories come first."
                   (all-completions "" #'read-file-name-internal)
                 (error
                  (directory-files dir))))
+         (seq (if predicate
+                  (cl-remove-if-not predicate seq)
+                seq))
          sort-fn)
-    (if (equal dir "/")
-        seq
-      (setq seq (delete "./" (delete "../" seq)))
-      (when (eq (setq sort-fn (ivy--sort-function #'read-file-name-internal))
-                #'ivy-sort-file-function-default)
-        (setq seq (mapcar (lambda (x)
-                            (propertize x 'dirp (ivy--dirname-p x)))
-                          seq)))
-      (when sort-fn
-        (setq seq (sort seq sort-fn)))
-      (dolist (dir ivy-extra-directories)
-        (push dir seq))
-      (if predicate
-          (cl-remove-if-not predicate seq)
-        seq))))
+    (setq seq (delete "./" (delete "../" seq)))
+    (when (eq (setq sort-fn (ivy--sort-function #'read-file-name-internal))
+              #'ivy-sort-file-function-default)
+      (setq seq (mapcar (lambda (x)
+                          (propertize x 'dirp (ivy--dirname-p x)))
+                        seq)))
+    (when sort-fn
+      (setq seq (sort seq sort-fn)))
+    (dolist (dir ivy-extra-directories)
+      (push dir seq))
+    (if (string= dir "/")
+        (cl-remove-if (lambda (s) (string-match ":$" s)) (delete "../" seq))
+      seq)))
 
 (defun ivy-alist-setting (alist &optional key)
   "Return the value associated with KEY in ALIST, using `assq'.
