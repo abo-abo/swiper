@@ -4567,6 +4567,7 @@ selected color."
   '("~/.local/share/applications/"
     "~/.guix-profile/share/applications/"
     "/usr/local/share/applications/"
+    "/var/lib/flatpak/exports/share/applications/"
     "/usr/share/applications/")
   "Directories in which to search for applications (.desktop files)."
   :group 'ivy
