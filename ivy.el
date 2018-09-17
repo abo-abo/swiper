@@ -1647,14 +1647,11 @@ like.")
   "Return the list of files in DIR.
 Directories come first."
   (let* ((default-directory dir)
-         (predicate (ivy-state-predicate ivy-last))
          (seq (condition-case nil
-                  (all-completions "" #'read-file-name-internal)
+                  (all-completions "" #'read-file-name-internal
+                                   (ivy-state-predicate ivy-last))
                 (error
                  (directory-files dir))))
-         (seq (if predicate
-                  (cl-remove-if-not predicate seq)
-                seq))
          sort-fn)
     (setq seq (delete "./" (delete "../" seq)))
     (when (eq (setq sort-fn (ivy--sort-function #'read-file-name-internal))
