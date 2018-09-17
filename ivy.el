@@ -1361,7 +1361,11 @@ If so, move to that directory, while keeping only the file name."
           (append
            (ivy--sorted-files (setq ivy--directory dir))
            (when (and (string= dir "/") (featurep 'tramp))
-             (sort (mapcar #'file-name-nondirectory (tramp-get-completion-methods "")) #'string<))))
+             (sort
+              (mapcar
+               (lambda (s) (substring s 1))
+               (tramp-get-completion-methods ""))
+              #'string<))))
     (setq ivy-text "")
     (setf (ivy-state-directory ivy-last) dir)
     (delete-minibuffer-contents)))
