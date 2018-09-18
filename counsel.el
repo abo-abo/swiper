@@ -4644,7 +4644,7 @@ This function always returns its elements in a stable order."
         (let ((dir (file-name-as-directory dir)))
           (dolist (file (directory-files-recursively dir ".*\\.desktop$"))
             (let ((id (subst-char-in-string ?/ ?- (file-relative-name file dir))))
-              (unless (gethash id hash)
+              (when (and (not (gethash id hash)) (file-readable-p file))
                 (push (cons id file) result)
                 (puthash id file hash)))))))
     result))
