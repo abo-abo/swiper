@@ -3821,11 +3821,13 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
   "Use Ivy to navigate through ELEMENTS."
   (setq ivy-completion-beg (point))
   (setq ivy-completion-end (point))
-  (ivy-read "Symbol name: "
-            (delete-dups
-             (when (> (ring-size elements) 0)
-               (ring-elements elements)))
-            :action #'ivy-completion-in-region-action))
+  (let ((cands
+         (delete-dups
+          (when (> (ring-size elements) 0)
+            (ring-elements elements)))))
+    (ivy-read "Symbol name: " cands
+              :action #'ivy-completion-in-region-action
+              :caller 'counsel-shell-history)))
 
 (defvar eshell-history-ring)
 
