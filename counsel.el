@@ -2171,7 +2171,11 @@ string - the full shell command to run."
                                          (cl-case system-type
                                            (darwin "open")
                                            (cygwin "cygstart")
-                                           (t "xdg-open"))
+                                           (t (if (string-match-p
+                                                   "Ubuntu"
+                                                   (shell-command-to-string "lsb_release -d"))
+                                                  "setsid -w xdg-open"
+                                                "xdg-open")))
                                          (shell-quote-argument x)))))
 
 (defalias 'counsel-find-file-extern #'counsel-locate-action-extern)
