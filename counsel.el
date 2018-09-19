@@ -2166,17 +2166,13 @@ string - the full shell command to run."
   (if (and (eq system-type 'windows-nt)
            (fboundp 'w32-shell-execute))
       (w32-shell-execute "open" x)
-    (start-process-shell-command shell-file-name nil
-                                 (format "%s %s"
-                                         (cl-case system-type
-                                           (darwin "open")
-                                           (cygwin "cygstart")
-                                           (t (if (string-match-p
-                                                   "Ubuntu"
-                                                   (shell-command-to-string "lsb_release -d"))
-                                                  "setsid -w xdg-open"
-                                                "xdg-open")))
-                                         (shell-quote-argument x)))))
+    (call-process-shell-command (format "%s %s"
+                                        (cl-case system-type
+                                          (darwin "open")
+                                          (cygwin "cygstart")
+                                          (t "xdg-open"))
+                                        (shell-quote-argument x))
+                                nil 0)))
 
 (defalias 'counsel-find-file-extern #'counsel-locate-action-extern)
 
