@@ -894,6 +894,28 @@ will bring the behavior in line with the newer Emacsen."
   (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial-or-done)
   (delete-directory "/tmp/ivy-partial-test" t))
 
+(defun ivy-with-temp-buffer (expr keys)
+  (let ((temp-buffer (generate-new-buffer " *temp*")))
+    (save-window-excursion
+      (unwind-protect
+           (progn
+             (switch-to-buffer temp-buffer)
+             (ivy-with expr keys)
+             (list (point)
+                   (buffer-string)))
+        (and (buffer-name temp-buffer)
+             (kill-buffer temp-buffer))))))
+
+(ert-deftest counsel-yank-pop ()
+  (let ((kill-ring '("foo")))
+    (should (equal
+             (ivy-with-temp-buffer '(counsel-yank-pop) "C-m")
+             '(4 "foo")))
+    (let ((counsel-yank-pop-after-point t))
+      (should (equal
+               (ivy-with-temp-buffer '(counsel-yank-pop) "C-m")
+               '(1 "foo"))))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
