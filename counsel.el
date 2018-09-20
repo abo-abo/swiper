@@ -3522,6 +3522,15 @@ and incorporate `interprogram-paste-function'."
               :test #'equal-including-properties :from-end t)))
   kill-ring)
 
+(defcustom counsel-yank-pop-after-point nil
+  "Whether `counsel-yank-pop' yanks after point.
+Nil means `counsel-yank-pop' puts point at the end of the yanked
+text and mark at its beginning, as per the default \\[yank].
+Non-nil means `counsel-yank-pop' swaps the resulting point and
+mark, as per \\[universal-argument] \\[yank]."
+  :group 'ivy
+  :type 'boolean)
+
 (defun counsel-yank-pop-action (s)
   "Like `yank-pop', but insert the kill corresponding to S.
 Signal a `buffer-read-only' error if called from a read-only
@@ -3532,7 +3541,10 @@ buffer position."
     (setq yank-window-start (window-start))
     ;; Avoid unexpected additions to `kill-ring'
     (let (interprogram-paste-function)
-      (yank-pop (counsel--yank-pop-position s)))))
+      (yank-pop (counsel--yank-pop-position s)))
+    (when (funcall (if counsel-yank-pop-after-point #'> #'<)
+                   (point) (mark t))
+      (exchange-point-and-mark t))))
 
 (defun counsel-yank-pop-action-remove (s)
   "Remove all occurrences of S from the kill ring."
@@ -3576,23 +3588,30 @@ results in the most recent kill being preselected."
   :group 'ivy
   :type 'boolean)
 
+(autoload 'xor "array")
+
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
   "Ivy replacement for `yank-pop'.
-ARG has the same meaning as in `yank-pop', but its default value
-can be controlled with `counsel-yank-pop-preselect-last', which
-see.  See also `counsel-yank-pop-filter' for how to filter
-candidates.
+With a plain prefix argument (\\[universal-argument]),
+temporarily toggle the value of `counsel-yank-pop-after-point'.
+Any other value of ARG has the same meaning as in `yank-pop', but
+`counsel-yank-pop-preselect-last' determines its default value.
+See also `counsel-yank-pop-filter' for how to filter candidates.
+
 Note: Duplicate elements of `kill-ring' are always deleted."
   ;; Do not specify `*' to allow browsing `kill-ring' in read-only buffers
   (interactive "P")
   (let ((kills (or (counsel--yank-pop-kills)
                    (error "Kill ring is empty or blank")))
         (preselect (let (interprogram-paste-function)
-                     (current-kill (cond (arg (prefix-numeric-value arg))
+                     (current-kill (cond ((nlistp arg)
+                                          (prefix-numeric-value arg))
                                          (counsel-yank-pop-preselect-last 0)
                                          (t 1))
                                    t)))
+        (counsel-yank-pop-after-point
+         (xor (consp arg) counsel-yank-pop-after-point))
         (ivy-format-function #'counsel--yank-pop-format-function))
     (unless (eq last-command 'yank)
       (push-mark))
