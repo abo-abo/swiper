@@ -3532,8 +3532,7 @@ buffer position."
     (setq yank-window-start (window-start))
     ;; Avoid unexpected additions to `kill-ring'
     (let (interprogram-paste-function)
-      (yank-pop (counsel--yank-pop-position s)))
-    (setq ivy-completion-end (point))))
+      (yank-pop (counsel--yank-pop-position s)))))
 
 (defun counsel-yank-pop-action-remove (s)
   "Remove all occurrences of S from the kill ring."
@@ -3593,8 +3592,6 @@ Note: Duplicate elements of `kill-ring' are always deleted."
       (error "Kill ring is empty or blank"))
     (unless (eq last-command 'yank)
       (push-mark))
-    (setq ivy-completion-beg (mark t))
-    (setq ivy-completion-end (point))
     (ivy-read "kill-ring: " kills
               :require-match t
               :preselect (let (interprogram-paste-function)
