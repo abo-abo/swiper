@@ -3586,20 +3586,19 @@ candidates.
 Note: Duplicate elements of `kill-ring' are always deleted."
   ;; Do not specify `*' to allow browsing `kill-ring' in read-only buffers
   (interactive "P")
-  (let ((ivy-format-function #'counsel--yank-pop-format-function)
-        (kills (counsel--yank-pop-kills)))
-    (unless kills
-      (error "Kill ring is empty or blank"))
+  (let ((kills (or (counsel--yank-pop-kills)
+                   (error "Kill ring is empty or blank")))
+        (preselect (let (interprogram-paste-function)
+                     (current-kill (cond (arg (prefix-numeric-value arg))
+                                         (counsel-yank-pop-preselect-last 0)
+                                         (t 1))
+                                   t)))
+        (ivy-format-function #'counsel--yank-pop-format-function))
     (unless (eq last-command 'yank)
       (push-mark))
     (ivy-read "kill-ring: " kills
               :require-match t
-              :preselect (let (interprogram-paste-function)
-                           (current-kill (cond
-                                           (arg (prefix-numeric-value arg))
-                                           (counsel-yank-pop-preselect-last 0)
-                                           (t 1))
-                                         t))
+              :preselect preselect
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
