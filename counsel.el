@@ -2288,8 +2288,6 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :unwind #'counsel-delete-process
               :caller 'counsel-fzf)))
 
-(ivy-set-prompt 'counsel-fzf #'counsel-prompt-function-default)
-
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
   (with-ivy-window
