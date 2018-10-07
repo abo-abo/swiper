@@ -158,6 +158,56 @@
 (declare-function avy-push-mark "ext:avy")
 (declare-function avy--remove-leading-chars "ext:avy")
 
+(defun swiper--avy-candidate ()
+  (let* ((avy-all-windows nil)
+         ;; We'll have overlapping overlays, so we sort all the
+         ;; overlays in the visible region by their start, and then
+         ;; throw out non-Swiper overlays or overlapping Swiper
+         ;; overlays.
+         (visible-overlays (cl-sort (with-ivy-window
+                                      (overlays-in (window-start)
+                                                   (window-end)))
+                                    #'< :key #'overlay-start))
+         (min-overlay-start 0)
+         (overlays-for-avy (cl-remove-if-not
+                            (lambda (ov)
+                              (when (and (>= (overlay-start ov)
+                                             min-overlay-start)
+                                         (memq (overlay-get ov 'face)
+                                               swiper-faces))
+                                (setq min-overlay-start (overlay-start ov))))
+                            visible-overlays))
+         (candidates (append
+                      (mapcar (lambda (ov)
+                                (cons (overlay-start ov)
+                                      (overlay-get ov 'window)))
+                              overlays-for-avy)
+                      (save-excursion
+                        (save-restriction
+                          (narrow-to-region (window-start) (window-end))
+                          (goto-char (point-min))
+                          (forward-line)
+                          (let ((cands))
+                            (while (< (point) (point-max))
+                              (push (cons (1+ (point))
+                                          (selected-window))
+                                    cands)
+                              (forward-line))
+                            cands))))))
+    (unwind-protect
+         (prog2
+             (avy--make-backgrounds
+              (append (avy-window-list)
+                      (list (ivy-state-window ivy-last))))
+             (if (eq avy-style 'de-bruijn)
+                 (avy-read-de-bruijn
+                  candidates avy-keys)
+               (avy-read (avy-tree candidates avy-keys)
+                         #'avy--overlay-post
+                         #'avy--remove-leading-chars))
+           (avy-push-mark))
+      (avy--done))))
+
 ;;;###autoload
 (defun swiper-avy ()
   "Jump to one of the current swiper candidates."
@@ -165,57 +215,14 @@
   (unless (require 'avy nil 'noerror)
     (error "Package avy isn't installed"))
   (unless (string= ivy-text "")
-    (let* ((avy-all-windows nil)
-           ;; We'll have overlapping overlays, so we sort all the
-           ;; overlays in the visible region by their start, and then
-           ;; throw out non-Swiper overlays or overlapping Swiper
-           ;; overlays.
-           (visible-overlays (cl-sort (with-ivy-window
-                                        (overlays-in (window-start)
-                                                     (window-end)))
-                                      #'< :key #'overlay-start))
-           (min-overlay-start 0)
-           (overlays-for-avy (cl-remove-if-not
-                              (lambda (ov)
-                                (when (and (>= (overlay-start ov)
-                                               min-overlay-start)
-                                           (memq (overlay-get ov 'face)
-                                                 swiper-faces))
-                                  (setq min-overlay-start (overlay-start ov))))
-                              visible-overlays))
-           (candidates (append
-                        (mapcar (lambda (ov)
-                                  (cons (overlay-start ov)
-                                        (overlay-get ov 'window)))
-                                overlays-for-avy)
-                        (save-excursion
-                          (save-restriction
-                            (narrow-to-region (window-start) (window-end))
-                            (goto-char (point-min))
-                            (forward-line)
-                            (let ((cands))
-                              (while (< (point) (point-max))
-                                (push (cons (1+ (point))
-                                            (selected-window))
-                                      cands)
-                                (forward-line))
-                              cands)))))
-           (candidate (unwind-protect
-                           (prog2
-                               (avy--make-backgrounds
-                                (append (avy-window-list)
-                                        (list (ivy-state-window ivy-last))))
-                               (if (eq avy-style 'de-bruijn)
-                                   (avy-read-de-bruijn
-                                    candidates avy-keys)
-                                 (avy-read (avy-tree candidates avy-keys)
-                                           #'avy--overlay-post
-                                           #'avy--remove-leading-chars))
-                             (avy-push-mark))
-                        (avy--done))))
+    (let ((candidate (swiper--avy-candidate)))
       (if (window-minibuffer-p (cdr candidate))
-          (progn
-            (ivy-set-index (- (line-number-at-pos (car candidate)) 2))
+          (let ((cand-text (save-excursion
+                             (goto-char (car candidate))
+                             (buffer-substring-no-properties
+                              (line-beginning-position)
+                              (line-end-position)))))
+            (ivy-set-index (cl-position cand-text ivy--old-cands :test #'string=))
             (ivy--exhibit)
             (ivy-done)
             (ivy-call))
