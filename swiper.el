@@ -177,6 +177,7 @@
                                                swiper-faces))
                                 (setq min-overlay-start (overlay-start ov))))
                             visible-overlays))
+         (offset (if (eq (ivy-state-caller ivy-last) 'swiper) 1 0))
          (candidates (append
                       (mapcar (lambda (ov)
                                 (cons (overlay-start ov)
@@ -189,7 +190,7 @@
                           (forward-line)
                           (let ((cands))
                             (while (< (point) (point-max))
-                              (push (cons (1+ (point))
+                              (push (cons (+ (point) offset)
                                           (selected-window))
                                     cands)
                               (forward-line))
