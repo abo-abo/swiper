@@ -4104,7 +4104,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
      `(mouse-face
        highlight
        help-echo "mouse-1: call ivy-action")
-     str)
+     (ivy--highlight-fuzzy str t))
     (insert str "\n"))
   (goto-char (point-min))
   (forward-line 4))
