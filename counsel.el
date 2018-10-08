@@ -2560,7 +2560,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
     (insert (format "%d candidates:\n" (length cands)))
     (ivy--occur-insert-lines
      (mapcar
-      (lambda (cand) (concat "./" cand))
+      (lambda (cand) (concat "./" (ivy--highlight-fuzzy cand t)))
       cands))))
 
 (defun counsel-ag-occur ()

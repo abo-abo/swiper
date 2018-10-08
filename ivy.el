@@ -3196,16 +3196,21 @@ This function serves as a fallback when nothing else is available."
 When the amount of matching candidates exceeds this limit, then
 no sorting is done.")
 
-(defun ivy--flx-propertize (x)
+(defun ivy--flx-propertize (x &optional use-font-lock-property)
   "X is (cons (flx-score STR ...) STR)."
   (let ((str (copy-sequence (cdr x)))
         (i 0)
+        (add-face-text-property
+         (if use-font-lock-property
+             #'ivy-add-font-lock-face-text-property
+           #'ivy-add-face-text-property))
         (last-j -2))
     (dolist (j (cdar x))
       (unless (eq j (1+ last-j))
         (cl-incf i))
       (setq last-j j)
-      (ivy-add-face-text-property
+      (funcall
+       add-face-text-property
        j (1+ j)
        (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
             ivy-minibuffer-faces)
@@ -3326,6 +3331,12 @@ prior to 24.4 (`font-lock-append-text-property' when APPEND is
 non-nil).
 Note: The usual last two arguments are flipped for convenience.")
 
+(defun ivy-add-font-lock-face-text-property (start end face &optional object append)
+  (funcall (if append
+               #'font-lock-append-text-property
+             #'font-lock-prepend-text-property)
+           start end 'font-lock-face face object))
+
 (defun ivy--highlight-ignore-order (str)
   "Highlight STR, using the ignore-order method."
   (when (consp ivy--old-re)
@@ -3340,17 +3351,18 @@ Note: The usual last two arguments are flipped for convenience.")
         (cl-incf i))))
   str)
 
-(defun ivy--highlight-fuzzy (str)
+(defun ivy--highlight-fuzzy (str &optional use-font-lock-property)
   "Highlight STR, using the fuzzy method."
   (if ivy--flx-featurep
       (let ((flx-name (if (string-match-p "\\`\\^" ivy-text)
                           (substring ivy-text 1)
                         ivy-text)))
         (ivy--flx-propertize
-         (cons (flx-score str flx-name ivy--flx-cache) str)))
-    (ivy--highlight-default str)))
+         (cons (flx-score str flx-name ivy--flx-cache) str)
+         use-font-lock-property))
+    (ivy--highlight-default str use-font-lock-property)))
 
-(defun ivy--highlight-default (str)
+(defun ivy--highlight-default (str &optional use-font-lock-property)
   "Highlight STR, using the default method."
   (unless ivy--old-re
     (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
@@ -3359,6 +3371,10 @@ Note: The usual last two arguments are flipped for convenience.")
                   (string-match "\\`[^:]+:[^:]+:" str))
              (match-end 0)
            0))
+        (add-face-text-property
+         (if use-font-lock-property
+             #'ivy-add-font-lock-face-text-property
+           #'ivy-add-face-text-property))
         (regexps
          (if (listp ivy--old-re)
              (mapcar #'car (cl-remove-if-not #'cdr ivy--old-re))
@@ -3379,7 +3395,8 @@ Note: The usual last two arguments are flipped for convenience.")
                             (nth (1+ (mod (+ i 2)
                                           (1- (length ivy-minibuffer-faces))))
                                  ivy-minibuffer-faces)))))
-                (ivy-add-face-text-property
+                (funcall
+                 add-face-text-property
                  (match-beginning i) (match-end i)
                  face str))
               (cl-incf i)))))))
