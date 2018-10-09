@@ -3200,7 +3200,7 @@ no sorting is done.")
   "X is (cons (flx-score STR ...) STR)."
   (let ((str (copy-sequence (cdr x)))
         (i 0)
-        (add-face-text-property
+        (add-face-text-property-fn
          (if use-font-lock-property
              #'ivy-add-font-lock-face-text-property
            #'ivy-add-face-text-property))
@@ -3210,7 +3210,7 @@ no sorting is done.")
         (cl-incf i))
       (setq last-j j)
       (funcall
-       add-face-text-property
+       add-face-text-property-fn
        j (1+ j)
        (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
             ivy-minibuffer-faces)
@@ -3371,7 +3371,7 @@ Note: The usual last two arguments are flipped for convenience.")
                   (string-match "\\`[^:]+:[^:]+:" str))
              (match-end 0)
            0))
-        (add-face-text-property
+        (add-face-text-property-fn
          (if use-font-lock-property
              #'ivy-add-font-lock-face-text-property
            #'ivy-add-face-text-property))
@@ -3396,7 +3396,7 @@ Note: The usual last two arguments are flipped for convenience.")
                                           (1- (length ivy-minibuffer-faces))))
                                  ivy-minibuffer-faces)))))
                 (funcall
-                 add-face-text-property
+                 add-face-text-property-fn
                  (match-beginning i) (match-end i)
                  face str))
               (cl-incf i)))))))
