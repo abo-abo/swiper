@@ -1494,7 +1494,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
          cands)
     (setq cands (split-string
                  (shell-command-to-string cmd)
-                 "\n"
+                 counsel-async-split-string-re
                  t))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
@@ -2551,7 +2551,9 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                        (shell-quote-argument
                         (counsel-unquote-regex-parens
                          (ivy--regex (cdr command-args)))))))
-         (cands (split-string (shell-command-to-string cmd) "\n" t)))
+         (cands (split-string (shell-command-to-string cmd)
+                              counsel-async-split-string-re
+                              t)))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
