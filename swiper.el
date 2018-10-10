@@ -913,40 +913,40 @@ otherwise continue prompting for buffers."
 ;;* `swiper-all'
 (defun swiper-all-function (str)
   "Search in all open buffers for STR."
-  (if (and (< (length str) 3))
-      (list "" (format "%d chars more" (- 3 (length ivy-text))))
-    (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p (buffer-list)))
-           (re-full (funcall ivy--regex-function str))
-           re re-tail
-           cands match
-           (case-fold-search (ivy--case-fold-p str)))
-      (if (stringp re-full)
-          (setq re re-full)
-        (setq re (caar re-full))
-        (setq re-tail (cdr re-full)))
-      (dolist (buffer buffers)
-        (with-current-buffer buffer
-          (save-excursion
-            (goto-char (point-min))
-            (while (re-search-forward re nil t)
-              (setq match (if (memq major-mode '(org-mode dired-mode))
-                              (buffer-substring-no-properties
-                               (line-beginning-position)
-                               (line-end-position))
-                            (buffer-substring
-                             (line-beginning-position)
-                             (line-end-position))))
-              (put-text-property
-               0 1 'buffer
-               (buffer-name)
-               match)
-              (put-text-property 0 1 'point (point) match)
-              (when (or (null re-tail) (ivy-re-match re-tail match))
-                (push match cands))))))
-      (setq ivy--old-re re-full)
-      (if (null cands)
-          (list "")
-        (setq ivy--old-cands (nreverse cands))))))
+  (or
+   (ivy-more-chars)
+   (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p (buffer-list)))
+          (re-full (funcall ivy--regex-function str))
+          re re-tail
+          cands match
+          (case-fold-search (ivy--case-fold-p str)))
+     (if (stringp re-full)
+         (setq re re-full)
+       (setq re (caar re-full))
+       (setq re-tail (cdr re-full)))
+     (dolist (buffer buffers)
+       (with-current-buffer buffer
+         (save-excursion
+           (goto-char (point-min))
+           (while (re-search-forward re nil t)
+             (setq match (if (memq major-mode '(org-mode dired-mode))
+                             (buffer-substring-no-properties
+                              (line-beginning-position)
+                              (line-end-position))
+                           (buffer-substring
+                            (line-beginning-position)
+                            (line-end-position))))
+             (put-text-property
+              0 1 'buffer
+              (buffer-name)
+              match)
+             (put-text-property 0 1 'point (point) match)
+             (when (or (null re-tail) (ivy-re-match re-tail match))
+               (push match cands))))))
+     (setq ivy--old-re re-full)
+     (if (null cands)
+         (list "")
+       (setq ivy--old-cands (nreverse cands))))))
 
 (defvar swiper-window-width 80)
 
