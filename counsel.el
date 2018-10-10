@@ -2493,17 +2493,17 @@ NEEDLE is the search string."
   (let ((command-args (counsel--split-command-args string)))
     (let ((switches (car command-args))
           (search-term (cdr command-args)))
-      (if (< (length search-term) 3)
-          (let ((ivy-text search-term))
-            (ivy-more-chars))
-        (let ((default-directory (ivy-state-directory ivy-last))
-              (regex (counsel-unquote-regex-parens
-                      (setq ivy--old-re
-                            (ivy--regex search-term)))))
-          (counsel--async-command (counsel--format-ag-command
-                                   switches
-                                   (shell-quote-argument regex)))
-          nil)))))
+      (or
+       (let ((ivy-text search-term))
+         (ivy-more-chars))
+       (let ((default-directory (ivy-state-directory ivy-last))
+             (regex (counsel-unquote-regex-parens
+                     (setq ivy--old-re
+                           (ivy--regex search-term)))))
+         (counsel--async-command (counsel--format-ag-command
+                                  switches
+                                  (shell-quote-argument regex)))
+         nil)))))
 
 ;;;###autoload
 (defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
