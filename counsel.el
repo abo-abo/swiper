@@ -1723,12 +1723,25 @@ currently checked out."
         (find-alternate-file file-name)
       (find-file file-name))))
 
+(defun counsel--yes-or-no-p (fmt &rest args)
+  "Ask user a yes or no question created using FMT and ARGS.
+If Emacs 26 user option `read-answer-short' is bound, use it to
+choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
+`yes-or-no-p'."
+  (funcall (if (and (boundp 'read-answer-short)
+                    (cond ((eq read-answer-short t))
+                          ((eq read-answer-short 'auto)
+                           (eq (symbol-function 'yes-or-no-p) 'y-or-n-p))))
+               #'y-or-n-p
+             #'yes-or-no-p)
+           (apply #'format fmt args)))
+
 (defun counsel-find-file-delete (x)
   "Delete file X."
   (when (or delete-by-moving-to-trash
             ;; `dired-delete-file', which see, already prompts for directories
             (eq t (car (file-attributes x)))
-            (y-or-n-p (format "Delete %s? " x)))
+            (counsel--yes-or-no-p "Delete %s? " x))
     (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash)
     (ivy--reset-state ivy-last)))
 
