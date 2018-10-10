@@ -1725,7 +1725,10 @@ currently checked out."
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
-  (when (or delete-by-moving-to-trash (y-or-n-p (format "Delete %s? " x)))
+  (when (or delete-by-moving-to-trash
+            ;; `dired-delete-file', which see, already prompts for directories
+            (eq t (car (file-attributes x)))
+            (y-or-n-p (format "Delete %s? " x)))
     (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash)
     (ivy--reset-state ivy-last)))
 
