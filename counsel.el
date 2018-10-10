@@ -45,20 +45,9 @@
 (require 'dired)
 
 ;;* Utility
-(defvar counsel-more-chars-alist
-  '((counsel-grep . 2)
-    (t . 3))
-  "Map commands to their minimum required input length.
-That is the number of characters prompted for before fetching
-candidates.  The special key t is used as a fallback.")
+(define-obsolete-variable-alias 'counsel-more-chars-alist 'ivy-more-chars-alist "0.10.0")
 
-(defun counsel-more-chars ()
-  "Return two fake candidates prompting for at least N input.
-N is obtained from `counsel-more-chars-alist'."
-  (let ((diff (- (ivy-alist-setting counsel-more-chars-alist)
-                 (length ivy-text))))
-    (when (> diff 0)
-      (list "" (format "%d chars more" diff)))))
+(define-obsolete-function-alias 'counsel-more-chars 'ivy-more-chars "0.10.0")
 
 (defun counsel-unquote-regex-parens (str)
   "Unquote regexp parentheses in STR."
@@ -1249,7 +1238,7 @@ Typical value: '(recenter)."
   "Grep in the current git repository for STRING."
   (or
    (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
-        (counsel-more-chars))
+        (ivy-more-chars))
    (let* ((default-directory (ivy-state-directory ivy-last))
           (cmd (format counsel-git-grep-cmd
                        (setq ivy--old-re (ivy--regex str t)))))
@@ -1392,7 +1381,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current git repository."
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (let ((regex (setq ivy--old-re
                       (ivy--regex str t))))
      (counsel--async-command (format counsel-git-grep-cmd regex))
@@ -1563,7 +1552,7 @@ done") "\n" t)))
 (defun counsel-git-log-function (str)
   "Search for STR in git log."
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (progn
      ;; `counsel--yank-pop-format-function' uses this
      (setq ivy--old-re (funcall ivy--regex-function str))
@@ -2229,7 +2218,7 @@ string - the full shell command to run."
 (defun counsel-locate-function (input)
   "Call the \"locate\" shell command with INPUT."
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (progn
      (counsel--async-command
       (funcall counsel-locate-cmd input))
@@ -2506,7 +2495,7 @@ NEEDLE is the search string."
           (search-term (cdr command-args)))
       (if (< (length search-term) 3)
           (let ((ivy-text search-term))
-            (counsel-more-chars))
+            (ivy-more-chars))
         (let ((default-directory (ivy-state-directory ivy-last))
               (regex (counsel-unquote-regex-parens
                       (setq ivy--old-re
@@ -2670,7 +2659,7 @@ substituted by the search regexp and file, respectively.  Neither
 (defun counsel-grep-function (string)
   "Grep in the current directory for STRING."
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (let ((regex (counsel-unquote-regex-parens
                  (setq ivy--old-re
                        (ivy--regex string)))))
@@ -2794,7 +2783,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defun counsel-recoll-function (str)
   "Run recoll for STR."
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (progn
      (counsel--async-command
       (format "recoll -t -b %s"

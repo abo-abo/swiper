@@ -1635,7 +1635,7 @@ narrowing) or select a candidate from the visible collection.
 @lisp
 (defun counsel-locate-function (str)
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (progn
      (counsel--async-command
       (format "locate %s '%s'"
@@ -1671,7 +1671,7 @@ of strings. Note that it's not compatible with @code{all-completions},
 but since we're not using that here, might as well use one argument
 instead of three.
 @item
-@code{counsel-more-chars} is a simple function that returns e.g.
+@code{ivy-more-chars} is a simple function that returns e.g.
 @code{'("2 chars more")} asking the user for more input.
 @item
 @code{counsel--async-command} is a very easy API simplification that
