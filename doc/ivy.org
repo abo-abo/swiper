@@ -1239,7 +1239,7 @@ narrowing) or select a candidate from the visible collection.
 #+begin_src elisp
 (defun counsel-locate-function (str)
   (or
-   (counsel-more-chars)
+   (ivy-more-chars)
    (progn
      (counsel--async-command
       (format "locate %s '%s'"
@@ -1272,7 +1272,7 @@ that they appear:
   of strings. Note that it's not compatible with =all-completions=,
   but since we're not using that here, might as well use one argument
   instead of three.
-- =counsel-more-chars= is a simple function that returns e.g.
+- =ivy-more-chars= is a simple function that returns e.g.
   ='("2 chars more")= asking the user for more input.
 - =counsel--async-command= is a very easy API simplification that
   takes a single string argument suitable for
