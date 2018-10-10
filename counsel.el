@@ -1743,6 +1743,7 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
             (eq t (car (file-attributes x)))
             (counsel--yes-or-no-p "Delete %s? " x))
     (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash)
+    (dired-clean-up-after-deletion x)
     (ivy--reset-state ivy-last)))
 
 (defun counsel-find-file-move (x)
