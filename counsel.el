@@ -2537,12 +2537,13 @@ NEEDLE is the search string."
          nil)))))
 
 ;;;###autoload
-(defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
+(defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt caller)
   "Grep for a string in the current directory using ag.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
-AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
+AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
+CALLER is forwarded to `ivy-read'."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
   (counsel-require-program (car (split-string counsel-ag-command)))
@@ -2572,7 +2573,29 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :unwind (lambda ()
                         (counsel-delete-process)
                         (swiper--cleanup))
-              :caller 'counsel-ag)))
+              :caller caller)))
+
+(cl-defmacro def-counsel-ag-command (name &key tool-name base-command-variable-name)
+  (declare (indent 1))
+  (or (boundp base-command-variable-name) (error "Variable %S not defined" base-command-variable-name))
+  `(progn
+     (autoload ',name "counsel" "" t)
+     (defun ,name (&optional initial-input initial-directory extra-args prompt)
+       ,(format
+         "Grep for a string in the current directory using %s.
+INITIAL-INPUT can be given as the initial minibuffer input.
+INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
+EXTRA-ARGS string, if non-nil, is appended to `%s'.
+PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
+         tool-name
+         base-command-variable-name)
+       (interactive)
+       (let ((counsel-ag-base-command ,base-command-variable-name))
+         (counsel-ag initial-input initial-directory extra-args prompt ',name)))
+     (unless (plist-get ivy--occurs-list ',name)
+       ;; do not override user configuration
+       (ivy-set-occur ',name 'counsel-ag-occur))
+     (cl-pushnew ',name ivy-highlight-grep-commands)))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
@@ -2610,16 +2633,9 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   :type 'string
   :group 'ivy)
 
-;;;###autoload
-(defun counsel-pt (&optional initial-input)
-  "Grep for a string in the current directory using pt.
-INITIAL-INPUT can be given as the initial minibuffer input.
-This uses `counsel-ag' with `counsel-pt-base-command' instead of
-`counsel-ag-base-command'."
-  (interactive)
-  (let ((counsel-ag-base-command counsel-pt-base-command))
-    (counsel-ag initial-input)))
-(cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
+(def-counsel-ag-command counsel-pt
+  :tool-name pt
+  :base-command-variable-name counsel-pt-base-command)
 
 ;;** `counsel-ack'
 (defcustom counsel-ack-base-command
@@ -2631,16 +2647,9 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
   :type 'string
   :group 'ivy)
 
-;;;###autoload
-(defun counsel-ack (&optional initial-input)
-  "Grep for a string in the current directory using ack.
-INITIAL-INPUT can be given as the initial minibuffer input.
-This uses `counsel-ag' with `counsel-ack-base-command' replacing
-`counsel-ag-base-command'."
-  (interactive)
-  (let ((counsel-ag-base-command counsel-ack-base-command))
-    (counsel-ag initial-input)))
-
+(def-counsel-ag-command counsel-ack
+  :tool-name ack
+  :base-command-variable-name counsel-ack-base-command)
 
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command "rg -S --no-heading --line-number --color never %s ."
@@ -2651,20 +2660,11 @@ Note: don't use single quotes for the regex."
   :group 'ivy)
 
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
-(ivy-set-occur 'counsel-rg 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
 
-;;;###autoload
-(defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
-  "Grep for a string in the current directory using rg.
-INITIAL-INPUT can be given as the initial minibuffer input.
-INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
-EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
-RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
-  (interactive)
-  (let ((counsel-ag-base-command counsel-rg-base-command))
-    (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
-(cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
+(def-counsel-ag-command counsel-rg
+  :tool-name rg
+  :base-command-variable-name counsel-rg-base-command)
 
 ;;** `counsel-grep'
 (defvar counsel-grep-map
@@ -2726,7 +2726,7 @@ substituted by the search regexp and file, respectively.  Neither
               (swiper--ensure-visible)
             (isearch-range-invisible (line-beginning-position)
                                      (line-end-position))
-            (swiper--add-overlays (ivy--regex ivy-text))))))))
+              (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
