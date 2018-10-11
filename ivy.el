@@ -4172,6 +4172,51 @@ There is no limit on the number of *ivy-occur* buffers."
       (ivy-exit-with-action
        (lambda (_) (pop-to-buffer buffer))))))
 
+(defun counsel-ag--split-match (candidate)
+  "Example usage:
+
+(counsel-ag--split-match \"ivy.el:4134:(defun counsel-ag--split-match (candidate)\") is (\"ivy.el\" \"4134\" \"(defun counsel-ag--split-match (candidate)\")"
+  (let ((split (split-string candidate ":")))
+    (when split
+      (list (car split) (cadr split) (mapconcat 'identity (nthcdr 2 split) ":")))))
+
+(defun counsel-ag--display-match (loc-info text)
+  (let ((current-line-display))
+    (add-text-properties
+     0 (length loc-info)
+     `(face success)
+     loc-info)
+    (setq current-line-display
+          (format "     %s: %s" loc-info text))
+    (add-text-properties
+     0 (length current-line-display)
+     `(mouse-face
+       highlight
+       help-echo "mouse-1: call ivy-action")
+     current-line-display)
+    current-line-display))
+
+(defun counsel-ag-occur-color-moccur ()
+  "A function suitable for `ivy-set-occur' for grep-like outputs."
+  (ivy-occur-mode)
+  (read-only-mode)
+  (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                  default-directory))
+  (let ((count 0)
+        current-file)
+    (dolist (candidate ivy--old-cands)
+      (let ((current-line (counsel-ag--split-match candidate)))
+        (unless (string= current-file (car-safe current-line))
+          (setq current-file (car-safe current-line))
+          (insert "file: " current-file "\n"))
+        (insert (counsel-ag--display-match (cadr current-line)
+                                           (caddr current-line))
+                "\n")
+        (incf count)))
+    (goto-char (point-min))
+    (forward-line 3)
+    (insert (format "%d candidates:\n" count))))
+
 (defun ivy-occur-revert-buffer ()
   "Refresh the buffer making it up-to date with the collection.
 
@@ -4263,6 +4308,11 @@ EVENT gives the mouse position."
         buffer
       (current-buffer))))
 
+(defvar ivy--occur-press-orig-buffer nil
+  "The buffer in which `ivy-occur-press' has been triggerer.
+
+Its value is only set during the call to `ivy-occur-press'.")
+
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
@@ -4270,7 +4320,8 @@ EVENT gives the mouse position."
   (when (save-excursion
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
-    (let* ((ivy-last ivy-occur-last)
+    (let* ((ivy--occur-press-orig-buffer (current-buffer))
+           (ivy-last ivy-occur-last)
            (ivy-text (ivy-state-text ivy-last))
            (str (buffer-substring
                  (match-beginning 1)
