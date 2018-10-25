@@ -3097,6 +3097,7 @@ RE-STR is the regexp, CANDS are the current candidates."
              (not empty)
              0)
         (and (not empty)
+             (not (eq caller 'swiper))
              (not (and ivy--flx-featurep
                        (eq ivy--regex-function 'ivy--regex-fuzzy)
                        ;; Limit to 200 candidates
