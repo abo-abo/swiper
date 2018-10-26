@@ -938,6 +938,11 @@ a buffer visiting a file."
              ;; No editing, just command ivy-immediate-done
              "C-M-j")))
     (ivy-mode ivy-mode-reset-arg)))
+(ert-deftest counsel-ag--split-match ()
+  (should (equal (counsel-ag--split-match "ivy.el:4134:(defun counsel-ag--split-match (candidate)")
+                 '("ivy.el"
+                   "4134"
+                   "(defun counsel-ag--split-match (candidate)"))))
 
 (provide 'ivy-test)
 

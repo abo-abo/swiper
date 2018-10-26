@@ -2580,12 +2580,9 @@ CALLER is forwarded to `ivy-read'."
               :caller caller)))
 
 (defun counsel-ag--split-match (candidate)
-  "Example usage:
-
-(counsel-ag--split-match \"ivy.el:4134:(defun counsel-ag--split-match (candidate)\") is (\"ivy.el\" \"4134\" \"(defun counsel-ag--split-match (candidate)\")"
   (let ((split (split-string candidate ":")))
     (when split
-      (list (car split) (cadr split) (mapconcat 'identity (nthcdr 2 split) ":")))))
+      (list (car split) (cadr split) (mapconcat #'identity (nthcdr 2 split) ":")))))
 
 (defun counsel-ag--display-match (loc-info text)
   (let ((current-line-display))
