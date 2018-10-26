@@ -2569,8 +2569,7 @@ CALLER is forwarded to `ivy-read'."
   (let ((default-directory (or initial-directory
                                (locate-dominating-file default-directory ".git")
                                default-directory)))
-    (ivy-read (or ag-prompt
-                  (concat (car (split-string counsel-ag-command)) ": "))
+    (ivy-read (or ag-prompt (concat (car (split-string counsel-ag-command)) ": "))
               #'counsel-ag-function
               :initial-input initial-input
               :dynamic-collection t
