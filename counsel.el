@@ -2629,7 +2629,6 @@ CALLER is forwarded to `ivy-read'."
 
 (cl-defmacro def-counsel-ag-command (name &key tool-name base-command-variable-name)
   (declare (indent 1))
-  (or (boundp base-command-variable-name) (error "Variable %S not defined" base-command-variable-name))
   `(progn
      (autoload ',name "counsel" "" t)
      (defun ,name (&optional initial-input initial-directory extra-args prompt)
