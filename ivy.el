@@ -4263,11 +4263,6 @@ EVENT gives the mouse position."
         buffer
       (current-buffer))))
 
-(defvar ivy--occur-press-orig-buffer nil
-  "The buffer in which `ivy-occur-press' has been triggerer.
-
-Its value is only set during the call to `ivy-occur-press'.")
-
 (defun ivy-occur-press ()
   "Execute action for the current candidate."
   (interactive)
@@ -4275,8 +4270,7 @@ Its value is only set during the call to `ivy-occur-press'.")
   (when (save-excursion
           (beginning-of-line)
           (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
-    (let* ((ivy--occur-press-orig-buffer (current-buffer))
-           (ivy-last ivy-occur-last)
+    (let* ((ivy-last ivy-occur-last)
            (ivy-text (ivy-state-text ivy-last))
            (str (buffer-substring
                  (match-beginning 1)
