@@ -2582,6 +2582,51 @@ CALLER is forwarded to `ivy-read'."
                         (swiper--cleanup))
               :caller caller)))
 
+(defun counsel-ag--split-match (candidate)
+  "Example usage:
+
+(counsel-ag--split-match \"ivy.el:4134:(defun counsel-ag--split-match (candidate)\") is (\"ivy.el\" \"4134\" \"(defun counsel-ag--split-match (candidate)\")"
+  (let ((split (split-string candidate ":")))
+    (when split
+      (list (car split) (cadr split) (mapconcat 'identity (nthcdr 2 split) ":")))))
+
+(defun counsel-ag--display-match (loc-info text)
+  (let ((current-line-display))
+    (add-text-properties
+     0 (length loc-info)
+     `(face success)
+     loc-info)
+    (setq current-line-display
+          (format "     %s: %s" loc-info text))
+    (add-text-properties
+     0 (length current-line-display)
+     `(mouse-face
+       highlight
+       help-echo "mouse-1: call ivy-action")
+     current-line-display)
+    current-line-display))
+
+(defun counsel-ag-occur-color-moccur ()
+  "A function suitable for `ivy-set-occur' for grep-like outputs."
+  (ivy-occur-mode)
+  (read-only-mode)
+  (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                  default-directory))
+  (let ((count 0)
+        current-file)
+    (dolist (candidate ivy--old-cands)
+      (let ((current-line (counsel-ag--split-match candidate)))
+        (unless (string= current-file (car-safe current-line))
+          (setq current-file (car-safe current-line))
+          (insert "file: " current-file "\n"))
+        (insert (counsel-ag--display-match (cadr current-line)
+                                           (caddr current-line))
+                "\n")
+        (incf count)))
+    (goto-char (point-min))
+    (forward-line 3)
+    (insert (format "%d candidates:\n" count))))
+
 (cl-defmacro def-counsel-ag-command (name &key tool-name base-command-variable-name)
   (declare (indent 1))
   (or (boundp base-command-variable-name) (error "Variable %S not defined" base-command-variable-name))
