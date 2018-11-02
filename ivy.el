@@ -1722,19 +1722,19 @@ found, it falls back to the key t."
                       dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
-PROMPT is a string, normally ending in a colon and a space;
+PROMPT is a string, normally ending in a colon and a space.
 `ivy-count-format' is prepended to PROMPT during completion.
 
 COLLECTION is either a list of strings, a function, an alist, or
 a hash table.
 
 PREDICATE is applied to filter out the COLLECTION immediately.
-This argument is for `completing-read' compat.
+This argument is for compatibility with `completing-read'.
 
 When REQUIRE-MATCH is non-nil, only members of COLLECTION can be
-selected, i.e. custom text.
+selected.
 
-If INITIAL-INPUT is not nil, then insert that input in the
+If INITIAL-INPUT is non-nil, then insert that input in the
 minibuffer initially.
 
 HISTORY is a name of a variable to hold the completion session
@@ -1747,21 +1747,24 @@ out of the ones that match the INITIAL-INPUT.
 
 DEF is for compatibility with `completing-read'.
 
-UPDATE-FN is called each time the current candidate(s) is changed.
+UPDATE-FN is called each time the candidate list is redisplayed.
 
-When SORT is t, use `ivy-sort-functions-alist' for sorting.
+When SORT is non-nil, `ivy-sort-functions-alist' determines how
+to sort candidates before displaying them.
 
-ACTION is a lambda function to call after selecting a result.  It
-takes a single string argument.
+ACTION is a function to call after selecting a candidate.
+It takes the candidate, which is a string, as its only argument.
 
-UNWIND is a lambda function to call before exiting.
+UNWIND is a function of no arguments to call before exiting.
 
-RE-BUILDER is a lambda function to call to transform text into a
-regex pattern.
+RE-BUILDER is a function transforming input text into a regex
+pattern.
 
-MATCHER is to override matching.
+MATCHER is a function which can override how candidates are
+filtered based on user input.  It takes a regex pattern and a
+list of candidates, and returns the list of matching candidates.
 
-DYNAMIC-COLLECTION is a boolean to specify if the list of
+DYNAMIC-COLLECTION is a boolean specifying whether the list of
 candidates is updated after each input by calling COLLECTION.
 
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
