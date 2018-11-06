@@ -3524,7 +3524,9 @@ possible match.  See `all-completions' for further information."
      (lambda (x)
        (let* ((buf (get-buffer x))
               (dir (buffer-local-value 'default-directory buf))
-              (face (if (and dir (file-remote-p (abbreviate-file-name dir)))
+              (face (if (and dir
+                             (ignore-errors
+                               (file-remote-p (abbreviate-file-name dir))))
                         'ivy-remote
                       (cdr (assq (buffer-local-value 'major-mode buf)
                                  ivy-switch-buffer-faces-alist)))))
@@ -3831,7 +3833,7 @@ Skip buffers that match `ivy-ignore-buffers'."
         (cond
           ((buffer-modified-p b)
            (ivy-append-face str 'ivy-modified-buffer))
-          ((and (not (file-remote-p (buffer-file-name b)))
+          ((and (not (ignore-errors (file-remote-p (buffer-file-name b))))
                 (not (verify-visited-file-modtime b)))
            (ivy-append-face str 'ivy-modified-outside-buffer))
           (t str))
