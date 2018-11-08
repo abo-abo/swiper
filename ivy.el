@@ -1997,9 +1997,9 @@ This is useful for recursive `ivy-read'."
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
       (when def
-        (cond ((listp def)
+        (cond ((and (listp def) (stringp (car def)))
                (setq coll (cl-union def coll :test #'equal)))
-              ((not (member def coll))
+              ((and (stringp def) (not (member def coll)))
                (push def coll))))
       (when (and sort
                  (or (functionp collection)
