@@ -2092,29 +2092,37 @@ INHERIT-INPUT-METHOD is currently ignored."
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
-      (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-                collection
-                :predicate predicate
-                :require-match (and collection require-match)
-                :initial-input (cond ((consp initial-input)
-                                      (car initial-input))
-                                     ((and (stringp initial-input)
-                                           (not (eq collection #'read-file-name-internal))
-                                           (string-match-p "\\+" initial-input))
-                                      (replace-regexp-in-string
-                                       "\\+" "\\\\+" initial-input))
-                                     (t
-                                      initial-input))
-                :preselect (if (listp def) (car def) def)
-                :def (if (listp def) (car def) def)
-                :history history
-                :keymap nil
-                :sort t
-                :dynamic-collection ivy-completing-read-dynamic-collection
-                :caller (cond ((called-interactively-p 'any)
-                               this-command)
-                              ((and collection (symbolp collection))
-                               collection))))))
+      (when (listp def)
+        (setq def (car def)))
+      (let ((str (ivy-read
+                  (replace-regexp-in-string "%" "%%" prompt)
+                  collection
+                  :predicate predicate
+                  :require-match (and collection require-match)
+                  :initial-input (cond ((consp initial-input)
+                                        (car initial-input))
+                                       ((and (stringp initial-input)
+                                             (not (eq collection #'read-file-name-internal))
+                                             (string-match-p "\\+" initial-input))
+                                        (replace-regexp-in-string
+                                         "\\+" "\\\\+" initial-input))
+                                       (t
+                                        initial-input))
+                  :preselect def
+                  :def def
+                  :history history
+                  :keymap nil
+                  :sort t
+                  :dynamic-collection ivy-completing-read-dynamic-collection
+                  :caller (cond ((called-interactively-p 'any)
+                                 this-command)
+                                ((and collection (symbolp collection))
+                                 collection)))))
+        (if (string= str "")
+            ;; For `completing-read' compat, return the first element of DEFAULT,
+            ;; if it is a list; "", if DEFAULT is nil; or DEFAULT.
+            (or def "")
+          str)))))
 
 (defun ivy-completing-read-with-empty-string-def
     (prompt collection
