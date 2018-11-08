@@ -2061,7 +2061,7 @@ This is useful for recursive `ivy-read'."
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
                             &optional predicate require-match initial-input
-                              history def inherit-input-method)
+                              history default inherit-input-method)
   "Read a string in the minibuffer, with completion.
 
 This interface conforms to `completing-read' and can be used for
@@ -2073,7 +2073,7 @@ PREDICATE limits completion to a subset of COLLECTION.
 REQUIRE-MATCH is a boolean value.  See `completing-read'.
 INITIAL-INPUT is a string inserted into the minibuffer initially.
 HISTORY is a list of previously selected inputs.
-DEF is the default value.
+DEFAULT is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
   (let ((handler
          (when (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
@@ -2085,36 +2085,43 @@ INHERIT-INPUT-METHOD is currently ignored."
                    prompt collection
                    predicate require-match
                    initial-input history
-                   def inherit-input-method))
+                   default inherit-input-method))
       ;; See the doc of `completing-read'.
       (when (consp history)
         (when (numberp (cdr history))
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
-      (ivy-read (replace-regexp-in-string "%" "%%" prompt)
-                collection
-                :predicate predicate
-                :require-match (and collection require-match)
-                :initial-input (cond ((consp initial-input)
-                                      (car initial-input))
-                                     ((and (stringp initial-input)
-                                           (not (eq collection #'read-file-name-internal))
-                                           (string-match-p "\\+" initial-input))
-                                      (replace-regexp-in-string
-                                       "\\+" "\\\\+" initial-input))
-                                     (t
-                                      initial-input))
-                :preselect (if (listp def) (car def) def)
-                :def (if (listp def) (car def) def)
-                :history history
-                :keymap nil
-                :sort t
-                :dynamic-collection ivy-completing-read-dynamic-collection
-                :caller (cond ((called-interactively-p 'any)
-                               this-command)
-                              ((and collection (symbolp collection))
-                               collection))))))
+      (let* ((def (if (listp default) (car default) default))
+             (str (ivy-read
+                   (replace-regexp-in-string "%" "%%" prompt)
+                   collection
+                   :predicate predicate
+                   :require-match (and collection require-match)
+                   :initial-input (cond ((consp initial-input)
+                                         (car initial-input))
+                                        ((and (stringp initial-input)
+                                              (not (eq collection #'read-file-name-internal))
+                                              (string-match-p "\\+" initial-input))
+                                         (replace-regexp-in-string
+                                          "\\+" "\\\\+" initial-input))
+                                        (t
+                                         initial-input))
+                   :preselect def
+                   :def def
+                   :history history
+                   :keymap nil
+                   :sort t
+                   :dynamic-collection ivy-completing-read-dynamic-collection
+                   :caller (cond ((called-interactively-p 'any)
+                                  this-command)
+                                 ((and collection (symbolp collection))
+                                  collection)))))
+        (if (string= str "")
+            ;; For `completing-read' compat, return the first element of DEFAULT,
+            ;; if it is a list; "", if DEFAULT is nil; or DEFAULT.
+            (if def def "")
+          str)))))
 
 (defun ivy-completing-read-with-empty-string-def
     (prompt collection

@@ -738,6 +738,13 @@ will bring the behavior in line with the newer Emacsen."
    (equal "c"
           (ivy-with '(ivy-completing-read "Pick: " '("a" "b" "c") nil t nil nil nil)
                     "c RET")))
+  ;; DEF list, empty input (no text collection), non-text default, same object
+  (let ((def '([a b])))
+    (should
+     (eq (car def)
+         (ivy-with
+          (eval `'(ivy-completing-read "Pick: " nil nil 'require-match nil nil ',def))
+          "RET"))))
   ;; DEF nil, and called via `ivy-completing-read-with-empty-string-def'
   (should
    (equal ""
