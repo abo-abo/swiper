@@ -26,6 +26,8 @@
 
 ;;; Code:
 
+(require 'subr-x)
+
 (defface ivy-cursor
   '((t (:background "black"
         :foreground "white")))
@@ -123,15 +125,17 @@ Hide the minibuffer contents and cursor."
                     " "
                   "")
                 (buffer-substring (point) (line-end-position))
-                (ivy-left-pad
-                 str
-                 (+ (if (and (eq major-mode 'org-mode)
-                             (bound-and-true-p org-indent-mode))
-                        (* org-indent-indentation-per-level (org-current-level))
-                      0)
-                    (save-excursion
-                      (goto-char ivy-completion-beg)
-                      (current-column)))))))
+                (when (> (length str) 0)
+                  (concat "\n"
+                          (ivy-left-pad
+                           (string-trim-left str "\n")
+                           (+ (if (and (eq major-mode 'org-mode)
+                                       (bound-and-true-p org-indent-mode))
+                                  (* org-indent-indentation-per-level (org-current-level))
+                                0)
+                              (save-excursion
+                                (goto-char ivy-completion-beg)
+                                (current-column)))))))))
           (ivy-add-face-text-property cursor-pos (1+ cursor-pos)
                                       'ivy-cursor overlay-str t)
           (ivy-overlay-show-after overlay-str))))))
