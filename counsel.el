@@ -2839,11 +2839,20 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar org-indent-indentation-per-level)
 (defvar org-tags-column)
 (declare-function org-get-tags-string "org")
+(declare-function org-get-tags "org")
+(declare-function org-make-tag-string "org")
 (declare-function org-move-to-column "org-compat")
+
+(defun counsel--org-make-tag-string ()
+  (if (fboundp #'org-make-tag-string)
+      ;; >= Org 9.2
+      (org-make-tag-string (org-get-tags))
+    (with-no-warnings
+      (org-get-tags-string))))
 
 (defun counsel-org-change-tags (tags)
   "Change tags of current org headline to TAGS."
-  (let ((current (org-get-tags-string))
+  (let ((current (counsel--org-make-tag-string))
         (col (current-column))
         level)
     ;; Insert new tags at the correct column
@@ -2921,8 +2930,7 @@ otherwise continue prompting for tags."
                        (goto-char m)
                        (setq counsel-org-tags
                              (delete-dups
-                              (append (split-string (org-get-tags-string) ":" t)
-                                      add-tags)))
+                              (append (org-get-tags) add-tags)))
                        (counsel-org--set-tags))))))
            (counsel-org--set-tags)))
         ((eq this-command 'ivy-call)
@@ -2960,11 +2968,10 @@ otherwise continue prompting for tags."
                               (org-agenda-error))))
             (with-current-buffer (marker-buffer hdmarker)
               (goto-char hdmarker)
-              (setq counsel-org-tags
-                    (split-string (org-get-tags-string) ":" t)))))
+              (setq counsel-org-tags (org-get-tags)))))
       (unless (org-at-heading-p)
         (org-back-to-heading t))
-      (setq counsel-org-tags (split-string (org-get-tags-string) ":" t)))
+      (setq counsel-org-tags (org-get-tags)))
     (let ((org-last-tags-completion-table
            (append (and (or org-complete-tags-always-offer-all-agenda-tags
                             (eq major-mode 'org-agenda-mode))
