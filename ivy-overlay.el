@@ -26,7 +26,16 @@
 
 ;;; Code:
 
-(require 'subr-x)
+(if (version< emacs-version "26.1")
+    (progn
+      (defsubst string-trim-left (string &optional regexp)
+        "Trim STRING of leading string matching REGEXP.
+
+REGEXP defaults to \"[ \\t\\n\\r]+\"."
+        (if (string-match (concat "\\`\\(?:" (or regexp "[ \t\n\r]+") "\\)") string)
+            (replace-match "" t t string)
+          string)))
+  (require 'subr-x))
 
 (defface ivy-cursor
   '((t (:background "black"
