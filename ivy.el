@@ -239,8 +239,7 @@ Examples of properties include associated `:cleanup' functions.")
     (Info-menu . ivy-completing-read-with-empty-string-def)
     (Info-index . ivy-completing-read-with-empty-string-def)
     (Info-virtual-index . ivy-completing-read-with-empty-string-def)
-    (info-display-manual . ivy-completing-read-with-empty-string-def)
-    (webjump . ivy-completing-read-with-empty-string-def))
+    (info-display-manual . ivy-completing-read-with-empty-string-def))
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
   :type '(alist :key-type function :value-type function))
 
