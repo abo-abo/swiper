@@ -947,7 +947,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (if (and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
            (or (and (equal ivy--directory "/")
                     (string-match-p "\\`[^/]+:.*\\'" ivy-text))
-               (string-match-p "\\`/" ivy-text)))
+               (= (string-to-char ivy-text) ?/)))
       (let ((default-directory ivy--directory)
             dir)
         (minibuffer-complete)
@@ -959,6 +959,12 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                   (eq ivy--length 1))
           (ivy-alt-done)))))
 
+(defun ivy--remove-prefix (prefix string)
+  "Compatibility shim for `string-remove-prefix'."
+  (if (string-prefix-p prefix string)
+      (substring string (length prefix))
+    string))
+
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
   (interactive)
@@ -966,10 +972,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (postfix (car (last parts)))
          (case-fold-search (ivy--case-fold-p ivy-text))
          (completion-ignore-case case-fold-search)
-         (startp (string-match-p "\\`\\^" postfix))
-         (new (try-completion (if startp
-                                  (substring postfix 1)
-                                postfix)
+         (new (try-completion (ivy--remove-prefix "^" postfix)
                               (if (ivy-state-dynamic-collection ivy-last)
                                   ivy--all-candidates
                                 (mapcar (lambda (str)
@@ -982,7 +985,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar (last parts)
-                   (if startp
+                   (if (= (string-to-char postfix) ?^)
                        (concat "^" new)
                      new))
            (insert
@@ -2382,9 +2385,10 @@ When GREEDY is non-nil, join words in a greedy way."
   (let ((hashed (unless greedy
                   (gethash str ivy--regex-hash))))
     (if hashed
-        (prog1 (cdr hashed)
-          (setq ivy--subexps (car hashed)))
-      (when (string-match "\\([^\\]\\|^\\)\\\\$" str)
+        (progn
+          (setq ivy--subexps (car hashed))
+          (cdr hashed))
+      (when (string-match-p "\\(?:[^\\]\\|^\\)\\\\\\'" str)
         (setq str (substring str 0 -1)))
       (cdr (puthash str
                     (let ((subs (ivy--split str)))
@@ -2396,13 +2400,11 @@ When GREEDY is non-nil, join words in a greedy way."
                          (setq ivy--subexps (length subs))
                          (mapconcat
                           (lambda (x)
-                            (if (string-match "\\`\\\\([^?].*\\\\)\\'" x)
+                            (if (string-match-p "\\`\\\\([^?].*\\\\)\\'" x)
                                 x
                               (format "\\(%s\\)" x)))
                           subs
-                          (if greedy
-                              ".*"
-                            ".*?")))))
+                          (if greedy ".*" ".*?")))))
                     ivy--regex-hash)))))
 
 (defun ivy--legal-regex-p (str)
@@ -2498,7 +2500,7 @@ match.  Everything after \"!\" should not match."
       (0
        "")
       (1
-       (if (string= (substring str 0 1) "!")
+       (if (= (aref str 0) ?!)
            (list (cons "" t)
                  (list (ivy--regex (car parts))))
          (ivy--regex (car parts))))
@@ -2825,9 +2827,7 @@ Should be run via minibuffer `post-command-hook'."
                        (and (string-match "\\` " ivy--old-text)
                             (not (string-match "\\` " ivy-text))))
                (setq ivy--all-candidates
-                     (if (and (> (length ivy-text) 0)
-                              (eq (aref ivy-text 0)
-                                  ?\ ))
+                     (if (= (string-to-char ivy-text) ?\s)
                          (ivy--buffer-list " ")
                        (ivy--buffer-list "" ivy-use-virtual-buffers)))
                (setq ivy--old-re nil))))
@@ -3050,7 +3050,8 @@ All CANDIDATES are assumed to match NAME."
   "Re-sort candidates by NAME.
 All CANDIDATES are assumed to match NAME.
 Prefix matches to NAME are put ahead of the list."
-  (if (or (string-match-p "\\`\\^" name) (string= name ""))
+  (if (or (string= name "")
+          (= (aref name 0) ?^))
       candidates
     (let ((re-prefix (concat "\\`" (funcall ivy--regex-function name)))
           res-prefix
@@ -3078,7 +3079,8 @@ This function extracts a string from the cons list."
 CANDIDATES is a list of buffer names each containing NAME.
 Sort open buffers before virtual buffers, and prefix matches
 before substring matches."
-  (if (or (string-match-p "\\`\\^" name) (string= name ""))
+  (if (or (string= name "")
+          (= (aref name 0) ?^))
       candidates
     (let* ((base-re (ivy-generic-regex-to-str (funcall ivy--regex-function name)))
            (re-prefix (concat "\\`\\*" base-re))
@@ -3117,9 +3119,7 @@ RE-STR is the regexp, CANDS are the current candidates."
     (unless (eq this-command 'ivy-resume)
       (ivy-set-index
        (or
-        (cl-position (if (= (string-to-char name) ?^)
-                         (substring name 1)
-                       name)
+        (cl-position (ivy--remove-prefix "^" name)
                      cands
                      :test #'ivy--case-fold-string=)
         (and ivy--directory
@@ -3378,9 +3378,7 @@ Note: The usual last two arguments are flipped for convenience.")
   "Highlight STR, using the fuzzy method."
   (if (and ivy--flx-featurep
            (eq (ivy-alist-setting ivy-re-builders-alist) 'ivy--regex-fuzzy))
-      (let ((flx-name (if (string-match-p "\\`\\^" ivy-text)
-                          (substring ivy-text 1)
-                        ivy-text)))
+      (let ((flx-name (ivy--remove-prefix "^" ivy-text)))
         (ivy--flx-propertize
          (cons (flx-score str flx-name ivy--flx-cache) str)))
     (ivy--highlight-default str)))
@@ -4121,14 +4119,12 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
     (setq str (ivy--highlight-fuzzy (copy-sequence str)))
     (add-text-properties
      0 (length str)
-     `(mouse-face
+     '(mouse-face
        highlight
        help-echo "mouse-1: call ivy-action")
      str)
-    (insert (if (string-match-p "\\`\\./" str)
-                str
-              (concat "    " str))
-            "\n"))
+    (insert (if (string-prefix-p "./" str) "" "    ")
+            str ?\n))
   (goto-char (point-min))
   (forward-line 4)
   (while (re-search-forward "^[^:]+:[[:digit:]]+:" nil t)

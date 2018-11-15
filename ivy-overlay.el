@@ -26,18 +26,6 @@
 
 ;;; Code:
 
-(if (version< emacs-version "26.1")
-    (progn
-      (defun string-trim-left (string &optional regexp)
-        "Trim STRING of leading string matching REGEXP.
-
-REGEXP defaults to \"[ \\t\\n\\r]+\"."
-        (if (string-match (concat "\\`\\(?:" (or regexp "[ \t\n\r]+") "\\)") string)
-            (replace-match "" t t string)
-          string))
-      (declare-function string-trim-left "subr-x"))
-  (require 'subr-x))
-
 (defface ivy-cursor
   '((t (:background "black"
         :foreground "white")))
@@ -96,6 +84,7 @@ Then attach the overlay the character before point."
 (declare-function ivy--get-window "ivy")
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
+(declare-function ivy--remove-prefix "ivy")
 
 (defun ivy-overlay-impossible-p (str)
   (or
@@ -138,7 +127,7 @@ Hide the minibuffer contents and cursor."
                 (when (> (length str) 0)
                   (concat "\n"
                           (ivy-left-pad
-                           (string-trim-left str "\n")
+                           (ivy--remove-prefix "\n" str)
                            (+ (if (and (eq major-mode 'org-mode)
                                        (bound-and-true-p org-indent-mode))
                                   (* org-indent-indentation-per-level (org-current-level))
