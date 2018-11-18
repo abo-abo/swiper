@@ -4098,13 +4098,14 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Insert CANDS into `ivy-occur' buffer."
   (font-lock-mode -1)
   (dolist (str cands)
+    (setq str (ivy--highlight-fuzzy str))
     (add-text-properties
      0 (length str)
      `(mouse-face
        highlight
        help-echo "mouse-1: call ivy-action")
-     (ivy--highlight-fuzzy str))
-    (insert str "\n"))
+     str)
+    (insert "    " str "\n"))
   (goto-char (point-min))
   (forward-line 4)
   (while (re-search-forward "^[^:]+:[[:digit:]]+:" nil t)
@@ -4145,9 +4146,7 @@ There is no limit on the number of *ivy-occur* buffers."
             (insert (format "%d candidates:\n" (length ivy--old-cands)))
             (read-only-mode)
             (ivy--occur-insert-lines
-             (mapcar
-              (lambda (cand) (concat "    " cand))
-              ivy--old-cands))))
+             ivy--old-cands)))
         (setf (ivy-state-text ivy-last) ivy-text)
         (setq ivy-occur-last ivy-last)
         (setq-local ivy--directory ivy--directory))
