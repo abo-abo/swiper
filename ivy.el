@@ -3356,7 +3356,8 @@ Note: The usual last two arguments are flipped for convenience.")
 
 (defun ivy--highlight-fuzzy (str)
   "Highlight STR, using the fuzzy method."
-  (if ivy--flx-featurep
+  (if (and ivy--flx-featurep
+           (eq (ivy-alist-setting ivy-re-builders-alist) 'ivy--regex-fuzzy))
       (let ((flx-name (if (string-match-p "\\`\\^" ivy-text)
                           (substring ivy-text 1)
                         ivy-text)))
