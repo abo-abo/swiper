@@ -229,21 +229,6 @@ Examples of properties include associated `:cleanup' functions.")
 (defvar ivy-completing-read-dynamic-collection nil
   "Run `ivy-completing-read' with `:dynamic-collection t`.")
 
-(defvar ivy-more-chars-alist
-  '((counsel-grep . 2)
-    (t . 3))
-  "Map commands to their minimum required input length.
-That is the number of characters prompted for before fetching
-candidates.  The special key t is used as a fallback.")
-
-(defun ivy-more-chars ()
-  "Return two fake candidates prompting for at least N input.
-N is obtained from `ivy-more-chars-alist'."
-  (let ((diff (- (ivy-alist-setting ivy-more-chars-alist)
-                 (length ivy-text))))
-    (when (> diff 0)
-      (list "" (format "%d chars more" diff)))))
-
 (defcustom ivy-completing-read-handlers-alist
   '((tmm-menubar . completing-read-default)
     (tmm-shortcut . completing-read-default)
@@ -582,6 +567,21 @@ functionality, e.g. as seen in `isearch'."
 
 (defvar ivy-case-fold-search ivy-case-fold-search-default
   "Store the current overriding `case-fold-search'.")
+
+(defvar ivy-more-chars-alist
+  '((counsel-grep . 2)
+    (t . 3))
+  "Map commands to their minimum required input length.
+That is the number of characters prompted for before fetching
+candidates.  The special key t is used as a fallback.")
+
+(defun ivy-more-chars ()
+  "Return two fake candidates prompting for at least N input.
+N is obtained from `ivy-more-chars-alist'."
+  (let ((diff (- (ivy-alist-setting ivy-more-chars-alist)
+                 (length ivy-text))))
+    (when (> diff 0)
+      (list "" (format "%d chars more" diff)))))
 
 (defun ivy--case-fold-p (string)
   "Return nil if STRING should be matched case-sensitively."
