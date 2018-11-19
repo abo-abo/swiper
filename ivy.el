@@ -4098,7 +4098,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Insert CANDS into `ivy-occur' buffer."
   (font-lock-mode -1)
   (dolist (str cands)
-    (setq str (ivy--highlight-fuzzy str))
+    (setq str (ivy--highlight-fuzzy (copy-sequence str)))
     (add-text-properties
      0 (length str)
      `(mouse-face
