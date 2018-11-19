@@ -2566,10 +2566,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
     (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar
-      (lambda (cand) (concat "./" cand))
-      cands))))
+    (ivy--occur-insert-lines cands)))
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
