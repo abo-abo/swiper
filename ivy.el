@@ -4105,7 +4105,10 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
        highlight
        help-echo "mouse-1: call ivy-action")
      str)
-    (insert "    " str "\n"))
+    (insert (if (string-match-p "\\`\\./" str)
+                str
+              (concat "    " str))
+            "\n"))
   (goto-char (point-min))
   (forward-line 4)
   (while (re-search-forward "^[^:]+:[[:digit:]]+:" nil t)
