@@ -795,8 +795,7 @@ selection, non-nil otherwise."
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
-  (let ((window (selected-window)))
-    (window-resize window (- ivy-height (window-height window)))))
+  (window-resize nil (- ivy-height (window-height))))
 
 (defun ivy-dispatching-done ()
   "Select one of the available actions and call `ivy-done'."
@@ -969,7 +968,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   "Complete the minibuffer text as much as possible."
   (interactive)
   (let* ((parts (or (split-string ivy-text " " t) (list "")))
-         (postfix (car (last parts)))
+         (tail (last parts))
+         (postfix (car tail))
          (case-fold-search (ivy--case-fold-p ivy-text))
          (completion-ignore-case case-fold-search)
          (new (try-completion (ivy--remove-prefix "^" postfix)
@@ -977,14 +977,13 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                   ivy--all-candidates
                                 (mapcar (lambda (str)
                                           (let ((i (string-match-p postfix str)))
-                                            (when i
-                                              (substring str i))))
+                                            (and i (substring str i))))
                                         ivy--old-cands)))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
-           (setcar (last parts)
+           (setcar tail
                    (if (= (string-to-char postfix) ?^)
                        (concat "^" new)
                      new))
@@ -992,7 +991,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
             (setq ivy-text
                   (concat
                    (mapconcat #'identity parts " ")
-                   (if ivy-tab-space " " ""))))
+                   (and ivy-tab-space " "))))
            (when (and
                   (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
                   (= 1 (length
@@ -1012,24 +1011,24 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   "Exit the minibuffer with current input instead of current candidate."
   (interactive)
   (delete-minibuffer-contents)
-  (insert (setf (ivy-state-current ivy-last)
-                (if (and ivy--directory
-                         (not (eq (ivy-state-history ivy-last)
-                                  'grep-files-history)))
-                    (if (and (string= ivy-text "")
-                             (eq (ivy-state-collection ivy-last)
-                                 #'read-file-name-internal))
-                        ;; For `read-file-name' compat, unchanged initial input
-                        ;; means that `ivy-read' shall return INITIAL-INPUT.
-                        ;; `read-file-name-default' `string-equal' return value
-                        ;; with provided INITIAL-INPUT to detect that the user
-                        ;; choose the default, `default-filename'.
-                        ;; We must return `ivy--directory' in unchanged form
-                        ;; in cased `ivy--directory' started out as
-                        ;; INITIAL-INPUT in abbreviated form.
-                        ivy--directory  ;unchanged (unexpanded)
-                      (expand-file-name ivy-text ivy--directory))
-                  ivy-text)))
+  (setf (ivy-state-current ivy-last)
+        (cond ((or (not ivy--directory)
+                   (eq (ivy-state-history ivy-last) 'grep-files-history))
+               ivy-text)
+              ((and (string= ivy-text "")
+                    (eq (ivy-state-collection ivy-last)
+                        #'read-file-name-internal))
+                ;; For `read-file-name' compat, unchanged initial input means
+                ;; that `ivy-read' shall return INITIAL-INPUT.
+                ;; `read-file-name-default' `string-equal' return value with
+                ;; provided INITIAL-INPUT to detect that the user choose the
+                ;; default, `default-filename'.  We must return `ivy--directory'
+                ;; in unchanged form in cased `ivy--directory' started out as
+                ;; INITIAL-INPUT in abbreviated form.
+               ivy--directory)          ; Unchanged (unexpanded)
+              (t
+               (expand-file-name ivy-text ivy--directory))))
+  (insert (ivy-state-current ivy-last))
   (setq ivy-completion-beg ivy-completion-end)
   (setq ivy-exit 'done)
   (exit-minibuffer))
@@ -1103,10 +1102,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-minibuffer-shrink ()
   "Shrink the minibuffer window by 1 line."
   (interactive)
-  (unless (<= ivy-height 2)
+  (when (> ivy-height 2)
     (setq-local max-mini-window-height
                 (cl-decf ivy-height))
-    (window-resize (selected-window) -1)))
+    (window-resize nil -1)))
 
 (defun ivy-next-line (&optional arg)
   "Move cursor vertically down ARG candidates."
@@ -1178,9 +1177,7 @@ If the input is empty, select the previous history element instead."
       (let ((window (ivy-state-window state)))
         (if (window-live-p window)
             window
-          (if (= (length (window-list)) 1)
-              (selected-window)
-            (next-window))))
+          (next-window)))
     (selected-window)))
 
 (defun ivy--actionp (x)
@@ -1851,7 +1848,8 @@ customizations apply to the current completion session."
                          ((null resize-mini-windows) 'grow-only)
                          (t resize-mini-windows))))
                  (if (and ivy-auto-select-single-candidate
-                          (= (length ivy--all-candidates) 1))
+                          ivy--all-candidates
+                          (null (cdr ivy--all-candidates)))
                      (progn
                        (setf (ivy-state-current ivy-last)
                              (car ivy--all-candidates))
@@ -2012,7 +2010,7 @@ This is useful for recursive `ivy-read'."
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
       (when def
-        (cond ((and (listp def) (stringp (car def)))
+        (cond ((stringp (car-safe def))
                (setq coll (cl-union def coll :test #'equal)))
               ((and (stringp def) (not (member def coll)))
                (push def coll))))
@@ -2091,8 +2089,8 @@ HISTORY is a list of previously selected inputs.
 DEF is the default value.
 INHERIT-INPUT-METHOD is currently ignored."
   (let ((handler
-         (when (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
-           (assq this-command ivy-completing-read-handlers-alist))))
+         (and (< ivy-completing-read-ignore-handlers-depth (minibuffer-depth))
+              (assq this-command ivy-completing-read-handlers-alist))))
     (if handler
         (let ((completion-in-region-function #'completion--in-region)
               (ivy-completing-read-ignore-handlers-depth (1+ (minibuffer-depth))))
@@ -2107,7 +2105,7 @@ INHERIT-INPUT-METHOD is currently ignored."
           (setq initial-input (nth (1- (cdr history))
                                    (symbol-value (car history)))))
         (setq history (car history)))
-      (when (listp def)
+      (when (consp def)
         (setq def (car def)))
       (let ((str (ivy-read
                   (replace-regexp-in-string "%" "%%" prompt)
@@ -2134,8 +2132,8 @@ INHERIT-INPUT-METHOD is currently ignored."
                                 ((and collection (symbolp collection))
                                  collection)))))
         (if (string= str "")
-            ;; For `completing-read' compat, return the first element of DEFAULT,
-            ;; if it is a list; "", if DEFAULT is nil; or DEFAULT.
+            ;; For `completing-read' compat, return the first element of
+            ;; DEFAULT, if it is a list; "", if DEFAULT is nil; or DEFAULT.
             (or def "")
           str)))))
 
