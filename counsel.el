@@ -4559,11 +4559,11 @@ selected color."
       (format "%s - %s - %s" artist album title))))
 
 ;;;###autoload
-(defun counsel-rhythmbox ()
+(defun counsel-rhythmbox (&optional arg)
   "Choose a song from the Rhythmbox library to play or enqueue."
-  (interactive)
+  (interactive "P")
   (require 'dbus)
-  (unless counsel-rhythmbox-songs
+  (when (or arg (null counsel-rhythmbox-songs))
     (let* ((service "org.gnome.Rhythmbox3")
            (path "/org/gnome/UPnP/MediaServer2/Library/all")
            (interface "org.gnome.UPnP.MediaContainer2")
