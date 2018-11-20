@@ -1473,7 +1473,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
          (positive-pattern (replace-regexp-in-string
                             ;; git-grep can't handle .*?
                             "\\.\\*\\?" ".*"
-                            (if (stringp regex) regex (caar regex))))
+                            (ivy-re-to-str regex)))
          (negative-patterns
           (if (stringp regex) ""
             (mapconcat (lambda (x)
