@@ -135,6 +135,7 @@
   '((t :inherit ivy-current-match))
   "Face used by Ivy for highlighting the selected prompt line.")
 
+;; Set default customization `:group' to `ivy' for the rest of the file.
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
 (defcustom ivy-height 10
@@ -1576,8 +1577,7 @@ See also `ivy-sort-max-size'."
                  (const :tag "File sort" ivy-sort-file-function-default)
                  (const :tag "No sort" nil)
                  (function :tag "Custom function")
-                 (repeat (function :tag "Custom function"))))
-  :group 'ivy)
+                 (repeat (function :tag "Custom function")))))
 
 (defun ivy--sort-function (collection)
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'."
@@ -2522,7 +2522,6 @@ Insert .* between each char."
   "When non nil, fix the height of the minibuffer during ivy completion.
 This effectively sets the minimum height at this level to `ivy-height' and
 tries to ensure that it does not change depending on the number of candidates."
-  :group 'ivy
   :type 'boolean)
 
 ;;** Rest
