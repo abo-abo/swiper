@@ -3227,6 +3227,12 @@ This function serves as a fallback when nothing else is available."
 When the amount of matching candidates exceeds this limit, then
 no sorting is done.")
 
+(defun ivy--minibuffer-face (n)
+  "Return Nth face from `ivy-minibuffer-faces'.
+N wraps around, but skips the first element of the list."
+  (let ((tail (cdr ivy-minibuffer-faces)))
+    (nth (mod (+ n 2) (length tail)) tail)))
+
 (defun ivy--flx-propertize (x)
   "X is (cons (flx-score STR ...) STR)."
   (let ((str (copy-sequence (cdr x)))
@@ -3236,11 +3242,7 @@ no sorting is done.")
       (unless (eq j (1+ last-j))
         (cl-incf i))
       (setq last-j j)
-      (ivy-add-face-text-property
-       j (1+ j)
-       (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-            ivy-minibuffer-faces)
-       str))
+      (ivy-add-face-text-property j (1+ j) (ivy--minibuffer-face i) str))
     str))
 
 (defun ivy--flx-sort (name cands)
@@ -3365,8 +3367,7 @@ Note: The usual last two arguments are flipped for convenience.")
         (when (string-match (car re) str)
           (ivy-add-face-text-property
            (match-beginning 0) (match-end 0)
-           (nth (1+ (mod (+ i 2) (1- (length ivy-minibuffer-faces))))
-                ivy-minibuffer-faces)
+           (ivy--minibuffer-face i)
            str))
         (cl-incf i))))
   str)
@@ -3406,9 +3407,7 @@ Note: The usual last two arguments are flipped for convenience.")
                            ((zerop i)
                             (car ivy-minibuffer-faces))
                            (t
-                            (nth (1+ (mod (+ i 2)
-                                          (1- (length ivy-minibuffer-faces))))
-                                 ivy-minibuffer-faces)))))
+                            (ivy--minibuffer-face i)))))
                 (ivy-add-face-text-property
                  (match-beginning i) (match-end i)
                  face str))
