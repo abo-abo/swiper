@@ -919,9 +919,8 @@ otherwise continue prompting for buffers."
           re re-tail
           cands match
           (case-fold-search (ivy--case-fold-p str)))
-     (if (stringp re-full)
-         (setq re re-full)
-       (setq re (caar re-full))
+     (setq re (ivy-re-to-str re-full))
+     (when (consp re-full)
        (setq re-tail (cdr re-full)))
      (dolist (buffer buffers)
        (with-current-buffer buffer

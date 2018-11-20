@@ -593,11 +593,6 @@ N is obtained from `ivy-more-chars-alist'."
   "Like `string=', but obeys `case-fold-search'."
   (eq t (compare-strings s1 nil nil s2 nil nil case-fold-search)))
 
-(defun ivy-re-to-str (re)
-  (if (stringp re)
-      re
-    (caar re)))
-
 (eval-and-compile
   (unless (fboundp 'defvar-local)
     (defmacro defvar-local (var val &optional docstring)
@@ -2950,7 +2945,7 @@ CANDIDATES are assumed to be static."
          (equal re ivy--old-re))
         ;; quick caching for "C-n", "C-p" etc.
         ivy--old-cands
-      (let* ((re-str (if (listp re) (caar re) re))
+      (let* ((re-str (ivy-re-to-str re))
              (matcher (ivy-state-matcher ivy-last))
              (case-fold-search (ivy--case-fold-p name))
              (cands (cond
@@ -3067,7 +3062,10 @@ Prefix matches to NAME are put ahead of the list."
 (defvar ivy--virtual-buffers nil
   "Store the virtual buffers alist.")
 
-(defun ivy-generic-regex-to-str (re)
+(define-obsolete-function-alias 'ivy-generic-regex-to-str
+    'ivy-re-to-str "0.10.0")
+
+(defun ivy-re-to-str (re)
   "Transform RE to a string.
 
 Functions like `ivy--regex-ignore-order' return a cons list.
@@ -3082,7 +3080,7 @@ before substring matches."
   (if (or (string= name "")
           (= (aref name 0) ?^))
       candidates
-    (let* ((base-re (ivy-generic-regex-to-str (funcall ivy--regex-function name)))
+    (let* ((base-re (ivy-re-to-str (funcall ivy--regex-function name)))
            (re-prefix (concat "\\`\\*" base-re))
            res-prefix
            res-noprefix
