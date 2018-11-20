@@ -4793,7 +4793,7 @@ Any desktop entries that fail to parse are recorded in
 ;;** `counsel-wmctrl'
 (defun counsel-wmctrl-action (x)
   "Select the desktop window that corresponds to X."
-  (shell-command
+  (shell-command-to-string
    (format "wmctrl -i -a \"%s\"" (cdr x))))
 
 (defvar counsel-wmctrl-ignore '("XdndCollectionWindowImp"
@@ -4815,7 +4815,7 @@ Any desktop entries that fail to parse are recorded in
                         (unless (member title counsel-wmctrl-ignore)
                           (cons title id)))))
                   cands1)))
-    (ivy-read "window: " cands2
+    (ivy-read "window: " (delq nil cands2)
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
