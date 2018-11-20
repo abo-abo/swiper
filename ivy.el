@@ -1837,11 +1837,8 @@ customizations apply to the current completion session."
                       (minibuffer-completion-table collection)
                       (minibuffer-completion-predicate predicate)
                       (ivy-height height)
-                      (resize-mini-windows
-                       (cond
-                         ((display-graphic-p) nil)
-                         ((null resize-mini-windows) 'grow-only)
-                         (t resize-mini-windows))))
+                      (resize-mini-windows (unless (display-graphic-p)
+                                             'grow-only)))
                  (if (and ivy-auto-select-single-candidate
                           ivy--all-candidates
                           (null (cdr ivy--all-candidates)))
@@ -2538,9 +2535,7 @@ tries to ensure that it does not change depending on the number of candidates."
               (lambda ()
                 (list ivy--default)))
   (setq-local inhibit-field-text-motion nil)
-  (if (display-graphic-p)
-      (setq truncate-lines ivy-truncate-lines)
-    (setq resize-mini-windows 'grow-only))
+  (setq truncate-lines ivy-truncate-lines)
   (setq-local max-mini-window-height ivy-height)
   (if (and ivy-fixed-height-minibuffer
            (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
