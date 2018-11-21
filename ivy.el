@@ -2119,10 +2119,9 @@ INHERIT-INPUT-METHOD is currently ignored."
                   :keymap nil
                   :sort t
                   :dynamic-collection ivy-completing-read-dynamic-collection
-                  :caller (cond ((called-interactively-p 'any)
-                                 this-command)
-                                ((and collection (symbolp collection))
-                                 collection)))))
+                  :caller (if (and collection (symbolp collection))
+                              collection
+                            this-command))))
         (if (string= str "")
             ;; For `completing-read' compat, return the first element of
             ;; DEFAULT, if it is a list; "", if DEFAULT is nil; or DEFAULT.
