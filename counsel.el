@@ -4679,6 +4679,56 @@ This function always returns its elements in a stable order."
                 (puthash id file hash)))))))
     result))
 
+(defun counsel-linux-app--parse-file (file)
+  (with-temp-buffer
+    (insert-file-contents file)
+    (goto-char (point-min))
+    (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
+          (end (re-search-forward "^\\[" nil t))
+          (visible t)
+          name comment exec)
+      (catch 'break
+        (unless start
+          (push file counsel-linux-apps-faulty)
+          (message "Warning: File %s has no [Desktop Entry] group" file)
+          (throw 'break nil))
+
+        (goto-char start)
+        (when (re-search-forward "^\\(Hidden\\|NoDisplay\\) *= *\\(1\\|true\\) *$" end t)
+          (setq visible nil))
+        (setq name (match-string 1))
+
+        (goto-char start)
+        (unless (re-search-forward "^Type *= *Application *$" end t)
+          (throw 'break nil))
+        (setq name (match-string 1))
+
+        (goto-char start)
+        (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
+          (push file counsel-linux-apps-faulty)
+          (message "Warning: File %s has no Name" file)
+          (throw 'break nil))
+        (setq name (match-string 1))
+
+        (goto-char start)
+        (when (re-search-forward "^Comment *= *\\(.+\\)$" end t)
+          (setq comment (match-string 1)))
+
+        (goto-char start)
+        (unless (re-search-forward "^Exec *= *\\(.+\\)$" end t)
+          ;; Don't warn because this can technically be a valid desktop file.
+          (throw 'break nil))
+        (setq exec (match-string 1))
+
+        (goto-char start)
+        (when (re-search-forward "^TryExec *= *\\(.+\\)$" end t)
+          (let ((try-exec (match-string 1)))
+            (unless (locate-file try-exec exec-path nil #'file-executable-p)
+              (throw 'break nil))))
+        (propertize
+         (funcall counsel-linux-app-format-function name comment exec)
+         'visible visible)))))
+
 (defun counsel-linux-apps-parse (desktop-entries-alist)
   "Parse the given alist of Linux desktop entries.
 Each entry in DESKTOP-ENTRIES-ALIST is a pair of ((id . file-name)).
@@ -4687,56 +4737,11 @@ Any desktop entries that fail to parse are recorded in
   (let (result)
     (setq counsel-linux-apps-faulty nil)
     (dolist (entry desktop-entries-alist result)
-      (let ((id (car entry))
-            (file (cdr entry)))
-        (with-temp-buffer
-          (insert-file-contents file)
-          (goto-char (point-min))
-          (let ((start (re-search-forward "^\\[Desktop Entry\\] *$" nil t))
-                (end (re-search-forward "^\\[" nil t))
-                name comment exec)
-            (catch 'break
-              (unless start
-                (push file counsel-linux-apps-faulty)
-                (message "Warning: File %s has no [Desktop Entry] group" file)
-                (throw 'break nil))
-
-              (goto-char start)
-              (when (re-search-forward "^\\(Hidden\\|NoDisplay\\) *= *\\(1\\|true\\) *$" end t)
-                (throw 'break nil))
-              (setq name (match-string 1))
-
-              (goto-char start)
-              (unless (re-search-forward "^Type *= *Application *$" end t)
-                (throw 'break nil))
-              (setq name (match-string 1))
-
-              (goto-char start)
-              (unless (re-search-forward "^Name *= *\\(.+\\)$" end t)
-                (push file counsel-linux-apps-faulty)
-                (message "Warning: File %s has no Name" file)
-                (throw 'break nil))
-              (setq name (match-string 1))
-
-              (goto-char start)
-              (when (re-search-forward "^Comment *= *\\(.+\\)$" end t)
-                (setq comment (match-string 1)))
-
-              (goto-char start)
-              (unless (re-search-forward "^Exec *= *\\(.+\\)$" end t)
-                ;; Don't warn because this can technically be a valid desktop file.
-                (throw 'break nil))
-              (setq exec (match-string 1))
-
-              (goto-char start)
-              (when (re-search-forward "^TryExec *= *\\(.+\\)$" end t)
-                (let ((try-exec (match-string 1)))
-                  (unless (locate-file try-exec exec-path nil #'file-executable-p)
-                    (throw 'break nil))))
-
-              (push
-               (cons (funcall counsel-linux-app-format-function name comment exec) id)
-               result))))))))
+      (let* ((id (car entry))
+             (file (cdr entry))
+             (r (counsel-linux-app--parse-file file)))
+        (when r
+          (push (cons r id) result))))))
 
 (defun counsel-linux-apps-list ()
   "Return list of all Linux desktop applications."
@@ -4752,10 +4757,10 @@ Any desktop entries that fail to parse are recorded in
                        counsel--linux-apps-cache-timestamp
                        (nth 5 (file-attributes file))))
                     new-files)))
-      (setq counsel--linux-apps-cache (counsel-linux-apps-parse new-desktop-alist)
-            counsel--linux-apps-cache-format-function counsel-linux-app-format-function
-            counsel--linux-apps-cache-timestamp (current-time)
-            counsel--linux-apps-cached-files new-files)))
+      (setq counsel--linux-apps-cache (counsel-linux-apps-parse new-desktop-alist))
+      (setq counsel--linux-apps-cache-format-function counsel-linux-app-format-function)
+      (setq counsel--linux-apps-cache-timestamp (current-time))
+      (setq counsel--linux-apps-cached-files new-files)))
   counsel--linux-apps-cache)
 
 
@@ -4783,10 +4788,12 @@ Any desktop entries that fail to parse are recorded in
    ("d" counsel-linux-app-action-open-desktop "open desktop file")))
 
 ;;;###autoload
-(defun counsel-linux-app ()
-  "Launch a Linux desktop application, similar to Alt-<F2>."
-  (interactive)
+(defun counsel-linux-app (&optional arg)
+  "Launch a Linux desktop application, similar to Alt-<F2>.
+When ARG is non-nil, ignore NoDisplay property in *.desktop files."
+  (interactive "P")
   (ivy-read "Run a command: " (counsel-linux-apps-list)
+            :predicate (unless arg (lambda (x) (get-text-property 0 'visible (car x))))
             :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
 
