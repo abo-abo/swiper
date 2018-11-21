@@ -2565,7 +2565,7 @@ tries to ensure that it does not change depending on the number of candidates."
     (delete-region (line-end-position) (point-max))))
 
 (defun ivy-cleanup-string (str)
-  "Remove unwanted text properties from STR."
+  "Destructively remove unwanted text properties from STR."
   (remove-list-of-text-properties 0 (length str) '(field) str)
   str)
 
