@@ -1920,6 +1920,7 @@ This is useful for recursive `ivy-read'."
               #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection #'Info-read-node-name-1)
+             (setq Info-read-node-completion-table nil)
              (setq coll
                    (if (equal (bound-and-true-p Info-current-file) "dir")
                        (mapcar (lambda (x) (format "(%s)" x))
