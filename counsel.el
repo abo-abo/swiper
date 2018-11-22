@@ -638,14 +638,13 @@ With a prefix arg, restrict list to variables defined using
                     (cond
                       ((and (consp sym-type)
                             (memq (car sym-type) '(choice radio)))
-                       (setq cands (delq nil (mapcar #'counsel--setq-doconst (cdr sym-type)))))
+                       (setq cands (delq nil (mapcar #'counsel--setq-doconst
+                                                     (cdr sym-type)))))
                       ((eq sym-type 'boolean)
                        (setq cands '(("nil" . nil) ("t" . t))))
                       (t nil)))
                (let* ((sym-val (symbol-value sym))
-                      ;; Escape '%' chars if present
-                      (sym-val-str (ivy--quote-format-string (format "%s" sym-val)))
-                      (res (ivy-read (format "Set (%S <%s>): " sym sym-val-str)
+                      (res (ivy-read (format "Set (%S <%s>): " sym sym-val)
                                      cands
                                      :preselect (prin1-to-string sym-val))))
                  (when res

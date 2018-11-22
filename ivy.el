@@ -2066,8 +2066,8 @@ This is useful for recursive `ivy-read'."
          prompt)))
 
 (defun ivy--quote-format-string (str)
-  "Make STR suitable for `message' with no extra arguments."
-  (replace-regexp-in-string "%" "%%" str))
+  "Make STR suitable for `format' with no extra arguments."
+  (replace-regexp-in-string "%" "%%" str t t))
 
 ;;;###autoload
 (defun ivy-completing-read (prompt collection
@@ -2106,8 +2106,7 @@ INHERIT-INPUT-METHOD is currently ignored."
       (when (consp def)
         (setq def (car def)))
       (let ((str (ivy-read
-                  (ivy--quote-format-string prompt)
-                  collection
+                  prompt collection
                   :predicate predicate
                   :require-match (and collection require-match)
                   :initial-input (cond ((consp initial-input)
@@ -2244,9 +2243,7 @@ See `completion-in-region' for further information."
                                           (format "%%-%dd " w)))
                       (prompt (format "(%s): " str)))
                  (and
-                  (ivy-read (if (string= ivy-count-format "")
-                                prompt
-                              (ivy--quote-format-string prompt))
+                  (ivy-read prompt
                             ;; remove 'completions-first-difference face
                             (mapcar
                              (lambda (s) (remove-text-properties 0 (length s) '(face) s) s)
