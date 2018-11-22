@@ -2570,18 +2570,25 @@ tries to ensure that it does not change depending on the number of candidates."
   str)
 
 (defvar ivy-set-prompt-text-properties-function
-  'ivy-set-prompt-text-properties-default
+  #'ivy-set-prompt-text-properties-default
   "Function to set the text properties of the default ivy prompt.
-Called with two arguments, PROMPT and STD-PROPS.
-The returned value should be the updated PROMPT.")
+Called with two arguments, PROMPT and PROPS, where PROMPT is the
+string to be propertized and PROPS is a plist of default text
+properties that may be applied to PROMPT.  The function should
+return the propertized PROMPT, which may be modified in-place.")
 
-(defun ivy-set-prompt-text-properties-default (prompt std-props)
-  "Set text properties of PROMPT.
-STD-PROPS is a property list containing the default text properties."
-  (ivy--set-match-props prompt "confirm"
-                        `(face ivy-confirm-face ,@std-props))
-  (ivy--set-match-props prompt "match required"
-                        `(face ivy-match-required-face ,@std-props))
+(defun ivy-set-prompt-text-properties-default (prompt props)
+  "Propertize (confirm) and (match required) parts of PROMPT.
+PROPS is a plist of default text properties to apply to these
+parts beyond their respective faces `ivy-confirm-face' and
+`ivy-match-required-face'."
+  (dolist (pair '(("confirm" . ivy-confirm-face)
+                  ("match required" . ivy-match-required-face)))
+    (let ((i (string-match-p (car pair) prompt)))
+      (when i
+        (add-text-properties i (+ i (length (car pair)))
+                             `(face ,(cdr pair) ,@props)
+                             prompt))))
   prompt)
 
 (defun ivy-prompt ()
@@ -2676,19 +2683,6 @@ STD-PROPS is a property list containing the default text properties."
              (minibuffer-prompt-end) (line-end-position) '(face))))
         ;; get out of the prompt area
         (constrain-to-field nil (point-max))))))
-
-(defun ivy--set-match-props (str match props &optional subexp)
-  "Set text properties of STR that match MATCH to PROPS.
-SUBEXP is a number which specifies the regexp group to use.
-If nil, the text properties are applied to the whole match."
-  (when (null subexp)
-    (setq subexp 0))
-  (when (string-match match str)
-    (set-text-properties
-     (match-beginning subexp)
-     (match-end subexp)
-     props
-     str)))
 
 (defun ivy--sort-maybe (collection)
   "Sort COLLECTION if needed."
