@@ -2219,12 +2219,12 @@ See `completion-in-region' for further information."
            (message "Sole match"))
           (t
            (let* ((len (ivy-completion-common-length (car comps)))
-                  (str-len (length str))
                   (initial (cond ((= len 0)
                                   "")
-                                 ((> len str-len)
-                                  (setq len str-len)
-                                  str)
+                                 ((let ((str-len (length str)))
+                                    (when (> len str-len)
+                                      (setq len str-len)
+                                      str)))
                                  (t
                                   (substring str (- len))))))
              (setq ivy--old-re nil)
@@ -2238,31 +2238,27 @@ See `completion-in-region' for further information."
                    (unless (minibuffer-window-active-p (selected-window))
                      (setf (ivy-state-window ivy-last) (selected-window)))
                    (ivy-completion-in-region-action
-                    (substring-no-properties
-                     (car comps))))
+                    (substring-no-properties (car comps))))
                (let* ((w (1+ (floor (log (length comps) 10))))
                       (ivy-count-format (if (string= ivy-count-format "")
                                             ivy-count-format
-                                          (format "%%-%dd " w)))
-                      (prompt (format "(%s): " str)))
-                 (and
-                  (ivy-read prompt
-                            ;; Remove face `completions-first-difference'.
-                            (mapcar (lambda (s)
-                                      (ivy--remove-props s 'face))
-                                    comps)
-                            ;; Predicate was already applied by
-                            ;; `completion-all-completions'.
-                            :predicate nil
-                            :initial-input initial
-                            :sort t
-                            :action #'ivy-completion-in-region-action
-                            :unwind (lambda ()
-                                      (unless (eq ivy-exit 'done)
-                                        (goto-char ivy-completion-beg)
-                                        (insert initial)))
-                            :caller 'ivy-completion-in-region)
-                  t))))))))
+                                          (format "%%-%dd " w))))
+                 (dolist (s comps)
+                   ;; Remove face `completions-first-difference'.
+                   (ivy--remove-props s 'face))
+                 (ivy-read (format "(%s): " str) comps
+                           ;; Predicate was already applied by
+                           ;; `completion-all-completions'.
+                           :predicate nil
+                           :initial-input initial
+                           :sort t
+                           :action #'ivy-completion-in-region-action
+                           :unwind (lambda ()
+                                     (unless (eq ivy-exit 'done)
+                                       (goto-char ivy-completion-beg)
+                                       (insert initial)))
+                           :caller 'ivy-completion-in-region)
+                 t)))))))
 
 (defcustom ivy-do-completion-in-region t
   "When non-nil `ivy-mode' will set `completion-in-region-function'."
