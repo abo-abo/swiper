@@ -730,12 +730,6 @@ a symbol and how to search for them."
   "Face used by `counsel-M-x' for key bindings."
   :group 'ivy-faces)
 
-;;** `counsel-yank-pop'
-(defface counsel-separator
-  '((t :inherit font-lock-doc-face))
-  "Face for multiline source separator."
-  :group 'ivy-faces)
-
 (defun counsel-M-x-transformer (cmd)
   "Return CMD annotated with its active key binding, if any."
   (let ((key (where-is-internal (intern cmd) nil t)))
@@ -3498,7 +3492,7 @@ Additional actions:\\<ivy-minibuffer-map>
    (lambda (str)
      (counsel--yank-pop-truncate str))
    cand-pairs
-   (propertize counsel-yank-pop-separator 'face 'counsel-separator)))
+   (propertize counsel-yank-pop-separator 'face 'ivy-separator)))
 
 (defun counsel--yank-pop-position (s)
   "Return position of S in `kill-ring' relative to last yank."
