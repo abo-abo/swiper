@@ -97,15 +97,13 @@
   "Return prompt appended with the parent directory."
   (require 'esh-util)
   (ivy-add-prompt-count
-   (let ((directory (ivy-state-directory ivy-last)))
-     (format "%s [%s]: "
-             (ivy-state-prompt ivy-last)
-             (let ((dir-list (eshell-split-path directory)))
-               (if (> (length dir-list) 3)
-                   (apply #'concat
-                          (append '("...")
-                                  (cl-subseq dir-list (- (length dir-list) 3))))
-                 directory))))))
+   (format "%s [%s]: "
+           (ivy-state-prompt ivy-last)
+           (let* ((directory (ivy-state-directory ivy-last))
+                  (parts (nthcdr 3 (eshell-split-path directory))))
+             (if parts
+                 (apply #'concat "..." parts)
+               directory)))))
 
 ;;* Async Utility
 (defvar counsel--async-time nil
