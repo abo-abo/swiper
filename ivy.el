@@ -1714,10 +1714,8 @@ found, it falls back to the key t."
                       dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
-PROMPT is a format string, normally ending in a colon and a
-space; %d anywhere in the string is replaced by the current
-number of matching candidates.  For the literal % character,
-escape it with %%. See also `ivy-count-format'.
+PROMPT is a string, normally ending in a colon and a space;
+`ivy-count-format' is prepended to PROMPT during completion.
 
 COLLECTION is either a list of strings, a function, an alist, or
 a hash table.
@@ -2046,14 +2044,12 @@ This is useful for recursive `ivy-read'."
           (if (region-active-p)
               (buffer-substring (region-beginning) (region-end))
             (ivy-thing-at-point)))
-    (setq ivy--prompt (ivy-add-prompt-count prompt))
+    (setq ivy--prompt (ivy-add-prompt-count (ivy--quote-format-string prompt)))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
 (defun ivy-add-prompt-count (prompt)
   "Add count information to PROMPT."
-  (cond ((string-match-p "%.*d" prompt)
-         prompt)
-        ((null ivy-count-format)
+  (cond ((null ivy-count-format)
          (error
           "`ivy-count-format' can't be nil.  Set it to \"\" instead"))
         ((string-match "%d.*\\(%d\\)" ivy-count-format)
