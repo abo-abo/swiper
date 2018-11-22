@@ -1703,6 +1703,11 @@ found, it falls back to the key t."
           (funcall v caller)
         (error "Unexpected value: %S" v)))))
 
+(defun ivy--remove-props (str &rest props)
+  "Return STR with text PROPS destructively removed."
+  (remove-list-of-text-properties 0 (length str) props str)
+  str)
+
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
@@ -1869,8 +1874,7 @@ customizations apply to the current completion session."
           (unless (eq ivy-exit 'done)
             (ivy-recursive-restore)))
       (ivy-call)
-      (let ((cur (ivy-state-current ivy-last)))
-        (remove-list-of-text-properties 0 (length cur) '(idx) cur)))))
+      (ivy--remove-props (ivy-state-current ivy-last) 'idx))))
 
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy-display-function'."
@@ -2243,11 +2247,12 @@ See `completion-in-region' for further information."
                       (prompt (format "(%s): " str)))
                  (and
                   (ivy-read prompt
-                            ;; remove 'completions-first-difference face
-                            (mapcar
-                             (lambda (s) (remove-text-properties 0 (length s) '(face) s) s)
-                             comps)
-                            ;; predicate was already applied by `completion-all-completions'
+                            ;; Remove face `completions-first-difference'.
+                            (mapcar (lambda (s)
+                                      (ivy--remove-props s 'face))
+                                    comps)
+                            ;; Predicate was already applied by
+                            ;; `completion-all-completions'.
                             :predicate nil
                             :initial-input initial
                             :sort t
@@ -2564,8 +2569,7 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy-cleanup-string (str)
   "Destructively remove unwanted text properties from STR."
-  (remove-list-of-text-properties 0 (length str) '(field) str)
-  str)
+  (ivy--remove-props str 'field))
 
 (defvar ivy-set-prompt-text-properties-function
   #'ivy-set-prompt-text-properties-default
