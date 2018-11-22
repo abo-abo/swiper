@@ -1881,6 +1881,8 @@ customizations apply to the current completion session."
                         ivy-display-functions-props))
              prop))
 
+(defvar Info-complete-menu-buffer)
+
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
@@ -1920,7 +1922,6 @@ This is useful for recursive `ivy-read'."
               #'ivy--highlight-default))
     (let (coll sort-fn)
       (cond ((eq collection #'Info-read-node-name-1)
-             (setq Info-read-node-completion-table nil)
              (setq coll
                    (if (equal (bound-and-true-p Info-current-file) "dir")
                        (mapcar (lambda (x) (format "(%s)" x))
@@ -1994,7 +1995,11 @@ This is useful for recursive `ivy-read'."
                  (vectorp collection)
                  (hash-table-p collection)
                  (and (listp collection) (symbolp (car collection))))
-             (setq coll (all-completions "" collection predicate)))
+             (let ((Info-complete-menu-buffer
+                    ;; FIXME: This is a temporary workaround for issue #1803.
+                    (or (bound-and-true-p Info-complete-menu-buffer)
+                        (ivy-state-buffer state))))
+               (setq coll (all-completions "" collection predicate))))
             (t
              (setq coll
                    (if predicate
