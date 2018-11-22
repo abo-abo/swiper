@@ -88,22 +88,20 @@
 
 (defun counsel-prompt-function-default ()
   "Return prompt appended with a semicolon."
-  (ivy-add-prompt-count
-   (format "%s: " (ivy-state-prompt ivy-last))))
+  (declare (obsolete ivy-set-prompt "0.10.0"))
+  (ivy-add-prompt-count (concat (ivy-state-prompt ivy-last) ": ")))
 
 (declare-function eshell-split-path "esh-util")
 
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
   (require 'esh-util)
-  (ivy-add-prompt-count
-   (format "%s [%s]: "
-           (ivy-state-prompt ivy-last)
-           (let* ((directory (ivy-state-directory ivy-last))
-                  (parts (nthcdr 3 (eshell-split-path directory))))
-             (if parts
-                 (apply #'concat "..." parts)
-               directory)))))
+  (let* ((dir (ivy-state-directory ivy-last))
+         (parts (nthcdr 3 (eshell-split-path dir)))
+         (dir (format " [%s]: " (if parts (apply #'concat "..." parts) dir))))
+    (ivy-add-prompt-count
+     (replace-regexp-in-string          ; Insert dir before any trailing colon.
+      "\\(?:: ?\\)?\\'" dir (ivy-state-prompt ivy-last) t t))))
 
 ;;* Async Utility
 (defvar counsel--async-time nil
@@ -1142,12 +1140,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                  (shell-command-to-string counsel-git-cmd)
                  "\n"
                  t)))
-    (ivy-read "Find file" cands
+    (ivy-read "Find file: " cands
               :initial-input initial-input
               :action #'counsel-git-action
               :caller 'counsel-git)))
-
-(ivy-set-prompt 'counsel-git #'counsel-prompt-function-default)
 
 (defun counsel-git-action (x)
   "Find file X in current Git repository."
@@ -1360,7 +1356,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                                  (car proj)
                                (counsel-locate-git-root))))
       (setq counsel--git-grep-count (funcall counsel--git-grep-count-func))
-      (ivy-read "git grep" collection-function
+      (ivy-read "git grep: " collection-function
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
                 :dynamic-collection (or proj
@@ -1372,7 +1368,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 :unwind unwind-function
                 :history 'counsel-git-grep-history
                 :caller 'counsel-git-grep))))
-(ivy-set-prompt 'counsel-git-grep #'counsel-prompt-function-default)
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
 (defun counsel-git-grep-proj-function (str)
@@ -2527,7 +2522,8 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (let ((default-directory (or initial-directory
                                (locate-dominating-file default-directory ".git")
                                default-directory)))
-    (ivy-read (or ag-prompt (car (split-string counsel-ag-command)))
+    (ivy-read (or ag-prompt
+                  (concat (car (split-string counsel-ag-command)) ": "))
               #'counsel-ag-function
               :initial-input initial-input
               :dynamic-collection t
@@ -2539,7 +2535,6 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (swiper--cleanup))
               :caller 'counsel-ag)))
 
-(ivy-set-prompt 'counsel-ag #'counsel-prompt-function-default)
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
 (defun counsel-grep-like-occur (cmd-template)
