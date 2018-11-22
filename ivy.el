@@ -2206,10 +2206,7 @@ See `completion-in-region' for further information."
          (str (buffer-substring-no-properties start end))
          (completion-ignore-case (ivy--case-fold-p str))
          (comps
-          (completion-all-completions str collection predicate (- end start)))
-         (ivy--prompts-list (if (window-minibuffer-p)
-                                ivy--prompts-list
-                              (list #'ivy-completion-in-region (lambda ())))))
+          (completion-all-completions str collection predicate (- end start))))
     (cond ((null comps)
            (message "No matches"))
           ((progn
@@ -2239,26 +2236,30 @@ See `completion-in-region' for further information."
                      (setf (ivy-state-window ivy-last) (selected-window)))
                    (ivy-completion-in-region-action
                     (substring-no-properties (car comps))))
-               (let* ((w (1+ (floor (log (length comps) 10))))
-                      (ivy-count-format (if (string= ivy-count-format "")
-                                            ivy-count-format
-                                          (format "%%-%dd " w))))
-                 (dolist (s comps)
-                   ;; Remove face `completions-first-difference'.
-                   (ivy--remove-props s 'face))
-                 (ivy-read (format "(%s): " str) comps
-                           ;; Predicate was already applied by
-                           ;; `completion-all-completions'.
-                           :predicate nil
-                           :initial-input initial
-                           :sort t
-                           :action #'ivy-completion-in-region-action
-                           :unwind (lambda ()
-                                     (unless (eq ivy-exit 'done)
-                                       (goto-char ivy-completion-beg)
-                                       (insert initial)))
-                           :caller 'ivy-completion-in-region)
-                 t)))))))
+               (dolist (s comps)
+                 ;; Remove face `completions-first-difference'.
+                 (ivy--remove-props s 'face))
+               (ivy-read (format "(%s): " str) comps
+                         ;; Predicate was already applied by
+                         ;; `completion-all-completions'.
+                         :predicate nil
+                         :initial-input initial
+                         :sort t
+                         :action #'ivy-completion-in-region-action
+                         :unwind (lambda ()
+                                   (unless (eq ivy-exit 'done)
+                                     (goto-char ivy-completion-beg)
+                                     (insert initial)))
+                         :caller 'ivy-completion-in-region)
+               t))))))
+
+(defun ivy-completion-in-region-prompt ()
+  "Prompt function for `ivy-completion-in-region'.
+See `ivy-set-prompt'."
+  (and (window-minibuffer-p (ivy-state-window ivy-last))
+       (ivy-add-prompt-count (ivy-state-prompt ivy-last))))
+
+(ivy-set-prompt #'ivy-completion-in-region #'ivy-completion-in-region-prompt)
 
 (defcustom ivy-do-completion-in-region t
   "When non-nil `ivy-mode' will set `completion-in-region-function'."
