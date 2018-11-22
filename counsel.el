@@ -632,7 +632,7 @@ With a prefix arg, restrict list to variables defined using
     (unwind-protect
          (progn
            (when doc
-             (lv-message doc))
+             (lv-message (ivy--quote-format-string doc)))
            (if (and (boundp sym)
                     (setq sym-type (get sym 'custom-type))
                     (cond
@@ -644,7 +644,7 @@ With a prefix arg, restrict list to variables defined using
                       (t nil)))
                (let* ((sym-val (symbol-value sym))
                       ;; Escape '%' chars if present
-                      (sym-val-str (replace-regexp-in-string "%" "%%" (format "%s" sym-val)))
+                      (sym-val-str (ivy--quote-format-string (format "%s" sym-val)))
                       (res (ivy-read (format "Set (%S <%s>): " sym sym-val-str)
                                      cands
                                      :preselect (prin1-to-string sym-val))))
