@@ -775,17 +775,17 @@ packages are, in order of precedence, `amx' and `smex'."
 
 (defun counsel--M-x-prompt ()
   "String for `M-x' plus the string representation of `current-prefix-arg'."
-  (if (not current-prefix-arg)
-      "M-x "
-    (concat
-     (if (eq current-prefix-arg '-)
-         "- "
-       (if (integerp current-prefix-arg)
-           (format "%d " current-prefix-arg)
-         (if (= (car current-prefix-arg) 4)
-             "C-u "
-           (format "%d " (car current-prefix-arg)))))
-     "M-x ")))
+  (concat (cond ((null current-prefix-arg)
+                 nil)
+                ((eq current-prefix-arg '-)
+                 "- ")
+                ((integerp current-prefix-arg)
+                 (format "%d " current-prefix-arg))
+                ((= (car current-prefix-arg) 4)
+                 "C-u ")
+                (t
+                 (format "%d " (car current-prefix-arg))))
+          "M-x "))
 
 (defvar counsel-M-x-history nil
   "History for `counsel-M-x'.")
