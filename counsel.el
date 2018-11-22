@@ -3483,7 +3483,7 @@ Additional actions:\\<ivy-minibuffer-map>
    (lambda (str)
      (counsel--yank-pop-truncate str))
    cand-pairs
-   counsel-yank-pop-separator))
+   (propertize counsel-yank-pop-separator 'face 'ivy-separator)))
 
 (defun counsel--yank-pop-position (s)
   "Return position of S in `kill-ring' relative to last yank."

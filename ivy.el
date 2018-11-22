@@ -135,6 +135,10 @@
   '((t :inherit ivy-current-match))
   "Face used by Ivy for highlighting the selected prompt line.")
 
+(defface ivy-separator
+  '((t :inherit font-lock-doc-face))
+  "Face for multiline source separator.")
+
 ;; Set default customization `:group' to `ivy' for the rest of the file.
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
