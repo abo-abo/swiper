@@ -323,7 +323,8 @@ documentation.
 @node Global key bindings
 @section Global key bindings
 
-The recommended key bindings are:
+Here is a list of commands that are useful to be bound globally, along
+with some sample bindings:
 
 @subsubheading Ivy-based interface to standard commands
 @indentedblock
@@ -1426,11 +1427,8 @@ features such as multi-actions, non-exiting actions, @code{ivy-occur} and
 
 @subsubheading @code{prompt}
 @indentedblock
-A format string normally ending in a colon and a space.
-
-@code{%d} anywhere in the string is replaced by the current number of
-matching candidates. To use a literal @code{%} character, escape it as
-@code{%%}. See also @code{ivy-count-format}.
+A prompt string normally ending in a colon and a space.
+@code{ivy-count-format} is prepended to it during completion.
 @end indentedblock
 @subsubheading @code{collection}
 @indentedblock

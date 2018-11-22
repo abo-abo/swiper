@@ -1070,11 +1070,8 @@ features such as multi-actions, non-exiting actions, =ivy-occur= and
 :CUSTOM_ID: required-arguments-for-ivy-read
 :END:
 - =prompt= ::
-     A format string normally ending in a colon and a space.
-
-     =%d= anywhere in the string is replaced by the current number of
-     matching candidates. To use a literal =%= character, escape it as
-     =%%=. See also =ivy-count-format=.
+     A prompt string normally ending in a colon and a space.
+     =ivy-count-format= is prepended to it during completion.
 
 - =collection= ::
      Either a list of strings, a function, an alist or a hash table.
