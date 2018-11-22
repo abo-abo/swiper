@@ -1127,8 +1127,7 @@ If the input is empty, select the previous history element instead."
   (interactive "p")
   (setq arg (or arg 1))
   (let ((index (- ivy--index arg))
-        (min-index (or (and (ivy--prompt-selectable-p) -1)
-                       0)))
+        (min-index (if (ivy--prompt-selectable-p) -1 0)))
     (if (< index min-index)
         (if ivy-wrap
             (ivy-end-of-buffer)
