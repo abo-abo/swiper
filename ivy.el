@@ -2586,13 +2586,18 @@ STD-PROPS is a property list containing the default text properties."
 
 (defun ivy-prompt ()
   "Return the current prompt."
-  (let ((fn (plist-get ivy--prompts-list (ivy-state-caller ivy-last))))
+  (let* ((caller (ivy-state-caller ivy-last))
+         (fn (plist-get ivy--prompts-list caller)))
     (if fn
-        (condition-case nil
+        (condition-case err
             (funcall fn)
-          (error
-           (warn "function set by `ivy-set-prompt' should take 0 args")
-           ;; old behavior
+          (wrong-number-of-arguments
+           (lwarn 'ivy :error "%s
+  Prompt function set via `ivy-set-prompt' for caller `%s'
+  should take no arguments."
+                  (error-message-string err)
+                  caller)
+           ;; Old behavior.
            (funcall fn (ivy-state-prompt ivy-last))))
       ivy--prompt)))
 
