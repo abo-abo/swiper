@@ -2538,17 +2538,15 @@ tries to ensure that it does not change depending on the number of candidates."
   (setq-local inhibit-field-text-motion nil)
   (setq truncate-lines ivy-truncate-lines)
   (setq-local max-mini-window-height ivy-height)
-  (if (and ivy-fixed-height-minibuffer
-           (not (eq (ivy-state-caller ivy-last) 'ivy-completion-in-region)))
-      (set-window-text-height (selected-window)
-                              (+ ivy-height
-                                 (if ivy-add-newline-after-prompt
-                                     1
-                                   0)))
-    (when ivy-add-newline-after-prompt
-      (set-window-text-height (selected-window) 2)))
+  (let ((height (cond ((and ivy-fixed-height-minibuffer
+                            (not (eq (ivy-state-caller ivy-last)
+                                     #'ivy-completion-in-region)))
+                       (+ ivy-height (if ivy-add-newline-after-prompt 1 0)))
+                      (ivy-add-newline-after-prompt 2))))
+    (when height
+      (set-window-text-height nil height)))
   (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
-  ;; show completions with empty input
+  ;; Show completions with empty input.
   (ivy--exhibit))
 
 (defun ivy--input ()
