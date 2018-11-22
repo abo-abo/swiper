@@ -854,7 +854,7 @@ when available, in that order of precedence."
 (defun counsel-command-history ()
   "Show the history of commands."
   (interactive)
-  (ivy-read "%d Command: " (mapcar #'prin1-to-string command-history)
+  (ivy-read "Command: " (mapcar #'prin1-to-string command-history)
             :require-match t
             :action #'counsel-command-history-action-eval
             :caller 'counsel-command-history))
