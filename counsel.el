@@ -3795,20 +3795,11 @@ An extra action allows to switch to the process buffer."
                 :caller 'counsel-ace-link))))
 
 ;;** `counsel-minibuffer-history'
-(make-obsolete
- 'counsel-expression-history
- 'counsel-minibuffer-history
- "0.10.0 <2017-11-13 Mon>")
-
-(make-obsolete
- 'counsel-shell-command-history
- 'counsel-minibuffer-history
- "0.10.0 <2017-11-13 Mon>")
-
 ;;;###autoload
 (defun counsel-expression-history ()
   "Select an element of `read-expression-history'.
 And insert it into the minibuffer.  Useful during `eval-expression'."
+  (declare (obsolete counsel-minibuffer-history "0.10.0 <2017-11-13 Mon>"))
   (interactive)
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Expression: "
@@ -3819,6 +3810,7 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
 ;;;###autoload
 (defun counsel-shell-command-history ()
   "Browse shell command history."
+  (declare (obsolete counsel-minibuffer-history "0.10.0 <2017-11-13 Mon>"))
   (interactive)
   (ivy-read "Command: " shell-command-history
             :action #'insert
