@@ -137,21 +137,21 @@ descriptions.")
 
 (defun counsel--async-command (cmd &optional sentinel filter name)
   "Start and return new counsel process by calling CMD.
+CMD can be either a shell command as a string, or a list of the
+program name to be called directly, followed by its arguments.
 If the default counsel process or one with NAME already exists,
 kill it and its associated buffer before starting a new one.
 Give the process the functions SENTINEL and FILTER, which default
 to `counsel--async-sentinel' and `counsel--async-filter',
 respectively."
   (counsel-delete-process name)
-  (let ((name (or name " *counsel*"))
-        proc buf)
-    (when (get-buffer name)
-      (kill-buffer name))
-    (setq buf (get-buffer-create name))
-    (setq proc
-          (if (listp cmd)
-              (apply #'start-process name buf cmd)
-            (start-file-process-shell-command name buf cmd)))
+  (setq name (or name " *counsel*"))
+  (when (get-buffer name)
+    (kill-buffer name))
+  (let* ((buf (get-buffer-create name))
+         (proc (if (listp cmd)
+                   (apply #'start-file-process name buf cmd)
+                 (start-file-process-shell-command name buf cmd))))
     (setq counsel--async-time (current-time))
     (setq counsel--async-start counsel--async-time)
     (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
