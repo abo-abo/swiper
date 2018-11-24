@@ -2479,6 +2479,11 @@ NEEDLE is the search string."
               (replace-match needle t t extra-args 1)
             (concat extra-args " " needle))))
 
+(defun counsel--grep-regex (str)
+  (counsel-unquote-regex-parens
+   (setq ivy--old-re
+         (funcall ivy--regex-function str))))
+
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
   (let ((command-args (counsel--split-command-args string)))
@@ -2488,9 +2493,7 @@ NEEDLE is the search string."
        (let ((ivy-text search-term))
          (ivy-more-chars))
        (let ((default-directory (ivy-state-directory ivy-last))
-             (regex (counsel-unquote-regex-parens
-                     (setq ivy--old-re
-                           (ivy--regex search-term)))))
+             (regex (counsel--grep-regex search-term)))
          (counsel--async-command (counsel--format-ag-command
                                   switches
                                   (shell-quote-argument regex)))
