@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-08-06 Mon 20:29 -->
+<!-- 2018-11-24 Sat 12:01 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -1544,15 +1544,8 @@ features such as multi-actions, non-exiting actions, <code>ivy-occur</code> and
 <h3 id="required-arguments-for-ivy-read"><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
 <div class="outline-text-3" id="text-required-arguments-for-ivy-read">
 <dl class="org-dl">
-<dt><code>prompt</code></dt><dd><p>
-     A format string normally ending in a colon and a space.
-</p>
-
-<p>
-<code>%d</code> anywhere in the string is replaced by the current number of
-matching candidates. To use a literal <code>%</code> character, escape it as
-<code>%%</code>. See also <code>ivy-count-format</code>.
-</p></dd>
+<dt><code>prompt</code></dt><dd>A prompt string normally ending in a colon and a space.
+<code>ivy-count-format</code> is prepended to it during completion.</dd>
 
 <dt><code>collection</code></dt><dd><p>
      Either a list of strings, a function, an alist or a hash table.
@@ -1741,7 +1734,7 @@ narrowing) or select a candidate from the visible collection.
 <div class="org-src-container">
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">counsel-locate-function</span> (str)
   (<span style="color: #7F0055; font-weight: bold;">or</span>
-   (counsel-more-chars)
+   (ivy-more-chars)
    (<span style="color: #7F0055; font-weight: bold;">progn</span>
      (counsel--async-command
       (format <span style="color: #2A00FF;">"locate %s '%s'"</span>
@@ -1778,7 +1771,7 @@ that they appear:
 of strings. Note that it's not compatible with <code>all-completions</code>,
 but since we're not using that here, might as well use one argument
 instead of three.</li>
-<li><code>counsel-more-chars</code> is a simple function that returns e.g.
+<li><code>ivy-more-chars</code> is a simple function that returns e.g.
 <code>'("2 chars more")</code> asking the user for more input.</li>
 <li><code>counsel--async-command</code> is a very easy API simplification that
 takes a single string argument suitable for
