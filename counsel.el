@@ -144,11 +144,14 @@ to `counsel--async-sentinel' and `counsel--async-filter',
 respectively."
   (counsel-delete-process name)
   (let ((name (or name " *counsel*"))
-        proc)
+        proc buf)
     (when (get-buffer name)
       (kill-buffer name))
-    (setq proc (start-file-process-shell-command
-                name (get-buffer-create name) cmd))
+    (setq buf (get-buffer-create name))
+    (setq proc
+          (if (listp cmd)
+              (apply #'start-process name buf cmd)
+            (start-file-process-shell-command name buf cmd)))
     (setq counsel--async-time (current-time))
     (setq counsel--async-start counsel--async-time)
     (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
@@ -2252,12 +2255,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel-fzf-function (str)
   (let ((default-directory counsel--fzf-dir))
+    (setq ivy--old-re (ivy--regex-fuzzy str))
     (counsel--async-command
-     (format counsel-fzf-cmd
-             (if (string-equal str "")
-                 "\"\""
-               (setq ivy--old-re (ivy--regex-fuzzy str))
-               str))))
+     (list "fzf" "-f" str)))
   nil)
 
 ;;;###autoload
