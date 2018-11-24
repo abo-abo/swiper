@@ -4117,7 +4117,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
        highlight
        help-echo "mouse-1: call ivy-action")
      str)
-    (insert (if (string-prefix-p "./" str) "" "    ")
+    (insert (if (string-prefix-p "\\`.[/\\]" str) "" "    ")
             str ?\n))
   (goto-char (point-min))
   (forward-line 4)
