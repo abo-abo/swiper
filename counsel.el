@@ -3458,7 +3458,10 @@ Additional actions:\\<ivy-minibuffer-map>
 (defcustom counsel-yank-pop-separator "\n"
   "Separator for the kill ring strings in `counsel-yank-pop'."
   :group 'ivy
-  :type 'string)
+  :type '(choice
+          (const :tag "Plain" "\n")
+          (const :tag "Dashes" "\n----\n")
+          string))
 
 (make-obsolete-variable
  'counsel-yank-pop-height
