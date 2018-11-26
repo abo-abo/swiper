@@ -2516,11 +2516,14 @@ Insert .* between each char."
   (if (string-match "\\`\\(\\^?\\)\\(.*?\\)\\(\\$?\\)\\'" str)
       (prog1
           (concat (match-string 1 str)
-                  (mapconcat
-                   (lambda (x)
-                     (format "\\(%s\\)" (regexp-quote (string x))))
-                   (string-to-list (match-string 2 str))
-                   ".*?")
+                  (let ((lst (string-to-list (match-string 2 str))))
+                    (apply #'concat
+                           (cl-mapcar
+                            #'concat
+                            (cons "" (cdr (mapcar (lambda (c) (format "[^%c]*" c))
+                                                  lst)))
+                            (mapcar (lambda (x) (format "\\(%s\\)" (regexp-quote (char-to-string x))))
+                                    lst))))
                   (match-string 3 str))
         (setq ivy--subexps (length (match-string 2 str))))
     str))
