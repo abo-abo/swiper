@@ -4512,6 +4512,10 @@ selected color."
 (declare-function dbus-call-method "dbus")
 (declare-function dbus-get-property "dbus")
 
+(defun counsel--sl (cmd)
+  "Shell command to list."
+  (split-string (shell-command-to-string cmd) "\n" t))
+
 (defun counsel-rhythmbox-play-song (song)
   "Let Rhythmbox play SONG."
   (let ((service "org.gnome.Rhythmbox3")
@@ -4797,21 +4801,19 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
                                 "Hud" "Desktop")
   "List of window titles to ignore for `counsel-wmctrl'.")
 
+(defun counsel--wmctrl-parse (s)
+  (when (string-match "\\`\\([0-9a-fx]+\\) +\\([-0-9]+\\) +\\(?:[0-9]+\\) +\\([^ ]+\\) \\(.+\\)$" s)
+    (let ((title (match-string 4 s))
+          (id (match-string 1 s)))
+      (unless (member title counsel-wmctrl-ignore)
+        (cons title id)))))
+
 (defun counsel-wmctrl ()
   "Select a desktop window using wmctrl."
   (interactive)
-  (let* ((cands1 (split-string (shell-command-to-string "wmctrl -l") "\n" t))
-         (cands2
-          (mapcar (lambda (s)
-                    (when (string-match
-                           "\\`\\([0-9a-fx]+\\)  \\([0-9]+\\) \\([^ ]+\\) \\(.+\\)\\'"
-                           s)
-                      (let ((title (match-string 4 s))
-                            (id (match-string 1 s)))
-                        (unless (member title counsel-wmctrl-ignore)
-                          (cons title id)))))
-                  cands1)))
-    (ivy-read "window: " (delq nil cands2)
+  (let* ((cands1 (counsel--sl "wmctrl -l -p"))
+         (cands2 (delq nil (mapcar #'counsel--wmctrl-parse cands1))))
+    (ivy-read "window: " cands2
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
