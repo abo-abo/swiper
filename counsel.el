@@ -4523,11 +4523,21 @@ selected color."
 
 (defun counsel-rhythmbox-play-song (song)
   "Let Rhythmbox play SONG."
-  (let ((service "org.gnome.Rhythmbox3")
+  (let ((first (when (equal (shell-command-to-string "pidof rhythmbox") "")
+                 (counsel--run "nohup" "rhythmbox")
+                 (sit-for 1.5)))
+        (service "org.gnome.Rhythmbox3")
         (path "/org/mpris/MediaPlayer2")
         (interface "org.mpris.MediaPlayer2.Player"))
     (dbus-call-method :session service path interface
-                      "OpenUri" (cdr song))))
+                      "OpenUri" (cdr song))
+    (when first
+      (let ((id (cdr (counsel--wmctrl-parse
+                      (shell-command-to-string
+                       "wmctrl -l -p | grep $(pidof rhythmbox)")))))
+        (when id
+          (sit-for 0.2)
+          (counsel--run "wmctrl" "-ic" id))))))
 
 (defun counsel-rhythmbox-enqueue-song (song)
   "Let Rhythmbox enqueue SONG."
