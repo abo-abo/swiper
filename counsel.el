@@ -4512,6 +4512,11 @@ selected color."
 (declare-function dbus-call-method "dbus")
 (declare-function dbus-get-property "dbus")
 
+(defun counsel--run (&rest program-and-args)
+  (let ((name (mapconcat #'identity program-and-args " ")))
+    (apply #'start-process name nil program-and-args)
+    name))
+
 (defun counsel--sl (cmd)
   "Shell command to list."
   (split-string (shell-command-to-string cmd) "\n" t))
@@ -4793,8 +4798,7 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
 ;;** `counsel-wmctrl'
 (defun counsel-wmctrl-action (x)
   "Select the desktop window that corresponds to X."
-  (shell-command-to-string
-   (format "wmctrl -i -a \"%s\"" (cdr x))))
+  (counsel--run "wmctrl" "-i" "-a" (cdr x)))
 
 (defvar counsel-wmctrl-ignore '("XdndCollectionWindowImp"
                                 "unity-launcher" "unity-panel" "unity-dash"
