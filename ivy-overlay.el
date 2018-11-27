@@ -119,24 +119,24 @@ Hide the minibuffer contents and cursor."
           (setq ivy--old-cursor-type cursor-type))
         (setq cursor-type nil)
         (let ((overlay-str
-               (concat
-                (buffer-substring (max 1 (1- (point))) (point))
+               (apply
+                #'concat
+                (buffer-substring (max (point-min) (1- (point))) (point))
                 ivy-text
-                (if (eolp)
-                    " "
-                  "")
+                (and (eolp) " ")
                 (buffer-substring (point) (line-end-position))
-                (when (> (length str) 0)
-                  (concat "\n"
-                          (ivy-left-pad
-                           (ivy--remove-prefix "\n" str)
-                           (+ (if (and (eq major-mode 'org-mode)
-                                       (bound-and-true-p org-indent-mode))
-                                  (* org-indent-indentation-per-level (org-current-level))
-                                0)
-                              (save-excursion
-                                (goto-char ivy-completion-beg)
-                                (current-column)))))))))
+                (and (> (length str) 0)
+                     (list "\n"
+                           (ivy-left-pad
+                            (ivy--remove-prefix "\n" str)
+                            (+ (if (and (eq major-mode 'org-mode)
+                                        (bound-and-true-p org-indent-mode))
+                                   (* org-indent-indentation-per-level
+                                      (org-current-level))
+                                 0)
+                               (save-excursion
+                                 (goto-char ivy-completion-beg)
+                                 (current-column)))))))))
           (ivy-add-face-text-property cursor-pos (1+ cursor-pos)
                                       'ivy-cursor overlay-str t)
           (ivy-overlay-show-after overlay-str))))))
