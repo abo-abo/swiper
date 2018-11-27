@@ -60,25 +60,20 @@ Lines are truncated to the window width."
   (when (fboundp 'company-abort)
     (company-abort)))
 
-(defun ivy--overlay-font-lock-hack (str)
-  "Return a copy of STR to use in an overlay.
-This string will not inherit font-lock face."
-  (let ((s1 (copy-sequence str)))
-    (ivy-add-face-text-property 0 (length s1) 'default s1 t)
-    s1))
-
 (defun ivy-overlay-show-after (str)
   "Display STR in an overlay at point.
 
 First, fill each line of STR with spaces to the current column.
-Then attach the overlay the character before point."
+Then attach the overlay to the character before point."
   (if ivy-overlay-at
       (progn
         (move-overlay ivy-overlay-at (1- (point)) (line-end-position))
         (overlay-put ivy-overlay-at 'invisible nil))
     (setq ivy-overlay-at (make-overlay (1- (point)) (line-end-position)))
+    ;; Specify face to avoid clashing with other overlays.
+    (overlay-put ivy-overlay-at 'face 'default)
     (overlay-put ivy-overlay-at 'priority 9999))
-  (overlay-put ivy-overlay-at 'display (ivy--overlay-font-lock-hack str))
+  (overlay-put ivy-overlay-at 'display str)
   (overlay-put ivy-overlay-at 'after-string ""))
 
 (declare-function org-current-level "org")
