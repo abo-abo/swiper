@@ -1322,26 +1322,29 @@ files in a project.")
        (setq cmd counsel-git-grep-cmd-default)))
     (cons proj cmd)))
 
-(defun counsel--call (&rest program-and-args)
-  (let ((stderr-file (make-temp-file "counsel-call-stderr")))
+(defun counsel--call (&rest command)
+  "Synchronously call COMMAND and return its output as a string.
+COMMAND comprises the program name followed by its arguments, as
+in `make-process'.  Signal `file-error' if COMMAND fails.
+Obey file handlers based on `default-directory'."
+  (let ((stderr (make-temp-file "counsel-call-stderr-")))
     (unwind-protect
          (with-temp-buffer
-           (let ((res (apply #'call-process (car program-and-args)
-                             nil (list t stderr-file)
-                             nil (cdr program-and-args))))
-             (if (= 0 res)
-                 (buffer-substring (point-min)
-                                   (- (point-max)
-                                      (if (= ?\n (char-before (point-max)))
-                                          1
-                                        0)))
-               (error "%S exited with %d\n%s"
-                      (mapconcat #'identity program-and-args " ")
-                      res
-                      (with-temp-buffer
-                        (insert-file-contents stderr-file)
-                        (buffer-string))))))
-      (delete-file stderr-file))))
+           (let ((res (apply #'process-file (car command) nil
+                             (list t stderr) nil (cdr command))))
+             (if (eq 0 res)
+                 (buffer-substring (point-min) (- (point) (if (bolp) 1 0)))
+               (signal 'file-error
+                       `(,(mapconcat #'identity `(,@command "failed") " ")
+                         ,res
+                         ,@(and (file-readable-p stderr)
+                                (list
+                                 (with-temp-buffer
+                                   (insert-file-contents stderr)
+                                   (buffer-substring
+                                    (point) (line-end-position))))))))))
+      (when (file-exists-p stderr)
+        (delete-file stderr)))))
 
 (defun counsel--git-grep-count-func-default ()
   "Default function to calculate `counsel--git-grep-count'."
