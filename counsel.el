@@ -1322,16 +1322,34 @@ files in a project.")
        (setq cmd counsel-git-grep-cmd-default)))
     (cons proj cmd)))
 
+(defun counsel--call (&rest program-and-args)
+  (let ((stderr-file (make-temp-file "counsel-call-stderr")))
+    (unwind-protect
+         (with-temp-buffer
+           (let ((res (apply #'call-process (car program-and-args)
+                             nil (list t stderr-file)
+                             nil (cdr program-and-args))))
+             (if (= 0 res)
+                 (buffer-substring (point-min)
+                                   (- (point-max)
+                                      (if (= ?\n (char-before (point-max)))
+                                          1
+                                        0)))
+               (error "%S exited with %d\n%s"
+                      (mapconcat #'identity program-and-args " ")
+                      res
+                      (with-temp-buffer
+                        (insert-file-contents stderr-file)
+                        (buffer-string))))))
+      (delete-file stderr-file))))
+
 (defun counsel--git-grep-count-func-default ()
   "Default function to calculate `counsel--git-grep-count'."
-  (with-temp-buffer
-    (if (or (eq system-type 'windows-nt)
-            (not (eq 0 (call-process "git" nil t nil "rev-parse" "--git-dir"))))
-        0
-      (call-process "du" nil '(t nil) nil "-s"
-                    (buffer-substring-no-properties (point-min) (1- (point))))
-      (forward-line -1)
-      (read (current-buffer)))))
+  (if (eq system-type 'windows-nt) 0
+    (condition-case nil
+        (let ((git-dir (counsel--call "git" "rev-parse" "--git-dir")))
+          (read (counsel--call "du" "-s" git-dir)))
+      (error 0))))
 
 (defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
   "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'.")
