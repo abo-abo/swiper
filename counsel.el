@@ -1323,10 +1323,15 @@ files in a project.")
     (cons proj cmd)))
 
 (defun counsel--git-grep-count-func-default ()
-  "Default defun to calculate `counsel--git-grep-count'."
-  (if (eq system-type 'windows-nt)
-      0
-    (read (shell-command-to-string "du -s \"$(git rev-parse --git-dir)\" 2>/dev/null"))))
+  "Default function to calculate `counsel--git-grep-count'."
+  (with-temp-buffer
+    (if (or (eq system-type 'windows-nt)
+            (not (eq 0 (call-process "git" nil t nil "rev-parse" "--git-dir"))))
+        0
+      (call-process "du" nil '(t nil) nil "-s"
+                    (buffer-substring-no-properties (point-min) (1- (point))))
+      (forward-line -1)
+      (read (current-buffer)))))
 
 (defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
   "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'.")
