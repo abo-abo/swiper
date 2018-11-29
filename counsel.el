@@ -1325,26 +1325,37 @@ files in a project.")
 (defun counsel--call (&rest command)
   "Synchronously call COMMAND and return its output as a string.
 COMMAND comprises the program name followed by its arguments, as
-in `make-process'.  Signal `file-error' if COMMAND fails.
-Obey file handlers based on `default-directory'."
-  (let ((stderr (make-temp-file "counsel-call-stderr-")))
+in `make-process'.  Signal `file-error' and emit a warning if
+COMMAND fails.  Obey file handlers based on `default-directory'."
+  (let ((stderr (make-temp-file "counsel-call-stderr-"))
+        status)
     (unwind-protect
          (with-temp-buffer
-           (let ((res (apply #'process-file (car command) nil
-                             (list t stderr) nil (cdr command))))
-             (if (eq 0 res)
-                 (buffer-substring (point-min) (- (point) (if (bolp) 1 0)))
-               (signal 'file-error
-                       `(,(mapconcat #'identity `(,@command "failed") " ")
-                         ,res
-                         ,@(and (file-readable-p stderr)
-                                (list
-                                 (with-temp-buffer
-                                   (insert-file-contents stderr)
-                                   (buffer-substring
-                                    (point) (line-end-position))))))))))
-      (when (file-exists-p stderr)
-        (delete-file stderr)))))
+           (setq status (apply #'process-file (car command) nil
+                               (list t stderr) nil (cdr command)))
+           (if (eq status 0)
+               ;; Return all output except trailing newline.
+               (buffer-substring (point-min)
+                                 (- (point)
+                                    (if (eq (bobp) (bolp))
+                                        0
+                                      1)))
+             ;; Convert process status into error list.
+             (setq status (list 'file-error
+                                (mapconcat #'identity `(,@command "failed") " ")
+                                status))
+             ;; Print stderr contents, if any, to *Warnings* buffer.
+             (let ((msg (condition-case err
+                            (unless (zerop (cadr (insert-file-contents
+                                                  stderr nil nil nil t)))
+                              (buffer-string))
+                          (error (error-message-string err)))))
+               (lwarn 'ivy :warning "%s" (apply #'concat
+                                                (error-message-string status)
+                                                (and msg (list "\n" msg)))))
+             ;; Signal `file-error' with process status.
+             (signal (car status) (cdr status))))
+      (delete-file stderr))))
 
 (defun counsel--git-grep-count-func-default ()
   "Default function to calculate `counsel--git-grep-count'."
