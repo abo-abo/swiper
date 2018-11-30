@@ -2762,15 +2762,15 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
                         (file-directory-p dir))
                (ivy--cd dir)
                t)))
-          ((and (or (> ivy--index 0)
-                    (= ivy--length 1)
-                    (not (string= ivy-text "/")))
-                (let ((default-directory ivy--directory))
-                  (and (not (equal (ivy-state-current ivy-last) ""))
-                       (file-directory-p (ivy-state-current ivy-last))))
-                (or (eq ivy-magic-slash-non-match-action
-                        'ivy-magic-slash-non-match-cd-selected)
-                    (eq this-command #'ivy-partial-or-done)))
+          ((let ((default-directory ivy--directory))
+             (and (or (> ivy--index 0)
+                      (= ivy--length 1)
+                      (not (string= ivy-text "/")))
+                  (not (equal (ivy-state-current ivy-last) ""))
+                  (file-directory-p (ivy-state-current ivy-last))
+                  (or (eq ivy-magic-slash-non-match-action
+                          'ivy-magic-slash-non-match-cd-selected)
+                      (eq this-command #'ivy-partial-or-done))))
            (ivy--cd
             (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
           ((and (eq ivy-magic-slash-non-match-action
