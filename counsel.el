@@ -2724,7 +2724,7 @@ substituted by the search regexp and file, respectively.  Neither
               (swiper--ensure-visible)
             (isearch-range-invisible (line-beginning-position)
                                      (line-end-position))
-              (swiper--add-overlays (ivy--regex ivy-text))))))))
+            (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur ()
   "Generate a custom occur buffer for `counsel-grep'."
