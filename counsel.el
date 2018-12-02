@@ -2575,25 +2575,28 @@ CALLER is forwarded to `ivy-read'."
                         (swiper--cleanup))
               :caller caller)))
 
-(cl-defmacro def-counsel-ag-command (name &key tool-name base-command-variable-name)
+(cl-defmacro def-counsel-grep-like-command (symbol &key program var)
+  "Define the grep-like command SYMBOL.
+VAR is a string variable used as a command template.
+PROGRAM is the name of the command (a string or a symbol)."
   (declare (indent 1))
   `(progn
-     (defun ,name (&optional initial-input initial-directory extra-args prompt)
+     (defun ,symbol (&optional initial-input initial-directory extra-args prompt)
        ,(format
          "Grep for a string in the current directory using %s.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-ARGS string, if non-nil, is appended to `%s'.
 PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
-         tool-name
-         base-command-variable-name)
+         program
+         var)
        (interactive)
-       (let ((counsel-ag-base-command ,base-command-variable-name))
-         (counsel-ag initial-input initial-directory extra-args prompt ',name)))
-     (unless (plist-get ivy--occurs-list ',name)
+       (let ((counsel-ag-base-command ,var))
+         (counsel-ag initial-input initial-directory extra-args prompt ',symbol)))
+     (unless (plist-get ivy--occurs-list ',symbol)
        ;; do not override user configuration
-       (ivy-set-occur ',name 'counsel-ag-occur))
-     (cl-pushnew ',name ivy-highlight-grep-commands)))
+       (ivy-set-occur ',symbol 'counsel-ag-occur))
+     (cl-pushnew ',symbol ivy-highlight-grep-commands)))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
@@ -2631,9 +2634,9 @@ PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   :type 'string
   :group 'ivy)
 
-(def-counsel-ag-command counsel-pt
-  :tool-name pt
-  :base-command-variable-name counsel-pt-base-command)
+(def-counsel-grep-like-command counsel-pt
+  :program pt
+  :var counsel-pt-base-command)
 
 ;;** `counsel-ack'
 (defcustom counsel-ack-base-command
@@ -2645,9 +2648,9 @@ PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   :type 'string
   :group 'ivy)
 
-(def-counsel-ag-command counsel-ack
-  :tool-name ack
-  :base-command-variable-name counsel-ack-base-command)
+(def-counsel-grep-like-command counsel-ack
+  :program ack
+  :var counsel-ack-base-command)
 
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command "rg -S --no-heading --line-number --color never %s ."
@@ -2660,9 +2663,9 @@ Note: don't use single quotes for the regex."
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
 (ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
 
-(def-counsel-ag-command counsel-rg
-  :tool-name rg
-  :base-command-variable-name counsel-rg-base-command)
+(def-counsel-grep-like-command counsel-rg
+  :program rg
+  :var counsel-rg-base-command)
 
 ;;** `counsel-grep'
 (defvar counsel-grep-map
