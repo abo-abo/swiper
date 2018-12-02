@@ -2536,8 +2536,7 @@ NEEDLE is the search string."
                                   (shell-quote-argument regex)))
          nil)))))
 
-;;;###autoload
-(defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt caller)
+(defun counsel--grep-like (&optional initial-input initial-directory extra-ag-args ag-prompt caller)
   "Grep for a string in the current directory using ag.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
@@ -2592,11 +2591,15 @@ PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
          var)
        (interactive)
        (let ((counsel-ag-base-command ,var))
-         (counsel-ag initial-input initial-directory extra-args prompt ',symbol)))
+         (counsel--grep-like initial-input initial-directory extra-args prompt ',symbol)))
      (unless (plist-get ivy--occurs-list ',symbol)
        ;; do not override user configuration
        (ivy-set-occur ',symbol 'counsel-ag-occur))
      (cl-pushnew ',symbol ivy-highlight-grep-commands)))
+
+(def-counsel-grep-like-command counsel-ag
+  :program ag
+  :var counsel-ag-base-command)
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
