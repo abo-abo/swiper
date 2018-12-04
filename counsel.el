@@ -1503,7 +1503,16 @@ If NO-ASYNC is non-nil, do it synchronously instead."
        nil))))
 
 (defun counsel--normalize-grep-match (str)
-  (if (string-match-p "\\`\\.[/\\]" str) str (concat "./" str)))
+  ;; Prepend ./ if necessary:
+  (unless (string-match-p "\\`\\.[/\\]" str)
+    (setq str (concat "./" str)))
+  ;; Remove column info if any:
+  (save-match-data
+    (when (string-match
+           "[^\n:]+?[^\n/:]:[\t ]*[1-9][0-9]*[\t ]*:\\([1-9][0-9]*:\\)"
+           str)
+      (setq str (replace-match "" t t str 1))))
+  str)
 
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'.
