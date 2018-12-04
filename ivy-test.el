@@ -947,6 +947,30 @@ a buffer visiting a file."
   (should (not (ivy--starts-with-dotslash "t\\est5")))
   (should (not (ivy--starts-with-dotslash "tes./t6"))))
 
+(ert-deftest counsel--normalize-grep-match ()
+  (with-temp-buffer
+    (let ((match-data-orig
+           (progn
+             (insert "abcd\nefgh")
+             (goto-char (point-min))
+             (re-search-forward "\\(ab\\)\\(cd\\)")
+             (match-data)))
+          input expected out)
+      (dolist (test '(("./FILENAME:1234:32:  TEXT   MORETEXT" .
+                       "./FILENAME:1234:  TEXT   MORETEXT")
+                      ("FILENAME:1234:  TEXT   MORETEXT" .
+                       "./FILENAME:1234:  TEXT   MORETEXT")
+                      ))
+        (setq input (car test))
+        (setq expected (cdr test))
+        (setq out (counsel--normalize-grep-match input))
+        (should (equal out expected))
+        (should (equal match-data-orig (match-data)))
+        (print (list :out out :expected expected))
+        (setq out (counsel--normalize-grep-match out))
+        (should (equal out expected))
+        (should (equal match-data-orig (match-data)))))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
