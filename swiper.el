@@ -439,7 +439,7 @@ When capture groups are present in the input, print them instead of lines."
                         (buffer-file-name buffer))
                      (buffer-name buffer)))
                  'face
-                 'compilation-info))
+                 'ivy-grep-info))
          (re (progn (string-match "\"\\(.*\\)\"" (buffer-name))
                     (match-string 1 (buffer-name))))
          (re (mapconcat #'identity (ivy--split re) ".*?"))
@@ -449,7 +449,7 @@ When capture groups are present in the input, print them instead of lines."
              (let* ((n (get-text-property 0 'swiper-line-number s))
                     (i (string-match-p "[ \t\n\r]+\\'" n)))
                (when i (setq n (substring n 0 i)))
-               (put-text-property 0 (length n) 'face 'compilation-line-number n)
+               (put-text-property 0 (length n) 'face 'ivy-grep-line-number n)
                (format "%s:%s:%s" fname n (substring s 1))))
            (if (not revert)
                ivy--old-cands
