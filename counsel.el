@@ -1288,10 +1288,10 @@ Typical value: '(recenter)."
   "Higlight file and line number in STR."
   (when (string-match "\\`\\([^:]+\\):\\([^:]+\\):" str)
     (ivy-add-face-text-property (match-beginning 1) (match-end 1)
-                                'compilation-info
+                                'ivy-grep-info
                                 str)
     (ivy-add-face-text-property (match-beginning 2) (match-end 2)
-                                'compilation-line-number
+                                'ivy-grep-line-number
                                 str))
   str)
 
@@ -3728,7 +3728,7 @@ PREFIX is used to create the key."
                  (let ((key (concat
                              (when prefix
                                (concat
-                                (propertize prefix 'face 'compilation-info)
+                                (propertize prefix 'face 'ivy-grep-info)
                                 ": "))
                              (car elm))))
                    (list (cons key

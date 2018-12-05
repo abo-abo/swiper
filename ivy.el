@@ -139,6 +139,14 @@
   '((t :inherit font-lock-doc-face))
   "Face for multiline source separator.")
 
+(defface ivy-grep-info
+  '((t :inherit compilation-info))
+  "Face for highlighting grep information such as file names.")
+
+(defface ivy-grep-line-number
+  '((t :inherit compilation-line-number))
+  "Face for displaying line numbers in grep messages.")
+
 ;; Set default customization `:group' to `ivy' for the rest of the file.
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
@@ -4129,11 +4137,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (forward-line 4)
   (while (re-search-forward "^[^:]+:[[:digit:]]+:" nil t)
     (ivy-add-face-text-property
-     (match-beginning 0)
-     (match-end 0)
-     'compilation-info
-     nil
-     t)))
+     (match-beginning 0) (match-end 0) 'ivy-grep-info nil t)))
 
 (defun ivy-occur ()
   "Stop completion and put the current candidates into a new buffer.
