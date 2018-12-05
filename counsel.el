@@ -4585,6 +4585,21 @@ selected color."
     (dbus-call-method :session service path interface
                       "AddToQueue" (cdr song))))
 
+(defun counsel-rhythmbox-toggle-shuffle (_song)
+  "Toggle Rhythmbox shuffle setting."
+  (let* ((old-order (counsel--call "dconf" "read" "/org/gnome/rhythmbox/player/play-order"))
+         (new-order (if (string= old-order "'shuffle'")
+                        "'linear'"
+                      "'shuffle'")))
+    (counsel--call
+     "dconf"
+     "write"
+     "/org/gnome/rhythmbox/player/play-order"
+     new-order)
+    (message (if (string= new-order "'shuffle'")
+                 "shuffle on"
+               "shuffle off"))))
+
 (defvar counsel-rhythmbox-history nil
   "History for `counsel-rhythmbox'.")
 
@@ -4635,7 +4650,8 @@ selected color."
             :action
             '(1
               ("p" counsel-rhythmbox-play-song "Play song")
-              ("e" counsel-rhythmbox-enqueue-song "Enqueue song"))
+              ("e" counsel-rhythmbox-enqueue-song "Enqueue song")
+              ("s" counsel-rhythmbox-toggle-shuffle "Shuffle on/off"))
             :caller 'counsel-rhythmbox))
 
 ;;** `counsel-linux-app'
