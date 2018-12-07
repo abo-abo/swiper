@@ -807,7 +807,10 @@ when available, in that order of precedence."
   (setq real-this-command real-last-command)
   (let ((externs (counsel--M-x-externs)))
     (ivy-read (counsel--M-x-prompt) (or externs obarray)
-              :predicate (and (not externs) #'commandp)
+              :predicate (and (not externs)
+                              (lambda (sym)
+                                (and (commandp sym)
+                                     (not (get sym 'byte-obsolete-info)))))
               :require-match t
               :history 'counsel-M-x-history
               :action (lambda (cmd)
