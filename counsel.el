@@ -602,6 +602,11 @@ X is an item of a radio- or choice-type defcustom."
 (declare-function custom-variable-documentation "cus-edit")
 
 ;;;###autoload
+(defface counsel-variable-documentation
+  '((t :inherit font-lock-comment-face))
+  "Face for displaying Lisp documentation."
+  :group 'ivy-faces)
+
 (defun counsel-set-variable (sym)
   "Set a variable, with completion.
 
@@ -624,7 +629,7 @@ With a prefix arg, restrict list to variables defined using
                   (require 'lv nil t)
                   (not (string= "nil" (custom-variable-documentation sym)))
                   (propertize (custom-variable-documentation sym)
-                              'face 'font-lock-comment-face)))
+                              'face 'counsel-variable-documentation)))
         sym-type
         cands)
     (unwind-protect
