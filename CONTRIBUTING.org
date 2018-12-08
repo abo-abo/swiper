@@ -2,7 +2,7 @@
 
 Before reporting a bug, please take a look at:
 - the [[https://github.com/abo-abo/swiper/blob/master/README.md][FAQ]]
-- the [[http://oremacs.com/swiper/][manual]]
+- the [[https://oremacs.com/swiper/][manual]]
 - the [[https://github.com/abo-abo/swiper/wiki][wiki]]
 - the [[https://github.com/abo-abo/swiper/issues][open issues]]
 
@@ -56,11 +56,11 @@ Use your own judgment for the commit messages, I recommend a verbose
 style using =magit-commit-add-log=.
 
 * Copyright Assignment
-These packages are subject to the same [[http://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
-Emacs itself, org-mode, CEDET and other packages in [[http://elpa.gnu.org/packages/][GNU ELPA]].
+These packages are subject to the same [[https://www.gnu.org/prep/maintain/html_node/Copyright-Papers.html][Copyright Assignment]] policy as
+Emacs itself, org-mode, CEDET and other packages in [[https://elpa.gnu.org/packages/][GNU ELPA]].
 
-Any [[http://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant][legally significant]] contributions can only be accepted after the
-author has completed their paperwork.  Please see [[http://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future][the request form]] if
+Any [[https://www.gnu.org/prep/maintain/html_node/Legally-Significant.html#Legally-Significant][legally significant]] contributions can only be accepted after the
+author has completed their paperwork.  Please see [[https://git.savannah.gnu.org/cgit/gnulib.git/tree/doc/Copyright/request-assign.future][the request form]] if
 you want to proceed with the assignment.
 
 The copyright assignment isn't a big deal, it just says that the

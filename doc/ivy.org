@@ -159,7 +159,7 @@ See the code below for adding MELPA to the list of package archives:
 #+begin_src elisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/"))
+             '("melpa" . "https://melpa.org/packages/"))
 #+end_src
 
 After this do ~M-x~ =package-refresh-contents= ~RET~, followed by ~M-x~
