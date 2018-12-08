@@ -1502,6 +1502,9 @@ If NO-ASYNC is non-nil, do it synchronously instead."
                                nil " *counsel-gg-count*")
        nil))))
 
+(defun counsel--normalize-grep-match (str)
+  (if (string-match-p "\\`\\.[/\\]" str) str (concat "./" str)))
+
 (defun counsel-git-grep-occur ()
   "Generate a custom occur buffer for `counsel-git-grep'.
 When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
@@ -1534,9 +1537,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
                     default-directory))
     (insert (format "%d candidates:\n" (length cands)))
     (ivy--occur-insert-lines
-     (mapcar
-      (lambda (cand) (concat "./" cand))
-      cands))))
+     (mapcar #'counsel--normalize-grep-match cands))))
 
 (defun counsel-git-grep-query-replace ()
   "Start `query-replace' with string to replace from last search string."
@@ -2477,7 +2478,7 @@ It applies no filtering to ivy--all-candidates."
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n" default-directory))
     (insert (format "%d candidates:\n" (length ivy--all-candidates)))
     (ivy--occur-insert-lines
-     (mapcar (lambda (cand) (concat "./" prepend cand)) ivy--all-candidates))))
+     (mapcar #'counsel--normalize-grep-match ivy--all-candidates))))
 
 ;;** `counsel-ag'
 (defvar counsel-ag-map
@@ -2608,7 +2609,8 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
     (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines cands)))
+    (ivy--occur-insert-lines
+     (mapcar #'counsel--normalize-grep-match cands))))
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
