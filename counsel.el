@@ -21,7 +21,7 @@
 ;; GNU General Public License for more details.
 
 ;; For a full copy of the GNU General Public License
-;; see <http://www.gnu.org/licenses/>.
+;; see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
@@ -1993,7 +1993,7 @@ further, make the remote prefix editable"
       (let ((origin (shell-command-to-string
                      "git remote get-url origin")))
         (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
-          (format "http://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
+          (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
                   (substring url 1)))))))
 
 (defvar counsel-url-expansions-alist nil
@@ -2018,7 +2018,7 @@ If the format element is a function, more powerful
 transformations are possible.  As an example,
   '(\"\\`issue\\([[:digit:]]+\\)\\'\" .
     (lambda (word)
-      (concat \"http://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
+      (concat \"https://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
               (match-string 1 word))))
 trims the \"issue\" prefix from the word at point before creating the URL.")
 
@@ -2825,7 +2825,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 ;; This command uses the recollq command line tool that comes together
 ;; with the recoll (the document indexing database) source:
-;;     http://www.lesbonscomptes.com/recoll/download.html
+;;     https://www.lesbonscomptes.com/recoll/download.html
 ;; You need to build it yourself (together with recoll):
 ;;     cd ./query && make && sudo cp recollq /usr/local/bin
 ;; You can try the GUI version of recoll with:

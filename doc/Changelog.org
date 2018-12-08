@@ -417,7 +417,7 @@ candidates.
 :PROPERTIES:
 :CUSTOM_ID: 0-6-0-nc-counsel-rhythmbox
 :END:
-[[http://oremacs.com/2015/07/09/counsel-rhythmbox/][Control Rhythmbox from Emacs.]]
+[[https://oremacs.com/2015/07/09/counsel-rhythmbox/][Control Rhythmbox from Emacs.]]
 -----
 *** =ivy-dispatching-done=
 :PROPERTIES:
@@ -466,7 +466,7 @@ Interactively =ag= using Ivy completion.
 :CUSTOM_ID: 0-6-0-nc-counsel-recoll
 :END:
 Use =recoll= with Ivy completion.
-See [[http://oremacs.com/2015/07/27/counsel-recoll/][Using Recoll desktop search database with Emacs]].
+See [[https://oremacs.com/2015/07/27/counsel-recoll/][Using Recoll desktop search database with Emacs]].
 
 Install recoll with =sudo apt-get install recoll=.
 
@@ -1041,7 +1041,7 @@ have it and ~M-x~ =package-install ivy=.
 :PROPERTIES:
 :CUSTOM_ID: 0-8-0-documentation
 :END:
-HTML documentation is available at http://oremacs.com/swiper/.
+HTML documentation is available at [[https://oremacs.com/swiper/]].
 
 Texinfo documentation is in doc/ivy.texi.
 
@@ -3570,7 +3570,7 @@ Supersedes =counsel-expression-history= and
 :PROPERTIES:
 :CUSTOM_ID: 0-10-0-nc-counsel-org-capture
 :END:
-Completion for [[http://orgmode.org/manual/Capture.html][org-capture]]. See [[https://github.com/abo-abo/swiper/issues/1320][#1320]].
+Completion for [[https://orgmode.org/manual/Capture.html][org-capture]]. See [[https://github.com/abo-abo/swiper/issues/1320][#1320]].
 -----
 *** counsel-org-file
 :PROPERTIES:
