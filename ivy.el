@@ -155,6 +155,10 @@
   '((t :inherit completions-annotations))
   "Face for displaying completion annotations.")
 
+(defface ivy-yanked-word
+  '((t :inherit highlight))
+  "Face used to highlight yanked word.")
+
 ;; Set default customization `:group' to `ivy' for the rest of the file.
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
 
@@ -3928,15 +3932,18 @@ The region to extract is determined by the respective values of
 point before and after applying FN to ARGS."
   (let (text)
     (with-ivy-window
-      (let ((pos (point))
+      (let ((beg (point))
             (bol (line-beginning-position))
-            (eol (line-end-position)))
+            (eol (line-end-position))
+            end)
         (unwind-protect
              (progn (apply fn args)
+                    (setq end (goto-char (max bol (min (point) eol))))
                     (setq text (buffer-substring-no-properties
-                                pos (goto-char (max bol (min (point) eol))))))
+                                beg end))
+                    (ivy--pulse-region beg end))
           (unless text
-            (goto-char pos)))))
+            (goto-char beg)))))
     (when text
       (insert (replace-regexp-in-string "  +" " " text t t)))))
 
@@ -3963,6 +3970,22 @@ If optional ARG is non-nil, pull in the next ARG
 characters (previous if ARG is negative)."
   (interactive "p")
   (ivy--yank-by #'forward-char arg))
+
+(defvar ivy--pulse-overlay nil
+  "Overlay used to highlight yanked word.")
+
+(defvar ivy--pulse-timer nil
+  "Timer used to dispose of ivy--pulse-overlay.")
+
+(defun ivy--pulse-region (begin end)
+  (if ivy--pulse-overlay
+      (move-overlay ivy--pulse-overlay begin end (current-buffer))
+    (setq ivy--pulse-overlay (make-overlay begin end)))
+  (when ivy--pulse-timer
+    (cancel-timer ivy--pulse-timer))
+  (move-overlay ivy--pulse-overlay begin end (current-buffer))
+  (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word)
+  (setq ivy--pulse-timer (run-at-time 0.5 nil #'delete-overlay ivy--pulse-overlay)))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
