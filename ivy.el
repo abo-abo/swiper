@@ -4120,6 +4120,9 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
 (ivy-set-occur 'ivy-switch-buffer-other-window 'ivy-switch-buffer-occur)
 
+(defun ivy--starts-with-dotslash (str)
+  (string-match-p "\\`\\.[/\\]" str))
+
 (defun ivy--occur-insert-lines (cands)
   "Insert CANDS into `ivy-occur' buffer."
   (font-lock-mode -1)
@@ -4131,7 +4134,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
        highlight
        help-echo "mouse-1: call ivy-action")
      str)
-    (insert (if (or (string-match-p "\\`.[/\\]" str)
+    (insert (if (or (ivy--starts-with-dotslash str)
                     (eq (ivy-state-caller ivy-last) 'counsel-ag))
                 ""
               "    ")

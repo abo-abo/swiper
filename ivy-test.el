@@ -939,6 +939,14 @@ a buffer visiting a file."
              "C-M-j")))
     (ivy-mode ivy-mode-reset-arg)))
 
+(ert-deftest ivy-starts-with-dotslash ()
+  (should (ivy--starts-with-dotslash "./test1"))
+  (should (ivy--starts-with-dotslash ".\\test2"))
+  (should (not (ivy--starts-with-dotslash "test3")))
+  (should (not (ivy--starts-with-dotslash "t/est4")))
+  (should (not (ivy--starts-with-dotslash "t\\est5")))
+  (should (not (ivy--starts-with-dotslash "tes./t6"))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
