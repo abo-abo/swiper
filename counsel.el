@@ -4682,6 +4682,11 @@ as arguments."
           (const :tag "Command" counsel-linux-app-format-function-command-only)
           (function :tag "Custom")))
 
+(defface counsel-application-name
+  '((t :inherit font-lock-builtin-face))
+  "Face for displaying executable names."
+  :group 'ivy-faces)
+
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
 
@@ -4702,7 +4707,7 @@ as arguments."
 NAME is the name of the application, COMMENT its comment and EXEC
 the command to launch it."
   (format "% -45s: %s%s"
-          (propertize exec 'face 'font-lock-builtin-face)
+          (propertize exec 'face 'counsel-application-name)
           name
           (if comment
               (concat " - " comment)
@@ -4716,7 +4721,7 @@ EXEC is the command to launch the application."
           (if comment
               (concat " - " comment)
             "")
-          (propertize exec 'face 'font-lock-builtin-face)))
+          (propertize exec 'face 'counsel-application-name)))
 
 (defun counsel-linux-app-format-function-name-only (name comment _exec)
   "Format Linux application names with the NAME (and COMMENT) only."
