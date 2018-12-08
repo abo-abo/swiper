@@ -1011,7 +1011,7 @@ See `describe-buffer-bindings' for further information."
               (push
                (cons (format
                       "%-15s %s"
-                      (propertize key 'face 'font-lock-builtin-face)
+                      (propertize key 'face 'counsel-key-binding)
                       fun)
                      (cons key cmd))
                res))))
