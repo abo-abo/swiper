@@ -104,6 +104,10 @@
   '((t :inherit dired-directory))
   "Face used by Ivy for highlighting subdirs in the alternatives.")
 
+(defface ivy-org
+  '((t :inherit org-level-4))
+  "Face used by Ivy for highlighting Org buffers in the alternatives.")
+
 (defface ivy-modified-buffer
   '((t :inherit default))
   "Face used by Ivy for highlighting modified file visiting buffers.")
@@ -146,6 +150,10 @@
 (defface ivy-grep-line-number
   '((t :inherit compilation-line-number))
   "Face for displaying line numbers in grep messages.")
+
+(defface ivy-completions-annotations
+  '((t :inherit completions-annotations))
+  "Face for displaying completion annotations.")
 
 ;; Set default customization `:group' to `ivy' for the rest of the file.
 (setcdr (assoc load-file-name custom-current-group-alist) 'ivy)
@@ -3448,7 +3456,7 @@ Note: The usual last two arguments are flipped for convenience.")
     (when annot
       (setq str (concat str (funcall annot str)))
       (ivy-add-face-text-property
-       olen (length str) 'completions-annotations str))
+       olen (length str) 'ivy-completions-annotations str))
     str))
 
 (ivy-set-display-transformer
@@ -3549,7 +3557,7 @@ CANDS is a list of strings."
   :type '(repeat (choice regexp function)))
 
 (defvar ivy-switch-buffer-faces-alist '((dired-mode . ivy-subdir)
-                                        (org-mode . org-level-4))
+                                        (org-mode . ivy-org))
   "Store face customizations for `ivy-switch-buffer'.
 Each KEY is `major-mode', each VALUE is a face name.")
 
