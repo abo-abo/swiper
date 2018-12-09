@@ -4012,9 +4012,10 @@ TREEP is used to expand internal nodes."
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
 
-If `org', the default faces from `org-mode' are applied,
-i.e. `org-level-1' through `org-level-8'.  Note that no cycling
-is performed, so headings on levels 9 and higher are not styled.
+If `org', the faces `counsel-outline-1' through
+`counsel-outline-8' are applied in a similar way to Org.
+Note that no cycling is performed, so headings on levels 9 and
+higher are not styled.
 
 If `verbatim', the faces used in the buffer are applied.  For
 simple headlines in `org-mode' buffers, this is usually the same
@@ -4255,7 +4256,7 @@ the face to apply."
                 (verbatim)
                 (custom (nth (1- level)
                              (or custom-faces counsel-outline-custom-faces)))
-                (org (format "org-level-%d" level))
+                (org (format "counsel-outline-%d" level))
                 (t 'minibuffer-prompt))))
     (when face
       (put-text-property 0 (length name) 'face face name)))
@@ -4693,6 +4694,38 @@ as arguments."
   '((t :inherit font-lock-builtin-face))
   "Face for displaying executable names."
   :group 'ivy-faces)
+
+(defface counsel-outline-1
+  '((t :inherit org-level-1))
+  "Face for displaying level 1 headings.")
+
+(defface counsel-outline-2
+  '((t :inherit org-level-2))
+  "Face for displaying level 2 headings.")
+
+(defface counsel-outline-3
+  '((t :inherit org-level-3))
+  "Face for displaying level 3 headings.")
+
+(defface counsel-outline-4
+  '((t :inherit org-level-4))
+  "Face for displaying level 4 headings.")
+
+(defface counsel-outline-5
+  '((t :inherit org-level-5))
+  "Face for displaying level 5 headings.")
+
+(defface counsel-outline-6
+  '((t :inherit org-level-6))
+  "Face for displaying level 6 headings.")
+
+(defface counsel-outline-7
+  '((t :inherit org-level-7))
+  "Face for displaying level 7 headings.")
+
+(defface counsel-outline-8
+  '((t :inherit org-level-8))
+  "Face for displaying level 8 headings.")
 
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
