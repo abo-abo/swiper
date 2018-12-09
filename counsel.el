@@ -4669,12 +4669,32 @@ selected color."
             :caller 'counsel-rhythmbox))
 
 ;;** `counsel-linux-app'
+(require 'xdg nil t)
+
+(defalias 'counsel--xdg-data-home
+  (if (fboundp 'xdg-data-home)
+      #'xdg-data-home
+    (lambda ()
+      (let ((directory (getenv "XDG_DATA_HOME")))
+        (if (or (null directory) (string= directory ""))
+            "~/.local/share"
+          directory))))
+  "Compatibility shim for `xdg-data-home'.")
+
+(defalias 'counsel--xdg-data-dirs
+  (if (fboundp 'xdg-data-dirs)
+      #'xdg-data-dirs
+    (lambda ()
+      (let ((path (getenv "XDG_DATA_DIRS")))
+        (if (or (null path) (string= path ""))
+            '("/usr/local/share" "/usr/share")
+          (parse-colon-path path)))))
+  "Compatibility shim for `xdg-data-dirs'.")
+
 (defcustom counsel-linux-apps-directories
-  '("~/.local/share/applications/"
-    "~/.guix-profile/share/applications/"
-    "/usr/local/share/applications/"
-    "/var/lib/flatpak/exports/share/applications/"
-    "/usr/share/applications/")
+  (mapcar (lambda (dir) (expand-file-name "applications" dir))
+          (cons (counsel--xdg-data-home)
+                (counsel--xdg-data-dirs)))
   "Directories in which to search for applications (.desktop files)."
   :group 'ivy
   :type '(repeat directory))
