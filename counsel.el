@@ -4035,7 +4035,8 @@ are applied.  Note that no cycling is performed, so if there is
 no face defined for a certain level, headlines on that level will
 not be styled.
 
-If `nil', no faces are applied to the headlines.
+If `nil', all headlines are highlighted using
+`counsel-outline-default'.
 
 For displaying tags and TODO keywords in `org-mode' buffers, see
 `counsel-org-headline-display-tags' and
@@ -4257,7 +4258,7 @@ the face to apply."
                 (custom (nth (1- level)
                              (or custom-faces counsel-outline-custom-faces)))
                 (org (format "counsel-outline-%d" level))
-                (t 'minibuffer-prompt))))
+                (t 'counsel-outline-default))))
     (when face
       (put-text-property 0 (length name) 'face face name)))
   name)
@@ -4726,6 +4727,10 @@ as arguments."
 (defface counsel-outline-8
   '((t :inherit org-level-8))
   "Face for displaying level 8 headings.")
+
+(defface counsel-outline-default
+  '((t :inherit minibuffer-prompt))
+  "Face for displaying headings.")
 
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
