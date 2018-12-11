@@ -4432,8 +4432,12 @@ COUNT defaults to 1."
   "History for `counsel-colors-emacs'.")
 
 (defun counsel-colors--name-to-hex (name)
-  "Return hexadecimal RGB value of color with NAME."
-  (apply #'color-rgb-to-hex (color-name-to-rgb name)))
+  "Return hexadecimal RGB value of color with NAME.
+
+Return nil if NAME does not designate a valid color."
+  (let ((rgb (color-name-to-rgb name)))
+    (when rgb
+      (apply #'color-rgb-to-hex rgb))))
 
 (defvar shr-color-visible-luminance-min)
 (declare-function shr-color-visible "shr-color")
@@ -4459,12 +4463,15 @@ Return closure suitable for `ivy-format-function'."
 You can insert or kill the name or hexadecimal RGB value of the
 selected color."
   (interactive)
-  (let* ((colors (mapcar (lambda (cell)
-                           (let ((name (car cell)))
-                             (propertize name
-                                         'hex (counsel-colors--name-to-hex name)
-                                         'dups (cdr cell))))
-                         (list-colors-duplicates)))
+  (let* ((colors
+          (delete nil
+                  (mapcar (lambda (cell)
+                            (let* ((name (car cell))
+                                   (dups (cdr cell))
+                                   (hex (counsel-colors--name-to-hex name)))
+                              (when hex
+                                (propertize name 'hex hex 'dups dups))))
+                          (list-colors-duplicates))))
          (fmt (format "%%-%ds %%s %%s%%s"
                       (apply #'max 0 (mapcar #'string-width colors))))
          (blank (make-string 10 ?\s))
