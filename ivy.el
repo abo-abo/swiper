@@ -4090,10 +4090,12 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (if (derived-mode-p 'ivy-occur-grep-mode)
       (progn
         (forward-line arg)
+        (when (eolp)
+          (forward-line -1))
         (when ivy-calling
           (ivy-occur-press)))
     (ivy--select-occur-buffer)
-    (forward-line arg)
+    (ivy-occur-next-line arg)
     (ivy-occur-press-and-switch)))
 
 (defun ivy-occur-previous-line (&optional arg)
@@ -4103,10 +4105,13 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (if (derived-mode-p 'ivy-occur-grep-mode)
       (progn
         (forward-line (- arg))
+        (when (< (line-number-at-pos) 5)
+          (goto-char (point-min))
+          (forward-line 4))
         (when ivy-calling
           (ivy-occur-press)))
     (ivy--select-occur-buffer)
-    (forward-line (- arg))
+    (ivy-occur-previous-line arg)
     (ivy-occur-press-and-switch)))
 
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
