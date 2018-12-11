@@ -4102,12 +4102,13 @@ buffer would modify `ivy-last'.")
 
 (defun ivy--find-occur-buffer ()
   (let ((cb (current-buffer)))
-    (cl-find-if
-     (lambda (b)
-       (with-current-buffer b
+    (save-current-buffer
+      (cl-find-if
+       (lambda (b)
+         (set-buffer b)
          (and (eq major-mode 'ivy-occur-grep-mode)
-              (equal cb (ivy-state-buffer ivy-occur-last)))))
-     (buffer-list))))
+              (eq cb (ivy-state-buffer ivy-occur-last))))
+       (buffer-list)))))
 
 (defun ivy--select-occur-buffer ()
   "Pop to occur buffer and select its window."
@@ -4119,7 +4120,7 @@ buffer would modify `ivy-last'.")
 
 (defun ivy-occur-next-line (&optional arg)
   "Move the cursor down ARG lines.
-When `ivy-calling' isn't nil, call `ivy-occur-press'."
+When `ivy-calling' is non-nil, call `ivy-occur-press'."
   (interactive "p")
   (let ((offset (cond ((derived-mode-p 'ivy-occur-grep-mode) 5)
                       ((derived-mode-p 'ivy-occur-mode) 2))))
@@ -4140,7 +4141,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 
 (defun ivy-occur-previous-line (&optional arg)
   "Move the cursor up ARG lines.
-When `ivy-calling' isn't nil, call `ivy-occur-press'."
+When `ivy-calling' is non-nil, call `ivy-occur-press'."
   (interactive "p")
   (let ((offset (cond ((derived-mode-p 'ivy-occur-grep-mode) 5)
                       ((derived-mode-p 'ivy-occur-mode) 2))))
