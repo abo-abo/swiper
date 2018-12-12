@@ -4110,12 +4110,12 @@ buffer would modify `ivy-last'.")
      (buffer-list))))
 
 (defun ivy--select-occur-buffer ()
-  (let* ((ob (ivy--find-occur-buffer))
-         (ow (cl-find-if (lambda (w) (equal ob (window-buffer w)))
-                         (window-list))))
-    (if ow
-        (select-window ow)
-      (pop-to-buffer ob))))
+  "Pop to occur buffer and select its window."
+  (let* ((buf (ivy--find-occur-buffer))
+         (win (get-buffer-window buf)))
+    (if win
+        (select-window win)
+      (pop-to-buffer buf))))
 
 (defun ivy-occur-next-line (&optional arg)
   "Move the cursor down ARG lines.
