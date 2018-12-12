@@ -4698,39 +4698,48 @@ as arguments."
 
 (defface counsel-outline-1
   '((t :inherit org-level-1))
-  "Face for displaying level 1 headings.")
+  "Face for displaying level 1 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-2
   '((t :inherit org-level-2))
-  "Face for displaying level 2 headings.")
+  "Face for displaying level 2 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-3
   '((t :inherit org-level-3))
-  "Face for displaying level 3 headings.")
+  "Face for displaying level 3 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-4
   '((t :inherit org-level-4))
-  "Face for displaying level 4 headings.")
+  "Face for displaying level 4 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-5
   '((t :inherit org-level-5))
-  "Face for displaying level 5 headings.")
+  "Face for displaying level 5 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-6
   '((t :inherit org-level-6))
-  "Face for displaying level 6 headings.")
+  "Face for displaying level 6 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-7
   '((t :inherit org-level-7))
-  "Face for displaying level 7 headings.")
+  "Face for displaying level 7 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-8
   '((t :inherit org-level-8))
-  "Face for displaying level 8 headings.")
+  "Face for displaying level 8 headings."
+  :group 'ivy-faces)
 
 (defface counsel-outline-default
   '((t :inherit minibuffer-prompt))
-  "Face for displaying headings.")
+  "Face for displaying headings."
+  :group 'ivy-faces)
 
 (defvar counsel-linux-apps-faulty nil
   "List of faulty desktop files.")
