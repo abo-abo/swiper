@@ -4781,7 +4781,9 @@ as arguments."
 NAME is the name of the application, COMMENT its comment and EXEC
 the command to launch it."
   (format "% -45s: %s%s"
-          (propertize exec 'face 'counsel-application-name)
+          (propertize
+           (ivy--truncate-string exec 45)
+           'face 'counsel-application-name)
           name
           (if comment
               (concat " - " comment)
