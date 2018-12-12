@@ -4118,36 +4118,40 @@ buffer would modify `ivy-last'.")
   "Move the cursor down ARG lines.
 When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (interactive "p")
-  (if (derived-mode-p 'ivy-occur-grep-mode)
-      (progn
-        (if (< (line-number-at-pos) 5)
-            (progn
-              (goto-char (point-min))
-              (forward-line 4))
-          (forward-line arg)
-          (when (eolp)
-            (forward-line -1)))
-        (when ivy-calling
-          (ivy-occur-press)))
-    (ivy--select-occur-buffer)
-    (ivy-occur-next-line arg)
-    (ivy-occur-press-and-switch)))
+  (let ((offset (cond ((derived-mode-p 'ivy-occur-grep-mode) 5)
+                      ((derived-mode-p 'ivy-occur-mode) 2))))
+    (if offset
+        (progn
+          (if (< (line-number-at-pos) offset)
+              (progn
+                (goto-char (point-min))
+                (forward-line (1- offset)))
+            (forward-line arg)
+            (when (eolp)
+              (forward-line -1)))
+          (when ivy-calling
+            (ivy-occur-press)))
+      (ivy--select-occur-buffer)
+      (ivy-occur-next-line arg)
+      (ivy-occur-press-and-switch))))
 
 (defun ivy-occur-previous-line (&optional arg)
   "Move the cursor up ARG lines.
 When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (interactive "p")
-  (if (derived-mode-p 'ivy-occur-grep-mode)
-      (progn
-        (forward-line (- arg))
-        (when (< (line-number-at-pos) 5)
-          (goto-char (point-min))
-          (forward-line 4))
-        (when ivy-calling
-          (ivy-occur-press)))
-    (ivy--select-occur-buffer)
-    (ivy-occur-previous-line arg)
-    (ivy-occur-press-and-switch)))
+  (let ((offset (cond ((derived-mode-p 'ivy-occur-grep-mode) 5)
+                      ((derived-mode-p 'ivy-occur-mode) 2))))
+    (if offset
+        (progn
+          (forward-line (- arg))
+          (when (< (line-number-at-pos) offset)
+            (goto-char (point-min))
+            (forward-line (1- offset)))
+          (when ivy-calling
+            (ivy-occur-press)))
+      (ivy--select-occur-buffer)
+      (ivy-occur-previous-line arg)
+      (ivy-occur-press-and-switch))))
 
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
