@@ -2464,15 +2464,10 @@ This function expects that the candidates have already been filtered.
 It applies no filtering to ivy--all-candidates."
   (unless (eq major-mode 'ivy-occur-grep-mode)
     (ivy-occur-grep-mode))
-  (let* ((directory
-          (if git-grep-dir-is-file
-              (file-name-directory (ivy-state-directory ivy-last))
-            (ivy-state-directory ivy-last)))
-         (prepend
-          (if git-grep-dir-is-file
-              (concat (file-name-nondirectory
-                       (ivy-state-directory ivy-last)) ":")
-            "")))
+  (let ((directory
+         (if git-grep-dir-is-file
+             (file-name-directory (ivy-state-directory ivy-last))
+           (ivy-state-directory ivy-last))))
     (setq default-directory directory)
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n" default-directory))
