@@ -4089,9 +4089,13 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (interactive "p")
   (if (derived-mode-p 'ivy-occur-grep-mode)
       (progn
-        (forward-line arg)
-        (when (eolp)
-          (forward-line -1))
+        (if (< (line-number-at-pos) 5)
+            (progn
+              (goto-char (point-min))
+              (forward-line 4))
+          (forward-line arg)
+          (when (eolp)
+            (forward-line -1)))
         (when ivy-calling
           (ivy-occur-press)))
     (ivy--select-occur-buffer)
