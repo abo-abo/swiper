@@ -219,11 +219,8 @@ Update the minibuffer with the amount of lines collected every
                                (string-match-p counsel-async-ignore-re line))
                              lines)
              lines))))
-      (let ((ivy--prompt (format "%d++ %s" numlines (ivy-state-prompt ivy-last)))
-            (win (active-minibuffer-window)))
-        (when (window-live-p win)
-          (with-selected-window win
-            (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))))
+      (let ((ivy--prompt (format "%d++ %s" numlines (ivy-state-prompt ivy-last))))
+        (ivy--insert-minibuffer (ivy--format ivy--all-candidates)))
       (setq counsel--async-time (current-time)))))
 
 (defun counsel-delete-process (&optional name)
