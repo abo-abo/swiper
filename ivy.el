@@ -2855,20 +2855,23 @@ Should be run via minibuffer `post-command-hook'."
   (let ((resize-mini-windows nil)
         (update-fn (ivy-state-update-fn ivy-last))
         (old-mark (marker-position (mark-marker)))
+        (win (active-minibuffer-window))
         deactivate-mark)
-    (ivy--cleanup)
-    (when update-fn
-      (funcall update-fn))
-    (ivy--insert-prompt)
-    ;; Do nothing if while-no-input was aborted.
-    (when (stringp text)
-      (if ivy-display-function
-          (funcall ivy-display-function text)
-        (ivy-display-function-fallback text)))
-    (ivy--resize-minibuffer-to-fit)
-    ;; prevent region growing due to text remove/add
-    (when (region-active-p)
-      (set-mark old-mark))))
+    (when win
+      (with-selected-window win
+        (ivy--cleanup)
+        (when update-fn
+          (funcall update-fn))
+        (ivy--insert-prompt)
+        ;; Do nothing if while-no-input was aborted.
+        (when (stringp text)
+          (if ivy-display-function
+              (funcall ivy-display-function text)
+            (ivy-display-function-fallback text)))
+        (ivy--resize-minibuffer-to-fit)
+        ;; prevent region growing due to text remove/add
+        (when (region-active-p)
+          (set-mark old-mark))))))
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
