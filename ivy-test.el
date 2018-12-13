@@ -966,7 +966,6 @@ a buffer visiting a file."
         (setq out (counsel--normalize-grep-match input))
         (should (equal out expected))
         (should (equal match-data-orig (match-data)))
-        (print (list :out out :expected expected))
         (setq out (counsel--normalize-grep-match out))
         (should (equal out expected))
         (should (equal match-data-orig (match-data)))))))
