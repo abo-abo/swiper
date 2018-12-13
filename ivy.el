@@ -2029,10 +2029,7 @@ This is useful for recursive `ivy-read'."
                         (ivy-state-buffer state))))
                (setq coll (all-completions "" collection predicate))))
             (t
-             (setq coll
-                   (if predicate
-                       (cl-remove-if-not predicate collection)
-                     collection))))
+             (setq coll (all-completions "" collection predicate))))
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
       (when def

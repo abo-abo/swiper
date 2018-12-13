@@ -143,7 +143,11 @@ will bring the behavior in line with the newer Emacsen."
            (ivy-with '(ivy-read "pattern: "
                        '("ignore" "build" "build-1" "build-2") :preselect "build")
                      "b C-m")
-           "build")))
+           "build"))
+  (should (equal (ivy-with
+                  '(ivy-read "x: " '("one" "two" ("three" . "four")))
+                  "th C-m")
+                 "three")))
 
 (ert-deftest ivy-read-sort-alist ()
   (should (equal (ivy-with '(let ((coll '(("b" . "1") ("a" . "2"))))
