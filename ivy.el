@@ -3975,17 +3975,29 @@ characters (previous if ARG is negative)."
   "Overlay used to highlight yanked word.")
 
 (defvar ivy--pulse-timer nil
-  "Timer used to dispose of ivy--pulse-overlay.")
+  "Timer used to dispose of `ivy--pulse-overlay'.")
+
+(defvar ivy-pulse-delay 0.5
+  "Number of seconds to display `ivy-yanked-word' highlight.")
 
 (defun ivy--pulse-region (begin end)
   (if ivy--pulse-overlay
-      (move-overlay ivy--pulse-overlay begin end (current-buffer))
-    (setq ivy--pulse-overlay (make-overlay begin end)))
+      (move-overlay ivy--pulse-overlay
+                    (min begin (overlay-start ivy--pulse-overlay))
+                    (max end (overlay-end ivy--pulse-overlay)))
+    (setq ivy--pulse-overlay (make-overlay begin end))
+    (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word))
   (when ivy--pulse-timer
     (cancel-timer ivy--pulse-timer))
-  (move-overlay ivy--pulse-overlay begin end (current-buffer))
-  (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word)
-  (setq ivy--pulse-timer (run-at-time 0.5 nil #'delete-overlay ivy--pulse-overlay)))
+  (setq ivy--pulse-timer
+        (run-at-time ivy-pulse-delay nil #'ivy--pulse-cleanup)))
+
+(defun ivy--pulse-cleanup ()
+  "Cancel `ivy--pulse-timer' and delete `ivy--pulse-overlay'."
+  (when ivy--pulse-timer
+    (setq ivy--pulse-timer (cancel-timer ivy--pulse-timer)))
+  (when ivy--pulse-overlay
+    (setq ivy--pulse-overlay (delete-overlay ivy--pulse-overlay))))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
