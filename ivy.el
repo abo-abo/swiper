@@ -1898,6 +1898,7 @@ customizations apply to the current completion session."
               (funcall cleanup)))
           (when (setq unwind (ivy-state-unwind ivy-last))
             (funcall unwind))
+          (ivy--pulse-cleanup)
           (unless (eq ivy-exit 'done)
             (ivy-recursive-restore)))
       (ivy-call)
@@ -3971,12 +3972,20 @@ characters (previous if ARG is negative)."
 (defvar ivy-pulse-delay 0.5
   "Number of seconds to display `ivy-yanked-word' highlight.")
 
-(defun ivy--pulse-region (begin end)
+(defun ivy--pulse-region (start end)
+  "Temporarily highlight text between START and END.
+The \"pulse\" duration is determined by `ivy-pulse-delay'."
   (if ivy--pulse-overlay
-      (move-overlay ivy--pulse-overlay
-                    (min begin (overlay-start ivy--pulse-overlay))
-                    (max end (overlay-end ivy--pulse-overlay)))
-    (setq ivy--pulse-overlay (make-overlay begin end))
+      (let ((ostart (overlay-start ivy--pulse-overlay))
+            (oend (overlay-end ivy--pulse-overlay)))
+        ;; Extend the existing overlay's region to include START..END,
+        ;; but only if the two regions are contiguous.
+        (cond ((and (= start ostart) (<= end start))
+               (setq start oend))
+              ((and (= start oend) (<= start end))
+               (setq start ostart)))
+        (move-overlay ivy--pulse-overlay start end))
+    (setq ivy--pulse-overlay (make-overlay start end))
     (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word))
   (when ivy--pulse-timer
     (cancel-timer ivy--pulse-timer))
@@ -3986,9 +3995,11 @@ characters (previous if ARG is negative)."
 (defun ivy--pulse-cleanup ()
   "Cancel `ivy--pulse-timer' and delete `ivy--pulse-overlay'."
   (when ivy--pulse-timer
-    (setq ivy--pulse-timer (cancel-timer ivy--pulse-timer)))
+    (cancel-timer ivy--pulse-timer)
+    (setq ivy--pulse-timer nil))
   (when ivy--pulse-overlay
-    (setq ivy--pulse-overlay (delete-overlay ivy--pulse-overlay))))
+    (delete-overlay ivy--pulse-overlay)
+    (setq ivy--pulse-overlay nil)))
 
 (defun ivy-kill-ring-save ()
   "Store the current candidates into the kill ring.
