@@ -1501,7 +1501,7 @@ If NO-ASYNC is non-nil, do it synchronously instead."
 
 (defun counsel--normalize-grep-match (str)
   ;; Prepend ./ if necessary:
-  (unless (string-match-p "\\`\\.[/\\]" str)
+  (unless (ivy--starts-with-dotslash str)
     (setq str (concat "./" str)))
   ;; Remove column info if any:
   (save-match-data
