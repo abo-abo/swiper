@@ -3973,9 +3973,10 @@ characters (previous if ARG is negative)."
   "Timer used to dispose of `ivy--pulse-overlay'.")
 
 (defcustom ivy-pulse-delay 0.5
-  "Number of seconds to display `ivy-yanked-word' highlight."
+  "Number of seconds to display `ivy-yanked-word' highlight.
+When nil, disable highlighting."
   :type '(choice
-          (float :tag "Delay in seconds")
+          (number :tag "Delay in seconds")
           (const :tag "Disable" nil)))
 
 (defun ivy--pulse-region (start end)
