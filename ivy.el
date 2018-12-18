@@ -3972,28 +3972,32 @@ characters (previous if ARG is negative)."
 (defvar ivy--pulse-timer nil
   "Timer used to dispose of `ivy--pulse-overlay'.")
 
-(defvar ivy-pulse-delay 0.5
-  "Number of seconds to display `ivy-yanked-word' highlight.")
+(defcustom ivy-pulse-delay 0.5
+  "Number of seconds to display `ivy-yanked-word' highlight."
+  :type '(choice
+          (float :tag "Delay in seconds")
+          (const :tag "Disable" nil)))
 
 (defun ivy--pulse-region (start end)
   "Temporarily highlight text between START and END.
 The \"pulse\" duration is determined by `ivy-pulse-delay'."
-  (if ivy--pulse-overlay
-      (let ((ostart (overlay-start ivy--pulse-overlay))
-            (oend (overlay-end ivy--pulse-overlay)))
-        ;; Extend the existing overlay's region to include START..END,
-        ;; but only if the two regions are contiguous.
-        (cond ((and (= start ostart) (<= end start))
-               (setq start oend))
-              ((and (= start oend) (<= start end))
-               (setq start ostart)))
-        (move-overlay ivy--pulse-overlay start end))
-    (setq ivy--pulse-overlay (make-overlay start end))
-    (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word))
-  (when ivy--pulse-timer
-    (cancel-timer ivy--pulse-timer))
-  (setq ivy--pulse-timer
-        (run-at-time ivy-pulse-delay nil #'ivy--pulse-cleanup)))
+  (when ivy-pulse-delay
+    (if ivy--pulse-overlay
+        (let ((ostart (overlay-start ivy--pulse-overlay))
+              (oend (overlay-end ivy--pulse-overlay)))
+          ;; Extend the existing overlay's region to include START..END,
+          ;; but only if the two regions are contiguous.
+          (cond ((and (= start ostart) (<= end start))
+                 (setq start oend))
+                ((and (= start oend) (<= start end))
+                 (setq start ostart)))
+          (move-overlay ivy--pulse-overlay start end))
+      (setq ivy--pulse-overlay (make-overlay start end))
+      (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word))
+    (when ivy--pulse-timer
+      (cancel-timer ivy--pulse-timer))
+    (setq ivy--pulse-timer
+          (run-at-time ivy-pulse-delay nil #'ivy--pulse-cleanup))))
 
 (defun ivy--pulse-cleanup ()
   "Cancel `ivy--pulse-timer' and delete `ivy--pulse-overlay'."
