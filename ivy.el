@@ -3934,8 +3934,7 @@ point before and after applying FN to ARGS."
         (unwind-protect
              (progn (apply fn args)
                     (setq end (goto-char (max bol (min (point) eol))))
-                    (setq text (buffer-substring-no-properties
-                                beg end))
+                    (setq text (buffer-substring-no-properties beg end))
                     (ivy--pulse-region beg end))
           (unless text
             (goto-char beg)))))
@@ -3986,13 +3985,13 @@ The \"pulse\" duration is determined by `ivy-pulse-delay'."
     (if ivy--pulse-overlay
         (let ((ostart (overlay-start ivy--pulse-overlay))
               (oend (overlay-end ivy--pulse-overlay)))
+          (when (< end start)
+            (cl-rotatef start end))
           ;; Extend the existing overlay's region to include START..END,
           ;; but only if the two regions are contiguous.
-          (cond ((and (= start ostart) (<= end start))
-                 (setq start oend))
-                ((and (= start oend) (<= start end))
-                 (setq start ostart)))
-          (move-overlay ivy--pulse-overlay start end))
+          (move-overlay ivy--pulse-overlay
+                        (if (= start oend) ostart start)
+                        (if (= end ostart) oend end)))
       (setq ivy--pulse-overlay (make-overlay start end))
       (overlay-put ivy--pulse-overlay 'face 'ivy-yanked-word))
     (when ivy--pulse-timer
