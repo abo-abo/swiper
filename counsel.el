@@ -2999,10 +2999,10 @@ otherwise continue prompting for tags."
                               (org-agenda-error))))
             (with-current-buffer (marker-buffer hdmarker)
               (goto-char hdmarker)
-              (setq counsel-org-tags (org-get-tags)))))
+              (setq counsel-org-tags (delete "" (org-get-tags))))))
       (unless (org-at-heading-p)
         (org-back-to-heading t))
-      (setq counsel-org-tags (org-get-tags)))
+      (setq counsel-org-tags (delete "" (org-get-tags))))
     (let ((org-last-tags-completion-table
            (append (and (or org-complete-tags-always-offer-all-agenda-tags
                             (eq major-mode 'org-agenda-mode))
