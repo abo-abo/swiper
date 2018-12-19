@@ -4231,7 +4231,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
             str ?\n))
   (goto-char (point-min))
   (forward-line 4)
-  (while (re-search-forward "^[^:]+:[[:digit:]]+:" nil t)
+  (while (re-search-forward "^.*:[[:digit:]]+:" nil t)
     (ivy-add-face-text-property
      (match-beginning 0) (match-end 0) 'ivy-grep-info nil t)))
 
