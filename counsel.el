@@ -1382,10 +1382,9 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
 
 (defun counsel--git-grep-count-func-default ()
   "Default function to calculate `counsel--git-grep-count'."
-  (or (unless (eq system-type 'windows-nt)
-        (ignore-errors
-          (let ((git-dir (counsel--call "git" "rev-parse" "--git-dir")))
-            (read (counsel--call "du" "-s" git-dir)))))
+  (or (ignore-errors
+        (let ((git-dir (counsel--call "git" "rev-parse" "--git-dir")))
+          (read (counsel--call "du" "-s" git-dir))))
       0))
 
 (defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
