@@ -1673,7 +1673,10 @@ like.")
     (counsel-org-capture . "^")
     (Man-completion-table . "^")
     (woman . "^"))
-  "Command to initial input table.")
+  "An alist associating commands with their initial input.
+
+Each cdr is either a string or a function called in the context
+of a call to `ivy-read'.")
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
@@ -1927,8 +1930,13 @@ This is useful for recursive `ivy-read'."
          (require-match (ivy-state-require-match state))
          (caller (or (ivy-state-caller state) this-command))
          (sort (or (ivy-state-sort state) (assoc caller ivy-sort-functions-alist)))
-         (initial-input (or (ivy-state-initial-input state)
-                            (cdr (assq caller ivy-initial-inputs-alist))))
+         (initial-input
+          (or (ivy-state-initial-input state)
+              (let ((init (cdr (assq caller ivy-initial-inputs-alist))))
+                (cond ((functionp init)
+                       (funcall init))
+                      (t
+                       init)))))
          (def (ivy-state-def state)))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
