@@ -1274,21 +1274,21 @@ Typical value: '(recenter)."
       (prog1
           (setq ivy--old-cands
                 (cl-remove-if-not
-                 (lambda (x)
-                   (ignore-errors
-                     (when (string-match "^[^:]+:[^:]+:" x)
-                       (setq x (substring x (match-end 0)))
-                       (if (stringp regexp)
-                           (string-match regexp x)
-                         (let ((res t))
-                           (dolist (re regexp)
-                             (setq res
-                                   (and res
-                                        (ignore-errors
-                                          (if (cdr re)
-                                              (string-match (car re) x)
-                                            (not (string-match (car re) x)))))))
-                           res)))))
+                 (let ((grep-loc-re "^[^:]+:[^:]+:"))
+                   (if (stringp regexp)
+                       (lambda (x)
+                         (and (string-match grep-loc-re x)
+                              (string-match-p regexp x (match-end 0))))
+                     (lambda (x)
+                       (ignore-errors
+                         (when (string-match grep-loc-re x)
+                           (let ((start (match-end 0)))
+                             (cl-every
+                              (lambda (re)
+                                (if (cdr re)
+                                    (string-match (car re) x start)
+                                  (not (string-match (car re) x start))))
+                              regexp)))))))
                  candidates))
         (setq ivy--old-re regexp))))
 
