@@ -1638,7 +1638,7 @@ narrowing) or select a candidate from the visible collection.
      (counsel--async-command
       (format "locate %s '%s'"
 	      (mapconcat #'identity counsel-locate-options " ")
-	      (counsel-unquote-regex-parens
+	      (counsel--elisp-to-pcre
 	       (ivy--regex str))))
      '("" "working..."))))
 

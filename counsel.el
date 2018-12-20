@@ -49,20 +49,35 @@
 
 (define-obsolete-function-alias 'counsel-more-chars 'ivy-more-chars "0.10.0")
 
-(defun counsel-unquote-regex-parens (str)
-  "Unquote regexp parentheses in STR."
-  (if (consp str)
-      (mapconcat #'car (cl-remove-if-not #'cdr str) ".*")
-    (replace-regexp-in-string "\\\\[(){}]\\|[()]"
-                              (lambda (s)
-                                (or (cdr (assoc s '(("\\(" . "(")
-                                                    ("\\)" . ")")
-                                                    ("(" . "\\(")
-                                                    (")" . "\\)")
-                                                    ("\\{" . "{")
-                                                    ("\\}" . "}"))))
-                                    (error "Unexpected parenthesis: %S" s)))
-                              str t t)))
+(defun counsel--elisp-to-pcre (regex)
+  "Convert REGEX from Elisp format to PCRE format, on best-effort basis.
+REGEX may be of any format returned by an Ivy regex function,
+namely a string or a list.  The return value is always a string.
+
+Note that incorrect results may be returned for sufficiently
+complex regexes."
+  (if (consp regex)
+      (mapconcat
+       (lambda (pair)
+         (let ((subexp (counsel--elisp-to-pcre (car pair))))
+           (if (string-match-p "|" subexp)
+               (format "(?:%s)" subexp)
+             subexp)))
+       (cl-remove-if-not #'cdr regex)
+       ".*")
+    (replace-regexp-in-string
+     "\\\\[(){}|]\\|[()]"
+     (lambda (s)
+       (or (cdr (assoc s '(("\\(" . "(")
+                           ("\\)" . ")")
+                           ("(" . "\\(")
+                           (")" . "\\)")
+                           ("\\{" . "{")
+                           ("\\}" . "}")
+                           ("\\|" . "|"))))
+           (error
+            "Unexpected error in `counsel--elisp-to-pcre' (got match %S)" s)))
+     regex t t)))
 
 (defun counsel-directory-name (dir)
   "Return the name of directory DIR with a slash."
@@ -1168,7 +1183,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
    (counsel--expand-ls
     (format "%s | grep -i -E '%s' | xargs ls"
             counsel-git-cmd
-            (counsel-unquote-regex-parens ivy--old-re)))))
+            (counsel--elisp-to-pcre ivy--old-re)))))
 
 (defvar counsel-dired-listing-switches "-alh"
   "Switches passed to `ls' for `counsel-cmd-to-dired'.")
@@ -1917,7 +1932,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (concat cmd " " counsel-dired-listing-switches " | sed -e \"s/^/  /\""))
 
 (defun counsel--occur-cmd-find ()
-  (let* ((regex (counsel-unquote-regex-parens ivy--old-re))
+  (let* ((regex (counsel--elisp-to-pcre ivy--old-re))
          (cmd (format
                "find . -maxdepth 1 | grep -i -E '%s' | xargs -I {} find {} -maxdepth 0 -ls"
                regex)))
@@ -1945,7 +1960,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
     (counsel-cmd-to-dired
      (counsel--expand-ls
       (format counsel-find-file-occur-cmd
-              (counsel-unquote-regex-parens ivy--old-re))))))
+              (counsel--elisp-to-pcre ivy--old-re))))))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
@@ -2244,7 +2259,7 @@ string - the full shell command to run."
   "Return a shell command based on INPUT."
   (counsel-require-program "locate")
   (format "locate -i --regex '%s'"
-          (counsel-unquote-regex-parens
+          (counsel--elisp-to-pcre
            (ivy--regex input))))
 
 (defun counsel-locate-cmd-noregex (input)
@@ -2261,7 +2276,7 @@ string - the full shell command to run."
   "Return a shell command based on INPUT."
   (counsel-require-program "es.exe")
   (format "es.exe -i -r -p %s"
-          (counsel-unquote-regex-parens
+          (counsel--elisp-to-pcre
            (ivy--regex input t))))
 
 (defun counsel-locate-function (input)
@@ -2530,7 +2545,7 @@ NEEDLE is the search string."
             (concat extra-args " " needle))))
 
 (defun counsel--grep-regex (str)
-  (counsel-unquote-regex-parens
+  (counsel--elisp-to-pcre
    (setq ivy--old-re
          (funcall ivy--regex-function str))))
 
@@ -2601,7 +2616,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                       (concat
                        (car command-args)
                        (shell-quote-argument
-                        (counsel-unquote-regex-parens
+                        (counsel--elisp-to-pcre
                          (ivy--regex (cdr command-args)))))))
          (cands (split-string (shell-command-to-string cmd)
                               counsel-async-split-string-re
@@ -2702,7 +2717,7 @@ substituted by the search regexp and file, respectively.  Neither
   "Grep in the current directory for STRING."
   (or
    (ivy-more-chars)
-   (let ((regex (counsel-unquote-regex-parens
+   (let ((regex (counsel--elisp-to-pcre
                  (setq ivy--old-re
                        (ivy--regex string)))))
      (counsel--async-command
