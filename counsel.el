@@ -1233,9 +1233,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel-git-grep-cmd nil
   "Store the command for `counsel-git-grep'.")
 
-(defvar counsel--git-grep-count nil
-  "Store the line count in current repository.")
-
 (defvar counsel--git-grep-count-threshold 20000
   "The maximum threshold beyond which repositories are considered large.")
 
@@ -1252,18 +1249,20 @@ Typical value: '(recenter)."
   :type 'hook
   :group 'ivy)
 
-(defun counsel-git-grep-function (str &optional _pred &rest _unused)
-  "Grep in the current git repository for STRING."
+(defun counsel-git-grep-function (string repo-size)
+  "Grep for STRING in the current Git repository of size REPO-SIZE."
   (or
-   (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
+   (and (> repo-size counsel--git-grep-count-threshold)
         (ivy-more-chars))
    (let* ((default-directory (ivy-state-directory ivy-last))
           (cmd (format counsel-git-grep-cmd
-                       (setq ivy--old-re (ivy--regex str t)))))
-     (if (<= counsel--git-grep-count counsel--git-grep-count-threshold)
+                       (setq ivy--old-re (ivy--regex string t)))))
+     (if (<= repo-size counsel--git-grep-count-threshold)
          (split-string (shell-command-to-string cmd) "\n" t)
-       (counsel--gg-candidates (ivy--regex str))
+       (counsel--gg-candidates (ivy--regex string))
        nil))))
+(apply #'set-advertised-calling-convention
+       '(counsel-git-grep-function (string repo-size) "0.10.0"))
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
@@ -1381,14 +1380,14 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
       (delete-file stderr))))
 
 (defun counsel--git-grep-count-func-default ()
-  "Default function to calculate `counsel--git-grep-count'."
+  "Default value for `counsel--git-grep-count-func'."
   (or (ignore-errors
         (let ((git-dir (counsel--call "git" "rev-parse" "--git-dir")))
           (read (counsel--call "du" "-s" git-dir))))
       0))
 
 (defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
-  "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'.")
+  "Function to calculate the size of a Git repository for `counsel-git-grep'.")
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
@@ -1397,32 +1396,31 @@ When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive "P")
-  (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
-        proj)
-    (setq proj (car proj-and-cmd))
+  (let* ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
+         (proj (car proj-and-cmd)))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
     (counsel-require-program (car (split-string counsel-git-grep-cmd)))
-    (let ((collection-function
-           (if proj
-               #'counsel-git-grep-proj-function
-             #'counsel-git-grep-function))
-          (unwind-function
-           (if proj
-               (lambda ()
-                 (counsel-delete-process)
-                 (swiper--cleanup))
-             (lambda ()
-               (swiper--cleanup))))
-          (default-directory (if proj
-                                 (car proj)
-                               (counsel-locate-git-root))))
-      (setq counsel--git-grep-count (funcall counsel--git-grep-count-func))
+    (let* ((repo-size (funcall counsel--git-grep-count-func))
+           (collection-function
+            (if proj
+                #'counsel-git-grep-proj-function
+              (lambda (str &rest _) (counsel-git-grep-function str repo-size))))
+           (unwind-function
+            (if proj
+                (lambda ()
+                  (counsel-delete-process)
+                  (swiper--cleanup))
+              (lambda ()
+                (swiper--cleanup))))
+           (default-directory (if proj
+                                  (car proj)
+                                (counsel-locate-git-root))))
       (ivy-read "git grep: " collection-function
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
                 :dynamic-collection (or proj
                                         (>
-                                         counsel--git-grep-count
+                                         repo-size
                                          counsel--git-grep-count-threshold))
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
@@ -1449,8 +1447,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (setq counsel-git-grep-cmd-history
         (delete-dups counsel-git-grep-cmd-history))
   (unless (ivy-state-dynamic-collection ivy-last)
-    (setq ivy--all-candidates
-          (all-completions "" 'counsel-git-grep-function))))
+    (let ((repo-size (funcall counsel--git-grep-count-func)))
+      (setq ivy--all-candidates
+            (all-completions
+             ""
+             (lambda
+               (str &rest _)
+               (counsel-git-grep-function str repo-size)))))))
 
 (defvar counsel-gg-state nil
   "The current state of candidates / count sync.")
