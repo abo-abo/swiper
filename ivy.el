@@ -4350,7 +4350,7 @@ EVENT gives the mouse position."
                   (buffer-live-p buffer))
          (save-selected-window
            (setf (ivy-state-window ivy-occur-last)
-                 (display-buffer buffer 'display-buffer-pop-up-window))))))
+                 (display-buffer buffer))))))
 
     ((counsel-describe-function counsel-describe-variable)
      (setf (ivy-state-window ivy-occur-last)
