@@ -4426,6 +4426,20 @@ EVENT gives the mouse position."
                                 (expand-file-name "doc/ivy-help.org"))))
   "The file for `ivy-help'.")
 
+(defun ivy-text-at-point ()
+  "Return either text from region if active, or `current-word'.
+
+This function tries to make a meaningful initial-input for
+`ivy-read' from text around the point. It is destined to be used
+as a cdr in `ivy-initial-inputs-alist'."
+  (cond ((and transient-mark-mode mark-active)
+         (let* ((beg (region-beginning))
+                (end (region-end))
+                (eol (save-excursion (goto-char beg) (line-end-position))))
+           (buffer-substring-no-properties beg (min end eol))))
+        (t
+         (current-word))))
+
 (defun ivy-help ()
   "Help for `ivy'."
   (interactive)
