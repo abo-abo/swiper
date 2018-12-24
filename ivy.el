@@ -474,20 +474,25 @@ the restoring themselves.")
   "Return a string that corresponds to the current thing at point."
   (substring-no-properties
    (cond
-    ((thing-at-point 'url))
-    ((and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
-          (let ((inhibit-message t))
-            (ignore-errors
-              (ffap-file-at-point)))))
-    ((let ((s (thing-at-point 'symbol)))
-       (and (stringp s)
-            (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
-                (match-string 1 s)
-              s))))
-    ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
-     (match-string-no-properties 1))
-    (t
-     ""))))
+     ((use-region-p)
+      (let* ((beg (region-beginning))
+             (end (region-end))
+             (eol (save-excursion (goto-char beg) (line-end-position))))
+        (buffer-substring-no-properties beg (min end eol))))
+     ((thing-at-point 'url))
+     ((and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
+           (let ((inhibit-message t))
+             (ignore-errors
+               (ffap-file-at-point)))))
+     ((let ((s (thing-at-point 'symbol)))
+        (and (stringp s)
+             (if (string-match "\\`[`']?\\(.*?\\)'?\\'" s)
+                 (match-string 1 s)
+               s))))
+     ((looking-at "(+\\(\\(?:\\sw\\|\\s_\\)+\\)\\_>")
+      (match-string-no-properties 1))
+     (t
+      ""))))
 
 (defvar ivy-history nil
   "History list of candidates entered in the minibuffer.
