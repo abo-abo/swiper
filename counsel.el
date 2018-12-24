@@ -2425,6 +2425,39 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :caller 'counsel-rpm)))
 
 ;;** `counsel-file-jump'
+(defun counsel--list-files (find-command dir-command dir)
+  (cond ((executable-find find-program)
+         (split-string
+          (shell-command-to-string
+           (concat find-program find-command))
+          "\n" t))
+        ((memq system-type '(ms-dos windows-nt))
+         (mapcar (lambda (fullpath)
+                   (string-remove-prefix dir
+                                         (expand-file-name fullpath)))
+                 (split-string
+                  (shell-command-to-string
+                   dir-command)
+                  "\n" t)))
+        (t
+         (error "counsel--file-jump-function: not compatible"))))
+
+(defun counsel--file-jump-function (dir)
+  "Compute the list of files below DIR.
+
+The content of .git subdirectories are omitted."
+  (counsel--list-files " . -type f -not -path '*\/.git\/*'"
+                       "dir /s/b/A:-D | findstr /V .git\\"
+                       dir))
+
+(defun counsel--dir-jump-function (dir)
+  "Compute the list of directories below DIR.
+
+The content of .git subdirectories are omitted."
+  (counsel--list-files " . -type d -not -path '*\/.git\/*'"
+                       "dir /s/b/A:D | findstr /V .git\\"
+                       dir))
+
 ;;;###autoload
 (defun counsel-file-jump (&optional initial-input initial-directory)
   "Jump to a file below the current directory.
@@ -2435,13 +2468,9 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (read-directory-name "From directory: "))))
-  (counsel-require-program "find")
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (split-string
-               (shell-command-to-string
-                (concat find-program " * -type f -not -path '*\/.git*'"))
-               "\n" t)
+              (counsel--file-jump-function default-directory)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (x)
@@ -2464,13 +2493,9 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (read-directory-name "From directory: "))))
-  (counsel-require-program "find")
   (let* ((default-directory (or initial-directory default-directory)))
     (ivy-read "Directory: "
-              (split-string
-               (shell-command-to-string
-                (concat find-program " * -type d -not -path '*\/.git*'"))
-               "\n" t)
+              (counsel--dir-jump-function dir)
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
               :caller 'counsel-dired-jump)))
