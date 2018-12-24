@@ -1663,7 +1663,7 @@ like.")
     (ivy--regex-plus . ivy--highlight-default))
   "An alist of highlighting functions for each regex buidler function.")
 
-(defvar ivy-initial-inputs-alist
+(defcustom ivy-initial-inputs-alist
   '((org-refile . "^")
     (org-agenda-refile . "^")
     (org-capture-refile . "^")
@@ -1676,7 +1676,9 @@ like.")
   "An alist associating commands with their initial input.
 
 Each cdr is either a string or a function called in the context
-of a call to `ivy-read'.")
+of a call to `ivy-read'."
+  :type '(alist :key-type (symbol)
+                :value-type (choice (string) (function))))
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
