@@ -2425,19 +2425,41 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :caller 'counsel-rpm)))
 
 ;;** `counsel-file-jump'
+(defcustom counsel-file-jump-ignored-directories
+  '(".svn" ".git" ".hg")
+  "List of names of sub-directories excluded from file jumping.
+
+Files in directories with any of these names are not candidates
+for `counsel-file-jump' and `counsel-dir-jump'."
+  :type '(choice (repeat string)))
+
+(defun counsel--find-dir-mask (dirs)
+  (concat " -not "
+          (shell-quote-argument "(")
+          " -path "
+          (mapconcat
+           (lambda (d) (shell-quote-argument (concat "*/" d "/*")))
+           dirs
+           " -o -path ")
+          " "
+          (shell-quote-argument ")")
+          " -prune "))
+
+(defun counsel--dir.exe-dir-mask (dirs)
+  (concat "/V "
+          (mapconcat
+           (lambda (d) (concat "/C:" d "\\"))
+           dirs
+           " ")))
+
 (defun counsel--list-files (find-command dir-command dir)
   (cond ((executable-find find-program)
-         (split-string
-          (shell-command-to-string
-           (concat find-program find-command))
+         (split-string (shell-command-to-string find-command)
           "\n" t))
         ((memq system-type '(ms-dos windows-nt))
          (mapcar (lambda (fullpath)
-                   (string-remove-prefix dir
-                                         (expand-file-name fullpath)))
-                 (split-string
-                  (shell-command-to-string
-                   dir-command)
+                   (string-remove-prefix dir (expand-file-name fullpath)))
+                 (split-string (shell-command-to-string dir-command)
                   "\n" t)))
         (t
          (error "counsel--file-jump-function: not compatible"))))
@@ -2445,17 +2467,29 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel--file-jump-function (dir)
   "Compute the list of files below DIR.
 
-The content of .git subdirectories are omitted."
-  (counsel--list-files " . -type f -not -path '*\/.git\/*'"
-                       "dir /s/b/A:-D | findstr /V .git\\"
+The content of subdirectories of members of
+`counsel-file-jump-ignored-directories' are omitted."
+  (counsel--list-files (format "%s . -type f %s"
+                               find-program
+                               (counsel--find-dir-mask
+                                counsel-file-jump-ignored-directories))
+                       (format "dir /s/b/A:-D | findstr %s"
+                               (counsel--dir.exe-dir-mask
+                                counsel-file-jump-ignored-directories))
                        dir))
 
 (defun counsel--dir-jump-function (dir)
   "Compute the list of directories below DIR.
 
-The content of .git subdirectories are omitted."
-  (counsel--list-files " . -type d -not -path '*\/.git\/*'"
-                       "dir /s/b/A:D | findstr /V .git\\"
+The content of subdirectories of members of
+`counsel-file-jump-ignored-directories' are omitted."
+  (counsel--list-files (format "%s . -type d %s"
+                               find-program
+                               (counsel--find-dir-mask
+                                counsel-file-jump-ignored-directories))
+                       (format "dir /s/b/A:D | findstr %s"
+                               (counsel--dir.exe-dir-mask
+                                counsel-file-jump-ignored-directories))
                        dir))
 
 ;;;###autoload
