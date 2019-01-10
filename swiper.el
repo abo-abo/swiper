@@ -300,6 +300,8 @@
     circe-channel-mode
     circe-server-mode
     circe-query-mode
+    matrix-client-mode
+    matrix-client-room-list-mode
     sauron-mode
     w3m-mode)
   "List of major-modes that are incompatible with `font-lock-ensure'.")
