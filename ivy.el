@@ -1506,6 +1506,29 @@ This string is inserted into the minibuffer."
 (eval-after-load 'avy
   '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
 
+(defun ivy--avy-candidates ()
+  (let (candidates)
+    (save-excursion
+      (save-restriction
+        (narrow-to-region
+         (window-start)
+         (window-end))
+        (goto-char (point-min))
+        (forward-line)
+        (while (< (point) (point-max))
+          (push
+           (cons (point)
+                 (selected-window))
+           candidates)
+          (forward-line))))
+    (nreverse candidates)))
+
+(defun ivy--avy-action (pt)
+  (when (number-or-marker-p pt)
+    (ivy--done
+     (substring-no-properties
+      (nth (- (line-number-at-pos pt) 2) ivy--old-cands)))))
+
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
   (interactive)
@@ -1514,32 +1537,11 @@ This string is inserted into the minibuffer."
   (let* ((avy-all-windows nil)
          (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
                        avy-keys))
-         (avy-style (or (cdr (assq 'ivy-avy
-                                   avy-styles-alist))
+         (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
                         avy-style))
-         (candidate
-          (let ((candidates))
-            (save-excursion
-              (save-restriction
-                (narrow-to-region
-                 (window-start)
-                 (window-end))
-                (goto-char (point-min))
-                (forward-line)
-                (while (< (point) (point-max))
-                  (push
-                   (cons (point)
-                         (selected-window))
-                   candidates)
-                  (forward-line))))
-            (setq avy-action #'identity)
-            (avy--process
-             (nreverse candidates)
-             (avy--style-fn avy-style)))))
-    (when (number-or-marker-p candidate)
-      (ivy--done
-       (substring-no-properties
-        (nth (- (line-number-at-pos candidate) 2) ivy--old-cands))))))
+         (avy-action #'ivy--avy-action))
+    (avy--process
+     (ivy--avy-candidates))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
