@@ -5016,6 +5016,28 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
+(defun counsel--switch-buffer-update-fn ()
+  (let ((current (ivy-state-current ivy-last)))
+    ;; This check is necessary, otherwise typing into the completion
+    ;; would create empty buffers.
+    (if (get-buffer current)
+        (ivy-call)
+      (with-ivy-window
+        (switch-to-buffer (ivy-state-buffer ivy-last))))))
+
+;;;###autoload
+(defun counsel-switch-buffer ()
+  "Switch to another buffer.
+Display a preview of the selected ivy completion candidate buffer
+in the current window."
+  (interactive)
+  (ivy-read "Switch to buffer: " 'internal-complete-buffer
+            :preselect (buffer-name (other-buffer (current-buffer)))
+            :action #'ivy--switch-buffer-action
+            :matcher #'ivy--switch-buffer-matcher
+            :caller 'counsel-switch-buffer
+            :update-fn 'counsel--switch-buffer-update-fn))
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
