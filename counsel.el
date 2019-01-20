@@ -5016,14 +5016,28 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
+(defvar counsel--switch-buffer-temporary-buffers nil
+  "Internal.")
+
+(defun counsel--switch-buffer-unwind ()
+  "Clear temporary file buffers.
+The buffers are those opened during a session of `counsel-switch-buffer'."
+  (while counsel--switch-buffer-temporary-buffers
+    (let ((buf (pop counsel--switch-buffer-temporary-buffers)))
+      (kill-buffer buf))))
+
 (defun counsel--switch-buffer-update-fn ()
   (let ((current (ivy-state-current ivy-last)))
     ;; This check is necessary, otherwise typing into the completion
     ;; would create empty buffers.
     (if (get-buffer current)
         (ivy-call)
-      (with-ivy-window
-        (switch-to-buffer (ivy-state-buffer ivy-last))))))
+      (if (and ivy-use-virtual-buffers (file-exists-p current))
+          (let ((buf (find-file-noselect current)))
+            (push buf counsel--switch-buffer-temporary-buffers)
+            (ivy-call))
+        (with-ivy-window
+          (switch-to-buffer (ivy-state-buffer ivy-last)))))))
 
 ;;;###autoload
 (defun counsel-switch-buffer ()
@@ -5036,6 +5050,7 @@ in the current window."
             :action #'ivy--switch-buffer-action
             :matcher #'ivy--switch-buffer-matcher
             :caller 'counsel-switch-buffer
+            :unwind #'counsel--switch-buffer-unwind
             :update-fn 'counsel--switch-buffer-update-fn))
 
 ;;* `counsel-mode'
