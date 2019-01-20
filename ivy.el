@@ -3550,7 +3550,7 @@ CANDS is a list of strings."
         (unless (or (equal name "")
                     (get-file-buffer file-name)
                     (assoc name virtual-buffers))
-          (push (cons name file-name) virtual-buffers))))
+          (push (cons (copy-sequence name) file-name) virtual-buffers))))
     (when virtual-buffers
       (dolist (comp virtual-buffers)
         (put-text-property 0 (length (car comp))
