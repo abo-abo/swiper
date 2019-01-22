@@ -2902,7 +2902,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defun counsel--org-make-tag-string ()
   (if (fboundp #'org-make-tag-string)
       ;; >= Org 9.2
-      (org-make-tag-string (org-get-tags))
+      (org-make-tag-string (counsel--org-get-tags))
     (with-no-warnings
       (org-get-tags-string))))
 
@@ -2986,7 +2986,7 @@ otherwise continue prompting for tags."
                        (goto-char m)
                        (setq counsel-org-tags
                              (delete-dups
-                              (append (org-get-tags) add-tags)))
+                              (append (counsel--org-get-tags) add-tags)))
                        (counsel-org--set-tags))))))
            (counsel-org--set-tags)))
         ((eq this-command 'ivy-call)
@@ -3013,6 +3013,11 @@ otherwise continue prompting for tags."
 (declare-function org-tags-completion-function "org")
 
 ;;;###autoload
+(defun counsel--org-get-tags ()
+  (delete "" (condition-case nil
+                 (org-get-tags nil t)
+               (error (org-get-tags)))))
+
 (defun counsel-org-tag ()
   "Add or remove tags in `org-mode'."
   (interactive)
@@ -3024,10 +3029,10 @@ otherwise continue prompting for tags."
                               (org-agenda-error))))
             (with-current-buffer (marker-buffer hdmarker)
               (goto-char hdmarker)
-              (setq counsel-org-tags (delete "" (org-get-tags))))))
+              (setq counsel-org-tags (counsel--org-get-tags)))))
       (unless (org-at-heading-p)
         (org-back-to-heading t))
-      (setq counsel-org-tags (delete "" (org-get-tags))))
+      (setq counsel-org-tags (counsel--org-get-tags)))
     (let ((org-last-tags-completion-table
            (append (and (or org-complete-tags-always-offer-all-agenda-tags
                             (eq major-mode 'org-agenda-mode))
