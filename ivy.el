@@ -1680,6 +1680,12 @@ like.")
 Each cdr is either a string or a function called in the context
 of a call to `ivy-read'.")
 
+(defcustom ivy-hooks-alist nil
+  "An alist associating commands to setup functions.
+Examples: `toggle-input-method', (lambda () (insert \"^\")), etc.
+May supersede `ivy-initial-inputs-alist'."
+  :type '(alist :key-type symbol :value-type function))
+
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
   :type 'integer)
@@ -2586,6 +2592,9 @@ tries to ensure that it does not change depending on the number of candidates."
     (when height
       (set-window-text-height nil height)))
   (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
+  (let ((hook (ivy-alist-setting ivy-hooks-alist)))
+    (when (functionp hook)
+      (funcall hook)))
   ;; Show completions with empty input.
   (ivy--exhibit))
 
