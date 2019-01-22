@@ -301,7 +301,8 @@
     circe-server-mode
     circe-query-mode
     sauron-mode
-    w3m-mode)
+    w3m-mode
+    deadgrep-mode)
   "List of major-modes that are incompatible with `font-lock-ensure'.")
 
 (defun swiper-font-lock-ensure-p ()
