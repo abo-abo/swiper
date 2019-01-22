@@ -44,6 +44,11 @@
 (require 'compile)
 (require 'dired)
 
+(defgroup counsel nil
+  "Completion functions using Ivy."
+  :group 'matching
+  :prefix "counsel-")
+
 ;;* Utility
 (define-obsolete-variable-alias 'counsel-more-chars-alist 'ivy-more-chars-alist "0.10.0")
 
@@ -211,8 +216,7 @@ respectively."
 
 (defcustom counsel-async-filter-update-time 500000
   "The amount of microseconds to wait until updating `counsel--async-filter'."
-  :type 'integer
-  :group 'ivy)
+  :type 'integer)
 
 (defun counsel--async-filter (process str)
   "Receive from PROCESS the output STR.
@@ -487,8 +491,7 @@ Used by commands `counsel-describe-variable' and
 
 (defcustom counsel-describe-variable-function #'describe-variable
   "Function to call to describe a variable passed as parameter."
-  :type 'function
-  :group 'ivy)
+  :type 'function)
 
 (defun counsel-describe-variable-transformer (var)
   "Propertize VAR if it's a custom variable."
@@ -526,8 +529,7 @@ Variables declared using `defcustom' are highlighted according to
 
 (defcustom counsel-describe-function-function #'describe-function
   "Function to call to describe a function passed as parameter."
-  :type 'function
-  :group 'ivy)
+  :type 'function)
 
 (defun counsel-describe-function-transformer (function-name)
   "Propertize FUNCTION-NAME if it's an interactive function."
@@ -544,7 +546,6 @@ Variables declared using `defcustom' are highlighted according to
 
 (defcustom counsel-describe-function-preselect #'ivy-thing-at-point
   "Determine what `counsel-describe-function' should preselect."
-  :group 'ivy
   :type '(radio
           (function-item ivy-thing-at-point)
           (function-item ivy-function-called-at-point)))
@@ -1068,8 +1069,7 @@ BUFFER defaults to the current one."
 ;;** `counsel-describe-face'
 (defcustom counsel-describe-face-function #'describe-face
   "Function to call to describe a face or face name argument."
-  :type 'function
-  :group 'ivy)
+  :type 'function)
 
 (defun counsel--face-at-point ()
   "Return name of face around point.
@@ -1249,8 +1249,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defcustom counsel-grep-post-action-hook nil
   "Hook that runs after the point moves to the next candidate.
 Typical value: '(recenter)."
-  :type 'hook
-  :group 'ivy)
+  :type 'hook)
 
 (defun counsel-git-grep-function (str &optional _pred &rest _unused)
   "Grep in the current git repository for STRING."
@@ -1758,8 +1757,7 @@ currently checked out."
 
 (defcustom counsel-root-command "sudo"
   "Command to gain root privileges."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 (defun counsel-find-file-as-root (x)
   "Find file X with root privileges."
@@ -1827,13 +1825,11 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defcustom counsel-find-file-at-point nil
   "When non-nil, add file-at-point to the list of candidates."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (defcustom counsel-preselect-current-file nil
   "When non-nil, preselect current file in list of candidates."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (defcustom counsel-find-file-ignore-regexp nil
   "A regexp of files to ignore while in `counsel-find-file'.
@@ -1847,7 +1843,6 @@ Choosing the dotfiles option, \"\\`\\.\", might be convenient,
 since you can still access the dotfiles if your input starts with
 a dot. The generic way to toggle ignored files is \\[ivy-toggle-ignore],
 but the leading dot is a lot faster."
-  :group 'ivy
   :type `(choice
           (const :tag "None" nil)
           (const :tag "Dotfiles" "\\`\\.")
@@ -2092,8 +2087,7 @@ result as a URL."
 (defcustom counsel-bookmark-avoid-dired nil
   "If non-nil, open directory bookmarks with `counsel-find-file'.
 By default `counsel-bookmark' opens a dired buffer for directories."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (defvar bookmark-alist)
 (declare-function bookmark-location "bookmark")
@@ -2215,7 +2209,6 @@ can use `C-x r j i' to open that file."
 
 The function takes a string - the current input, and returns a
 string - the full shell command to run."
-  :group 'ivy
   :type '(choice
           (const :tag "Default" counsel-locate-cmd-default)
           (const :tag "No regex" counsel-locate-cmd-noregex)
@@ -2426,8 +2419,7 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defcustom counsel-file-jump-args "* -type f -not -path '*\/.git*'"
   "Arguments for the `find-command' when using `counsel-file-jump'."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 ;;** `counsel-file-jump'
 ;;;###autoload
@@ -2460,8 +2452,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
 
 (defcustom counsel-dired-jump-args "* -type f -not -path '*\/.git*'"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 ;;** `counsel-dired-jump'
 ;;;###autoload
@@ -2521,8 +2512,7 @@ It applies no filtering to ivy--all-candidates."
   "Format string to use in `counsel-ag-function' to construct the command.
 The %s will be replaced by optional extra ag arguments followed by the
 regex string."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 (defvar counsel-ag-command nil)
 
@@ -2646,8 +2636,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 ;;** `counsel-pt'
 (defcustom counsel-pt-base-command "pt --nocolor --nogroup -e %s"
   "Alternative to `counsel-ag-base-command' using pt."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 ;;;###autoload
 (defun counsel-pt (&optional initial-input)
@@ -2667,8 +2656,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
     (or (executable-find "ack-grep") "ack"))
    " --nocolor --nogroup %s")
   "Alternative to `counsel-ag-base-command' using ack."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 ;;;###autoload
 (defun counsel-ack (&optional initial-input)
@@ -2686,8 +2674,7 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
   "Alternative to `counsel-ag-base-command' using ripgrep.
 
 Note: don't use single quotes for the regex."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
 (ivy-set-occur 'counsel-rg 'counsel-ag-occur)
@@ -2718,8 +2705,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 It should contain two %-sequences (see function `format') to be
 substituted by the search regexp and file, respectively.  Neither
 %-sequence should be contained in single quotes."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 (defvar counsel-grep-command nil)
 
@@ -2825,8 +2811,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   "Buffer size threshold for `counsel-grep-or-swiper'.
 When the number of characters in a buffer exceeds this threshold,
 `counsel-grep' will be used instead of `swiper'."
-  :type 'integer
-  :group 'ivy)
+  :type 'integer)
 
 ;;;###autoload
 (defun counsel-grep-or-swiper (&optional initial-input)
@@ -3069,21 +3054,18 @@ otherwise continue prompting for tags."
 
 (defcustom counsel-org-headline-display-tags nil
   "If non-nil, display tags in matched `org-mode' headlines."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (define-obsolete-variable-alias 'counsel-org-goto-display-todo
     'counsel-org-headline-display-todo "0.10.0")
 
 (defcustom counsel-org-headline-display-todo nil
   "If non-nil, display todo keywords in matched `org-mode' headlines."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (defcustom counsel-org-headline-display-priority nil
   "If non-nil, display priorities in matched `org-mode' headlines."
-  :type 'boolean
-  :group 'ivy)
+  :type 'boolean)
 
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
@@ -3290,8 +3272,7 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
   :type '(choice
           (const :tag "Title only" title)
           (const :tag "Headline" headline)
-          (const :tag "Path" path))
-  :group 'ivy)
+          (const :tag "Path" path)))
 
 (define-obsolete-variable-alias 'counsel-org-goto-separator
     'counsel-outline-path-separator "0.10.0")
@@ -3302,8 +3283,7 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
   "String separating path entries in matched outline headings.
 This variable has no effect unless
 `counsel-outline-display-style' is set to `path'."
-  :type 'string
-  :group 'ivy)
+  :type 'string)
 
 (declare-function org-get-outline-path "org")
 
@@ -3511,8 +3491,7 @@ Additional actions:\\<ivy-minibuffer-map>
 ;;** `counsel-yank-pop'
 (defcustom counsel-yank-pop-truncate-radius 2
   "Number of context lines around `counsel-yank-pop' candidates."
-  :type 'integer
-  :group 'ivy)
+  :type 'integer)
 
 (defun counsel--yank-pop-truncate (str)
   "Truncate STR for use in `counsel-yank-pop'."
@@ -3541,7 +3520,6 @@ Additional actions:\\<ivy-minibuffer-map>
 
 (defcustom counsel-yank-pop-separator "\n"
   "Separator for the kill ring strings in `counsel-yank-pop'."
-  :group 'ivy
   :type '(choice
           (const :tag "Plain" "\n")
           (const :tag "Dashes" "\n----\n")
@@ -3554,7 +3532,6 @@ Additional actions:\\<ivy-minibuffer-map>
 
 (defcustom counsel-yank-pop-height 5
   "The `ivy-height' of `counsel-yank-pop'."
-  :group 'ivy
   :type 'integer)
 
 (defun counsel--yank-pop-format-function (cand-pairs)
@@ -3591,7 +3568,6 @@ Newlines and carriage returns are considered blank."
 All elements of `kill-ring' for which this function returns nil
 will be destructively removed from `kill-ring' before completion.
 All blank strings are deleted from `kill-ring' by default."
-  :group 'ivy
   :type '(radio
           (function-item counsel-string-non-blank-p)
           (function-item identity)
@@ -3619,7 +3595,6 @@ Nil means `counsel-yank-pop' puts point at the end of the yanked
 text and mark at its beginning, as per the default \\[yank].
 Non-nil means `counsel-yank-pop' swaps the resulting point and
 mark, as per \\[universal-argument] \\[yank]."
-  :group 'ivy
   :type 'boolean)
 
 (defun counsel-yank-pop-action (s)
@@ -3676,7 +3651,6 @@ prefix argument of `counsel-yank-pop' defaults to 1 (as per
 `yank-pop'), which causes the next-to-last kill to be
 preselected.  Otherwise, the prefix argument defaults to 0, which
 results in the most recent kill being preselected."
-  :group 'ivy
   :type 'boolean)
 
 (autoload 'xor "array")
@@ -3727,7 +3701,6 @@ Note: Duplicate elements of `kill-ring' are always deleted."
 
 (defcustom counsel-evil-registers-height 5
   "The `ivy-height' of `counsel-evil-registers'."
-  :group 'ivy
   :type 'integer)
 
 (defun counsel-evil-registers ()
@@ -4084,8 +4057,7 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
           (const :tag "Same as org-mode" org)
           (const :tag "Verbatim" verbatim)
           (const :tag "Custom" custom)
-          (const :tag "No style" nil))
-  :group 'ivy)
+          (const :tag "No style" nil)))
 
 (define-obsolete-variable-alias 'counsel-org-goto-custom-faces
     'counsel-outline-custom-faces "0.10.0")
@@ -4099,8 +4071,7 @@ entry in this list will not be styled.
 
 This variable has no effect unless `counsel-outline-face-style'
 is set to `custom'."
-  :type '(repeat face)
-  :group 'ivy)
+  :type '(repeat face))
 
 (defvar counsel-outline-settings
   '((emacs-lisp-mode
@@ -4735,14 +4706,12 @@ selected color."
           (cons (counsel--xdg-data-home)
                 (counsel--xdg-data-dirs)))
   "Directories in which to search for applications (.desktop files)."
-  :group 'ivy
   :type '(repeat directory))
 
 (defcustom counsel-linux-app-format-function #'counsel-linux-app-format-function-default
   "Function to format Linux application names the `counsel-linux-app' menu.
 The format function will be passed the application's name, comment, and command
 as arguments."
-  :group 'ivy
   :type '(choice
           (const :tag "Command : Name - Comment" counsel-linux-app-format-function-default)
           (const :tag "Name - Comment (Command)" counsel-linux-app-format-function-name-first)
@@ -5037,7 +5006,6 @@ Remaps built-in functions to counsel replacements.")
 
 (defcustom counsel-mode-override-describe-bindings nil
   "Whether to override `describe-bindings' when `counsel-mode' is active."
-  :group 'ivy
   :type 'boolean)
 
 ;;;###autoload
@@ -5049,7 +5017,6 @@ replacements.
 
 Local bindings (`counsel-mode-map'):
 \\{counsel-mode-map}"
-  :group 'ivy
   :global t
   :keymap counsel-mode-map
   :lighter " counsel"
