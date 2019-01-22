@@ -257,54 +257,54 @@
     (recenter-top-bottom arg)))
 
 (defvar swiper-font-lock-exclude
-  '(bbdb-mode
+  '(Man-mode
+    adoc-mode
+    bbdb-mode
+    bongo-library-mode
+    bongo-mode
+    bongo-playlist-mode
     bookmark-bmenu-mode
-    package-menu-mode
-    gnus-summary-mode
-    gnus-article-mode
-    gnus-group-mode
-    emms-playlist-mode
-    emms-stream-mode
-    eshell-mode
-    erc-mode
-    forth-mode
-    forth-block-mode
-    helpful-mode
-    nix-mode
-    org-agenda-mode
+    circe-channel-mode
+    circe-query-mode
+    circe-server-mode
+    deadgrep-mode
+    debbugs-gnu-mode
     dired-mode
-    jabber-chat-mode
     elfeed-search-mode
     elfeed-show-mode
-    fundamental-mode
-    Man-mode
-    woman-mode
-    mu4e-view-mode
-    mu4e-headers-mode
-    notmuch-tree-mode
-    notmuch-search-mode
-    help-mode
-    debbugs-gnu-mode
-    occur-mode
-    occur-edit-mode
-    bongo-mode
-    bongo-library-mode
-    magit-popup-mode
-    adoc-mode
-    bongo-playlist-mode
+    emms-playlist-mode
+    emms-stream-mode
+    erc-mode
+    eshell-mode
     eww-mode
+    forth-block-mode
+    forth-mode
+    fundamental-mode
+    gnus-article-mode
+    gnus-group-mode
+    gnus-summary-mode
+    help-mode
+    helpful-mode
+    jabber-chat-mode
+    magit-popup-mode
+    matrix-client-mode
+    matrix-client-room-list-mode
+    mu4e-headers-mode
+    mu4e-view-mode
+    nix-mode
+    notmuch-search-mode
+    notmuch-tree-mode
+    occur-edit-mode
+    occur-mode
+    org-agenda-mode
+    package-menu-mode
+    rcirc-mode
+    sauron-mode
     treemacs-mode
     twittering-mode
     vc-dir-mode
-    rcirc-mode
-    circe-channel-mode
-    circe-server-mode
-    circe-query-mode
-    matrix-client-mode
-    matrix-client-room-list-mode
-    sauron-mode
     w3m-mode
-    deadgrep-mode)
+    woman-mode)
   "List of major-modes that are incompatible with `font-lock-ensure'.")
 
 (defun swiper-font-lock-ensure-p ()
