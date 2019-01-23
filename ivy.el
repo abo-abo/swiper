@@ -3817,9 +3817,16 @@ BUFFER may be a string or nil."
                             #'counsel-find-file
                           #'find-file))))
 
+(defun ivy--kill-buffer-or-virtual (buffer)
+  (if (get-buffer buffer)
+      (kill-buffer buffer)
+    (setq recentf-list (delete
+                        (cdr (assoc buffer ivy--virtual-buffers))
+                        recentf-list))))
+
 (defun ivy--kill-buffer-action (buffer)
   "Kill BUFFER."
-  (kill-buffer buffer)
+  (ivy--kill-buffer-or-virtual buffer)
   (unless (buffer-live-p (ivy-state-buffer ivy-last))
     (setf (ivy-state-buffer ivy-last) (current-buffer)))
   (setq ivy--index 0)
@@ -3834,8 +3841,7 @@ BUFFER may be a string or nil."
   "Kill the current buffer in `ivy-switch-buffer'."
   (interactive)
   (let ((bn (ivy-state-current ivy-last)))
-    (when (get-buffer bn)
-      (kill-buffer bn))
+    (ivy--kill-buffer-or-virtual bn)
     (unless (buffer-live-p (ivy-state-buffer ivy-last))
       (setf (ivy-state-buffer ivy-last)
             (with-ivy-window (current-buffer))))
