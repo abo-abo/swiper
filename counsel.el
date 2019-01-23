@@ -1980,6 +1980,11 @@ further, make the remote prefix editable"
       (setf (ivy-state-preselect ivy-last)
             (file-name-as-directory (file-name-nondirectory cur-dir))))))
 
+(defun counsel-down-directory ()
+  "Descend into the current directory."
+  (interactive)
+  (ivy--directory-enter))
+
 (defun counsel-at-git-issue-p ()
   "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")

@@ -879,6 +879,15 @@ When t, it is the same as if the user were prompted and selected the candidate
 by calling the default action.  This variable has no use unless the collection
 contains a single candidate.")
 
+(defun ivy--directory-enter ()
+  (let (dir)
+    (when (and
+           (> ivy--length 0)
+           (not (string= (ivy-state-current ivy-last) "./"))
+           (setq dir (ivy-expand-file-if-directory (ivy-state-current ivy-last))))
+      (ivy--cd dir)
+      (ivy--exhibit))))
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let (dir)
@@ -887,12 +896,7 @@ contains a single candidate.")
        (setq dir (concat ivy-text (expand-file-name ivy--directory)))
        (ivy--cd dir)
        (ivy--exhibit))
-      ((and
-        (> ivy--length 0)
-        (not (string= (ivy-state-current ivy-last) "./"))
-        (setq dir (ivy-expand-file-if-directory (ivy-state-current ivy-last))))
-       (ivy--cd dir)
-       (ivy--exhibit))
+      ((ivy--directory-enter))
       ((unless (string= ivy-text "")
          (let ((file (expand-file-name
                       (if (> ivy--length 0) (ivy-state-current ivy-last) ivy-text)
