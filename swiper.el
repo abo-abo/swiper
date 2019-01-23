@@ -222,7 +222,9 @@
                              (buffer-substring-no-properties
                               (line-beginning-position)
                               (line-end-position)))))
-            (ivy-set-index (cl-position cand-text ivy--old-cands :test #'string=))
+            (ivy-set-index (cl-position-if
+                            (lambda (x) (cl-search x cand-text))
+                            ivy--old-cands))
             (ivy--exhibit)
             (ivy-done)
             (ivy-call))
