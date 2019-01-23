@@ -6,8 +6,14 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Ivy: (ivy).
 #+TEXINFO_DIR_DESC: Using Ivy for completion.
-#+SETUPFILE: ~/git/org-html-themes/setup/theme-readtheorg.setup
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+
+#+HTML_HEAD: <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+#+HTML_HEAD: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+#+HTML_HEAD: <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/lib/js/jquery.stickytableheaders.min.js"></script>
+#+HTML_HEAD: <script type="text/javascript" src="https://fniessen.github.io/org-html-themes/styles/readtheorg/js/readtheorg.js"></script>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/htmlize.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/readtheorg.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/kbd-style.css"/>
 #+OPTIONS: H:6 num:6 toc:4
 #+STARTUP: indent
 * Setup                                                                               :noexport:
