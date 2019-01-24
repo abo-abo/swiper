@@ -3610,6 +3610,634 @@ Switch to one of the window views stored by =ivy-push-view=.
 You can use it separately from =ivy-switch-buffer= now.
 See [[https://github.com/abo-abo/swiper/issues/929][#929]], [[https://github.com/abo-abo/swiper/issues/1109][#1109]].
 -----
+* 0.11.0
+:PROPERTIES:
+:CUSTOM_ID: 0-11-0
+:END:
+-----
+** Fixes
+:PROPERTIES:
+:CUSTOM_ID: 0-11-0-fixes
+:END:
+*** counsel-org-files
+Support =org-attach-directory= variable. See #1340.
+
+Use =org-attach= API. See #1345.
+*** counsel-org-agenda-headlines
+Require org. See #1642.
+*** counsel-org-tag
+Fix for Org 9. See #1654, #1656, #1896.
+
+No need to bind =org-setting-tags=. See #1656.
+*** counsel-find-file
+Don't treat URLs as dirs. See #1398.
+
+Allow use of "$" in dirs. See #1316.
+
+Fix for ignore-order. See #1466.
+
+Fix file expansion. See #1494.
+
+Fix =ivy-resume= not working when the current candidate was a
+directory. See #1508
+
+=counsel-find-file-mkdir-action= should use =ivy-text=. See #1513.
+
+Fix dir or file logic error. See #1103, #1623.
+
+Fix inability to create a file. See #1623.
+
+Fix issue of minibuffer height 1. See #1667.
+
+Remove the change to =post-command-hook= by ESS. See #1660.
+
+Update minibuffer state after =counsel-find-file-delete=. See #1726.
+
+Fix for partial match of TRAMP method.
+
+Fix Emacs26 regression when completing TRAMP methods. See #1733.
+
+Fix Emacs25/26 compat for =ivy--cd=.
+
+Avoid TRAMP related errors in ZIP files. See #1797.
+
+*** counsel-org-capture
+Don't overlook templates contexts. See #1669.
+
+*** ivy
+Disable =ivy-auto-select-single-candidate= for user@host entry.
+See #1326, #1338.
+
+Handle =ivy-state-buffer= getting killed. See #572
+
+Correct highlighting for negation, e.g. =counsel-M-x= "vi mo!ew".
+See #1418.
+
+Fold case during index recomputation. See #1447, #1449.
+
+Simplify string splitting logic. See #1453.
+
+Fix =:preselect= getting deselected with new input. When there's new
+input, and it still matches =:preselect=, the current candidate should
+not change.
+
+Handle fallback in =ivy--sort-function=. See #1561, #1565, #1567.
+
+=ivy--sort-function= should handle anonymous fns. See #1574.
+
+Use =ivy-sort-max-size= for collection functions. See #1592.
+
+Use =copy-sequence= when sorting to avoid corrupting external data.
+See #1617.
+
+Default =:caller= to =this-command=. See #1297, #1606, #1619, #1621.
+
+=ivy-call= should restore previous buffer. See #1607.
+
+=ivy--insert-prompt= should use =ivy-add-face-text-property= for
+compat. See #1634.
+
+Use compat shim for =add-face-text-property=. See #1635.
+
+Move =colir= require to top-level to improve performance. See #1571.
+
+Fix =:predicate= not getting applied. See #1158.
+
+Drop preselected candidate after input. See #1563, #1573.
+
+Fix =ivy-left-pad= when there's horizontal scroll.
+
+Fix =ivy-state-collection= alist idx not in sync. See #1680.
+
+Support :annotation-function of completion-extra-properties.
+See #1489.
+
+Fix for alists that require sorting. See #1687.
+
+Fontify completion annotations. See #1489, #1702.
+
+Filter sorted alist. See #1705.
+
+Avoid modifying alist collection. See #1706.
+
+Use =string-match-p= where applicable. See #1517.
+
+Strip text properties from returned alist candidate. See #1706, #1724.
+
+Don't trigger =ivy--magic-file-slash= from ~TAB~. See #1716.
+
+Fix for terminals. See #199, #1528, #1728.
+
+Fix overlay intracting with org-mode src blocks. See #1732.
+
+Don't restore buffer after action. See #1766, #1767.
+
+Remove webjump =completing-read= handler. See #1802, #1049.
+
+Use =ivy-truncate-lines= also for non-graphical Emacs. See #1809.
+
+For non-graphical Emacs set resize-mini-windows to 'grow-only.
+See #1809.
+
+Fix minibuffer truncation and resizing. See #1811.
+
+Work around void =Info-complete-menu-buffer=. See #1814.
+
+Handle Windows path separator for =ivy-occur=. See #1817.
+
+Don't switch to a killed buffer for =ivy-occur-press=.
+See #1834, #1842.
+
+Improve performance =ivy--select-occur-buffer= by avoiding
+=pop-to-buffer=.
+
+Use =all-completions= and add test. See #1832.
+
+Do not let ivy virtual buffer faces creep into the recentf file. See #1898.
+
+
+*** ivy--occur-insert-lines
+Fix incorrect regexp. See #1846.
+
+Speed up regex from 5s to 0.01s for 4000 cands.
+*** ivy-occur-press
+Don't hard-code =display-buffer=. See #1838, #1865.
+
+
+*** ivy-overlay-show-after
+Don't inherit existing face.
+See #1488, #1547, #1016, 1520, #1808, #1825.
+
+
+*** ivy-completing-read
+Add compat for non-string defaults. See #1526, #1810.
+
+Simplify. See #1606.
+*** ivy-string<
+Handle heterogeneous args. See #1743, #1744.
+
+*** counsel-grep
+Reject fileless buffers. See #1343
+
+Don't pass too long lines as =:preselect=. See #1644
+
+Obey current matcher. See #1801.
+
+*** counsel-org-goto
+Increase org-goto/org-agenda-headlines UI consistency. See #1324.
+
+Support older Org. See #1422, 1431.
+
+*** counsel-minibuffer-history
+Add =delete-dups=. See #1358
+
+*** counsel-yank-pop
+Liken to =yank-pop=. Respects =kill-ring-yank-pointer=. See #1190, #1356.
+
+Interoperate better with =kill-ring=. See #1133, #1360.
+
+Save =window-start= to avoid recentering of the buffer. See #1370.
+
+Make position more robust. See #1420.
+
+Make it work in read-only buffers. See #1523.
+
+Work with =interprogram-paste-function=. See #1523.
+
+*** ivy-completion-in-region
+Expand =(s-c-t-s)= appropriately. See #1361.
+
+Allow sorting. See #1432.
+
+Don't apply predicate twice. See #1648.
+
+*** ivy-rotate-preferred-builders
+Update in the documentation. See #1376.
+
+*** colir-blend-face-foreground
+Add hack for =:foreground=. Related to =ansi-color-apply=. See #1293.
+
+*** swiper
+Fix history modified on each char. Fix history duplicate. See #1391.
+
+Don't replace tabs with spaces (prevents =wgrep= from working
+correctly). See #1468.
+
+Allow =scroll-other-window= use. See #1504.
+
+Repace obsolte =isearch-lazy-highlight-face=. See #1591.
+
+Highlight multiple regexps correctly.
+See #654, #1550, #1551, #1587, #1600.
+
+Fix when re-builder returns list. See #1692.
+
+Add =inhibit-field-text-motion=. See #1713.
+
+Fix incorrect jump to first match. See #1791.
+*** swiper-avy
+Fix when there's scroll. See #1541.
+
+Fix off-by-one. See #1775.
+
+Fix for =ivy-format-function-arrow=. See #1885.
+
+*** counsel-git-grep
+Fix conflicting directories in two ivy-occur buffers. See #1392.
+
+Run count in base directory. See #1402.
+
+Rely on =du -s= for repo size. See #1402.
+
+Ignore =du= errors. See #1502.
+
+Run =du= only on =.git=.
+
+Call =du= directly. See #1502, #1827.
+
+*** counsel-locate-action-extern
+Use =start-process-shell-command=. See #1401.
+
+*** counsel-list-processes
+Don't mess up the current buffer with a header line.
+
+*** docs
+Fixed typos. See #1405, #1412, #1448, #1477, #1483, #1519, #1521,
+#1535, #1539, #1540, #1575, #1602, #1612, #1620, #1624, #1625, #1627,
+#1629, #1630, #1672, #1675, #1677, #1678, #1682, #1684, #1700, #1710,
+#1715, #1717, #1738, #1804, #1816, 1794, #1817, #1828, #1849.
+
+*** ivy--regex-plus
+Update and add test for "add path!" input. See #1418.
+
+Search "defun \([^ ]+\)" now works.
+*** ivy--regex-fuzzy
+Regexp-quote chars to improe performance for searches like
+".env.foo". See #1435.
+
+Generalize. Fix =ivy-occur= highlighting. See #1795.
+
+Optimize regex "(a).*?(b)" -> "(a)[^b]*(b)". See #848.
+
+*** ivy--regex-ignore-order
+Improve handling of invalid regexes. See #1545.
+
+*** counsel-colors-list
+Improve the display of the current candidate. See #921, #1436.
+
+Protect against invalid input. See #1854.
+
+*** ivy-thing-at-point
+Prevent error when =url-handler-mode= is on. See #1446.
+
+Strip text properties. See #1594.
+
+*** counsel-rg
+Store command persistently. See #1474.
+
+*** counsel
+Make process sentinels more robust. See #1483.
+
+Fix behavior on remote. See #1522.
+
+Extend unquote-regex-parens tests. See #1704, #1708, #1863.
+
+Use =counsel-async-split-string-re= more. See #1384, #1778.
+
+Use =start-file-process= for =counsel--async-command=. See #1821.
+
+=counsel--async-filter= should write candidates only in the
+minibuffer. See #1772, #1837, #1857.
+
+Robustify grep-like ivy-occur. See #1845, #1800, #1835
+
+*** swiper-multi
+Add text property =buffer= to candidates. See #1491, #1492.
+
+*** counsel-M-x
+Prefer "<f2>" over "C-x 6". See #1534.
+
+Add =counsel-key-binding= face. See #1548.
+
+*** counsel-fzf
+Add quotes to =counsel-fzf-cmd=. See #1544.
+
+Rmove 2nd prompt colon. See #1768.
+
+*** counsel-switch-to-shell-buffer
+Various improvements. See #1570.
+
+*** counsel-describe-face
+Add caller. See #1619.
+*** counsel-describe-function
+Fix erroring. See #1647, #1649.
+
+Describe also unbound but documented function symbols. See #1707.
+
+*** counsel-locate
+Fix for es.exe. Fixes #1633.
+
+Fix =xdg-open= on Ubuntu. See #863, #1401, #1759.
+
+Simplify =xdg-open= call. See #1537, #1759, #1760.
+
+*** counsel-ag
+Allow no space before "--" when specifying extra args. See #1498.
+
+Allow to override the minimum search term length. See #1780.
+
+Fix "./" issue. See #1841.
+
+*** counsel-outline
+Only look for outline regexp at bol. See #1681.
+
+*** counsel-bookmark
+Specify =:history=. See #1698.
+
+*** counsel-unicode-char
+Optimize. See #1704.
+
+*** counsel-find-library
+Check if dirs in =load-path= exist. See #1720.
+
+*** ivy-partial
+Can change current dir when completing files. See #86.
+
+*** counsel-company
+Unwind with =company-abort=. See #1793.
+
+*** ivy--magic-file-slash
+Misc fixes. See #1831.
+
+*** ivy--kill-buffer-action
+Remove virtual buffers from =recentf-list=. See #1888.
+
+
+** New Features
+:PROPERTIES:
+:CUSTOM_ID: 0-11-0-new-features
+:END:
+*** counsel-fzf
+Support =universal-argument=. See #1281, #1279.
+*** counsel-M-x
+Support =amx= in addition to =smex=. See #1557, #1585, #1613, #1615.
+
+Filter obsolete commands. See #1843, #1844.
+
+*** ivy
+Interpret mouse events in the minibuffer managed by ivy.  You can now
+scroll with the mouse wheel and click to select a candidate.
+See #1278, #1279.
+
+Support multi-character action keys. See #1394.
+
+=ivy-display-functions-alist= can use t key as fallback. See #1443.
+
+New var =ivy-display-functions-props= useful when customizing display
+functions.
+See #1443.
+
+New cmd =ivy-kill-whole-line= overrides =kill-whole-line= in the
+minibuffer. See #1456.
+
+New option for =ivy-virtual-abbreviate=: ='abbreviate=. See #1460.
+
+New var =ivy-height-alist=. Customize =ivy-height= per-command. See #1531, #1722.
+
+New var =ivy-completing-read-dynamic-collection=. See #1524.
+
+New cmd =ivy-yank-char= similar to =isearch-yank-char=. See #1588.
+
+New cmd =ivy-yank-symbol=. See #1604.
+
+Bind ~<right>~ to =ivy-forward-char=. See #1622.
+
+New var =ivy-highlight-grep-commands= that lists counsel grep-like
+commands. See #1661.
+
+New face =ivy-modified-outside-buffer=. See #1742, #1745.
+
+Propertize matches in =ivy-occur= buffers. See #1795.
+
+=ivy-immediate-done= with empty input will return the default.
+See #1170, #1719.
+
+=ivy-read= argument =prompt= is no longer a format string. Use only
+=ivy-count-format= to add/remove candidate count. See #1350.
+
+New face =ivy-grep-info= and =ivy-grep-line-number=. See #1839, #1840.
+
+New face =ivy-org=, =ivy-completions-annotations=. See #1847.
+
+Highlight yanked word. New face =ivy-yanked-word=.
+See #1581, #1850, #1856, #1859, #1861
+
+New var =ivy-pulse-delay=. See #1859.
+
+=ivy-initial-inputs-alist= entries can be functons. See #1867, #1868.
+
+New var =ivy-hooks-alist=. See #1899.
+
+*** ivy-occur-next-line
+Useful also in the original buffer.
+
+Jump to first candidate when in header.
+
+*** counsel
+New var =counsel-more-chars-alist= to customize per-function the minimum
+amount of chars. See #1663.
+
+New face =counsel-variable-documentation=, =counsel-application-name=,
+=counsel-outline-1=, ..., =counsel-outline-8=, =counsel-outline-default=.
+See #1847.
+
+*** ivy-occur-grep-mode
+Press ~w~ for =ivy-wgrep-change-to-wgrep-mode=. See #1341.
+
+*** counsel-rg
+Read extra args when =current-prefix-arg= is given. See #851
+
+Use smart case "-S" in =counsel-rg-base-command=. See #1393.
+
+To look for e.g. "map}", input "map\}". See #1566.
+
+Interactively specify switches.
+Example in this repo: "-g*.el -- require", "-g*.org -- require",
+"-g!*.el -- require". See #1408, #1512, #1688, #1559.
+
+*** swiper
+Add test to history even for ~C-g~. See #1305
+
+New var =swiper-stay-on-quit=. When non-nil don't go back to
+search start on abort. See #1319.
+
+Add integration with evil s expressions. See #1406, #1452.
+
+Obey =dired-isearch-filenames=. See #1415.
+
+Better negation highlighting. For example, in ivy.el search for "ivy
+len!--". See #1418.
+*** swiper-font-lock-exclude
+Add =eshell-mode=, =helpful-mode=. See #1416.
+
+Add =matrix-client-mode=. See #1886.
+
+Add =deadgrep-mode=. See #1902.
+
+*** counsel-find-file
+New var =counsel-find-file-occur-cmd=. Use it to customize what ~C-c C-o~
+calls. See #1299, #1351, #1441.
+
+New var =counsel-preselect-current-file=. When non-nil, preselect the
+current file in the list of candidates. See #1363.
+
+Bind ~C-M-y~ to =counsel-yank-directory=. Useful when you want to edit
+part of the directory name. See #1333.
+
+Bind ~M-o d~ to new action =counsel-find-file-mkdir-action=. See #1471.
+
+Bind ~M-o f~ to =find-file-other-frame=. See #1510.
+
+Bind ~M-o k~ to =counsel-find-file-delete=. See #1671.
+
+Bind ~M-o m~ to =counsel-find-file-move=. See #1671.
+
+=counsel-find-file-occur-use-find= defaults to t on Linux. See #1686.
+
+Make =counsel-find-file-delete= ask for confirmation. See #1774.
+
+Make =counsel-find-file-delete= clean up buffers. See #1779.
+
+*** counsel-yank-pop
+New var =counsel-yank-pop-height=: configure =ivy-height=. See #1365.
+
+New var =counsel-yank-pop-filter=: All elements of =kill-ring= for which
+this function returns nil will be permanently deleted from =kill-ring=
+before completion. See #1356, #1367.
+
+New var =counsel-yank-pop-preselect-last=: customize whether preselect
+the last kill by default. See #1371, #1373, #1374.
+
+New var =counsel-yank-pop-after-point=. See #884, #1761, #1762.
+
+New face =ivy-separator=. See #1815.
+
+*** swiper-all
+Add optional =initial-input= arg. See #1375.
+
+*** counsel-mode
+Add =counsel-bookmark=. See #1381.
+
+Add more info to the docs. See #1400.
+
+Add =counsel-apropos=. See #1582.
+
+Display local keymap in mode doc. See #1718.
+
+*** counsel-bookmark
+Add two actions. See #948, #1385.
+
+*** counsel-semantic
+Add pretty formatting, expand types recursively. See #702.
+
+*** counsel-linux-app
+Add =~/.local/share/applications/=. See #1390.
+
+Add guixsd's application directory. See #1476.
+
+Call =gtk-launch= asynchronously. See #1537.
+
+Add dir for flatpack. See #1754.
+
+Ignore non-readable desktop files. See #1757.
+
+Show also hidden destop files with prefix arg.
+
+Add XDG defaults. See #1851.
+
+Truncate Exec to 45 chars.
+
+*** counsel-set-variable
+Can also be used non-interactively. See #1409.
+
+Show docstring if =lv= is available. See #1595.
+
+Add prefix arg behavior: filter out vars without custom-type
+properties. See #1643.
+
+*** ivy-preferred-re-builders
+Renamed from =ivy-preferred-re-builders=.
+
+*** counsel-git-grep
+Also works on remote. See #1463.
+
+New var =counsel--git-grep-count-threshold=. See #1470.
+
+Add "-I" to =counsel-git-grep-cmd-default= to ignore binaries. Files are
+marked as binary in =.gitattributes=.
+
+Calculate the repo size correctly for submodules. See #1558.
+
+*** ivy-switch-buffer
+Extract all actions to defuns so that they can be advised or
+reused. See #1490.
+
+*** swiper-occur
+Allow to capture groups from input.
+Example: "defvar \([a-z-]+\)" ~C-c C-o~.
+
+*** counsel-imenu
+Show functions as "Functions: func". See #775.
+
+*** counsel-locate
+Bind ~M-o r~ to =counsel-find-file-as-root=. See #1676.
+
+Works over TRAMP. See #1735.
+
+*** counsel-grep
+New var =counsel-grep-map=. Bind =swiper-avy= there. See #1711.
+
+*** ivy-push-view
+Overwrite view with prefix arg. See #1737.
+
+*** counsel-rhythmbox
+Refresh list with prefix arg.
+
+Re-launch rhythmbox if not playing.
+
+Bind ~M-o s~ to =counsel-rhythmbox-toggle-shuffle=.
+
+*** counsel-find-file-jump
+New var =counsel-file-jump-args=. See #1889.
+
+*** counsel-dired-jump
+New var =counsel-dired-jump-args=. See #1889.
+
+
+** New Commands
+:PROPERTIES:
+:CUSTOM_ID: 0-11-0-new-commands
+:END:
+*** ivy-switch-buffer-kill
+New command bound to ~C-c C-k~ for =ivy-switch-buffer=. Use this to kill
+one or more buffers while still in the minibuffer.
+*** counsel-evil-registers
+Ivy replacement for =evil-show-registers=. See #1368.
+*** counsel-semantic-or-imenu
+New command that uses either =counsel-semantic= or =counsel-imenu=. See
+#702, #1389.
+*** counsel-wmctrl
+Select a destop window with completion.
+*** counsel-org-entity
+Insert an Org entity using ivy. See #1459.
+*** counsel-ibuffer
+Completion for =ibuffer=. See #1467, #1569.
+*** counsel-bookmarked-directory
+Completion for bookmarked directories. See #1657.
+*** counsel-down-directory
+Descend into a directory for =counsel-find-file=. See #1891.
+
+*** Footer
 #+BEGIN_EXPORT html
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
