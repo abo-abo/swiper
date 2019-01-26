@@ -527,10 +527,19 @@ numbers; replaces calculating the width from buffer line count."
 
 ;;;###autoload
 (defun swiper (&optional initial-input)
-  "`isearch' with an overview.
+  "`isearch-forward' with an overview.
 When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy (swiper--candidates) initial-input))
+
+;;;###autoload
+(defun swiper-backward (&optional initial-input)
+  "`isearch-backward' with an overview.
+When non-nil, INITIAL-INPUT is the initial search pattern."
+  (interactive)
+  (let ((ivy-index-functions-alist
+         '((swiper . ivy-recompute-index-swiper-backward))))
+    (swiper initial-input)))
 
 ;;;###autoload
 (defun swiper-thing-at-point ()

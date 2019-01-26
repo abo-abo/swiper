@@ -3220,7 +3220,8 @@ CANDIDATES are assumed to be static."
         (if (memq (cdr (assq (ivy-state-caller ivy-last)
                              ivy-index-functions-alist))
                   '(ivy-recompute-index-swiper
-                    ivy-recompute-index-swiper-async))
+                    ivy-recompute-index-swiper-async
+                    ivy-recompute-index-swiper-backward))
             (progn
               (ivy--recompute-index name re-str cands)
               (setq ivy--old-cands (ivy--sort name cands)))
@@ -3442,6 +3443,16 @@ CANDS are the current candidates."
                 (cl-incf i))
               res))))
     (error 0)))
+
+(defun ivy-recompute-index-swiper-backward (re-str cands)
+  "Recompute index of selected candidate when using `swiper-backward'.
+CANDS are the current candidates."
+  (let ((idx (ivy-recompute-index-swiper re-str cands)))
+    (if (or (= idx -1)
+            (<= (read (get-text-property 0 'swiper-line-number (nth idx cands)))
+                (line-number-at-pos)))
+        idx
+      (- idx 1))))
 
 (defun ivy-recompute-index-swiper-async (_re-str cands)
   "Recompute index of selected candidate when using `swiper' asynchronously.
