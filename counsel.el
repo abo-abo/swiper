@@ -1694,7 +1694,9 @@ The command is passed a single argument comprising all characters
 in BRANCH up to, but not including, the first space
 character (#x20), or the string's end if it lacks a space."
   (shell-command
-   (format "git checkout %s" (substring branch 0 (string-match-p " " branch)))))
+   (format "git checkout %s"
+           (shell-quote-argument
+            (substring branch 0 (string-match-p " " branch))))))
 
 (defun counsel-git-branch-list ()
   "Return list of branches in the current git repository.
