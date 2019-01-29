@@ -1,7 +1,7 @@
 #+TITLE: Ivy CHANGELOG
 #+OPTIONS: H:4 num:nil toc:3
 #+SETUPFILE: ~/git/org-html-themes/setup/theme-readtheorg.setup
-#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="kbd-style.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="css/kbd-style.css"/>
 
 * 0.6.0
 :PROPERTIES:
