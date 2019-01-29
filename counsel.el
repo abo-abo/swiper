@@ -2828,6 +2828,19 @@ When the number of characters in a buffer exceeds this threshold,
 `counsel-grep' will be used instead of `swiper'."
   :type 'integer)
 
+(defcustom counsel-grep-use-swiper-p #'counsel-grep-use-swiper-p-default
+  "When this function returns non-nil, call `swiper', else `counsel-grep'."
+  :type '(choice
+          (const :tag "Rely on `counsel-grep-swiper-limit'."
+           counsel-grep-use-swiper-p-default)
+          (const :tag "Always use `counsel-grep'." ignore)
+          (function :tag "Custom")))
+
+(defun counsel-grep-use-swiper-p-default ()
+  (<= (buffer-size)
+      (/ counsel-grep-swiper-limit
+         (if (eq major-mode 'org-mode) 4 1))))
+
 ;;;###autoload
 (defun counsel-grep-or-swiper (&optional initial-input)
   "Call `swiper' for small buffers and `counsel-grep' for large ones.
@@ -2838,9 +2851,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (ignore-errors
             (file-remote-p buffer-file-name))
           (jka-compr-get-compression-info buffer-file-name)
-          (<= (buffer-size)
-              (/ counsel-grep-swiper-limit
-                 (if (eq major-mode 'org-mode) 4 1))))
+          (funcall counsel-grep-use-swiper-p))
       (swiper initial-input)
     (when (file-writable-p buffer-file-name)
       (save-buffer))
