@@ -2558,7 +2558,7 @@ Insert .* between each char."
                     (apply #'concat
                            (cl-mapcar
                             #'concat
-                            (cons "" (cdr (mapcar (lambda (c) (format "[^%c]*" c))
+                            (cons "" (cdr (mapcar (lambda (c) (format "[^%c\n]*" c))
                                                   lst)))
                             (mapcar (lambda (x) (format "\\(%s\\)" (regexp-quote (char-to-string x))))
                                     lst))))
