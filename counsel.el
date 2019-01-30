@@ -4447,19 +4447,23 @@ Candidates comprise `counsel--unicode-names', which see.")
   "Insert COUNT copies of a Unicode character at point.
 COUNT defaults to 1."
   (interactive "p")
-  (let ((ivy-sort-max-size (expt 256 6)))
-    (setq ivy-completion-beg (point))
-    (setq ivy-completion-end (point))
-    (ivy-read "Unicode name: " counsel--unicode-table
-              :history 'counsel-unicode-char-history
-              :sort t
-              :action (lambda (name)
-                        (with-ivy-window
-                          (delete-region ivy-completion-beg ivy-completion-end)
-                          (setq ivy-completion-beg (point))
-                          (insert-char (get-text-property 0 'code name) count)
-                          (setq ivy-completion-end (point))))
-              :caller 'counsel-unicode-char)))
+  (setq ivy-completion-beg (point))
+  (setq ivy-completion-end (point))
+  (unless (listp counsel--unicode-table)
+    (setq counsel--unicode-table
+          (sort
+           (all-completions "" counsel--unicode-table)
+           (ivy--sort-function 'counsel-unicode-char))))
+  (ivy-read "Unicode name: " counsel--unicode-table
+            :history 'counsel-unicode-char-history
+            :sort t
+            :action (lambda (name)
+                      (with-ivy-window
+                        (delete-region ivy-completion-beg ivy-completion-end)
+                        (setq ivy-completion-beg (point))
+                        (insert-char (get-text-property 0 'code name) count)
+                        (setq ivy-completion-end (point))))
+            :caller 'counsel-unicode-char))
 
 ;;** `counsel-colors'
 (defun counsel-colors-action-insert-hex (color)
