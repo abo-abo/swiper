@@ -99,12 +99,18 @@ complex regexes."
      str)
     str))
 
-(defun counsel-require-program (program)
-  "Check system for PROGRAM, printing error if unfound."
-  (or (and (stringp program)
-           (not (string= program ""))
-           (executable-find program))
-      (user-error "Required program \"%s\" not found in your path" program)))
+(defun counsel-require-program (cmd)
+  "Check system for program used in CMD, printing error if unfound.
+CMD is either a string or a list of strings.
+To skip the `executable-find' check, start the string with a space."
+  (unless (and (stringp cmd) (string-match-p "^ " cmd))
+    (let ((program (if (listp cmd)
+                       (car cmd)
+                     (car (split-string cmd)))))
+      (or (and (stringp program)
+               (not (string= program ""))
+               (executable-find program))
+          (user-error "Required program \"%s\" not found in your path" program)))))
 
 (defun counsel-prompt-function-default ()
   "Return prompt appended with a semicolon."
@@ -1167,7 +1173,7 @@ selected face."
   "Find file in the current Git repository.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
-  (counsel-require-program (car (split-string counsel-git-cmd)))
+  (counsel-require-program counsel-git-cmd)
   (let* ((default-directory (expand-file-name (counsel-locate-git-root)))
          (cands (split-string
                  (shell-command-to-string counsel-git-cmd)
@@ -1409,7 +1415,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
         proj)
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
-    (counsel-require-program (car (split-string counsel-git-grep-cmd)))
+    (counsel-require-program counsel-git-grep-cmd)
     (let ((collection-function
            (if proj
                #'counsel-git-grep-proj-function
@@ -2335,7 +2341,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (let ((default-directory counsel--fzf-dir))
     (setq ivy--old-re (ivy--regex-fuzzy str))
     (counsel--async-command
-     (list "fzf" "-f" str)))
+     (format counsel-fzf-cmd str)))
   nil)
 
 ;;;###autoload
@@ -2351,20 +2357,18 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
              (read-directory-name (concat
                                    fzf-basename
                                    " in directory: "))))))
-
-  (let ((fzf-basename (car (split-string counsel-fzf-cmd))))
-    (counsel-require-program fzf-basename)
-    (setq counsel--fzf-dir
-          (or initial-directory
-              (funcall counsel-fzf-dir-function)))
-    (ivy-read (or fzf-prompt (concat fzf-basename ": "))
-              #'counsel-fzf-function
-              :initial-input initial-input
-              :re-builder #'ivy--regex-fuzzy
-              :dynamic-collection t
-              :action #'counsel-fzf-action
-              :unwind #'counsel-delete-process
-              :caller 'counsel-fzf)))
+  (counsel-require-program counsel-fzf-cmd)
+  (setq counsel--fzf-dir
+        (or initial-directory
+            (funcall counsel-fzf-dir-function)))
+  (ivy-read (or fzf-prompt "fzf: ")
+            #'counsel-fzf-function
+            :initial-input initial-input
+            :re-builder #'ivy--regex-fuzzy
+            :dynamic-collection t
+            :action #'counsel-fzf-action
+            :unwind #'counsel-delete-process
+            :caller 'counsel-fzf))
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
@@ -2588,7 +2592,7 @@ EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
-  (counsel-require-program (car (split-string counsel-ag-command)))
+  (counsel-require-program counsel-ag-command)
   (when current-prefix-arg
     (setq initial-directory
           (or initial-directory
@@ -2788,7 +2792,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (unless buffer-file-name
     (user-error "Current buffer is not visiting a file"))
-  (counsel-require-program (car (split-string counsel-grep-base-command)))
+  (counsel-require-program counsel-grep-base-command)
   (setq counsel-grep-last-line nil)
   (setq counsel-grep-command
         (format counsel-grep-base-command
