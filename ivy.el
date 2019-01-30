@@ -3156,37 +3156,39 @@ RE-STR is the regexp, CANDS are the current candidates."
         (empty (string= name "")))
     (unless (eq this-command 'ivy-resume)
       (ivy-set-index
-       (or
-        (cl-position (ivy--remove-prefix "^" name)
-                     cands
-                     :test #'ivy--case-fold-string=)
-        (and ivy--directory
-             (cl-position (concat re-str "/")
-                          cands
-                          :test #'ivy--case-fold-string=))
-        (and (eq caller 'ivy-switch-buffer)
-             (not empty)
-             0)
-        (and (not empty)
-             (not (eq caller 'swiper))
-             (not (and ivy--flx-featurep
-                       (eq ivy--regex-function 'ivy--regex-fuzzy)
-                       ;; Limit to 200 candidates
-                       (null (nthcdr 200 cands))))
-             ;; If there was a preselected candidate, don't try to
-             ;; keep it selected even if the regexp still matches it.
-             ;; See issue #1563.  See also `ivy--preselect-index',
-             ;; which this logic roughly mirrors.
-             (not (or
-                   (and (integerp preselect)
-                        (= ivy--index preselect))
-                   (equal current preselect)
-                   (and (stringp preselect)
-                        (stringp current)
-                        (string-match-p preselect current))))
-             ivy--old-cands
-             (cl-position current cands :test #'equal))
-        (funcall func re-str cands))))
+       (if (string= name "")
+           0
+         (or
+          (cl-position (ivy--remove-prefix "^" name)
+                       cands
+                       :test #'ivy--case-fold-string=)
+          (and ivy--directory
+               (cl-position (concat re-str "/")
+                            cands
+                            :test #'ivy--case-fold-string=))
+          (and (eq caller 'ivy-switch-buffer)
+               (not empty)
+               0)
+          (and (not empty)
+               (not (eq caller 'swiper))
+               (not (and ivy--flx-featurep
+                         (eq ivy--regex-function 'ivy--regex-fuzzy)
+                         ;; Limit to 200 candidates
+                         (null (nthcdr 200 cands))))
+               ;; If there was a preselected candidate, don't try to
+               ;; keep it selected even if the regexp still matches it.
+               ;; See issue #1563.  See also `ivy--preselect-index',
+               ;; which this logic roughly mirrors.
+               (not (or
+                     (and (integerp preselect)
+                          (= ivy--index preselect))
+                     (equal current preselect)
+                     (and (stringp preselect)
+                          (stringp current)
+                          (string-match-p preselect current))))
+               ivy--old-cands
+               (cl-position current cands :test #'equal))
+          (funcall func re-str cands)))))
     (when (or empty (string= name "^"))
       (ivy-set-index
        (or (ivy--preselect-index preselect cands)
