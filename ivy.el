@@ -3829,9 +3829,12 @@ BUFFER may be a string or nil."
   "Kill BUFFER."
   (ivy--kill-buffer-or-virtual buffer)
   (unless (buffer-live-p (ivy-state-buffer ivy-last))
-    (setf (ivy-state-buffer ivy-last) (current-buffer)))
-  (setq ivy--index 0)
-  (ivy--reset-state ivy-last))
+    (setf (ivy-state-buffer ivy-last)
+          (with-ivy-window (current-buffer))))
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  (setq ivy--old-re nil)
+  (setq ivy--all-candidates (delete buffer ivy--all-candidates))
+  (ivy--exhibit))
 
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
@@ -3842,14 +3845,7 @@ BUFFER may be a string or nil."
   "Kill the current buffer in `ivy-switch-buffer'."
   (interactive)
   (let ((bn (ivy-state-current ivy-last)))
-    (ivy--kill-buffer-or-virtual bn)
-    (unless (buffer-live-p (ivy-state-buffer ivy-last))
-      (setf (ivy-state-buffer ivy-last)
-            (with-ivy-window (current-buffer))))
-    (setf (ivy-state-preselect ivy-last) ivy--index)
-    (setq ivy--old-re nil)
-    (setq ivy--all-candidates (delete bn ivy--all-candidates))
-    (ivy--exhibit)))
+    (ivy--kill-buffer-action bn)))
 
 (ivy-set-actions
  'ivy-switch-buffer
