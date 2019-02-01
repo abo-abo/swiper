@@ -5013,6 +5013,71 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
               :action #'counsel-wmctrl-action
               :caller 'counsel-wmctrl)))
 
+;;** `counsel-compile'
+(defvar counsel-compile-history nil
+  "History for `counsel-compile'.")
+
+(defvar counsel-compile-local-builds 'counsel-get-build-subdir-builds
+  "Additional compile invocations to feed into `counsel-compile'.
+
+This can either be a list of compile invocations or a function that
+will provide such a list. You should customise this if you want to
+provide specific non-standard build types to `counsel-compile'. The
+default helper `counsel-get-build-subdir-builds' searches for any
+sub-directories under a builds directory in the root of the project.")
+
+(defun counsel-get-build-subdir-builds ()
+  "Return a list of potential build commands.
+
+Return in order of most recently updated."
+  (let* ((root (locate-dominating-file
+                (or (buffer-file-name) default-directory)
+                ".git"))
+         (blddir (seq-find (lambda (x)
+                             (file-directory-p (format "%s/%s" root
+                                                       x)))
+                           (list "build" "builds" "bld"))))
+    (when blddir
+      (mapcar (lambda (b)
+                (format "cd %s && make" b))
+              (mapcar
+               #'car (sort
+                      (directory-files-and-attributes
+                       (format "%s/%s" root blddir) t (rx (not (in "." ".."))))
+                      #'(lambda (x y) (time-less-p (nth 6 y) (nth 6 x)))))))))
+
+(defun counsel--get-compile-candidates ()
+  "Return the combined compile commands made up from potential
+commands and our compile history. Filter the compile history to remove
+  commands that don't make sense in the current directory."
+  (let ((root (expand-file-name
+               (locate-dominating-file
+                (or (buffer-file-name) default-directory) ".git"))))
+    (append
+     (-filter
+      (lambda (it)
+        (if (string-match
+             (rx "cd " (group (one-or-more (not blank))) blank) it)
+            (string-match-p root (match-string-no-properties 1 it))
+          nil))
+      counsel-compile-history)
+     (if (functionp counsel-compile-local-builds)
+         (funcall counsel-compile-local-builds)
+       counsel-compile-local-builds))))
+
+
+;;;###autoload
+(defun counsel-compile (&optional arg)
+  "Call `compile' completing from compile history and additional suggestions."
+  (interactive)
+  (ivy-read "Compile command: "
+            (counsel--get-compile-candidates)
+            :require-match nil
+            :sort nil
+            :history 'counsel-compile-history
+            :action (lambda (x) (compile x))))
+
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
