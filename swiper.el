@@ -306,7 +306,8 @@
     twittering-mode
     vc-dir-mode
     w3m-mode
-    woman-mode)
+    woman-mode
+    xref--xref-buffer-mode)
   "List of major-modes that are incompatible with `font-lock-ensure'.")
 
 (defun swiper-font-lock-ensure-p ()
