@@ -2978,6 +2978,16 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (unless res
         (goto-char init-point)))))
 
+;;;###autoload
+(defun counsel-grep-backward (&optional initial-input)
+  "Grep for a string in the file visited by the current buffer going
+backward similar to `swiper-backward'. When non-nil, INITIAL-INPUT is
+the initial search pattern."
+  (interactive)
+  (let ((ivy-index-functions-alist
+         '((counsel-grep . ivy-recompute-index-swiper-async-backward))))
+    (counsel-grep initial-input)))
+
 ;;** `counsel-grep-or-swiper'
 (defcustom counsel-grep-swiper-limit 300000
   "Buffer size threshold for `counsel-grep-or-swiper'.
@@ -3013,6 +3023,17 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (when (file-writable-p buffer-file-name)
       (save-buffer))
     (counsel-grep initial-input)))
+
+;;** `counsel-grep-or-swiper-backward'
+;;;###autoload
+(defun counsel-grep-or-swiper-backward (&optional initial-input)
+  "Call `swiper-backward' for small buffers and `counsel-grep-backward' for
+large ones.  When non-nil, INITIAL-INPUT is the initial search pattern."
+  (interactive)
+  (let ((ivy-index-functions-alist
+         '((swiper . ivy-recompute-index-swiper-backward)
+           (counsel-grep . ivy-recompute-index-swiper-async-backward))))
+    (counsel-grep-or-swiper initial-input)))
 
 ;;** `counsel-recoll'
 (defun counsel-recoll-function (str)
