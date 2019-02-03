@@ -3221,6 +3221,7 @@ CANDIDATES are assumed to be static."
                              ivy-index-functions-alist))
                   '(ivy-recompute-index-swiper
                     ivy-recompute-index-swiper-async
+                    ivy-recompute-index-swiper-async-backward
                     ivy-recompute-index-swiper-backward))
             (progn
               (ivy--recompute-index name re-str cands)
@@ -3477,6 +3478,18 @@ CANDS are the current candidates."
               (setq idx (cl-position (pop tail) cands :test #'equal)))
             (or idx 0))
         ivy--index))))
+
+(defun ivy-recompute-index-swiper-async-backward (re-str cands)
+  "Recompute index of selected candidate when using `swiper-backward'
+asynchronously. CANDS are the current candidates."
+  (if (= (length cands) 0)
+      0
+    (let ((idx (ivy-recompute-index-swiper-async re-str cands)))
+      (if
+          (<= (string-to-number (nth idx cands))
+              (with-ivy-window (line-number-at-pos)))
+          idx
+        (- idx 1)))))
 
 (defun ivy-recompute-index-zero (_re-str _cands)
   "Recompute index of selected candidate.
