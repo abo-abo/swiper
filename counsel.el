@@ -5053,6 +5053,7 @@ commands and our compile history. Filter the compile history to remove
   (let ((root (expand-file-name
                (locate-dominating-file
                 (or (buffer-file-name) default-directory) ".git"))))
+    ;; previous compile-history with non-relevant filtered out
     (append
      (-filter
       (lambda (it)
@@ -5061,6 +5062,12 @@ commands and our compile history. Filter the compile history to remove
             (string-match-p root (match-string-no-properties 1 it))
           nil))
       counsel-compile-history)
+     ;; any executable in the root dir
+     (--map (concat "./" it )
+            (--filter
+             (and (file-regular-p it) (file-executable-p it))
+             (directory-files root)))
+     ;; any other options?
      (if (functionp counsel-compile-local-builds)
          (funcall counsel-compile-local-builds)
        counsel-compile-local-builds))))
