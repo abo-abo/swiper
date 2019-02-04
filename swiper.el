@@ -675,8 +675,10 @@ Matched candidates should have `swiper-invocation-face'."
                     (setq swiper--current-match-start (match-beginning 0))))
                 (isearch-range-invisible (line-beginning-position)
                                          (line-end-position))
-                (unless (and (>= (point) (window-start))
-                             (<= (point) (window-end (ivy-state-window ivy-last) t)))
+                (unless (or (null window-system)
+                            (and
+                             (>= (point) (window-start))
+                             (<= (point) (window-end (ivy-state-window ivy-last) t))))
                   (recenter))
                 (setq swiper--current-window-start (window-start))))
             (swiper--add-overlays
