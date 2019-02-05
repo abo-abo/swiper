@@ -417,7 +417,10 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy (swiper--candidates) initial-input))
 
-(defvar swiper--current-window-start nil)
+(defvar swiper--current-window-start nil
+  "Store `window-start' to restore it later.
+This prevents a \"jumping\" behavior which occurs when variables
+such as `scroll-conservatively' are set to a high value.")
 
 (defun swiper--extract-matches (regex cands)
   "Extract captured REGEX groups from CANDS."
