@@ -1265,6 +1265,16 @@ See variable `ivy-recursive-restore' for further information."
              (not (eq ivy-last ivy-recursive-last)))
     (ivy--reset-state (setq ivy-last ivy-recursive-last))))
 
+(defvar ivy-marked-candidates nil
+  "List of marked candidates.
+Use `ivy-mark' to populate this.
+
+When this list is non-nil at the end of the session, the action
+will be called for each element of this list.")
+
+(defvar ivy-mark-prefix ">"
+  "Prefix used by `ivy-mark'.")
+
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
@@ -1281,26 +1291,30 @@ See variable `ivy-recursive-restore' for further information."
       (let* ((collection (ivy-state-collection ivy-last))
              (current (ivy-state-current ivy-last))
              (x (cond
-                 ;; Alist type.
-                 ((and (consp (car-safe collection))
-                       ;; Previously, the cdr of the selected
-                       ;; candidate would be returned.  Now, the
-                       ;; whole candidate is returned.
-                       (let ((idx (get-text-property 0 'idx current)))
-                         (if idx
-                             (nth idx collection)
-                           (assoc current collection)))))
-                 (ivy--directory
-                  (expand-file-name current ivy--directory))
-                 ((equal current "")
-                  ivy-text)
-                 (t
-                  current))))
+                  ;; Alist type.
+                  ((and (consp (car-safe collection))
+                        ;; Previously, the cdr of the selected
+                        ;; candidate would be returned.  Now, the
+                        ;; whole candidate is returned.
+                        (let ((idx (get-text-property 0 'idx current)))
+                          (if idx
+                              (nth idx collection)
+                            (assoc current collection)))))
+                  (ivy--directory
+                   (expand-file-name current ivy--directory))
+                  ((equal current "")
+                   ivy-text)
+                  (t
+                   current))))
         (if (eq action #'identity)
             (funcall action x)
           (select-window (ivy--get-window ivy-last))
           (set-buffer (ivy-state-buffer ivy-last))
-          (prog1 (unwind-protect (funcall action x)
+          (prog1 (unwind-protect
+                      (if ivy-marked-candidates
+                          (dolist (c ivy-marked-candidates)
+                            (funcall action (substring c (length ivy-mark-prefix))))
+                        (funcall action x))
                    (ivy-recursive-restore))
             (unless (or (eq ivy-exit 'done)
                         (minibuffer-window-active-p (selected-window))
@@ -1828,6 +1842,7 @@ customizations apply to the current completion session."
                      ,@extra-actions))
                   (t
                    (delete-dups (append action extra-actions)))))))
+  (setq ivy-marked-candidates nil)
   (unless caller
     (setq caller this-command))
   (let ((extra-sources (plist-get ivy--sources-list caller)))
@@ -4440,6 +4455,53 @@ EVENT gives the mouse position."
   (interactive)
   (ivy-occur-press)
   (select-window (ivy--get-window ivy-occur-last)))
+
+(defun ivy--marked-p ()
+  (member (ivy-state-current ivy-last) ivy-marked-candidates))
+
+(defun ivy--unmark (cand)
+  (setcar (member cand ivy--all-candidates)
+          (setcar (member cand ivy--old-cands)
+                  (substring cand (length ivy-mark-prefix))))
+  (setq ivy-marked-candidates
+        (delete cand ivy-marked-candidates)))
+
+(defun ivy--mark (cand)
+  (let ((marked-cand (concat ivy-mark-prefix cand)))
+    (setcar (member cand ivy--all-candidates)
+            (setcar (member cand ivy--old-cands) marked-cand))
+    (setq ivy-marked-candidates
+          (append ivy-marked-candidates (list marked-cand)))))
+
+(defun ivy-mark ()
+  "Mark the selected candidate and move to the next one."
+  (interactive)
+  (unless (ivy--marked-p)
+    (ivy--mark (ivy-state-current ivy-last)))
+  (ivy-next-line))
+
+(defun ivy-unmark ()
+  "Unmark the selected candidate and move to the next one."
+  (interactive)
+  (when (ivy--marked-p)
+    (ivy--unmark (ivy-state-current ivy-last)))
+  (ivy-next-line))
+
+(defun ivy-unmark-backward ()
+  "Move to the previous candidate and unmark it."
+  (interactive)
+  (ivy-previous-line)
+  (ivy--exhibit)
+  (when (ivy--marked-p)
+    (ivy--unmark (ivy-state-current ivy-last))))
+
+(defun ivy-toggle-marks ()
+  "Toggle mark for all narrowed candidates."
+  (interactive)
+  (dolist (cand ivy--old-cands)
+    (if (member cand ivy-marked-candidates)
+        (ivy--unmark cand)
+      (ivy--mark cand))))
 
 (defconst ivy-help-file (let ((default-directory
                                (if load-file-name
