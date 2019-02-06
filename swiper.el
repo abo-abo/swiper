@@ -158,8 +158,8 @@
 (declare-function avy-push-mark "ext:avy")
 (declare-function avy--remove-leading-chars "ext:avy")
 
-(defun swiper--avy-candidate ()
-  (let* ((avy-all-windows nil)
+(defun swiper--avy-candidates ()
+  (let* (
          ;; We'll have overlapping overlays, so we sort all the
          ;; overlays in the visible region by their start, and then
          ;; throw out non-Swiper overlays or overlapping Swiper
@@ -177,24 +177,28 @@
                                                swiper-faces))
                                 (setq min-overlay-start (overlay-start ov))))
                             visible-overlays))
-         (offset (if (eq (ivy-state-caller ivy-last) 'swiper) 1 0))
-         (candidates (nconc
-                      (mapcar (lambda (ov)
-                                (cons (overlay-start ov)
-                                      (overlay-get ov 'window)))
-                              overlays-for-avy)
-                      (save-excursion
-                        (save-restriction
-                          (narrow-to-region (window-start) (window-end))
-                          (goto-char (point-min))
-                          (forward-line)
-                          (let ((win (selected-window))
-                                cands)
-                            (while (not (eobp))
-                              (push (cons (+ (point) offset) win)
-                                    cands)
-                              (forward-line))
-                            cands))))))
+         (offset (if (eq (ivy-state-caller ivy-last) 'swiper) 1 0)))
+    (nconc
+     (mapcar (lambda (ov)
+               (cons (overlay-start ov)
+                     (overlay-get ov 'window)))
+             overlays-for-avy)
+     (save-excursion
+       (save-restriction
+         (narrow-to-region (window-start) (window-end))
+         (goto-char (point-min))
+         (forward-line)
+         (let ((win (selected-window))
+               cands)
+           (while (not (eobp))
+             (push (cons (+ (point) offset) win)
+                   cands)
+             (forward-line))
+           cands))))))
+
+(defun swiper--avy-candidate ()
+  (let ((candidates (swiper--avy-candidates))
+        (avy-all-windows nil))
     (unwind-protect
          (prog2
              (avy--make-backgrounds
