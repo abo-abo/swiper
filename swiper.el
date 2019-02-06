@@ -314,7 +314,8 @@
   "Return non-nil if we should `font-lock-ensure'."
   (or (derived-mode-p 'magit-mode)
       (bound-and-true-p magit-blame-mode)
-      (memq major-mode swiper-font-lock-exclude)))
+      (memq major-mode swiper-font-lock-exclude)
+      (not (derived-mode-p 'prog-mode))))
 
 (defun swiper-font-lock-ensure ()
   "Ensure the entired buffer is highlighted."
