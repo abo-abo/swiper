@@ -235,6 +235,9 @@
   (unless (require 'avy nil 'noerror)
     (error "Package avy isn't installed"))
   (unless (string= ivy-text "")
+    (when (= 1 (length ivy-text))
+      (let ((swiper-min-highlight 1))
+        (swiper--update-input-ivy)))
     (swiper--avy-goto (swiper--avy-candidate))))
 
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
