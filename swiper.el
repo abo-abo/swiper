@@ -244,7 +244,8 @@
 (declare-function multiple-cursors-mode "ext:multiple-cursors-core")
 
 (defun swiper-mc ()
-  "Create a fake cursor for each `swiper' candidate."
+  "Create a fake cursor for each `swiper' candidate.
+Make sure `swiper-mc' is on `mc/cmds-to-run-once' list."
   (interactive)
   (unless (require 'multiple-cursors nil t)
     (error "Multiple-cursors isn't installed"))
