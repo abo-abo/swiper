@@ -2785,6 +2785,9 @@ substituted by the search regexp and file, respectively.  Neither
 (ivy-set-occur 'counsel-grep 'counsel-grep-occur)
 (counsel-set-async-exit-code 'counsel-grep 1 "")
 
+(defvar counsel-grep-history nil
+  "History for `counsel-grep'.")
+
 ;;;###autoload
 (defun counsel-grep (&optional initial-input)
   "Grep for a string in the file visited by the current buffer.
@@ -2813,7 +2816,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                                          (line-end-position)))))
 
                              :keymap counsel-grep-map
-                             :history 'counsel-git-grep-history
+                             :history 'counsel-grep-history
                              :update-fn (lambda ()
                                           (counsel-grep-action (ivy-state-current ivy-last)))
                              :re-builder #'ivy--regex
