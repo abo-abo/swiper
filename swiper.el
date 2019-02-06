@@ -208,6 +208,22 @@
            (avy-push-mark))
       (avy--done))))
 
+(defun swiper--avy-goto (candidate)
+  (if (window-minibuffer-p (cdr candidate))
+      (let ((cand-text (save-excursion
+                         (goto-char (car candidate))
+                         (buffer-substring-no-properties
+                          (line-beginning-position)
+                          (line-end-position)))))
+        (ivy-set-index (cl-position-if
+                        (lambda (x) (cl-search x cand-text))
+                        ivy--old-cands))
+        (ivy--exhibit)
+        (ivy-done)
+        (ivy-call))
+    (ivy-quit-and-run
+      (avy-action-goto (avy-candidate-beg candidate)))))
+
 ;;;###autoload
 (defun swiper-avy ()
   "Jump to one of the current swiper candidates."
@@ -215,21 +231,7 @@
   (unless (require 'avy nil 'noerror)
     (error "Package avy isn't installed"))
   (unless (string= ivy-text "")
-    (let ((candidate (swiper--avy-candidate)))
-      (if (window-minibuffer-p (cdr candidate))
-          (let ((cand-text (save-excursion
-                             (goto-char (car candidate))
-                             (buffer-substring-no-properties
-                              (line-beginning-position)
-                              (line-end-position)))))
-            (ivy-set-index (cl-position-if
-                            (lambda (x) (cl-search x cand-text))
-                            ivy--old-cands))
-            (ivy--exhibit)
-            (ivy-done)
-            (ivy-call))
-        (ivy-quit-and-run
-          (avy-action-goto (avy-candidate-beg candidate)))))))
+    (swiper--avy-goto (swiper--avy-candidate))))
 
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
 (declare-function multiple-cursors-mode "ext:multiple-cursors-core")
