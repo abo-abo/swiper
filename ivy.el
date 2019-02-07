@@ -1312,8 +1312,14 @@ will be called for each element of this list.")
           (set-buffer (ivy-state-buffer ivy-last))
           (prog1 (unwind-protect
                       (if ivy-marked-candidates
-                          (dolist (c ivy-marked-candidates)
-                            (funcall action (substring c (length ivy-mark-prefix))))
+                          (let ((l (length ivy-mark-prefix)))
+                            (setq ivy-marked-candidates
+                                  (mapcar (lambda (s) (substring s l))
+                                          ivy-marked-candidates))
+                            (if (> (length (help-function-arglist action)) 1)
+                                (funcall action x ivy-marked-candidates)
+                              (dolist (c ivy-marked-candidates)
+                                (funcall action c))))
                         (funcall action x))
                    (ivy-recursive-restore))
             (unless (or (eq ivy-exit 'done)
