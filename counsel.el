@@ -828,6 +828,9 @@ packages are, in order of precedence, `amx' and `smex'."
 (defvar counsel-M-x-history nil
   "History for `counsel-M-x'.")
 
+(defvar counsel-M-x-last-command nil
+  "Last command invoked via `counsel-M-x'.")
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
@@ -857,6 +860,7 @@ when available, in that order of precedence."
                         (setq prefix-arg current-prefix-arg)
                         (setq this-command cmd)
                         (setq real-this-command cmd)
+                        (setq counsel-M-x-last-command cmd)
                         (command-execute cmd 'record))
               :sort (not externs)
               :keymap counsel-describe-map
@@ -871,6 +875,14 @@ when available, in that order of precedence."
 (ivy-set-display-transformer
  'counsel-M-x
  'counsel-M-x-transformer)
+
+;;;###autoload
+(defun counsel-call-last-counsel-M-x-command ()
+  "Call last command invoked via `counsel-M-x'"
+  (interactive)
+  (if counsel-M-x-last-command
+      (command-execute counsel-M-x-last-command)
+    (message "No commands have been invoked via counsel-M-x yet")))
 
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
