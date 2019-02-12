@@ -4121,8 +4121,7 @@ The selected history element will be inserted into the minibuffer."
   (interactive)
   (let ((enable-recursive-minibuffers t)
         (history (symbol-value (ivy-state-history ivy-last)))
-        (old-last ivy-last)
-        (ivy-recursive-restore nil))
+        (old-last ivy-last))
     (ivy-read "Reverse-i-search: "
               (delete-dups (copy-sequence history))
               :action (lambda (x)
