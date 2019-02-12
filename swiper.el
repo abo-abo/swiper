@@ -700,8 +700,16 @@ Matched candidates should have `swiper-invocation-face'."
                 (setq swiper--current-window-start (window-start))))
             (swiper--add-overlays
              re
-             (max (window-start) swiper--point-min)
-             (min (window-end (selected-window) t) swiper--point-max))))))))
+             (max
+              (if (display-graphic-p)
+                  (window-start)
+                (line-beginning-position (- (window-height))))
+              swiper--point-min)
+             (min
+              (if (display-graphic-p)
+                  (window-end (selected-window) t)
+                (line-end-position (window-height)))
+              swiper--point-max))))))))
 
 (defun swiper--add-overlays (re &optional beg end wnd)
   "Add overlays for RE regexp in visible part of the current buffer.
