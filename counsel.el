@@ -54,7 +54,7 @@
 
 (define-obsolete-function-alias 'counsel-more-chars 'ivy-more-chars "0.10.0")
 
-(defun counsel--elisp-to-pcre (regex)
+(defun counsel--elisp-to-pcre (regex &optional look-around)
   "Convert REGEX from Elisp format to PCRE format, on best-effort basis.
 REGEX may be of any format returned by an Ivy regex function,
 namely a string or a list.  The return value is always a string.
@@ -62,14 +62,23 @@ namely a string or a list.  The return value is always a string.
 Note that incorrect results may be returned for sufficiently
 complex regexes."
   (if (consp regex)
-      (mapconcat
-       (lambda (pair)
-         (let ((subexp (counsel--elisp-to-pcre (car pair))))
-           (if (string-match-p "|" subexp)
-               (format "(?:%s)" subexp)
-             subexp)))
-       (cl-remove-if-not #'cdr regex)
-       ".*")
+      (if look-around
+          (mapconcat
+           (lambda (pair)
+             (let ((subexp (counsel--elisp-to-pcre (car pair))))
+               (format "(?%c.*%s)"
+                       (if (cdr pair) ?= ?!)
+                       subexp)))
+           regex
+           "")
+        (mapconcat
+         (lambda (pair)
+           (let ((subexp (counsel--elisp-to-pcre (car pair))))
+             (if (string-match-p "|" subexp)
+                 (format "(?:%s)" subexp)
+               subexp)))
+         (cl-remove-if-not #'cdr regex)
+         ".*"))
     (replace-regexp-in-string
      "\\\\[(){}|]\\|[()]"
      (lambda (s)
@@ -2535,6 +2544,10 @@ regex string."
 
 (defvar counsel-ag-command nil)
 
+(defvar counsel-ag-look-around-p t)
+
+(defvar counsel--grep-regex-look-around-p nil)
+
 (counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-ag 'counsel-git-grep-transformer)
@@ -2566,7 +2579,8 @@ NEEDLE is the search string."
 (defun counsel--grep-regex (str)
   (counsel--elisp-to-pcre
    (setq ivy--old-re
-         (funcall ivy--regex-function str))))
+         (funcall ivy--regex-function str))
+   counsel--grep-regex-look-around-p))
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
@@ -2592,6 +2606,7 @@ EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
+  (setq counsel--grep-regex-look-around-p counsel-ag-look-around-p)
   (counsel-require-program counsel-ag-command)
   (when current-prefix-arg
     (setq initial-directory
@@ -2618,8 +2633,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :action #'counsel-git-grep-action
               :unwind (lambda ()
                         (counsel-delete-process)
-                        (swiper--cleanup))
-              :caller 'counsel-ag)))
+                        (swiper--cleanup)))))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
@@ -2664,7 +2678,8 @@ INITIAL-INPUT can be given as the initial minibuffer input.
 This uses `counsel-ag' with `counsel-pt-base-command' instead of
 `counsel-ag-base-command'."
   (interactive)
-  (let ((counsel-ag-base-command counsel-pt-base-command))
+  (let ((counsel-ag-base-command counsel-pt-base-command)
+        (counsel-ag-look-around-p nil))
     (counsel-ag initial-input)))
 (cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
 
@@ -2695,6 +2710,15 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 Note: don't use single quotes for the regex."
   :type 'string)
 
+(defcustom counsel-rg-version
+  (when (string-match "\\(?:\\`\\| \\)\\([^ =]+\\) " counsel-rg-base-command)
+    (let* ((rg (match-string 1 counsel-rg-base-command))
+           (version (shell-command-to-string (concat rg " --version"))))
+      (when (string-match "\\`ripgrep \\([.0-9]+\\) " version)
+        (match-string 1 version))))
+  "Ripgrep version used by `counsel-rg'."
+  :type 'string)
+
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
 (ivy-set-occur 'counsel-rg 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
@@ -2707,7 +2731,16 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
 RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
-  (let ((counsel-ag-base-command counsel-rg-base-command))
+  (let* ((counsel-ag-base-command counsel-rg-base-command)
+         (counsel-ag-look-around-p
+          (let ((builder (cdr (or (assq 'counsel-ag-function ivy-re-builders-alist)
+                                  (assq this-command ivy-re-builders-alist)
+                                  (assq t ivy-re-builders-alist)))))
+            (when (and builder
+                       counsel-rg-version
+                       (consp (funcall builder "x"))
+                       (version<= "0.10.0" counsel-rg-version))
+              (setq counsel-ag-base-command (concat counsel-ag-base-command " --pcre2"))))))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
