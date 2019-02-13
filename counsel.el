@@ -2544,9 +2544,13 @@ regex string."
 
 (defvar counsel-ag-command nil)
 
-(defvar counsel-ag-look-around-p t)
+(defvar counsel-ag-look-around-p t
+  "Control for enabling lookarounds in `counsel-grep-regex'.
+If nil, disable look-arounds, else enable. If set to a string,
+enable look-arounds and add this value to `counsel-ag-command' as
+an additional argument.")
 
-(defvar counsel--grep-regex-look-around-p nil)
+(defvar counsel--grep-regex-look-around nil)
 
 (counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
@@ -2580,7 +2584,7 @@ NEEDLE is the search string."
   (counsel--elisp-to-pcre
    (setq ivy--old-re
          (funcall ivy--regex-function str))
-   counsel--grep-regex-look-around-p))
+   counsel--grep-regex-look-around))
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
@@ -2592,6 +2596,9 @@ NEEDLE is the search string."
          (ivy-more-chars))
        (let ((default-directory (ivy-state-directory ivy-last))
              (regex (counsel--grep-regex search-term)))
+         (if (and  (stringp counsel--grep-regex-look-around)
+                   (string-match-p "\\`(\\?[=!]" regex))
+             (setq switches (concat switches counsel--grep-regex-look-around)))
          (counsel--async-command (counsel--format-ag-command
                                   switches
                                   (shell-quote-argument regex)))
@@ -2606,7 +2613,7 @@ EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
-  (setq counsel--grep-regex-look-around-p counsel-ag-look-around-p)
+  (setq counsel--grep-regex-look-around counsel-ag-look-around-p)
   (counsel-require-program counsel-ag-command)
   (when current-prefix-arg
     (setq initial-directory
@@ -2731,16 +2738,11 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
 RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
-  (let* ((counsel-ag-base-command counsel-rg-base-command)
-         (counsel-ag-look-around-p
-          (let ((builder (cdr (or (assq 'counsel-ag-function ivy-re-builders-alist)
-                                  (assq this-command ivy-re-builders-alist)
-                                  (assq t ivy-re-builders-alist)))))
-            (when (and builder
-                       counsel-rg-version
-                       (consp (funcall builder "x"))
-                       (version<= "0.10.0" counsel-rg-version))
-              (setq counsel-ag-base-command (concat counsel-ag-base-command " --pcre2"))))))
+  (let ((counsel-ag-base-command counsel-rg-base-command)
+        (counsel-ag-look-around-p
+         (and counsel-rg-version
+              (version<= "0.10.0" counsel-rg-version)
+              " --pcre2")))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
