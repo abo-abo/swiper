@@ -2544,13 +2544,13 @@ regex string."
 
 (defvar counsel-ag-command nil)
 
-(defvar counsel-ag-look-around-p t
+(defvar counsel-ag-look-around t
   "Control for enabling lookarounds in `counsel-grep-regex'.
 If nil, disable look-arounds, else enable. If set to a string,
 enable look-arounds and add this value to `counsel-ag-command' as
 an additional argument.")
 
-(defvar counsel--grep-regex-look-around nil)
+(defvar counsel-regex-look-around nil)
 
 (counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
 (ivy-set-occur 'counsel-ag 'counsel-ag-occur)
@@ -2584,7 +2584,7 @@ NEEDLE is the search string."
   (counsel--elisp-to-pcre
    (setq ivy--old-re
          (funcall ivy--regex-function str))
-   counsel--grep-regex-look-around))
+   counsel-regex-look-around))
 
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
@@ -2596,9 +2596,9 @@ NEEDLE is the search string."
          (ivy-more-chars))
        (let ((default-directory (ivy-state-directory ivy-last))
              (regex (counsel--grep-regex search-term)))
-         (if (and  (stringp counsel--grep-regex-look-around)
-                   (string-match-p "\\`(\\?[=!]" regex))
-             (setq switches (concat switches counsel--grep-regex-look-around)))
+         (if (and (stringp counsel-regex-look-around)
+                  (string-match-p "\\`(\\?[=!]" regex))
+             (setq switches (concat switches counsel-regex-look-around)))
          (counsel--async-command (counsel--format-ag-command
                                   switches
                                   (shell-quote-argument regex)))
@@ -2613,7 +2613,7 @@ EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
-  (setq counsel--grep-regex-look-around counsel-ag-look-around-p)
+  (setq counsel-regex-look-around counsel-ag-look-around)
   (counsel-require-program counsel-ag-command)
   (when current-prefix-arg
     (setq initial-directory
@@ -2640,7 +2640,8 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :action #'counsel-git-grep-action
               :unwind (lambda ()
                         (counsel-delete-process)
-                        (swiper--cleanup)))))
+                        (swiper--cleanup))
+              :caller 'counsel-ag)))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
@@ -2686,7 +2687,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
 `counsel-ag-base-command'."
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command)
-        (counsel-ag-look-around-p nil))
+        (counsel-ag-look-around nil))
     (counsel-ag initial-input)))
 (cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
 
@@ -2717,13 +2718,10 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 Note: don't use single quotes for the regex."
   :type 'string)
 
-(defcustom counsel-rg-version
-  (when (string-match "\\(?:\\`\\| \\)\\([^ =]+\\) " counsel-rg-base-command)
-    (let* ((rg (match-string 1 counsel-rg-base-command))
-           (version (shell-command-to-string (concat rg " --version"))))
-      (when (string-match "\\`ripgrep \\([.0-9]+\\) " version)
-        (match-string 1 version))))
-  "Ripgrep version used by `counsel-rg'."
+(defcustom counsel-rg-version nil
+  "Ripgrep version used by `counsel-rg'.
+
+Version 0.10.0 and later supports PCRE2."
   :type 'string)
 
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
@@ -2738,8 +2736,14 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
 RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
+  (unless counsel-rg-version
+    (setq counsel-rg-version
+          (let ((version (shell-command-to-string "rg --version")))
+            (if (string-match "\\`ripgrep \\([.0-9]+\\) " version)
+                (match-string 1 version)
+              "0"))))
   (let ((counsel-ag-base-command counsel-rg-base-command)
-        (counsel-ag-look-around-p
+        (counsel-ag-look-around
          (and counsel-rg-version
               (version<= "0.10.0" counsel-rg-version)
               " --pcre2")))
