@@ -1898,25 +1898,20 @@ Skip some dotfiles unless `ivy-text' requires them."
 minibuffer."
   (interactive)
   (if (equal ivy-text "")
-      (let ((enable-recursive-minibuffers t)
-            (old-last ivy-last))
-        (ivy-read "Env: "
-                  (cl-loop for pair in process-environment
-                           for (var val) = (split-string pair "=" t)
-                           if (and val (not (equal "" val)))
-                           if (file-exists-p
-                               (if (file-name-absolute-p val)
-                                   val
-                                 (setq val
-                                       (expand-file-name val ivy--directory))))
-                           collect (cons var val))
-                  :action (lambda (x)
-                            (ivy--reset-state (setq ivy-last old-last))
-                            (let ((path (cdr x)))
-                              (when (file-accessible-directory-p path)
-                                (setq path (file-name-as-directory path)))
-                              (insert (abbreviate-file-name path)))
-                            (ivy--cd-maybe))))
+      (let* ((cands (cl-loop for pair in process-environment
+                       for (var val) = (split-string pair "=" t)
+                       if (and val (not (equal "" val)))
+                       if (file-exists-p
+                           (if (file-name-absolute-p val)
+                               val
+                             (setq val
+                                   (expand-file-name val ivy--directory))))
+                       collect (cons var val)))
+             (enable-recursive-minibuffers t)
+             (x (ivy-read "Env: " cands))
+             (path (cdr (assoc x cands))))
+        (insert path)
+        (ivy--cd-maybe))
     (insert last-input-event)))
 
 (defun counsel-find-file-action (x)
