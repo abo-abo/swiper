@@ -2458,7 +2458,7 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defcustom counsel-file-jump-args "* -type f -not -path '*\/.git*'"
+(defcustom counsel-file-jump-args "* -type f -not -path '*/.git*'"
   "Arguments for the `find-command' when using `counsel-file-jump'."
   :type 'string)
 
@@ -2491,7 +2491,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))
 
-(defcustom counsel-dired-jump-args "* -type f -not -path '*\/.git*'"
+(defcustom counsel-dired-jump-args "* -type f -not -path '*/.git*'"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
   :type 'string)
 
