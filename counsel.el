@@ -2544,7 +2544,7 @@ regex string."
 
 (defvar counsel-ag-command nil)
 
-(defvar counsel--ag-look-around t)
+(defvar counsel--grep-tool-look-around t)
 
 (defvar counsel--regex-look-around nil)
 
@@ -2609,7 +2609,7 @@ EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
-  (setq counsel--regex-look-around counsel--ag-look-around)
+  (setq counsel--regex-look-around counsel--grep-tool-look-around)
   (counsel-require-program counsel-ag-command)
   (when current-prefix-arg
     (setq initial-directory
@@ -2683,7 +2683,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
 `counsel-ag-base-command'."
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command)
-        (counsel--ag-look-around nil))
+        (counsel--grep-tool-look-around nil))
     (counsel-ag initial-input)))
 (cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
 
@@ -2704,7 +2704,7 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 `counsel-ag-base-command'."
   (interactive)
   (let ((counsel-ag-base-command counsel-ack-base-command)
-        (counsel--ag-look-around t))
+        (counsel--grep-tool-look-around t))
     (counsel-ag initial-input)))
 
 
@@ -2739,7 +2739,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                 (match-string 1 version)
               "0"))))
   (let ((counsel-ag-base-command counsel-rg-base-command)
-        (counsel--ag-look-around
+        (counsel--grep-tool-look-around
          (when (version<= "0.10.0" counsel--rg-version)
            " --pcre2")))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
