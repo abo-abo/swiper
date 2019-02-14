@@ -1307,7 +1307,8 @@ will be called for each element of this list.")
                   (t
                    current))))
         (if (eq action #'identity)
-            (funcall action x)
+            (prog1 x
+              (ivy-recursive-restore))
           (select-window (ivy--get-window ivy-last))
           (set-buffer (ivy-state-buffer ivy-last))
           (prog1 (unwind-protect
