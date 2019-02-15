@@ -1748,7 +1748,6 @@ currently checked out."
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
     (define-key map (kbd "C-M-y") 'counsel-yank-directory)
-    (define-key map "$" 'counsel-read-env)
     map))
 
 (defun counsel-yank-directory ()
@@ -1897,7 +1896,8 @@ Skip some dotfiles unless `ivy-text' requires them."
   "Read a file path environment variable and insert it into the
 minibuffer."
   (interactive)
-  (if (equal ivy-text "")
+  (if (and ivy--directory
+           (equal ivy-text ""))
       (let* ((cands (cl-loop for pair in process-environment
                        for (var val) = (split-string pair "=" t)
                        if (and val (not (equal "" val)))
@@ -1915,6 +1915,8 @@ minibuffer."
                   path))
         (ivy--cd-maybe))
     (insert last-input-event)))
+
+(define-key ivy-minibuffer-map "$" 'counsel-read-env)
 
 (defun counsel-find-file-action (x)
   "Find file X."
