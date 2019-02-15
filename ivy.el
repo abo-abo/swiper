@@ -412,6 +412,7 @@ action functions.")
     (define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
     (define-key map (kbd "C-c C-s") 'ivy-rotate-sort)
     (define-key map [remap describe-mode] 'ivy-help)
+    (define-key map "$" 'ivy-magic-read-file-env)
     map)
   "Keymap used in the minibuffer.")
 (autoload 'hydra-ivy/body "ivy-hydra" "" t)
@@ -2827,6 +2828,29 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
                       'ivy-magic-slash-non-match-create)
                   magic)
              (ivy--create-and-cd canonical))))))
+
+(defun ivy-magic-read-file-env ()
+  "If reading filename, jump to environment variable location."
+  (interactive)
+  (if (and ivy--directory
+           (equal ivy-text ""))
+      (let* ((cands (cl-loop for pair in process-environment
+                             for (var val) = (split-string pair "=" t)
+                             if (and val (not (equal "" val)))
+                             if (file-exists-p
+                                 (if (file-name-absolute-p val)
+                                     val
+                                   (setq val
+                                         (expand-file-name val ivy--directory))))
+                             collect (cons var val)))
+             (enable-recursive-minibuffers t)
+             (x (ivy-read "Env: " cands))
+             (path (cdr (assoc x cands))))
+        (insert (if (file-accessible-directory-p path)
+                    (file-name-as-directory path)
+                  path))
+        (ivy--cd-maybe))
+    (insert last-input-event)))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
