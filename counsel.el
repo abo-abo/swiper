@@ -2593,8 +2593,8 @@ NEEDLE is the search string."
        (let ((default-directory (ivy-state-directory ivy-last))
              (regex (counsel--grep-regex search-term)))
          (if (and (stringp counsel--regex-look-around)
-                  (string-match-p "\\`(\\?[=!]" regex))
-             (setq switches (concat switches counsel--regex-look-around)))
+                  (string-match-p "\\`(\\?[=!]" regex)) ;; using look-arounds
+             (setq switches (concat switches " " counsel--regex-look-around)))
          (counsel--async-command (counsel--format-ag-command
                                   switches
                                   (shell-quote-argument regex)))
@@ -2715,9 +2715,14 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 Note: don't use single quotes for the regex."
   :type 'string)
 
-(defvar counsel--rg-version nil
-  "Ripgrep version used by `counsel-rg'.
-Version 0.10.0 and later supports PCRE2.")
+(defcustom counsel-rg-pcre-flag 'auto
+  "PCRE2 flag used by Ripgrep.
+If `auto', flag will be determined automatically on the next call
+to `counsel-rg'. If `nil', PCRE support is disabled unless
+\"--pcre2\" or \"-P\" is part of `counsel-rg-base-command'.
+
+Note: only Ripgrep version 0.10.0 and later support PCRE2."
+  :type '(choice string (const auto)))
 
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
 (ivy-set-occur 'counsel-rg 'counsel-ag-occur)
@@ -2731,17 +2736,17 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
 RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
-  (unless counsel--rg-version
-    (setq counsel--rg-version
+  (when (eq 'auto counsel-rg-pcre-flag)
+    (setq counsel-rg-pcre-flag
           (let* ((rg (executable-find "rg"))
                  (version (shell-command-to-string (concat rg " --version"))))
-            (if (string-match "\\`ripgrep \\([.0-9]+\\) " version)
-                (match-string 1 version)
-              "0"))))
+            (when (and (string-match "\\`ripgrep \\([.0-9]+\\) " version)
+                       (version<="0.10.0" (match-string 1 version)))
+              "--pcre2"))))
   (let ((counsel-ag-base-command counsel-rg-base-command)
         (counsel--grep-tool-look-around
-         (when (version<= "0.10.0" counsel--rg-version)
-           " --pcre2")))
+         (or counsel-rg-pcre-flag
+             (string-match-p " \\(?:--pcre2\\_>\\|-[[:alnum:]]*P\\)" counsel-rg-base-command))))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
