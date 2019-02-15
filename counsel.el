@@ -1910,7 +1910,9 @@ minibuffer."
              (enable-recursive-minibuffers t)
              (x (ivy-read "Env: " cands))
              (path (cdr (assoc x cands))))
-        (insert path)
+        (insert (if (file-accessible-directory-p path)
+                    (file-name-as-directory path)
+                  path))
         (ivy--cd-maybe))
     (insert last-input-event)))
 
