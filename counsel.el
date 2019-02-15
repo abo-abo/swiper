@@ -1892,32 +1892,6 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defvar counsel-find-file-speedup-remote t
   "Speed up opening remote files by disabling `find-file-hook' for them.")
 
-(defun counsel-read-env ()
-  "Read a file path environment variable and insert it into the
-minibuffer."
-  (interactive)
-  (if (and ivy--directory
-           (equal ivy-text ""))
-      (let* ((cands (cl-loop for pair in process-environment
-                       for (var val) = (split-string pair "=" t)
-                       if (and val (not (equal "" val)))
-                       if (file-exists-p
-                           (if (file-name-absolute-p val)
-                               val
-                             (setq val
-                                   (expand-file-name val ivy--directory))))
-                       collect (cons var val)))
-             (enable-recursive-minibuffers t)
-             (x (ivy-read "Env: " cands))
-             (path (cdr (assoc x cands))))
-        (insert (if (file-accessible-directory-p path)
-                    (file-name-as-directory path)
-                  path))
-        (ivy--cd-maybe))
-    (insert last-input-event)))
-
-(define-key ivy-minibuffer-map "$" 'counsel-read-env)
-
 (defun counsel-find-file-action (x)
   "Find file X."
   (with-ivy-window
