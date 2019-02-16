@@ -2722,28 +2722,31 @@ Note: don't use single quotes for the regex."
 (defcustom counsel-rg-pcre-flag 'auto
   "PCRE flag used by Ripgrep.
 
-If `auto', flag will be determined automatically.
+If `auto', the flag will be determined automatically.
 
-If `nil', PCRE support is disabled unless \"--pcre2\" or \"-P\"
+If nil, PCRE support is disabled unless \"--pcre2\" or \"-P\"
 is part of `counsel-rg-base-command'.
 
-If a string, pass value to Ripgrep when PCRE support is
-requested.
+If a string, it should comprise Ripgrep switch(es) which enable
+PCRE support.
 
 PCRE is required to support multi-pass regex builders such as
 `ivy--regex-plus' and `ivy--regex-ignore-order'.
 
-Note: only Ripgrep version 0.10.0 and later support PCRE."
+Note: only Ripgrep versions 0.10.0 and later support PCRE."
   :type '(choice (const :tag "Auto detect" auto)
                  (const :tag "Disable" nil)
                  (string :tag "PCRE flag")))
 
 (defun counsel--rg-version ()
   "Return Ripgrep version string or \"0.0.0\" on failure."
-  (string-match "\\(?:\\`\\| \\)\\([^ =]+\\) " counsel-rg-base-command)
-  (let* ((rg (match-string 1 counsel-rg-base-command))
-         (version (ignore-errors (counsel--call rg "--version"))))
-    (if (string-match "\\`ripgrep \\([.0-9]+\\) " version)
+  (let* ((rg (and (string-match "\\(?:\\`\\| \\)\\([^ =]+\\) "
+                                counsel-rg-base-command)
+                  (match-string 1 counsel-rg-base-command)))
+         (version (ignore-errors
+                    (counsel--call rg "--version"))))
+    (if (and version
+             (string-match "\\`ripgrep \\([.0-9]+\\)" version))
         (match-string 1 version)
       "0.0.0")))
 
@@ -2757,12 +2760,12 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (let ((counsel-ag-base-command counsel-rg-base-command)
         (counsel--grep-tool-look-around
-         (pcase counsel-rg-pcre-flag
-           ('auto (when (version<= "0.10.0" (counsel--rg-version))
-                    "--pcre"))
-           ((pred stringp) counsel-rg-pcre-flag)
-           (_ (string-match-p " \\(?:--pcre2\\_>\\|-[[:alnum:]]*P\\)"
-                              counsel-rg-base-command)))))
+         (cond ((and (eq counsel-rg-pcre-flag 'auto)
+                     (version<= "0.10.0" (counsel--rg-version)))
+                "--pcre2")
+               ((stringp counsel-rg-pcre-flag)
+                counsel-rg-pcre-flag)
+               ((string-match-p " \\(?:--pcre2\\_>\\|-[[:alnum:]]*P\\)" counsel-rg-base-command)))))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
