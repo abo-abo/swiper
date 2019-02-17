@@ -2719,37 +2719,6 @@ Note: don't use single quotes for the regex."
 (ivy-set-occur 'counsel-rg 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
 
-(defcustom counsel-rg-pcre-flag 'auto
-  "PCRE flag used by Ripgrep.
-
-If `auto', the flag will be determined automatically.
-
-If nil, PCRE support is disabled unless \"--pcre2\" or \"-P\"
-is part of `counsel-rg-base-command'.
-
-If a string, it should comprise Ripgrep switch(es) which enable
-PCRE support.
-
-PCRE is required to support multi-pass regex builders such as
-`ivy--regex-plus' and `ivy--regex-ignore-order'.
-
-Note: only Ripgrep versions 0.10.0 and later support PCRE."
-  :type '(choice (const :tag "Auto detect" auto)
-                 (const :tag "Disable" nil)
-                 (string :tag "PCRE flag")))
-
-(defun counsel--rg-version ()
-  "Return Ripgrep version string or \"0.0.0\" on failure."
-  (let* ((rg (and (string-match "\\(?:\\`\\| \\)\\([^ =]+\\) "
-                                counsel-rg-base-command)
-                  (match-string 1 counsel-rg-base-command)))
-         (version (ignore-errors
-                    (counsel--call rg "--version"))))
-    (if (and version
-             (string-match "\\`ripgrep \\([.0-9]+\\)" version))
-        (match-string 1 version)
-      "0.0.0")))
-
 ;;;###autoload
 (defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
   "Grep for a string in the current directory using rg.
@@ -2760,12 +2729,10 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (interactive)
   (let ((counsel-ag-base-command counsel-rg-base-command)
         (counsel--grep-tool-look-around
-         (cond ((and (eq counsel-rg-pcre-flag 'auto)
-                     (version<= "0.10.0" (counsel--rg-version)))
-                "--pcre2")
-               ((stringp counsel-rg-pcre-flag)
-                counsel-rg-pcre-flag)
-               ((string-match-p " \\(?:--pcre2\\_>\\|-[[:alnum:]]*P\\)" counsel-rg-base-command)))))
+         (let ((rg (car (split-string counsel-rg-base-command)))
+               (switch "--pcre2"))
+           (and (eq 0 (call-process rg nil nil nil switch "--help"))
+                switch))))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
