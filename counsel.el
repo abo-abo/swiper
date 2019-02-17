@@ -2731,7 +2731,7 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
         (counsel--grep-tool-look-around
          (let ((rg (car (split-string counsel-rg-base-command)))
                (switch "--pcre2"))
-           (and (eq 0 (call-process rg nil nil nil switch "--help"))
+           (and (eq 0 (call-process rg nil nil nil switch "--version"))
                 switch))))
     (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
