@@ -5121,7 +5121,7 @@ to variable to `savehist-additional-variables'.")
   "Function to find the project root for compile commands.")
 
 (defvar counsel-compile-local-builds
-  '("make -k" counsel-compile-get-filtered-history)
+  '(counsel-compile-get-filtered-history counsel-compile-get-make-invocaton)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocations strings or
@@ -5130,6 +5130,54 @@ this if you want to provide specific non-standard build types to
 `counsel-compile'.  The default helpers are set up to handle common
 build environments.")
 
+(defcustom counsel-compile-make-args "-k"
+  "Additional arguments for make.
+You may for example want to add -jN for the number of cores your
+  have"
+  :type 'string)
+
+(defcustom counsel-compile-make-pattern
+  (rx (or "m" "M" "GNUM") "akefile")
+  "Pattern for matching against makefiles.")
+
+;; This is loosely based on the bash make completion code
+(defun counsel--get-make-targets (srcdir &optional blddir)
+  "Return a list of make targets for a given SRCDIR/BLDDIR combination.
+
+We search the Makefile for a list of PHONY targets which are generally
+the top-level targets a make system provides. The resulting strings
+are tagged with properties that `counsel-compile-history' can use for
+filtering results."
+  (let ((default-directory (or blddir srcdir)))
+    (mapcar
+     (lambda(target)
+       (propertize
+        (concat
+         (format "make %s %s" counsel-compile-make-args target)
+         (if blddir
+             (concat (propertize " in " 'face 'font-lock-warning-face)
+                     (propertize blddir 'face 'dired-directory))))
+        'srcdir srcdir
+        'blddir default-directory))
+     (split-string
+      (shell-command-to-string
+       (concat "make -nqp |"
+               "grep -B 1 PHONY |"
+               "grep ':' |"
+               "cut -d ':' -f 1 |"
+               "sort"))
+      "\n"))))
+
+(defun counsel-compile-get-make-invocaton (&optional blddir)
+  "Have a look in the root directory for any build control files.
+
+The optional BLDDIR is useful for other helpers that have found
+  sub-directories that builds may be invoked in."
+  (let* ((srcdir (funcall counsel-compile-root-function))
+         (local-files (directory-files (or blddir srcdir))))
+    (when (cl-member counsel-compile-make-pattern
+                     local-files :test #'string-match-p)
+      (counsel--get-make-targets srcdir blddir))))
 
 ;; No easy way to make directory local, would buffer local make more sense?
 (defun counsel-compile-get-filtered-history ()
