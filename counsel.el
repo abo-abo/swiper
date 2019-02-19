@@ -5092,6 +5092,54 @@ in the current window."
             :unwind #'counsel--switch-buffer-unwind
             :update-fn 'counsel--switch-buffer-update-fn))
 
+
+;;** `counsel-compile'
+(defvar counsel-compile-history nil
+  "History for `counsel-compile'.")
+
+(defvar counsel-compile-local-builds "make -k"
+  "Additional compile invocations to feed into `counsel-compile'.
+
+This can either be a list of compile invocations strings or
+functions that will provide such a list.  You should customise
+this if you want to provide specific non-standard build types to
+`counsel-compile'.  The default helpers are set up to handle common
+build environments.")
+
+(defun counsel--get-compile-candidates ()
+  "Return the list of compile commands as directed by
+`counsel-compile-local-builds'."
+  (let ((cands))
+    (if (stringp counsel-compile-local-builds)
+        (setq cands (list counsel-compile-local-builds))
+      (mapc
+       (lambda (c)
+         (let ((more-cands
+                (cond
+                  ((functionp c)
+                   (let ((fcands (funcall c)))
+                     (if (nlistp fcands)
+                         (list fcands)
+                       fcands)))
+                  ((stringp c) (list c))
+                  ((listp c) c))))
+           (when more-cands
+             (setq cands (nconc cands more-cands)))))
+       counsel-compile-local-builds)
+      cands)))
+
+;;;###autoload
+(defun counsel-compile (&optional arg)
+  "Call `compile' completing from compile history and additional suggestions."
+  (interactive)
+  (ivy-read "Compile command: "
+            (counsel--get-compile-candidates)
+            :require-match nil
+            :sort nil
+            :history 'counsel-compile-history
+            :action (lambda (x) (compile x))))
+
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
