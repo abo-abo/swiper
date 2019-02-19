@@ -5103,9 +5103,25 @@ in the current window."
 
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
-  "History for `counsel-compile'.")
+  "History for `counsel-compile'.
 
-(defvar counsel-compile-local-builds "make -k"
+This is a list of strings with additional properties which allow the
+history to be filtered depending on the context of the call.  The
+properties include:
+
+`srcdir'
+     the root directory of the source code
+`blddir'
+     the root directory of the build (in or outside the srcdir)
+
+If you want to persist history between Emacs sessions you can as this
+to variable to `savehist-additional-variables'.")
+
+(defvar counsel-compile-root-function 'counsel-locate-git-root
+  "Function to find the project root for compile commands.")
+
+(defvar counsel-compile-local-builds
+  '("make -k" counsel-compile-get-filtered-history)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocations strings or
@@ -5113,6 +5129,22 @@ functions that will provide such a list.  You should customise
 this if you want to provide specific non-standard build types to
 `counsel-compile'.  The default helpers are set up to handle common
 build environments.")
+
+
+;; No easy way to make directory local, would buffer local make more sense?
+(defun counsel-compile-get-filtered-history ()
+  "Return a compile history relevant to current project."
+  (let ((root (funcall counsel-compile-root-function))
+        (kept-history))
+    (mapc
+     (lambda (hist)
+       (let ((srcdir (get-text-property 0 'srcdir hist))
+             (blddir (get-text-property 0 'blddir hist)))
+         (when (or (and srcdir (string-match srcdir root))
+                   (and blddir (string-match blddir root)))
+           (push hist kept-history))))
+     counsel-compile-history)
+    kept-history))
 
 (defun counsel--get-compile-candidates ()
   "Return the list of compile commands as directed by
