@@ -43,6 +43,7 @@
 (require 'swiper)
 (require 'compile)
 (require 'dired)
+(require 'cl-extra)
 
 (defgroup counsel nil
   "Completion functions using Ivy."
@@ -5113,6 +5114,10 @@ properties include:
      the root directory of the source code
 `blddir'
      the root directory of the build (in or outside the srcdir)
+`recursive'
+     the completion should be run again in `blddir' of this result
+`cmd'
+     if set only the region with this property will be passed to `compile'
 
 If you want to persist history between Emacs sessions you can as this
 to variable to `savehist-additional-variables'.")
@@ -5121,7 +5126,9 @@ to variable to `savehist-additional-variables'.")
   "Function to find the project root for compile commands.")
 
 (defvar counsel-compile-local-builds
-  '(counsel-compile-get-filtered-history counsel-compile-get-make-invocaton)
+  '(counsel-compile-get-filtered-history
+    counsel-compile-get-build-directories
+    counsel-compile-get-make-invocaton)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocations strings or
@@ -5140,6 +5147,11 @@ You may for example want to add -jN for the number of cores your
   (rx (or "m" "M" "GNUM") "akefile")
   "Pattern for matching against makefiles.")
 
+(defcustom counsel-compile-build-directories
+  '("build" "builds" "bld" ".build")
+  "Patterns for matching build directories."
+  :type 'list)
+
 ;; This is loosely based on the bash make completion code
 (defun counsel--get-make-targets (srcdir &optional blddir)
   "Return a list of make targets for a given SRCDIR/BLDDIR combination.
@@ -5153,7 +5165,9 @@ filtering results."
      (lambda(target)
        (propertize
         (concat
-         (format "make %s %s" counsel-compile-make-args target)
+         (propertize
+          (format "make %s %s" counsel-compile-make-args target)
+          'cmd 't)
          (if blddir
              (concat (propertize " in " 'face 'font-lock-warning-face)
                      (propertize blddir 'face 'dired-directory))))
@@ -5179,10 +5193,45 @@ The optional BLDDIR is useful for other helpers that have found
                      local-files :test #'string-match-p)
       (counsel--get-make-targets srcdir blddir))))
 
+(defun counsel--find-build-subdir (srcdir)
+  "Return builds sub-directory of SRCDIR, if one exists."
+  (cl-some
+   (lambda (x)
+     (let ((check (expand-file-name x srcdir)))
+       (when (file-directory-p check)
+         check)))
+   counsel-compile-build-directories))
+
+(defun counsel--get-build-subdirs (blddir)
+  "Return all subdues of BLDDIR sorted by access time."
+  (mapcar #'car
+          (sort
+           (directory-files-and-attributes blddir
+                                           t (rx (not (in "." ".."))))
+           (lambda (x y)
+             (time-less-p (nth 6 y) (nth 6 x))))))
+
+(defun counsel-compile-get-build-directories (&optional dir)
+  "Return a list of potential build directories."
+  (let* ((srcdir (or dir (funcall counsel-compile-root-function)))
+         (blddir (counsel--find-build-subdir srcdir)))
+    (when blddir
+      (mapcar
+       (lambda (sd)
+         (propertize
+          (concat
+           (propertize "select build in "
+                       'face 'font-lock-warning-face)
+           (propertize sd 'face 'dired-directory))
+          'srcdir srcdir
+          'blddir sd
+          'recursive 't))
+       (counsel--get-build-subdirs blddir)))))
+
 ;; No easy way to make directory local, would buffer local make more sense?
-(defun counsel-compile-get-filtered-history ()
+(defun counsel-compile-get-filtered-history (&optional dir)
   "Return a compile history relevant to current project."
-  (let ((root (funcall counsel-compile-root-function))
+  (let ((root (or dir (funcall counsel-compile-root-function)))
         (kept-history))
     (mapc
      (lambda (hist)
@@ -5194,7 +5243,7 @@ The optional BLDDIR is useful for other helpers that have found
      counsel-compile-history)
     kept-history))
 
-(defun counsel--get-compile-candidates ()
+(defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands as directed by
 `counsel-compile-local-builds'."
   (let ((cands))
@@ -5205,8 +5254,8 @@ The optional BLDDIR is useful for other helpers that have found
          (let ((more-cands
                 (cond
                   ((functionp c)
-                   (let ((fcands (funcall c)))
-                     (if (nlistp fcands)
+                   (let ((fcands (funcall c dir)))
+                     (if (and fcands (nlistp fcands))
                          (list fcands)
                        fcands)))
                   ((stringp c) (list c))
@@ -5216,16 +5265,32 @@ The optional BLDDIR is useful for other helpers that have found
        counsel-compile-local-builds)
       cands)))
 
-;;;###autoload
-(defun counsel-compile (&optional arg)
-  "Call `compile' completing from compile history and additional suggestions."
+(defun counsel-compile--wrapper (cmd)
+  "Process CMD to call `compile'.
+
+If CMD has the `recurse' property set we call `counsel-compile' again
+to further refine the compile options in the directory specified by `blddir'."
+  (let ((blddir (get-text-property 0 'blddir cmd))
+        (recursive (get-text-property 0 'recursive cmd))
+        (cmdprop (get-text-property 0 'cmd cmd)))
+    (if recursive
+        (counsel-compile blddir)
+      (let ((default-directory blddir))
+        (compile
+         (substring-no-properties
+          cmd 0 (if cmdprop
+                    (next-single-property-change 0 'cmd cmd))))))))
+
+;;;###auto load
+(defun counsel-compile (&optional dir)
+  "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
   (ivy-read "Compile command: "
-            (counsel--get-compile-candidates)
+            (counsel--get-compile-candidates dir)
             :require-match nil
             :sort nil
             :history 'counsel-compile-history
-            :action (lambda (x) (compile x))))
+            :action (lambda (x) (counsel-compile--wrapper x))))
 
 
 ;;* `counsel-mode'
