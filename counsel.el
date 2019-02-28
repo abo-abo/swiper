@@ -3127,6 +3127,24 @@ otherwise continue prompting for tags."
 ;;;###autoload
 (defalias 'counsel-org-goto #'counsel-outline)
 
+(defcustom counsel-org-goto-all-outline-path-prefix nil
+  "When the value is 'file, include the file name (without
+directory) into the outline path candidate.
+
+When 'full-file-path, include the full file name.
+
+When 'buffer-name, include the buffer name."
+  :type '(choice (const :tag "None" nil)
+	         (const :tag "File name" file)
+	         (const :tag "Full file name" full-file-path)
+	         (const :tag "Buffer name" buffer-name)))
+
+(defun counsel-org-goto-all--outline-path-prefix ()
+  (cl-case counsel-org-goto-all-outline-path-prefix
+    (file (file-name-nondirectory (buffer-file-name)))
+    (full-file-path (buffer-file-name))
+    (buffer-name (buffer-name))))
+
 (defvar counsel-outline-settings)
 
 ;;;###autoload
@@ -3141,7 +3159,8 @@ otherwise continue prompting for tags."
                 (nconc entries
                        (counsel-outline-candidates
                         (cdr (assq 'org-mode
-                                   counsel-outline-settings))))))))
+                                   counsel-outline-settings))
+                        (counsel-org-goto-all--outline-path-prefix)))))))
     (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
               :action #'counsel-org-goto-action
@@ -4255,30 +4274,33 @@ setting in `counsel-outline-settings', which see."
 (defvar counsel-outline--preselect 0
   "Index of the presected candidate in `counsel-outline'.")
 
-(defun counsel-outline-candidates (&optional settings)
+(defun counsel-outline-candidates (&optional settings prefix)
   "Return an alist of outline heading completion candidates.
 Each element is a pair (HEADING . MARKER), where the string
 HEADING is located at the position of MARKER.  SETTINGS is a
 plist entry from `counsel-outline-settings', which see."
-  (let ((bol-regex (concat "^\\(?:"
-                           (or (plist-get settings :outline-regexp)
-                               outline-regexp)
-                           "\\)"))
-        (outline-title-fn (or (plist-get settings :outline-title)
-                              #'counsel-outline-title))
-        (outline-level-fn (or (plist-get settings :outline-level)
-                              outline-level))
-        (display-style (or (plist-get settings :display-style)
-                           counsel-outline-display-style))
-        (path-separator (or (plist-get settings :path-separator)
-                            counsel-outline-path-separator))
-        (face-style (or (plist-get settings :face-style)
-                        counsel-outline-face-style))
-        (custom-faces (or (plist-get settings :custom-faces)
-                          counsel-outline-custom-faces))
-        (stack-level 0)
-        (orig-point (point))
-        cands name level marker stack)
+  (let* ((bol-regex (concat "^\\(?:"
+                            (or (plist-get settings :outline-regexp)
+                                outline-regexp)
+                            "\\)"))
+         (outline-title-fn (or (plist-get settings :outline-title)
+                               #'counsel-outline-title))
+         (outline-level-fn (or (plist-get settings :outline-level)
+                               outline-level))
+         (display-style (or (plist-get settings :display-style)
+                            counsel-outline-display-style))
+         (path-separator (or (plist-get settings :path-separator)
+                             counsel-outline-path-separator))
+         (face-style (or (plist-get settings :face-style)
+                         counsel-outline-face-style))
+         (custom-faces (or (plist-get settings :custom-faces)
+                           counsel-outline-custom-faces))
+         (stack-level 0)
+         (orig-point (point))
+         (stack (if prefix
+                    (list (counsel-outline--add-face
+                           prefix 0 face-style custom-faces))))
+         cands name level marker)
     (save-excursion
       (setq counsel-outline--preselect 0)
       (goto-char (point-min))
