@@ -3127,6 +3127,8 @@ otherwise continue prompting for tags."
 ;;;###autoload
 (defalias 'counsel-org-goto #'counsel-outline)
 
+(defvar counsel-outline-settings)
+
 ;;;###autoload
 (defun counsel-org-goto-all ()
   "Go to a different location in any org file."
@@ -3135,7 +3137,11 @@ otherwise continue prompting for tags."
     (dolist (b (buffer-list))
       (with-current-buffer b
         (when (derived-mode-p 'org-mode)
-          (setq entries (nconc entries (counsel-outline-candidates))))))
+          (setq entries
+                (nconc entries
+                       (counsel-outline-candidates
+                        (cdr (assq 'org-mode
+                                   counsel-outline-settings))))))))
     (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
               :action #'counsel-org-goto-action
