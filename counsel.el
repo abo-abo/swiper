@@ -3054,6 +3054,20 @@ otherwise continue prompting for tags."
 ;;;###autoload
 (defalias 'counsel-org-goto #'counsel-outline)
 
+(defcustom counsel-org-goto-all-outline-path-prefix nil
+  "Prefix for outline candidates in `counsel-org-goto-all'."
+  :type '(choice
+          (const :tag "None" nil)
+          (const :tag "File name" file-name)
+          (const :tag "File name (nondirectory part)" file-name-nondirectory)
+          (const :tag "Buffer name" buffer-name)))
+
+(defun counsel-org-goto-all--outline-path-prefix ()
+  (cl-case counsel-org-goto-all-outline-path-prefix
+    (file-name buffer-file-name)
+    (file-name-nondirectory (file-name-nondirectory buffer-file-name))
+    (buffer-name (buffer-name))))
+
 ;;;###autoload
 (defun counsel-org-goto-all ()
   "Go to a different location in any org file."
@@ -3062,7 +3076,11 @@ otherwise continue prompting for tags."
     (dolist (b (buffer-list))
       (with-current-buffer b
         (when (derived-mode-p 'org-mode)
-          (setq entries (nconc entries (counsel-outline-candidates))))))
+          (setq entries
+                (nconc entries
+                       (counsel-outline-candidates
+                        (cdr (assq 'org-mode counsel-outline-settings))
+                        (counsel-org-goto-all--outline-path-prefix)))))))
     (ivy-read "Goto: " entries
               :history 'counsel-org-goto-history
               :action #'counsel-org-goto-action
@@ -4176,12 +4194,13 @@ setting in `counsel-outline-settings', which see."
 (defvar counsel-outline--preselect 0
   "Index of the presected candidate in `counsel-outline'.")
 
-(defun counsel-outline-candidates (&optional settings)
+(defun counsel-outline-candidates (&optional settings prefix)
   "Return an alist of outline heading completion candidates.
 Each element is a pair (HEADING . MARKER), where the string
 HEADING is located at the position of MARKER.  SETTINGS is a
-plist entry from `counsel-outline-settings', which see."
-  (let ((bol-regex (concat "^\\(?:"
+plist entry from `counsel-outline-settings', which see.
+PREFIX is a string prepended to all candidates."
+  (let* ((bol-regex (concat "^\\(?:"
                            (or (plist-get settings :outline-regexp)
                                outline-regexp)
                            "\\)"))
@@ -4199,7 +4218,9 @@ plist entry from `counsel-outline-settings', which see."
                           counsel-outline-custom-faces))
         (stack-level 0)
         (orig-point (point))
-        cands name level marker stack)
+        (stack (and prefix (list (counsel-outline--add-face
+                                  prefix 0 face-style custom-faces))))
+        cands name level marker)
     (save-excursion
       (setq counsel-outline--preselect 0)
       (goto-char (point-min))
