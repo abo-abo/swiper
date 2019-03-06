@@ -1286,8 +1286,11 @@ will be called for each element of this list.")
                                ivy-alt-done
                                ivy-dispatching-done))
     (setq ivy-current-prefix-arg current-prefix-arg))
-  (let ((action (and (not ivy-inhibit-action)
-                     (ivy--get-action ivy-last))))
+  (let ((action
+         (if (functionp ivy-inhibit-action)
+             ivy-inhibit-action
+           (and (not ivy-inhibit-action)
+                (ivy--get-action ivy-last)))))
     (when action
       (let* ((collection (ivy-state-collection ivy-last))
              (current (ivy-state-current ivy-last))
