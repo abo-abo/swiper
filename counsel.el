@@ -1748,6 +1748,7 @@ currently checked out."
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
     (define-key map (kbd "C-M-y") 'counsel-yank-directory)
+    (define-key map (kbd "`") (ivy-make-magic-action "b"))
     map))
 
 (defun counsel-yank-directory ()
