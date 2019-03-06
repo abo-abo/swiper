@@ -2220,9 +2220,7 @@ can use `C-x r j i' to open that file."
  '(("j" find-file-other-window "other window")))
 
 ;;** `counsel-locate'
-(defcustom counsel-locate-cmd (cond ((eq system-type 'darwin)
-                                     'counsel-locate-cmd-noregex)
-                                    ((eq system-type 'berkeley-unix)
+(defcustom counsel-locate-cmd (cond ((memq system-type '(darwin berkeley-unix))
                                      'counsel-locate-cmd-noregex)
                                     ((and (eq system-type 'windows-nt)
                                           (executable-find "es.exe"))
