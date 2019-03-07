@@ -372,6 +372,15 @@ Make sure `swiper-mc' is on `mc/cmds-to-run-once' list."
 
 (declare-function outline-show-all "outline")
 
+(defvar swiper-use-visual-line-p
+  (lambda (n-lines)
+    (and visual-line-mode
+         ;; super-slow otherwise
+         (< (buffer-size) 20000)
+         (< n-lines 400)))
+  "A predicate that decides whether `line-move' or `forward-line' is used.
+Note that `line-move' can be very slow.")
+
 (defun swiper--candidates (&optional numbers-width)
   "Return a list of this buffer lines.
 
@@ -379,10 +388,7 @@ NUMBERS-WIDTH, when specified, is used for width spec of line
 numbers; replaces calculating the width from buffer line count."
   (let* ((inhibit-field-text-motion t)
          (n-lines (count-lines (point-min) (point-max))))
-    (if (and visual-line-mode
-             ;; super-slow otherwise
-             (< (buffer-size) 20000)
-             (< n-lines 400))
+    (if (funcall swiper-use-visual-line-p n-lines)
         (progn
           (when (eq major-mode 'org-mode)
             (require 'outline)
