@@ -1817,13 +1817,11 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-copy (x)
   "Copy file X."
-  (ivy-read "Copy file to: " #'read-file-name-internal
-            :matcher #'counsel--find-file-matcher
-            :action (lambda (new-name)
-                      (require 'dired-aux)
-                      (dired-copy-file x new-name 1))
-            :keymap counsel-find-file-map
-            :caller 'counsel-find-file-copy))
+  (let ((ivy-inhibit-action
+         (lambda (new-name)
+           (require 'dired-aux)
+           (dired-copy-file x new-name 1))))
+    (counsel-find-file)))
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
