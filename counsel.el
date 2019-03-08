@@ -1815,6 +1815,16 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
              #'yes-or-no-p)
            (apply #'format fmt args)))
 
+(defun counsel-find-file-copy (x)
+  "Copy file X."
+  (ivy-read "Copy file to: " #'read-file-name-internal
+            :matcher #'counsel--find-file-matcher
+            :action (lambda (new-name)
+                      (require 'dired-aux)
+                      (dired-copy-file x new-name 1))
+            :keymap counsel-find-file-map
+            :caller 'counsel-find-file-copy))
+
 (defun counsel-find-file-delete (x)
   "Delete file X."
   (when (or delete-by-moving-to-trash
@@ -1846,6 +1856,7 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
    ("k" counsel-find-file-delete "delete")
+   ("c" counsel-find-file-copy "copy file")
    ("m" counsel-find-file-move "move or rename")
    ("d" counsel-find-file-mkdir-action "mkdir")))
 
