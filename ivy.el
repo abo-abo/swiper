@@ -2864,7 +2864,9 @@ bound to `self-insert-command'."
                        (plist-get
                         ivy--actions-list
                         caller)))
-         (doc (nth 2 alist)))
+         (doc (format "%s (`%S')"
+                      (nth 2 alist)
+                      (nth 1 alist))))
     `(lambda (&optional arg)
        ,doc
        (interactive "p")
