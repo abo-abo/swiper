@@ -2855,17 +2855,26 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
         (ivy--cd-maybe))
     (insert last-input-event)))
 
-(defun ivy-make-magic-action (key)
+(defun ivy-make-magic-action (caller key)
   "Return a command that does the equivalent of `ivy-read-action' and KEY.
 This happens only when the input is empty.
 The intention is to bind the result to keys that are typically
 bound to `self-insert-command'."
-  (lambda (&optional arg)
-    (interactive "p")
-    (if (string= "" ivy-text)
-        (execute-kbd-macro
-         (kbd (concat "M-o " key)))
-      (self-insert-command arg))))
+  (let ((alist (assoc key
+                      (plist-get
+                       ivy--actions-list
+                       caller)))
+        (action (nth 1 alist))
+        (doc (concat (nth 2 alist)
+                     "\n\n"
+                     (documentation action))))
+    `(lambda (&optional arg)
+       ,doc
+       (interactive "p")
+       (if (string= "" ivy-text)
+           (execute-kbd-macro
+            (kbd (concat "M-o " key)))
+         (self-insert-command arg)))))
 
 (defcustom ivy-magic-tilde t
   "When non-nil, ~ will move home when selecting files.
