@@ -5052,14 +5052,20 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
 (defvar counsel--switch-buffer-temporary-buffers nil
   "Internal.")
 
+(defvar counsel--switch-buffer-previous-buffers nil
+  "Internal.")
+
 (defun counsel--switch-buffer-unwind ()
-  "Clear temporary file buffers.
+  "Clear temporary file buffers and restore `buffer-list'.
 The buffers are those opened during a session of `counsel-switch-buffer'."
-  (while counsel--switch-buffer-temporary-buffers
-    (let ((buf (pop counsel--switch-buffer-temporary-buffers)))
-      (kill-buffer buf))))
+  (mapc 'kill-buffer counsel--switch-buffer-temporary-buffers)
+  (mapc 'bury-buffer counsel--switch-buffer-previous-buffers)
+  (setq counsel--switch-buffer-temporary-buffers nil
+        counsel--switch-buffer-previous-buffers nil))
 
 (defun counsel--switch-buffer-update-fn ()
+  (unless counsel--switch-buffer-previous-buffers
+    (setq counsel--switch-buffer-previous-buffers (buffer-list)))
   (let ((current (ivy-state-current ivy-last)))
     ;; This check is necessary, otherwise typing into the completion
     ;; would create empty buffers.
