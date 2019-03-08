@@ -2860,14 +2860,11 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
 This happens only when the input is empty.
 The intention is to bind the result to keys that are typically
 bound to `self-insert-command'."
-  (let ((alist (assoc key
-                      (plist-get
-                       ivy--actions-list
-                       caller)))
-        (action (nth 1 alist))
-        (doc (concat (nth 2 alist)
-                     "\n\n"
-                     (documentation action))))
+  (let* ((alist (assoc key
+                       (plist-get
+                        ivy--actions-list
+                        caller)))
+         (doc (nth 2 alist)))
     `(lambda (&optional arg)
        ,doc
        (interactive "p")
