@@ -5080,8 +5080,10 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
 (defun counsel--switch-buffer-unwind ()
   "Clear temporary file buffers and restore `buffer-list'.
 The buffers are those opened during a session of `counsel-switch-buffer'."
-  (mapc 'kill-buffer counsel--switch-buffer-temporary-buffers)
-  (mapc 'bury-buffer counsel--switch-buffer-previous-buffers)
+  (mapc #'kill-buffer counsel--switch-buffer-temporary-buffers)
+  (mapc #'bury-buffer (cl-remove-if-not
+                       #'buffer-live-p
+                       counsel--switch-buffer-previous-buffers))
   (setq counsel--switch-buffer-temporary-buffers nil
         counsel--switch-buffer-previous-buffers nil))
 
