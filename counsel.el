@@ -1172,9 +1172,17 @@ selected face."
  '(("j" find-file-other-window "other window")
    ("x" counsel-find-file-extern "open externally")))
 
+;; Common helper for counsel
+(defun counsel--find-project-root (&optional domfile startdir)
+  "Traverse up from `default-directory' or STARTDIR until we find DOMFILE.
+Returns a fully expanded path."
+  (expand-file-name (locate-dominating-file
+                     (or startdir default-directory)
+                     (or domfile ".git"))))
+
 (defun counsel-locate-git-root ()
   "Locate the root of the git repository containing the current buffer."
-  (or (locate-dominating-file default-directory ".git")
+  (or (counsel--find-project-root ".git")
       (error "Not in a git repository")))
 
 ;;;###autoload
@@ -2632,7 +2640,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                      (car (split-string counsel-ag-command)))))))
   (setq counsel-ag-command (counsel--format-ag-command (or extra-ag-args "") "%s"))
   (let ((default-directory (or initial-directory
-                               (locate-dominating-file default-directory ".git")
+                               (counsel-locate-git-root)
                                default-directory)))
     (ivy-read (or ag-prompt
                   (concat (car (split-string counsel-ag-command)) ": "))
