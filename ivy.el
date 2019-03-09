@@ -2872,7 +2872,7 @@ bound to `self-insert-command'."
        (interactive "p")
        (if (string= "" ivy-text)
            (execute-kbd-macro
-            (kbd (concat "M-o " key)))
+            (kbd ,(concat "M-o " key)))
          (self-insert-command arg)))))
 
 (defcustom ivy-magic-tilde t
