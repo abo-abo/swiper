@@ -4283,7 +4283,8 @@ setting in `counsel-outline-settings', which see."
   "Return an alist of outline heading completion candidates.
 Each element is a pair (HEADING . MARKER), where the string
 HEADING is located at the position of MARKER.  SETTINGS is a
-plist entry from `counsel-outline-settings', which see."
+plist entry from `counsel-outline-settings', which see. PREFIX is
+a string prepended to all candidates."
   (let* ((bol-regex (concat "^\\(?:"
                             (or (plist-get settings :outline-regexp)
                                 outline-regexp)
