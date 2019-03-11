@@ -4303,9 +4303,9 @@ a string prepended to all candidates."
                            counsel-outline-custom-faces))
          (stack-level 0)
          (orig-point (point))
-         (stack (if prefix
-                    (list (counsel-outline--add-face
-                           prefix 0 face-style custom-faces))))
+         (stack (and prefix
+                     (list (counsel-outline--add-face
+                            prefix 0 face-style custom-faces))))
          cands name level marker)
     (save-excursion
       (setq counsel-outline--preselect 0)
