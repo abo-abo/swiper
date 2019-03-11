@@ -3128,21 +3128,26 @@ otherwise continue prompting for tags."
 (defalias 'counsel-org-goto #'counsel-outline)
 
 (defcustom counsel-org-goto-all-outline-path-prefix nil
-  "When the value is 'file, include the file name (without
-directory) into the outline path candidate.
+  "Prefix for outline candidates in `counsel-org-goto-all'.
 
-When 'full-file-path, include the full file name.
+When the value is symbol `file-name', use the full file name.
 
-When 'buffer-name, include the buffer name."
+When symbol `file-name-nondirectory', use the nondirectory part
+of the file name (as returned by `file-name-nondirectory').
+
+When symbol `buffer-name', use the buffer name.
+
+When nil, no prefix is used."
   :type '(choice (const :tag "None" nil)
-	         (const :tag "File name" file)
-	         (const :tag "Full file name" full-file-path)
+	         (const :tag "File name" file-name)
+	         (const :tag "File name (nondirectory part)"
+	                file-name-nondirectory)
 	         (const :tag "Buffer name" buffer-name)))
 
 (defun counsel-org-goto-all--outline-path-prefix ()
   (cl-case counsel-org-goto-all-outline-path-prefix
-    (file (file-name-nondirectory (buffer-file-name)))
-    (full-file-path (buffer-file-name))
+    (file-name buffer-file-name)
+    (file-name-nondirectory (file-name-nondirectory buffer-file-name))
     (buffer-name (buffer-name))))
 
 (defvar counsel-outline-settings)
