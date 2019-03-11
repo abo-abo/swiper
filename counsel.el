@@ -5265,6 +5265,26 @@ The optional BLDDIR is useful for other helpers that have found
        counsel-compile-local-builds)
       cands)))
 
+;; This is a workaround to ensure we tag all the relevant meta-data in
+;; our compile history. This also allows M-x compile to do fancy
+;; things like infer default-directory from cd's in the string.
+
+(defun counsel-compile--update-history(proc)
+  "Update `counsel-compile-history' from the compilation state."
+  (let ((srcdir (funcall counsel-compile-root-function))
+        (blddir default-directory)
+        (command (car compilation-arguments)))
+    (add-to-list
+     'counsel-compile-history
+     (propertize
+      (concat
+       (propertize command 'cmd 't)
+       (when (not (string-equal blddir srcdir))
+         (concat (propertize " in " 'face 'font-lock-warning-face)
+                 (propertize blddir 'face 'dired-directory))))
+      'srcdir srcdir
+      'blddir blddir))))
+
 (defun counsel-compile--wrapper (cmd)
   "Process CMD to call `compile'.
 
@@ -5285,11 +5305,11 @@ to further refine the compile options in the directory specified by `blddir'."
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
+  (add-hook 'compilation-start-hook 'counsel-compile--update-history)
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
             :require-match nil
             :sort nil
-            :history 'counsel-compile-history
             :action (lambda (x) (counsel-compile--wrapper x))))
 
 
