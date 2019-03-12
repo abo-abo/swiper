@@ -5122,8 +5122,22 @@ properties include:
 If you want to persist history between Emacs sessions you can as this
 to variable to `savehist-additional-variables'.")
 
-(defvar counsel-compile-root-function 'counsel-locate-git-root
+(defvar counsel-compile-root-function 'counsel-locate-project-dwim
   "Function to find the project root for compile commands.")
+
+;; alternative project root finder for counsel-compile-root-function
+(defun counsel-locate-dir-locals ()
+  "Locate the root of the project by looking for .dir-locals."
+  (or (counsel--find-project-root ".dir-locals.el")
+      (error "Couldn't find .dir-locals")))
+
+(defun counsel-locate-project-dwim ()
+  "Locate the root of the project by trying a series of things."
+  (or (when (fboundp 'project-current)
+        (project-current))
+      (counsel-locate-dir-locals)
+      (counsel-locate-git-root)
+      (error "Couldn't find project root")))
 
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
