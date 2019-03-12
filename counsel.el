@@ -5306,10 +5306,12 @@ to further refine the compile options in the directory specified by `blddir'."
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
-  (add-hook 'compilation-start-hook 'counsel-compile--update-history)
+  ;; No need to specify `:history' because of this hook.
+  (add-hook 'compilation-start-hook #'counsel-compile--update-history)
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
-            :action #'counsel-compile--wrapper))
+            :action #'counsel-compile--wrapper
+            :caller 'counsel-compile))
 
 ;;* `counsel-mode'
 (defvar counsel-mode-map
