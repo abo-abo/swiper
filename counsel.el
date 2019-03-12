@@ -5267,24 +5267,20 @@ The optional BLDDIR is useful for other helpers that have found
             (setq cands (nconc cands more-cands)))))
       cands)))
 
-;; This is a workaround to ensure we tag all the relevant meta-data in
-;; our compile history. This also allows M-x compile to do fancy
-;; things like infer default-directory from cd's in the string.
+;; This is a workaround to ensure we tag all the relevant metadata in
+;; our compile history.  This also allows M-x compile to do fancy
+;; things like infer `default-directory' from 'cd's in the string.
 (defun counsel-compile--update-history (_proc)
   "Update `counsel-compile-history' from the compilation state."
-  (let ((srcdir (funcall counsel-compile-root-function))
-        (blddir default-directory)
-        (command (car compilation-arguments)))
-    (add-to-list
-     'counsel-compile-history
-     (propertize
-      (concat
-       (propertize command 'cmd 't)
-       (when (not (string-equal blddir srcdir))
-         (concat (propertize " in " 'face 'font-lock-warning-face)
-                 (propertize blddir 'face 'dired-directory))))
-      'srcdir srcdir
-      'blddir blddir))))
+  (let* ((srcdir (funcall counsel-compile-root-function))
+         (blddir default-directory)
+         (cmd (concat
+               (propertize (car compilation-arguments) 'cmd t)
+               (unless (file-equal-p blddir srcdir)
+                 (concat (propertize " in " 'face 'font-lock-warning-face)
+                         (propertize blddir 'face 'dired-directory))))))
+    (add-text-properties 0 (length cmd) `(srcdir ,srcdir blddir ,blddir) cmd)
+    (add-to-history 'counsel-compile-history cmd)))
 
 (defun counsel-compile--action (cmd)
   "Process CMD to call `compile'.
