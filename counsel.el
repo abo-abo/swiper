@@ -1172,18 +1172,16 @@ selected face."
  '(("j" find-file-other-window "other window")
    ("x" counsel-find-file-extern "open externally")))
 
-;; Common helper for counsel
-(defun counsel--find-project-root (domfile &optional startdir)
-  "Traverse up from `default-directory' or STARTDIR until we find DOMFILE.
-Return a fully expanded path."
-  (expand-file-name
-   (locate-dominating-file
-    (or startdir default-directory)
-    domfile)))
+(defun counsel--dominating-file (file &optional dir)
+  "Look up directory hierarchy for FILE, starting in DIR.
+Like `locate-dominating-file', but DIR defaults to
+`default-directory' and the return value is expanded."
+  (and (setq dir (locate-dominating-file (or dir default-directory) file))
+       (expand-file-name dir)))
 
 (defun counsel-locate-git-root ()
   "Locate the root of the git repository containing the current buffer."
-  (or (counsel--find-project-root ".git")
+  (or (counsel--dominating-file ".git")
       (error "Not in a git repository")))
 
 ;;;###autoload
@@ -1192,7 +1190,7 @@ Return a fully expanded path."
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program counsel-git-cmd)
-  (let* ((default-directory (expand-file-name (counsel-locate-git-root)))
+  (let* ((default-directory (counsel-locate-git-root))
          (cands (split-string
                  (shell-command-to-string counsel-git-cmd)
                  "\n"
@@ -5128,8 +5126,8 @@ to variable to `savehist-additional-variables'.")
   "Locate the root of the project by trying a series of things."
   (or (when (fboundp 'project-current)
         (cdr (project-current)))
-      (counsel--find-project-root ".dir-locals.el")
-      (counsel--find-project-root ".git")
+      (counsel--dominating-file ".dir-locals.el")
+      (counsel--dominating-file ".git")
       (error "Couldn't find project root")))
 
 (defvar counsel-compile-local-builds
