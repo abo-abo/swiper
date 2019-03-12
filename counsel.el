@@ -5286,21 +5286,20 @@ The optional BLDDIR is useful for other helpers that have found
       'srcdir srcdir
       'blddir blddir))))
 
-(defun counsel-compile--wrapper (cmd)
+(defun counsel-compile--action (cmd)
   "Process CMD to call `compile'.
 
-If CMD has the `recurse' property set we call `counsel-compile' again
-to further refine the compile options in the directory specified by `blddir'."
-  (let ((blddir (get-text-property 0 'blddir cmd))
-        (recursive (get-text-property 0 'recursive cmd))
-        (cmdprop (get-text-property 0 'cmd cmd)))
-    (if recursive
+If CMD has the `recursive' property set we call `counsel-compile'
+again to further refine the compile options in the directory
+specified by the `blddir' property."
+  (let ((blddir (get-text-property 0 'blddir cmd)))
+    (if (get-text-property 0 'recursive cmd)
         (counsel-compile blddir)
+      (when (get-char-property 0 'cmd cmd)
+        (setq cmd (substring-no-properties
+                   cmd 0 (next-single-property-change 0 'cmd cmd))))
       (let ((default-directory blddir))
-        (compile
-         (substring-no-properties
-          cmd 0 (if cmdprop
-                    (next-single-property-change 0 'cmd cmd))))))))
+        (compile cmd)))))
 
 ;;;###autoload
 (defun counsel-compile (&optional dir)
@@ -5310,7 +5309,7 @@ to further refine the compile options in the directory specified by `blddir'."
   (add-hook 'compilation-start-hook #'counsel-compile--update-history)
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
-            :action #'counsel-compile--wrapper
+            :action #'counsel-compile--action
             :caller 'counsel-compile))
 
 ;;* `counsel-mode'
