@@ -1180,9 +1180,9 @@ Like `locate-dominating-file', but DIR defaults to
        (expand-file-name dir)))
 
 (defun counsel-locate-git-root ()
-  "Locate the root of the git repository containing the current buffer."
+  "Return the root of the Git repository containing the current buffer."
   (or (counsel--dominating-file ".git")
-      (error "Not in a git repository")))
+      (error "Not in a Git repository")))
 
 ;;;###autoload
 (defun counsel-git (&optional initial-input)
@@ -1282,7 +1282,7 @@ Typical value: '(recenter)."
   :type 'hook)
 
 (defun counsel-git-grep-function (str &optional _pred &rest _unused)
-  "Grep in the current git repository for STRING."
+  "Grep in the current Git repository for STRING."
   (or
    (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
         (ivy-more-chars))
@@ -1422,7 +1422,7 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
-  "Grep for a string in the current git repository.
+  "Grep for a string in the current Git repository.
 When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command.
 INITIAL-INPUT can be given as the initial minibuffer input."
@@ -1462,7 +1462,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
 (defun counsel-git-grep-proj-function (str)
-  "Grep for STR in the current git repository."
+  "Grep for STR in the current Git repository."
   (or
    (ivy-more-chars)
    (let ((regex (setq ivy--old-re
@@ -1672,7 +1672,7 @@ TREE is the selected candidate."
     (find-file file-name)))
 
 (defun counsel-git-worktree-list ()
-  "List worktrees in the git repository containing the current buffer."
+  "List worktrees in the Git repository containing the current buffer."
   (let ((default-directory (counsel-locate-git-root)))
     (split-string (shell-command-to-string "git worktree list") "\n" t)))
 
@@ -1721,7 +1721,7 @@ character (#x20), or the string's end if it lacks a space."
             (substring branch 0 (string-match-p " " branch))))))
 
 (defun counsel-git-branch-list ()
-  "Return list of branches in the current git repository.
+  "Return list of branches in the current Git repository.
 Value comprises all local and remote branches bar the one
 currently checked out."
   (cl-mapcan (lambda (line)
