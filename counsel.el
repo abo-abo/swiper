@@ -43,7 +43,6 @@
 (require 'swiper)
 (require 'compile)
 (require 'dired)
-(require 'cl-extra)
 
 (defgroup counsel nil
   "Completion functions using Ivy."
