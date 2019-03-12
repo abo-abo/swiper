@@ -1174,12 +1174,13 @@ selected face."
    ("x" counsel-find-file-extern "open externally")))
 
 ;; Common helper for counsel
-(defun counsel--find-project-root (&optional domfile startdir)
+(defun counsel--find-project-root (domfile &optional startdir)
   "Traverse up from `default-directory' or STARTDIR until we find DOMFILE.
-Returns a fully expanded path."
-  (expand-file-name (locate-dominating-file
-                     (or startdir default-directory)
-                     (or domfile ".git"))))
+Return a fully expanded path."
+  (expand-file-name
+   (locate-dominating-file
+    (or startdir default-directory)
+    domfile)))
 
 (defun counsel-locate-git-root ()
   "Locate the root of the git repository containing the current buffer."
@@ -5101,7 +5102,6 @@ in the current window."
             :unwind #'counsel--switch-buffer-unwind
             :update-fn 'counsel--switch-buffer-update-fn))
 
-
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
@@ -5122,21 +5122,15 @@ properties include:
 If you want to persist history between Emacs sessions you can as this
 to variable to `savehist-additional-variables'.")
 
-(defvar counsel-compile-root-function 'counsel-locate-project-dwim
+(defvar counsel-compile-root-function 'counsel-project-current
   "Function to find the project root for compile commands.")
 
-;; alternative project root finder for counsel-compile-root-function
-(defun counsel-locate-dir-locals ()
-  "Locate the root of the project by looking for .dir-locals."
-  (or (counsel--find-project-root ".dir-locals.el")
-      (error "Couldn't find .dir-locals")))
-
-(defun counsel-locate-project-dwim ()
+(defun counsel-project-current ()
   "Locate the root of the project by trying a series of things."
   (or (when (fboundp 'project-current)
-        (project-current))
-      (counsel-locate-dir-locals)
-      (counsel-locate-git-root)
+        (cdr (project-current)))
+      (counsel--find-project-root ".dir-locals.el")
+      (counsel--find-project-root ".git")
       (error "Couldn't find project root")))
 
 (defvar counsel-compile-local-builds
@@ -5153,13 +5147,12 @@ build environments.")
 
 (defcustom counsel-compile-make-args "-k"
   "Additional arguments for make.
-You may for example want to add -jN for the number of cores your
-  have"
+You may for example want to add -jN for the number of cores you have."
   :type 'string)
 
-(defcustom counsel-compile-make-pattern
-  (rx (or "m" "M" "GNUM") "akefile")
-  "Pattern for matching against makefiles.")
+(defcustom counsel-compile-make-pattern "\\(?:GNUM\\|[Mm]\\)akefile"
+  "Pattern for matching against makefiles."
+  :type 'regex)
 
 (defcustom counsel-compile-build-directories
   '("build" "builds" "bld" ".build")
@@ -5176,7 +5169,7 @@ are tagged with properties that `counsel-compile-history' can use for
 filtering results."
   (let ((default-directory (or blddir srcdir)))
     (mapcar
-     (lambda(target)
+     (lambda (target)
        (propertize
         (concat
          (propertize
@@ -5260,30 +5253,27 @@ The optional BLDDIR is useful for other helpers that have found
 (defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands as directed by
 `counsel-compile-local-builds'."
-  (let ((cands))
+  (let (cands)
     (if (stringp counsel-compile-local-builds)
         (setq cands (list counsel-compile-local-builds))
-      (mapc
-       (lambda (c)
-         (let ((more-cands
-                (cond
-                  ((functionp c)
-                   (let ((fcands (funcall c dir)))
-                     (if (and fcands (nlistp fcands))
-                         (list fcands)
-                       fcands)))
-                  ((stringp c) (list c))
-                  ((listp c) c))))
-           (when more-cands
-             (setq cands (nconc cands more-cands)))))
-       counsel-compile-local-builds)
+      (dolist (c counsel-compile-local-builds)
+        (let ((more-cands
+               (cond
+                 ((functionp c)
+                  (let ((fcands (funcall c dir)))
+                    (if (and fcands (nlistp fcands))
+                        (list fcands)
+                      fcands)))
+                 ((stringp c) (list c))
+                 ((listp c) c))))
+          (when more-cands
+            (setq cands (nconc cands more-cands)))))
       cands)))
 
 ;; This is a workaround to ensure we tag all the relevant meta-data in
 ;; our compile history. This also allows M-x compile to do fancy
 ;; things like infer default-directory from cd's in the string.
-
-(defun counsel-compile--update-history(proc)
+(defun counsel-compile--update-history (_proc)
   "Update `counsel-compile-history' from the compilation state."
   (let ((srcdir (funcall counsel-compile-root-function))
         (blddir default-directory)
@@ -5315,17 +5305,14 @@ to further refine the compile options in the directory specified by `blddir'."
           cmd 0 (if cmdprop
                     (next-single-property-change 0 'cmd cmd))))))))
 
-;;;###auto load
+;;;###autoload
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
   (add-hook 'compilation-start-hook 'counsel-compile--update-history)
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
-            :require-match nil
-            :sort nil
-            :action (lambda (x) (counsel-compile--wrapper x))))
-
+            :action #'counsel-compile--wrapper))
 
 ;;* `counsel-mode'
 (defvar counsel-mode-map
