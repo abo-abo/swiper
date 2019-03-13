@@ -5218,19 +5218,15 @@ The optional BLDDIR is useful for other helpers that have found
 (defun counsel-compile-get-build-directories (&optional dir)
   "Return a list of potential build directories."
   (let* ((srcdir (or dir (funcall counsel-compile-root-function)))
-         (blddir (counsel--find-build-subdir srcdir)))
-    (when blddir
-      (mapcar
-       (lambda (sd)
-         (propertize
-          (concat
-           (propertize "select build in "
-                       'face 'font-lock-warning-face)
-           (propertize sd 'face 'dired-directory))
-          'srcdir srcdir
-          'blddir sd
-          'recursive 't))
-       (counsel--get-build-subdirs blddir)))))
+         (blddir (counsel--find-build-subdir srcdir))
+         (props `(srcdir ,srcdir blddir ,blddir recursive t)))
+    (mapcar (lambda (s)
+              (setq s (concat (propertize "Select build in "
+                                          'face 'font-lock-warning-face)
+                              (propertize s 'face 'dired-directory)))
+              (add-text-properties 0 (length s) props s)
+              s)
+            (and blddir (counsel--get-build-subdirs blddir)))))
 
 ;; No easy way to make directory local, would buffer local make more sense?
 (defun counsel-compile-get-filtered-history (&optional dir)
