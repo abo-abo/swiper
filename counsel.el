@@ -5133,7 +5133,7 @@ to variable to `savehist-additional-variables'.")
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
     counsel-compile-get-build-directories
-    counsel-compile-get-make-invocaton)
+    counsel-compile-get-make-invocation)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocations strings or
@@ -5186,15 +5186,14 @@ filtering results."
                "sort"))
       "\n"))))
 
-(defun counsel-compile-get-make-invocaton (&optional blddir)
+(defun counsel-compile-get-make-invocation (&optional blddir)
   "Have a look in the root directory for any build control files.
 
 The optional BLDDIR is useful for other helpers that have found
-  sub-directories that builds may be invoked in."
-  (let* ((srcdir (funcall counsel-compile-root-function))
-         (local-files (directory-files (or blddir srcdir))))
-    (when (cl-member counsel-compile-make-pattern
-                     local-files :test #'string-match-p)
+subdirectories that builds may be invoked in."
+  (let ((srcdir (funcall counsel-compile-root-function)))
+    (when (directory-files (or blddir srcdir) nil
+                           counsel-compile-make-pattern t)
       (counsel--get-make-targets srcdir blddir))))
 
 (defun counsel--find-build-subdir (srcdir)
