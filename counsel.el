@@ -5103,29 +5103,29 @@ in the current window."
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
 
-This is a list of strings with additional properties which allow the
-history to be filtered depending on the context of the call.  The
-properties include:
+This is a list of strings with additional properties which allow
+the history to be filtered depending on the context of the call.
+The properties include:
 
 `srcdir'
-     the root directory of the source code
+    the root directory of the source code
 `blddir'
-     the root directory of the build (in or outside the srcdir)
+    the root directory of the build (in or outside the `srcdir')
 `recursive'
-     the completion should be run again in `blddir' of this result
+    the completion should be run again in `blddir' of this result
 `cmd'
-     if set only the region with this property will be passed to `compile'
+    if set, pass only the substring with this property to `compile'
 
-If you want to persist history between Emacs sessions you can as this
-to variable to `savehist-additional-variables'.")
+This variable is suitable for addition to
+`savehist-additional-variables'.")
 
-(defvar counsel-compile-root-function 'counsel-project-current
+(defvar counsel-compile-root-function #'counsel-project-current
   "Function to find the project root for compile commands.")
 
 (defun counsel-project-current ()
   "Locate the root of the project by trying a series of things."
-  (or (when (fboundp 'project-current)
-        (cdr (project-current)))
+  (or (and (fboundp 'project-current)
+           (cdr (project-current)))
       (counsel--dominating-file ".dir-locals.el")
       (counsel--dominating-file ".git")
       (error "Couldn't find project root")))
@@ -5136,25 +5136,26 @@ to variable to `savehist-additional-variables'.")
     counsel-compile-get-make-invocation)
   "Additional compile invocations to feed into `counsel-compile'.
 
-This can either be a list of compile invocations strings or
+This can either be a list of compile invocation strings or
 functions that will provide such a list.  You should customise
 this if you want to provide specific non-standard build types to
-`counsel-compile'.  The default helpers are set up to handle common
-build environments.")
+`counsel-compile'.  The default helpers are set up to handle
+common build environments.")
 
 (defcustom counsel-compile-make-args "-k"
   "Additional arguments for make.
-You may for example want to add -jN for the number of cores you have."
+You may, for example, want to add \"-jN\" for the number of cores
+N in your system."
   :type 'string)
 
-(defcustom counsel-compile-make-pattern "\\(?:GNUM\\|[Mm]\\)akefile"
-  "Pattern for matching against makefiles."
-  :type 'regex)
+(defcustom counsel-compile-make-pattern "\\`\\(?:GNUM\\|[Mm]\\)akefile\\'"
+  "Regexp for matching the names of Makefiles."
+  :type 'regexp)
 
 (defcustom counsel-compile-build-directories
   '("build" "builds" "bld" ".build")
-  "Patterns for matching build directories."
-  :type 'list)
+  "List of potential build subdirectory names to check for."
+  :type '(repeat directory))
 
 ;; This is loosely based on the Bash Make completion code
 (defun counsel--get-make-targets (srcdir &optional blddir)
