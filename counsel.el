@@ -5236,16 +5236,15 @@ The optional BLDDIR is useful for other helpers that have found
 (defun counsel-compile-get-filtered-history (&optional dir)
   "Return a compile history relevant to current project."
   (let ((root (or dir (funcall counsel-compile-root-function)))
-        (kept-history))
-    (mapc
-     (lambda (hist)
-       (let ((srcdir (get-text-property 0 'srcdir hist))
-             (blddir (get-text-property 0 'blddir hist)))
-         (when (or (and srcdir (string-match srcdir root))
-                   (and blddir (string-match blddir root)))
-           (push hist kept-history))))
-     counsel-compile-history)
-    kept-history))
+        history)
+    (dolist (item counsel-compile-history)
+      (let ((srcdir (get-text-property 0 'srcdir item))
+            (blddir (get-text-property 0 'blddir item)))
+        ;; FIXME: File names are not regexps!
+        (when (or (and srcdir (string-match-p srcdir root))
+                  (and blddir (string-match-p blddir root)))
+          (push item history))))
+    history))
 
 (defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands.
