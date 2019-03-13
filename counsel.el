@@ -5243,7 +5243,10 @@ subdirectories that builds may be invoked in."
                 s))
             (and blddir (counsel--get-build-subdirs blddir)))))
 
-;; No easy way to make directory local, would buffer local make more sense?
+;; This is a workaround for the fact there is no concept of "project"
+;; local variables (as opposed to for example buffer-local).  So we
+;; store all our history in a global list filter out the results we
+;; don't want.
 (defun counsel-compile-get-filtered-history (&optional dir)
   "Return a compile history relevant to current project."
   (let ((root (or dir (counsel--compile-root)))
@@ -5251,9 +5254,8 @@ subdirectories that builds may be invoked in."
     (dolist (item counsel-compile-history)
       (let ((srcdir (get-text-property 0 'srcdir item))
             (blddir (get-text-property 0 'blddir item)))
-        ;; FIXME: File names are not regexps!
-        (when (or (and srcdir (string-match-p srcdir root))
-                  (and blddir (string-match-p blddir root)))
+        (when (or (and srcdir (file-in-directory-p srcdir root))
+                  (and blddir (file-in-directory-p blddir root)))
           (push item history))))
     history))
 
