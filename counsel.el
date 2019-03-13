@@ -5198,13 +5198,11 @@ The optional BLDDIR is useful for other helpers that have found
       (counsel--get-make-targets srcdir blddir))))
 
 (defun counsel--find-build-subdir (srcdir)
-  "Return builds sub-directory of SRCDIR, if one exists."
-  (cl-some
-   (lambda (x)
-     (let ((check (expand-file-name x srcdir)))
-       (when (file-directory-p check)
-         check)))
-   counsel-compile-build-directories))
+  "Return builds subdirectory of SRCDIR, if one exists."
+  (cl-some (lambda (dir)
+             (setq dir (expand-file-name dir srcdir))
+             (and (file-directory-p dir) dir))
+           counsel-compile-build-directories))
 
 (defun counsel--get-build-subdirs (blddir)
   "Return all subdirs of BLDDIR sorted by access time."
