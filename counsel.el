@@ -1181,7 +1181,7 @@ Like `locate-dominating-file', but DIR defaults to
 
 (defun counsel-locate-git-root ()
   "Return the root of the Git repository containing the current buffer."
-  (or (counsel--dominating-file ".git")
+  (or (counsel--root-git)
       (error "Not in a Git repository")))
 
 ;;;###autoload
@@ -5119,16 +5119,36 @@ The properties include:
 This variable is suitable for addition to
 `savehist-additional-variables'.")
 
-(defvar counsel-compile-root-function #'counsel-project-current
-  "Function to find the project root for compile commands.")
+(defvar counsel-compile-root-functions
+  '(counsel--root-project
+    counsel--root-dir-locals
+    counsel--root-git)
+  "Special hook to find the project root for compile commands.
+Each function on this hook is called in turn with no arguments
+and should return either a directory, or nil if no root was
+found.")
 
-(defun counsel-project-current ()
-  "Locate the root of the project by trying a series of things."
-  (or (and (fboundp 'project-current)
-           (cdr (project-current)))
-      (counsel--dominating-file ".dir-locals.el")
-      (counsel--dominating-file ".git")
+(defun counsel--compile-root ()
+  "Return root of current project or signal an error on failure.
+The root is determined by `counsel-compile-root-functions'."
+  (or (run-hook-with-args-until-success 'counsel-compile-root-functions)
       (error "Couldn't find project root")))
+
+(defun counsel--root-project ()
+  "Return root of current project or nil on failure.
+Use `project-current' to determine the root."
+  (and (fboundp 'project-current)
+       (cdr (project-current))))
+
+(defun counsel--root-dir-locals ()
+  "Return root of current project or nil on failure.
+Use the presence of a `dir-locals-file' to determine the root."
+  (counsel--dominating-file dir-locals-file))
+
+(defun counsel--root-git ()
+  "Return root of current project or nil on failure.
+Use the presence of a \".git\" file to determine the root."
+  (counsel--dominating-file ".git"))
 
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
@@ -5189,7 +5209,7 @@ make -nqp |\
 
 The optional BLDDIR is useful for other helpers that have found
 subdirectories that builds may be invoked in."
-  (let ((srcdir (funcall counsel-compile-root-function)))
+  (let ((srcdir (counsel--compile-root)))
     (when (directory-files (or blddir srcdir) nil
                            counsel-compile-make-pattern t)
       (counsel--get-make-targets srcdir blddir))))
@@ -5211,7 +5231,7 @@ subdirectories that builds may be invoked in."
 
 (defun counsel-compile-get-build-directories (&optional dir)
   "Return a list of potential build directories."
-  (let* ((srcdir (or dir (funcall counsel-compile-root-function)))
+  (let* ((srcdir (or dir (counsel--compile-root)))
          (blddir (counsel--find-build-subdir srcdir))
          (props `(srcdir ,srcdir blddir ,blddir recursive t)))
     (mapcar (lambda (s)
@@ -5225,7 +5245,7 @@ subdirectories that builds may be invoked in."
 ;; No easy way to make directory local, would buffer local make more sense?
 (defun counsel-compile-get-filtered-history (&optional dir)
   "Return a compile history relevant to current project."
-  (let ((root (or dir (funcall counsel-compile-root-function)))
+  (let ((root (or dir (counsel--compile-root)))
         history)
     (dolist (item counsel-compile-history)
       (let ((srcdir (get-text-property 0 'srcdir item))
@@ -5255,7 +5275,7 @@ This is determined by `counsel-compile-local-builds', which see."
 ;; things like infer `default-directory' from 'cd's in the string.
 (defun counsel-compile--update-history (_proc)
   "Update `counsel-compile-history' from the compilation state."
-  (let* ((srcdir (funcall counsel-compile-root-function))
+  (let* ((srcdir (counsel--compile-root))
          (blddir default-directory)
          (cmd (concat
                (propertize (car compilation-arguments) 'cmd t)
