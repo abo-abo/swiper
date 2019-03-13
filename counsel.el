@@ -5262,10 +5262,7 @@ subdirectories that builds may be invoked in."
   "Return the list of compile commands.
 This is determined by `counsel-compile-local-builds', which see."
   (let (cands)
-    ;; FIXME: Shouldn't `counsel-compile-local-builds' always be a list?
-    (dolist (cmds (if (listp counsel-compile-local-builds)
-                      counsel-compile-local-builds
-                    (list counsel-compile-local-builds)))
+    (dolist (cmds counsel-compile-local-builds)
       (when (functionp cmds)
         (setq cmds (funcall cmds dir)))
       (when cmds
