@@ -5248,24 +5248,18 @@ The optional BLDDIR is useful for other helpers that have found
     kept-history))
 
 (defun counsel--get-compile-candidates (&optional dir)
-  "Return the list of compile commands as directed by
-`counsel-compile-local-builds'."
+  "Return the list of compile commands.
+This is determined by `counsel-compile-local-builds', which see."
   (let (cands)
-    (if (stringp counsel-compile-local-builds)
-        (setq cands (list counsel-compile-local-builds))
-      (dolist (c counsel-compile-local-builds)
-        (let ((more-cands
-               (cond
-                 ((functionp c)
-                  (let ((fcands (funcall c dir)))
-                    (if (and fcands (nlistp fcands))
-                        (list fcands)
-                      fcands)))
-                 ((stringp c) (list c))
-                 ((listp c) c))))
-          (when more-cands
-            (setq cands (nconc cands more-cands)))))
-      cands)))
+    ;; FIXME: Shouldn't `counsel-compile-local-builds' always be a list?
+    (dolist (cmds (if (listp counsel-compile-local-builds)
+                      counsel-compile-local-builds
+                    (list counsel-compile-local-builds)))
+      (when (functionp cmds)
+        (setq cmds (funcall cmds dir)))
+      (when cmds
+        (push (if (listp cmds) cmds (list cmds)) cands)))
+    (apply #'append (nreverse cands))))
 
 ;; This is a workaround to ensure we tag all the relevant metadata in
 ;; our compile history.  This also allows M-x compile to do fancy
