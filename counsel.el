@@ -5156,35 +5156,32 @@ You may for example want to add -jN for the number of cores you have."
   "Patterns for matching build directories."
   :type 'list)
 
-;; This is loosely based on the bash make completion code
+;; This is loosely based on the Bash Make completion code
 (defun counsel--get-make-targets (srcdir &optional blddir)
-  "Return a list of make targets for a given SRCDIR/BLDDIR combination.
+  "Return a list of Make targets for a given SRCDIR/BLDDIR combination.
 
-We search the Makefile for a list of PHONY targets which are generally
-the top-level targets a make system provides. The resulting strings
-are tagged with properties that `counsel-compile-history' can use for
-filtering results."
-  (let ((default-directory (or blddir srcdir)))
-    (mapcar
-     (lambda (target)
-       (propertize
-        (concat
-         (propertize
-          (format "make %s %s" counsel-compile-make-args target)
-          'cmd 't)
-         (if blddir
-             (concat (propertize " in " 'face 'font-lock-warning-face)
-                     (propertize blddir 'face 'dired-directory))))
-        'srcdir srcdir
-        'blddir default-directory))
-     (split-string
-      (shell-command-to-string
-       (concat "make -nqp |"
-               "grep -B 1 PHONY |"
-               "grep ':' |"
-               "cut -d ':' -f 1 |"
-               "sort"))
-      "\n"))))
+We search the Makefile for a list of phony targets which are
+generally the top-level targets a Make system provides.
+The resulting strings are tagged with properties that
+`counsel-compile-history' can use for filtering results."
+  (let* ((default-directory (or blddir srcdir))
+         (fmt (format (propertize "make %s %%s" 'cmd t)
+                      counsel-compile-make-args))
+         (suffix (and blddir
+                      (concat (propertize " in " 'face 'font-lock-warning-face)
+                              (propertize blddir 'face 'dired-directory))))
+         (props `(srcdir ,srcdir blddir ,default-directory)))
+    (mapcar (lambda (target)
+              (setq target (concat (format fmt target) suffix))
+              (add-text-properties 0 (length target) props target)
+              target)
+            (split-string (shell-command-to-string "\
+make -nqp |\
+ grep -B 1 PHONY |\
+ grep ':' |\
+ cut -d ':' -f 1 |\
+ sort")
+                          "\n"))))
 
 (defun counsel-compile-get-make-invocation (&optional blddir)
   "Have a look in the root directory for any build control files.
