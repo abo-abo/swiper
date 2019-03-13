@@ -5207,13 +5207,12 @@ The optional BLDDIR is useful for other helpers that have found
    counsel-compile-build-directories))
 
 (defun counsel--get-build-subdirs (blddir)
-  "Return all subdues of BLDDIR sorted by access time."
-  (mapcar #'car
-          (sort
-           (directory-files-and-attributes blddir
-                                           t (rx (not (in "." ".."))))
-           (lambda (x y)
-             (time-less-p (nth 6 y) (nth 6 x))))))
+  "Return all subdirs of BLDDIR sorted by access time."
+  (mapcar #'car (sort (directory-files-and-attributes
+                       blddir t directory-files-no-dot-files-regexp t)
+                      (lambda (x y)
+                        ;; FIXME: Access time is NOT the 7th file attribute.
+                        (time-less-p (nth 6 y) (nth 6 x))))))
 
 (defun counsel-compile-get-build-directories (&optional dir)
   "Return a list of potential build directories."
