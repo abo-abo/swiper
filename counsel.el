@@ -2639,7 +2639,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                      (car (split-string counsel-ag-command)))))))
   (setq counsel-ag-command (counsel--format-ag-command (or extra-ag-args "") "%s"))
   (let ((default-directory (or initial-directory
-                               (counsel-locate-git-root)
+                               (counsel--root-git)
                                default-directory)))
     (ivy-read (or ag-prompt
                   (concat (car (split-string counsel-ag-command)) ": "))
