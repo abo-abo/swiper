@@ -5222,11 +5222,10 @@ subdirectories that builds may be invoked in."
            counsel-compile-build-directories))
 
 (defun counsel--get-build-subdirs (blddir)
-  "Return all subdirs of BLDDIR sorted by access time."
+  "Return all subdirs of BLDDIR sorted by modification time."
   (mapcar #'car (sort (directory-files-and-attributes
                        blddir t directory-files-no-dot-files-regexp t)
                       (lambda (x y)
-                        ;; FIXME: Access time is NOT the 7th file attribute.
                         (time-less-p (nth 6 y) (nth 6 x))))))
 
 (defun counsel-compile-get-build-directories (&optional dir)
