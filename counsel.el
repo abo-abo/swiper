@@ -5233,13 +5233,14 @@ subdirectories that builds may be invoked in."
   "Return a list of potential build directories."
   (let* ((srcdir (or dir (counsel--compile-root)))
          (blddir (counsel--find-build-subdir srcdir))
-         (props `(srcdir ,srcdir blddir ,blddir recursive t)))
-    (mapcar (lambda (s)
-              (setq s (concat (propertize "Select build in "
-                                          'face 'font-lock-warning-face)
-                              (propertize s 'face 'dired-directory)))
-              (add-text-properties 0 (length s) props s)
-              s)
+         (props `(srcdir ,srcdir recursive t))
+         (fmt (concat (propertize "Select build in "
+                                  'face 'font-lock-warning-face)
+                      (propertize "%s" 'face 'dired-directory))))
+    (mapcar (lambda (subdir)
+              (let ((s (format fmt subdir)))
+                (add-text-properties 0 (length s) `(blddir ,subdir ,@props) s)
+                s))
             (and blddir (counsel--get-build-subdirs blddir)))))
 
 ;; No easy way to make directory local, would buffer local make more sense?
