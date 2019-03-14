@@ -5164,7 +5164,7 @@ You may, for example, want to add \"-jN\" for the number of cores
 N in your system."
   :type 'string)
 
-(defcustom counsel-compile-make-pattern "\\`\\(?:GNUM\\|[Mm]\\)akefile\\'"
+(defcustom counsel-compile-make-pattern "\\`\\(?:GNUm\\|[Mm]\\)akefile\\'"
   "Regexp for matching the names of Makefiles."
   :type 'regexp)
 
