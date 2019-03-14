@@ -5120,9 +5120,9 @@ This variable is suitable for addition to
 `savehist-additional-variables'.")
 
 (defvar counsel-compile-root-functions
-  (list #'counsel--project-current
+  (list 'counsel--project-current
         (apply-partially #'counsel--dominating-file "configure")
-        #'counsel--git-root
+        'counsel--git-root
         (apply-partially #'counsel--dominating-file dir-locals-file))
   "Special hook to find the project root for compile commands.
 Each function on this hook is called in turn with no arguments
@@ -5293,14 +5293,16 @@ specified by the `blddir' property."
         (setq cmd (substring-no-properties
                    cmd 0 (next-single-property-change 0 'cmd cmd))))
       (let ((default-directory blddir))
-        (compile cmd)))))
+        ;; No need to specify `:history' because of this hook.
+        (add-hook 'compilation-start-hook #'counsel-compile--update-history)
+        (unwind-protect
+             (compile cmd)
+          (remove-hook 'compilation-start-hook #'counsel-compile--update-history))))))
 
 ;;;###autoload
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
-  ;; No need to specify `:history' because of this hook.
-  (add-hook 'compilation-start-hook #'counsel-compile--update-history)
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
             :action #'counsel-compile--action
