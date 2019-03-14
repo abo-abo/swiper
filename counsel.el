@@ -2493,7 +2493,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))
 
-(defcustom counsel-dired-jump-args "* -type f -not -path '*/.git*'"
+(defcustom counsel-dired-jump-args "* -type d -not -path '*/.git*'"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
   :type 'string)
 
