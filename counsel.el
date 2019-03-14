@@ -1181,7 +1181,7 @@ Like `locate-dominating-file', but DIR defaults to
 
 (defun counsel-locate-git-root ()
   "Return the root of the Git repository containing the current buffer."
-  (or (counsel--root-git)
+  (or (counsel--git-root)
       (error "Not in a Git repository")))
 
 ;;;###autoload
@@ -2639,7 +2639,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                                      (car (split-string counsel-ag-command)))))))
   (setq counsel-ag-command (counsel--format-ag-command (or extra-ag-args "") "%s"))
   (let ((default-directory (or initial-directory
-                               (counsel--root-git)
+                               (counsel--git-root)
                                default-directory)))
     (ivy-read (or ag-prompt
                   (concat (car (split-string counsel-ag-command)) ": "))
@@ -5122,7 +5122,7 @@ This variable is suitable for addition to
 (defvar counsel-compile-root-functions
   '(counsel--root-project
     counsel--root-dir-locals
-    counsel--root-git)
+    counsel--git-root)
   "Special hook to find the project root for compile commands.
 Each function on this hook is called in turn with no arguments
 and should return either a directory, or nil if no root was
@@ -5145,7 +5145,7 @@ Use `project-current' to determine the root."
 Use the presence of a `dir-locals-file' to determine the root."
   (counsel--dominating-file dir-locals-file))
 
-(defun counsel--root-git ()
+(defun counsel--git-root ()
   "Return root of current project or nil on failure.
 Use the presence of a \".git\" file to determine the root."
   (counsel--dominating-file ".git"))
