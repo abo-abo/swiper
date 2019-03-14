@@ -5174,7 +5174,7 @@ N in your system."
   :type '(repeat directory))
 
 ;; This is loosely based on the Bash Make completion code
-(defun counsel--get-make-targets (srcdir &optional blddir)
+(defun counsel--compile-get-make-targets (srcdir &optional blddir)
   "Return a list of Make targets for a given SRCDIR/BLDDIR combination.
 
 We search the Makefile for a list of phony targets which are
@@ -5208,7 +5208,7 @@ subdirectories that builds may be invoked in."
   (let ((srcdir (counsel--compile-root)))
     (when (directory-files (or blddir srcdir) nil
                            counsel-compile-make-pattern t)
-      (counsel--get-make-targets srcdir blddir))))
+      (counsel--compile-get-make-targets srcdir blddir))))
 
 (defun counsel--find-build-subdir (srcdir)
   "Return builds subdirectory of SRCDIR, if one exists."
