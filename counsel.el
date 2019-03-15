@@ -5120,10 +5120,10 @@ This variable is suitable for addition to
 `savehist-additional-variables'.")
 
 (defvar counsel-compile-root-functions
-  (list 'counsel--project-current
-        (apply-partially #'counsel--dominating-file "configure")
-        'counsel--git-root
-        (apply-partially #'counsel--dominating-file dir-locals-file))
+  '(counsel--project-current
+    counsel--configure-root
+    counsel--git-root
+    counsel--dir-locals-root)
   "Special hook to find the project root for compile commands.
 Each function on this hook is called in turn with no arguments
 and should return either a directory, or nil if no root was
@@ -5141,10 +5141,20 @@ Use `project-current' to determine the root."
   (and (fboundp 'project-current)
        (cdr (project-current))))
 
+(defun counsel--configure-root ()
+  "Return root of current project or nil on failure.
+Use the presence of a \"configure\" file to determine the root."
+  (counsel--dominating-file "configure"))
+
 (defun counsel--git-root ()
   "Return root of current project or nil on failure.
 Use the presence of a \".git\" file to determine the root."
   (counsel--dominating-file ".git"))
+
+(defun counsel--dir-locals-root ()
+  "Return root of current project or nil on failure.
+Use the presence of a `dir-locals-file' to determine the root."
+  (counsel--dominating-file dir-locals-file))
 
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
