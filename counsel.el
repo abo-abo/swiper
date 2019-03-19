@@ -1409,7 +1409,7 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
              (signal (car status) (cdr status))))
       (delete-file stderr))))
 
-(defun counsel--git-grep-count-func-default ()
+(defun counsel-git-grep-count-function-du ()
   "Default function to calculate `counsel--git-grep-count'."
   (or (unless (eq system-type 'windows-nt)
         (ignore-errors
@@ -1417,8 +1417,20 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
             (read (counsel--call "du" "-s" git-dir)))))
       0))
 
-(defvar counsel--git-grep-count-func #'counsel--git-grep-count-func-default
-  "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'.")
+(defcustom counsel-git-grep-count-function #'counsel-git-grep-count-function-du
+  "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'."
+  :type '(choice
+          (const :tag "Grep always does filtering."
+           (lambda () most-positive-fixnum))
+          (const :tag "Emacs always does filtering."
+           (lambda () 0))
+          (const :tag "Decide on Grep or Emacs based on .git directory size."
+           'counsel-git-grep-count-function-du)))
+
+(define-obsolete-variable-alias 'counsel--git-grep-count-func
+    'counsel-git-grep-count-function "0.11.0")
+(define-obsolete-function-alias 'counsel--git-grep-count-func-default
+    'counsel-git-grep-count-function-du "0.11.0")
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
@@ -1446,7 +1458,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
           (default-directory (if proj
                                  (car proj)
                                (counsel-locate-git-root))))
-      (setq counsel--git-grep-count (funcall counsel--git-grep-count-func))
+      (setq counsel--git-grep-count (funcall counsel-git-grep-count-function))
       (ivy-read "git grep: " collection-function
                 :initial-input initial-input
                 :matcher #'counsel-git-grep-matcher
