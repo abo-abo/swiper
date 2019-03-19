@@ -5073,16 +5073,18 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
 (defun counsel--switch-buffer-update-fn ()
   (unless counsel--switch-buffer-previous-buffers
     (setq counsel--switch-buffer-previous-buffers (buffer-list)))
-  (let ((current (ivy-state-current ivy-last)))
-    (cond ((get-buffer current)
-           (ivy-call))
-          ((and ivy-use-virtual-buffers (file-exists-p current))
-           (let ((buf (find-file-noselect current)))
-             (push buf counsel--switch-buffer-temporary-buffers)
-             (ivy-call)))
-          (t
-           (with-ivy-window
-             (switch-to-buffer (ivy-state-buffer ivy-last)))))))
+  (let* ((current (ivy-state-current ivy-last))
+         (virtual (assoc current ivy--virtual-buffers)))
+    (cond
+      ((get-buffer current)
+       (ivy-call))
+      ((and virtual (file-exists-p (cdr virtual)))
+       (let ((buf (find-file-noselect (cdr virtual))))
+         (push buf counsel--switch-buffer-temporary-buffers)
+         (ivy-call)))
+      (t
+       (with-ivy-window
+         (switch-to-buffer (ivy-state-buffer ivy-last)))))))
 
 ;;;###autoload
 (defun counsel-switch-buffer ()
