@@ -1409,6 +1409,11 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
              (signal (car status) (cdr status))))
       (delete-file stderr))))
 
+(define-obsolete-variable-alias 'counsel--git-grep-count-func
+    'counsel-git-grep-count-function "0.11.0")
+(define-obsolete-function-alias 'counsel--git-grep-count-func-default
+    'counsel-git-grep-count-function-du "0.11.0")
+
 (defun counsel-git-grep-count-function-du ()
   "Default function to calculate `counsel--git-grep-count'."
   (or (unless (eq system-type 'windows-nt)
@@ -1418,19 +1423,15 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
       0))
 
 (defcustom counsel-git-grep-count-function #'counsel-git-grep-count-function-du
-  "Defun to calculate `counsel--git-grep-count' for `counsel-git-grep'."
-  :type '(choice
-          (const :tag "Grep always does filtering."
+  "Function to calculate `counsel--git-grep-count' for `counsel-git-grep'."
+  :type '(radio
+          (function-item :doc "Always filter with Grep"
            (lambda () most-positive-fixnum))
-          (const :tag "Emacs always does filtering."
+          (function-item :doc "Always filter with Emacs"
            (lambda () 0))
-          (const :tag "Decide on Grep or Emacs based on .git directory size."
-           'counsel-git-grep-count-function-du)))
-
-(define-obsolete-variable-alias 'counsel--git-grep-count-func
-    'counsel-git-grep-count-function "0.11.0")
-(define-obsolete-function-alias 'counsel--git-grep-count-func-default
-    'counsel-git-grep-count-function-du "0.11.0")
+          (function-item
+           :doc "Choose between Grep or Emacs based on .git directory size"
+           counsel-git-grep-count-function-du)))
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
