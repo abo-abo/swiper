@@ -3992,11 +3992,11 @@ Skip buffers that match `ivy-ignore-buffers'."
   "Occur function for `ivy-switch-buffer' using `ibuffer'."
   (ibuffer
    nil (buffer-name)
-   `((or ,@(cl-loop for cand in ivy--old-cands
-                    unless (eq (get-text-property 0 'face cand)
-                               'ivy-virtual)
-                    collect `(name . ,(format "\\_<%s\\_>"
-                                              (regexp-quote cand))))))))
+   `((or ,@(cl-mapcan
+            (lambda (cand)
+              (unless (eq (get-text-property 0 'face cand) 'ivy-virtual)
+                `((name . ,(format "\\_<%s\\_>" (regexp-quote cand))))))
+            ivy--old-cands)))))
 
 ;;;###autoload
 (defun ivy-switch-buffer ()
