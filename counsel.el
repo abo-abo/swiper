@@ -62,7 +62,9 @@ namely a string or a list.  The return value is always a string.
 Note that incorrect results may be returned for sufficiently
 complex regexes."
   (if (consp regex)
-      (if look-around
+      (if (and look-around
+               (or (cdr regex)
+                   (not (cdar regex))))
           (concat
            "^"
            (mapconcat
@@ -82,7 +84,7 @@ complex regexes."
          (cl-remove-if-not #'cdr regex)
          ".*"))
     (replace-regexp-in-string
-     "\\\\[(){}|]\\|[()]"
+     "\\\\[(){}|`']\\|[()]"
      (lambda (s)
        (or (cdr (assoc s '(("\\(" . "(")
                            ("\\)" . ")")
@@ -90,7 +92,9 @@ complex regexes."
                            (")" . "\\)")
                            ("\\{" . "{")
                            ("\\}" . "}")
-                           ("\\|" . "|"))))
+                           ("\\|" . "|")
+                           ("\\`" . "^")
+                           ("\\'" . "$"))))
            (error
             "Unexpected error in `counsel--elisp-to-pcre' (got match %S)" s)))
      regex t t)))
@@ -1213,9 +1217,9 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (cd (ivy-state-directory ivy-last))
   (counsel-cmd-to-dired
    (counsel--expand-ls
-    (format "%s | grep -i -E '%s' | xargs ls"
+    (format "%s | %s | xargs ls"
             counsel-git-cmd
-            (counsel--elisp-to-pcre ivy--old-re)))))
+            (counsel--file-name-filter)))))
 
 (defvar counsel-dired-listing-switches "-alh"
   "Switches passed to `ls' for `counsel-cmd-to-dired'.")
@@ -1845,7 +1849,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
-(defvar counsel-find-file-occur-cmd "ls -a | grep -i -E '%s' | xargs -d '\\n' ls -d --group-directories-first"
+(defvar counsel-find-file-occur-cmd "ls -a | %s | xargs -d '\\n' ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
 
 (defvar counsel-find-file-occur-use-find (not (eq system-type 'gnu/linux))
@@ -1855,11 +1859,47 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   "Expand CMD that ends in \"ls\" with switches."
   (concat cmd " " counsel-dired-listing-switches " | sed -e \"s/^/  /\""))
 
+(defvar counsel-file-name-filter-alist
+  '(("ag -i '%s'" . t)
+    ("ack -i '%s'" . t)
+    ("perl -ne '/(%s.*)/i && print \"$1\\n\";'" . t)
+    ("grep -i -E '%s'"))
+  "Alist of file name filtering commands.
+The car is a shell command and the cdr is t when the shell
+command supports look-arounds.  The executable for the commands
+will be checked for existence via `executable-find'.  The first
+one that exists will be used.")
+
+(defun counsel--file-name-filter (&optional use-ignore)
+  "Return a command that filters a file list to match ivy candidates.
+If USE-IGNORE is non-nil, try to generate a command that respects
+`counsel-find-file-ignore-regexp'."
+  (let ((regex ivy--old-re)
+        (ignore-re (list (counsel--elisp-to-pcre
+                          counsel-find-file-ignore-regexp)))
+        (cmd (cl-find-if
+              (lambda (x)
+                (executable-find
+                 (car (split-string (car x)))))
+              counsel-file-name-filter-alist)))
+    (and use-ignore ivy-use-ignore
+         counsel-find-file-ignore-regexp
+         (cdr cmd)
+         (not (string-match-p "\\`\\." ivy-text))
+         (not (string-match-p counsel-find-file-ignore-regexp
+                              (or (car ivy--old-cands) "")))
+         (setq regex (if (stringp regex)
+                         (list ignore-re (cons regex t))
+                       (cons ignore-re regex))))
+    (setq cmd (format (car cmd) (counsel--elisp-to-pcre regex (cdr cmd))))
+    (if (string-match-p "csh\\'" shell-file-name)
+        (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
+      cmd)))
+
 (defun counsel--occur-cmd-find ()
-  (let* ((regex (counsel--elisp-to-pcre ivy--old-re))
-         (cmd (format
-               "find . -maxdepth 1 | grep -i -E '%s' | xargs -I {} find {} -maxdepth 0 -ls"
-               regex)))
+  (let ((cmd (format
+              "find . -maxdepth 1 | %s | xargs -I {} find {} -maxdepth 0 -ls"
+              (counsel--file-name-filter t))))
     (concat
      (counsel--cmd-to-dired-by-type "d" cmd)
      " && "
@@ -1884,7 +1924,10 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
     (counsel-cmd-to-dired
      (counsel--expand-ls
       (format counsel-find-file-occur-cmd
-              (counsel--elisp-to-pcre ivy--old-re))))))
+              (if (string-match-p "grep" counsel-find-file-occur-cmd)
+                  ;; for backwards compatibility
+                  (counsel--elisp-to-pcre ivy--old-re)
+                (counsel--file-name-filter t)))))))
 
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
