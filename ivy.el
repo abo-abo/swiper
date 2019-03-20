@@ -3990,7 +3990,13 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (defun ivy-switch-buffer-occur ()
   "Occur function for `ivy-switch-buffer' using `ibuffer'."
-  (ibuffer nil (buffer-name) (list (cons 'name ivy--old-re))))
+  (ibuffer
+   nil (buffer-name)
+   `((or ,@(cl-mapcan
+            (lambda (cand)
+              (unless (eq (get-text-property 0 'face cand) 'ivy-virtual)
+                `((name . ,(format "\\_<%s\\_>" (regexp-quote cand))))))
+            ivy--old-cands)))))
 
 ;;;###autoload
 (defun ivy-switch-buffer ()
