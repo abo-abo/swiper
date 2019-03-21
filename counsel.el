@@ -5196,8 +5196,7 @@ N in your system."
   "List of potential build subdirectory names to check for."
   :type '(repeat directory))
 
-(defvar counsel-compile-phony-pattern
-  (rx bol ".PHONY:" space (group (+ print)) eol)
+(defvar counsel-compile-phony-pattern "^\\.PHONY:[\t ]+\\(.*+\\)$"
   "Regexp for extracting phony targets from Makefiles.")
 
 ;; This is loosely based on the Bash Make completion code
@@ -5209,16 +5208,17 @@ happen because some sort of configuration needs to be done first
 or the source tree is pristine and being used for multiple build
 trees."
   (let ((default-directory dir)
-        (targets))
+        (targets nil))
     (with-temp-buffer
       ;; 0 = no-rebuild, -q & 1 needs rebuild, 2 error (for GNUMake at
       ;; least)
-      (when (> 2 (call-process "make" nil t nil "-nqp"))
+      (when (< (call-process "make" nil t nil "-nqp") 2)
         (goto-char (point-min))
         (while (re-search-forward counsel-compile-phony-pattern nil t)
-          (push (split-string (match-string-no-properties 1))
-                targets))))
-    (sort (apply #'nconc targets) 'string-lessp)))
+          (setq targets
+                (nconc targets (split-string
+                                (match-string-no-properties 1)))))))
+    (sort targets #'string-lessp)))
 
 (defun counsel--compile-get-make-targets (srcdir &optional blddir)
   "Return a list of Make targets for a given SRCDIR/BLDDIR combination.
