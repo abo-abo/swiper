@@ -63,14 +63,16 @@ Note that incorrect results may be returned for sufficiently
 complex regexes."
   (if (consp regex)
       (if look-around
-          (mapconcat
-           (lambda (pair)
-             (let ((subexp (counsel--elisp-to-pcre (car pair))))
-               (format "(?%c.*%s)"
-                       (if (cdr pair) ?= ?!)
-                       subexp)))
-           regex
-           "")
+          (concat
+           "^"
+           (mapconcat
+            (lambda (pair)
+              (let ((subexp (counsel--elisp-to-pcre (car pair))))
+                (format "(?%c.*%s)"
+                        (if (cdr pair) ?= ?!)
+                        subexp)))
+            regex
+            ""))
         (mapconcat
          (lambda (pair)
            (let ((subexp (counsel--elisp-to-pcre (car pair))))
@@ -2621,7 +2623,7 @@ NEEDLE is the search string."
        (let ((default-directory (ivy-state-directory ivy-last))
              (regex (counsel--grep-regex search-term)))
          (if (and (stringp counsel--regex-look-around)
-                  (string-match-p "\\`(\\?[=!]" regex)) ;; using look-arounds
+                  (string-match-p "\\`\\^(\\?[=!]" regex)) ;; using look-arounds
              (setq switches (concat switches " " counsel--regex-look-around)))
          (counsel--async-command (counsel--format-ag-command
                                   switches
