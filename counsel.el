@@ -5197,7 +5197,7 @@ N in your system."
   "List of potential build subdirectory names to check for."
   :type '(repeat directory))
 
-(defvar counsel-compile-phony-pattern "^\\.PHONY:[\t ]+\\(.*+\\)$"
+(defvar counsel-compile-phony-pattern "^\\.PHONY:[\t ]+\\(.+\\)$"
   "Regexp for extracting phony targets from Makefiles.")
 
 ;; This is loosely based on the Bash Make completion code
