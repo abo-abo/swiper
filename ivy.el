@@ -1525,7 +1525,7 @@ minibuffer."
 (defvar avy-keys-alist)
 (defvar avy-style)
 (defvar avy-styles-alist)
-(declare-function avy--process "ext:avy")
+(declare-function avy-process "ext:avy")
 (declare-function avy--style-fn "ext:avy")
 
 (defcustom ivy-format-function #'ivy-format-function-default
