@@ -989,7 +989,13 @@ a buffer visiting a file."
     (let ((counsel--regex-look-around t)
           (ivy--regex-function 'ivy--regex-plus))
       (counsel--grep-regex "ivy ! -"))
-    "(?=.*ivy)(?!.*-)")))
+    "(?=.*ivy)(?!.*-)"))
+  (should
+   (string=
+    (let ((counsel--regex-look-around t)
+          (ivy--regex-function 'ivy--regex-fuzzy))
+      (counsel--grep-regex "ivy"))
+    "(i)[^v\n]*(v)[^y\n]*(y)")))
 
 (provide 'ivy-test)
 
