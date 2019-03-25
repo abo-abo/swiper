@@ -347,7 +347,7 @@ will bring the behavior in line with the newer Emacsen."
                  "(?:foo|bar).*blick.*(?:(baz)|quux)"))
   (should (equal (counsel--elisp-to-pcre
                   '(("ivy" . t) ("-")) t)
-                 "(?=.*ivy)(?!.*-)")))
+                 "^(?=.*ivy)(?!.*-)")))
 
 (defmacro ivy--string-buffer (text &rest body)
   "Test helper that wraps TEXT in a temp buffer while running BODY."
@@ -989,7 +989,7 @@ a buffer visiting a file."
     (let ((counsel--regex-look-around t)
           (ivy--regex-function 'ivy--regex-plus))
       (counsel--grep-regex "ivy ! -"))
-    "(?=.*ivy)(?!.*-)"))
+    "^(?=.*ivy)(?!.*-)"))
   (should
    (string=
     (let ((counsel--regex-look-around t)
