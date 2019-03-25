@@ -2114,15 +2114,16 @@ will be expanded according to its format.  This function is
 intended to be used in `ivy-ffap-url-functions' to browse the
 result as a URL."
   (let ((word-at-point (current-word)))
-    (cl-some
-     (lambda (pair)
-       (let ((regexp (car pair))
-             (formatter (cdr pair)))
-         (when (string-match regexp word-at-point)
-           (if (functionp formatter)
-               (funcall formatter word-at-point)
-             (format formatter word-at-point)))))
-     counsel-url-expansions-alist)))
+    (when word-at-point
+      (cl-some
+       (lambda (pair)
+         (let ((regexp (car pair))
+               (formatter (cdr pair)))
+           (when (string-match regexp word-at-point)
+             (if (functionp formatter)
+                 (funcall formatter word-at-point)
+               (format formatter word-at-point)))))
+       counsel-url-expansions-alist))))
 
 ;;** `counsel-recentf'
 (defvar recentf-list)
