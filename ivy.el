@@ -1573,7 +1573,7 @@ This string is inserted into the minibuffer."
          (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
                         avy-style))
          (avy-action #'ivy--avy-action))
-    (avy--process
+    (avy-process
      (ivy--avy-candidates))))
 
 (defun ivy-sort-file-function-default (x y)
@@ -2838,14 +2838,14 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
   (if (and ivy--directory
            (equal ivy-text ""))
       (let* ((cands (cl-loop for pair in process-environment
-                             for (var val) = (split-string pair "=" t)
-                             if (and val (not (equal "" val)))
-                             if (file-exists-p
-                                 (if (file-name-absolute-p val)
-                                     val
-                                   (setq val
-                                         (expand-file-name val ivy--directory))))
-                             collect (cons var val)))
+                       for (var val) = (split-string pair "=" t)
+                       if (and val (not (equal "" val)))
+                       if (file-exists-p
+                           (if (file-name-absolute-p val)
+                               val
+                             (setq val
+                                   (expand-file-name val ivy--directory))))
+                       collect (cons var val)))
              (enable-recursive-minibuffers t)
              (x (ivy-read "Env: " cands))
              (path (cdr (assoc x cands))))
