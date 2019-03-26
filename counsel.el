@@ -2855,8 +2855,11 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (setq counsel-grep-last-line nil)
   (setq counsel-grep-command
         (format counsel-grep-base-command
-                "%s" (shell-quote-argument buffer-file-name)))
-  (let ((init-point (point))
+                "%s" (shell-quote-argument
+                      (file-name-nondirectory
+                       buffer-file-name))))
+  (let ((default-directory (file-name-directory buffer-file-name))
+        (init-point (point))
         res)
     (unwind-protect
          (setq res (ivy-read "grep: " 'counsel-grep-function
