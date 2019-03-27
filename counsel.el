@@ -1867,7 +1867,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   "Alist of file name filtering commands.
 The car is a shell command and the cdr is t when the shell
 command supports look-arounds.  The executable for the commands
-will be checked for existence via `executable-find'. The first
+will be checked for existence via `executable-find'.  The first
 one that exists will be used.")
 
 (defun counsel--file-name-filter (&optional use-ignore)
