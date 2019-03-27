@@ -3068,6 +3068,75 @@ otherwise continue prompting for tags."
     (file-name-nondirectory (file-name-nondirectory buffer-file-name))
     (buffer-name (buffer-name))))
 
+(defvar counsel-outline-settings
+  '((emacs-lisp-mode
+     :outline-regexp ";;[;*]+[\s\t]+"
+     :outline-level counsel-outline-level-emacs-lisp)
+    (org-mode
+     :outline-title counsel-outline-title-org
+     :action counsel-org-goto-action
+     :history counsel-org-goto-history
+     :caller counsel-org-goto)
+    ;; markdown-mode package
+    (markdown-mode
+     :outline-title counsel-outline-title-markdown)
+    ;; Built-in mode or AUCTeX package
+    (latex-mode
+     :outline-title counsel-outline-title-latex))
+  "Alist mapping major modes to their `counsel-outline' settings.
+
+Each entry is a pair (MAJOR-MODE . PLIST).  `counsel-outline'
+checks whether an entry exists for the current buffer's
+MAJOR-MODE and, if so, loads the settings specified by PLIST
+instead of the default settings.  The following settings are
+recognized:
+
+- `:outline-regexp' is a regexp to match the beggining of an
+  outline heading.  It is only checked at the start of a line and
+  so need not start with \"^\".
+  Defaults to the value of the variable `outline-regexp'.
+
+- `:outline-level' is a function of no arguments which computes
+  the level of an outline heading.  It is called with point at
+  the beginning of `outline-regexp' and with the match data
+  corresponding to `outline-regexp'.
+  Defaults to the value of the variable `outline-level'.
+
+- `:outline-title' is a function of no arguments which returns
+  the title of an outline heading.  It is called with point at
+  the end of `outline-regexp' and with the match data
+  corresponding to `outline-regexp'.
+  Defaults to the function `counsel-outline-title'.
+
+- `:action' is a function of one argument, the selected outline
+  heading to jump to.  This setting corresponds directly to its
+  eponymous `ivy-read' keyword, as used by `counsel-outline', so
+  the type of the function's argument depends on the value
+  returned by `counsel-outline-candidates'.
+  Defaults to the function `counsel-outline-action'.
+
+- `:history' is a history list, usually a symbol representing a
+  history list variable.  It corresponds directly to its
+  eponymous `ivy-read' keyword, as used by `counsel-outline'.
+  Defaults to the symbol `counsel-outline-history'.
+
+- `:caller' is a symbol to uniquely idendify the caller to
+  `ivy-read'.  It corresponds directly to its eponymous
+  `ivy-read' keyword, as used by `counsel-outline'.
+  Defaults to the symbol `counsel-outline'.
+
+- `:display-style' overrides the variable
+  `counsel-outline-display-style'.
+
+- `:path-separator' overrides the variable
+  `counsel-outline-path-separator'.
+
+- `:face-style' overrides the variable
+  `counsel-outline-face-style'.
+
+- `:custom-faces' overrides the variable
+  `counsel-outline-custom-faces'.")
+
 ;;;###autoload
 (defun counsel-org-goto-all ()
   "Go to a different location in any org file."
@@ -4071,73 +4140,6 @@ This variable has no effect unless `counsel-outline-face-style'
 is set to `custom'."
   :type '(repeat face))
 
-(defvar counsel-outline-settings
-  '((emacs-lisp-mode
-     :outline-regexp ";;[;*]+[\s\t]+"
-     :outline-level counsel-outline-level-emacs-lisp)
-    (org-mode
-     :outline-title counsel-outline-title-org
-     :action counsel-org-goto-action
-     :history counsel-org-goto-history
-     :caller counsel-org-goto)
-    (markdown-mode                      ; markdown-mode package
-     :outline-title counsel-outline-title-markdown)
-    (latex-mode                         ; Built-in mode or AUCTeX package
-     :outline-title counsel-outline-title-latex))
-  "Alist mapping major modes to their `counsel-outline' settings.
-
-Each entry is a pair (MAJOR-MODE . PLIST).  `counsel-outline'
-checks whether an entry exists for the current buffer's
-MAJOR-MODE and, if so, loads the settings specified by PLIST
-instead of the default settings.  The following settings are
-recognized:
-
-- `:outline-regexp' is a regexp to match the beggining of an
-  outline heading.  It is only checked at the start of a line and
-  so need not start with \"^\".
-  Defaults to the value of the variable `outline-regexp'.
-
-- `:outline-level' is a function of no arguments which computes
-  the level of an outline heading.  It is called with point at
-  the beginning of `outline-regexp' and with the match data
-  corresponding to `outline-regexp'.
-  Defaults to the value of the variable `outline-level'.
-
-- `:outline-title' is a function of no arguments which returns
-  the title of an outline heading.  It is called with point at
-  the end of `outline-regexp' and with the match data
-  corresponding to `outline-regexp'.
-  Defaults to the function `counsel-outline-title'.
-
-- `:action' is a function of one argument, the selected outline
-  heading to jump to.  This setting corresponds directly to its
-  eponymous `ivy-read' keyword, as used by `counsel-outline', so
-  the type of the function's argument depends on the value
-  returned by `counsel-outline-candidates'.
-  Defaults to the function `counsel-outline-action'.
-
-- `:history' is a history list, usually a symbol representing a
-  history list variable.  It corresponds directly to its
-  eponymous `ivy-read' keyword, as used by `counsel-outline'.
-  Defaults to the symbol `counsel-outline-history'.
-
-- `:caller' is a symbol to uniquely idendify the caller to
-  `ivy-read'.  It corresponds directly to its eponymous
-  `ivy-read' keyword, as used by `counsel-outline'.
-  Defaults to the symbol `counsel-outline'.
-
-- `:display-style' overrides the variable
-  `counsel-outline-display-style'.
-
-- `:path-separator' overrides the variable
-  `counsel-outline-path-separator'.
-
-- `:face-style' overrides the variable
-  `counsel-outline-face-style'.
-
-- `:custom-faces' overrides the variable
-  `counsel-outline-custom-faces'.")
-
 (defun counsel-outline-title ()
   "Return title of current outline heading.
 Intended as a value for the `:outline-title' setting in
@@ -4201,26 +4203,26 @@ HEADING is located at the position of MARKER.  SETTINGS is a
 plist entry from `counsel-outline-settings', which see.
 PREFIX is a string prepended to all candidates."
   (let* ((bol-regex (concat "^\\(?:"
-                           (or (plist-get settings :outline-regexp)
-                               outline-regexp)
-                           "\\)"))
-        (outline-title-fn (or (plist-get settings :outline-title)
-                              #'counsel-outline-title))
-        (outline-level-fn (or (plist-get settings :outline-level)
-                              outline-level))
-        (display-style (or (plist-get settings :display-style)
-                           counsel-outline-display-style))
-        (path-separator (or (plist-get settings :path-separator)
-                            counsel-outline-path-separator))
-        (face-style (or (plist-get settings :face-style)
-                        counsel-outline-face-style))
-        (custom-faces (or (plist-get settings :custom-faces)
-                          counsel-outline-custom-faces))
-        (stack-level 0)
-        (orig-point (point))
-        (stack (and prefix (list (counsel-outline--add-face
-                                  prefix 0 face-style custom-faces))))
-        cands name level marker)
+                            (or (plist-get settings :outline-regexp)
+                                outline-regexp)
+                            "\\)"))
+         (outline-title-fn (or (plist-get settings :outline-title)
+                               #'counsel-outline-title))
+         (outline-level-fn (or (plist-get settings :outline-level)
+                               outline-level))
+         (display-style (or (plist-get settings :display-style)
+                            counsel-outline-display-style))
+         (path-separator (or (plist-get settings :path-separator)
+                             counsel-outline-path-separator))
+         (face-style (or (plist-get settings :face-style)
+                         counsel-outline-face-style))
+         (custom-faces (or (plist-get settings :custom-faces)
+                           counsel-outline-custom-faces))
+         (stack-level 0)
+         (orig-point (point))
+         (stack (and prefix (list (counsel-outline--add-face
+                                   prefix 0 face-style custom-faces))))
+         cands name level marker)
     (save-excursion
       (setq counsel-outline--preselect 0)
       (goto-char (point-min))
