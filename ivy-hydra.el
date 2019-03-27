@@ -88,6 +88,9 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
 (defvar ivy-dispatching-done-columns 2
   "Number of columns to use if the hint does not fit on one line.")
 
+(defvar ivy-dispatching-done-idle nil
+  "When non-nil, the hint will be delayed by this many seconds.")
+
 (defun ivy-dispatching-done-hydra ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
@@ -103,7 +106,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
         (ivy-done)
       (funcall
        (eval
-        `(defhydra ivy-read-action (:color teal :columns ,n-columns)
+        `(defhydra ivy-read-action (:color teal :columns ,n-columns :idle ,ivy-dispatching-done-idle)
            "action"
            ,@(mapcar (lambda (x)
                        (list (nth 0 x)
