@@ -1877,21 +1877,23 @@ If USE-IGNORE is non-nil, try to generate a command that respects
   (let ((regex ivy--old-re)
         (ignore-re (list (counsel--elisp-to-pcre
                           counsel-find-file-ignore-regexp)))
-        (cmd (cl-find-if
-              (lambda (x)
-                (executable-find
-                 (car (split-string (car x)))))
-              counsel-file-name-filter-alist)))
-    (and use-ignore ivy-use-ignore
-         counsel-find-file-ignore-regexp
-         (cdr cmd)
-         (not (string-match-p "\\`\\." ivy-text))
-         (not (string-match-p counsel-find-file-ignore-regexp
-                              (or (car ivy--old-cands) "")))
-         (setq regex (if (stringp regex)
-                         (list ignore-re (cons regex t))
-                       (cons ignore-re regex))))
-    (setq cmd (format (car cmd) (counsel--elisp-to-pcre regex (cdr cmd))))
+        (filter-cmd (cl-find-if
+                     (lambda (x)
+                       (executable-find
+                        (car (split-string (car x)))))
+                     counsel-file-name-filter-alist))
+        cmd)
+    (when (and use-ignore ivy-use-ignore
+               counsel-find-file-ignore-regexp
+               (cdr filter-cmd)
+               (not (string-match-p "\\`\\." ivy-text))
+               (not (string-match-p counsel-find-file-ignore-regexp
+                                    (or (car ivy--old-cands) ""))))
+      (setq regex (if (stringp regex)
+                      (list ignore-re (cons regex t))
+                    (cons ignore-re regex))))
+    (setq cmd (format (car filter-cmd)
+                      (counsel--elisp-to-pcre regex (cdr filter-cmd))))
     (if (string-match-p "csh\\'" shell-file-name)
         (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
       cmd)))
