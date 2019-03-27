@@ -3504,15 +3504,11 @@ Note: The usual last two arguments are flipped for convenience.")
   "Highlight STR, using the default method."
   (unless ivy--old-re
     (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
-  (let ((start
-         (if (and (memq (ivy-state-caller ivy-last) ivy-highlight-grep-commands)
-                  (string-match "\\`[^:]+:[^:]+:" str))
-             (match-end 0)
-           0))
-        (regexps
+  (let ((regexps
          (if (listp ivy--old-re)
              (mapcar #'car (cl-remove-if-not #'cdr ivy--old-re))
-           (list ivy--old-re))))
+           (list ivy--old-re)))
+        start)
     (dolist (re regexps)
       (ignore-errors
         (while (and (string-match re str start)
@@ -3537,7 +3533,14 @@ Note: The usual last two arguments are flipped for convenience.")
   "Format line STR for use in minibuffer."
   (let* ((str (ivy-cleanup-string (copy-sequence str)))
          (str (if (eq ivy-display-style 'fancy)
-                  (funcall ivy--highlight-function str)
+                  (if (memq (ivy-state-caller ivy-last)
+                            ivy-highlight-grep-commands)
+                      (let* ((start (if (string-match "\\`[^:]+:[^:]+:" str)
+                                        (match-end 0) 0))
+                             (file (substring str 0 start))
+                             (match (substring str start)))
+                        (concat file (funcall ivy--highlight-function match)))
+                    (funcall ivy--highlight-function str))
                 str))
          (olen (length str))
          (annot (plist-get completion-extra-properties :annotation-function)))
