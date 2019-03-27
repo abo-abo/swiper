@@ -2756,7 +2756,10 @@ Note: don't use single quotes for the regex."
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
-RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
+RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
+
+Example input with inclusion and exclusion file patterns:
+    -g*.py -g!*test* -- ..."
   (interactive)
   (let ((counsel-ag-base-command counsel-rg-base-command)
         (counsel--grep-tool-look-around
