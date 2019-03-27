@@ -62,7 +62,9 @@ namely a string or a list.  The return value is always a string.
 Note that incorrect results may be returned for sufficiently
 complex regexes."
   (if (consp regex)
-      (if look-around
+      (if (and look-around
+               (or (cdr regex)
+                   (not (cdar regex))))
           (concat
            "^"
            (mapconcat

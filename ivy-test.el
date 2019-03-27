@@ -347,7 +347,13 @@ will bring the behavior in line with the newer Emacsen."
                  "(?:foo|bar).*blick.*(?:(baz)|quux)"))
   (should (equal (counsel--elisp-to-pcre
                   '(("ivy" . t) ("-")) t)
-                 "^(?=.*ivy)(?!.*-)")))
+                 "^(?=.*ivy)(?!.*-)"))
+  (should (equal (counsel--elisp-to-pcre
+                  '(("foo" . t)) t)
+                 "foo"))
+  (should (equal (counsel--elisp-to-pcre
+                  '(("foo")) t)
+                 "^(?!.*foo)")))
 
 (defmacro ivy--string-buffer (text &rest body)
   "Test helper that wraps TEXT in a temp buffer while running BODY."
