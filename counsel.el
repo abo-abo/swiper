@@ -1866,7 +1866,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
     ("grep -i -E '%s'"))
   "Alist of file name filtering commands.
 The car is a shell command and the cdr is t when the shell
-command supports look-arounds. The executable for the commands
+command supports look-arounds.  The executable for the commands
 will be checked for existence via `executable-find'. The first
 one that exists will be used.")
 
@@ -1892,14 +1892,14 @@ If USE-IGNORE is non-nil, try to generate a command that respects
                          (list ignore-re (cons regex t))
                        (cons ignore-re regex))))
     (setq cmd (format (car cmd) (counsel--elisp-to-pcre regex (cdr cmd))))
-    (if (string-match-p "csh$" shell-file-name)
+    (if (string-match-p "csh\\'" shell-file-name)
         (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
       cmd)))
 
 (defun counsel--occur-cmd-find ()
-  (let* ((cmd (format
-               "find . -maxdepth 1 | %s | xargs -I {} find {} -maxdepth 0 -ls"
-               (counsel--file-name-filter t))))
+  (let ((cmd (format
+              "find . -maxdepth 1 | %s | xargs -I {} find {} -maxdepth 0 -ls"
+              (counsel--file-name-filter t))))
     (concat
      (counsel--cmd-to-dired-by-type "d" cmd)
      " && "
@@ -1923,11 +1923,10 @@ If USE-IGNORE is non-nil, try to generate a command that respects
        'find-dired-filter)
     (counsel-cmd-to-dired
      (counsel--expand-ls
-      (if (string-match-p "grep" counsel-find-file-occur-cmd)
-          ;; for backwards compatibility
-          (format counsel-find-file-occur-cmd
-                  (counsel--elisp-to-pcre ivy--old-re))
-        (format counsel-find-file-occur-cmd
+      (format counsel-find-file-occur-cmd
+              (if (string-match-p "grep" counsel-find-file-occur-cmd)
+                  ;; for backwards compatibility
+                  (counsel--elisp-to-pcre ivy--old-re)
                 (counsel--file-name-filter t)))))))
 
 (defun counsel-up-directory ()
