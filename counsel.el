@@ -2632,12 +2632,14 @@ NEEDLE is the search string."
          nil)))))
 
 ;;;###autoload
-(defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt)
+(cl-defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt
+                      &key caller)
   "Grep for a string in the current directory using ag.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
-AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
+AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
+CALLER is passed to `ivy-read'."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
   (setq counsel--regex-look-around counsel--grep-tool-look-around)
@@ -2668,7 +2670,7 @@ AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
               :unwind (lambda ()
                         (counsel-delete-process)
                         (swiper--cleanup))
-              :caller 'counsel-ag)))
+              :caller (or caller 'counsel-ag))))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
@@ -2715,7 +2717,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command)
         (counsel--grep-tool-look-around nil))
-    (counsel-ag initial-input)))
+    (counsel-ag initial-input :caller 'counsel-pt)))
 (cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
 
 ;;** `counsel-ack'
@@ -2736,7 +2738,7 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
   (interactive)
   (let ((counsel-ag-base-command counsel-ack-base-command)
         (counsel--grep-tool-look-around t))
-    (counsel-ag initial-input)))
+    (counsel-ag initial-input :caller 'counsel-ack)))
 
 
 ;;** `counsel-rg'
@@ -2767,7 +2769,8 @@ Example input with inclusion and exclusion file patterns:
                (switch "--pcre2"))
            (and (eq 0 (call-process rg nil nil nil switch "--version"))
                 switch))))
-    (counsel-ag initial-input initial-directory extra-rg-args rg-prompt)))
+    (counsel-ag initial-input initial-directory extra-rg-args rg-prompt
+                :caller 'counsel-rg)))
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
 ;;** `counsel-grep'
