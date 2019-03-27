@@ -2562,6 +2562,7 @@ It applies no filtering to ivy--all-candidates."
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-'") 'swiper-avy)
+    (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
 (defcustom counsel-ag-base-command
@@ -2671,6 +2672,15 @@ CALLER is passed to `ivy-read'."
                         (counsel-delete-process)
                         (swiper--cleanup))
               :caller (or caller 'counsel-ag))))
+
+(defun counsel-cd ()
+  "Change the directory for the currently running Ivy command."
+  (interactive)
+  (let ((input ivy-text)
+        (new-dir (read-directory-name "cd: ")))
+    (ivy-quit-and-run
+      (let ((default-directory new-dir))
+        (funcall (ivy-state-caller ivy-last) input)))))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
