@@ -1265,12 +1265,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel-git-grep-cmd nil
   "Store the command for `counsel-git-grep'.")
 
-(defvar counsel--git-grep-count nil
-  "Store the line count in current repository.")
-
-(defvar counsel--git-grep-count-threshold 20000
-  "The maximum threshold beyond which repositories are considered large.")
-
 (defvar counsel-git-grep-history nil
   "History for `counsel-git-grep'.")
 
@@ -1283,18 +1277,14 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 Typical value: '(recenter)."
   :type 'hook)
 
-(defun counsel-git-grep-function (str &optional _pred &rest _unused)
+(defun counsel-git-grep-function (string)
   "Grep in the current Git repository for STRING."
   (or
-   (and (> counsel--git-grep-count counsel--git-grep-count-threshold)
-        (ivy-more-chars))
-   (let* ((default-directory (ivy-state-directory ivy-last))
-          (cmd (format counsel-git-grep-cmd
-                       (setq ivy--old-re (ivy--regex str t)))))
-     (if (<= counsel--git-grep-count counsel--git-grep-count-threshold)
-         (split-string (shell-command-to-string cmd) "\n" t)
-       (counsel--gg-candidates (ivy--regex str))
-       nil))))
+   (ivy-more-chars)
+   (let ((cmd (format counsel-git-grep-cmd
+                      (setq ivy--old-re (ivy--regex string t)))))
+     (counsel--async-command cmd)
+     nil)))
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
@@ -1312,31 +1302,6 @@ Typical value: '(recenter)."
       (unless (eq ivy-exit 'done)
         (swiper--cleanup)
         (swiper--add-overlays (ivy--regex ivy-text))))))
-
-(defun counsel-git-grep-matcher (regexp candidates)
-  "Return REGEXP matching CANDIDATES for `counsel-git-grep'."
-  (or (and (equal regexp ivy--old-re)
-           ivy--old-cands)
-      (prog1
-          (setq ivy--old-cands
-                (cl-remove-if-not
-                 (lambda (x)
-                   (ignore-errors
-                     (when (string-match "^[^:]+:[^:]+:" x)
-                       (setq x (substring x (match-end 0)))
-                       (if (stringp regexp)
-                           (string-match regexp x)
-                         (let ((res t))
-                           (dolist (re regexp)
-                             (setq res
-                                   (and res
-                                        (ignore-errors
-                                          (if (cdr re)
-                                              (string-match (car re) x)
-                                            (not (string-match (car re) x)))))))
-                           res)))))
-                 candidates))
-        (setq ivy--old-re regexp))))
 
 (defun counsel-git-grep-transformer (str)
   "Higlight file and line number in STR."
@@ -1411,30 +1376,6 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
              (signal (car status) (cdr status))))
       (delete-file stderr))))
 
-(define-obsolete-variable-alias 'counsel--git-grep-count-func
-    'counsel-git-grep-count-function "0.11.0")
-(define-obsolete-function-alias 'counsel--git-grep-count-func-default
-    'counsel-git-grep-count-function-du "0.11.0")
-
-(defun counsel-git-grep-count-function-du ()
-  "Default function to calculate `counsel--git-grep-count'."
-  (or (unless (eq system-type 'windows-nt)
-        (ignore-errors
-          (let ((git-dir (counsel--call "git" "rev-parse" "--git-dir")))
-            (read (counsel--call "du" "-s" git-dir)))))
-      0))
-
-(defcustom counsel-git-grep-count-function #'counsel-git-grep-count-function-du
-  "Function to calculate `counsel--git-grep-count' for `counsel-git-grep'."
-  :type '(radio
-          (function-item :doc "Always filter with Grep"
-           (lambda () most-positive-fixnum))
-          (function-item :doc "Always filter with Emacs"
-           (lambda () 0))
-          (function-item
-           :doc "Choose between Grep or Emacs based on .git directory size"
-           counsel-git-grep-count-function-du)))
-
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
   "Grep for a string in the current Git repository.
@@ -1452,23 +1393,15 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                #'counsel-git-grep-proj-function
              #'counsel-git-grep-function))
           (unwind-function
-           (if proj
-               (lambda ()
-                 (counsel-delete-process)
-                 (swiper--cleanup))
-             (lambda ()
-               (swiper--cleanup))))
+           (lambda ()
+             (counsel-delete-process)
+             (swiper--cleanup)))
           (default-directory (if proj
                                  (car proj)
                                (counsel-locate-git-root))))
-      (setq counsel--git-grep-count (funcall counsel-git-grep-count-function))
       (ivy-read "git grep: " collection-function
                 :initial-input initial-input
-                :matcher #'counsel-git-grep-matcher
-                :dynamic-collection (or proj
-                                        (>
-                                         counsel--git-grep-count
-                                         counsel--git-grep-count-threshold))
+                :dynamic-collection t
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
                 :unwind unwind-function
@@ -1496,67 +1429,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (unless (ivy-state-dynamic-collection ivy-last)
     (setq ivy--all-candidates
           (all-completions "" 'counsel-git-grep-function))))
-
-(defvar counsel-gg-state nil
-  "The current state of candidates / count sync.")
-
-(defun counsel--gg-candidates (regex)
-  "Return git grep candidates for REGEX."
-  (setq counsel-gg-state -2)
-  (counsel--gg-count regex)
-  (let ((default-directory (ivy-state-directory ivy-last)))
-    (set-process-filter
-     (counsel--async-command (concat (format counsel-git-grep-cmd regex)
-                                     " | head -n 200")
-                             #'counsel--gg-sentinel)
-     nil)))
-
-(defun counsel--gg-sentinel (process _msg)
-  "Sentinel function for a `counsel-git-grep' PROCESS."
-  (when (eq (process-status process) 'exit)
-    (cl-case (process-exit-status process)
-      ((0 141)
-       (with-current-buffer (process-buffer process)
-         (setq ivy--all-candidates
-               (or (split-string (buffer-string) "\n" t)
-                   '("")))
-         (setq ivy--old-cands ivy--all-candidates))
-       (when (zerop (cl-incf counsel-gg-state))
-         (ivy--exhibit)))
-      (1
-       (setq ivy--all-candidates '("Error"))
-       (setq ivy--old-cands ivy--all-candidates)
-       (ivy--exhibit)))))
-
-(defun counsel--gg-count-sentinel (process _msg)
-  "Sentinel function for a `counsel--gg-count' PROCESS."
-  (when (and (eq (process-status process) 'exit)
-             (zerop (process-exit-status process)))
-    (with-current-buffer (process-buffer process)
-      (setq ivy--full-length (string-to-number (buffer-string))))
-    (when (zerop (cl-incf counsel-gg-state))
-      (ivy--exhibit))))
-
-(defun counsel--gg-count (regex &optional no-async)
-  "Count the number of results matching REGEX in `counsel-git-grep'.
-The command to count the matches is called asynchronously.
-If NO-ASYNC is non-nil, do it synchronously instead."
-  (let ((default-directory (ivy-state-directory ivy-last))
-        (cmd (concat
-              (format (replace-regexp-in-string
-                       "--full-name" "-c"
-                       counsel-git-grep-cmd)
-                      ;; "git grep -i -c '%s'"
-                      (replace-regexp-in-string
-                       "-" "\\\\-"
-                       (replace-regexp-in-string "'" "''" regex)))
-              " | sed 's/.*:\\(.*\\)/\\1/g' | awk '{s+=$1} END {print s}'")))
-    (if no-async
-        (string-to-number (shell-command-to-string cmd))
-      (set-process-filter
-       (counsel--async-command cmd #'counsel--gg-count-sentinel
-                               nil " *counsel-gg-count*")
-       nil))))
 
 (defun counsel--normalize-grep-match (str)
   ;; Prepend ./ if necessary:
