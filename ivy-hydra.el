@@ -95,10 +95,14 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
   "Select one of the available actions and call `ivy-done'."
   (interactive)
   (let* ((actions (ivy-state-action ivy-last))
-         (estimated-len (+ 25 (length
-                               (mapconcat
-                                (lambda (x) (format "[%s] %s" (nth 0 x) (nth 2 x)))
-                                (cdr actions) ", "))))
+         (extra-actions '(("M-o" nil "back")
+                          ("C-g" nil)))
+         (doc (concat "action: "
+                      (mapconcat
+                       (lambda (x) (format "[%s] %s" (nth 0 x) (nth 2 x)))
+                       (append (cdr actions)
+                               extra-actions) ", ")))
+         (estimated-len (length doc))
          (n-columns (if (> estimated-len (window-width))
                         ivy-dispatching-done-columns
                       nil)))
@@ -115,8 +119,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
                                 (ivy-done))
                              (nth 2 x)))
                      (cdr actions))
-           ("M-o" nil "back")
-           ("C-g" nil)))))))
+           ,@extra-actions))))))
 
 (define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
 
