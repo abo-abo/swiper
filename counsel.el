@@ -2397,7 +2397,7 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defcustom counsel-file-jump-args "* -type f -not -path '*/.git*'"
+(defcustom counsel-file-jump-args "-name '*' -type f -not -path '*/.git/*' -printf '%f\n'"
   "Arguments for the `find-command' when using `counsel-file-jump'."
   :type 'string)
 
