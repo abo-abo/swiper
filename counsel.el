@@ -4471,11 +4471,6 @@ COUNT defaults to 1."
   (interactive "p")
   (setq ivy-completion-beg (point))
   (setq ivy-completion-end (point))
-  (unless (listp counsel--unicode-table)
-    (setq counsel--unicode-table
-          (sort
-           (all-completions "" counsel--unicode-table)
-           (ivy--sort-function 'counsel-unicode-char))))
   (ivy-read "Unicode name: " counsel--unicode-table
             :history 'counsel-unicode-char-history
             :sort t
