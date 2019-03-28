@@ -4493,11 +4493,13 @@ EVENT gives the mouse position."
       (with-ivy-window
         (setq counsel-grep-last-line nil)
         (with-current-buffer (ivy--occur-press-buffer)
-          (funcall action
-                   (if (and (consp coll)
-                            (consp (car coll)))
-                       (assoc str coll)
-                     str)))
+          (save-restriction
+            (widen)
+            (funcall action
+                     (if (and (consp coll)
+                              (consp (car coll)))
+                         (assoc str coll)
+                       str))))
         (if (memq (ivy-state-caller ivy-last)
                   '(swiper counsel-git-grep counsel-grep counsel-ag counsel-rg))
             (with-current-buffer (window-buffer (selected-window))
