@@ -2435,7 +2435,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
 ;;** `counsel-dired-jump'
 ;;;###autoload
 (defun counsel-dired-jump (&optional initial-input initial-directory)
-  "Jump to a directory (in dired) below the current directory.
+  "Jump to a directory (see `dired-jump') below the current directory.
 List all subdirectories within the current directory.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
@@ -2443,15 +2443,18 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (read-directory-name "From directory: "))))
-  (counsel-require-program "find")
-  (let* ((default-directory (or initial-directory default-directory)))
-    (ivy-read "Directory: "
+  (counsel-require-program find-program)
+  (let ((default-directory (or initial-directory default-directory)))
+    (ivy-read "Find directory: "
               (split-string
                (shell-command-to-string
                 (concat find-program " " counsel-dired-jump-args))
                "\n" t)
+              :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
+              :history 'file-name-history
+              :keymap counsel-find-file-map
               :caller 'counsel-dired-jump)))
 
 ;;* Grep
