@@ -1796,12 +1796,12 @@ Skip some dotfiles unless `ivy-text' requires them."
               (string-match re-str (directory-file-name x)))))))
     (if (or (null ivy-use-ignore)
             (null counsel-find-file-ignore-regexp)
-            (string-match "\\`\\." ivy-text))
+            (string-match-p "\\`\\." ivy-text))
         res
       (or (cl-remove-if
            (lambda (x)
              (and
-              (string-match counsel-find-file-ignore-regexp x)
+              (string-match-p counsel-find-file-ignore-regexp x)
               (not (member x ivy-extra-directories))))
            res)
           res))))
@@ -2397,7 +2397,7 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defcustom counsel-file-jump-args "-name '*' -type f -not -path '*/.git/*' -printf '%f\n'"
+(defcustom counsel-file-jump-args "-name '.git' -prune -o -type f -print | cut -c 3-"
   "Arguments for the `find-command' when using `counsel-file-jump'."
   :type 'string)
 
@@ -2428,7 +2428,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))
 
-(defcustom counsel-dired-jump-args "* -type d -not -path '*/.git*'"
+(defcustom counsel-dired-jump-args "-name '.git' -prune -o -type d -print | cut -c 3-"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
   :type 'string)
 
