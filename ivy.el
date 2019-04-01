@@ -1870,17 +1870,18 @@ customizations apply to the current completion session."
                           (list (car source) (funcall (car source)))
                           ivy--extra-candidates))))))
       (setq ivy--extra-candidates '((original-source)))))
-  (let ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
-        (transformer-fn
-         (plist-get ivy--display-transformers-list
-                    (cond (caller)
-                          ((functionp collection)
-                           collection))))
-        (ivy-display-function
-         (unless (window-minibuffer-p)
-           (or ivy-display-function
-               (ivy-alist-setting ivy-display-functions-alist caller))))
-        (height (ivy--height caller)))
+  (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
+         (transformer-fn
+          (plist-get ivy--display-transformers-list
+                     (cond (caller)
+                           ((functionp collection)
+                            collection))))
+         (ivy-display-function
+          (when (or ivy-recursive-last
+                    (not (window-minibuffer-p)))
+            (or ivy-display-function
+                (ivy-alist-setting ivy-display-functions-alist caller))))
+         (height (ivy--height caller)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
