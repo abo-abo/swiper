@@ -109,35 +109,34 @@ Hide the minibuffer contents and cursor."
           (insert str)))
     (ivy-add-face-text-property (minibuffer-prompt-end) (point-max)
                                 '(:foreground "white"))
-    (let ((cursor-pos (1+ (- (point) (minibuffer-prompt-end))))
-          (ivy-window (ivy--get-window ivy-last)))
+    (setq cursor-type nil)
+    (with-selected-window (ivy--get-window ivy-last)
+      (when cursor-type
+        (setq ivy--old-cursor-type cursor-type))
       (setq cursor-type nil)
-      (with-selected-window ivy-window
-        (when cursor-type
-          (setq ivy--old-cursor-type cursor-type))
-        (setq cursor-type nil)
-        (let ((overlay-str
-               (apply
-                #'concat
-                (buffer-substring (max (point-min) (1- (point))) (point))
-                ivy-text
-                (and (eolp) " ")
-                (buffer-substring (point) (line-end-position))
-                (and (> (length str) 0)
-                     (list "\n"
-                           (ivy-left-pad
-                            (ivy--remove-prefix "\n" str)
-                            (+ (if (and (eq major-mode 'org-mode)
-                                        (bound-and-true-p org-indent-mode))
-                                   (* org-indent-indentation-per-level
-                                      (org-current-level))
-                                 0)
-                               (save-excursion
-                                 (goto-char ivy-completion-beg)
-                                 (current-column)))))))))
-          (ivy-add-face-text-property cursor-pos (1+ cursor-pos)
-                                      'ivy-cursor overlay-str t)
-          (ivy-overlay-show-after overlay-str))))))
+      (let ((overlay-str
+             (apply
+              #'concat
+              (buffer-substring (max (point-min) (1- (point))) (point))
+              ivy-text
+              (and (eolp) " ")
+              (buffer-substring (point) (line-end-position))
+              (and (> (length str) 0)
+                   (list "\n"
+                         (ivy-left-pad
+                          (ivy--remove-prefix "\n" str)
+                          (+
+                           (if (and (eq major-mode 'org-mode)
+                                    (bound-and-true-p org-indent-mode))
+                               (* org-indent-indentation-per-level (org-current-level))
+                             0)
+                           (save-excursion
+                             (goto-char ivy-completion-beg)
+                             (current-column)))))))))
+        (let ((cursor-offset (1+ (length ivy-text))))
+          (ivy-add-face-text-property cursor-offset (1+ cursor-offset)
+                                      'ivy-cursor overlay-str t))
+        (ivy-overlay-show-after overlay-str)))))
 
 (provide 'ivy-overlay)
 
