@@ -3722,9 +3722,12 @@ buffer position."
     (barf-if-buffer-read-only)
     (setq last-command 'yank)
     (setq yank-window-start (window-start))
-    ;; Avoid unexpected additions to `kill-ring'
-    (let (interprogram-paste-function)
-      (yank-pop (counsel--yank-pop-position s)))
+    (condition-case nil
+        ;; Avoid unexpected additions to `kill-ring'
+        (let (interprogram-paste-function)
+          (yank-pop (counsel--yank-pop-position s)))
+      (error
+       (insert s)))
     (when (funcall (if counsel-yank-pop-after-point #'> #'<)
                    (point) (mark t))
       (exchange-point-and-mark t))))
