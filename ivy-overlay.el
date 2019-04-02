@@ -88,16 +88,14 @@ Then attach the overlay to the character before point."
 (declare-function ivy-state-window "ivy")
 (declare-function ivy--remove-prefix "ivy")
 
-(defun ivy-overlay-impossible-p (str)
+(defun ivy-overlay-impossible-p (_str)
   (or
    (and (eq major-mode 'org-mode)
         (plist-get (text-properties-at (point)) 'src-block))
    (<= (window-height) (+ ivy-height 3))
    (= (point) (point-min))
    (< (- (+ (window-width) (window-hscroll)) (current-column))
-      (apply #'max
-             (mapcar #'string-width
-                     (split-string str "\n"))))))
+      30)))
 
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
