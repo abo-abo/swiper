@@ -1165,8 +1165,10 @@ See `ivy-format-function' for further information."
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text))
-          (let ((ov (make-overlay (point) (1+ (point)))))
-            (overlay-put ov 'face 'ivy-cursor)
+          (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
+            (if (eolp)
+                (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
+              (overlay-put ov 'face 'ivy-cursor))
             (push ov swiper--overlays))))
     (swiper--cleanup)))
 
@@ -1176,6 +1178,7 @@ See `ivy-format-function' for further information."
   (swiper--init)
   (setq swiper--isearch-last-point (line-beginning-position))
   (let ((ivy-fixed-height-minibuffer t)
+        (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
         res)
     (unwind-protect
