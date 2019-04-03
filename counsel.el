@@ -216,7 +216,9 @@ respectively."
                   (time-to-seconds (time-since counsel--async-start))))
           (let ((re (ivy-re-to-str (funcall ivy--regex-function ivy-text))))
             (if ivy--old-cands
-                (ivy--recompute-index ivy-text re ivy--all-candidates)
+                (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
+                    (ivy-set-index 0)
+                  (ivy--recompute-index ivy-text re ivy--all-candidates))
               (unless (ivy-set-index
                        (ivy--preselect-index
                         (ivy-state-preselect ivy-last)
