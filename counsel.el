@@ -2053,6 +2053,19 @@ result as a URL."
                (format formatter word-at-point)))))
        counsel-url-expansions-alist))))
 
+;;** `counsel-dired'
+(declare-function dired "dired")
+
+;;;###autoload
+(defun counsel-dired (&optional initial-input)
+  "Forward to `dired'.
+When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
+  (interactive)
+  (counsel--find-file-1
+   "Dired (directory): " initial-input
+   (lambda (d) (dired (expand-file-name d)))
+   'counsel-dired))
+
 ;;** `counsel-recentf'
 (defvar recentf-list)
 (declare-function recentf-mode "recentf")
