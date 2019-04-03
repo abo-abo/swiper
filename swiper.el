@@ -1143,7 +1143,7 @@ See `ivy-format-function' for further information."
           (swiper--add-overlays (ivy--regex ivy-text))))
     (swiper--cleanup)))
 
-(defun swiper-isearch ()
+(defun swiper-isearch (&optional initial-input)
   "A `swiper' that's not line-based."
   (interactive)
   (swiper--init)
@@ -1153,8 +1153,12 @@ See `ivy-format-function' for further information."
          (and
           (setq res
                 (ivy-read
-                 "iswiper: " #'swiper-isearch-function
+                 "iswiper: "
+                 #'swiper-isearch-function
+                 :initial-input initial-input
+                 :keymap swiper-map
                  :dynamic-collection t
+                 :require-match t
                  :action #'swiper-isearch-action
                  :update-fn 'auto
                  :unwind #'swiper--cleanup
