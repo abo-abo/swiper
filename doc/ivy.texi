@@ -8,7 +8,7 @@
 
 @copying
 @ifnottex
-Ivy manual, version 0.8.0
+Ivy manual, version 0.11.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -342,6 +342,7 @@ with some sample bindings:
 @subsubheading Ivy-based interface to shell and system tools
 @indentedblock
 @lisp
+(global-set-key (kbd "C-c c") 'counsel-compile)
 (global-set-key (kbd "C-c g") 'counsel-git)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
 (global-set-key (kbd "C-c k") 'counsel-ag)
@@ -1010,6 +1011,18 @@ Enable virtual buffers with:
 (setq ivy-use-virtual-buffers t)
 @end lisp
 @end indentedblock
+@subsubheading @code{ivy-modified-buffer}
+@vindex ivy-modified-buffer
+@indentedblock
+Highlights modified buffers when switching buffer.
+@end indentedblock
+@subsubheading @code{ivy-modified-outside-buffer}
+@vindex ivy-modified-outside-buffer
+@indentedblock
+Highlights buffers modified outside Emacs when switching buffer.
+
+This takes precedence over @code{ivy-modified-buffer}.
+@end indentedblock
 
 @node Defcustoms
 @section Defcustoms
@@ -1262,6 +1275,11 @@ Helm-make requires this setting for ivy completion.
 @lisp
 (setq helm-make-completion-method 'ivy)
 @end lisp
+@end indentedblock
+@subsubheading automatically integrated packages
+@indentedblock
+Ivy re-uses the following packages if they are installed:
+@code{avy}, @code{amx} or @code{smex}, @code{flx}, and @code{wgrep}.
 @end indentedblock
 
 @node Commands

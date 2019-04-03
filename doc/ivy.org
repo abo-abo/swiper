@@ -58,7 +58,7 @@ ivy-ox.el then ~C-c C-e i t~ in the ivy.org buffer.
 :CUSTOM_ID: copying
 :END:
 #+TEXINFO: @ifnottex
-Ivy manual, version 0.8.0
+Ivy manual, version 0.11.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -972,6 +972,10 @@ To examine each action with each candidate in a key-efficient way, try:
      #+begin_src elisp
      (setq helm-make-completion-method 'ivy)
      #+end_src
+
+- automatically integrated packages ::
+     Ivy re-uses the following packages if they are installed:
+     =avy=, =amx= or =smex=, =flx=, and =wgrep=.
 
 * Commands
 :PROPERTIES:
