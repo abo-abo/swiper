@@ -2047,6 +2047,24 @@ result as a URL."
                (format formatter word-at-point)))))
        counsel-url-expansions-alist))))
 
+;;** `counsel-dired'
+(declare-function dired "dired")
+
+;;;###autoload
+(defun counsel-dired (&optional initial-input)
+  "Forward to `dired'.
+When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
+  (interactive)
+  (ivy-read "Dired (directory): " #'read-file-name-internal
+            :matcher #'counsel--find-file-matcher
+            :initial-input initial-input
+            :action (lambda (d) (dired (expand-file-name d)))
+            :preselect (counsel--preselect-file)
+            :require-match 'confirm-after-completion
+            :history 'file-name-history
+            :keymap counsel-find-file-map
+            :caller 'counsel-dired))
+
 ;;** `counsel-recentf'
 (defvar recentf-list)
 (declare-function recentf-mode "recentf")
