@@ -1178,7 +1178,7 @@ See `ivy-format-function' for further information."
          (and
           (setq res
                 (ivy-read
-                 "iswiper: "
+                 "Swiper: "
                  #'swiper-isearch-function
                  :initial-input initial-input
                  :keymap swiper-map
