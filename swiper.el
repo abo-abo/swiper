@@ -1147,7 +1147,7 @@ See `ivy-format-function' for further information."
   "A `swiper' that's not line-based."
   (interactive)
   (swiper--init)
-  (setq swiper--isearch-last-point (point))
+  (setq swiper--isearch-last-point (line-beginning-position))
   (let (res)
     (unwind-protect
          (and
