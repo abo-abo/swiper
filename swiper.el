@@ -1172,7 +1172,8 @@ See `ivy-format-function' for further information."
   (interactive)
   (swiper--init)
   (setq swiper--isearch-last-point (line-beginning-position))
-  (let (res)
+  (let ((ivy-fixed-height-minibuffer t)
+        res)
     (unwind-protect
          (and
           (setq res
