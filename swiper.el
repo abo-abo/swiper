@@ -93,28 +93,52 @@
     map)
   "Keymap for swiper.")
 
+(defvar swiper--query-replace-overlays nil)
+
+(defun swiper--query-replace-updatefn ()
+  (dolist (ov swiper--query-replace-overlays)
+    (overlay-put ov 'after-string (propertize ivy-text 'face 'error))))
+
+(defun swiper--query-replace-cleanup ()
+  (while swiper--query-replace-overlays
+    (delete-overlay (pop swiper--query-replace-overlays))))
+
+(defun swiper--query-replace-setup ()
+  (with-ivy-window
+    (let ((end (window-end (selected-window) t)))
+      (save-excursion
+        (goto-char (window-start))
+        (while (re-search-forward ivy--old-re end t)
+          (push (make-overlay (1- (match-end 0)) (match-end 0))
+                swiper--query-replace-overlays))))))
+
 (defun swiper-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
   (if (null (window-minibuffer-p))
       (user-error "Should only be called in the minibuffer through `swiper-map'")
-    (let* ((enable-recursive-minibuffers t)
-           (from (ivy--regex ivy-text))
-           (to (minibuffer-with-setup-hook
-                   (lambda ()
-                     (setq minibuffer-default
-                           (if (string-match "\\`\\\\_<\\(.*\\)\\\\_>\\'" ivy-text)
-                               (match-string 1 ivy-text)
-                             ivy-text)))
-                 (read-from-minibuffer (format "Query replace %s with: " from)))))
-      (swiper--cleanup)
-      (ivy-exit-with-action
-       (lambda (_)
-         (with-ivy-window
-           (move-beginning-of-line 1)
-           (let ((inhibit-read-only t))
-             (perform-replace from to
-                              t t nil))))))))
+    (swiper--query-replace-setup)
+    (unwind-protect
+         (let* ((enable-recursive-minibuffers t)
+                (from (ivy--regex ivy-text))
+                (to (minibuffer-with-setup-hook
+                        (lambda ()
+                          (setq minibuffer-default
+                                (if (string-match "\\`\\\\_<\\(.*\\)\\\\_>\\'" ivy-text)
+                                    (match-string 1 ivy-text)
+                                  ivy-text)))
+                      (ivy-read
+                       (format "Query replace %s with: " from) nil
+                       :update-fn #'swiper--query-replace-updatefn))))
+           (swiper--cleanup)
+           (ivy-exit-with-action
+            (lambda (_)
+              (with-ivy-window
+                (move-beginning-of-line 1)
+                (let ((inhibit-read-only t))
+                  (perform-replace from to
+                                   t t nil))))))
+      (swiper--query-replace-cleanup))))
 
 (defvar inhibit-message)
 
