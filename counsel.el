@@ -1837,20 +1837,26 @@ The preselect behaviour can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
+(defun counsel--find-file-1 (prompt initial-input action caller)
+  (ivy-read prompt #'read-file-name-internal
+            :matcher #'counsel--find-file-matcher
+            :initial-input initial-input
+            :action action
+            :preselect (counsel--preselect-file)
+            :require-match 'confirm-after-completion
+            :history 'file-name-history
+            :keymap counsel-find-file-map
+            :caller caller))
+
 ;;;###autoload
 (defun counsel-find-file (&optional initial-input)
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
-  (ivy-read "Find file: " #'read-file-name-internal
-            :matcher #'counsel--find-file-matcher
-            :initial-input initial-input
-            :action #'counsel-find-file-action
-            :preselect (counsel--preselect-file)
-            :require-match 'confirm-after-completion
-            :history 'file-name-history
-            :keymap counsel-find-file-map
-            :caller 'counsel-find-file))
+  (counsel--find-file-1
+   "Find file: " initial-input
+   #'counsel-find-file-action
+   'counsel-find-file))
 
 (ivy-set-occur 'counsel-find-file 'counsel-find-file-occur)
 
