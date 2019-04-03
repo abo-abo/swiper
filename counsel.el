@@ -3537,7 +3537,7 @@ Additional actions:\\<ivy-minibuffer-map>
             :require-match t
             :caller 'counsel-package))
 
-(cl-pushnew '(counsel-package . "^+ ") ivy-initial-inputs-alist :key #'car)
+(cl-pushnew '(counsel-package . "^+") ivy-initial-inputs-alist :key #'car)
 
 (defun counsel-package-action (package)
   "Delete or install PACKAGE."
