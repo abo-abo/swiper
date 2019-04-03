@@ -1164,7 +1164,10 @@ See `ivy-format-function' for further information."
                                  (line-end-position))
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
-          (swiper--add-overlays (ivy--regex ivy-text))))
+          (swiper--add-overlays (ivy--regex ivy-text))
+          (let ((ov (make-overlay (point) (1+ (point)))))
+            (overlay-put ov 'face 'ivy-cursor)
+            (push ov swiper--overlays))))
     (swiper--cleanup)))
 
 (defun swiper-isearch (&optional initial-input)
