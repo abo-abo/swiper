@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-01-23 Wed 11:32 -->
+<!-- 2019-04-03 Wed 18:11 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -160,7 +160,7 @@ for the JavaScript code in this tag.
 <h2 id="copying"><span class="section-number-2">1</span> Copying</h2>
 <div class="outline-text-2" id="text-copying">
 <p>
-Ivy manual, version 0.8.0
+Ivy manual, version 0.11.0
 </p>
 
 <p>
@@ -418,7 +418,8 @@ with some sample bindings:
 </div></dd>
 
 <dt>Ivy-based interface to shell and system tools</dt><dd><div class="org-src-container">
-<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
+<pre class="src src-elisp">(global-set-key (kbd <span style="color: #2A00FF;">"C-c c"</span>) 'counsel-compile)
+(global-set-key (kbd <span style="color: #2A00FF;">"C-c g"</span>) 'counsel-git)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c j"</span>) 'counsel-git-grep)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-c k"</span>) 'counsel-ag)
 (global-set-key (kbd <span style="color: #2A00FF;">"C-x l"</span>) 'counsel-locate)
@@ -1391,6 +1392,9 @@ Helm-make requires this setting for ivy completion.
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> helm-make-completion-method 'ivy)
 </pre>
 </div></dd>
+
+<dt>automatically integrated packages</dt><dd>Ivy re-uses the following packages if they are installed:
+<code>avy</code>, <code>amx</code> or <code>smex</code>, <code>flx</code>, and <code>wgrep</code>.</dd>
 </dl>
 </div>
 </div>
