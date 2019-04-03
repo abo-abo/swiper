@@ -27,8 +27,10 @@
 ;;; Code:
 
 (defface ivy-cursor
-  '((t (:background "black"
-        :foreground "white")))
+  '((((class color) (background light))
+     :background "black" :foreground "white")
+    (((class color) (background dark))
+     :background "white" :foreground "black"))
   "Cursor face for inline completion."
   :group 'ivy-faces)
 
