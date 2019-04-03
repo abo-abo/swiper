@@ -3569,6 +3569,8 @@ Note: The usual last two arguments are flipped for convenience.")
 (ivy-set-display-transformer
  'counsel-find-file 'ivy-read-file-transformer)
 (ivy-set-display-transformer
+ 'counsel-dired 'ivy-read-file-transformer)
+(ivy-set-display-transformer
  'read-file-name-internal 'ivy-read-file-transformer)
 
 (defun ivy-read-file-transformer (str)
