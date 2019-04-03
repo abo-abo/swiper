@@ -1892,7 +1892,11 @@ customizations apply to the current completion session."
            :history history
            :preselect preselect
            :keymap keymap
-           :update-fn update-fn
+           :update-fn (if (eq update-fn 'auto)
+                          (lambda ()
+                            (funcall (ivy--get-action ivy-last)
+                                     (ivy-state-current ivy-last)))
+                        update-fn)
            :sort sort
            :action action
            :frame (selected-frame)

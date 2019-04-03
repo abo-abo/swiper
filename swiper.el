@@ -1046,8 +1046,7 @@ See `ivy-format-function' for further information."
     (ivy-read "swiper-all: " 'swiper-all-function
               :action #'swiper-all-action
               :unwind #'swiper--cleanup
-              :update-fn (lambda ()
-                           (swiper-all-action (ivy-state-current ivy-last)))
+              :update-fn 'auto
               :dynamic-collection t
               :keymap swiper-all-map
               :initial-input initial-input
@@ -1157,8 +1156,7 @@ See `ivy-format-function' for further information."
                  "iswiper: " #'swiper-isearch-function
                  :dynamic-collection t
                  :action #'swiper-isearch-action
-                 :update-fn (lambda ()
-                              (swiper-isearch-action (ivy-state-current ivy-last)))
+                 :update-fn 'auto
                  :unwind #'swiper--cleanup
                  :history 'swiper-history
                  :caller 'swiper-isearch))

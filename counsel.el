@@ -2817,8 +2817,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
                              :keymap counsel-grep-map
                              :history 'counsel-grep-history
-                             :update-fn (lambda ()
-                                          (counsel-grep-action (ivy-state-current ivy-last)))
+                             :update-fn 'auto
                              :re-builder #'ivy--regex
                              :action #'counsel-grep-action
                              :unwind (lambda ()
