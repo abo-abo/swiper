@@ -5185,6 +5185,8 @@ The properties include:
     the root directory of the source code
 `blddir'
     the root directory of the build (in or outside the `srcdir')
+`bldenv'
+    the build environment as passed to `compilation-environment'
 `recursive'
     the completion should be run again in `blddir' of this result
 `cmd'
@@ -5248,6 +5250,12 @@ You may, for example, want to add \"-jN\" for the number of cores
 N in your system."
   :type 'string)
 
+(defcustom counsel-compile-env nil
+  "List of environment variables for compilation to inherit.
+Each element should be a string of the form ENVVARNAME=VALUE.  This
+list is passed to `compilation-environment'."
+  :type '(repeat (string :tag "ENVVARNAME=VALUE")))
+
 (defcustom counsel-compile-make-pattern "\\`\\(?:GNUm\\|[Mm]\\)akefile\\'"
   "Regexp for matching the names of Makefiles."
   :type 'regexp)
@@ -5300,11 +5308,16 @@ The resulting strings are tagged with properties that
   (let ((fmt (format (propertize "make %s %%s" 'cmd t)
                      counsel-compile-make-args))
         (suffix (and blddir
-                     (concat (propertize " in " 'face 'font-lock-warning-face)
-                             (propertize blddir 'face 'dired-directory))))
-        (props `(srcdir ,srcdir blddir ,blddir)))
+                     (counsel-compile--pretty-propertize "in" blddir
+                                                         'dired-directory)))
+        (build-env (and counsel-compile-env
+                        (counsel-compile--pretty-propertize
+                         "with"
+                         (mapconcat #'identity counsel-compile-env " ")
+                         'font-lock-variable-name-face)))
+        (props `(srcdir ,srcdir blddir ,blddir bldenv ,counsel-compile-env)))
     (mapcar (lambda (target)
-              (setq target (concat (format fmt target) suffix))
+              (setq target (concat (format fmt target) suffix build-env))
               (add-text-properties 0 (length target) props target)
               target)
             (counsel-compile--probe-make-targets (or blddir srcdir)))))
@@ -5381,12 +5394,18 @@ This is determined by `counsel-compile-local-builds', which see."
   "Update `counsel-compile-history' from the compilation state."
   (let* ((srcdir (counsel--compile-root))
          (blddir default-directory)
+         (bldenv compilation-environment)
          (cmd (concat
                (propertize (car compilation-arguments) 'cmd t)
                (unless (file-equal-p blddir srcdir)
-                 (concat (propertize " in " 'face 'font-lock-warning-face)
-                         (propertize blddir 'face 'dired-directory))))))
-    (add-text-properties 0 (length cmd) `(srcdir ,srcdir blddir ,blddir) cmd)
+                 (counsel-compile--pretty-propertize "in" blddir
+                                                     'dired-directory))
+               (when bldenv
+                 (counsel-compile--pretty-propertize "with"
+                                                     (mapconcat #'identity bldenv " ")
+                                                     'font-lock-variable-name-face)))))
+    (add-text-properties 0 (length cmd)
+                         `(srcdir ,srcdir blddir ,blddir bldenv ,bldenv) cmd)
     (add-to-history 'counsel-compile-history cmd)))
 
 (defun counsel-compile--action (cmd)
@@ -5395,13 +5414,15 @@ This is determined by `counsel-compile-local-builds', which see."
 If CMD has the `recursive' property set we call `counsel-compile'
 again to further refine the compile options in the directory
 specified by the `blddir' property."
-  (let ((blddir (get-text-property 0 'blddir cmd)))
+  (let ((blddir (get-text-property 0 'blddir cmd))
+        (bldenv (get-text-property 0 'bldenv cmd)))
     (if (get-text-property 0 'recursive cmd)
         (counsel-compile blddir)
       (when (get-char-property 0 'cmd cmd)
         (setq cmd (substring-no-properties
                    cmd 0 (next-single-property-change 0 'cmd cmd))))
-      (let ((default-directory blddir))
+      (let ((default-directory blddir)
+            (compilation-environment bldenv))
         ;; No need to specify `:history' because of this hook.
         (add-hook 'compilation-start-hook #'counsel-compile--update-history)
         (unwind-protect
