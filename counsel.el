@@ -5267,6 +5267,15 @@ trees."
                                 (match-string-no-properties 1)))))))
     (sort targets #'string-lessp)))
 
+(defun counsel-compile--pretty-propertize (leader text face)
+  "Return a pretty string of the form \" LEADER TEXT\".
+LEADER is propertized with a warning face and the remaining
+text with FACE."
+  (concat (propertize (concat " " leader " ")
+                      'face
+                      'font-lock-warning-face)
+          (propertize text 'face face)))
+
 (defun counsel--compile-get-make-targets (srcdir &optional blddir)
   "Return a list of Make targets for a given SRCDIR/BLDDIR combination.
 
