@@ -1155,6 +1155,13 @@ See `ivy-format-function' for further information."
         (ivy-set-index idx-found))
       (setq ivy--old-cands (nreverse cands)))))
 
+(defun swiper--add-cursor-overlay ()
+  (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
+    (if (eolp)
+        (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
+      (overlay-put ov 'face 'ivy-cursor))
+    (push ov swiper--overlays)))
+
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
   (if (> (length x) 0)
@@ -1165,11 +1172,7 @@ See `ivy-format-function' for further information."
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text))
-          (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
-            (if (eolp)
-                (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
-              (overlay-put ov 'face 'ivy-cursor))
-            (push ov swiper--overlays))))
+          (swiper--add-cursor-overlay)))
     (swiper--cleanup)))
 
 (defun swiper-isearch (&optional initial-input)
