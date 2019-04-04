@@ -5293,7 +5293,7 @@ The resulting strings are tagged with properties that
         (suffix (and blddir
                      (concat (propertize " in " 'face 'font-lock-warning-face)
                              (propertize blddir 'face 'dired-directory))))
-        (props `(srcdir ,srcdir blddir ,default-directory)))
+        (props `(srcdir ,srcdir blddir ,blddir)))
     (mapcar (lambda (target)
               (setq target (concat (format fmt target) suffix))
               (add-text-properties 0 (length target) props target)
