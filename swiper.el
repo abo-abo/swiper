@@ -1145,7 +1145,7 @@ See `ivy-format-function' for further information."
                 (setq swiper--isearch-last-point (match-beginning 0))
                 (setq idx-found idx)))
             (cl-incf idx)
-            (let ((line (buffer-substring-no-properties
+            (let ((line (buffer-substring
                          (line-beginning-position)
                          (line-end-position))))
               (put-text-property 0 1 'point (point) line)
