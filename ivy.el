@@ -1808,8 +1808,13 @@ history.
 
 KEYMAP is composed with `ivy-minibuffer-map'.
 
-If PRESELECT is not nil, then select the corresponding candidate
-out of the ones that match the INITIAL-INPUT.
+PRESELECT, when non-nil, determines which one of the candidates
+matching INITIAL-INPUT to select initially.  An integer stands
+for the position of the desired candidate in the collection,
+counting from zero.  Otherwise, use the first occurrence of
+PRESELECT in the collection.  Comparison is first done with
+`equal'.  If that fails, and when applicable, match PRESELECT as
+a regular expression.
 
 DEF is for compatibility with `completing-read'.
 
@@ -2378,12 +2383,8 @@ Minibuffer bindings:
   (cond ((integerp preselect)
          preselect)
         ((cl-position preselect candidates :test #'equal))
-        ((stringp preselect)
-         (let ((re preselect))
-           (cl-position-if
-            (lambda (x)
-              (string-match-p re x))
-            candidates)))))
+        ((ivy--regex-p preselect)
+         (cl-position preselect candidates :test #'string-match-p))))
 
 ;;* Implementation
 ;;** Regex
@@ -2484,17 +2485,13 @@ When GREEDY is non-nil, join words in a greedy way."
                           (if greedy ".*" ".*?")))))
                     ivy--regex-hash)))))
 
-(defun ivy--legal-regex-p (str)
-  "Return t if STR is valid regular expression."
-  (condition-case nil
-      (progn
-        (string-match-p str "")
-        t)
-    (invalid-regexp nil)))
+(defun ivy--regex-p (object)
+  "Return OBJECT if it is a valid regular expression, else nil."
+  (ignore-errors (string-match-p object "") object))
 
 (defun ivy--regex-or-literal (str)
-  "If STR isn't a legal regex, escape it."
-  (if (ivy--legal-regex-p str) str (regexp-quote str)))
+  "If STR isn't a legal regexp, escape it."
+  (or (ivy--regex-p str) (regexp-quote str)))
 
 (defun ivy--split-negation (str)
   "Split STR into text before and after ! delimiter.
@@ -3264,7 +3261,7 @@ RE-STR is the regexp, CANDS are the current candidates."
                      (and (integerp preselect)
                           (= ivy--index preselect))
                      (equal current preselect)
-                     (and (stringp preselect)
+                     (and (ivy--regex-p preselect)
                           (stringp current)
                           (string-match-p preselect current))))
                ivy--old-cands

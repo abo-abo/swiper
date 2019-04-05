@@ -1118,13 +1118,17 @@ features such as multi-actions, non-exiting actions, =ivy-occur= and
 - =history= ::
      Name of the symbol to store history. See =completing-read=.
 - =preselect= ::
-     When set to a string value, select the first candidate matching
-     this value.
+     Determines which one of the candidates to initially select.
 
      When set to an integer value, select the candidate with that
      index value.
 
-     Every time the input becomes empty, the item corresponding to to
+     When set to any other non-nil value, select the first candidate
+     matching this value.  Comparison is first done with =equal=.
+     If this fails, and when applicable, match =preselect= as a
+     regular expression.
+
+     Every time the input becomes empty, the item corresponding to
      =preselect= is selected.
 - =keymap= ::
      A keymap to be composed with =ivy-minibuffer-map=. This keymap
