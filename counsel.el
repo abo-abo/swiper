@@ -5256,6 +5256,9 @@ Each element should be a string of the form ENVVARNAME=VALUE.  This
 list is passed to `compilation-environment'."
   :type '(repeat (string :tag "ENVVARNAME=VALUE")))
 
+(defvar counsel-compile-env-history nil
+  "History for `counsel-compile-env'.")
+
 (defcustom counsel-compile-make-pattern "\\`\\(?:GNUm\\|[Mm]\\)akefile\\'"
   "Regexp for matching the names of Makefiles."
   :type 'regexp)
@@ -5437,6 +5440,40 @@ specified by the `blddir' property."
             (counsel--get-compile-candidates dir)
             :action #'counsel-compile--action
             :caller 'counsel-compile))
+
+
+(defun counsel-compile-env--format-hint (cands)
+  "Return a formatter for compile-env CANDS."
+  (let ((rmstr
+         (propertize "remove" 'face 'font-lock-warning-face))
+        (addstr
+         (propertize "add" 'face 'font-lock-variable-name-face)))
+    (ivy--format-function-generic
+     (lambda (selected)
+       (format "%s %s"
+               (if (member selected counsel-compile-env) rmstr addstr)
+               selected))
+     #'identity
+     cands
+     "\n")))
+
+(defun counsel-compile-env--update (var)
+  "Update `counsel-compile-env' either adding or removing VAR."
+  (if (member var counsel-compile-env)
+      (setq counsel-compile-env (delete var counsel-compile-env))
+    (add-to-list 'counsel-compile-env var)))
+
+;;;###autoload
+(defun counsel-compile-env ()
+  "Update `counsel-compile-env' interactively."
+  (interactive)
+  (let ((ivy-format-function #'counsel-compile-env--format-hint))
+    (ivy-read "Compile environment variable: "
+              (delete-dups (append
+                            counsel-compile-env counsel-compile-env-history))
+              :action #'counsel-compile-env--update
+              :history 'counsel-compile-env-history
+              :caller 'counsel-compile-env)))
 
 ;;** `counsel-minor'
 (defun counsel--minor-candidates ()
