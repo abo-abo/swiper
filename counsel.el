@@ -3088,19 +3088,17 @@ otherwise continue prompting for tags."
                 :action #'counsel-org-tag-action
                 :caller 'counsel-org-tag))))
 
+(defvar org-version)
+
 ;;;###autoload
 (defun counsel-org-tag-agenda ()
   "Set tags for the current agenda item."
   (interactive)
-  (let* ((cmd-sym (if (version< (org-version) "9.2")
-                      'org-set-tags
-                    'org-set-tags-command))
-         (store (symbol-function cmd-sym)))
-    (unwind-protect
-         (progn
-           (fset cmd-sym (symbol-function 'counsel-org-tag))
-           (org-agenda-set-tags nil nil))
-      (fset cmd-sym store))))
+  (cl-letf (((symbol-function (if (version< org-version "9.2")
+                                  'org-set-tags
+                                'org-set-tags-command))
+             #'counsel-org-tag))
+    (org-agenda-set-tags)))
 
 (define-obsolete-variable-alias 'counsel-org-goto-display-tags
     'counsel-org-headline-display-tags "0.10.0")
@@ -3231,8 +3229,6 @@ recognized:
 (defun counsel-org-goto-action (x)
   "Go to headline in candidate X."
   (org-goto-marker-or-bmk (cdr x)))
-
-(defvar org-version)
 
 (defun counsel--org-get-heading-args ()
   "Return list of arguments for `org-get-heading'.
