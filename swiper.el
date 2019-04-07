@@ -514,18 +514,21 @@ When capture groups are present in the input, print them instead of lines."
                      (buffer-name buffer)))
                  'face
                  'ivy-grep-info))
-         (re (progn (string-match "\"\\(.*\\)\"" (buffer-name))
-                    (match-string 1 (buffer-name))))
-         (re (mapconcat #'identity (ivy--split re) ".*?"))
+         (ivy-text (progn (string-match "\"\\(.*\\)\"" (buffer-name))
+                          (match-string 1 (buffer-name))))
+         (re (mapconcat #'identity (ivy--split ivy-text) ".*?"))
          (cands
           (swiper--occur-cands
            fname
            (if (not revert)
                ivy--old-cands
              (setq ivy--old-re nil)
-             (let ((ivy--regex-function 'swiper--re-builder))
-               (ivy--filter re (with-current-buffer buffer
-                                 (swiper--candidates))))))))
+             (save-window-excursion
+               (switch-to-buffer buffer)
+               (if (eq (ivy-state-caller ivy-last) 'swiper)
+                   (let ((ivy--regex-function 'swiper--re-builder))
+                     (ivy--filter re (swiper--candidates)))
+                 (swiper-isearch-function ivy-text)))))))
     (if (string-match-p "\\\\(" re)
         (insert
          (mapconcat #'identity
