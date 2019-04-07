@@ -50,7 +50,8 @@
 
 (defun ivy-with (expr keys)
   "Evaluate EXPR followed by KEYS."
-  (let ((ivy-expr expr))
+  (let ((ivy-expr expr)
+        (inhibit-message t))
     (execute-kbd-macro
      (vconcat (kbd "C-c e")
               (kbd keys)))
@@ -699,8 +700,9 @@ will bring the behavior in line with the newer Emacsen."
        (switch-to-buffer standard-output t)
        ,expr
        (ivy-mode)
-       (execute-kbd-macro
-        ,(apply #'vconcat (mapcar #'kbd keys))))))
+       (let ((inhibit-message t))
+         (execute-kbd-macro
+          ,(apply #'vconcat (mapcar #'kbd keys)))))))
 
 (ert-deftest ivy-completion-in-region ()
   (should (string=
@@ -1021,13 +1023,14 @@ a buffer visiting a file."
                 (search-backward "|")
                 (delete-char 1)
                 (setq current-prefix-arg nil)
-                ,@(mapcar (lambda (x)
-                            (if (and (listp x)
-                                     (stringp (car x)))
-                                `(execute-kbd-macro
-                                  (vconcat ,@(mapcar #'kbd x)))
-                              x))
-                          body)
+                (let ((inhibit-message t))
+                  ,@(mapcar (lambda (x)
+                              (if (and (listp x)
+                                       (stringp (car x)))
+                                  `(execute-kbd-macro
+                                    (vconcat ,@(mapcar #'kbd x)))
+                                x))
+                            body))
                 (insert "|")
                 (buffer-substring-no-properties
                  (point-min)
