@@ -4399,7 +4399,7 @@ updated original buffer."
   (interactive)
   (let ((caller (ivy-state-caller ivy-occur-last))
         (ivy-last ivy-occur-last))
-    (cond ((eq caller 'swiper)
+    (cond ((member caller '(swiper swiper-isearch))
            (let ((buffer (ivy-state-buffer ivy-occur-last)))
              (unless (buffer-live-p buffer)
                (error "Buffer was killed"))
