@@ -5078,9 +5078,16 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
       ((get-buffer current)
        (ivy-call))
       ((and virtual (file-exists-p (cdr virtual)))
-       (let ((buf (find-file-noselect (cdr virtual))))
-         (push buf counsel--switch-buffer-temporary-buffers)
-         (ivy-call)))
+       (let ((buf (ignore-errors
+                    ;; may not open due to `large-file-warning-threshold' etc.
+                    (find-file-noselect (cdr virtual)))))
+         (if buf
+             (progn
+               (push buf counsel--switch-buffer-temporary-buffers)
+               (ivy-call))
+           ;; clean up the minibuffer so that there's no delay before
+           ;; the Ivy candidates are displayed once again
+           (message ""))))
       (t
        (with-ivy-window
          (switch-to-buffer (ivy-state-buffer ivy-last)))))))
