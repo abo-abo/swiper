@@ -1003,6 +1003,56 @@ a buffer visiting a file."
       (counsel--grep-regex "ivy"))
     "(i)[^v\n]*(v)[^y\n]*(y)")))
 
+(defmacro ivy-with-text (text &rest body)
+  (let ((old-bindings
+         (delq nil (mapcar
+                    (lambda (x)
+                      (when (and (listp x)
+                                 (eq (car x) 'global-set-key))
+                        (let ((key (eval (cadr x))))
+                          (list key (lookup-key global-map key)))))
+                    body))))
+    `(let ((temp-buffer (generate-new-buffer " *temp*")))
+       (save-window-excursion
+         (unwind-protect
+              (progn
+                (switch-to-buffer temp-buffer)
+                (insert ,text)
+                (search-backward "|")
+                (delete-char 1)
+                (setq current-prefix-arg nil)
+                ,@(mapcar (lambda (x)
+                            (if (and (listp x)
+                                     (stringp (car x)))
+                                `(execute-kbd-macro
+                                  (vconcat ,@(mapcar #'kbd x)))
+                              x))
+                          body)
+                (insert "|")
+                (buffer-substring-no-properties
+                 (point-min)
+                 (point-max)))
+           (dolist (old-binding ',old-bindings)
+             (apply #'global-set-key old-binding))
+           (and (buffer-name temp-buffer)
+                (kill-buffer temp-buffer)))))))
+
+(ert-deftest swiper-isearch ()
+  (should
+   (string=
+    (ivy-with-text
+     "abc\na|sdf123 def\ndem"
+     (global-set-key (kbd "C-s") #'isearch-forward-regexp)
+     ("C-s" "de" "" "RET"))
+    "abc\nasd|f123 def\ndem"))
+  (should
+   (string=
+    (ivy-with-text
+     "abc\na|sdf123 def\ndem"
+     (global-set-key (kbd "C-s") #'swiper-isearch)
+     ("C-s" "de" "" "RET"))
+    "abc\nasd|f123 def\ndem")))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
