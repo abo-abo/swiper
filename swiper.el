@@ -480,26 +480,37 @@ such as `scroll-conservatively' are set to a high value.")
     (nreverse res)))
 
 (defun swiper--occur-cands (fname cands)
-  (with-current-buffer (ivy-state-buffer ivy-last)
-    (let* ((pt-min (point-min))
-           (line-delta
-            (save-restriction
-              (widen)
-              (1- (line-number-at-pos pt-min)))))
-      (mapcar
-       (lambda (s)
-         (let* ((n (get-text-property 0 'swiper-line-number s))
-                (pt (get-text-property 0 'point s))
-                (nn (number-to-string
-                     (if n
-                         (progn
-                           (setq s (substring s 1))
-                           (+ (read n) line-delta))
-                       (line-number-at-pos pt)))))
-           (put-text-property 0 1 'point pt fname)
-           (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
-           (format "%s:%s:%s" fname nn s)))
-       cands))))
+  (when cands
+    (with-current-buffer (ivy-state-buffer ivy-last)
+      (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+          (swiper--isearch-occur-cands fname cands)
+        (let* ((pt-min (point-min))
+               (line-delta
+                (save-restriction
+                  (widen)
+                  (1- (line-number-at-pos pt-min)))))
+          (mapcar
+           (lambda (s)
+             (let* ((n (get-text-property 0 'swiper-line-number s))
+                    (nn (number-to-string
+                         (+ (read n) line-delta))))
+               (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
+               (format "%s:%s:%s" fname nn (substring s 1))))
+           cands))))))
+
+(defun swiper--isearch-occur-cands (fname cands)
+  (let* ((last-pt (get-text-property 0 'point (car cands)))
+         (line (1+ (line-number-at-pos last-pt)))
+         res pt nn)
+    (dolist (cand cands)
+      (setq pt (get-text-property 0 'point cand))
+      (cl-incf line (1- (count-lines last-pt pt)))
+      (setq nn (number-to-string line))
+      (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
+      (put-text-property 0 1 'point pt fname)
+      (push (format "%s:%s:%s" fname nn cand) res)
+      (setq last-pt pt))
+    (nreverse res)))
 
 (defun swiper-occur (&optional revert)
   "Generate a custom occur buffer for `swiper'.
