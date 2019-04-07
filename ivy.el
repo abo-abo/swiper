@@ -4491,6 +4491,7 @@ EVENT gives the mouse position."
            (str (buffer-substring
                  (match-beginning 1)
                  (match-end 1)))
+           (offset (or (get-text-property 0 'offset str) 0))
            (coll (ivy-state-collection ivy-last))
            (action (ivy--get-action ivy-last))
            (ivy-exit 'done))
@@ -4503,7 +4504,7 @@ EVENT gives the mouse position."
                      (if (and (consp coll)
                               (consp (car coll)))
                          (assoc str coll)
-                       str))))
+                       (substring str offset)))))
         (if (memq (ivy-state-caller ivy-last)
                   '(swiper swiper-isearch
                     counsel-git-grep counsel-grep counsel-ag counsel-rg))

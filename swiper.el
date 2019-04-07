@@ -482,33 +482,37 @@ such as `scroll-conservatively' are set to a high value.")
 (defun swiper--occur-cands (fname cands)
   (when cands
     (with-current-buffer (ivy-state-buffer ivy-last)
-      (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
-          (swiper--isearch-occur-cands fname cands)
-        (let* ((pt-min (point-min))
-               (line-delta
-                (save-restriction
-                  (widen)
-                  (1- (line-number-at-pos pt-min)))))
-          (mapcar
-           (lambda (s)
-             (let* ((n (get-text-property 0 'swiper-line-number s))
-                    (nn (number-to-string
-                         (+ (read n) line-delta))))
-               (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
-               (format "%s:%s:%s" fname nn (substring s 1))))
-           cands))))))
+      (let* ((pt-min (point-min))
+             (line-delta
+              (save-restriction
+                (widen)
+                (1- (line-number-at-pos pt-min))))
+             (lines
+              (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+                  (swiper--isearch-occur-cands cands)
+                (mapcar (lambda (s)
+                          (let ((l (get-text-property 0 'swiper-line-number s)))
+                            (setq s (substring s 1))
+                            (put-text-property 0 1 'swiper-line-number l s)
+                            (cons (read l) s)))
+                        cands)))
+             (offset (+ (length fname) 2)))
+        (mapcar (lambda (x)
+                  (let ((nn (number-to-string
+                             (+ (car x) line-delta))))
+                    (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
+                    (put-text-property 0 1 'offset (+ offset (length nn)) fname)
+                    (format "%s:%s:%s" fname nn (cdr x))))
+                lines)))))
 
-(defun swiper--isearch-occur-cands (fname cands)
+(defun swiper--isearch-occur-cands (cands)
   (let* ((last-pt (get-text-property 0 'point (car cands)))
          (line (1+ (line-number-at-pos last-pt)))
-         res pt nn)
+         res pt)
     (dolist (cand cands)
       (setq pt (get-text-property 0 'point cand))
       (cl-incf line (1- (count-lines last-pt pt)))
-      (setq nn (number-to-string line))
-      (put-text-property 0 (length nn) 'face 'ivy-grep-line-number nn)
-      (put-text-property 0 1 'point pt fname)
-      (push (format "%s:%s:%s" fname nn cand) res)
+      (push (cons line cand) res)
       (setq last-pt pt))
     (nreverse res)))
 
@@ -867,9 +871,7 @@ the face, window and priority of the overlay."
 
 (defun swiper--action (x)
   "Goto line X."
-  (let ((ln (1- (read (or (get-text-property 0 'swiper-line-number x)
-                          (and (string-match ":\\([0-9]+\\):.*\\'" x)
-                               (match-string-no-properties 1 x))))))
+  (let ((ln (1- (read (get-text-property 0 'swiper-line-number x))))
         (re (ivy--regex ivy-text)))
     (if (null x)
         (user-error "No candidates")
