@@ -4458,7 +4458,7 @@ EVENT gives the mouse position."
 
 (defun ivy--occur-press-update-window ()
   (cl-case (ivy-state-caller ivy-occur-last)
-    ((swiper counsel-git-grep counsel-grep counsel-ag counsel-rg)
+    ((swiper swiper-isearch counsel-git-grep counsel-grep counsel-ag counsel-rg)
      (let ((window (ivy-state-window ivy-occur-last))
            (buffer (ivy-state-buffer ivy-occur-last)))
        (when (and (or (not (window-live-p window))
