@@ -2287,11 +2287,30 @@ string - the full shell command to run."
       (funcall counsel-locate-cmd input))
      '("" "working..."))))
 
+(defcustom counsel-locate-db-path "~/.local/mlocate.db"
+  "Location where to put the locatedb in case your home folder is encrypted."
+  :type 'file)
+
+(defun counsel--locate-updatedb ()
+  (when (file-exists-p "~/.Private")
+    (let ((db-fname (expand-file-name counsel-locate-db-path)))
+      (setenv "LOCATE_PATH" db-fname)
+      (when (or (not (file-exists-p db-fname))
+                (> (time-to-seconds
+                    (time-subtract
+                     (current-time)
+                     (nth 5 (file-attributes db-fname))))
+                   60))
+        (message "Updating %s..." db-fname)
+        (counsel--command
+         "updatedb" "-l" "0" "-o" db-fname "-U" (expand-file-name "~"))))))
+
 ;;;###autoload
 (defun counsel-locate (&optional initial-input)
   "Call the \"locate\" shell command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
+  (counsel--locate-updatedb)
   (ivy-read "Locate: " #'counsel-locate-function
             :initial-input initial-input
             :dynamic-collection t
