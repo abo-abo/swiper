@@ -1682,8 +1682,8 @@ Each key is (in order of priority):
 Each value is a function that should take a string and return a
 valid regex or a regex sequence (see below).
 
-Possible choices: `ivy--regex', `regexp-quote',
-`ivy--regex-plus', `ivy--regex-fuzzy', `ivy--regex-ignore-order'.
+Possible choices: `ivy--regex', `regexp-quote', `ivy--regex-plus',
+`ivy--regex-fuzzy', `ivy--regex-ignore-order', `ivy--subseq-fuzzy'.
 
 If a function returns a list, it should format like this:
 '((\"matching-regexp\" . t) (\"non-matching-regexp\") ...).
@@ -1695,7 +1695,8 @@ like.")
 (defvar ivy-highlight-functions-alist
   '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
     (ivy--regex-fuzzy . ivy--highlight-fuzzy)
-    (ivy--regex-plus . ivy--highlight-default))
+    (ivy--regex-plus . ivy--highlight-default)
+    (ivy--subseq-fuzzy . identity))
   "An alist of highlighting functions for each regex buidler function.")
 
 (defcustom ivy-initial-inputs-alist
@@ -2602,6 +2603,21 @@ Insert .* between each char."
         (setq ivy--subexps (length (match-string 2 str))))
     str))
 
+(defun ivy--subseq-fuzzy (str)
+  "Build a regex matching candidates containing a subsequence of STR.
+
+Space in STR is ignored.
+
+This function filters out candidates of which STR is not a subsequence.
+Technically this is not required, because the O(N*M) subsequent sequence
+alignment `ivy--fuzzy-sort' will give an awful score for such candidates,
+though slower."
+  (mapconcat
+   (lambda (x)
+     (format "\\(%s\\)" (regexp-quote (string x))))
+   (delq ?\s (string-to-list str))
+   ".*?"))
+
 (defcustom ivy-fixed-height-minibuffer nil
   "When non nil, fix the height of the minibuffer during ivy completion.
 This effectively sets the minimum height at this level to `ivy-height' and
@@ -3067,7 +3083,8 @@ CANDIDATES are assumed to be static."
              (matcher (ivy-state-matcher ivy-last))
              (case-fold-search (ivy--case-fold-p name))
              (cands (cond
-                      (matcher
+                     ((and matcher
+                           (not (eq ivy--regex-function 'ivy--subseq-fuzzy)))
                        (funcall matcher re candidates))
                       ((and ivy--old-re
                             (stringp re)
@@ -3151,7 +3168,9 @@ All CANDIDATES are assumed to match NAME."
                    (ivy-state-collection ivy-last))
                  this-command))
         fun)
-    (cond ((and ivy--flx-featurep
+    (cond ((eq ivy--regex-function 'ivy--subseq-fuzzy)
+           (ivy--fuzzy-sort name candidates))
+          ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
           ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist key))
@@ -3342,11 +3361,221 @@ This function serves as a fallback when nothing else is available."
            (const ivy-minibuffer-match-face-4)
            (face :tag "Other face"))))
 
-(defvar ivy-flx-limit 200
-  "Used to conditionally turn off flx sorting.
+(defvar ivy-fuzzy-limit 1000
+  "Used to conditionally turn off fuzzy sorting.
 
 When the amount of matching candidates exceeds this limit, then
-no sorting is done.")
+sorting is only done for the first `ivy-fuzzy-limit' candidates.")
+
+(define-obsolete-variable-alias 'ivy-flx-limit
+  'ivy-fuzzy-limit
+  "0.11.0")
+
+(defconst ivy--fuzzy-awful-score -1073741824
+  "A large negative value to mark unreachable states and forbidden plans.")
+
+(defvar ivy-fuzzy-pattern-length-limit 100
+  "Truncate pattern if longer than the limit.")
+
+(defvar ivy-fuzzy-candidate-length-limit 200
+  "Truncate candidate if longer than the limit.")
+
+(defun ivy--fuzzy-char-class (c)
+  "Get char class bitmask of C for fuzzy matching weight, lowercase, uppercase or other."
+  (let ((cat (get-char-code-property c 'general-category)))
+    (pcase cat
+      ('Ll 1)                           ; lower
+      ('Lu 2)                           ; upper
+      (_ 4))))                          ; other
+
+(defun ivy--fuzzy-get-role (str roles)
+  "Get ROLES for each character of STR and return bitmask of char classes.
+
+For example, roles of \"*meOw-z\" are [nil head tail head tail nil head].
+The return value is 7 = (logior 1 2 4) because all of lower/upper/other have
+occurred."
+  (let* ((n (length str))
+         (class-set 0))
+    (when (> n 0)
+      (let* ((pre 4)                    ; boundary is treated as other
+             (cur (ivy--fuzzy-char-class (aref str 0)))
+             suc
+             (f (lambda ()
+                  (cond
+                   ((= cur 4) nil)
+                   ;; U(U)L is a head position while U(U)U is tail.
+                   ;; pre == Other || cur == Upper && (pre == Lower || suc != Upper)
+                   ((or (= pre 4) (and (= cur 2) (or (= pre 1) (/= suc 2)))) 'head)
+                   (t 'tail)))))
+        (dotimes (i (1- n))
+          (setq suc (ivy--fuzzy-char-class (aref str (1+ i))))
+          (setq class-set (logior class-set suc))
+          (aset roles i (funcall f))
+          (setq pre cur cur suc))
+        (aset roles (1- n) (funcall f))))
+    class-set))
+
+(defun ivy--fuzzy-miss-score (j last-is-match text-role)
+  "Score of skipping text J.
+
+LAST-IS-MATCH denotes whether text J-1 was matched.
+TEXT-ROLE is roles."
+  (+ -3
+     (if last-is-match -10 0)                   ; not consecutive
+     (if (eq (aref text-role j) 'head) -10 0)   ; Head in text is skipped
+     ))
+
+(defun ivy--fuzzy-match-score (i j last-is-match pat pat-role pat-set text text-role)
+  "Score of matching PAT I with TEXT J.
+
+LAST-IS-MATCH denotes whether TEXT J-1 was matched."
+  (let ((s 0)
+        (p-role (aref pat-role i))
+        (t-role (aref text-role j)))
+    (when (= (aref pat i) (aref text j))
+      (cl-incf s 1)        ; Case matching
+      ;; PAT contains uppercase letters or prefix matching.
+      (when (or (/= (logand pat-set 2) 0) (= i j))
+        (cl-incf s 1)))
+    (when (eq p-role 'head)
+      (pcase t-role
+        ('head (cl-incf s 30))
+        ('tail (cl-decf s 10))))
+    ;; Matching a tail while previous char wasn't matched.
+    (when (and (eq t-role 'tail) (> i 0) (null last-is-match))
+      (cl-decf s 30))
+    ;; First char of PAT matches a tail.
+    (when (and (= i 0) (eq t-role 'tail))
+      (cl-decf s 40))
+    s))
+
+(defun ivy--fuzzy-score (pat pat-role pat-set text text-role text-set miss match)
+  "Match PAT with TEXT using tables MISS and MATCH.
+
+PAT-ROLE PAT-SET TEXT-ROLE TEXT-SET are used for scoring heuristics.
+MISS MATCH are 2D tables.
+
+Returns `(best-score . best-last-position)'.  If `best-last-position' is nil,
+no alignment is found."
+  (cl-macrolet ((c0 (i j) `(aref (aref miss ,i) ,j))
+                (c1 (i j) `(aref (aref match ,i) ,j)))
+    (let ((m (length pat))
+          (n (length text)))
+      (setf (c0 0 0) 0 (c1 0 0) 0)
+      (dotimes (j n)
+        (setf (c0 0 (1+ j)) (+ (c0 0 j) (ivy--fuzzy-miss-score j nil text-role))
+              (c1 0 (1+ j)) (* ivy--fuzzy-awful-score 2)))
+      (dotimes (i m)
+        (setf (c0 (1+ i) i) ivy--fuzzy-awful-score
+              (c1 (1+ i) i) ivy--fuzzy-awful-score)
+        (cl-loop for j from i below n do
+          (setf (c0 (1+ i) (1+ j))
+                (max
+                 (+ (c0 (1+ i) j) (ivy--fuzzy-miss-score j nil text-role))
+                 (+ (c1 (1+ i) j) (ivy--fuzzy-miss-score j t text-role)))
+                (c1 (1+ i) (1+ j))
+                (if (= (downcase (aref pat i)) (downcase (aref text j)))
+                    (max
+                     (+ (c0 i j) (ivy--fuzzy-match-score i j nil pat pat-role pat-set text text-role))
+                     (+ (c1 i j) (ivy--fuzzy-match-score i j t pat pat-role pat-set text text-role)))
+                  (* ivy--fuzzy-awful-score 2)))))
+      (let ((best ivy--fuzzy-awful-score)
+            best-pos
+            score)
+        ;; Enumerate the end position of the match in str. Each removed trailing
+        ;; character has a penalty (-2).
+        (cl-loop for j from m to n do
+                 (setq score (+ (c1 m j) (* -2 (- n j))))
+                 (when (> score best)
+                   (setq best score best-pos j)))
+        (cons best best-pos)))))
+
+(defun ivy--fuzzy-plan (pat pat-role pat-set text text-role text-set miss match best-pos)
+  "Return a list of positions in TEXT after a fuzzy match with PAT.
+
+PAT-ROLE PAT-SET TEXT-ROLE TEXT-SET are used for scoring heuristics.
+MISS MATCH are 2D tables.
+BEST-POS is the last matching position in TEXT of the best plan."
+  (cl-macrolet ((c0 (i j) `(aref (aref miss ,i) ,j))
+                (c1 (i j) `(aref (aref match ,i) ,j)))
+    (let* (plan
+           (i (length pat))
+           (j best-pos)
+           (is-match t))
+      (while (> i 0)
+        (if is-match
+            ;; pat[i] matches text[i]. Trace back to pat[i-1] and text[j-1].
+            (progn
+              (setq is-match
+                    (= (+ (c1 (1- i) (1- j))
+                          (ivy--fuzzy-match-score
+                           (1- i) (1- j) t pat pat-role pat-set text text-role))
+                       (c1 i j)))
+              (cl-decf i)
+              (push (1- j) plan))
+          ;; Trace back to pat[i] and text[j-1].
+          (setq is-match
+                (= (+ (c1 i (1- j))
+                      (ivy--fuzzy-miss-score (1- j) t text-role))
+                   (c0 i j))))
+        (cl-decf j))
+      (nreverse plan))))
+
+(defun ivy--fuzzy-sort (pat cands)
+  "Sort according to closeness to string PAT the string list CANDS."
+  (let ((regex (mapconcat
+                (lambda (x)
+                  (format "\\(%s\\)" (regexp-quote (string x))))
+                (delete ?\  (string-to-list pat))
+                ".*?")))
+    (setq cands (cl-delete-if-not (apply-partially #'string-match regex) cands)))
+  (let* ((m (length pat))
+         (n (apply #'max 0 (mapcar #'length cands)))
+         pat-set
+         text-set
+         ;; Vectors of roles for each position of pat and text.
+         (pat-role (make-vector m nil))
+         (text-role (make-vector n nil))
+         ;; match and miss are 2D DP vectors.
+         (miss (make-vector (1+ m) nil))
+         (match (make-vector (1+ m) nil))
+         cands-to-sort
+         cands-with-score
+         plan)
+    (setq pat-set (ivy--fuzzy-get-role pat pat-role))
+    (setq m 0)
+    (dotimes (i (length pat))
+      (when (/= (aref pat i) ?\ )
+        (aset pat m (aref pat i))
+        (aset pat-role m (aref pat-role i))
+        (cl-incf m)))
+    (setq pat (substring-no-properties pat 0 (min m ivy-fuzzy-pattern-length-limit)))
+
+    (dotimes (i (1+ m))
+      (setf (aref miss i) (make-vector (1+ n) 0)
+            (aref match i) (make-vector (1+ n) 0)))
+
+    ;; Partition the candidates into sorted and unsorted groups.
+    (dotimes (_i (min n ivy-fuzzy-limit))
+      (push (pop cands) cands-to-sort))
+
+    ;; For each candidate, compute the score.
+    (dolist (text cands-to-sort)
+      (if (> (length text) ivy-fuzzy-candidate-length-limit)
+          (setq text (substring text 0 ivy-fuzzy-candidate-length-limit))
+        (setq text (copy-sequence text)))
+      (setq text-set (ivy--fuzzy-get-role text text-role))
+      (pcase-let ((`(,score . ,best-pos)
+                   (ivy--fuzzy-score pat pat-role pat-set
+                                     text text-role text-set miss match)))
+        ;; Discard awful candidates.
+        (when best-pos
+          (dolist (pos (ivy--fuzzy-plan pat pat-role pat-set
+                                        text text-role text-set miss match best-pos))
+            (ivy-add-face-text-property pos (1+ pos) (cadr ivy-minibuffer-faces) text))
+          (push (cons score text) cands-with-score))))
+    (append (mapcar #'cdr (cl-sort cands-with-score #'> :key #'car))
+            cands)))
 
 (defun ivy--minibuffer-face (n)
   "Return Nth face from `ivy-minibuffer-faces'.
