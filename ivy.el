@@ -690,6 +690,9 @@ prompt is selected wraps around to the last candidate, while calling
 candidate, not the prompt."
   :type 'boolean)
 
+(defvar ivy--use-selectable-prompt nil
+  "Store the effective `ivy-use-selectable-prompt' for current session.")
+
 (defun ivy--prompt-selectable-p ()
   "Return t if the prompt line is selectable."
   (and ivy-use-selectable-prompt
@@ -704,7 +707,7 @@ candidate, not the prompt."
 
 (defun ivy--prompt-selected-p ()
   "Return t if the prompt line is selected."
-  (and (ivy--prompt-selectable-p)
+  (and ivy--use-selectable-prompt
        (= ivy--index -1)))
 
 ;;* Commands
@@ -1166,7 +1169,7 @@ If the input is empty, select the previous history element instead."
   (interactive "p")
   (setq arg (or arg 1))
   (let ((index (- ivy--index arg))
-        (min-index (if (ivy--prompt-selectable-p) -1 0)))
+        (min-index (if ivy--use-selectable-prompt -1 0)))
     (if (< index min-index)
         (if ivy-wrap
             (ivy-end-of-buffer)
@@ -2143,6 +2146,7 @@ This is useful for recursive `ivy-read'."
               (buffer-substring (region-beginning) (region-end))
             (ivy-thing-at-point)))
     (setq ivy--prompt (ivy-add-prompt-count (ivy--quote-format-string prompt)))
+    (setq ivy--use-selectable-prompt (ivy--prompt-selectable-p))
     (setf (ivy-state-initial-input ivy-last) initial-input)))
 
 (defun ivy-add-prompt-count (prompt)
@@ -2766,7 +2770,7 @@ parts beyond their respective faces `ivy-confirm-face' and
         ;; Mark prompt as selected if the user moves there or it is the only
         ;; option left.  Since the user input stays put, we have to manually
         ;; remove the face as well.
-        (when (ivy--prompt-selectable-p)
+        (when ivy--use-selectable-prompt
           (if (or (= ivy--index -1)
                   (= ivy--length 0))
               (ivy-add-face-text-property
