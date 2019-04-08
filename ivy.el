@@ -693,8 +693,14 @@ candidate, not the prompt."
 (defun ivy--prompt-selectable-p ()
   "Return t if the prompt line is selectable."
   (and ivy-use-selectable-prompt
-       (memq (ivy-state-require-match ivy-last)
-             '(nil confirm confirm-after-completion))))
+       (or (memq (ivy-state-require-match ivy-last)
+                 '(nil confirm confirm-after-completion))
+           ;; :require-match is t, but "" is in the collection
+           (let ((coll (ivy-state-collection ivy-last)))
+             (and (listp coll)
+                  (if (consp (car coll))
+                      (member '("") coll)
+                    (member "" coll)))))))
 
 (defun ivy--prompt-selected-p ()
   "Return t if the prompt line is selected."
