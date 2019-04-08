@@ -1350,7 +1350,9 @@ files in a project.")
        (setq cmd counsel-git-grep-cmd-default)))
     (cons proj cmd)))
 
-(defun counsel--call (&rest command)
+(define-obsolete-function-alias 'counsel--call 'counsel--command "0.11.0")
+
+(defun counsel--command (&rest command)
   "Synchronously call COMMAND and return its output as a string.
 COMMAND comprises the program name followed by its arguments, as
 in `make-process'.  Signal `file-error' and emit a warning if
@@ -4685,11 +4687,11 @@ selected color."
 
 (defun counsel-rhythmbox-toggle-shuffle (_song)
   "Toggle Rhythmbox shuffle setting."
-  (let* ((old-order (counsel--call "dconf" "read" "/org/gnome/rhythmbox/player/play-order"))
+  (let* ((old-order (counsel--command "dconf" "read" "/org/gnome/rhythmbox/player/play-order"))
          (new-order (if (string= old-order "'shuffle'")
                         "'linear'"
                       "'shuffle'")))
-    (counsel--call
+    (counsel--command
      "dconf"
      "write"
      "/org/gnome/rhythmbox/player/play-order"
