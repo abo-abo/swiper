@@ -1056,6 +1056,21 @@ a buffer visiting a file."
      ("C-s" "de" "" "RET"))
     "abc\nasd|f123 def\ndem")))
 
+(ert-deftest ivy-use-selectable-prompt ()
+  (let ((ivy-use-selectable-prompt t)
+        (completing-read-function #'ivy-completing-read))
+    (should (string= (ivy-with '(ivy-read "prompt: " '("foo" "bar")
+                                 :require-match t)
+                               "C-p C-m")
+                     "foo"))
+    (should (string= (ivy-with '(ivy-read "prompt: " '("" "foo" "bar")
+                                 :require-match t)
+                               "C-p C-m")
+                     ""))
+    (should (string= (ivy-with '(completing-read "Position: " '(("") ("t") ("b")) nil t)
+                               "C-p C-m")
+                     ""))))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
