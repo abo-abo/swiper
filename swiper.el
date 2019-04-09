@@ -57,6 +57,22 @@
   '((t (:inherit isearch-fail)))
   "Face for `swiper' matches modulo 3.")
 
+(defface swiper-background-match-face-1
+  '((t (:inherit swiper-match-face-1)))
+  "The background face for non-current `swiper' matches.")
+
+(defface swiper-background-match-face-2
+  '((t (:inherit swiper-match-face-2)))
+  "Face for non-current `swiper' matches modulo 1.")
+
+(defface swiper-background-match-face-3
+  '((t (:inherit swiper-match-face-3)))
+  "Face for non-current `swiper' matches modulo 2.")
+
+(defface swiper-background-match-face-4
+  '((t (:inherit swiper-match-face-4)))
+  "Face for non-current `swiper' matches modulo 3.")
+
 (defface swiper-line-face
   '((t (:inherit highlight)))
   "Face for current `swiper' line.")
@@ -68,6 +84,31 @@
   "List of `swiper' faces for group matches."
   :group 'ivy-faces
   :type '(repeat face))
+
+(defvar swiper-background-faces
+  '(swiper-background-match-face-1
+    swiper-background-match-face-2
+    swiper-background-match-face-3
+    swiper-background-match-face-4)
+  "Like `swiper-faces', but used for all matches except the current one.")
+
+(defun swiper--recompute-background-faces ()
+  (let ((faces '(swiper-background-match-face-1
+                 swiper-background-match-face-2
+                 swiper-background-match-face-3
+                 swiper-background-match-face-4))
+        (colir-compose-method #'colir-compose-soft-light))
+    (cl-mapc (lambda (f1 f2)
+               (let ((bg (face-background f1)))
+                 (when bg
+                   (set-face-background
+                    f2
+                    (colir-blend
+                     (colir-color-parse bg)
+                     (colir-color-parse "#ffffff"))))))
+             swiper-faces
+             faces)))
+(swiper--recompute-background-faces)
 
 (defcustom swiper-min-highlight 2
   "Only highlight matches for regexps at least this long."
@@ -781,7 +822,8 @@ Matched candidates should have `swiper-invocation-face'."
 BEG and END, when specified, are the point bounds.
 WND, when specified is the window."
   (setq wnd (or wnd (ivy-state-window ivy-last)))
-  (let ((ov (if visual-line-mode
+  (let ((pt (point))
+        (ov (if visual-line-mode
                 (make-overlay
                  (save-excursion
                    (beginning-of-visual-line)
@@ -815,39 +857,42 @@ WND, when specified is the window."
             ;; greater otherwise. We hope that the inclusion of the
             ;; newline will not ever be a problem in practice.
             (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
-              (unless (and (consp ivy--old-re)
-                           (null
-                            (save-match-data
-                              (ivy--re-filter ivy--old-re
-                                              (list
-                                               (buffer-substring-no-properties
-                                                (line-beginning-position)
-                                                (line-end-position)))))))
-                (let ((mb (match-beginning 0))
-                      (me (match-end 0)))
-                  (unless (> (- me mb) 2017)
-                    (swiper--add-overlay mb me
-                                         (if (zerop ivy--subexps)
-                                             (cadr swiper-faces)
-                                           (car swiper-faces))
-                                         wnd 0))))
-              (let ((i 1)
-                    (j 0))
-                (while (<= (cl-incf j) ivy--subexps)
-                  (let ((bm (match-beginning j))
-                        (em (match-end j)))
-                    (when (and (integerp em)
-                               (integerp bm))
-                      (while (and (< j ivy--subexps)
-                                  (integerp (match-beginning (+ j 1)))
-                                  (= em (match-beginning (+ j 1))))
-                        (setq em (match-end (cl-incf j))))
-                      (swiper--add-overlay
-                       bm em
-                       (nth (1+ (mod (+ i 2) (1- (length swiper-faces))))
-                            swiper-faces)
-                       wnd i)
-                      (cl-incf i))))))))))))
+              (let ((faces (if (= (match-end 0) pt)
+                               swiper-faces
+                             swiper-background-faces)))
+                (unless (and (consp ivy--old-re)
+                             (null
+                              (save-match-data
+                                (ivy--re-filter ivy--old-re
+                                                (list
+                                                 (buffer-substring-no-properties
+                                                  (line-beginning-position)
+                                                  (line-end-position)))))))
+                  (let ((mb (match-beginning 0))
+                        (me (match-end 0)))
+                    (unless (> (- me mb) 2017)
+                      (swiper--add-overlay mb me
+                                           (if (zerop ivy--subexps)
+                                               (cadr faces)
+                                             (car faces))
+                                           wnd 0))))
+                (let ((i 1)
+                      (j 0))
+                  (while (<= (cl-incf j) ivy--subexps)
+                    (let ((bm (match-beginning j))
+                          (em (match-end j)))
+                      (when (and (integerp em)
+                                 (integerp bm))
+                        (while (and (< j ivy--subexps)
+                                    (integerp (match-beginning (+ j 1)))
+                                    (= em (match-beginning (+ j 1))))
+                          (setq em (match-end (cl-incf j))))
+                        (swiper--add-overlay
+                         bm em
+                         (nth (1+ (mod (+ i 2) (1- (length faces))))
+                              faces)
+                         wnd i)
+                        (cl-incf i)))))))))))))
 
 (defun swiper--add-overlay (beg end face wnd priority)
   "Add overlay bound by BEG and END to `swiper--overlays'.
