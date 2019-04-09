@@ -146,10 +146,11 @@
 
 (defun swiper--query-replace-setup ()
   (with-ivy-window
-    (let ((end (window-end (selected-window) t)))
+    (let ((end (window-end (selected-window) t))
+          (re (ivy--regex ivy-text)))
       (save-excursion
         (goto-char (window-start))
-        (while (re-search-forward ivy--old-re end t)
+        (while (re-search-forward re end t)
           (push (make-overlay (1- (match-end 0)) (match-end 0))
                 swiper--query-replace-overlays))))))
 
