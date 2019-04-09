@@ -1286,13 +1286,31 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 Typical value: '(recenter)."
   :type 'hook)
 
+(defcustom counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-default
+  "How a git-grep shell call is built from the input."
+  :type '(radio
+          (function-item counsel-git-grep-cmd-function-default)
+          (function-item counsel-git-grep-cmd-function-ignore-order)
+          (function :tag "Other")))
+
+(defun counsel-git-grep-cmd-function-default (str)
+  (format counsel-git-grep-cmd
+          (setq ivy--old-re (ivy--regex str t))))
+
+(defun counsel-git-grep-cmd-function-ignore-order (str)
+  (setq ivy--old-re (ivy--regex str t))
+  (let ((parts (split-string str " " t)))
+    (concat
+     "git --no-pager grep --full-name -n --no-color -i -e "
+     (mapconcat #'shell-quote-argument parts " --and -e "))))
+
 (defun counsel-git-grep-function (string)
   "Grep in the current Git repository for STRING."
   (or
    (ivy-more-chars)
-   (let ((cmd (format counsel-git-grep-cmd
-                      (setq ivy--old-re (ivy--regex string t)))))
-     (counsel--async-command cmd)
+   (progn
+     (counsel--async-command
+      (funcall counsel-git-grep-cmd-function string))
      nil)))
 
 (defun counsel-git-grep-action (x)
