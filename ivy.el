@@ -3077,8 +3077,6 @@ CANDIDATES are assumed to be static."
              (matcher (ivy-state-matcher ivy-last))
              (case-fold-search (ivy--case-fold-p name))
              (cands (cond
-                      (matcher
-                       (funcall matcher re candidates))
                       ((and ivy--old-re
                             (stringp re)
                             (stringp ivy--old-re)
@@ -3090,10 +3088,9 @@ CANDIDATES are assumed to be static."
                                      ivy--old-re)
                                    re)
                                   '(0 2)))
-                       (ignore-errors
-                         (cl-remove-if-not
-                          (lambda (x) (string-match-p re x))
-                          ivy--old-cands)))
+                       (ivy--re-filter re ivy--old-cands))
+                      (matcher
+                       (funcall matcher re candidates))
                       (t
                        (ivy--re-filter re candidates)))))
         (if (memq (cdr (assq (ivy-state-caller ivy-last)
