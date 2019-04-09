@@ -3242,9 +3242,10 @@ RE-STR is the regexp, CANDS are the current candidates."
         (preselect (ivy-state-preselect ivy-last))
         (current (ivy-state-current ivy-last))
         (empty (string= name "")))
-    (unless (eq this-command 'ivy-resume)
+    (unless (memq this-command '(ivy-resume ivy-partial-or-done))
       (ivy-set-index
-       (if (string= name "")
+       (if (or (string= name "")
+               (and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero)))
            0
          (or
           (cl-position (ivy--remove-prefix "^" name)
