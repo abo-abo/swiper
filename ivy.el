@@ -1746,8 +1746,9 @@ May supersede `ivy-initial-inputs-alist'."
 Directories come first."
   (let* ((default-directory dir)
          (seq (condition-case nil
-                  (all-completions "" #'read-file-name-internal
-                                   (ivy-state-predicate ivy-last))
+                  (mapcar (lambda (s) (replace-regexp-in-string "\\$\\$" "$" s))
+                          (all-completions "" #'read-file-name-internal
+                                           (ivy-state-predicate ivy-last)))
                 (error
                  (directory-files dir))))
          sort-fn)
