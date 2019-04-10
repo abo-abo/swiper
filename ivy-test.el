@@ -48,13 +48,17 @@
 
 (global-set-key (kbd "C-c e") 'ivy-eval)
 
-(defun ivy-with (expr keys)
+(cl-defun ivy-with (expr keys &key dir)
   "Evaluate EXPR followed by KEYS."
   (let ((ivy-expr expr)
         (inhibit-message t))
-    (execute-kbd-macro
-     (vconcat (kbd "C-c e")
-              (kbd keys)))
+    (save-window-excursion
+      ;; `execute-kbd-macro' doesn't pick up `default-directory'
+      (when dir
+        (dired (expand-file-name dir (counsel-locate-git-root))))
+      (execute-kbd-macro
+       (vconcat (kbd "C-c e")
+                (kbd keys))))
     ivy-result))
 
 (defun command-execute-setting-this-command (cmd &rest args)
@@ -1070,6 +1074,16 @@ a buffer visiting a file."
     (should (string= (ivy-with '(completing-read "Position: " '(("") ("t") ("b")) nil t)
                                "C-p C-m")
                      ""))))
+
+(unless (file-exists-p "test")
+  (shell-command "git clone -b test --single-branch https://github.com/abo-abo/swiper/ test"))
+
+(ert-deftest counsel-find-file-with-dollars ()
+  (should (string=
+           (file-relative-name
+            (ivy-with '(counsel-find-file) "fo C-m"
+                      :dir "test/find-file/files-with-dollar/"))
+           "test/find-file/files-with-dollar/foo$")))
 
 (provide 'ivy-test)
 
