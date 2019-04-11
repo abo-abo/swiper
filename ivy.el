@@ -3051,62 +3051,62 @@ In any Ivy completion session, the case folding starts with
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
-  (ignore-errors
-    (dolist (re (if (stringp re) (list (cons re t)) re))
-      (let* ((re-str (car re))
-             (pred
-              (if mkpred
-                  (funcall mkpred re-str)
-                (lambda (x) (string-match-p re-str x)))))
-        (setq candidates
-              (cl-remove nil candidates
-                         (if (cdr re) :if-not :if)
-                         pred))))
-    candidates))
+  (if (string= re "")
+      candidates
+    (ignore-errors
+      (dolist (re (if (stringp re) (list (cons re t)) re))
+        (let* ((re-str (car re))
+               (pred
+                (if mkpred
+                    (funcall mkpred re-str)
+                  (lambda (x) (string-match-p re-str x)))))
+          (setq candidates
+                (cl-remove nil candidates
+                           (if (cdr re) :if-not :if)
+                           pred))))
+      candidates)))
 
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
 CANDIDATES are assumed to be static."
-  (if (string= name "")
-      candidates
-    (let ((re (funcall ivy--regex-function name)))
-      (if (and
-           ivy--old-re
-           ivy--old-cands
-           (equal re ivy--old-re))
-          ;; quick caching for "C-n", "C-p" etc.
-          ivy--old-cands
-        (let* ((re-str (ivy-re-to-str re))
-               (matcher (ivy-state-matcher ivy-last))
-               (case-fold-search (ivy--case-fold-p name))
-               (cands (cond
-                        ((and ivy--old-re
-                              (stringp re)
-                              (stringp ivy--old-re)
-                              (not (string-match-p "\\\\" ivy--old-re))
-                              (not (equal ivy--old-re ""))
-                              (memq (cl-search
-                                     (if (string-match-p "\\\\)\\'" ivy--old-re)
-                                         (substring ivy--old-re 0 -2)
-                                       ivy--old-re)
-                                     re)
-                                    '(0 2)))
-                         (ivy--re-filter re ivy--old-cands))
-                        (matcher
-                         (funcall matcher re candidates))
-                        (t
-                         (ivy--re-filter re candidates)))))
-          (if (memq (cdr (assq (ivy-state-caller ivy-last)
-                               ivy-index-functions-alist))
-                    '(ivy-recompute-index-swiper
-                      ivy-recompute-index-swiper-async))
-              (progn
-                (ivy--recompute-index name re-str cands)
-                (setq ivy--old-cands (ivy--sort name cands)))
-            (setq ivy--old-cands (ivy--sort name cands))
-            (ivy--recompute-index name re-str ivy--old-cands))
-          (setq ivy--old-re re)
-          ivy--old-cands)))))
+  (let ((re (funcall ivy--regex-function name)))
+    (if (and
+         ivy--old-re
+         ivy--old-cands
+         (equal re ivy--old-re))
+        ;; quick caching for "C-n", "C-p" etc.
+        ivy--old-cands
+      (let* ((re-str (ivy-re-to-str re))
+             (matcher (ivy-state-matcher ivy-last))
+             (case-fold-search (ivy--case-fold-p name))
+             (cands (cond
+                      ((and ivy--old-re
+                            (stringp re)
+                            (stringp ivy--old-re)
+                            (not (string-match-p "\\\\" ivy--old-re))
+                            (not (equal ivy--old-re ""))
+                            (memq (cl-search
+                                   (if (string-match-p "\\\\)\\'" ivy--old-re)
+                                       (substring ivy--old-re 0 -2)
+                                     ivy--old-re)
+                                   re)
+                                  '(0 2)))
+                       (ivy--re-filter re ivy--old-cands))
+                      (matcher
+                       (funcall matcher re candidates))
+                      (t
+                       (ivy--re-filter re candidates)))))
+        (if (memq (cdr (assq (ivy-state-caller ivy-last)
+                             ivy-index-functions-alist))
+                  '(ivy-recompute-index-swiper
+                    ivy-recompute-index-swiper-async))
+            (progn
+              (ivy--recompute-index name re-str cands)
+              (setq ivy--old-cands (ivy--sort name cands)))
+          (setq ivy--old-cands (ivy--sort name cands))
+          (ivy--recompute-index name re-str ivy--old-cands))
+        (setq ivy--old-re re)
+        ivy--old-cands))))
 
 (defun ivy--set-candidates (x)
   "Update `ivy--all-candidates' with X."
