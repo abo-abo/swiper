@@ -1058,7 +1058,21 @@ a buffer visiting a file."
      "abc\na|sdf123 def\ndem"
      (global-set-key (kbd "C-s") #'swiper-isearch)
      ("C-s" "de" "" "RET"))
-    "abc\nasd|f123 def\ndem")))
+    "abc\nasd|f123 def\ndem"))
+  (should
+   (string=
+    (ivy-with-text
+     "|(defun foo)\nasdf\n(defvar bar)"
+     (global-set-key (kbd "C-s") #'swiper-isearch)
+     ("C-s" "defun\\|defvar" "RET"))
+    "(defun| foo)\nasdf\n(defvar bar)"))
+  (should
+   (string=
+    (ivy-with-text
+     "|(defun foo)\nasdf\n(defvar bar)"
+     (global-set-key (kbd "C-s") #'swiper-isearch)
+     ("C-s" "defun\\|defvar" "C-n RET"))
+    "(defun foo)\nasdf\n(defvar| bar)")))
 
 (ert-deftest ivy-use-selectable-prompt ()
   (let ((ivy-use-selectable-prompt t)

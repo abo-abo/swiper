@@ -1207,6 +1207,9 @@ come back to the same place as when \"a\" was initially entered.")
   (unless (string= str "")
     (let* ((re-full (funcall ivy--regex-function str))
            (re (ivy-re-to-str re-full))
+           (re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
+                   (match-string 1 re)
+                 re))
            (pt-hist (cdr (assoc str swiper--isearch-point-history)))
            cands
            idx-found
