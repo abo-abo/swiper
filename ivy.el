@@ -3051,7 +3051,7 @@ In any Ivy completion session, the case folding starts with
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
-  (if (string= re "")
+  (if (equal re "")
       candidates
     (ignore-errors
       (dolist (re (if (stringp re) (list (cons re t)) re))
