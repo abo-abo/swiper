@@ -3090,7 +3090,8 @@ CANDIDATES are assumed to be static."
                                        (substring ivy--old-re 0 -2)
                                      ivy--old-re)
                                    re)
-                                  '(0 2)))
+                                  '(0 2))
+                            ivy--old-cands)
                        (ivy--re-filter re ivy--old-cands))
                       (matcher
                        (funcall matcher re candidates))
