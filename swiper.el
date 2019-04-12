@@ -235,14 +235,15 @@
                                                    (window-end)))
                                     #'< :key #'overlay-start))
          (min-overlay-start 0)
-         (overlays-for-avy (cl-remove-if-not
-                            (lambda (ov)
-                              (when (and (>= (overlay-start ov)
-                                             min-overlay-start)
-                                         (memq (overlay-get ov 'face)
-                                               swiper-faces))
-                                (setq min-overlay-start (overlay-start ov))))
-                            visible-overlays))
+         (overlays-for-avy
+          (cl-remove-if-not
+           (lambda (ov)
+             (when (and (>= (overlay-start ov)
+                            min-overlay-start)
+                        (memq (overlay-get ov 'face)
+                              (append swiper-faces swiper-background-faces)))
+               (setq min-overlay-start (overlay-start ov))))
+           visible-overlays))
          (offset (if (eq (ivy-state-caller ivy-last) 'swiper) 1 0)))
     (nconc
      (mapcar (lambda (ov)
