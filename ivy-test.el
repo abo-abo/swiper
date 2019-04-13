@@ -35,6 +35,8 @@
 (require 'ivy)
 (require 'counsel)
 
+(message (emacs-version))
+
 (defvar ivy-expr nil
   "Holds a test expression to evaluate with `ivy-eval'.")
 
@@ -1104,7 +1106,7 @@ a buffer visiting a file."
            "test/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (unless (version< emacs-version "25.2")
+  (unless (version< emacs-version "26.1")
     (should (string=
              (file-relative-name
               (ivy-with '(counsel-find-file) "f C-m"
