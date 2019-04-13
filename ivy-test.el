@@ -1104,16 +1104,17 @@ a buffer visiting a file."
            "test/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (should (string=
-           (file-relative-name
-            (ivy-with '(counsel-find-file) "f C-m"
-                      :dir "test/find-file/dotfiles/"))
-           "test/find-file/dotfiles/foo/"))
-  (should (string=
-           (file-relative-name
-            (ivy-with '(counsel-find-file) "foob C-m"
-                      :dir "test/find-file/dotfiles/"))
-           "test/find-file/dotfiles/.foobar1")))
+  (unless (version< emacs-version "25.2")
+    (should (string=
+             (file-relative-name
+              (ivy-with '(counsel-find-file) "f C-m"
+                        :dir "test/find-file/dotfiles/"))
+             "test/find-file/dotfiles/foo/"))
+    (should (string=
+             (file-relative-name
+              (ivy-with '(counsel-find-file) "foob C-m"
+                        :dir "test/find-file/dotfiles/"))
+             "test/find-file/dotfiles/.foobar1"))))
 
 (provide 'ivy-test)
 
