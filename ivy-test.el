@@ -1106,7 +1106,8 @@ a buffer visiting a file."
            "test/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (unless (version< emacs-version "26.1")
+  (when (and (version<= emacs-version "26.2")
+             (not (version< emacs-version "26.1")))
     (should (string=
              (file-relative-name
               (ivy-with '(counsel-find-file) "f C-m"
