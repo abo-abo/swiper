@@ -1258,6 +1258,13 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (ivy-set-occur 'counsel-git 'counsel-git-occur)
 
 ;;** `counsel-git-grep'
+(defcustom counsel-git-grep-preview t
+  "When non-nil, display the file and match for the current
+  selection in `counsel-git-grep', `counsel-ag', and
+  derivatives. "
+  :type 'boolean
+  :group 'counsel)
+
 (defvar counsel-git-grep-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
@@ -1328,6 +1335,22 @@ Typical value: '(recenter)."
 Allows to automatically use a custom \"git-grep\" command for all
 files in a project.")
 
+(defvar counsel--git-grep-temporary-buffers nil
+  "Internal. Track open buffers during `counsel-git-grep' session.")
+
+(defvar counsel--git-grep-previous-buffers nil
+  "Internal. Used to restore buffer order after `counsel-git-grep'.")
+
+(defun counsel--git-grep-unwind ()
+  "Clear temporary file buffers and restore `buffer-list'.
+The buffers are those opened during a session of `counsel-git-grep'."
+  (mapc #'kill-buffer counsel--git-grep-temporary-buffers)
+  (mapc #'bury-buffer (cl-remove-if-not #'buffer-live-p counsel--git-grep-previous-buffers))
+  (setq counsel--git-grep-temporary-buffers nil
+        counsel--git-grep-previous-buffers nil)
+  (counsel-delete-process)
+  (swiper--cleanup))
+
 (defun counsel--git-grep-cmd-and-proj (cmd)
   (let ((dd (expand-file-name default-directory))
         proj)
@@ -1385,6 +1408,33 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
              (signal (car status) (cdr status))))
       (delete-file stderr))))
 
+(defun counsel--line (x)
+  "Go to line number X in the current file."
+  (swiper--cleanup)
+  (goto-char (point-min))
+  (forward-line (1- (string-to-number x)))
+  (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+  (swiper--add-overlays (ivy--regex ivy-text)))
+
+(defun counsel--git-grep-update-fn ()
+  "Display the current selection and its buffer."
+  (let ((current (ivy-state-current ivy-last)))
+    (when (and counsel-git-grep-preview
+               (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" current))
+      (unless counsel--git-grep-previous-buffers
+        (setq counsel--git-grep-previous-buffers (buffer-list)))
+      (let* ((file-name (match-string-no-properties 1 current))
+             (line-number (match-string-no-properties 2 current))
+             (buffer (or (cl-some (lambda (b)
+                                    (when (string= (buffer-file-name b) file-name)
+                                      b))
+                                  (buffer-list))
+                         (let ((buffer (find-file-noselect file-name)))
+                           (cl-pushnew buffer counsel--git-grep-temporary-buffers)
+                           buffer))))
+        (with-ivy-window (pop-to-buffer-same-window buffer)
+                         (counsel--line line-number))))))
+
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
   "Grep for a string in the current Git repository.
@@ -1401,10 +1451,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (if proj
                #'counsel-git-grep-proj-function
              #'counsel-git-grep-function))
-          (unwind-function
-           (lambda ()
-             (counsel-delete-process)
-             (swiper--cleanup)))
           (default-directory (if proj
                                  (car proj)
                                (counsel-locate-git-root))))
@@ -1413,9 +1459,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                 :dynamic-collection t
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
-                :unwind unwind-function
                 :history 'counsel-git-grep-history
-                :caller 'counsel-git-grep))))
+                :caller 'counsel-git-grep
+                :unwind #'counsel--git-grep-unwind
+                :update-fn #'counsel--git-grep-update-fn))))
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
 (defun counsel-git-grep-proj-function (str)
@@ -2611,11 +2658,10 @@ CALLER is passed to `ivy-read'."
               :dynamic-collection t
               :keymap counsel-ag-map
               :history 'counsel-git-grep-history
-              :action #'counsel-git-grep-action
-              :unwind (lambda ()
-                        (counsel-delete-process)
-                        (swiper--cleanup))
-              :caller (or caller 'counsel-ag))))
+              :action #'counsel-git-grep-function
+              :caller (or caller 'counsel--ag)
+              :unwind #'counsel--git-grep-unwind
+              :update-fn #'counsel--git-grep-update-fn)))
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy command."
