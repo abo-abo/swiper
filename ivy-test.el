@@ -51,14 +51,18 @@
 (cl-defun ivy-with (expr keys &key dir)
   "Evaluate EXPR followed by KEYS."
   (let ((ivy-expr expr)
-        (inhibit-message t))
+        (inhibit-message t)
+        (buf (current-buffer)))
     (save-window-excursion
-      ;; `execute-kbd-macro' doesn't pick up `default-directory'
-      (when dir
-        (dired (expand-file-name dir (counsel-locate-git-root))))
-      (execute-kbd-macro
-       (vconcat (kbd "C-c e")
-                (kbd keys))))
+      (unwind-protect
+           (progn
+             ;; `execute-kbd-macro' doesn't pick up `default-directory'
+             (when dir
+               (dired (expand-file-name dir (counsel-locate-git-root))))
+             (execute-kbd-macro
+              (vconcat (kbd "C-c e")
+                       (kbd keys))))
+        (switch-to-buffer buf)))
     ivy-result))
 
 (defun command-execute-setting-this-command (cmd &rest args)
