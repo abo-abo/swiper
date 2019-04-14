@@ -5145,6 +5145,20 @@ in the current window."
             :unwind #'counsel--switch-buffer-unwind
             :update-fn 'counsel--switch-buffer-update-fn))
 
+;;;###autoload
+(defun counsel-switch-buffer-other-window ()
+  "Switch to another buffer in another window.
+Display a preview of the selected ivy completion candidate buffer
+in the current window."
+  (interactive)
+  (ivy-read "Switch to buffer in another window: " 'internal-complete-buffer
+            :preselect (buffer-name (other-buffer (current-buffer)))
+            :action #'ivy--switch-buffer-other-window-action
+            :matcher #'ivy--switch-buffer-matcher
+            :caller 'counsel-switch-buffer-other-window
+            :unwind #'counsel--switch-buffer-unwind
+            :update-fn 'counsel--switch-buffer-update-fn))
+
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
