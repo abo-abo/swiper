@@ -5151,7 +5151,7 @@ in the current window."
 Display a preview of the selected ivy completion candidate buffer
 in the current window."
   (interactive)
-  (ivy-read "Switch to buffer in another window: " 'internal-complete-buffer
+  (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
             :preselect (buffer-name (other-buffer (current-buffer)))
             :action #'ivy--switch-buffer-other-window-action
             :matcher #'ivy--switch-buffer-matcher
