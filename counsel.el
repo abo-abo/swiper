@@ -1027,7 +1027,8 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
 (ivy-set-actions
  'counsel-descbinds
  '(("d" counsel-descbinds-action-find "definition")
-   ("I" counsel-descbinds-action-info "info")))
+   ("I" counsel-descbinds-action-info "info")
+   ("x" counsel-descbinds-action-exec "execute")))
 
 (defvar counsel-descbinds-history nil
   "History for `counsel-descbinds'.")
@@ -1073,6 +1074,12 @@ See `describe-buffer-bindings' for further information."
 See `describe-function' for further information."
   (let ((cmd (cddr x)))
     (describe-function cmd)))
+
+(defun counsel-descbinds-action-exec (x)
+  "Run candidate X.
+See `execute-extended-command' for further information."
+  (let ((cmd (cddr x)))
+    (command-execute cmd 'record)))
 
 (defun counsel-descbinds-action-find (x)
   "Find symbol definition of candidate X.
