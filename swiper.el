@@ -503,6 +503,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy (swiper--candidates) initial-input))
 
+;;;###autoload
+(defun swiper-thing-at-point ()
+  "`swiper' with `ivy-thing-at-point'."
+  (interactive)
+  (let ((thing (ivy-thing-at-point)))
+    (when (use-region-p)
+      (deactivate-mark))
+    (swiper thing)))
+
 (defvar swiper--current-window-start nil
   "Store `window-start' to restore it later.
 This prevents a \"jumping\" behavior which occurs when variables
