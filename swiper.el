@@ -1228,8 +1228,11 @@ come back to the same place as when \"a\" was initially entered.")
               (cl-incf idx)
               (let ((line (buffer-substring
                            (line-beginning-position)
-                           (line-end-position))))
-                (put-text-property 0 1 'point (point) line)
+                           (line-end-position)))
+                    (pos (if swiper-goto-start-of-match
+                             (match-beginning 0)
+                           (point))))
+                (put-text-property 0 1 'point pos line)
                 (push line cands)))))
         (setq ivy--old-re re)
         (when idx-found
