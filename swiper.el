@@ -1203,6 +1203,14 @@ corresponds to it.
 This ensures that if the user enters \"ab\", the point will
 come back to the same place as when \"a\" was initially entered.")
 
+(defvar swiper-isearch-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map swiper-map)
+    (define-key map (kbd "C-s") 'ivy-next-line)
+    (define-key map (kbd "C-r") 'ivy-previous-line)
+    map)
+  "Keymap for swiper-isearch.")
+
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
   (let* ((re-full (funcall ivy--regex-function str))
@@ -1280,7 +1288,7 @@ come back to the same place as when \"a\" was initially entered.")
                  "Swiper: "
                  #'swiper-isearch-function
                  :initial-input initial-input
-                 :keymap swiper-map
+                 :keymap swiper-isearch-map
                  :dynamic-collection t
                  :require-match t
                  :action #'swiper-isearch-action
