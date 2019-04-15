@@ -503,6 +503,17 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy (swiper--candidates) initial-input))
 
+;;;###autoload
+(defun swiper-region-or-not ()
+  "If region is selected, `swiper' with the keyword selected in region.
+If the region isn't selected, `swiper'."
+  (interactive)
+  (if (region-active-p)
+      (progn (setq mark-active nil)
+	     (swiper (buffer-substring
+                      (region-beginning) (region-end))))
+    (swiper)))
+
 (defvar swiper--current-window-start nil
   "Store `window-start' to restore it later.
 This prevents a \"jumping\" behavior which occurs when variables
@@ -1290,6 +1301,17 @@ come back to the same place as when \"a\" was initially entered.")
         (goto-char swiper--opoint))
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
+
+;;;###autoload
+(defun swiper-isearch-region-or-not ()
+  "If region is selected, `swiper-isearch' with the keyword selected in region.
+If the region isn't selected, `swiper-isearch'."
+  (interactive)
+  (if (region-active-p)
+      (progn (setq mark-active nil)
+	     (swiper-isearch (buffer-substring
+			      (region-beginning) (region-end))))
+    (swiper-isearch)))
 
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
 
