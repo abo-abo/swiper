@@ -5259,6 +5259,10 @@ list is passed to `compilation-environment'."
 (defvar counsel-compile-env-history nil
   "History for `counsel-compile-env'.")
 
+(defvar counsel-compile-env-pattern
+  "[_[:digit:][:upper:]]+=[/[:album:]]*"
+  "Pattern to match valid environment variables.")
+
 (defcustom counsel-compile-make-pattern "\\`\\(?:GNUm\\|[Mm]\\)akefile\\'"
   "Regexp for matching the names of Makefiles."
   :type 'regexp)
@@ -5459,9 +5463,11 @@ specified by the `blddir' property."
 
 (defun counsel-compile-env--update (var)
   "Update `counsel-compile-env' either adding or removing VAR."
-  (if (member var counsel-compile-env)
-      (setq counsel-compile-env (delete var counsel-compile-env))
-    (add-to-list 'counsel-compile-env var)))
+  (cond ((member var counsel-compile-env)
+         (setq counsel-compile-env (delete var counsel-compile-env)))
+        ((string-match-p counsel-compile-env-pattern var)
+         (push var counsel-compile-env))
+        (t (user-error "Ignoring malformed variable: '%s'" var))))
 
 ;;;###autoload
 (defun counsel-compile-env ()
@@ -5472,6 +5478,9 @@ specified by the `blddir' property."
               (delete-dups (append
                             counsel-compile-env counsel-compile-env-history))
               :action #'counsel-compile-env--update
+              :predicate (lambda (cand)
+                           (string-match-p counsel-compile-env-pattern
+                                           cand))
               :history 'counsel-compile-env-history
               :caller 'counsel-compile-env)))
 
