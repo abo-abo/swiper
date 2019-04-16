@@ -1275,9 +1275,7 @@ come back to the same place as when \"a\" was initially entered.")
   (swiper--init)
   (setq swiper--isearch-point-history
         (list
-         (cons "" (if executing-kbd-macro
-                      (point)
-                    (line-beginning-position)))))
+         (cons "" (point))))
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
