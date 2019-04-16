@@ -1271,6 +1271,7 @@ come back to the same place as when \"a\" was initially entered.")
 (defun swiper-isearch (&optional initial-input)
   "A `swiper' that's not line-based."
   (interactive)
+  (swiper-font-lock-ensure)
   (swiper--init)
   (setq swiper--isearch-point-history
         (list
