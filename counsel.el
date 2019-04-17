@@ -2598,7 +2598,7 @@ NEEDLE is the search string."
    counsel--regex-look-around))
 
 (defun counsel--ag-extra-switches (regex)
-  "Get additional switches needed for look-arounds"
+  "Get additional switches needed for look-arounds."
   (and (stringp counsel--regex-look-around)
        (string-match-p "\\`\\^(\\?[=!]" regex) ;; using look-arounds
        (concat " " counsel--regex-look-around " ")))
