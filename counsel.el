@@ -2597,23 +2597,27 @@ NEEDLE is the search string."
          (funcall ivy--regex-function str))
    counsel--regex-look-around))
 
+(defun counsel--ag-extra-switches (regex)
+  "Get additional switches needed for look-arounds"
+  (and (stringp counsel--regex-look-around)
+       (string-match-p "\\`\\^(\\?[=!]" regex) ;; using look-arounds
+       (concat " " counsel--regex-look-around " ")))
+
 (defun counsel-ag-function (string)
   "Grep in the current directory for STRING."
-  (let ((command-args (counsel--split-command-args string)))
-    (let ((switches (car command-args))
-          (search-term (cdr command-args)))
-      (or
-       (let ((ivy-text search-term))
-         (ivy-more-chars))
-       (let ((default-directory (ivy-state-directory ivy-last))
-             (regex (counsel--grep-regex search-term)))
-         (if (and (stringp counsel--regex-look-around)
-                  (string-match-p "\\`\\^(\\?[=!]" regex)) ;; using look-arounds
-             (setq switches (concat switches " " counsel--regex-look-around)))
-         (counsel--async-command (counsel--format-ag-command
-                                  switches
-                                  (shell-quote-argument regex)))
-         nil)))))
+  (let* ((command-args (counsel--split-command-args string))
+         (search-term (cdr command-args)))
+    (or
+     (let ((ivy-text search-term))
+       (ivy-more-chars))
+     (let* ((default-directory (ivy-state-directory ivy-last))
+            (regex (counsel--grep-regex search-term))
+            (switches (concat (car command-args)
+                              (counsel--ag-extra-switches regex))))
+       (counsel--async-command (counsel--format-ag-command
+                                switches
+                                (shell-quote-argument regex)))
+       nil))))
 
 ;;;###autoload
 (cl-defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt
@@ -2675,12 +2679,13 @@ CALLER is passed to `ivy-read'."
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
   (let* ((command-args (counsel--split-command-args ivy-text))
+         (regex (counsel--grep-regex (cdr command-args)))
+         (switches (concat (car command-args)
+                           (counsel--ag-extra-switches regex)))
          (cmd (format cmd-template
                       (concat
-                       (car command-args)
-                       (shell-quote-argument
-                        (counsel--elisp-to-pcre
-                         (ivy--regex (cdr command-args)))))))
+                       switches
+                       (shell-quote-argument regex))))
          (cands (split-string (shell-command-to-string cmd)
                               counsel-async-split-string-re
                               t)))
