@@ -504,15 +504,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (swiper--ivy (swiper--candidates) initial-input))
 
 ;;;###autoload
-(defun swiper-region-or-not ()
+(defun swiper-region ()
   "If region is selected, `swiper' with the keyword selected in region.
 If the region isn't selected, `swiper'."
   (interactive)
-  (if (region-active-p)
-      (progn (setq mark-active nil)
-             (swiper (buffer-substring
-                      (region-beginning) (region-end))))
-    (swiper)))
+  (if (not (use-region-p))
+      (swiper)
+    (deactivate-mark)
+    (swiper (buffer-substring-no-properties
+             (region-beginning) (region-end)))))
 
 (defvar swiper--current-window-start nil
   "Store `window-start' to restore it later.
