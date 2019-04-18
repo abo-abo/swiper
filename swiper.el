@@ -1303,15 +1303,15 @@ come back to the same place as when \"a\" was initially entered.")
         (cl-pushnew ivy-text swiper-history)))))
 
 ;;;###autoload
-(defun swiper-isearch-region-or-not ()
+(defun swiper-isearch-region ()
   "If region is selected, `swiper-isearch' with the keyword selected in region.
 If the region isn't selected, `swiper-isearch'."
   (interactive)
-  (if (region-active-p)
-      (progn (setq mark-active nil)
-             (swiper-isearch (buffer-substring
-                              (region-beginning) (region-end))))
-    (swiper-isearch)))
+  (if (not (use-region-p))
+      (swiper-isearch)
+    (deactivate-mark)
+    (swiper-isearch (buffer-substring-no-properties
+                     (region-beginning) (region-end)))))
 
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
 
