@@ -510,7 +510,7 @@ If the region isn't selected, `swiper'."
   (interactive)
   (if (region-active-p)
       (progn (setq mark-active nil)
-	     (swiper (buffer-substring
+             (swiper (buffer-substring
                       (region-beginning) (region-end))))
     (swiper)))
 
@@ -1309,8 +1309,8 @@ If the region isn't selected, `swiper-isearch'."
   (interactive)
   (if (region-active-p)
       (progn (setq mark-active nil)
-	     (swiper-isearch (buffer-substring
-			      (region-beginning) (region-end))))
+             (swiper-isearch (buffer-substring
+                              (region-beginning) (region-end))))
     (swiper-isearch)))
 
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
