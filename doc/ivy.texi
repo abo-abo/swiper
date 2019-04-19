@@ -1250,11 +1250,7 @@ headings with similar names to appreciate @code{ivy-mode}.
 @end indentedblock
 @subsubheading @code{magit}
 @indentedblock
-Magit requires this setting for ivy completion:
-
-@lisp
-(setq magit-completing-read-function 'ivy-completing-read)
-@end lisp
+It uses ivy by default if Ivy is installed.
 @end indentedblock
 @subsubheading @code{find-file-in-project}
 @indentedblock
