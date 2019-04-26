@@ -3311,26 +3311,23 @@ attachment directory associated with the current buffer, all
 contained files are listed, so the return value could conceivably
 include attachments of other Org buffers."
   (require 'org-attach)
-  (let* ((ids (let (res)
-                (save-excursion
-                  (goto-char (point-min))
-                  (while (re-search-forward "^:ID:[\t ]+\\(.*\\)$" nil t)
-                    (push (match-string-no-properties 1) res))
-                  (nreverse res))))
-         (files
-          (cl-remove-if-not
-           #'file-exists-p
-           (mapcar (lambda (id)
-                     (expand-file-name
-                      (concat (substring id 0 2) "/" (substring id 2))
-                      org-attach-directory))
-                   ids))))
+  (let (dirs)
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^:\\(ATTACH_DIR\\|ID\\):[\t ]+\\(.*\\)$" nil t)
+        (let ((dir (match-string-no-properties 2)))
+          (when (string= "ID" (match-string-no-properties 1))
+            (setq dir (expand-file-name
+                       (concat (substring dir 0 2) "/" (substring dir 2))
+                       org-attach-directory)))
+          (when (file-exists-p dir)
+            (push dir dirs)))))
     (cl-mapcan
      (lambda (dir)
        (mapcar (lambda (file)
                  (file-relative-name (expand-file-name file dir)))
                (org-attach-file-list dir)))
-     files)))
+     (nreverse dirs))))
 
 ;;;###autoload
 (defun counsel-org-file ()
