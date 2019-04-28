@@ -2100,6 +2100,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
             :action (lambda (f)
                       (with-ivy-window
                         (find-file f)))
+            :require-match t
             :caller 'counsel-recentf))
 (ivy-set-actions
  'counsel-recentf
