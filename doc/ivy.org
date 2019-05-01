@@ -316,7 +316,7 @@ where the familiar ~C-a~, ~C-f~, ~M-d~, ~M-DEL~, ~M-b~, ~M-w~, ~C-k~,
      =ivy-wrap= is set to =t=, =ivy-next-line= and =ivy-previous-line=
      will cycle past the last and the first candidates respectively.
 
-     Warp-around behavior is off by default.
+     Wrap-around behavior is off by default.
 
 - User Option =ivy-height= ::
      Use this option to adjust the minibuffer height, which also
