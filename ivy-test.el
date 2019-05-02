@@ -1096,7 +1096,9 @@ a buffer visiting a file."
                      ""))))
 
 (ert-deftest counsel-find-file-with-dollars ()
-  (skip-unless (file-exists-p "test"))
+  ;; This should be `skip-unless' instead,
+  ;; but it was only added in Emacs 24.4.
+  :expected-result (if (file-exists-p "test") :passed :failed)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "fo C-m"
@@ -1104,8 +1106,12 @@ a buffer visiting a file."
            "test/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (skip-unless (and (file-exists-p "test")
-                    (= emacs-major-version 26)))
+  ;; This should be `skip-unless' instead,
+  ;; but it was only added in Emacs 24.4.
+  :expected-result (if (and (file-exists-p "test")
+                            (= emacs-major-version 26))
+                       :passed
+                     :failed)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "f C-m"
