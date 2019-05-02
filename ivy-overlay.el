@@ -134,7 +134,8 @@ Hide the minibuffer contents and cursor."
                                1
                              0)
                            (save-excursion
-                             (goto-char ivy-completion-beg)
+                             (when ivy-completion-beg
+                               (goto-char ivy-completion-beg))
                              (current-column)))))))))
         (let ((cursor-offset (1+ (length ivy-text))))
           (ivy-add-face-text-property cursor-offset (1+ cursor-offset)
