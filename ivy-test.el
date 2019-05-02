@@ -35,7 +35,7 @@
 (require 'ivy)
 (require 'counsel)
 
-(message (emacs-version))
+(message "%s" (emacs-version))
 
 (defvar ivy-expr nil
   "Holds a test expression to evaluate with `ivy-eval'.")
@@ -1095,10 +1095,8 @@ a buffer visiting a file."
                                "C-p C-m")
                      ""))))
 
-(unless (file-exists-p "test")
-  (shell-command "git clone -b test --single-branch https://github.com/abo-abo/swiper/ test"))
-
 (ert-deftest counsel-find-file-with-dollars ()
+  (skip-unless (file-exists-p "test"))
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "fo C-m"
@@ -1106,18 +1104,18 @@ a buffer visiting a file."
            "test/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (when (and (version<= emacs-version "26.2")
-             (not (version< emacs-version "26.1")))
-    (should (string=
-             (file-relative-name
-              (ivy-with '(counsel-find-file) "f C-m"
-                        :dir "test/find-file/dotfiles/"))
-             "test/find-file/dotfiles/foo/"))
-    (should (string=
-             (file-relative-name
-              (ivy-with '(counsel-find-file) "foob C-m"
-                        :dir "test/find-file/dotfiles/"))
-             "test/find-file/dotfiles/.foobar1"))))
+  (skip-unless (and (file-exists-p "test")
+                    (= emacs-major-version 26)))
+  (should (string=
+           (file-relative-name
+            (ivy-with '(counsel-find-file) "f C-m"
+                      :dir "test/find-file/dotfiles/"))
+           "test/find-file/dotfiles/foo/"))
+  (should (string=
+           (file-relative-name
+            (ivy-with '(counsel-find-file) "foob C-m"
+                      :dir "test/find-file/dotfiles/"))
+           "test/find-file/dotfiles/.foobar1")))
 
 (provide 'ivy-test)
 
