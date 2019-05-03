@@ -1767,7 +1767,12 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
             :caller 'counsel-find-file-move))
 
 (defun counsel-find-file-mkdir-action (_x)
-  (make-directory (expand-file-name ivy-text ivy--directory)))
+  "Create a directory from `ivy-text'."
+  (let ((dir (expand-file-name ivy-text ivy--directory))
+        (win (and (not (eq ivy-exit 'done))
+                  (active-minibuffer-window))))
+    (make-directory dir)
+    (when win (with-selected-window win (ivy--cd dir)))))
 
 (ivy-set-actions
  'counsel-find-file
