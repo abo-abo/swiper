@@ -1754,7 +1754,9 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
             (counsel--yes-or-no-p "Delete %s? " x))
     (dired-delete-file x dired-recursive-deletes delete-by-moving-to-trash)
     (dired-clean-up-after-deletion x)
-    (ivy--reset-state ivy-last)))
+    (let ((win (and (not (eq ivy-exit 'done))
+                    (active-minibuffer-window))))
+      (when win (with-selected-window win (ivy--cd ivy--directory))))))
 
 (defun counsel-find-file-move (x)
   "Move or rename file X."
