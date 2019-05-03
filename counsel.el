@@ -1740,11 +1740,12 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-copy (x)
   "Copy file X."
-  (let ((ivy-inhibit-action
-         (lambda (new-name)
-           (require 'dired-aux)
-           (dired-copy-file x new-name 1))))
-    (counsel-find-file)))
+  (require 'dired-aux)
+  (counsel--find-file-1 "Copy file to: "
+                        ivy--directory
+                        (lambda (new-name)
+                          (dired-copy-file x new-name 1))
+                        'counsel-find-file-copy))
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
@@ -1760,13 +1761,12 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-move (x)
   "Move or rename file X."
-  (ivy-read "Rename file to: " #'read-file-name-internal
-            :matcher #'counsel--find-file-matcher
-            :action (lambda (new-name)
-                      (require 'dired-aux)
-                      (dired-rename-file x new-name 1))
-            :keymap counsel-find-file-map
-            :caller 'counsel-find-file-move))
+  (require 'dired-aux)
+  (counsel--find-file-1 "Rename file to: "
+                        ivy--directory
+                        (lambda (new-name)
+                          (dired-rename-file x new-name 1))
+                        'counsel-find-file-move))
 
 (defun counsel-find-file-mkdir-action (_x)
   "Create a directory from `ivy-text'."
