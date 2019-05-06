@@ -404,7 +404,8 @@ Update the minibuffer with the amount of lines collected every
       (setq ivy-completion-end (match-end 0)))
     (ivy-read "company cand: " company-candidates
               :action #'ivy-completion-in-region-action
-              :unwind #'company-abort)))
+              :unwind #'company-abort
+              :caller 'counsel-company)))
 
 ;;** `counsel-irony'
 (declare-function irony-completion-candidates-async "ext:irony-completion")
