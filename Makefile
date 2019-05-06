@@ -6,7 +6,10 @@ RM ?= rm -f
 
 all: test
 
-test:
+tests:
+	git clone -b test --single-branch https://github.com/abo-abo/swiper/ tests
+
+test: tests
 	$(emacs) -batch $(LOAD) -l ivy-test.el -f ert-run-tests-batch-and-exit
 
 checkdoc:
