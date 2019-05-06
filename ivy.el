@@ -1029,7 +1029,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
             (setq ivy-text
                   (concat
                    (mapconcat #'identity parts " ")
-                   (and ivy-tab-space " "))))
+                   (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " "))))
            (when (and
                   (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
                   (= 1 (length
