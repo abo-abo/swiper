@@ -409,7 +409,7 @@ Specifies the wrap-around behavior for @kbd{C-n} and @kbd{C-p}. When
 @code{ivy-wrap} is set to @code{t}, @code{ivy-next-line} and @code{ivy-previous-line}
 will cycle past the last and the first candidates respectively.
 
-Warp-around behavior is off by default.
+Wrap-around behavior is off by default.
 @end defopt
 
 @defopt ivy-height
@@ -1250,15 +1250,11 @@ headings with similar names to appreciate @code{ivy-mode}.
 @end indentedblock
 @subsubheading @code{magit}
 @indentedblock
-Magit requires this setting for ivy completion:
-
-@lisp
-(setq magit-completing-read-function 'ivy-completing-read)
-@end lisp
+Uses ivy by default if Ivy is installed.
 @end indentedblock
 @subsubheading @code{find-file-in-project}
 @indentedblock
-It uses ivy by default if Ivy is installed.
+Uses ivy by default if Ivy is installed.
 @end indentedblock
 @subsubheading @code{projectile}
 @indentedblock
@@ -1484,13 +1480,17 @@ Name of the symbol to store history. See @code{completing-read}.
 @end indentedblock
 @subsubheading @code{preselect}
 @indentedblock
-When set to a string value, select the first candidate matching
-this value.
+Determines which one of the candidates to initially select.
 
 When set to an integer value, select the candidate with that
 index value.
 
-Every time the input becomes empty, the item corresponding to to
+When set to any other non-nil value, select the first candidate
+matching this value.  Comparison is first done with @code{equal}.
+If this fails, and when applicable, match @code{preselect} as a
+regular expression.
+
+Every time the input becomes empty, the item corresponding to
 @code{preselect} is selected.
 @end indentedblock
 @subsubheading @code{keymap}
