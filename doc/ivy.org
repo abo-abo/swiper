@@ -953,13 +953,9 @@ To examine each action with each candidate in a key-efficient way, try:
      =completing-read-function= (which =ivy-mode= sets). Try refiling
      headings with similar names to appreciate =ivy-mode=.
 - =magit= ::
-     Magit requires this setting for ivy completion:
-
-     #+begin_src elisp
-     (setq magit-completing-read-function 'ivy-completing-read)
-     #+end_src
+     Uses ivy by default if Ivy is installed.
 - =find-file-in-project= ::
-     It uses ivy by default if Ivy is installed.
+     Uses ivy by default if Ivy is installed.
 - =projectile= ::
      Projectile requires this setting for ivy completion:
 
