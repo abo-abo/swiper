@@ -1777,7 +1777,8 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-mkdir-action (_x)
   "Create a directory from `ivy-text'."
-  (let ((dir (expand-file-name ivy-text ivy--directory))
+  (let ((dir (file-name-as-directory
+              (expand-file-name ivy-text ivy--directory)))
         (win (and (not (eq ivy-exit 'done))
                   (active-minibuffer-window))))
     (make-directory dir)
