@@ -3315,12 +3315,8 @@ include attachments of other Org buffers."
     (save-excursion
       (goto-char (point-min))
       (while (re-search-forward "^:\\(ATTACH_DIR\\|ID\\):[\t ]+\\(.*\\)$" nil t)
-        (let ((dir (match-string-no-properties 2)))
-          (when (string= "ID" (match-string-no-properties 1))
-            (setq dir (expand-file-name
-                       (concat (substring dir 0 2) "/" (substring dir 2))
-                       org-attach-directory)))
-          (when (file-exists-p dir)
+        (let ((dir (org-attach-dir)))
+          (when dir
             (push dir dirs)))))
     (cl-mapcan
      (lambda (dir)
