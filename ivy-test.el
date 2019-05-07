@@ -1080,6 +1080,31 @@ a buffer visiting a file."
      ("C-s" "defun\\|defvar" "C-n RET"))
     "(defun foo)\nasdf\n(defvar| bar)")))
 
+(ert-deftest swiper-isearch-case-fold ()
+  (should
+   (string=
+    (ivy-with-text
+     "|Foo\nfoo\nFOO\n"
+     (global-set-key (kbd "C-s") #'swiper-isearch)
+     ("C-s" "foo" "C-n RET"))
+    "Foo\nfoo|\nFOO\n"))
+  (should
+   (string=
+    (let ((ivy-case-fold-search-default 'auto))
+      (ivy-with-text
+       "|Foo\nfoo\nFOO\n"
+       (global-set-key (kbd "C-s") #'swiper-isearch)
+       ("C-s" "Foo" "C-n RET")))
+    "Foo|\nfoo\nFOO\n"))
+  (should
+   (string=
+    (let ((ivy-case-fold-search-default t))
+      (ivy-with-text
+       "|Foo\nfoo\nFOO\n"
+       (global-set-key (kbd "C-s") #'swiper-isearch)
+       ("C-s" "Foo" "C-n RET")))
+    "Foo\nfoo|\nFOO\n")))
+
 (ert-deftest ivy-use-selectable-prompt ()
   (let ((ivy-use-selectable-prompt t)
         (completing-read-function #'ivy-completing-read))
