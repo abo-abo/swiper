@@ -1120,33 +1120,40 @@ a buffer visiting a file."
                                "C-p C-m")
                      ""))))
 
+(defun counsel--setup-test-files ()
+  (unless (file-exists-p "tests/")
+    (shell-command
+     "git clone -b test --single-branch https://github.com/abo-abo/swiper/ tests"))
+  (let ((default-directory (expand-file-name "tests/"))
+        (version "b1a2bbf"))
+    (shell-command
+     (format "git checkout %s || git fetch && git checkout %s" version version))))
+
 (ert-deftest counsel-find-file-with-dollars ()
-  ;; This should be `skip-unless' instead,
-  ;; but it was only added in Emacs 24.4.
-  :expected-result (if (file-exists-p "test") :passed :failed)
+  (counsel--setup-test-files)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "fo C-m"
-                      :dir "test/find-file/files-with-dollar/"))
-           "test/find-file/files-with-dollar/foo$")))
+                      :dir "tests/find-file/files-with-dollar/"))
+           "tests/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
   ;; This should be `skip-unless' instead,
   ;; but it was only added in Emacs 24.4.
-  :expected-result (if (and (file-exists-p "test")
-                            (= emacs-major-version 26))
+  :expected-result (if (= emacs-major-version 26)
                        :passed
                      :failed)
+  (counsel--setup-test-files)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "f C-m"
-                      :dir "test/find-file/dotfiles/"))
-           "test/find-file/dotfiles/foo/"))
+                      :dir "tests/find-file/dotfiles/"))
+           "tests/find-file/dotfiles/foo/"))
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "foob C-m"
-                      :dir "test/find-file/dotfiles/"))
-           "test/find-file/dotfiles/.foobar1")))
+                      :dir "tests/find-file/dotfiles/"))
+           "tests/find-file/dotfiles/.foobar1")))
 
 (provide 'ivy-test)
 
