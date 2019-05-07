@@ -1268,7 +1268,7 @@ come back to the same place as when \"a\" was initially entered.")
           (swiper--add-cursor-overlay)))
     (swiper--cleanup)))
 
-(defun swiper-isearch-symbol-at-point ()
+(defun swiper-isearch-thing-at-point ()
   "Insert `symbol-at-point' into the minibuffer of `swiper-isearch'.
 When not running `swiper-isearch' already, start it."
   (interactive)
@@ -1280,15 +1280,22 @@ When not running `swiper-isearch' already, start it."
         (setq swiper--isearch-point-history
               (list (cons "" (car bnd))))
         (insert str))
-    (let ((bnd (bounds-of-thing-at-point 'symbol)))
-      (when bnd
-        (goto-char (car bnd))
-        (swiper-isearch (buffer-substring-no-properties (car bnd) (cdr bnd)))))))
+    (let (thing)
+      (if (use-region-p)
+          (progn
+            (goto-char (region-beginning))
+            (setq thing (ivy-thing-at-point))
+            (deactivate-mark))
+        (let ((bnd (bounds-of-thing-at-point 'symbol)))
+          (when bnd
+            (goto-char (car bnd)))
+          (setq thing (ivy-thing-at-point))))
+      (swiper-isearch thing))))
 
 (defvar swiper-isearch-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map swiper-map)
-    (define-key map (kbd "M-n") 'swiper-isearch-symbol-at-point)
+    (define-key map (kbd "M-n") 'swiper-isearch-thing-at-point)
     map)
   "Keymap for `swiper-isearch'.")
 
