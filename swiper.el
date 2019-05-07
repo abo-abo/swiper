@@ -1214,7 +1214,8 @@ come back to the same place as when \"a\" was initially entered.")
 
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
-  (let* ((re-full (funcall ivy--regex-function str))
+  (let* ((case-fold-search (ivy--case-fold-p str))
+         (re-full (funcall ivy--regex-function str))
          (re (ivy-re-to-str re-full)))
     (unless (string= re "")
       (let ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
