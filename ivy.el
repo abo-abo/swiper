@@ -4402,8 +4402,7 @@ There is no limit on the number of *ivy-occur* buffers."
             (ivy--occur-insert-lines
              ivy--old-cands)))
         (setf (ivy-state-text ivy-last) ivy-text)
-        (setq ivy-occur-last ivy-last)
-        (setq-local ivy--directory ivy--directory))
+        (setq ivy-occur-last ivy-last))
       (ivy-exit-with-action
        (lambda (_) (pop-to-buffer buffer))))))
 
