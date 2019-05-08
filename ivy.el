@@ -1372,6 +1372,13 @@ Call the permanent action if possible."
   (move-end-of-line 1)
   (ivy--maybe-scroll-history))
 
+(defun ivy--insert-symbol-boundaries ()
+  (undo-boundary)
+  (beginning-of-line)
+  (insert "\\_<")
+  (end-of-line)
+  (insert "\\_>"))
+
 (defun ivy-next-history-element (arg)
   "Forward to `next-history-element' with ARG."
   (interactive "p")
@@ -1385,11 +1392,7 @@ Call the permanent action if possible."
                    (not (ffap-url-p ivy--default))
                    (not (ivy-state-dynamic-collection ivy-last))
                    (> (point) (minibuffer-prompt-end)))
-          (undo-boundary)
-          (insert "\\_>")
-          (goto-char (minibuffer-prompt-end))
-          (insert "\\_<")
-          (forward-char (+ 2 (length ivy--default)))))
+          (ivy--insert-symbol-boundaries)))
     (next-history-element arg))
   (ivy--cd-maybe)
   (move-end-of-line 1)
