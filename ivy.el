@@ -2080,7 +2080,11 @@ This is useful for recursive `ivy-read'."
                          (equal (ivy--get-action ivy-last) 'identity))
                  (setq initial-input nil))))
             ((eq collection #'internal-complete-buffer)
-             (setq coll (ivy--buffer-list "" ivy-use-virtual-buffers predicate)))
+             (setq coll (ivy--buffer-list
+                         ""
+                         (and ivy-use-virtual-buffers
+                              (member caller '(ivy-switch-buffer counsel-switch-buffer)))
+                         predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
             ((consp (car-safe collection))
