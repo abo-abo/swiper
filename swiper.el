@@ -1280,7 +1280,8 @@ When not running `swiper-isearch' already, start it."
           (setq str (buffer-substring-no-properties (car bnd) (cdr bnd))))
         (setq swiper--isearch-point-history
               (list (cons "" (car bnd))))
-        (insert str))
+        (insert str)
+        (ivy--insert-symbol-boundaries))
     (let (thing)
       (if (use-region-p)
           (progn
