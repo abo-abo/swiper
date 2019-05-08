@@ -385,7 +385,7 @@ Update the minibuffer with the amount of lines collected every
 ;;** `counsel-company'
 (defvar company-candidates)
 (defvar company-point)
-(defvar company-common)
+(defvar company-prefix)
 (declare-function company-complete "ext:company")
 (declare-function company-mode "ext:company")
 (declare-function company-complete-common "ext:company")
@@ -399,9 +399,8 @@ Update the minibuffer with the amount of lines collected every
   (unless company-candidates
     (company-complete))
   (when company-point
-    (when (looking-back company-common (line-beginning-position))
-      (setq ivy-completion-beg (match-beginning 0))
-      (setq ivy-completion-end (match-end 0)))
+    (setq ivy-completion-beg (- company-point (length company-prefix)))
+    (setq ivy-completion-end company-point)
     (ivy-read "company cand: " company-candidates
               :action #'ivy-completion-in-region-action
               :unwind #'company-abort
