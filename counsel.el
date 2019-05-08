@@ -2630,7 +2630,8 @@ NEEDLE is the search string."
      (let* ((default-directory (ivy-state-directory ivy-last))
             (regex (counsel--grep-regex search-term))
             (switches (concat (car command-args)
-                              (counsel--ag-extra-switches regex))))
+                              (counsel--ag-extra-switches regex)
+                              (and (ivy--case-fold-p string) " -i "))))
        (counsel--async-command (counsel--format-ag-command
                                 switches
                                 (shell-quote-argument regex)))
