@@ -1359,6 +1359,7 @@ When not running `swiper-isearch' already, start it."
   "A `swiper' that's not line-based."
   (interactive)
   (swiper--init)
+  (swiper-font-lock-ensure)
   (setq swiper--isearch-point-history
         (list
          (cons "" (point))))
