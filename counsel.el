@@ -3896,6 +3896,57 @@ Note: Duplicate elements of `kill-ring' are always deleted."
  '(("d" counsel-yank-pop-action-remove "delete")
    ("r" counsel-yank-pop-action-rotate "rotate")))
 
+;;** `counsel-register'
+(defvar counsel-register-actions
+  '(("\\`buffer position" . jump-to-register)
+    ("\\`text" . insert-register)
+    ("\\`rectangle" . insert-register)
+    ("\\`window configuration" . jump-to-register)
+    ("\\`frame configuration" . jump-to-register)
+    ("\\`[-+]?[0-9]+\\(?:\\.[0-9]\\)?\\'" . insert-register)
+    ("\\`the file" . jump-to-register)
+    ("\\`keyboard macro" . jump-to-register)
+    ("\\`file-query" . jump-to-register))
+  "Alist of (REGEXP . FUNCTION) pairs for `counsel-register'.
+Selecting a register whose description matches REGEXP specifies
+FUNCTION as the action to take on the register.")
+
+(defvar counsel-register-history nil
+  "History for `counsel-register'.")
+
+(defun counsel-register-action (register)
+  "Default action for `counsel-register'.
+
+Call a function on REGISTER.  The function is determined by
+matching the register's value description against a regexp in
+`counsel-register-actions'."
+  (let* ((val (get-text-property 0 'register register))
+         (desc (register-describe-oneline val))
+         (action (cdr (cl-assoc-if (lambda (re) (string-match-p re desc))
+                                   counsel-register-actions))))
+    (if action
+        (funcall action val)
+      (error "No action was found for register %c" val))))
+
+;;;###autoload
+(defun counsel-register ()
+  "Interactively choose a register."
+  (interactive)
+  (ivy-read "Register: "
+            (cl-mapcan
+             (lambda (reg)
+               (let ((s (funcall register-preview-function reg)))
+                 (setq s (substring s 0 (string-match-p "[ \t\n\r]+\\'" s)))
+                 (unless (string= s "")
+                   (put-text-property 0 1 'register (car reg) s)
+                   (list s))))
+             register-alist)
+            :require-match t
+            :sort t
+            :history 'counsel-register-history
+            :action #'counsel-register-action
+            :caller 'counsel-register))
+
 ;;** `counsel-evil-registers'
 (make-obsolete-variable
  'counsel-evil-registers-height
