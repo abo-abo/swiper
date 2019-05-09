@@ -3597,9 +3597,10 @@ Note: The usual last two arguments are flipped for convenience.")
 
 (defun ivy--minibuffer-index-bounds ()
   (let* ((half-height (/ ivy-height 2))
-         (start (max 0 (- ivy--index half-height)))
-         (end (min (+ start (1- ivy-height)) ivy--length))
-         (start (max 0 (min start (- end (1- ivy-height))))))
+         (start (max 0
+                     (min (- ivy--index half-height)
+                          (- ivy--length (1- ivy-height)))))
+         (end (min (+ start (1- ivy-height)) ivy--length)))
     (setq ivy--window-index (- ivy--index start))
     (cons start end)))
 
