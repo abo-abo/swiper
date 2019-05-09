@@ -2202,6 +2202,55 @@ current value of `default-directory'."
                             (call-interactively #'find-file)))
                     "find-file")))
 
+;;** `counsel-register'
+
+(defvar counsel-register-actions
+  '(("\\`a buffer position" . jump-to-register)
+    ("\\`text" . insert-register)
+    ("\\`a rectangle" . insert-register)
+    ("\\`a window configuration" . jump-to-register)
+    ("\\`\\(\+\\|-\\)?[0-9]+\\(\\.[0-9]+\\)?\\'" . insert-register)
+    ("\\`the file" . jump-to-register)
+    ("\\`a keyboard macro" . jump-to-register))
+  "Alist of (regexp . function)
+  pairs. `counsel-register' uses these to
+  determine which action to take on a given register.")
+
+(defvar counsel-register-history nil
+  "History for `counsel-register'.")
+
+(cl-defun counsel-register--match (r (regexp . function))
+  (when (string-match-p regexp (with-output-to-string
+                                 (register-val-describe (get-register r) nil)))
+    function))
+
+(defun counsel-register-action (s)
+  "Default action for `counsel-register'.
+
+Call a function on a register. The function is determined by
+matching the register's value description against a regexp in
+`counsel-register-actions'."
+  (let* ((r (string-to-char s))
+         (v (get-register r))
+         (f (cl-some (apply-partially #'counsel-register--match r)
+                     counsel-register-actions)))
+    ;; In the case where we don't find a match, insert the register.
+    (if f
+        (funcall f r)
+      (insert-register r))))
+
+;;;###autoload
+(defun counsel-register ()
+  "Interactively choose a register and perform a default action
+on it."
+  (interactive)
+  (ivy-read "Register: "
+            (mapcar (lambda (r) (string-trim (funcall register-preview-function r)))
+                    register-alist)
+            :preselect 0
+            :history 'counsel-register-history
+            :action #'counsel-register-action))
+
 ;;** `counsel-file-register'
 ;;;###autoload
 (defun counsel-file-register ()
