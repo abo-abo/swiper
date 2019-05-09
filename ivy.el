@@ -4613,7 +4613,9 @@ EVENT gives the mouse position."
         (org-mode)
         (setq org-hide-emphasis-markers t)
         (view-mode)
-        (goto-char (point-min))))
+        (goto-char (point-min))
+        (let ((inhibit-message t))
+          (org-cycle '(64)))))
     (if (eq this-command 'ivy-help)
         (switch-to-buffer buf)
       (with-ivy-window
