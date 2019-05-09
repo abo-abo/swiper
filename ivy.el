@@ -4606,6 +4606,8 @@ EVENT gives the mouse position."
                                 (expand-file-name "doc/ivy-help.org"))))
   "The file for `ivy-help'.")
 
+(defvar org-hide-emphasis-markers)
+
 (defun ivy-help ()
   "Help for `ivy'."
   (interactive)
