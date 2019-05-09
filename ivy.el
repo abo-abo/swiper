@@ -4611,6 +4611,7 @@ EVENT gives the mouse position."
       (with-current-buffer buf
         (insert-file-contents ivy-help-file)
         (org-mode)
+        (setq org-hide-emphasis-markers t)
         (view-mode)
         (goto-char (point-min))))
     (if (eq this-command 'ivy-help)
