@@ -1120,6 +1120,18 @@ a buffer visiting a file."
                                "C-p C-m")
                      ""))))
 
+(ert-deftest ivy--minibuffer-index-bounds ()
+  (should (equal (ivy--minibuffer-index-bounds 0 1 10) '(0 1 0)))
+  (should (equal (ivy--minibuffer-index-bounds 0 10 10) '(0 9 0)))
+  (should (equal (ivy--minibuffer-index-bounds 0 11 10) '(0 9 0)))
+  (should (equal (ivy--minibuffer-index-bounds 1 11 10) '(0 9 1)))
+  (should (equal (ivy--minibuffer-index-bounds 5 11 10) '(0 9 5)))
+  (should (equal (ivy--minibuffer-index-bounds 6 11 10) '(1 10 5)))
+  (should (equal (ivy--minibuffer-index-bounds 7 11 10) '(2 11 5)))
+  (should (equal (ivy--minibuffer-index-bounds 8 11 10) '(2 11 6)))
+  (should (equal (ivy--minibuffer-index-bounds 10 11 10) '(2 11 8)))
+  (should (equal (ivy--minibuffer-index-bounds 1 3 10) '(0 3 1))))
+
 (defun counsel--setup-test-files ()
   (unless (file-exists-p "tests/")
     (shell-command

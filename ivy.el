@@ -3595,14 +3595,13 @@ Note: The usual last two arguments are flipped for convenience.")
       (propertize str 'face 'ivy-subdir)
     str))
 
-(defun ivy--minibuffer-index-bounds ()
-  (let* ((half-height (/ ivy-height 2))
+(defun ivy--minibuffer-index-bounds (idx len wnd-len)
+  (let* ((half-height (/ wnd-len 2))
          (start (max 0
-                     (min (- ivy--index half-height)
-                          (- ivy--length (1- ivy-height)))))
-         (end (min (+ start (1- ivy-height)) ivy--length)))
-    (setq ivy--window-index (- ivy--index start))
-    (cons start end)))
+                     (min (- idx half-height)
+                          (- len (1- wnd-len)))))
+         (end (min (+ start (1- wnd-len)) len)))
+    (list start end (- idx start))))
 
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
@@ -3613,9 +3612,11 @@ CANDS is a list of strings."
   (if (null cands)
       (setf (ivy-state-current ivy-last) "")
     (setf (ivy-state-current ivy-last) (copy-sequence (nth ivy--index cands)))
-    (let* ((bnd (ivy--minibuffer-index-bounds))
-           (wnd-cands (cl-subseq cands (car bnd) (cdr bnd)))
+    (let* ((bnd (ivy--minibuffer-index-bounds
+                 ivy--index ivy--length ivy-height))
+           (wnd-cands (cl-subseq cands (car bnd) (cadr bnd)))
            transformer-fn)
+      (setq ivy--window-index (nth 2 bnd))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
         (with-ivy-window
           (with-current-buffer (ivy-state-buffer ivy-last)
