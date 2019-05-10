@@ -809,7 +809,8 @@ Matched candidates should have `swiper-invocation-face'."
                     (setq swiper--current-match-start (match-beginning 0))))
                 (isearch-range-invisible (line-beginning-position)
                                          (line-end-position))
-                (when (and (display-graphic-p)
+                (when (and (or (display-graphic-p)
+                               (not recenter-redisplay))
                            (or
                             (< (point) (window-start))
                             (> (point) (window-end (ivy-state-window ivy-last) t))))
@@ -818,12 +819,14 @@ Matched candidates should have `swiper-invocation-face'."
             (swiper--add-overlays
              re
              (max
-              (if (display-graphic-p)
+              (if (or (display-graphic-p)
+                      (not recenter-redisplay))
                   (window-start)
                 (line-beginning-position (- (window-height))))
               swiper--point-min)
              (min
-              (if (display-graphic-p)
+              (if (or (display-graphic-p)
+                      (not recenter-redisplay))
                   (window-end (selected-window) t)
                 (line-end-position (window-height)))
               swiper--point-max))))))))
@@ -948,7 +951,9 @@ the face, window and priority of the overlay."
         (swiper--ensure-visible)
         (cond (swiper-action-recenter
                (recenter))
-              ((and swiper--current-window-start (display-graphic-p))
+              ((and swiper--current-window-start
+                    (or (display-graphic-p)
+                        (not recenter-redisplay)))
                (set-window-start (selected-window) swiper--current-window-start)))
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
