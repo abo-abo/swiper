@@ -2505,6 +2505,12 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))
 
+(ivy-set-actions
+ 'counsel-file-jump
+ `(("d" ,(lambda (x)
+           (dired (or (file-name-directory x) default-directory)))
+    "open in dired")))
+
 (defcustom counsel-dired-jump-args ". -name '.git' -prune -o -type d -print | cut -c 3-"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
   :type 'string)
