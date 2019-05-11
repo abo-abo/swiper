@@ -767,6 +767,10 @@ Matched candidates should have `swiper-invocation-face'."
     (goto-char (point-min))
     (isearch-clean-overlays)))
 
+(defun swiper--recenter-p ()
+  (or (display-graphic-p)
+      (not recenter-redisplay)))
+
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
   (with-ivy-window
@@ -809,8 +813,7 @@ Matched candidates should have `swiper-invocation-face'."
                     (setq swiper--current-match-start (match-beginning 0))))
                 (isearch-range-invisible (line-beginning-position)
                                          (line-end-position))
-                (when (and (or (display-graphic-p)
-                               (not recenter-redisplay))
+                (when (and (swiper--recenter-p)
                            (or
                             (< (point) (window-start))
                             (> (point) (window-end (ivy-state-window ivy-last) t))))
@@ -819,14 +822,12 @@ Matched candidates should have `swiper-invocation-face'."
             (swiper--add-overlays
              re
              (max
-              (if (or (display-graphic-p)
-                      (not recenter-redisplay))
+              (if (swiper--recenter-p)
                   (window-start)
                 (line-beginning-position (- (window-height))))
               swiper--point-min)
              (min
-              (if (or (display-graphic-p)
-                      (not recenter-redisplay))
+              (if (swiper--recenter-p)
                   (window-end (selected-window) t)
                 (line-end-position (window-height)))
               swiper--point-max))))))))
@@ -952,8 +953,7 @@ the face, window and priority of the overlay."
         (cond (swiper-action-recenter
                (recenter))
               ((and swiper--current-window-start
-                    (or (display-graphic-p)
-                        (not recenter-redisplay)))
+                    (swiper--recenter-p))
                (set-window-start (selected-window) swiper--current-window-start)))
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
