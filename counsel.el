@@ -2202,55 +2202,6 @@ current value of `default-directory'."
                             (call-interactively #'find-file)))
                     "find-file")))
 
-;;** `counsel-register'
-
-(defvar counsel-register-actions
-  '(("\\`a buffer position" . jump-to-register)
-    ("\\`text" . insert-register)
-    ("\\`a rectangle" . insert-register)
-    ("\\`a window configuration" . jump-to-register)
-    ("\\`\\(\+\\|-\\)?[0-9]+\\(\\.[0-9]+\\)?\\'" . insert-register)
-    ("\\`the file" . jump-to-register)
-    ("\\`a keyboard macro" . jump-to-register))
-  "Alist of (regexp . function)
-  pairs. `counsel-register' uses these to
-  determine which action to take on a given register.")
-
-(defvar counsel-register-history nil
-  "History for `counsel-register'.")
-
-(cl-defun counsel-register--match (r (regexp . function))
-  (when (string-match-p regexp (with-output-to-string
-                                 (register-val-describe (get-register r) nil)))
-    function))
-
-(defun counsel-register-action (s)
-  "Default action for `counsel-register'.
-
-Call a function on a register. The function is determined by
-matching the register's value description against a regexp in
-`counsel-register-actions'."
-  (let* ((r (string-to-char s))
-         (v (get-register r))
-         (f (cl-some (apply-partially #'counsel-register--match r)
-                     counsel-register-actions)))
-    ;; In the case where we don't find a match, insert the register.
-    (if f
-        (funcall f r)
-      (insert-register r))))
-
-;;;###autoload
-(defun counsel-register ()
-  "Interactively choose a register and perform a default action
-on it."
-  (interactive)
-  (ivy-read "Register: "
-            (mapcar (lambda (r) (string-trim (funcall register-preview-function r)))
-                    register-alist)
-            :preselect 0
-            :history 'counsel-register-history
-            :action #'counsel-register-action))
-
 ;;** `counsel-file-register'
 ;;;###autoload
 (defun counsel-file-register ()
@@ -3935,6 +3886,56 @@ Note: Duplicate elements of `kill-ring' are always deleted."
  'counsel-yank-pop
  '(("d" counsel-yank-pop-action-remove "delete")
    ("r" counsel-yank-pop-action-rotate "rotate")))
+
+;;** `counsel-register'
+(defvar counsel-register-actions
+  '(("\\`a buffer position" . jump-to-register)
+    ("\\`text" . insert-register)
+    ("\\`a rectangle" . insert-register)
+    ("\\`a window configuration" . jump-to-register)
+    ("\\`a frame configuration" . jump-to-register)
+    ("\\`[-+]?[0-9]+\\(?:\\.[0-9]\\)?\\'" . insert-register)
+    ("\\`the file" . jump-to-register)
+    ("\\`a keyboard macro" . jump-to-register)
+    ("\\`a file-query" . jump-to-register))
+  "Alist of (REGEXP . FUNCTION) pairs for `counsel-register'.
+Selecting a register whose description matches REGEXP specifies
+FUNCTION as the action to take on the register.")
+
+(defvar counsel-register-history nil
+  "History for `counsel-register'.")
+
+(defun counsel-register-action (register)
+  "Default action for `counsel-register'.
+
+Call a function on REGISTER.  The function is determined by
+matching the register's value description against a regexp in
+`counsel-register-actions'."
+  (setq register (string-to-char register))
+  (let* ((desc (with-output-to-string
+                 (register-val-describe (get-register register) nil)))
+         (action (cl-assoc-if (lambda (re)
+                                (string-match-p re desc))
+                              counsel-register-actions)))
+    (if (cdr action)
+        (funcall (cdr action) register)
+      (error "No action was found for register %c" register))))
+
+;;;###autoload
+(defun counsel-register ()
+  "Interactively choose a register."
+  (interactive)
+  (ivy-read "Register: "
+            (mapcar (lambda (reg)
+                      (let* ((s (funcall register-preview-function reg))
+                             (i (string-match-p "\\(?:[ \t\n\r]+\\)\\'" s)))
+                        (if i (substring s 0 i) s)))
+                    register-alist)
+            :require-match t
+            :sort t
+            :history 'counsel-register-history
+            :action #'counsel-register-action
+            :caller 'counsel-register))
 
 ;;** `counsel-evil-registers'
 (make-obsolete-variable
