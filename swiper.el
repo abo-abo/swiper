@@ -206,12 +206,9 @@
                     (perform-replace from to t t nil)))
              (set-window-configuration wnd-conf))))))))
 
-(defvar avy-background)
 (defvar avy-all-windows)
 (defvar avy-style)
 (defvar avy-keys)
-(declare-function avy--regex-candidates "ext:avy")
-(declare-function avy--process "ext:avy")
 (declare-function avy--overlay-post "ext:avy")
 (declare-function avy-action-goto "ext:avy")
 (declare-function avy-candidate-beg "ext:avy")
@@ -280,20 +277,23 @@
       (avy--done))))
 
 (defun swiper--avy-goto (candidate)
-  (if (window-minibuffer-p (cdr candidate))
-      (let ((cand-text (save-excursion
-                         (goto-char (car candidate))
-                         (buffer-substring-no-properties
-                          (line-beginning-position)
-                          (line-end-position)))))
-        (ivy-set-index (cl-position-if
-                        (lambda (x) (cl-search x cand-text))
-                        ivy--old-cands))
-        (ivy--exhibit)
-        (ivy-done)
-        (ivy-call))
-    (ivy-quit-and-run
-      (avy-action-goto (avy-candidate-beg candidate)))))
+  (cond ((let ((win (cdr-safe candidate)))
+           (and win (window-minibuffer-p win)))
+         (let ((cand-text (save-excursion
+                            (goto-char (car candidate))
+                            (buffer-substring-no-properties
+                             (line-beginning-position)
+                             (line-end-position)))))
+           (ivy-set-index (cl-position-if
+                           (lambda (x) (cl-search x cand-text))
+                           ivy--old-cands))
+           (ivy--exhibit)
+           (ivy-done)
+           (ivy-call)))
+        ((or (consp candidate)
+             (number-or-marker-p candidate))
+         (ivy-quit-and-run
+           (avy-action-goto (avy-candidate-beg candidate))))))
 
 ;;;###autoload
 (defun swiper-avy ()
