@@ -1398,7 +1398,8 @@ When not running `swiper-isearch' already, start it."
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
 
 (defun swiper-isearch-toggle ()
-  "Two-way toggle between `swiper-isearch' and isearch."
+  "Two-way toggle between `swiper-isearch' and isearch.
+Intended to be bound in `isearch-mode-map' and `swiper-map'."
   (interactive)
   (if isearch-mode
       (let ((query (if isearch-regexp
