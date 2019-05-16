@@ -1406,7 +1406,8 @@ Intended to be bound in `isearch-mode-map' and `swiper-map'."
                        isearch-string
                      (regexp-quote isearch-string))))
         (isearch-exit)
-        (goto-char (match-beginning 0))
+        (goto-char (or (and isearch-forward isearch-other-end)
+                       (point)))
         (swiper-isearch query))
     (ivy-exit-with-action
      (lambda (_)
