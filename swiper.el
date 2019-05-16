@@ -1404,9 +1404,13 @@ Intended to be bound in `isearch-mode-map' and `swiper-map'."
   (if isearch-mode
       (let ((query (if isearch-regexp
                        isearch-string
-                     (regexp-quote isearch-string))))
+                     (regexp-quote isearch-string)))
+            (position (if (and isearch-forward
+                               (number-or-marker-p isearch-other-end))
+                          isearch-other-end
+                        (point))))
         (isearch-exit)
-        (goto-char (match-beginning 0))
+        (goto-char position)
         (swiper-isearch query))
     (ivy-exit-with-action
      (lambda (_)
