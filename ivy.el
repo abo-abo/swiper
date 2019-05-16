@@ -2273,6 +2273,7 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
         (delete-region beg end))
       (setq ivy-completion-beg (point))
       (insert (substring-no-properties str))
+      (completion--done str 'exact)
       (setq ivy-completion-end (point))
       (save-excursion
         (dolist (cursor fake-cursors)
