@@ -639,6 +639,7 @@ When capture groups are present in the input, print them instead of lines."
   (when (setq swiper--reveal-mode
               (bound-and-true-p reveal-mode))
     (reveal-mode -1))
+  (lazy-highlight-cleanup t)
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
@@ -764,6 +765,9 @@ Matched candidates should have `swiper-invocation-face'."
   "Clean up the overlays."
   (while swiper--overlays
     (delete-overlay (pop swiper--overlays)))
+  ;; force cleanup unless it's :unwind
+  (lazy-highlight-cleanup
+   (if (eq ivy-exit 'done) lazy-highlight-cleanup t))
   (save-excursion
     (goto-char (point-min))
     (isearch-clean-overlays)))
@@ -775,15 +779,15 @@ Matched candidates should have `swiper-invocation-face'."
       (overlay-put ov 'face 'ivy-cursor))
     (push ov swiper--overlays)))
 
-(defun swiper--add-overlay (beg end face wnd priority)
-  "Add overlay bound by BEG and END to `swiper--overlays'.
+(defun swiper--make-overlay (beg end face wnd priority)
+  "Create an overlay bound by BEG and END.
 FACE, WND and PRIORITY are properties corresponding to
 the face, window and priority of the overlay."
   (let ((overlay (make-overlay beg end)))
-    (push overlay swiper--overlays)
     (overlay-put overlay 'face face)
     (overlay-put overlay 'window wnd)
-    (overlay-put overlay 'priority priority)))
+    (overlay-put overlay 'priority priority)
+    overlay))
 
 (defun swiper--recenter-p ()
   (or (display-graphic-p)
@@ -865,7 +869,8 @@ WND, when specified is the window."
                    (end-of-visual-line)
                    (point))
                (1+ (line-end-position)))))
-    (swiper--add-overlay beg end 'swiper-line-face wnd 0))
+    (push (swiper--make-overlay beg end 'swiper-line-face wnd 0)
+          swiper--overlays))
   (let* ((pt (point))
          (wh (window-height))
          (beg (or beg (save-excursion
@@ -901,11 +906,12 @@ WND, when specified is the window."
                 (let ((mb (match-beginning 0))
                       (me (match-end 0)))
                   (unless (> (- me mb) 2017)
-                    (swiper--add-overlay mb me
-                                         (if (zerop ivy--subexps)
-                                             (cadr faces)
-                                           (car faces))
-                                         wnd 0))))
+                    (push (swiper--make-overlay mb me
+                                                (if (zerop ivy--subexps)
+                                                    (cadr faces)
+                                                  (car faces))
+                                                wnd 0)
+                          isearch-lazy-highlight-overlays))))
               (let ((i 1)
                     (j 0))
                 (while (<= (cl-incf j) ivy--subexps)
@@ -917,11 +923,12 @@ WND, when specified is the window."
                                   (integerp (match-beginning (+ j 1)))
                                   (= em (match-beginning (+ j 1))))
                         (setq em (match-end (cl-incf j))))
-                      (swiper--add-overlay
-                       bm em
-                       (nth (1+ (mod (+ i 2) (1- (length faces))))
-                            faces)
-                       wnd i)
+                      (push (swiper--make-overlay
+                             bm em
+                             (nth (1+ (mod (+ i 2) (1- (length faces))))
+                                  faces)
+                             wnd i)
+                            isearch-lazy-highlight-overlays)
                       (cl-incf i))))))))))))
 
 (defcustom swiper-action-recenter nil
