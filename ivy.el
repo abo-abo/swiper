@@ -2086,7 +2086,9 @@ This is useful for recursive `ivy-read'."
              (setq coll (ivy--buffer-list
                          ""
                          (and ivy-use-virtual-buffers
-                              (member caller '(ivy-switch-buffer counsel-switch-buffer)))
+                              (member caller '(ivy-switch-buffer
+                                               ivy-switch-buffer-other-window
+                                               counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
              (setq coll (funcall collection ivy-text)))
