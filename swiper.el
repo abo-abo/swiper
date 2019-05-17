@@ -768,6 +768,23 @@ Matched candidates should have `swiper-invocation-face'."
     (goto-char (point-min))
     (isearch-clean-overlays)))
 
+(defun swiper--add-cursor-overlay ()
+  (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
+    (if (eolp)
+        (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
+      (overlay-put ov 'face 'ivy-cursor))
+    (push ov swiper--overlays)))
+
+(defun swiper--add-overlay (beg end face wnd priority)
+  "Add overlay bound by BEG and END to `swiper--overlays'.
+FACE, WND and PRIORITY are properties corresponding to
+the face, window and priority of the overlay."
+  (let ((overlay (make-overlay beg end)))
+    (push overlay swiper--overlays)
+    (overlay-put overlay 'face face)
+    (overlay-put overlay 'window wnd)
+    (overlay-put overlay 'priority priority)))
+
 (defun swiper--recenter-p ()
   (or (display-graphic-p)
       (not recenter-redisplay)))
@@ -906,16 +923,6 @@ WND, when specified is the window."
                             faces)
                        wnd i)
                       (cl-incf i))))))))))))
-
-(defun swiper--add-overlay (beg end face wnd priority)
-  "Add overlay bound by BEG and END to `swiper--overlays'.
-FACE, WND and PRIORITY are properties corresponding to
-the face, window and priority of the overlay."
-  (let ((overlay (make-overlay beg end)))
-    (push overlay swiper--overlays)
-    (overlay-put overlay 'face face)
-    (overlay-put overlay 'window wnd)
-    (overlay-put overlay 'priority priority)))
 
 (defcustom swiper-action-recenter nil
   "When non-nil, recenter after exiting `swiper'."
@@ -1251,13 +1258,6 @@ come back to the same place as when \"a\" was initially entered.")
         (when idx-found
           (ivy-set-index idx-found))
         (setq ivy--old-cands (nreverse cands))))))
-
-(defun swiper--add-cursor-overlay ()
-  (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
-    (if (eolp)
-        (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
-      (overlay-put ov 'face 'ivy-cursor))
-    (push ov swiper--overlays)))
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
