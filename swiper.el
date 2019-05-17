@@ -838,77 +838,74 @@ Matched candidates should have `swiper-invocation-face'."
 BEG and END, when specified, are the point bounds.
 WND, when specified is the window."
   (setq wnd (or wnd (ivy-state-window ivy-last)))
-  (let ((pt (point))
-        (ov (if visual-line-mode
-                (make-overlay
+  (let ((beg (if visual-line-mode
                  (save-excursion
                    (beginning-of-visual-line)
                    (point))
+               (line-beginning-position)))
+        (end (if visual-line-mode
                  (save-excursion
                    (end-of-visual-line)
-                   (point)))
-              (make-overlay
-               (line-beginning-position)
-               (1+ (line-end-position))))))
-    (overlay-put ov 'face 'swiper-line-face)
-    (overlay-put ov 'window wnd)
-    (push ov swiper--overlays)
-    (let* ((wh (window-height))
-           (beg (or beg (save-excursion
-                          (forward-line (- wh))
-                          (point))))
-           (end (or end (save-excursion
-                          (forward-line wh)
-                          (point))))
-           (case-fold-search (ivy--case-fold-p re)))
-      (when (>= (length re) swiper-min-highlight)
-        (save-excursion
-          (goto-char beg)
-          ;; RE can become an invalid regexp
-          (while (and (ignore-errors (re-search-forward re end t))
-                      (> (- (match-end 0) (match-beginning 0)) 0))
-            ;; Don't highlight a match if it spans multiple
-            ;; lines. `count-lines' returns 1 if the match is within a
-            ;; single line, even if it includes the newline, and 2 or
-            ;; greater otherwise. We hope that the inclusion of the
-            ;; newline will not ever be a problem in practice.
-            (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
-              (let ((faces (if (= (match-end 0) pt)
-                               swiper-faces
-                             swiper-background-faces)))
-                (unless (and (consp ivy--old-re)
-                             (null
-                              (save-match-data
-                                (ivy--re-filter ivy--old-re
-                                                (list
-                                                 (buffer-substring-no-properties
-                                                  (line-beginning-position)
-                                                  (line-end-position)))))))
-                  (let ((mb (match-beginning 0))
-                        (me (match-end 0)))
-                    (unless (> (- me mb) 2017)
-                      (swiper--add-overlay mb me
-                                           (if (zerop ivy--subexps)
-                                               (cadr faces)
-                                             (car faces))
-                                           wnd 0))))
-                (let ((i 1)
-                      (j 0))
-                  (while (<= (cl-incf j) ivy--subexps)
-                    (let ((bm (match-beginning j))
-                          (em (match-end j)))
-                      (when (and (integerp em)
-                                 (integerp bm))
-                        (while (and (< j ivy--subexps)
-                                    (integerp (match-beginning (+ j 1)))
-                                    (= em (match-beginning (+ j 1))))
-                          (setq em (match-end (cl-incf j))))
-                        (swiper--add-overlay
-                         bm em
-                         (nth (1+ (mod (+ i 2) (1- (length faces))))
-                              faces)
-                         wnd i)
-                        (cl-incf i)))))))))))))
+                   (point))
+               (1+ (line-end-position)))))
+    (swiper--add-overlay beg end 'swiper-line-face wnd 0))
+  (let* ((pt (point))
+         (wh (window-height))
+         (beg (or beg (save-excursion
+                        (forward-line (- wh))
+                        (point))))
+         (end (or end (save-excursion
+                        (forward-line wh)
+                        (point))))
+         (case-fold-search (ivy--case-fold-p re)))
+    (when (>= (length re) swiper-min-highlight)
+      (save-excursion
+        (goto-char beg)
+        ;; RE can become an invalid regexp
+        (while (and (ignore-errors (re-search-forward re end t))
+                    (> (- (match-end 0) (match-beginning 0)) 0))
+          ;; Don't highlight a match if it spans multiple
+          ;; lines. `count-lines' returns 1 if the match is within a
+          ;; single line, even if it includes the newline, and 2 or
+          ;; greater otherwise. We hope that the inclusion of the
+          ;; newline will not ever be a problem in practice.
+          (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
+            (let ((faces (if (= (match-end 0) pt)
+                             swiper-faces
+                           swiper-background-faces)))
+              (unless (and (consp ivy--old-re)
+                           (null
+                            (save-match-data
+                              (ivy--re-filter ivy--old-re
+                                              (list
+                                               (buffer-substring-no-properties
+                                                (line-beginning-position)
+                                                (line-end-position)))))))
+                (let ((mb (match-beginning 0))
+                      (me (match-end 0)))
+                  (unless (> (- me mb) 2017)
+                    (swiper--add-overlay mb me
+                                         (if (zerop ivy--subexps)
+                                             (cadr faces)
+                                           (car faces))
+                                         wnd 0))))
+              (let ((i 1)
+                    (j 0))
+                (while (<= (cl-incf j) ivy--subexps)
+                  (let ((bm (match-beginning j))
+                        (em (match-end j)))
+                    (when (and (integerp em)
+                               (integerp bm))
+                      (while (and (< j ivy--subexps)
+                                  (integerp (match-beginning (+ j 1)))
+                                  (= em (match-beginning (+ j 1))))
+                        (setq em (match-end (cl-incf j))))
+                      (swiper--add-overlay
+                       bm em
+                       (nth (1+ (mod (+ i 2) (1- (length faces))))
+                            faces)
+                       wnd i)
+                      (cl-incf i))))))))))))
 
 (defun swiper--add-overlay (beg end face wnd priority)
   "Add overlay bound by BEG and END to `swiper--overlays'.
