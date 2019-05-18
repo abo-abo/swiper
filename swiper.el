@@ -538,6 +538,8 @@ such as `scroll-conservatively' are set to a high value.")
 (defun swiper--occur-cands (fname cands)
   (when cands
     (with-current-buffer (ivy-state-buffer ivy-last)
+      (when (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+        (setq cands (mapcar #'swiper--line-at-point cands)))
       (let* ((pt-min (point-min))
              (line-delta
               (save-restriction
@@ -1279,7 +1281,9 @@ come back to the same place as when \"a\" was initially entered.")
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
-  (if (numberp x)
+  (if (or (numberp x)
+          (and (> (length x) 0)
+               (setq x (get-text-property 0 'point x))))
       (with-ivy-window
         (goto-char x)
         (isearch-range-invisible (line-beginning-position)
