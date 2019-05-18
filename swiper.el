@@ -1391,15 +1391,15 @@ When not running `swiper-isearch' already, start it."
         (cl-decf i))
       (setq res (nreverse res))
       (let ((current-str
-             (ivy--add-face
-              (swiper--isearch-highlight
-               (swiper--line-at-point current))
-              'swiper-line-face))
+             (swiper--line-at-point current))
             (start 0))
         (dotimes (_ (1+ j))
           (string-match regex current-str start)
           (setq start (match-end 0)))
         (swiper--isearch-highlight current-str j)
+        (ivy-add-face-text-property
+         0 (length current-str)
+         'swiper-line-face current-str t)
         (push current-str res))
       (cl-incf len)
       (setq i (1+ index))
