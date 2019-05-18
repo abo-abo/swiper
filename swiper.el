@@ -1354,6 +1354,21 @@ When not running `swiper-isearch' already, start it."
       (put-text-property 0 1 'point pt s)
       s)))
 
+(defun swiper--isearch-highlight (str &optional current)
+  (let ((start 0)
+        (i 0))
+    (while (string-match ivy--old-re str start)
+      (setq start (match-end 0))
+      (swiper--add-properties
+       (if (eq current i)
+           swiper-faces
+         swiper-background-faces)
+       (lambda (beg end face _priority)
+         (ivy-add-face-text-property
+          beg end face str)))
+      (cl-incf i))
+    str))
+
 (defun swiper--isearch-format (index length cands regex current buffer)
   (let* ((half-height (/ ivy-height 2))
          (i (1- index))
@@ -1371,22 +1386,20 @@ When not running `swiper-isearch' already, start it."
                   (< len half-height))
         (setq s (swiper--line-at-point (nth i cands)))
         (unless (swiper--isearch-same-line-p s (car res))
-          (push (ivy--format-minibuffer-line s) res)
+          (push (swiper--isearch-highlight s) res)
           (cl-incf len))
         (cl-decf i))
       (setq res (nreverse res))
       (let ((current-str
              (ivy--add-face
-              (ivy--format-minibuffer-line
+              (swiper--isearch-highlight
                (swiper--line-at-point current))
-              'ivy-current-match))
+              'swiper-line-face))
             (start 0))
         (dotimes (_ (1+ j))
           (string-match regex current-str start)
           (setq start (match-end 0)))
-        (ivy-add-face-text-property
-         (match-beginning 0) (match-end 0)
-         'swiper-isearch-current-match current-str)
+        (swiper--isearch-highlight current-str j)
         (push current-str res))
       (cl-incf len)
       (setq i (1+ index))
@@ -1399,7 +1412,7 @@ When not running `swiper-isearch' already, start it."
                   (< len ivy-height))
         (setq s (swiper--line-at-point (nth i cands)))
         (unless (swiper--isearch-same-line-p s (car res))
-          (push (ivy--format-minibuffer-line s) res)
+          (push (swiper--isearch-highlight s) res)
           (cl-incf len))
         (cl-incf i))
       (mapconcat #'identity (nreverse res) "\n"))))
