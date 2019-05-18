@@ -899,9 +899,12 @@ WND, when specified is the window."
           ;; greater otherwise. We hope that the inclusion of the
           ;; newline will not ever be a problem in practice.
           (when (< (count-lines (match-beginning 0) (match-end 0)) 2)
-            (let ((faces (if (= (match-end 0) pt)
-                             swiper-faces
-                           swiper-background-faces)))
+            (let* ((faces (if (= (match-end 0) pt)
+                              swiper-faces
+                            swiper-background-faces))
+                   (adder-fn (lambda (beg end face priority)
+                               (push (swiper--make-overlay beg end face wnd priority)
+                                     isearch-lazy-highlight-overlays))))
               (unless (and (consp ivy--old-re)
                            (null
                             (save-match-data
@@ -910,33 +913,35 @@ WND, when specified is the window."
                                                (buffer-substring-no-properties
                                                 (line-beginning-position)
                                                 (line-end-position)))))))
-                (let ((mb (match-beginning 0))
-                      (me (match-end 0)))
-                  (unless (> (- me mb) 2017)
-                    (push (swiper--make-overlay mb me
-                                                (if (zerop ivy--subexps)
-                                                    (cadr faces)
-                                                  (car faces))
-                                                wnd 0)
-                          isearch-lazy-highlight-overlays))))
-              (let ((i 1)
-                    (j 0))
-                (while (<= (cl-incf j) ivy--subexps)
-                  (let ((bm (match-beginning j))
-                        (em (match-end j)))
-                    (when (and (integerp em)
-                               (integerp bm))
-                      (while (and (< j ivy--subexps)
-                                  (integerp (match-beginning (+ j 1)))
-                                  (= em (match-beginning (+ j 1))))
-                        (setq em (match-end (cl-incf j))))
-                      (push (swiper--make-overlay
-                             bm em
-                             (nth (1+ (mod (+ i 2) (1- (length faces))))
-                                  faces)
-                             wnd i)
-                            isearch-lazy-highlight-overlays)
-                      (cl-incf i))))))))))))
+                (swiper--add-properties faces adder-fn)))))))))
+
+(defun swiper--add-properties (faces adder-fn)
+  (let ((mb (match-beginning 0))
+        (me (match-end 0)))
+    (unless (> (- me mb) 2017)
+      (funcall adder-fn
+               mb me
+               (if (zerop ivy--subexps)
+                   (cadr faces)
+                 (car faces))
+               0)))
+  (let ((i 1)
+        (j 0))
+    (while (<= (cl-incf j) ivy--subexps)
+      (let ((bm (match-beginning j))
+            (em (match-end j)))
+        (when (and (integerp em)
+                   (integerp bm))
+          (while (and (< j ivy--subexps)
+                      (integerp (match-beginning (+ j 1)))
+                      (= em (match-beginning (+ j 1))))
+            (setq em (match-end (cl-incf j))))
+          (funcall adder-fn
+                   bm em
+                   (nth (1+ (mod (+ i 2) (1- (length faces))))
+                        faces)
+                   i)
+          (cl-incf i))))))
 
 (defcustom swiper-action-recenter nil
   "When non-nil, recenter after exiting `swiper'."
