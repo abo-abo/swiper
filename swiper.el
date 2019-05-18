@@ -782,6 +782,20 @@ Matched candidates should have `swiper-invocation-face'."
       (overlay-put ov 'face 'ivy-cursor))
     (push ov swiper--overlays)))
 
+(defun swiper--add-line-overlay (wnd)
+  (let ((beg (if visual-line-mode
+                 (save-excursion
+                   (beginning-of-visual-line)
+                   (point))
+               (line-beginning-position)))
+        (end (if visual-line-mode
+                 (save-excursion
+                   (end-of-visual-line)
+                   (point))
+               (1+ (line-end-position)))))
+    (push (swiper--make-overlay beg end 'swiper-line-face wnd 0)
+          swiper--overlays)))
+
 (defun swiper--make-overlay (beg end face wnd priority)
   "Create an overlay bound by BEG and END.
 FACE, WND and PRIORITY are properties corresponding to
@@ -862,18 +876,7 @@ the face, window and priority of the overlay."
 BEG and END, when specified, are the point bounds.
 WND, when specified is the window."
   (setq wnd (or wnd (ivy-state-window ivy-last)))
-  (let ((beg (if visual-line-mode
-                 (save-excursion
-                   (beginning-of-visual-line)
-                   (point))
-               (line-beginning-position)))
-        (end (if visual-line-mode
-                 (save-excursion
-                   (end-of-visual-line)
-                   (point))
-               (1+ (line-end-position)))))
-    (push (swiper--make-overlay beg end 'swiper-line-face wnd 0)
-          swiper--overlays))
+  (swiper--add-line-overlay wnd)
   (let* ((pt (point))
          (wh (window-height))
          (beg (or beg (save-excursion
