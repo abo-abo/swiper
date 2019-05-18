@@ -1115,13 +1115,7 @@ a buffer visiting a file."
     (let* ((input "li")
            (cands (swiper--isearch-function input))
            (len (length cands)))
-      (should (equal cands '(#("line0" 0 1 (point 3))
-                             #("line1" 0 1 (point 9))
-                             #("line line" 0 1 (point 15))
-                             #("line line" 0 1 (point 20))
-                             #("line line" 0 1 (point 25))
-                             #("line line" 0 1 (point 30))
-                             #("line5" 0 1 (point 35)))))
+      (should (equal cands '(3 9 15 20 25 30 35)))
       (dotimes (index len)
         (should (string= (substring-no-properties
                           (swiper--isearch-format

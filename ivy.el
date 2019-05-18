@@ -1788,7 +1788,8 @@ found, it falls back to the key t."
 
 (defun ivy--remove-props (str &rest props)
   "Return STR with text PROPS destructively removed."
-  (remove-list-of-text-properties 0 (length str) props str)
+  (ignore-errors
+    (remove-list-of-text-properties 0 (length str) props str))
   str)
 
 ;;** Entry Point
@@ -3614,7 +3615,10 @@ CANDS is a list of strings."
     (ivy-set-index (max (1- ivy--length) 0)))
   (if (null cands)
       (setf (ivy-state-current ivy-last) "")
-    (setf (ivy-state-current ivy-last) (copy-sequence (nth ivy--index cands)))
+    (let ((cur (nth ivy--index cands)))
+      (setf (ivy-state-current ivy-last) (if (stringp cur)
+                                             (copy-sequence cur)
+                                           cur)))
     (let* ((bnd (ivy--minibuffer-index-bounds
                  ivy--index ivy--length ivy-height))
            (wnd-cands (cl-subseq cands (car bnd) (cadr bnd)))
@@ -3629,9 +3633,11 @@ CANDS is a list of strings."
 (defun ivy--wnd-cands-to-str (wnd-cands)
   (let ((str (concat "\n"
                      (funcall ivy-format-function
-                              (mapcar
-                               #'ivy--format-minibuffer-line
-                               wnd-cands)))))
+                              (condition-case nil
+                                  (mapcar
+                                   #'ivy--format-minibuffer-line
+                                   wnd-cands)
+                                (error wnd-cands))))))
     (put-text-property 0 (length str) 'read-only nil str)
     str))
 

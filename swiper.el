@@ -1268,14 +1268,10 @@ come back to the same place as when \"a\" was initially entered.")
                 (push (cons str (match-beginning 0)) swiper--isearch-point-history)
                 (setq idx-found idx)))
             (cl-incf idx)
-            (let ((line (buffer-substring
-                         (line-beginning-position)
-                         (line-end-position)))
-                  (pos (if swiper-goto-start-of-match
+            (let ((pos (if swiper-goto-start-of-match
                            (match-beginning 0)
                          (point))))
-              (put-text-property 0 1 'point pos line)
-              (push line cands))))
+              (push pos cands))))
         (setq ivy--old-re re)
         (when idx-found
           (ivy-set-index idx-found))
@@ -1283,9 +1279,9 @@ come back to the same place as when \"a\" was initially entered.")
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
-  (if (> (length x) 0)
+  (if (numberp x)
       (with-ivy-window
-        (goto-char (get-text-property 0 'point x))
+        (goto-char x)
         (isearch-range-invisible (line-beginning-position)
                                  (line-end-position))
         (unless (eq ivy-exit 'done)
@@ -1349,6 +1345,15 @@ When not running `swiper-isearch' already, start it."
    (ivy-state-current ivy-last)
    (ivy-state-buffer ivy-last)))
 
+(defun swiper--line-at-point (pt)
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring
+              (line-beginning-position)
+              (line-end-position))))
+      (put-text-property 0 1 'point pt s)
+      s)))
+
 (defun swiper--isearch-format (index length cands regex current buffer)
   (let* ((half-height (/ ivy-height 2))
          (i (1- index))
@@ -1358,13 +1363,13 @@ When not running `swiper-isearch' already, start it."
     (with-current-buffer buffer
       (while (and (>= i 0)
                   (swiper--isearch-same-line-p
-                   (nth i cands)
-                   current))
+                   (swiper--line-at-point (nth i cands))
+                   (swiper--line-at-point current)))
         (cl-decf i)
         (cl-incf j))
       (while (and (>= i 0)
                   (< len half-height))
-        (setq s (nth i cands))
+        (setq s (swiper--line-at-point (nth i cands)))
         (unless (swiper--isearch-same-line-p s (car res))
           (push (ivy--format-minibuffer-line s) res)
           (cl-incf len))
@@ -1372,7 +1377,8 @@ When not running `swiper-isearch' already, start it."
       (setq res (nreverse res))
       (let ((current-str
              (ivy--add-face
-              (ivy--format-minibuffer-line current)
+              (ivy--format-minibuffer-line
+               (swiper--line-at-point current))
               'ivy-current-match))
             (start 0))
         (dotimes (_ (1+ j))
@@ -1386,12 +1392,12 @@ When not running `swiper-isearch' already, start it."
       (setq i (1+ index))
       (while (and (< i length)
                   (swiper--isearch-same-line-p
-                   (nth i cands)
-                   current))
+                   (swiper--line-at-point (nth i cands))
+                   (swiper--line-at-point current)))
         (cl-incf i))
       (while (and (< i length)
                   (< len ivy-height))
-        (setq s (nth i cands))
+        (setq s (swiper--line-at-point (nth i cands)))
         (unless (swiper--isearch-same-line-p s (car res))
           (push (ivy--format-minibuffer-line s) res)
           (cl-incf len))
