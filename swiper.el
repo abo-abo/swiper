@@ -775,11 +775,12 @@ Matched candidates should have `swiper-invocation-face'."
     (goto-char (point-min))
     (isearch-clean-overlays)))
 
-(defun swiper--add-cursor-overlay ()
+(defun swiper--add-cursor-overlay (wnd)
   (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
     (if (eolp)
         (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
       (overlay-put ov 'face 'ivy-cursor))
+    (overlay-put ov 'window wnd)
     (push ov swiper--overlays)))
 
 (defun swiper--add-line-overlay (wnd)
@@ -1285,7 +1286,8 @@ come back to the same place as when \"a\" was initially entered.")
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--add-overlays (ivy--regex ivy-text))
-          (swiper--add-cursor-overlay)))
+          (swiper--add-cursor-overlay
+           (ivy-state-window ivy-last))))
     (swiper--cleanup)))
 
 (defun swiper-isearch-thing-at-point ()
