@@ -1235,39 +1235,42 @@ come back to the same place as when \"a\" was initially entered.")
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
   (with-ivy-window
-    (let* ((case-fold-search (ivy--case-fold-p str))
-           (re-full (funcall ivy--regex-function str))
-           (re (ivy-re-to-str re-full)))
-      (unless (string= re "")
-        (let ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
-                      (match-string 1 re)
-                    re))
-              (pt-hist (cdr (assoc str swiper--isearch-point-history)))
-              cands
-              idx-found
-              (idx 0))
-          (save-excursion
-            (goto-char (point-min))
-            (while (re-search-forward re nil t)
-              (unless idx-found
-                (when (or
-                       (eq (match-beginning 0) pt-hist)
-                       (>= (match-beginning 0) (cdar swiper--isearch-point-history)))
-                  (push (cons str (match-beginning 0)) swiper--isearch-point-history)
-                  (setq idx-found idx)))
-              (cl-incf idx)
-              (let ((line (buffer-substring
-                           (line-beginning-position)
-                           (line-end-position)))
-                    (pos (if swiper-goto-start-of-match
-                             (match-beginning 0)
-                           (point))))
-                (put-text-property 0 1 'point pos line)
-                (push line cands))))
-          (setq ivy--old-re re)
-          (when idx-found
-            (ivy-set-index idx-found))
-          (setq ivy--old-cands (nreverse cands)))))))
+    (swiper--isearch-function str)))
+
+(defun swiper--isearch-function (str)
+  (let* ((case-fold-search (ivy--case-fold-p str))
+         (re-full (funcall ivy--regex-function str))
+         (re (ivy-re-to-str re-full)))
+    (unless (string= re "")
+      (let ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
+                    (match-string 1 re)
+                  re))
+            (pt-hist (cdr (assoc str swiper--isearch-point-history)))
+            cands
+            idx-found
+            (idx 0))
+        (save-excursion
+          (goto-char (point-min))
+          (while (re-search-forward re nil t)
+            (unless idx-found
+              (when (or
+                     (eq (match-beginning 0) pt-hist)
+                     (>= (match-beginning 0) (cdar swiper--isearch-point-history)))
+                (push (cons str (match-beginning 0)) swiper--isearch-point-history)
+                (setq idx-found idx)))
+            (cl-incf idx)
+            (let ((line (buffer-substring
+                         (line-beginning-position)
+                         (line-end-position)))
+                  (pos (if swiper-goto-start-of-match
+                           (match-beginning 0)
+                         (point))))
+              (put-text-property 0 1 'point pos line)
+              (push line cands))))
+        (setq ivy--old-re re)
+        (when idx-found
+          (ivy-set-index idx-found))
+        (setq ivy--old-cands (nreverse cands))))))
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."

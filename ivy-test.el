@@ -1105,6 +1105,33 @@ a buffer visiting a file."
        ("C-s" "Foo" "C-n RET")))
     "Foo\nfoo|\nFOO\n")))
 
+(ert-deftest swiper--isearch-format ()
+  (setq swiper--isearch-point-history
+        (list
+         (cons "" 1)))
+  (with-temp-buffer
+    (insert
+     "line0\nline1\nline line\nline line\nline5")
+    (let* ((input "li")
+           (cands (swiper--isearch-function input))
+           (len (length cands)))
+      (should (equal cands '(#("line0" 0 1 (point 3))
+                             #("line1" 0 1 (point 9))
+                             #("line line" 0 1 (point 15))
+                             #("line line" 0 1 (point 20))
+                             #("line line" 0 1 (point 25))
+                             #("line line" 0 1 (point 30))
+                             #("line5" 0 1 (point 35)))))
+      (dotimes (index len)
+        (should (string= (substring-no-properties
+                          (swiper--isearch-format
+                           index len
+                           cands
+                           input
+                           (nth index cands)
+                           (current-buffer)))
+                         "line0\nline1\nline line\nline line\nline5"))))))
+
 (ert-deftest ivy-use-selectable-prompt ()
   (let ((ivy-use-selectable-prompt t)
         (completing-read-function #'ivy-completing-read))
