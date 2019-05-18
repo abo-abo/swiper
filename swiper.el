@@ -1330,22 +1330,28 @@ When not running `swiper-isearch' already, start it."
            1)))
 
 (defun swiper-isearch-format-function (_cands)
+  (swiper--isearch-format
+   ivy--index ivy--length ivy--old-cands
+   ivy--old-re
+   (ivy-state-current ivy-last)
+   (ivy-state-buffer ivy-last)))
+
+(defun swiper--isearch-format (index length cands regex current buffer)
   (let* ((half-height (/ ivy-height 2))
-         (current (ivy-state-current ivy-last))
-         (i (1- ivy--index))
+         (i (1- index))
          (j 0)
          (len 0)
          res s)
-    (with-ivy-window
+    (with-current-buffer buffer
       (while (and (>= i 0)
                   (swiper--isearch-same-line-p
-                   (nth i ivy--old-cands)
+                   (nth i cands)
                    current))
         (cl-decf i)
         (cl-incf j))
       (while (and (>= i 0)
                   (< len half-height))
-        (setq s (nth i ivy--old-cands))
+        (setq s (nth i cands))
         (unless (swiper--isearch-same-line-p s (car res))
           (push (ivy--format-minibuffer-line s) res)
           (cl-incf len))
@@ -1357,22 +1363,22 @@ When not running `swiper-isearch' already, start it."
               'ivy-current-match))
             (start 0))
         (dotimes (_ (1+ j))
-          (string-match ivy--old-re current-str start)
+          (string-match regex current-str start)
           (setq start (match-end 0)))
         (ivy-add-face-text-property
          (match-beginning 0) (match-end 0)
          'swiper-isearch-current-match current-str)
         (push current-str res))
       (cl-incf len)
-      (setq i (1+ ivy--index))
-      (while (and (< i ivy--length)
+      (setq i (1+ index))
+      (while (and (< i length)
                   (swiper--isearch-same-line-p
-                   (nth i ivy--old-cands)
+                   (nth i cands)
                    current))
         (cl-incf i))
-      (while (and (< i ivy--length)
+      (while (and (< i length)
                   (< len ivy-height))
-        (setq s (nth i ivy--old-cands))
+        (setq s (nth i cands))
         (unless (swiper--isearch-same-line-p s (car res))
           (push (ivy--format-minibuffer-line s) res)
           (cl-incf len))
