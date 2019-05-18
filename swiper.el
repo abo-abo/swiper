@@ -1342,12 +1342,14 @@ When not running `swiper-isearch' already, start it."
             (get-text-property 0 'point s1))
            1)))
 
-(defun swiper-isearch-format-function (_cands)
-  (swiper--isearch-format
-   ivy--index ivy--length ivy--old-cands
-   ivy--old-re
-   (ivy-state-current ivy-last)
-   (ivy-state-buffer ivy-last)))
+(defun swiper-isearch-format-function (cands)
+  (if (numberp (car-safe cands))
+      (swiper--isearch-format
+       ivy--index ivy--length ivy--old-cands
+       ivy--old-re
+       (ivy-state-current ivy-last)
+       (ivy-state-buffer ivy-last))
+    (ivy-format-function-default cands)))
 
 (defun swiper--line-at-point (pt)
   (save-excursion
