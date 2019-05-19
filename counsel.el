@@ -3580,6 +3580,9 @@ Position of selected mark outside accessible part of buffer")))
 (declare-function package-delete "package")
 (declare-function package-desc-extras "package")
 
+(defvar counsel-package-history nil
+  "History for `counsel-package'.")
+
 (defun counsel--package-candidates ()
   "Return completion alist for `counsel-package'."
   (unless package--initialized
@@ -3612,6 +3615,7 @@ Additional actions:\\<ivy-minibuffer-map>
             (counsel--package-candidates)
             :action #'counsel-package-action
             :require-match t
+            :history 'counsel-package-history
             :caller 'counsel-package))
 
 (cl-pushnew '(counsel-package . "^+") ivy-initial-inputs-alist :key #'car)
