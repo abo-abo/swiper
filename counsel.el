@@ -5493,6 +5493,9 @@ specified by the `blddir' property."
               :caller 'counsel-compile-env)))
 
 ;;** `counsel-minor'
+(defvar counsel-minor-history nil
+  "History for `counsel-minor'.")
+
 (defun counsel--minor-candidates ()
   "Return completion alist for `counsel-minor'.
 
@@ -5533,6 +5536,7 @@ Additional actions:\\<ivy-minibuffer-map>
   (ivy-read "Minor modes (enable +mode or disable -mode): "
             (counsel--minor-candidates)
             :require-match t
+            :history 'counsel-minor-history
             :sort t
             :action (lambda (x)
                       (call-interactively (cdr x)))))
