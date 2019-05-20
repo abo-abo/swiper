@@ -5464,7 +5464,7 @@ If there are non-directory files in BLDDIR we also return BLDDIR in
         (when (or (and srcdir (file-in-directory-p srcdir root))
                   (and blddir (file-in-directory-p blddir root)))
           (push item history))))
-    history))
+    (nreverse history)))
 
 (defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands.
