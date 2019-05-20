@@ -398,9 +398,9 @@ Update the minibuffer with the amount of lines collected every
   (company-mode 1)
   (unless company-candidates
     (company-complete))
-  (when company-point
-    (setq ivy-completion-beg (- company-point (length company-prefix)))
-    (setq ivy-completion-end company-point)
+  (when company-common
+    (setq ivy-completion-beg (- (point) (length company-common)))
+    (setq ivy-completion-end (point))
     (ivy-read "company cand: " company-candidates
               :action #'ivy-completion-in-region-action
               :unwind #'company-abort
