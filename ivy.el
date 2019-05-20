@@ -1330,10 +1330,13 @@ will be called for each element of this list.")
                             (setq ivy-marked-candidates
                                   (mapcar (lambda (s) (substring s l))
                                           ivy-marked-candidates))
-                            (if (> (length (help-function-arglist action)) 1)
-                                (funcall action x ivy-marked-candidates)
-                              (dolist (c ivy-marked-candidates)
-                                (funcall action c))))
+                            (let ((arglist (help-function-arglist action)))
+                              (if (and (> (length arglist) 1)
+                                       (member 'marked-candidates arglist))
+                                  (funcall action x ivy-marked-candidates)
+                                (dolist (c ivy-marked-candidates)
+                                  (let ((default-directory (ivy-state-directory ivy-last)))
+                                    (funcall action c))))))
                         (funcall action x))
                    (ivy-recursive-restore))
             (unless (or (eq ivy-exit 'done)
@@ -4578,7 +4581,16 @@ EVENT gives the mouse position."
           (append ivy-marked-candidates (list marked-cand)))))
 
 (defun ivy-mark ()
-  "Mark the selected candidate and move to the next one."
+  "Mark the selected candidate and move to the next one.
+
+In `ivy-call', `ivy-action' will be called in turn for all marked
+candidates.
+
+However, if `ivy-action' has a second (optional) argument called
+`marked-candidates', then `ivy-action' will be called with two
+arguments: the current candidate and the list of all marked
+candidates. This way, `ivy-action' can make decisions based on
+the whole marked list."
   (interactive)
   (unless (ivy--marked-p)
     (ivy--mark (ivy-state-current ivy-last)))
