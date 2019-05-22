@@ -450,7 +450,8 @@ action functions.")
   directory
   caller
   current
-  def)
+  def
+  multi-action)
 
 (defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
@@ -1326,17 +1327,17 @@ will be called for each element of this list.")
           (set-buffer (ivy-state-buffer ivy-last))
           (prog1 (unwind-protect
                       (if ivy-marked-candidates
-                          (let ((l (length ivy-mark-prefix)))
+                          (let ((prefix-len (length ivy-mark-prefix)))
                             (setq ivy-marked-candidates
-                                  (mapcar (lambda (s) (substring s l))
+                                  (mapcar (lambda (s) (substring s prefix-len))
                                           ivy-marked-candidates))
-                            (let ((arglist (help-function-arglist action)))
-                              (if (and (> (length arglist) 1)
-                                       (member 'marked-candidates arglist))
-                                  (funcall action x ivy-marked-candidates)
-                                (dolist (c ivy-marked-candidates)
-                                  (let ((default-directory (ivy-state-directory ivy-last)))
-                                    (funcall action c))))))
+                            (if (ivy-state-multi-action ivy-last)
+                                (funcall
+                                 (ivy-state-multi-action ivy-last)
+                                 ivy-marked-candidates)
+                              (dolist (c ivy-marked-candidates)
+                                (let ((default-directory (ivy-state-directory ivy-last)))
+                                  (funcall action c)))))
                         (funcall action x))
                    (ivy-recursive-restore))
             (unless (or (eq ivy-exit 'done)
@@ -1801,7 +1802,8 @@ found, it falls back to the key t."
                     &key
                       predicate require-match initial-input
                       history preselect def keymap update-fn sort
-                      action unwind re-builder matcher
+                      action multi-action
+                      unwind re-builder matcher
                       dynamic-collection caller)
   "Read a string in the minibuffer, with completion.
 
@@ -1842,6 +1844,11 @@ to sort candidates before displaying them.
 
 ACTION is a function to call after selecting a candidate.
 It takes the candidate, which is a string, as its only argument.
+
+MULTI-ACTION, when non-nil, is called instead of ACTION when
+there are marked candidates. It takes the list of candidates as
+its only argument. When it's nil, ACTION is called on each marked
+candidate.
 
 UNWIND is a function of no arguments to call before exiting.
 
@@ -1921,6 +1928,7 @@ customizations apply to the current completion session."
                         update-fn)
            :sort sort
            :action action
+           :multi-action multi-action
            :frame (selected-frame)
            :window (selected-window)
            :buffer (current-buffer)
@@ -4583,14 +4591,12 @@ EVENT gives the mouse position."
 (defun ivy-mark ()
   "Mark the selected candidate and move to the next one.
 
-In `ivy-call', `ivy-action' will be called in turn for all marked
+In `ivy-call', :action will be called in turn for all marked
 candidates.
 
-However, if `ivy-action' has a second (optional) argument called
-`marked-candidates', then `ivy-action' will be called with two
-arguments: the current candidate and the list of all marked
-candidates. This way, `ivy-action' can make decisions based on
-the whole marked list."
+However, if :multi-action was supplied to `ivy-read', then it
+will be called with `ivy-marked-candidates'. This way, it can
+make decisions based on the whole marked list."
   (interactive)
   (unless (ivy--marked-p)
     (ivy--mark (ivy-state-current ivy-last)))
