@@ -384,8 +384,7 @@ Update the minibuffer with the amount of lines collected every
 
 ;;** `counsel-company'
 (defvar company-candidates)
-(defvar company-point)
-(defvar company-prefix)
+(defvar company-common)
 (declare-function company-complete "ext:company")
 (declare-function company-mode "ext:company")
 (declare-function company-complete-common "ext:company")
