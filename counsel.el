@@ -4573,6 +4573,14 @@ COUNT defaults to 1."
                         (setq ivy-completion-end (point))))
             :caller 'counsel-unicode-char))
 
+(defun counsel-unicode-copy (name)
+  "Ivy action to copy the unicode from NAME to the kill ring."
+  (kill-new (char-to-string (get-text-property 0 'code name))))
+
+(ivy-set-actions
+ 'counsel-unicode-char
+ '(("w" counsel-unicode-copy "copy")))
+
 ;;** `counsel-colors'
 (defun counsel-colors-action-insert-hex (color)
   "Insert the hexadecimal RGB value of COLOR."
