@@ -4380,21 +4380,21 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
 (defun ivy--occur-insert-lines (cands)
   "Insert CANDS into `ivy-occur' buffer."
   (font-lock-mode -1)
-  (dolist (str cands)
-    (setq str (ivy--highlight-fuzzy (copy-sequence str)))
+  (dolist (cand cands)
+    (let ((parts (split-string cand ":[[:digit:]]+:")))
+      (setq cand
+            (if (= 2 (length parts))
+                (concat (propertize (nth 0 parts) 'face 'ivy-grep-info)
+                        (ivy--highlight-fuzzy (nth 1 parts)))
+              (ivy--highlight-fuzzy (nth 0 parts)))))
     (add-text-properties
-     0 (length str)
+     0 (length cand)
      '(mouse-face
        highlight
        help-echo "mouse-1: call ivy-action")
-     str)
-    (insert (if (string-match-p "\\`.[/\\]" str) "" "    ")
-            str ?\n))
-  (goto-char (point-min))
-  (forward-line 4)
-  (while (re-search-forward "^.*:[[:digit:]]+:" nil t)
-    (ivy-add-face-text-property
-     (match-beginning 0) (match-end 0) 'ivy-grep-info nil t)))
+     cand)
+    (insert (if (string-match-p "\\`.[/\\]" cand) "" "    ")
+            cand ?\n)))
 
 (defun ivy-occur ()
   "Stop completion and put the current candidates into a new buffer.
