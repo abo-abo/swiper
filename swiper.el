@@ -1403,9 +1403,9 @@ When not running `swiper-isearch' already, start it."
           (string-match regex current-str start)
           (setq start (match-end 0)))
         (swiper--isearch-highlight current-str j)
-        (ivy-add-face-text-property
+        (font-lock-append-text-property
          0 (length current-str)
-         'swiper-line-face current-str t)
+         'face 'swiper-line-face current-str)
         (push current-str res))
       (cl-incf len)
       (setq i (1+ index))
