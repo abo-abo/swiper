@@ -3926,7 +3926,8 @@ matching the register's value description against a regexp in
                                    counsel-register-actions))))
     (if action
         (funcall action val)
-      (error "No action was found for register %c" val))))
+      (error "No action was found for register %s"
+             (single-key-description val)))))
 
 ;;;###autoload
 (defun counsel-register ()
