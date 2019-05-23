@@ -3535,11 +3535,25 @@ This variable has no effect unless
 
 ;;* Misc. Emacs
 ;;** `counsel-mark-ring'
+(defvar counsel--mark-ring-calling-point 0
+  "Internal variable to remember calling position.")
+
+(defun counsel--mark-ring-unwind ()
+  "Return back to calling position of `counsel-mark-ring'."
+  (goto-char counsel--mark-ring-calling-point))
+
+(defun counsel--mark-ring-update-fn ()
+  "Show preview by candidate."
+  (let ((linenum (string-to-number (ivy-state-current ivy-last))))
+    (unless (= linenum 0)
+      (with-ivy-window (forward-line (- linenum (line-number-at-pos)))))))
+
 (defun counsel-mark-ring ()
   "Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see."
   (interactive)
-  (let ((cands
+  (let ((counsel--mark-ring-calling-point (point))
+        (cands
          (save-excursion
            (save-restriction
              ;; Widen, both to save `line-number-at-pos' the trouble
@@ -3559,6 +3573,7 @@ Obeys `widen-automatically', which see."
     (if cands
         (ivy-read "Mark: " cands
                   :require-match t
+                  :update-fn #'counsel--mark-ring-update-fn
                   :action (lambda (cand)
                             (let ((pos (cdr-safe cand)))
                               (when pos
@@ -3568,6 +3583,7 @@ Obeys `widen-automatically', which see."
                                     (error "\
 Position of selected mark outside accessible part of buffer")))
                                 (goto-char pos))))
+                  :unwind #'counsel--mark-ring-unwind
                   :caller 'counsel-mark-ring)
       (message "Mark ring is empty"))))
 
