@@ -5498,6 +5498,12 @@ This is determined by `counsel-compile-local-builds', which see."
                          `(srcdir ,srcdir blddir ,blddir bldenv ,bldenv) cmd)
     (add-to-history 'counsel-compile-history cmd)))
 
+(defvar counsel-compile--current-build-dir nil
+  "Tracks the last directory `counsel-compile' was called with.
+
+This state allows us to set it correctly if the user has manually
+edited the command loosing our embedded state.")
+
 (defun counsel-compile--action (cmd)
   "Process CMD to call `compile'.
 
@@ -5511,7 +5517,9 @@ specified by the `blddir' property."
       (when (get-char-property 0 'cmd cmd)
         (setq cmd (substring-no-properties
                    cmd 0 (next-single-property-change 0 'cmd cmd))))
-      (let ((default-directory (or blddir default-directory))
+      (let ((default-directory (or blddir
+                                   counsel-compile--current-build-dir
+                                   default-directory))
             (compilation-environment bldenv))
         ;; No need to specify `:history' because of this hook.
         (add-hook 'compilation-start-hook #'counsel-compile--update-history)
@@ -5523,6 +5531,7 @@ specified by the `blddir' property."
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
+  (setq counsel-compile--current-build-dir (or dir default-directory))
   (ivy-read "Compile command: "
             (counsel--get-compile-candidates dir)
             :action #'counsel-compile--action
