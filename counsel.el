@@ -3555,16 +3555,37 @@ This variable has no effect unless
 
 ;;* Misc. Emacs
 ;;** `counsel-mark-ring'
+(defface counsel--mark-ring-highlight
+  '((t (:inherit highlight)))
+  "Face for current `counsel-mark-ring' line.")
+
+(defvar counsel--mark-ring-overray nil
+  "Intarnal overray to highlight line by candidate of `counsel-mark-ring'.")
+
+(defun counsel--mark-ring-add-highlight ()
+  "Add highlight to current line."
+  (setq counsel--mark-ring-overray
+        (make-overlay (line-beginning-position) (1+ (line-end-position))))
+  (with-ivy-window
+    (overlay-put counsel--mark-ring-overray 'face
+                 'counsel--mark-ring-highlight)))
+
+(defun counsel--mark-ring-delete-highlight ()
+  "If `counsel-mark-ring' have highlight, delete highlight."
+  (if counsel--mark-ring-overray (delete-overlay counsel--mark-ring-overray)))
+
 (defvar counsel--mark-ring-calling-point 0
   "Internal variable to remember calling position.")
 
 (defun counsel--mark-ring-unwind ()
   "Return back to calling position of `counsel-mark-ring'."
-  (goto-char counsel--mark-ring-calling-point))
+  (goto-char counsel--mark-ring-calling-point)
+  (counsel--mark-ring-delete-highlight))
 
 (defun counsel--mark-ring-update-fn ()
   "Show preview by candidate."
   (let ((linenum (string-to-number (ivy-state-current ivy-last))))
+    (counsel--mark-ring-delete-highlight)
     (unless (= linenum 0)
       (with-ivy-window
         (forward-line (- linenum (line-number-at-pos)))))))
