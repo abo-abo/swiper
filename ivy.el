@@ -4381,12 +4381,14 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Insert CANDS into `ivy-occur' buffer."
   (font-lock-mode -1)
   (dolist (cand cands)
-    (let ((parts (split-string cand ":[[:digit:]]+:")))
-      (setq cand
-            (if (= 2 (length parts))
-                (concat (propertize (nth 0 parts) 'face 'ivy-grep-info)
-                        (ivy--highlight-fuzzy (nth 1 parts)))
-              (ivy--highlight-fuzzy (nth 0 parts)))))
+    (setq cand
+          (if (string-match "\\`\\(.*:[0-9]+:\\)\\(.*\\)\\'" cand)
+              (let ((file-and-line (match-string 1 cand))
+                    (grep-line (match-string 2 cand)))
+                (concat
+                 (propertize file-and-line 'face 'ivy-grep-info)
+                 (ivy--highlight-fuzzy grep-line)))
+            (ivy--highlight-fuzzy cands)))
     (add-text-properties
      0 (length cand)
      '(mouse-face
