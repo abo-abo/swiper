@@ -397,13 +397,17 @@ Update the minibuffer with the amount of lines collected every
   (company-mode 1)
   (unless company-candidates
     (company-complete))
-  (when company-common
-    (setq ivy-completion-beg (- (point) (length company-common)))
-    (setq ivy-completion-end (point))
-    (ivy-read "company cand: " company-candidates
-              :action #'ivy-completion-in-region-action
-              :unwind #'company-abort
-              :caller 'counsel-company)))
+  (let ((len (cond (company-common
+                    (length company-common))
+                   (company-prefix
+                    (length company-prefix)))))
+    (when len
+      (setq ivy-completion-beg (- (point) len))
+      (setq ivy-completion-end (point))
+      (ivy-read "company cand: " company-candidates
+                :action #'ivy-completion-in-region-action
+                :unwind #'company-abort
+                :caller 'counsel-company))))
 
 ;;** `counsel-irony'
 (declare-function irony-completion-candidates-async "ext:irony-completion")
