@@ -404,7 +404,7 @@ Update the minibuffer with the amount of lines collected every
     (when len
       (setq ivy-completion-beg (- (point) len))
       (setq ivy-completion-end (point))
-      (ivy-read "company cand: " company-candidates
+      (ivy-read "Candidate: " company-candidates
                 :action #'ivy-completion-in-region-action
                 :unwind #'company-abort
                 :caller 'counsel-company))))
@@ -5506,7 +5506,7 @@ This is determined by `counsel-compile-local-builds', which see."
   "Tracks the last directory `counsel-compile' was called with.
 
 This state allows us to set it correctly if the user has manually
-edited the command loosing our embedded state.")
+edited the command, thus losing our embedded state.")
 
 (defun counsel-compile--action (cmd)
   "Process CMD to call `compile'.
