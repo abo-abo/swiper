@@ -827,7 +827,8 @@ selection, non-nil otherwise."
               (t
                (message "")
                (setcar actions (1+ action-idx))
-               (ivy-set-action actions)))))))
+               (ivy-set-action actions))))))
+  (ivy-shrink-after-dispatching))
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
