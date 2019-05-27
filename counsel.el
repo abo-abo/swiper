@@ -5423,22 +5423,17 @@ subdirectories that builds may be invoked in."
 
 (defun counsel--get-build-subdirs (blddir)
   "Return all subdirs under BLDDIR sorted by modification time.
-If there are non-directory files in BLDDIR we also return BLDDIR in
-  the list as it may also be a build directory."
+If there are non-directory files in BLDDIR, include BLDDIR in the
+list as it may also be a build directory."
   (let* ((files (directory-files-and-attributes
                  blddir t directory-files-no-dot-files-regexp t))
-         (filtered-files (cl-remove-if
-                          (lambda (f) (not (nth 1 f)))
-                          files)))
-    ;; any non-dir files?
-    (when (< (length filtered-files)
+         (dirs (cl-remove-if-not #'cl-second files)))
+    ;; Any non-dir files?
+    (when (< (length dirs)
              (length files))
-      (push (cons blddir (file-attributes blddir))
-            filtered-files))
-    (mapcar #'car
-            (sort filtered-files
-                  (lambda (x y)
-                    (time-less-p (nth 6 y) (nth 6 x)))))))
+      (push (cons blddir (file-attributes blddir)) dirs))
+    (mapcar #'car (sort dirs (lambda (x y)
+                               (time-less-p (nth 6 y) (nth 6 x)))))))
 
 (defun counsel-compile-get-build-directories (&optional dir)
   "Return a list of potential build directories."
