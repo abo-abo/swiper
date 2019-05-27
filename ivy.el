@@ -3553,16 +3553,17 @@ Note: The usual last two arguments are flipped for convenience.")
           (setq start (match-end 0))
           (let ((i 0))
             (while (<= i ivy--subexps)
-              (let ((face
-                     (cond ((zerop ivy--subexps)
-                            (cadr ivy-minibuffer-faces))
-                           ((zerop i)
-                            (car ivy-minibuffer-faces))
-                           (t
-                            (ivy--minibuffer-face i)))))
-                (ivy-add-face-text-property
-                 (match-beginning i) (match-end i)
-                 face str))
+              (let ((beg (match-beginning i))
+                    (end (match-end i)))
+                (when (and beg end)
+                  (let ((face
+                         (cond ((zerop ivy--subexps)
+                                (cadr ivy-minibuffer-faces))
+                               ((zerop i)
+                                (car ivy-minibuffer-faces))
+                               (t
+                                (ivy--minibuffer-face i)))))
+                    (ivy-add-face-text-property beg end face str))))
               (cl-incf i)))))))
   str)
 
