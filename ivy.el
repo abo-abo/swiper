@@ -3256,6 +3256,12 @@ before substring matches."
        (nreverse res-virtual-prefix)
        (nreverse res-virtual-noprefix)))))
 
+(defvar ivy-flx-limit 200
+  "Used to conditionally turn off flx sorting.
+
+When the amount of matching candidates exceeds this limit, then
+no sorting is done.")
+
 (defun ivy--recompute-index (name re-str cands)
   "Recompute index of selected candidate matching NAME.
 RE-STR is the regexp, CANDS are the current candidates."
@@ -3376,12 +3382,6 @@ This function serves as a fallback when nothing else is available."
            (const ivy-minibuffer-match-face-3)
            (const ivy-minibuffer-match-face-4)
            (face :tag "Other face"))))
-
-(defvar ivy-flx-limit 200
-  "Used to conditionally turn off flx sorting.
-
-When the amount of matching candidates exceeds this limit, then
-no sorting is done.")
 
 (defun ivy--minibuffer-face (n)
   "Return Nth face from `ivy-minibuffer-faces'.
