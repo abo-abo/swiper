@@ -3286,8 +3286,8 @@ RE-STR is the regexp, CANDS are the current candidates."
                (not (eq caller 'swiper))
                (not (and ivy--flx-featurep
                          (eq ivy--regex-function 'ivy--regex-fuzzy)
-                         ;; Limit to 200 candidates
-                         (null (nthcdr 200 cands))))
+                         ;; Limit to configured number of candidates
+                         (null (nthcdr ivy-flx-limit cands))))
                ;; If there was a preselected candidate, don't try to
                ;; keep it selected even if the regexp still matches it.
                ;; See issue #1563.  See also `ivy--preselect-index',
