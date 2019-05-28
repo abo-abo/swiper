@@ -819,6 +819,7 @@ selection, non-nil otherwise."
                                       (cdr actions)))
                     (not (string= key (car (nth action-idx (cdr actions))))))
           (setq key (concat key (string (read-key hint)))))
+        (ivy-shrink-after-dispatching)
         (cond ((member key '("" ""))
                nil)
               ((null action-idx)
@@ -827,8 +828,7 @@ selection, non-nil otherwise."
               (t
                (message "")
                (setcar actions (1+ action-idx))
-               (ivy-set-action actions))))))
-  (ivy-shrink-after-dispatching))
+               (ivy-set-action actions)))))))
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
