@@ -766,6 +766,9 @@ Matched candidates should have `swiper-invocation-face'."
 (defvar swiper--overlays nil
   "Store overlays.")
 
+(defvar swiper--isearch-highlight-timer nil
+  "This timer used by `swiper--delayed-add-overlays'.")
+
 (defun swiper--cleanup ()
   "Clean up the overlays."
   (while swiper--overlays
@@ -775,7 +778,10 @@ Matched candidates should have `swiper-invocation-face'."
    (if (eq ivy-exit 'done) lazy-highlight-cleanup t))
   (save-excursion
     (goto-char (point-min))
-    (isearch-clean-overlays)))
+    (isearch-clean-overlays))
+  (when (timerp swiper--isearch-highlight-timer)
+    (cancel-timer swiper--isearch-highlight-timer)
+    (setq swiper--isearch-highlight-timer nil)))
 
 (defun swiper--add-cursor-overlay (wnd)
   (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
@@ -1279,6 +1285,29 @@ come back to the same place as when \"a\" was initially entered.")
           (ivy-set-index idx-found))
         (setq ivy--old-cands (nreverse cands))))))
 
+(defcustom swiper-isearch-highlight-delay '(2 0.2)
+  "When `ivy-text' is too short, delay showing the overlay.
+
+The default value will delay showing the overlay by 0.2 seconds
+if `ivy-text' is shorter than 2 characters.
+
+The aim is to reduce the visual clutter, since it's very rare
+that we search only for one character."
+  :type '(list
+          (integer :tag "Text length")
+          (float :tag "Delay in seconds")))
+
+(defun swiper--delayed-add-overlays ()
+  (if (and swiper-isearch-highlight-delay
+           (< (length ivy-text) (car swiper-isearch-highlight-delay)))
+      (setq swiper--isearch-highlight-timer
+            (run-with-idle-timer
+             (cadr swiper-isearch-highlight-delay) nil
+             (lambda ()
+               (with-ivy-window
+                 (swiper--add-overlays (ivy--regex ivy-text))))))
+    (swiper--add-overlays (ivy--regex ivy-text))))
+
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
   (if (or (numberp x)
@@ -1290,7 +1319,7 @@ come back to the same place as when \"a\" was initially entered.")
                                  (line-end-position))
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
-          (swiper--add-overlays (ivy--regex ivy-text))
+          (swiper--delayed-add-overlays)
           (swiper--add-cursor-overlay
            (ivy-state-window ivy-last))))
     (swiper--cleanup)))
