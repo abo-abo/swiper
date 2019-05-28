@@ -806,29 +806,30 @@ key (a string), cmd and doc (a string)."
 Return nil for `minibuffer-keyboard-quit' or wrong key during the
 selection, non-nil otherwise."
   (interactive)
-  (let ((actions (ivy-state-action ivy-last)))
-    (if (not (ivy--actionp actions))
-        t
-      (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
-             (resize-mini-windows t)
-             (key "")
-             action-idx)
-        (while (and (setq action-idx (cl-position-if
-                                      (lambda (x)
-                                        (string-prefix-p key (car x)))
-                                      (cdr actions)))
-                    (not (string= key (car (nth action-idx (cdr actions))))))
-          (setq key (concat key (string (read-key hint)))))
-        (cond ((member key '("" ""))
-               nil)
-              ((null action-idx)
-               (message "%s is not bound" key)
-               nil)
-              (t
-               (message "")
-               (setcar actions (1+ action-idx))
-               (ivy-set-action actions))))))
-  (ivy-shrink-after-dispatching))
+  (prog1
+      (let ((actions (ivy-state-action ivy-last)))
+        (if (not (ivy--actionp actions))
+            t
+          (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
+                 (resize-mini-windows t)
+                 (key "")
+                 action-idx)
+            (while (and (setq action-idx (cl-position-if
+                                          (lambda (x)
+                                            (string-prefix-p key (car x)))
+                                          (cdr actions)))
+                        (not (string= key (car (nth action-idx (cdr actions))))))
+              (setq key (concat key (string (read-key hint)))))
+            (cond ((member key '("" ""))
+                   nil)
+                  ((null action-idx)
+                   (message "%s is not bound" key)
+                   nil)
+                  (t
+                   (message "")
+                   (setcar actions (1+ action-idx))
+                   (ivy-set-action actions))))))
+    (ivy-shrink-after-dispatching)))
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
