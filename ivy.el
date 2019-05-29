@@ -1082,7 +1082,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
     (when (eq (ivy-state-caller ivy-last) 'swiper)
       (switch-to-buffer (ivy-state-buffer ivy-last)))
     (with-current-buffer (ivy-state-buffer ivy-last)
-      (let ((default-directory (ivy-state-directory ivy-last)))
+      (let ((default-directory (ivy-state-directory ivy-last))
+            (ivy-format-function (if (eq (ivy-state-caller ivy-last) 'swiper-isearch)
+                                     #'swiper-isearch-format-function
+                                   #'ivy-format-function)))
         (ivy-read
          (ivy-state-prompt ivy-last)
          (ivy-state-collection ivy-last)
