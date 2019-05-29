@@ -4656,7 +4656,7 @@ make decisions based on the whole marked list."
       (with-current-buffer buf
         (insert-file-contents ivy-help-file)
         (org-mode)
-        (setq org-hide-emphasis-markers t)
+        (setq-local org-hide-emphasis-markers t)
         (view-mode)
         (goto-char (point-min))
         (let ((inhibit-message t))
