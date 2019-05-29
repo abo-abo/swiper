@@ -2372,7 +2372,8 @@ See `completion-in-region' for further information."
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
                                      (goto-char ivy-completion-beg)
-                                     (insert initial)))
+                                     (when initial
+                                       (insert initial))))
                          :caller 'ivy-completion-in-region)
                t))))))
 
