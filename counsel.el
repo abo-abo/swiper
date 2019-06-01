@@ -1980,11 +1980,24 @@ If USE-IGNORE is non-nil, try to generate a command that respects
                   (counsel--elisp-to-pcre ivy--old-re)
                 (counsel--file-name-filter t)))))))
 
+(defvar counsel-up-directory-level t
+  "Control whether `counsel-up-directory' goes up a level or always a directory.
+
+If non-nil, then `counsel-up-directory' will remove the final level of the path.
+For example: /a/long/path/file.jpg => /a/long/path/
+             /a/long/path/     =>     /a/long/
+
+If nil, then `counsel-up-directory' will go up a directory.
+For example: /a/long/path/file.jpg => /a/long/
+             /a/long/path/     =>     /a/long/")
+
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
 
 If the current directory is remote and it's not possible to go up any
-further, make the remote prefix editable"
+further, make the remote prefix editable.
+
+See variable `counsel-up-directory-level'."
   (interactive)
   (let* ((cur-dir (directory-file-name (expand-file-name ivy--directory)))
          (up-dir (file-name-directory cur-dir)))
@@ -1999,9 +2012,11 @@ further, make the remote prefix editable"
           (setq ivy-text "")
           (delete-minibuffer-contents)
           (insert up-dir))
-      (ivy--cd up-dir)
-      (setf (ivy-state-preselect ivy-last)
-            (file-name-as-directory (file-name-nondirectory cur-dir))))))
+      (if (and counsel-up-directory-level (not (string= ivy-text "")))
+          (delete-region (line-beginning-position) (line-end-position))
+        (ivy--cd up-dir)
+        (setf (ivy-state-preselect ivy-last)
+              (file-name-as-directory (file-name-nondirectory cur-dir)))))))
 
 (defun counsel-down-directory ()
   "Descend into the current directory."
