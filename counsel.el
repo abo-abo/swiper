@@ -5764,7 +5764,7 @@ specified by the `blddir' property."
   (interactive)
   (setq counsel-compile--current-build-dir (or dir default-directory))
   (ivy-read "Compile command: "
-            (counsel--get-compile-candidates dir)
+            (delete-dups (counsel--get-compile-candidates dir))
             :action #'counsel-compile--action
             :caller 'counsel-compile))
 
