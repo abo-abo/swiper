@@ -312,7 +312,8 @@ will bring the behavior in line with the newer Emacsen."
 
 (ert-deftest ivy--format ()
   (should (string= (let ((ivy--index 10)
-                         (ivy-format-function (lambda (x) (mapconcat #'identity x "\n")))
+                         (ivy-format-functions-alist
+                          '((t . (lambda (x) (mapconcat #'identity x "\n")))))
                          (cands '("NAME"
                                   "SYNOPSIS"
                                   "DESCRIPTION"

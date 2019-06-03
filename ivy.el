@@ -1545,13 +1545,24 @@ minibuffer."
 (declare-function avy-process "ext:avy")
 (declare-function avy--style-fn "ext:avy")
 
-(defcustom ivy-format-function #'ivy-format-function-default
-  "Function to transform the list of candidates into a string.
+(defcustom ivy-format-functions-alist
+  '((t . ivy-format-function-default))
+  "An alist of functions that transform the list of candidates into a string.
 This string is inserted into the minibuffer."
-  :type '(choice
-          (const :tag "Default" ivy-format-function-default)
-          (const :tag "Arrow prefix" ivy-format-function-arrow)
-          (const :tag "Full line" ivy-format-function-line)))
+  :type '(alist
+          :key-type symbol
+          :value-type '(choice
+                        (const :tag "Default" ivy-format-function-default)
+                        (const :tag "Arrow prefix" ivy-format-function-arrow)
+                        (const :tag "Full line" ivy-format-function-line)
+                        (function :tag "Custom function"))))
+
+(defvar ivy-format-function #'ivy-format-function-default
+  "Function to transform the list of candidates into a string.
+This string is inserted into the minibuffer.")
+
+(make-obsolete-variable
+ 'ivy-format-function 'ivy-format-functions-alist "<2019-06-03 Mon>")
 
 (eval-after-load 'avy
   '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
@@ -3652,7 +3663,7 @@ CANDS is a list of strings."
 
 (defun ivy--wnd-cands-to-str (wnd-cands)
   (let ((str (concat "\n"
-                     (funcall ivy-format-function
+                     (funcall (ivy-alist-setting ivy-format-functions-alist)
                               (condition-case nil
                                   (mapcar
                                    #'ivy--format-minibuffer-line

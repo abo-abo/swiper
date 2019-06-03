@@ -118,7 +118,7 @@ discoverability.
      example, adding a custom display function that points to a
      selected candidate with =>=, instead of highlighting the selected
      candidate with the =ivy-current-match= face (see
-     =ivy-format-function=). Or take the customization of actions, say
+     =ivy-format-functions-alist=). Or take the customization of actions, say
      after the candidate function is selected. ~RET~ uses
      =counsel-describe-function= to describe the function, whereas
      ~M-o d~ jumps to that function's definition in the code. The

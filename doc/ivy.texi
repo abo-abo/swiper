@@ -181,7 +181,7 @@ interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
 selected candidate with @code{>}, instead of highlighting the selected
 candidate with the @code{ivy-current-match} face (see
-@code{ivy-format-function}). Or take the customization of actions, say
+@code{ivy-format-functions-alist}). Or take the customization of actions, say
 after the candidate function is selected. @kbd{RET} uses
 @code{counsel-describe-function} to describe the function, whereas
 @kbd{M-o d} jumps to that function's definition in the code. The

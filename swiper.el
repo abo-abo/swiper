@@ -1141,7 +1141,7 @@ otherwise continue prompting for buffers."
 
 (defun swiper--all-format-function (cands)
   "Format CANDS for `swiper-all'.
-See `ivy-format-function' for further information."
+See `ivy-format-functions-alist' for further information."
   (let* ((ww swiper-window-width)
          (col2 1)
          (cands-with-buffer
@@ -1181,8 +1181,7 @@ See `ivy-format-function' for further information."
 (defun swiper-all (&optional initial-input)
   "Run `swiper' for all open buffers."
   (interactive)
-  (let* ((swiper-window-width (- (frame-width) (if (display-graphic-p) 0 1)))
-         (ivy-format-function #'swiper--all-format-function))
+  (let ((swiper-window-width (- (frame-width) (if (display-graphic-p) 0 1))))
     (ivy-read "swiper-all: " 'swiper-all-function
               :action #'swiper-all-action
               :unwind #'swiper--cleanup
@@ -1191,6 +1190,8 @@ See `ivy-format-function' for further information."
               :keymap swiper-all-map
               :initial-input initial-input
               :caller 'swiper-multi)))
+
+(add-to-list 'ivy-format-functions-alist '(swiper-multi . swiper--all-format-function))
 
 (defun swiper-all-action (x)
   "Move to candidate X from `swiper-all'."
@@ -1464,7 +1465,6 @@ When not running `swiper-isearch' already, start it."
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
-        (ivy-format-function #'swiper-isearch-format-function)
         res)
     (unwind-protect
          (and
@@ -1487,6 +1487,7 @@ When not running `swiper-isearch' already, start it."
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
 
+(add-to-list 'ivy-format-functions-alist '(swiper-isearch . swiper-isearch-format-function))
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
 
 (defun swiper-isearch-toggle ()
