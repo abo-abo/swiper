@@ -1388,7 +1388,7 @@ When not running `swiper-isearch' already, start it."
               (line-beginning-position)
               (line-end-position))))
       (put-text-property 0 1 'point pt s)
-      s)))
+      (ivy-cleanup-string s))))
 
 (defun swiper--isearch-highlight (str &optional current)
   (let ((start 0)
