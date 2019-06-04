@@ -4567,6 +4567,7 @@ buffer would modify `ivy-last'.")
     (define-key map (kbd "c") 'ivy-occur-toggle-calling)
     (define-key map (kbd "q") 'quit-window)
     (define-key map (kbd "R") 'read-only-mode)
+    (define-key map (kbd "F") 'ivy-occur-flush)
     (define-key map (kbd "C-d") 'ivy-occur-delete-candidate)
     map)
   "Keymap for Ivy Occur mode.")
@@ -4655,6 +4656,32 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (let ((inhibit-read-only t))
     (delete-region (line-beginning-position)
                    (1+ (line-end-position)))))
+
+(defun ivy-occur-flush ()
+  "Delete lines matching a regex.
+See `flush-lines'."
+  (interactive)
+  (let* ((end (save-excursion
+                (goto-char (point-min))
+                (re-search-forward "\\([0-9]+\\) candidates:\n" nil t)))
+         (beg (match-beginning 0))
+         (n (string-to-number (match-string 1)))
+         (cands
+          (split-string (buffer-substring-no-properties
+                         end
+                         (point-max)) "\n" t " +")))
+    (ivy-read "Flush: " cands)
+    (save-excursion
+      (goto-char (point-max))
+      (dolist (cand (nreverse (copy-sequence ivy--old-cands)))
+        (search-backward cand)
+        (ivy-occur-delete-candidate)
+        (cl-decf n))
+      (goto-char beg)
+      (forward-sexp)
+      (let ((inhibit-read-only t))
+        (delete-region beg (point))
+        (insert (number-to-string n))))))
 
 (define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
