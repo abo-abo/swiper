@@ -4408,7 +4408,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
                 (concat
                  (propertize file-and-line 'face 'ivy-grep-info)
                  (ivy--highlight-fuzzy grep-line)))
-            (ivy--highlight-fuzzy cand)))
+            (ivy--highlight-fuzzy (copy-sequence cand))))
     (add-text-properties
      0 (length cand)
      '(mouse-face
