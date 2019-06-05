@@ -3261,20 +3261,22 @@ before substring matches."
           (= (aref name 0) ?^))
       candidates
     (let* ((base-re (ivy-re-to-str (funcall ivy--regex-function name)))
-           (re-prefix (concat "\\`\\*" base-re))
+           (re-star-prefix (concat "\\`\\*" base-re))
+           (re-prefix (concat "\\`" base-re))
            res-prefix
            res-noprefix
            res-virtual-prefix
            res-virtual-noprefix)
-      (unless (cl-find-if (lambda (s) (string-match-p re-prefix s)) candidates)
-        (setq re-prefix (concat "\\`" base-re)))
       (dolist (s candidates)
         (cond
-          ((and (assoc s ivy--virtual-buffers) (string-match-p re-prefix s))
+          ((and (assoc s ivy--virtual-buffers)
+                (or (string-match-p re-star-prefix s)
+                    (string-match-p re-prefix s)))
            (push s res-virtual-prefix))
           ((assoc s ivy--virtual-buffers)
            (push s res-virtual-noprefix))
-          ((string-match-p re-prefix s)
+          ((or (string-match-p re-star-prefix s)
+               (string-match-p re-prefix s))
            (push s res-prefix))
           (t
            (push s res-noprefix))))
