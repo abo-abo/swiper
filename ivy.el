@@ -224,7 +224,7 @@ Only \"./\" and \"../\" apply here.  They appear in reverse order."
   "When non-nil, add recent files and bookmarks to `ivy-switch-buffer'."
   :type 'boolean)
 
-(defcustom ivy-display-function nil
+(defvar ivy-display-function nil
   "Determine where to display candidates.
 When nil (the default), candidates are shown in the minibuffer.
 Otherwise, this can be set to a function which takes a string
@@ -235,21 +235,38 @@ This user option acts as a global default for Ivy-based
 completion commands.  You can customize the display function on a
 per-command basis via `ivy-display-functions-alist', which see.
 See also URL
-`https://github.com/abo-abo/swiper/wiki/ivy-display-function'."
-  :type '(choice
-          (const :tag "Minibuffer" nil)
-          (const :tag "LV" ivy-display-function-lv)
-          (const :tag "Popup" ivy-display-function-popup)
-          (const :tag "Overlay" ivy-display-function-overlay)))
+`https://github.com/abo-abo/swiper/wiki/ivy-display-function'.")
+
+(make-obsolete-variable
+ 'ivy-display-function 'ivy-display-functions-alist "<2019-12-05 Mon>")
+
+(defvar ivy--display-function nil
+  "The display-function is used in current.")
 
 (defvar ivy-display-functions-props
   '((ivy-display-function-overlay :cleanup ivy-overlay-cleanup))
   "Map Ivy display functions to their property lists.
 Examples of properties include associated `:cleanup' functions.")
 
-(defvar ivy-display-functions-alist
-  '((ivy-completion-in-region . ivy-display-function-overlay))
-  "An alist for customizing `ivy-display-function'.")
+(defcustom ivy-display-functions-alist
+  '((ivy-completion-in-region . ivy-display-function-overlay)
+    (t . nil))
+  "An alist for customizing display-function.
+
+display-function determine where to display candidates. it takes
+a string argument comprising the current matching candidates and
+displays it somewhere.
+
+When display-function is nil, candidates are shown in the
+minibuffer."
+  :type '(alist
+          :key-type symbol
+          :value-type '(choice
+                        (const :tag "Minibuffer" nil)
+                        (const :tag "LV" ivy-display-function-lv)
+                        (const :tag "Popup" ivy-display-function-popup)
+                        (const :tag "Overlay" ivy-display-function-overlay)
+                        (function :tag "Custom function"))))
 
 (defvar ivy-completing-read-dynamic-collection nil
   "Run `ivy-completing-read' with `:dynamic-collection t`.")
@@ -1917,7 +1934,7 @@ customizations apply to the current completion session."
                      (cond (caller)
                            ((functionp collection)
                             collection))))
-         (ivy-display-function
+         (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
             (or ivy-display-function
@@ -2000,8 +2017,8 @@ customizations apply to the current completion session."
       (ivy--remove-props (ivy-state-current ivy-last) 'idx))))
 
 (defun ivy--display-function-prop (prop)
-  "Return PROP associated with current `ivy-display-function'."
-  (plist-get (cdr (assq ivy-display-function
+  "Return PROP associated with current `ivy--display-function'."
+  (plist-get (cdr (assq ivy--display-function
                         ivy-display-functions-props))
              prop))
 
@@ -3014,8 +3031,8 @@ Should be run via minibuffer `post-command-hook'."
         (ivy--insert-prompt)
         ;; Do nothing if while-no-input was aborted.
         (when (stringp text)
-          (if ivy-display-function
-              (funcall ivy-display-function text)
+          (if ivy--display-function
+              (funcall ivy--display-function text)
             (ivy-display-function-fallback text)))
         (ivy--resize-minibuffer-to-fit)
         ;; prevent region growing due to text remove/add
