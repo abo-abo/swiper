@@ -2535,7 +2535,9 @@ When GREEDY is non-nil, join words in a greedy way."
                       (if (= (length subs) 1)
                           (cons
                            (setq ivy--subexps 0)
-                           (car subs))
+                           (if (string-match-p "\\`\\.[^.]" (car subs))
+                               (concat "\\." (substring (car subs) 1))
+                             (car subs)))
                         (cons
                          (setq ivy--subexps (length subs))
                          (mapconcat

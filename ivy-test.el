@@ -207,7 +207,10 @@ will bring the behavior in line with the newer Emacsen."
                  "\\(\\(?:interactive\\|swiper\\)\\).*?\\(\\(?:list\\|symbol\\)\\)"))
   (should (equal (ivy--regex
                   "foo[")
-                 "foo\\[")))
+                 "foo\\["))
+  (should (equal (ivy--regex
+                  ".org")
+                 "\\.org")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))
