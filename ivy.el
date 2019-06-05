@@ -1937,8 +1937,7 @@ customizations apply to the current completion session."
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
-            (or ivy-display-function
-                (ivy-alist-setting ivy-display-functions-alist caller))))
+            (ivy-alist-setting ivy-display-functions-alist caller)))
          (height (ivy--height caller)))
     (setq ivy-last
           (make-ivy-state
