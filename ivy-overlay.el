@@ -130,8 +130,7 @@ Hide the minibuffer contents and cursor."
                           (+
                            (if (and (eq major-mode 'org-mode)
                                     (bound-and-true-p org-indent-mode))
-                               ;; (* org-indent-indentation-per-level (org-current-level))
-                               1
+                               (* org-indent-indentation-per-level (org-current-level))
                              0)
                            (save-excursion
                              (when ivy-completion-beg
