@@ -1330,19 +1330,25 @@ that we search only for one character."
 When not running `swiper-isearch' already, start it."
   (interactive)
   (if (window-minibuffer-p)
-      (let (bnd str)
+      (let (bnd str regionp)
         (with-ivy-window
-          (setq bnd (bounds-of-thing-at-point 'symbol))
+          (setq bnd
+                (if (setq regionp (region-active-p))
+                    (prog1 (cons (region-beginning) (region-end))
+                      (deactivate-mark))
+                  (bounds-of-thing-at-point 'symbol)))
           (setq str (buffer-substring-no-properties (car bnd) (cdr bnd))))
         (setq swiper--isearch-point-history
               (list (cons "" (car bnd))))
         (insert str)
-        (ivy--insert-symbol-boundaries))
+        (unless regionp
+          (ivy--insert-symbol-boundaries)))
     (let (thing)
       (if (use-region-p)
           (progn
+            (setq thing (buffer-substring-no-properties
+                         (region-beginning) (region-end)))
             (goto-char (region-beginning))
-            (setq thing (ivy-thing-at-point))
             (deactivate-mark))
         (let ((bnd (bounds-of-thing-at-point 'symbol)))
           (when bnd
