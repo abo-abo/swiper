@@ -3758,24 +3758,22 @@ This variable has no effect unless
   "Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see."
   (interactive)
-  (let ((counsel--mark-ring-calling-point (point))
-        (cands
-         (save-excursion
-           (save-restriction
-             ;; Widen, both to save `line-number-at-pos' the trouble
-             ;; and for `buffer-substring' to work.
-             (widen)
-             (let ((fmt (format "%%%dd %%s"
-                                (length (number-to-string
-                                         (line-number-at-pos (point-max)))))))
-               (mapcar (lambda (mark)
-                         (goto-char (marker-position mark))
-                         (let ((linum (line-number-at-pos))
-                               (line  (buffer-substring
-                                       (line-beginning-position)
-                                       (line-end-position))))
-                           (cons (format fmt linum line) (point))))
-                       (sort (delete-dups (copy-sequence mark-ring)) #'<)))))))
+  (let* ((counsel--mark-ring-calling-point (point))
+         (width (length (number-to-string (line-number-at-pos (point-max)))))
+         (fmt (format "%%%dd %%s" width))
+         (make-candidate
+          (lambda (mark)
+            (goto-char (marker-position mark))
+            (let ((linum (line-number-at-pos))
+                  (line (buffer-substring
+                         (line-beginning-position) (line-end-position))))
+              (cons (format fmt linum line) (point)))))
+         (marks (sort (delete-dups (copy-sequence mark-ring)) #'<))
+         (cands
+          ;; Widen, both to save `line-number-at-pos' the trouble
+          ;; and for `buffer-substring' to work.
+          (save-excursion (save-restriction (widen)
+                                            (mapcar make-candidate marks)))))
     (if cands
         (ivy-read "Mark: " cands
                   :require-match t
