@@ -416,6 +416,7 @@ action functions.")
     (define-key map (kbd "M-r") 'ivy-toggle-regexp-quote)
     (define-key map (kbd "M-j") 'ivy-yank-word)
     (define-key map (kbd "M-i") 'ivy-insert-current)
+    (define-key map (kbd "C-M-y") 'ivy-insert-current-full)
     (define-key map (kbd "C-o") 'hydra-ivy/body)
     (define-key map (kbd "M-o") 'ivy-dispatching-done)
     (define-key map (kbd "C-M-o") 'ivy-dispatching-call)
@@ -4233,8 +4234,13 @@ Don't finish completion."
     (insert (substring-no-properties
              (ivy-state-current ivy-last) 0 end))))
 
+(defun ivy-insert-current-full ()
+  "Insert the full Yank the current directory into the minibuffer."
+  (interactive)
+  (insert ivy--directory))
+
 (define-obsolete-variable-alias 'ivy--preferred-re-builders
-    'ivy-preferred-re-builders "0.10.0")
+  'ivy-preferred-re-builders "0.10.0")
 
 (defcustom ivy-preferred-re-builders
   '((ivy--regex-plus . "ivy")
