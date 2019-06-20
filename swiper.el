@@ -1146,7 +1146,7 @@ See `ivy-format-functions-alist' for further information."
          (col2 1)
          (cands-with-buffer
           (mapcar (lambda (s)
-                    (let ((buffer (get-text-property 0 'buffer s)))
+                    (let ((name (buffer-name (get-text-property 0 'buffer s))))
                       (setq col2 (max col2 (length buffer)))
                       (cons s buffer))) cands))
          (col1 (- ww 4 col2)))
