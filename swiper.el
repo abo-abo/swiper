@@ -1465,6 +1465,7 @@ When not running `swiper-isearch' already, start it."
                  :action #'swiper-isearch-action
                  :update-fn 'auto
                  :unwind #'swiper--cleanup
+                 :re-builder #'swiper--re-builder
                  :history 'swiper-history
                  :caller 'swiper-isearch))
           (point))
