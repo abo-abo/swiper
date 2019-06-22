@@ -2124,6 +2124,8 @@ This is useful for recursive `ivy-read'."
                          (equal (ivy--get-action ivy-last) 'identity))
                  (setq initial-input nil))))
             ((eq collection #'internal-complete-buffer)
+             (setq prompt
+                   (replace-regexp-in-string "RET to end" "C-M-j to end" prompt))
              (setq coll (ivy--buffer-list
                          ""
                          (and ivy-use-virtual-buffers
