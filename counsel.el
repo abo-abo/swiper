@@ -3787,6 +3787,9 @@ Additional actions:\\<ivy-minibuffer-map>
   "The `ivy-height' of `counsel-yank-pop'."
   :type 'integer)
 
+(define-obsolete-variable-alias 'counsel-yank-pop-height
+  'ivy-height-alist "0.11.0")
+
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
   (ivy--format-function-generic
