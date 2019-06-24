@@ -1072,11 +1072,15 @@ See `describe-buffer-bindings' for further information."
         (forward-line 1)))
     (nreverse res)))
 
+(defcustom counsel-descbinds-function #'describe-function
+  "Function to call to describe a function passed as parameter."
+  :type 'function)
+
 (defun counsel-descbinds-action-describe (x)
   "Describe function of candidate X.
 See `describe-function' for further information."
   (let ((cmd (cddr x)))
-    (describe-function cmd)))
+    (funcall counsel-descbinds-function cmd)))
 
 (defun counsel-descbinds-action-exec (x)
   "Run candidate X.
