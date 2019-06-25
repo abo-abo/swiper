@@ -1843,7 +1843,7 @@ PROMPT is a string, normally ending in a colon and a space.
 `ivy-count-format' is prepended to PROMPT during completion.
 
 COLLECTION is either a list of strings, a function, an alist, or
-a hash table.
+a hash table, supplied for `minibuffer-completion-table'.
 
 PREDICATE is applied to filter out the COLLECTION immediately.
 This argument is for compatibility with `completing-read'.
