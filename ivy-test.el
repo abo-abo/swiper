@@ -1162,7 +1162,7 @@ a buffer visiting a file."
     (shell-command
      "git clone -b test --single-branch https://github.com/abo-abo/swiper/ tests"))
   (let ((default-directory (expand-file-name "tests/"))
-        (version "b1a2bbf"))
+        (version "935fde0"))
     (shell-command
      (format "git checkout %s || git fetch && git checkout %s" version version))))
 
@@ -1191,6 +1191,25 @@ a buffer visiting a file."
             (ivy-with '(counsel-find-file) "foob C-m"
                       :dir "tests/find-file/dotfiles/"))
            "tests/find-file/dotfiles/.foobar1")))
+
+(ert-deftest counsel-find-file-with-spaces ()
+  (counsel--setup-test-files)
+  (let ((ivy-extra-directories nil))
+    (should (string=
+             (file-relative-name
+              (ivy-with '(counsel-find-file) "TAB TAB TAB TAB"
+                        :dir "tests/find-file/directories-with-spaces/"))
+             "tests/find-file/directories-with-spaces/bar baz i/file1"))
+    (should (string=
+             (file-relative-name
+              (ivy-with '(counsel-find-file) "C-n TAB TAB TAB TAB"
+                        :dir "tests/find-file/directories-with-spaces/"))
+             "tests/find-file/directories-with-spaces/bar baz ii/file2"))
+    (should (string=
+             (file-relative-name
+              (ivy-with '(counsel-find-file) "TAB C-n TAB TAB TAB TAB"
+                        :dir "tests/find-file/directories-with-spaces/"))
+             "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
 (provide 'ivy-test)
 
