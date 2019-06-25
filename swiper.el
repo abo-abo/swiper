@@ -518,7 +518,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 
 ;;;###autoload
 (defun swiper-all-thing-at-point ()
-  "`swiper' with `ivy-thing-at-point'."
+  "`swiper-all' with `ivy-thing-at-point'."
   (interactive)
   (let ((thing (ivy-thing-at-point)))
     (when (use-region-p)
