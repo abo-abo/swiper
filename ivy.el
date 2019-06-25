@@ -685,14 +685,16 @@ N is obtained from `ivy-more-chars-alist'."
 
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
-  (insert
-   (setf (ivy-state-current ivy-last)
-         (if (and ivy--directory
-                  (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
-             (expand-file-name text ivy--directory)
-           text)))
-  (setq ivy-exit 'done)
-  (exit-minibuffer))
+  (if (member (ivy-state-prompt ivy-last) '("Create directory: " "Make directory: "))
+      (ivy-immediate-done)
+    (insert
+     (setf (ivy-state-current ivy-last)
+           (if (and ivy--directory
+                    (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
+               (expand-file-name text ivy--directory)
+             text)))
+    (setq ivy-exit 'done)
+    (exit-minibuffer)))
 
 (defcustom ivy-use-selectable-prompt nil
   "When non-nil, make the prompt line selectable like a candidate.
