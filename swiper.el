@@ -184,17 +184,19 @@
          (unwind-protect
               (let* ((enable-recursive-minibuffers t)
                      (from (ivy--regex ivy-text))
+                     (default
+                      (format "\\,(concat %s)"
+                              (if (<= ivy--subexps 1)
+                                  "\\&"
+                                (mapconcat (lambda (i) (format "\\%d" i))
+                                           (number-sequence 1 ivy--subexps)
+                                           " \" \" "))))
                      (to
                       (query-replace-compile-replacement
-                       (minibuffer-with-setup-hook
-                           (lambda ()
-                             (setq minibuffer-default
-                                   (if (string-match "\\`\\\\_<\\(.*\\)\\\\_>\\'" ivy-text)
-                                       (match-string 1 ivy-text)
-                                     ivy-text)))
-                         (ivy-read
-                          (format "Query replace %s with: " from) nil
-                          :update-fn #'swiper--query-replace-updatefn))
+                       (ivy-read
+                        (format "Query replace %s with: " from) nil
+                        :def default
+                        :update-fn #'swiper--query-replace-updatefn)
                        t)))
                 (swiper--cleanup)
                 (ivy-exit-with-action
