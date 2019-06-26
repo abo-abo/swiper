@@ -1375,13 +1375,6 @@ When not running `swiper-isearch' already, start it."
     map)
   "Keymap for `swiper-isearch'.")
 
-(defface swiper-isearch-current-match
-  '((((class color) (background light))
-     :background "#65a7e2" :foreground "white")
-    (((class color) (background dark))
-     :background "#1a4b77" :foreground "black"))
-  "Face used by `swiper-isearch' for highlighting the current match.")
-
 (defun swiper--isearch-same-line-p (s1 s2)
   "Check if S1 and S2 are equal and on the same line."
   (and (equal s1 s2)
