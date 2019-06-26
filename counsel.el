@@ -5305,6 +5305,22 @@ in the current window."
             :unwind #'counsel--switch-buffer-unwind
             :update-fn 'counsel--switch-buffer-update-fn))
 
+(defun counsel-open-buffer-file-externally (buffer)
+  "Open the file associated with BUFFER with an external program."
+  (when (zerop (length buffer))
+    (user-error "Can't open that"))
+  (let* ((virtual (assoc buffer ivy--virtual-buffers))
+         (filename (if virtual
+                       buffer
+                     (buffer-file-name (get-buffer buffer)))))
+    (unless filename
+      (user-error "Can't open `%s' externally" buffer))
+    (counsel-locate-action-extern (expand-file-name filename))))
+
+(ivy-add-actions
+ 'ivy-switch-buffer
+ '(("x" counsel-open-buffer-file-externally "open externally")))
+
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
