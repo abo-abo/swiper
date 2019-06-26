@@ -1411,6 +1411,8 @@ Call the permanent action if possible."
   (if (and (= minibuffer-history-position 0)
            (equal ivy-text ""))
       (progn
+        (when minibuffer-default
+          (setq ivy--default (car minibuffer-default)))
         (insert ivy--default)
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
                    (eq (ivy-state-caller ivy-last) 'swiper)
