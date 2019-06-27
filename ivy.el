@@ -3908,26 +3908,32 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
          (let* ((wnd1 (selected-window))
                 (wnd2 (split-window-vertically))
                 (views (cdr view))
-                (v (pop views)))
+                (v (pop views))
+                (temp-wnd))
            (with-selected-window wnd1
              (ivy-set-view-recur v))
            (while (setq v (pop views))
              (with-selected-window wnd2
-               (ivy-set-view-recur v))
-             (when views
-               (setq wnd2 (split-window-vertically))))))
+               (when views
+                 (setq temp-wnd (split-window-vertically)))
+               (ivy-set-view-recur v)
+               (when views
+                 (setq wnd2 temp-wnd))))))
         ((eq (car view) 'horz)
          (let* ((wnd1 (selected-window))
                 (wnd2 (split-window-horizontally))
                 (views (cdr view))
-                (v (pop views)))
+                (v (pop views))
+                (temp-wnd))
            (with-selected-window wnd1
              (ivy-set-view-recur v))
            (while (setq v (pop views))
              (with-selected-window wnd2
-               (ivy-set-view-recur v))
-             (when views
-               (setq wnd2 (split-window-horizontally))))))
+               (when views
+                 (setq temp-wnd (split-window-horizontally)))
+               (ivy-set-view-recur v)
+               (when views
+                 (setq wnd2 temp-wnd))))))
         ((eq (car view) 'file)
          (let* ((name (nth 1 view))
                 (virtual (assoc name ivy--virtual-buffers))
