@@ -606,6 +606,14 @@ When non-nil, ivy will wait until the first chunk of asynchronous
 candidates has been received before selecting the last
 preselected candidate.")
 
+(defun ivy--set-index-dynamic-collection ()
+  (when ivy--trying-to-resume-dynamic-collection
+    (let ((preselect-index
+           (ivy--preselect-index (ivy-state-preselect ivy-last) ivy--all-candidates)))
+      (when preselect-index
+        (ivy-set-index preselect-index)))
+    (setq ivy--trying-to-resume-dynamic-collection nil)))
+
 (defcustom ivy-case-fold-search-default
   (if search-upper-case
       'auto
@@ -2189,12 +2197,11 @@ This is useful for recursive `ivy-read'."
         ;; Needed for anchor to work
         (setq ivy--old-cands coll)
         (setq ivy--old-cands (ivy--filter initial-input coll)))
-      (setq ivy--trying-to-resume-dynamic-collection
-            (and preselect dynamic-collection))
-      (when (and (integerp preselect)
-                 (not ivy--trying-to-resume-dynamic-collection))
-        (setq ivy--old-re "")
-        (ivy-set-index preselect))
+      (unless (setq ivy--trying-to-resume-dynamic-collection
+                    (and preselect dynamic-collection))
+        (when (integerp preselect)
+          (setq ivy--old-re "")
+          (ivy-set-index preselect)))
       (setq ivy--all-candidates coll)
       (unless (integerp preselect)
         (ivy-set-index (or
@@ -3003,11 +3010,7 @@ Should be run via minibuffer `post-command-hook'."
               (setq ivy--old-text ivy-text)))
           (when (or ivy--all-candidates
                     (not (get-process " *counsel*")))
-            (when ivy--trying-to-resume-dynamic-collection
-              (when-let* ((preselect (ivy-state-preselect ivy-last))
-                          (preselect-index (ivy--preselect-index preselect ivy--all-candidates)))
-                (ivy-set-index preselect-index))
-              (setq ivy--trying-to-resume-dynamic-collection nil))
+            (ivy--set-index-dynamic-collection)
             (ivy--insert-minibuffer
              (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
