@@ -5285,6 +5285,7 @@ in the current window."
   (interactive)
   (ivy-read "Switch to buffer: " 'internal-complete-buffer
             :preselect (buffer-name (other-buffer (current-buffer)))
+            :keymap ivy-switch-buffer-map
             :action #'ivy--switch-buffer-action
             :matcher #'ivy--switch-buffer-matcher
             :caller 'counsel-switch-buffer
