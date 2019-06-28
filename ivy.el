@@ -600,6 +600,12 @@ Either a string or a list for `ivy-re-match'.")
 (defvar ivy--old-text ""
   "Store old `ivy-text' for dynamic completion.")
 
+(defvar ivy--trying-to-resume-dynamic-collection nil
+  "Non-nil if resuming from a dynamic collection.
+When non-nil, ivy will wait until the first chunk of asynchronous
+candidates has been received before selecting the last
+preselected candidate.")
+
 (defcustom ivy-case-fold-search-default
   (if search-upper-case
       'auto
@@ -2179,13 +2185,16 @@ This is useful for recursive `ivy-read'."
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
-      (when (integerp preselect)
-        (setq ivy--old-re "")
-        (ivy-set-index preselect))
       (when initial-input
         ;; Needed for anchor to work
         (setq ivy--old-cands coll)
         (setq ivy--old-cands (ivy--filter initial-input coll)))
+      (setq ivy--trying-to-resume-dynamic-collection
+            (and preselect dynamic-collection))
+      (when (and (integerp preselect)
+                 (not ivy--trying-to-resume-dynamic-collection))
+        (setq ivy--old-re "")
+        (ivy-set-index preselect))
       (setq ivy--all-candidates coll)
       (unless (integerp preselect)
         (ivy-set-index (or
@@ -2994,6 +3003,11 @@ Should be run via minibuffer `post-command-hook'."
               (setq ivy--old-text ivy-text)))
           (when (or ivy--all-candidates
                     (not (get-process " *counsel*")))
+            (when ivy--trying-to-resume-dynamic-collection
+              (when-let* ((preselect (ivy-state-preselect ivy-last))
+                          (preselect-index (ivy--preselect-index preselect ivy--all-candidates)))
+                (ivy-set-index preselect-index))
+              (setq ivy--trying-to-resume-dynamic-collection nil))
             (ivy--insert-minibuffer
              (ivy--format ivy--all-candidates))))
       (cond (ivy--directory
