@@ -2136,8 +2136,11 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (recentf-mode)
   (ivy-read "Recentf: " (mapcar #'substring-no-properties recentf-list)
             :action (lambda (f)
-                      (with-ivy-window
-                        (find-file f)))
+                      (if-let* ((buffer (find-file-noselect f t))
+                                (buffer-window (get-buffer-window buffer)))
+                          (select-window buffer-window)
+                        (with-ivy-window
+                          (find-file f))))
             :require-match t
             :caller 'counsel-recentf))
 (ivy-set-actions
