@@ -5312,7 +5312,7 @@ in the current window."
     (user-error "Can't open that"))
   (let* ((virtual (assoc buffer ivy--virtual-buffers))
          (filename (if virtual
-                       buffer
+                       (cdr virtual)
                      (buffer-file-name (get-buffer buffer)))))
     (unless filename
       (user-error "Can't open `%s' externally" buffer))
