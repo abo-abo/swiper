@@ -1623,9 +1623,11 @@ This string is inserted into the minibuffer.")
 
 (defun ivy--avy-action (pt)
   (when (number-or-marker-p pt)
-    (ivy--done
-     (substring-no-properties
-      (nth (- (line-number-at-pos pt) 2) ivy--old-cands)))))
+    (let ((bnd (ivy--minibuffer-index-bounds
+                ivy--index ivy--length ivy-height)))
+      (ivy--done
+       (substring-no-properties
+        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
 
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
