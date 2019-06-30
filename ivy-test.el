@@ -1162,7 +1162,7 @@ a buffer visiting a file."
     (shell-command
      "git clone -b test --single-branch https://github.com/abo-abo/swiper/ tests"))
   (let ((default-directory (expand-file-name "tests/"))
-        (version "935fde0"))
+        (version "066ec1d"))
     (shell-command
      (format "git checkout %s || git fetch && git checkout %s" version version))))
 
@@ -1175,11 +1175,6 @@ a buffer visiting a file."
            "tests/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  ;; This should be `skip-unless' instead,
-  ;; but it was only added in Emacs 24.4.
-  :expected-result (if (= emacs-major-version 26)
-                       :passed
-                     :failed)
   (counsel--setup-test-files)
   (should (string=
            (file-relative-name
