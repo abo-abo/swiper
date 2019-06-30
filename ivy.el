@@ -1629,6 +1629,23 @@ This string is inserted into the minibuffer.")
        (substring-no-properties
         (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
 
+(defun ivy--avy-handler-function (char)
+  (let (cmd)
+    (cond ((memq char '(27 ?\C-g))
+           ;; exit silently
+           (throw 'done 'abort))
+          ((memq (setq cmd (lookup-key ivy-minibuffer-map (vector char)))
+                 '(ivy-scroll-up-command
+                   ivy-scroll-down-command))
+           (funcall cmd)
+           (ivy--exhibit)
+           (throw 'done 'exit))
+          ;; ignore wrong key
+          (t
+           (throw 'done 'restart)))))
+
+(defvar avy-handler-function)
+
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
   (interactive)
@@ -1639,9 +1656,12 @@ This string is inserted into the minibuffer.")
                        avy-keys))
          (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
                         avy-style))
-         (avy-action #'ivy--avy-action))
-    (avy-process
-     (ivy--avy-candidates))))
+         (avy-action #'identity)
+         (avy-handler-function #'ivy--avy-handler-function)
+         res)
+    (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
+    (when res
+      (ivy--avy-action res))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
