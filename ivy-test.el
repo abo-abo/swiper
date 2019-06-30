@@ -1212,10 +1212,11 @@ a buffer visiting a file."
              "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
 (ert-deftest ivy-avy ()
-  (let ((enable-recursive-minibuffers t)
-        (read-numbers '(ivy-read "test: " (mapcar #'number-to-string (number-sequence 1 100)))))
-    (should (string= (ivy-with read-numbers "C-' a") "1"))
-    (should (string= (ivy-with read-numbers "C-v C-' d") "7"))))
+  (when (require 'avy nil t)
+    (let ((enable-recursive-minibuffers t)
+          (read-numbers '(ivy-read "test: " (mapcar #'number-to-string (number-sequence 1 100)))))
+      (should (string= (ivy-with read-numbers "C-' a") "1"))
+      (should (string= (ivy-with read-numbers "C-v C-' d") "7")))))
 
 (provide 'ivy-test)
 
