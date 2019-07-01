@@ -91,12 +91,15 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
 (defvar ivy-dispatching-done-idle nil
   "When non-nil, the hint will be delayed by this many seconds.")
 
+(defvar ivy-dispatching-done-hydra-exit-keys '(("M-o" nil "back")
+                                               ("C-g" nil))
+  "Keys that can be used to exit `ivy-dispatching-done-hydra'.")
+
 (defun ivy-dispatching-done-hydra ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
   (let* ((actions (ivy-state-action ivy-last))
-         (extra-actions '(("M-o" nil "back")
-                          ("C-g" nil)))
+         (extra-actions ivy-dispatching-done-hydra-exit-keys)
          (doc (concat "action: "
                       (mapconcat
                        (lambda (x) (format "[%s] %s" (nth 0 x) (nth 2 x)))
