@@ -2744,9 +2744,7 @@ tries to ensure that it does not change depending on the number of candidates."
   (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
   (let ((hook (ivy-alist-setting ivy-hooks-alist)))
     (when (functionp hook)
-      (funcall hook)))
-  ;; Show completions with empty input.
-  (ivy--exhibit))
+      (funcall hook))))
 
 (defun ivy--input ()
   "Return the current minibuffer input."
