@@ -1857,14 +1857,21 @@ Skip some dotfiles unless `ivy-text' requires them."
 (defvar counsel-find-file-speedup-remote t
   "Speed up opening remote files by disabling `find-file-hook' for them.")
 
+(defcustom counsel-find-file-extern-extensions '("mp4" "mkv" "xlsx")
+  "List of extensions that make `counsel-find-file' use `counsel-find-file-extern'."
+  :type '(repeat string))
+
 (defun counsel-find-file-action (x)
   "Find file X."
   (with-ivy-window
-    (if (and counsel-find-file-speedup-remote
-             (file-remote-p ivy--directory))
-        (let ((find-file-hook nil))
-          (find-file (expand-file-name x ivy--directory)))
-      (find-file (expand-file-name x ivy--directory)))))
+    (cond ((and counsel-find-file-speedup-remote
+                (file-remote-p ivy--directory))
+           (let ((find-file-hook nil))
+             (find-file (expand-file-name x ivy--directory))))
+          ((member (file-name-extension x) counsel-find-file-extern-extensions)
+           (counsel-find-file-extern x))
+          (t
+           (find-file (expand-file-name x ivy--directory))))))
 
 (defun counsel--preselect-file ()
   "Return candidate to preselect during filename completion.
