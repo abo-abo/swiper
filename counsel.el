@@ -4183,15 +4183,6 @@ And insert it into the minibuffer.  Useful during `eval-expression'."
               :caller 'counsel-expression-history)))
 
 ;;;###autoload
-(defun counsel-shell-command-history ()
-  "Browse shell command history."
-  (declare (obsolete counsel-minibuffer-history "0.10.0 <2017-11-13 Mon>"))
-  (interactive)
-  (ivy-read "Command: " shell-command-history
-            :action #'insert
-            :caller 'counsel-shell-command-history))
-
-;;;###autoload
 (defun counsel-minibuffer-history ()
   "Browse minibuffer history."
   (interactive)
