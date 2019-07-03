@@ -4185,7 +4185,7 @@ An extra action allows to switch to the process buffer."
   "Use Ivy to navigate through RING."
   (setq ivy-completion-beg (point))
   (setq ivy-completion-end (point))
-  (ivy-read "Symbol name: " (ivy-history-contents ring)
+  (ivy-read "History: " (ivy-history-contents ring)
             :keymap ivy-reverse-i-search-map
             :action #'ivy-completion-in-region-action
             :caller 'counsel-shell-history))
