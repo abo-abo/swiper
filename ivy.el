@@ -4049,16 +4049,19 @@ BUFFER may be a string or nil."
                         (cdr (assoc buffer ivy--virtual-buffers))
                         recentf-list))))
 
+(defun ivy--kill-current-candidate ()
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  (setq ivy--old-re nil)
+  (setq ivy--all-candidates (delete (ivy-state-current ivy-last) ivy--all-candidates))
+  (ivy--exhibit))
+
 (defun ivy--kill-buffer-action (buffer)
   "Kill BUFFER."
   (ivy--kill-buffer-or-virtual buffer)
   (unless (buffer-live-p (ivy-state-buffer ivy-last))
     (setf (ivy-state-buffer ivy-last)
           (with-ivy-window (current-buffer))))
-  (setf (ivy-state-preselect ivy-last) ivy--index)
-  (setq ivy--old-re nil)
-  (setq ivy--all-candidates (delete buffer ivy--all-candidates))
-  (ivy--exhibit))
+  (ivy--kill-current-candidate))
 
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
@@ -4321,15 +4324,46 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
       (setq ivy--regex-function 'ivy--regex-plus)
     (setq ivy--regex-function 'ivy--regex-fuzzy)))
 
+(defvar ivy--reverse-i-search-symbol nil
+  "Store the history symbol.")
+
+(defun ivy-reverse-i-search-kill ()
+  "Remove the current item from history"
+  (interactive)
+  (if (not (eolp))
+      (ivy-kill-line)
+    (set
+     ivy--reverse-i-search-symbol
+     (delete
+      (ivy-state-current ivy-last)
+      (symbol-value ivy--reverse-i-search-symbol)))
+    (ivy--kill-current-candidate)))
+
+(defvar ivy-reverse-i-search-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-k") 'ivy-reverse-i-search-kill)
+    map))
+
+(defun ivy-history-contents (history-variable)
+  "Copy contents of HISTORY-VARIABLE.
+A copy is necessary so that we don't clobber any string attributes.
+Also set `ivy--reverse-i-search-symbol' to HISTORY-VARIABLE."
+  (delete-dups
+   (copy-sequence
+    (symbol-value
+     (setq ivy--reverse-i-search-symbol history-variable)))))
+
 (defun ivy-reverse-i-search ()
   "Enter a recursive `ivy-read' session using the current history.
-The selected history element will be inserted into the minibuffer."
+The selected history element will be inserted into the minibuffer.
+\\<ivy-reverse-i-search-map>
+You can also delete an emement from history with \\[ivy-reverse-i-search-kill]."
   (interactive)
   (let ((enable-recursive-minibuffers t)
-        (history (symbol-value (ivy-state-history ivy-last)))
         (old-last ivy-last))
     (ivy-read "Reverse-i-search: "
-              (delete-dups (copy-sequence history))
+              (ivy-history-contents (ivy-state-history ivy-last))
+              :keymap ivy-reverse-i-search-map
               :action (lambda (x)
                         (ivy--reset-state
                          (setq ivy-last old-last))

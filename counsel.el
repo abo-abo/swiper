@@ -4175,9 +4175,8 @@ An extra action allows to switch to the process buffer."
   "Browse minibuffer history."
   (interactive)
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "History: "
-              (delete-dups (copy-sequence
-                            (symbol-value minibuffer-history-variable)))
+    (ivy-read "History: " (ivy-history-contents minibuffer-history-variable)
+              :keymap ivy-reverse-i-search-map
               :action #'insert
               :caller 'counsel-minibuffer-history)))
 
