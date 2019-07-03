@@ -4370,20 +4370,26 @@ The selected history element will be inserted into the minibuffer.
 \\<ivy-reverse-i-search-map>
 You can also delete an emement from history with \\[ivy-reverse-i-search-kill]."
   (interactive)
-  (unless (and (> (minibuffer-depth) 1)
-               (eq (ivy-state-caller ivy-last) 'ivy-reverse-i-search))
-    (let ((enable-recursive-minibuffers t)
-          (old-last ivy-last))
-      (ivy-read "Reverse-i-search: "
-                (ivy-history-contents (ivy-state-history ivy-last))
-                :keymap ivy-reverse-i-search-map
-                :action (lambda (x)
-                          (ivy--reset-state
-                           (setq ivy-last old-last))
-                          (delete-minibuffer-contents)
-                          (insert (substring-no-properties x))
-                          (ivy--cd-maybe))
-                :caller 'ivy-reverse-i-search))))
+  (cond
+    ((= (minibuffer-depth) 0)
+     (user-error
+      "This command is intended to be called with \"C-r\" from `ivy-read'."))
+    ;; don't recur
+    ((and (> (minibuffer-depth) 1)
+          (eq (ivy-state-caller ivy-last) 'ivy-reverse-i-search)))
+    (t
+     (let ((enable-recursive-minibuffers t)
+           (old-last ivy-last))
+       (ivy-read "Reverse-i-search: "
+                 (ivy-history-contents (ivy-state-history ivy-last))
+                 :keymap ivy-reverse-i-search-map
+                 :action (lambda (x)
+                           (ivy--reset-state
+                            (setq ivy-last old-last))
+                           (delete-minibuffer-contents)
+                           (insert (substring-no-properties x))
+                           (ivy--cd-maybe))
+                 :caller 'ivy-reverse-i-search)))))
 
 (defun ivy-restrict-to-matches ()
   "Restrict candidates to current input and erase input."
