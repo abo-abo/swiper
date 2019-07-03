@@ -2530,11 +2530,12 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
                 (apply #'call-process find-program nil (current-buffer) nil
                        (split-string counsel-file-jump-args))
                 (let ((start (goto-char (point-min))) files)
-                  (while (search-forward "\n" nil t)
-                    (push (buffer-substring (+ start 2) (1- (point)))
-                          files)
-                    (setq start (point)))
-                  (nbutlast files)))
+                  (while (not (eobp))
+					(setq start (point))
+					(search-forward "\n")
+			  		(push (buffer-substring (+ 2 start) (1- (point)))
+			  			  files))
+                  files))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'find-file
@@ -2572,12 +2573,12 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
                 (apply #'call-process find-program nil (current-buffer) nil
                        (split-string counsel-dired-jump-args))
                 (let ((start (goto-char (point-min))) files)
-                  (while (search-forward "\n" nil t)
-                    (unless (looking-at-p "$")
-                      (push (buffer-substring (+ start 2) (1- (point)))
-                            files))
-                    (setq start (point)))
-                  (nbutlast files)))
+                  (while (not (eobp))
+					(setq start (point))
+					(search-forward "\n")
+			  		(push (buffer-substring (+ 2 start) (1- (point)))
+			  			  files))
+                  files))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
