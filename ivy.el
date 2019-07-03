@@ -2728,6 +2728,7 @@ tries to ensure that it does not change depending on the number of candidates."
   (setq-local mwheel-scroll-up-function 'ivy-next-line)
   (setq-local mwheel-scroll-down-function 'ivy-previous-line)
   (setq-local completion-show-inline-help nil)
+  (setq-local line-spacing nil)
   (setq-local minibuffer-default-add-function
               (lambda ()
                 (list ivy--default)))
