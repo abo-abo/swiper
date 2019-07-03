@@ -2508,7 +2508,7 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defcustom counsel-file-jump-args ". -name '.git' -prune -o -type f -print | cut -c 3-"
+(defcustom counsel-file-jump-args ". -name .git -prune -o -type f -print"
   "Arguments for the `find-command' when using `counsel-file-jump'."
   :type 'string)
 
@@ -2526,10 +2526,15 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (split-string
-               (shell-command-to-string
-                (concat find-program " " counsel-file-jump-args))
-               "\n" t)
+              (with-temp-buffer
+                (apply #'call-process find-program nil (current-buffer) nil
+                       (split-string counsel-file-jump-args))
+                (let ((start (goto-char (point-min))) files)
+                  (while (search-forward "\n" nil t)
+                    (push (buffer-substring (+ start 2) (1- (point)))
+                          files)
+                    (setq start (point)))
+                  (nbutlast files)))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'find-file
