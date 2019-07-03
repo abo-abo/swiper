@@ -628,15 +628,19 @@ to `ivy-highlight-face'."
 (defun counsel--setq-doconst (x)
   "Return a cons of description and value for X.
 X is an item of a radio- or choice-type defcustom."
-  (let (y)
-    (when (and (listp x)
-               (consp (setq y (last x))))
-      (unless (equal y '(function))
-        (setq x (car y))
-        (cons (prin1-to-string x)
-              (if (symbolp x)
-                  (list 'quote x)
-                x))))))
+  (when (listp x)
+    (let ((v (car-safe (last x)))
+          (tag (and (eq (car x) 'const)
+                    (setq tag (plist-get (cdr x) :tag)))))
+      (when (and (or v tag) (not (eq v 'function)))
+        (cons
+         (concat
+          (when tag
+            (concat tag ": "))
+          (if (stringp v) v (prin1-to-string v)))
+         (if (symbolp v)
+             (list 'quote v)
+           v))))))
 
 (declare-function lv-message "ext:lv")
 (declare-function lv-delete-window "ext:lv")
