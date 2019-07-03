@@ -4939,6 +4939,7 @@ selected color."
                        :session service path interface "ListChildren"
                        0 nb-songs '("*")))))))
   (ivy-read "Rhythmbox: " counsel-rhythmbox-songs
+            :require-match t
             :history 'counsel-rhythmbox-history
             :preselect (counsel-rhythmbox-current-song)
             :action
