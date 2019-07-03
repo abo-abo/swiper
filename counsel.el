@@ -4171,18 +4171,6 @@ An extra action allows to switch to the process buffer."
 
 ;;** `counsel-minibuffer-history'
 ;;;###autoload
-(defun counsel-expression-history ()
-  "Select an element of `read-expression-history'.
-And insert it into the minibuffer.  Useful during `eval-expression'."
-  (declare (obsolete counsel-minibuffer-history "0.10.0 <2017-11-13 Mon>"))
-  (interactive)
-  (let ((enable-recursive-minibuffers t))
-    (ivy-read "Expression: "
-              (delete-dups (copy-sequence read-expression-history))
-              :action #'insert
-              :caller 'counsel-expression-history)))
-
-;;;###autoload
 (defun counsel-minibuffer-history ()
   "Browse minibuffer history."
   (interactive)
