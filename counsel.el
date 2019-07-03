@@ -2550,7 +2550,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
            (dired (or (file-name-directory x) default-directory)))
     "open in dired")))
 
-(defcustom counsel-dired-jump-args ". -name '.git' -prune -o -type d -print | cut -c 3-"
+(defcustom counsel-dired-jump-args ". -name .git -prune -o -type d -print"
   "Arguments for the `find-command' when using `counsel-dired-jump'."
   :type 'string)
 
@@ -2568,10 +2568,16 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
-              (split-string
-               (shell-command-to-string
-                (concat find-program " " counsel-dired-jump-args))
-               "\n" t)
+              (with-temp-buffer
+                (apply #'call-process find-program nil (current-buffer) nil
+                       (split-string counsel-dired-jump-args))
+                (let ((start (goto-char (point-min))) files)
+                  (while (search-forward "\n" nil t)
+                    (unless (looking-at-p "$")
+                      (push (buffer-substring (+ start 2) (1- (point)))
+                            files))
+                    (setq start (point)))
+                  (nbutlast files)))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
