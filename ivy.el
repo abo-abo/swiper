@@ -42,6 +42,7 @@
 (require 'ffap)
 (require 'ivy-overlay)
 (require 'colir)
+(require 'ring)
 
 ;;* Customization
 (defgroup ivy nil
@@ -4333,11 +4334,14 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
   (interactive)
   (if (not (eolp))
       (ivy-kill-line)
-    (set
-     ivy--reverse-i-search-symbol
-     (delete
-      (ivy-state-current ivy-last)
-      (symbol-value ivy--reverse-i-search-symbol)))
+    (let ((current (ivy-state-current ivy-last)))
+      (if (symbolp ivy--reverse-i-search-symbol)
+          (set
+           ivy--reverse-i-search-symbol
+           (delete current (symbol-value ivy--reverse-i-search-symbol)))
+      (ring-remove
+       ivy--reverse-i-search-symbol
+       (ring-member ivy--reverse-i-search-symbol (ivy-state-current ivy-last)))))
     (ivy--kill-current-candidate)))
 
 (defvar ivy-reverse-i-search-map
@@ -4345,14 +4349,20 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
     (define-key map (kbd "C-k") 'ivy-reverse-i-search-kill)
     map))
 
-(defun ivy-history-contents (history-variable)
-  "Copy contents of HISTORY-VARIABLE.
+(defun ivy-history-contents (sym-or-ring)
+  "Copy contents of SYM-OR-RING.
 A copy is necessary so that we don't clobber any string attributes.
-Also set `ivy--reverse-i-search-symbol' to HISTORY-VARIABLE."
-  (delete-dups
-   (copy-sequence
-    (symbol-value
-     (setq ivy--reverse-i-search-symbol history-variable)))))
+Also set `ivy--reverse-i-search-symbol' to SYM-OR-RING."
+  (setq ivy--reverse-i-search-symbol sym-or-ring)
+  (cond ((symbolp sym-or-ring)
+         (delete-dups
+          (copy-sequence (symbol-value sym-or-ring))))
+        ((ring-p sym-or-ring)
+         (delete-dups
+          (when (> (ring-size sym-or-ring) 0)
+            (ring-elements sym-or-ring))))
+        (t
+         (error "Expected a symbol or a ring: %S" sym-or-ring))))
 
 (defun ivy-reverse-i-search ()
   "Enter a recursive `ivy-read' session using the current history.

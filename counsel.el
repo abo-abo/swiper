@@ -4181,17 +4181,14 @@ An extra action allows to switch to the process buffer."
               :caller 'counsel-minibuffer-history)))
 
 ;;** `counsel-esh-history'
-(defun counsel--browse-history (elements)
-  "Use Ivy to navigate through ELEMENTS."
+(defun counsel--browse-history (ring)
+  "Use Ivy to navigate through RING."
   (setq ivy-completion-beg (point))
   (setq ivy-completion-end (point))
-  (let ((cands
-         (delete-dups
-          (when (> (ring-size elements) 0)
-            (ring-elements elements)))))
-    (ivy-read "Symbol name: " cands
-              :action #'ivy-completion-in-region-action
-              :caller 'counsel-shell-history)))
+  (ivy-read "Symbol name: " (ivy-history-contents ring)
+            :keymap ivy-reverse-i-search-map
+            :action #'ivy-completion-in-region-action
+            :caller 'counsel-shell-history))
 
 (defvar eshell-history-ring)
 
