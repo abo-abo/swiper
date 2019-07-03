@@ -816,8 +816,9 @@ Matched candidates should have `swiper-invocation-face'."
     (setq swiper--isearch-highlight-timer nil)))
 
 (defun swiper--add-cursor-overlay (wnd)
-  (let ((ov (make-overlay (point) (if (eolp) (point) (1+ (point))))))
-    (if (eolp)
+  (let* ((special (or (eolp) (looking-at "\t")))
+         (ov (make-overlay (point) (if special (point) (1+ (point))))))
+    (if special
         (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
       (overlay-put ov 'face 'ivy-cursor))
     (overlay-put ov 'window wnd)
