@@ -631,7 +631,7 @@ X is an item of a radio- or choice-type defcustom."
   (when (listp x)
     (let ((v (car-safe (last x)))
           (tag (and (eq (car x) 'const)
-                    (setq tag (plist-get (cdr x) :tag)))))
+                    (plist-get (cdr x) :tag))))
       (when (and (or v tag) (not (eq v 'function)))
         (cons
          (concat
