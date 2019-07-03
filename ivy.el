@@ -4642,12 +4642,16 @@ EVENT gives the mouse position."
     ((swiper swiper-isearch counsel-git-grep counsel-grep counsel-ag counsel-rg)
      (let ((window (ivy-state-window ivy-occur-last))
            (buffer (ivy-state-buffer ivy-occur-last)))
-       (when (and (or (not (window-live-p window))
-                      (equal window (selected-window)))
-                  (buffer-live-p buffer))
-         (save-selected-window
-           (setf (ivy-state-window ivy-occur-last)
-                 (display-buffer buffer))))))
+       (if (not (buffer-live-p buffer))
+           (error "Buffer was killed")
+         (cond ((or (not (window-live-p window))
+                    (equal window (selected-window)))
+                (save-selected-window
+                  (setf (ivy-state-window ivy-occur-last)
+                        (display-buffer buffer))))
+               ((not (equal (window-buffer window) buffer))
+                (with-selected-window window
+                  (switch-to-buffer buffer)))))))
 
     ((counsel-describe-function counsel-describe-variable)
      (setf (ivy-state-window ivy-occur-last)
