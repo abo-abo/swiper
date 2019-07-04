@@ -3341,6 +3341,9 @@ before substring matches."
 When the amount of matching candidates exceeds this limit, then
 no sorting is done.")
 
+(defvar ivy--recompute-index-inhibit nil
+  "When non-nil, `ivy--recompute-index' is a no-op.")
+
 (defun ivy--recompute-index (name re-str cands)
   "Recompute index of selected candidate matching NAME.
 RE-STR is the regexp, CANDS are the current candidates."
@@ -3351,7 +3354,8 @@ RE-STR is the regexp, CANDS are the current candidates."
         (preselect (ivy-state-preselect ivy-last))
         (current (ivy-state-current ivy-last))
         (empty (string= name "")))
-    (unless (memq this-command '(ivy-resume ivy-partial-or-done))
+    (unless (or (memq this-command '(ivy-resume ivy-partial-or-done))
+                ivy--recompute-index-inhibit)
       (ivy-set-index
        (if (or (string= name "")
                (and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero)))
@@ -4055,7 +4059,8 @@ BUFFER may be a string or nil."
   (setf (ivy-state-preselect ivy-last) ivy--index)
   (setq ivy--old-re nil)
   (setq ivy--all-candidates (delete (ivy-state-current ivy-last) ivy--all-candidates))
-  (ivy--exhibit))
+  (let ((ivy--recompute-index-inhibit t))
+    (ivy--exhibit)))
 
 (defun ivy--kill-buffer-action (buffer)
   "Kill BUFFER."
