@@ -2508,6 +2508,18 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
+(defun counsel--find-return-list (args skip-first)
+  (with-temp-buffer
+    (apply #'call-process find-program nil (current-buffer) nil args)
+    (goto-char (point-min))
+    (when skip-first
+      (forward-line))
+    (let ((start (point)) files)
+      (while (search-forward "\n" nil t)
+		(push (buffer-substring (+ 2 start) (1- (point))) files)
+        (setq start (point)))
+      files)))
+
 (defcustom counsel-file-jump-args ". -name .git -prune -o -type f -print"
   "Arguments for the `find-command' when using `counsel-file-jump'."
   :type 'string)
@@ -2526,16 +2538,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (with-temp-buffer
-                (apply #'call-process find-program nil (current-buffer) nil
-                       (split-string counsel-file-jump-args))
-                (let ((start (goto-char (point-min))) files)
-                  (while (not (eobp))
-					(setq start (point))
-					(search-forward "\n")
-			  		(push (buffer-substring (+ 2 start) (1- (point)))
-			  			  files))
-                  files))
+              (counsel--find-return-list (split-string counsel-file-jump-args) nil)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'find-file
@@ -2569,16 +2572,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
-              (with-temp-buffer
-                (apply #'call-process find-program nil (current-buffer) nil
-                       (split-string counsel-dired-jump-args))
-                (let ((start (goto-char (point-min))) files)
-                  (while (not (eobp))
-					(setq start (point))
-					(search-forward "\n")
-			  		(push (buffer-substring (+ 2 start) (1- (point)))
-			  			  files))
-                  files))
+              (counsel--find-return-list (split-string counsel-dired-jump-args) t)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
