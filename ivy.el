@@ -4072,14 +4072,17 @@ BUFFER may be a string or nil."
 
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-k") 'ivy-switch-buffer-kill)
+    (define-key map (kbd "C-k") 'ivy-switch-buffer-kill)
     map))
 
 (defun ivy-switch-buffer-kill ()
-  "Kill the current buffer in `ivy-switch-buffer'."
+  "When at end-of-line, kill the current buffer in `ivy-switch-buffer'.
+Otherwise, forward to `ivy-kill-line'."
   (interactive)
-  (let ((bn (ivy-state-current ivy-last)))
-    (ivy--kill-buffer-action bn)))
+  (if (not (eolp))
+      (ivy-kill-line)
+    (ivy--kill-buffer-action
+     (ivy-state-current ivy-last))))
 
 (ivy-set-actions
  'ivy-switch-buffer
@@ -4344,9 +4347,9 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
           (set
            ivy--reverse-i-search-symbol
            (delete current (symbol-value ivy--reverse-i-search-symbol)))
-      (ring-remove
-       ivy--reverse-i-search-symbol
-       (ring-member ivy--reverse-i-search-symbol (ivy-state-current ivy-last)))))
+        (ring-remove
+         ivy--reverse-i-search-symbol
+         (ring-member ivy--reverse-i-search-symbol (ivy-state-current ivy-last)))))
     (ivy--kill-current-candidate)))
 
 (defvar ivy-reverse-i-search-map
