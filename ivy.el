@@ -392,6 +392,17 @@ Example:
   (setq ivy--sources-list
         (plist-put ivy--sources-list cmd sources)))
 
+(defun ivy--compute-extra-candidates (caller)
+  (let ((extra-sources (or (plist-get ivy--sources-list caller)
+                           '((original-source))))
+        (result nil))
+    (dolist (source extra-sources)
+      (cond ((equal source '(original-source))
+             (push source result))
+            ((null (cdr source))
+             (push (list (car source) (funcall (car source))) result))))
+    result))
+
 (defvar ivy-current-prefix-arg nil
   "Prefix arg to pass to actions.
 This is a global variable that is set by ivy functions for use in
@@ -1958,23 +1969,9 @@ CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
   (setq action (ivy--compute-extra-actions action caller))
+  (setq caller (or caller this-command))
+  (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
   (setq ivy-marked-candidates nil)
-  (unless caller
-    (setq caller this-command))
-  (let ((extra-sources (plist-get ivy--sources-list caller)))
-    (if extra-sources
-        (progn
-          (setq ivy--extra-candidates nil)
-          (dolist (source extra-sources)
-            (cond ((equal source '(original-source))
-                   (setq ivy--extra-candidates
-                         (cons source ivy--extra-candidates)))
-                  ((null (cdr source))
-                   (setq ivy--extra-candidates
-                         (cons
-                          (list (car source) (funcall (car source)))
-                          ivy--extra-candidates))))))
-      (setq ivy--extra-candidates '((original-source)))))
   (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
          (transformer-fn
           (plist-get ivy--display-transformers-list
