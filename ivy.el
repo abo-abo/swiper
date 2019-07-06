@@ -323,6 +323,26 @@ ACTIONS that have the same key."
                     (append (plist-get ivy--actions-list cmd) actions)
                     :key #'car :test #'equal))))
 
+(defun ivy--compute-extra-actions (action caller)
+  "Add extra actions to ACTION based on CALLER."
+  (let ((extra-actions (cl-delete-duplicates
+                        (append (plist-get ivy--actions-list t)
+                                (plist-get ivy--actions-list this-command)
+                                (plist-get ivy--actions-list caller))
+                        :key #'car :test #'equal)))
+    (if extra-actions
+        (cond ((functionp action)
+               `(1
+                 ("o" ,action "default")
+                 ,@extra-actions))
+              ((null action)
+               `(1
+                 ("o" identity "default")
+                 ,@extra-actions))
+              (t
+               (delete-dups (append action extra-actions))))
+      action)))
+
 (defvar ivy--prompts-list nil)
 
 (defun ivy-set-prompt (caller prompt-fn)
@@ -1937,23 +1957,7 @@ candidates is updated after each input by calling COLLECTION.
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
-  (let ((extra-actions (cl-delete-duplicates
-                        (append (plist-get ivy--actions-list t)
-                                (plist-get ivy--actions-list this-command)
-                                (plist-get ivy--actions-list caller))
-                        :key #'car :test #'equal)))
-    (when extra-actions
-      (setq action
-            (cond ((functionp action)
-                   `(1
-                     ("o" ,action "default")
-                     ,@extra-actions))
-                  ((null action)
-                   `(1
-                     ("o" identity "default")
-                     ,@extra-actions))
-                  (t
-                   (delete-dups (append action extra-actions)))))))
+  (setq action (ivy--compute-extra-actions action caller))
   (setq ivy-marked-candidates nil)
   (unless caller
     (setq caller this-command))
