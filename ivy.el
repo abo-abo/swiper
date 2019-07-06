@@ -1869,6 +1869,91 @@ found, it falls back to the key t."
   str)
 
 ;;** Entry Point
+
+;; Helpers
+
+(defun ivy--try-funcall (fn &rest args)
+  "Apply FN with ARGS if FN is a function, otherwise do nothing."
+  (when (functionp fn)
+    (apply fn args)))
+
+(defun ivy--build-source-list (extra-sources)
+  "Build ivy candidate source from EXTRA-SOURCES."
+  (let (result)
+    (if (null extra-sources)
+        (setq result '((original-source)))
+      (dolist (source extra-sources)
+        (let ((real-source (pcase source
+                             (`(original-source)
+                               source)
+                             (`(,ex-source)
+                               (list ex-source (funcall ex-source))))))
+          (push real-source result))))
+    result))
+
+(defun ivy--build-extra-action (orig-action extra-actions)
+  "Combine EXTRA-ACTIONS with ORIG-ACTION.
+
+actions should be ivy actions."
+  (cond ((functionp orig-action)
+         `(1
+           ("o" ,orig-action "default")
+           ,@extra-actions))
+        ((null orig-action)
+         `(1
+           ("o" identity "default")
+           ,@extra-actions))
+        (t
+         (delete-dups (append orig-action extra-actions)))))
+
+(defmacro ivy--with-completing-minibuffer (body &rest unwind-handlers)
+  "Prepare minibuffer for ivy completing session inside BODY.
+
+UNWIND-HANDLERS forms will be run anyway after BODY."
+  (declare (indent 1) (debug t))
+  `(unwind-protect
+        (minibuffer-with-setup-hook #'ivy--minibuffer-setup
+          ,body)
+     (put 'post-command-hook 'permanent-local nil)
+     (remove-hook 'post-command-hook #'ivy--queue-exhibit)
+     (ivy--pulse-cleanup)
+     ,@unwind-handlers
+     (unless (eq ivy-exit 'done)
+       (ivy-recursive-restore))))
+
+(cl-defun ivy--read-from-minibuffer (prompt collection
+                                     &key
+                                       predicate
+                                       initial-input
+                                       history
+                                       keymap
+                                       caller)
+  "A wrapper of `read-from-minibuffer', for the internal use of `ivy-read'."
+  (let* (;; let-bounded global variables.
+         (minibuffer-completion-table collection)
+         (minibuffer-completion-predicate predicate)
+         (ivy-height (ivy--height caller))
+         (resize-mini-windows (unless (display-graphic-p)
+                                'grow-only)))
+    (let ((hist (or history 'ivy-history))
+          (minibuf-map (make-composed-keymap keymap ivy-minibuffer-map)))
+      (if (and ivy-auto-select-single-candidate
+               (= (length ivy--all-candidates) 1))
+          (progn
+            (setf (ivy-state-current ivy-last)
+                  (car ivy--all-candidates))
+            (setq ivy-exit 'done))
+        (read-from-minibuffer prompt initial-input minibuf-map nil hist))
+      (when (eq ivy-exit 'done)
+        (let ((item (if ivy--directory
+                        (ivy-state-current ivy-last)
+                      ivy-text)))
+          (unless (equal item "")
+            (set hist (cons (propertize item 'ivy-index ivy--index)
+                            (delete item (cdr (symbol-value hist))))))))))
+  (ivy-state-current ivy-last))
+
+
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
                     &key
@@ -1941,47 +2026,26 @@ customizations apply to the current completion session."
                         (append (plist-get ivy--actions-list t)
                                 (plist-get ivy--actions-list this-command)
                                 (plist-get ivy--actions-list caller))
-                        :key #'car :test #'equal)))
+                        :key #'car :test #'equal))
+        (extra-sources (plist-get ivy--sources-list caller)))
+
+    (setq caller (or caller this-command))
     (when extra-actions
-      (setq action
-            (cond ((functionp action)
-                   `(1
-                     ("o" ,action "default")
-                     ,@extra-actions))
-                  ((null action)
-                   `(1
-                     ("o" identity "default")
-                     ,@extra-actions))
-                  (t
-                   (delete-dups (append action extra-actions)))))))
-  (setq ivy-marked-candidates nil)
-  (unless caller
-    (setq caller this-command))
-  (let ((extra-sources (plist-get ivy--sources-list caller)))
-    (if extra-sources
-        (progn
-          (setq ivy--extra-candidates nil)
-          (dolist (source extra-sources)
-            (cond ((equal source '(original-source))
-                   (setq ivy--extra-candidates
-                         (cons source ivy--extra-candidates)))
-                  ((null (cdr source))
-                   (setq ivy--extra-candidates
-                         (cons
-                          (list (car source) (funcall (car source)))
-                          ivy--extra-candidates))))))
-      (setq ivy--extra-candidates '((original-source)))))
-  (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
-         (transformer-fn
-          (plist-get ivy--display-transformers-list
-                     (cond (caller)
-                           ((functionp collection)
-                            collection))))
+      (setq action (ivy--build-extra-action action extra-actions)))
+
+    (setq ivy--extra-candidates
+          (ivy--build-source-list extra-sources)))
+
+  (let* ((transformer-fn (plist-get ivy--display-transformers-list
+                                    (cond (caller)
+                                          ((functionp collection)
+                                           collection))))
+         ;; let-bounded global variables
+         (ivy-recursive-last (and (active-minibuffer-window) ivy-last))
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
-            (ivy-alist-setting ivy-display-functions-alist caller)))
-         (height (ivy--height caller)))
+            (ivy-alist-setting ivy-display-functions-alist caller))))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -2011,50 +2075,21 @@ customizations apply to the current completion session."
            :directory default-directory
            :caller caller
            :def def))
-    (ivy--reset-state ivy-last)
     (prog1
-        (unwind-protect
-             (minibuffer-with-setup-hook
-                 #'ivy--minibuffer-setup
-               (let* ((hist (or history 'ivy-history))
-                      (minibuffer-completion-table collection)
-                      (minibuffer-completion-predicate predicate)
-                      (ivy-height height)
-                      (resize-mini-windows (unless (display-graphic-p)
-                                             'grow-only)))
-                 (if (and ivy-auto-select-single-candidate
-                          ivy--all-candidates
-                          (null (cdr ivy--all-candidates)))
-                     (progn
-                       (setf (ivy-state-current ivy-last)
-                             (car ivy--all-candidates))
-                       (setq ivy-exit 'done))
-                   (read-from-minibuffer
-                    prompt
-                    (ivy-state-initial-input ivy-last)
-                    (make-composed-keymap keymap ivy-minibuffer-map)
-                    nil
-                    hist))
-                 (when (eq ivy-exit 'done)
-                   (let ((item (if ivy--directory
-                                   (ivy-state-current ivy-last)
-                                 ivy-text)))
-                     (unless (equal item "")
-                       (set hist (cons (propertize item 'ivy-index ivy--index)
-                                       (delete item
-                                               (cdr (symbol-value hist))))))))
-                 (ivy-state-current ivy-last)))
-          ;; Fixes a bug in ESS, #1660
-          (put 'post-command-hook 'permanent-local nil)
-          (remove-hook 'post-command-hook #'ivy--queue-exhibit)
-          (let ((cleanup (ivy--display-function-prop :cleanup)))
-            (when (functionp cleanup)
-              (funcall cleanup)))
-          (when (setq unwind (ivy-state-unwind ivy-last))
-            (funcall unwind))
-          (ivy--pulse-cleanup)
-          (unless (eq ivy-exit 'done)
-            (ivy-recursive-restore)))
+        (ivy--with-completing-minibuffer
+            (progn
+              (ivy--reset-state ivy-last)
+              (ivy--read-from-minibuffer prompt collection
+                                         :predicate predicate
+                                         :initial-input (ivy-state-initial-input
+                                                         ivy-last)
+                                         :history history
+                                         :keymap keymap
+                                         :caller caller))
+          (let ((cleanup (ivy--display-function-prop :cleanup))
+                (unwind-fn (ivy-state-unwind ivy-last)))
+            (ivy--try-funcall cleanup)
+            (ivy--try-funcall unwind-fn)))
       (ivy-call)
       (ivy--remove-props (ivy-state-current ivy-last) 'idx))))
 
@@ -2244,7 +2279,8 @@ This is useful for recursive `ivy-read'."
             (ivy-thing-at-point)))
     (setq ivy--prompt (ivy-add-prompt-count (ivy--quote-format-string prompt)))
     (setq ivy--use-selectable-prompt (ivy--prompt-selectable-p))
-    (setf (ivy-state-initial-input ivy-last) initial-input)))
+    (setf (ivy-state-initial-input ivy-last) initial-input)
+    (setq ivy-marked-candidates nil)))
 
 (defun ivy-add-prompt-count (prompt)
   "Add count information to PROMPT."
