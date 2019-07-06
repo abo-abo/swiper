@@ -1973,11 +1973,6 @@ customizations apply to the current completion session."
   (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
   (setq ivy-marked-candidates nil)
   (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
-         (transformer-fn
-          (plist-get ivy--display-transformers-list
-                     (cond (caller)
-                           ((functionp collection)
-                            collection))))
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
@@ -2008,7 +2003,7 @@ customizations apply to the current completion session."
            :re-builder re-builder
            :matcher matcher
            :dynamic-collection dynamic-collection
-           :display-transformer-fn transformer-fn
+           :display-transformer-fn (plist-get ivy--display-transformers-list caller)
            :directory default-directory
            :caller caller
            :def def))
