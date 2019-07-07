@@ -2005,15 +2005,14 @@ customizations apply to the current completion session."
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
-            (ivy-alist-setting ivy-display-functions-alist caller)))
-         (height (ivy--height caller)))
+            (ivy-alist-setting ivy-display-functions-alist caller))))
     (unwind-protect
          (minibuffer-with-setup-hook
              #'ivy--minibuffer-setup
            (let* ((hist (or history 'ivy-history))
                   (minibuffer-completion-table collection)
                   (minibuffer-completion-predicate predicate)
-                  (ivy-height height)
+                  (ivy-height (ivy--height caller))
                   (resize-mini-windows (unless (display-graphic-p)
                                          'grow-only)))
              (if (and ivy-auto-select-single-candidate
