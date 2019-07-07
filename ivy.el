@@ -2037,19 +2037,23 @@ customizations apply to the current completion session."
                    (set hist (cons (propertize item 'ivy-index ivy--index)
                                    (delete item
                                            (cdr (symbol-value hist))))))))))
-      ;; Fixes a bug in ESS, #1660
-      (put 'post-command-hook 'permanent-local nil)
-      (remove-hook 'post-command-hook #'ivy--queue-exhibit)
-      (let ((cleanup (ivy--display-function-prop :cleanup)))
-        (when (functionp cleanup)
-          (funcall cleanup)))
-      (when (setq unwind (ivy-state-unwind ivy-last))
-        (funcall unwind))
-      (ivy--pulse-cleanup)
-      (unless (eq ivy-exit 'done)
-        (ivy-recursive-restore)))
+      (ivy--cleanup))
     (ivy-call)
     (ivy--remove-props (ivy-state-current ivy-last) 'idx)))
+
+(defun ivy--cleanup ()
+  ;; Fixes a bug in ESS, #1660
+  (put 'post-command-hook 'permanent-local nil)
+  (remove-hook 'post-command-hook #'ivy--queue-exhibit)
+  (let ((cleanup (ivy--display-function-prop :cleanup))
+        (unwind (ivy-state-unwind ivy-last)))
+    (when (functionp cleanup)
+      (funcall cleanup))
+    (when unwind
+      (funcall unwind)))
+  (ivy--pulse-cleanup)
+  (unless (eq ivy-exit 'done)
+    (ivy-recursive-restore)))
 
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy--display-function'."
