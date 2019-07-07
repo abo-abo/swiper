@@ -1971,42 +1971,42 @@ customizations apply to the current completion session."
   (setq caller (or caller this-command))
   (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
   (setq ivy-marked-candidates nil)
+  (setq ivy-last
+        (make-ivy-state
+         :prompt prompt
+         :collection collection
+         :predicate predicate
+         :require-match require-match
+         :initial-input initial-input
+         :history history
+         :preselect preselect
+         :keymap keymap
+         :update-fn (if (eq update-fn 'auto)
+                        (lambda ()
+                          (funcall (ivy--get-action ivy-last)
+                                   (ivy-state-current ivy-last)))
+                      update-fn)
+         :sort sort
+         :action (ivy--compute-extra-actions action caller)
+         :multi-action multi-action
+         :frame (selected-frame)
+         :window (selected-window)
+         :buffer (current-buffer)
+         :unwind unwind
+         :re-builder re-builder
+         :matcher matcher
+         :dynamic-collection dynamic-collection
+         :display-transformer-fn (plist-get ivy--display-transformers-list caller)
+         :directory default-directory
+         :caller caller
+         :def def))
+  (ivy--reset-state ivy-last)
   (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
             (ivy-alist-setting ivy-display-functions-alist caller)))
          (height (ivy--height caller)))
-    (setq ivy-last
-          (make-ivy-state
-           :prompt prompt
-           :collection collection
-           :predicate predicate
-           :require-match require-match
-           :initial-input initial-input
-           :history history
-           :preselect preselect
-           :keymap keymap
-           :update-fn (if (eq update-fn 'auto)
-                          (lambda ()
-                            (funcall (ivy--get-action ivy-last)
-                                     (ivy-state-current ivy-last)))
-                        update-fn)
-           :sort sort
-           :action (ivy--compute-extra-actions action caller)
-           :multi-action multi-action
-           :frame (selected-frame)
-           :window (selected-window)
-           :buffer (current-buffer)
-           :unwind unwind
-           :re-builder re-builder
-           :matcher matcher
-           :dynamic-collection dynamic-collection
-           :display-transformer-fn (plist-get ivy--display-transformers-list caller)
-           :directory default-directory
-           :caller caller
-           :def def))
-    (ivy--reset-state ivy-last)
     (unwind-protect
          (minibuffer-with-setup-hook
              #'ivy--minibuffer-setup
