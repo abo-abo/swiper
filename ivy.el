@@ -2748,7 +2748,7 @@ tries to ensure that it does not change depending on the number of candidates."
    (minibuffer-prompt-end)
    (line-end-position)))
 
-(defun ivy--cleanup ()
+(defun ivy--minibuffer-cleanup ()
   "Delete the displayed completion candidates."
   (save-excursion
     (goto-char (minibuffer-prompt-end))
@@ -3066,7 +3066,7 @@ Should be run via minibuffer `post-command-hook'."
         deactivate-mark)
     (when win
       (with-selected-window win
-        (ivy--cleanup)
+        (ivy--minibuffer-cleanup)
         (when update-fn
           (funcall update-fn))
         (ivy--insert-prompt)
