@@ -1968,7 +1968,6 @@ candidates is updated after each input by calling COLLECTION.
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
-  (setq action (ivy--compute-extra-actions action caller))
   (setq caller (or caller this-command))
   (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
   (setq ivy-marked-candidates nil)
@@ -1994,7 +1993,7 @@ customizations apply to the current completion session."
                                      (ivy-state-current ivy-last)))
                         update-fn)
            :sort sort
-           :action action
+           :action (ivy--compute-extra-actions action caller)
            :multi-action multi-action
            :frame (selected-frame)
            :window (selected-window)
@@ -2008,51 +2007,49 @@ customizations apply to the current completion session."
            :caller caller
            :def def))
     (ivy--reset-state ivy-last)
-    (prog1
-        (unwind-protect
-             (minibuffer-with-setup-hook
-                 #'ivy--minibuffer-setup
-               (let* ((hist (or history 'ivy-history))
-                      (minibuffer-completion-table collection)
-                      (minibuffer-completion-predicate predicate)
-                      (ivy-height height)
-                      (resize-mini-windows (unless (display-graphic-p)
-                                             'grow-only)))
-                 (if (and ivy-auto-select-single-candidate
-                          ivy--all-candidates
-                          (null (cdr ivy--all-candidates)))
-                     (progn
-                       (setf (ivy-state-current ivy-last)
-                             (car ivy--all-candidates))
-                       (setq ivy-exit 'done))
-                   (read-from-minibuffer
-                    prompt
-                    (ivy-state-initial-input ivy-last)
-                    (make-composed-keymap keymap ivy-minibuffer-map)
-                    nil
-                    hist))
-                 (when (eq ivy-exit 'done)
-                   (let ((item (if ivy--directory
-                                   (ivy-state-current ivy-last)
-                                 ivy-text)))
-                     (unless (equal item "")
-                       (set hist (cons (propertize item 'ivy-index ivy--index)
-                                       (delete item
-                                               (cdr (symbol-value hist))))))))
-                 (ivy-state-current ivy-last)))
-          ;; Fixes a bug in ESS, #1660
-          (put 'post-command-hook 'permanent-local nil)
-          (remove-hook 'post-command-hook #'ivy--queue-exhibit)
-          (let ((cleanup (ivy--display-function-prop :cleanup)))
-            (when (functionp cleanup)
-              (funcall cleanup)))
-          (when (setq unwind (ivy-state-unwind ivy-last))
-            (funcall unwind))
-          (ivy--pulse-cleanup)
-          (unless (eq ivy-exit 'done)
-            (ivy-recursive-restore)))
-      (ivy-call)
-      (ivy--remove-props (ivy-state-current ivy-last) 'idx))))
+    (unwind-protect
+         (minibuffer-with-setup-hook
+             #'ivy--minibuffer-setup
+           (let* ((hist (or history 'ivy-history))
+                  (minibuffer-completion-table collection)
+                  (minibuffer-completion-predicate predicate)
+                  (ivy-height height)
+                  (resize-mini-windows (unless (display-graphic-p)
+                                         'grow-only)))
+             (if (and ivy-auto-select-single-candidate
+                      ivy--all-candidates
+                      (null (cdr ivy--all-candidates)))
+                 (progn
+                   (setf (ivy-state-current ivy-last)
+                         (car ivy--all-candidates))
+                   (setq ivy-exit 'done))
+               (read-from-minibuffer
+                prompt
+                (ivy-state-initial-input ivy-last)
+                (make-composed-keymap keymap ivy-minibuffer-map)
+                nil
+                hist))
+             (when (eq ivy-exit 'done)
+               (let ((item (if ivy--directory
+                               (ivy-state-current ivy-last)
+                             ivy-text)))
+                 (unless (equal item "")
+                   (set hist (cons (propertize item 'ivy-index ivy--index)
+                                   (delete item
+                                           (cdr (symbol-value hist))))))))))
+      ;; Fixes a bug in ESS, #1660
+      (put 'post-command-hook 'permanent-local nil)
+      (remove-hook 'post-command-hook #'ivy--queue-exhibit)
+      (let ((cleanup (ivy--display-function-prop :cleanup)))
+        (when (functionp cleanup)
+          (funcall cleanup)))
+      (when (setq unwind (ivy-state-unwind ivy-last))
+        (funcall unwind))
+      (ivy--pulse-cleanup)
+      (unless (eq ivy-exit 'done)
+        (ivy-recursive-restore)))
+    (ivy-call)
+    (ivy--remove-props (ivy-state-current ivy-last) 'idx)))
 
 (defun ivy--display-function-prop (prop)
   "Return PROP associated with current `ivy--display-function'."
