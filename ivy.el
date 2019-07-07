@@ -1969,8 +1969,6 @@ CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
   (setq caller (or caller this-command))
-  (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
-  (setq ivy-marked-candidates nil)
   (setq ivy-last
         (make-ivy-state
          :prompt prompt
@@ -2065,6 +2063,7 @@ customizations apply to the current completion session."
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
+  (setq ivy-marked-candidates nil)
   (unless (equal (selected-frame) (ivy-state-frame state))
     (select-window (active-minibuffer-window)))
   (let* ((prompt (or (ivy-state-prompt state) ""))
@@ -2085,6 +2084,7 @@ This is useful for recursive `ivy-read'."
                       (t
                        init)))))
          (def (ivy-state-def state)))
+    (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
     (setq ivy--regex-function
