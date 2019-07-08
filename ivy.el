@@ -3022,6 +3022,14 @@ Should be run via minibuffer `post-command-hook'."
                'ivy--exhibit)))
     (ivy--exhibit)))
 
+(defun ivy--magic-tilde-directory ()
+  "Return an appropriate directory for when ~ or ~/ are entered."
+  (expand-file-name
+   (let (remote)
+     (if (setq remote (file-remote-p ivy--directory))
+         (concat remote "~/")
+       "~/"))))
+
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
 Should be run via minibuffer `post-command-hook'."
@@ -3048,7 +3056,7 @@ Should be run via minibuffer `post-command-hook'."
              (cond ((or (string= "~/" ivy-text)
                         (and (string= "~" ivy-text)
                              ivy-magic-tilde))
-                    (ivy--cd (expand-file-name "~/")))
+                    (ivy--cd (ivy--magic-tilde-directory)))
                    ((string-match "/\\'" ivy-text)
                     (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) #'internal-complete-buffer)
