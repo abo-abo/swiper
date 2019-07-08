@@ -852,16 +852,19 @@ the face, window and priority of the overlay."
   (or (display-graphic-p)
       (not recenter-redisplay)))
 
+(defun swiper--positive-regexps (str)
+  (let ((regexp-or-regexps
+         (funcall ivy--regex-function str)))
+    (if (listp regexp-or-regexps)
+        (mapcar #'car (cl-remove-if-not #'cdr regexp-or-regexps))
+      (list regexp-or-regexps))))
+
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length (ivy-state-current ivy-last)) 0)
-      (let* ((regexp-or-regexps (funcall ivy--regex-function ivy-text))
-             (regexps
-              (if (listp regexp-or-regexps)
-                  (mapcar #'car (cl-remove-if-not #'cdr regexp-or-regexps))
-                (list regexp-or-regexps))))
+      (let ((regexps (swiper--positive-regexps ivy-text)))
         (dolist (re regexps)
           (let* ((re (replace-regexp-in-string
                       "    " "\t"
