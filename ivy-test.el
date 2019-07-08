@@ -181,7 +181,11 @@ will bring the behavior in line with the newer Emacsen."
   (should (string= (swiper--re-builder "^a")
                    "^ ?\\(a\\)"))
   (should (string= (swiper--re-builder "^a b")
-                   "^ \\(a\\).*?\\(b\\)")))
+                   "^ \\(a\\).*?\\(b\\)"))
+  (let ((search-default-mode 'char-fold-to-regexp))
+    (should (string= (swiper--re-builder "f b")
+                     "\\(\\(?:ḟ\\|[fᶠḟⓕｆ𝐟𝑓𝒇𝒻𝓯𝔣𝕗𝖋𝖿𝗳𝘧𝙛𝚏]\\)\\).*?\\(\\(?:b[̣̱̇]\\|[bᵇḃḅḇⓑｂ𝐛𝑏𝒃𝒷𝓫𝔟𝕓𝖇𝖻𝗯𝘣𝙗𝚋]\\)\\)"))
+    (should (= ivy--subexps 2))))
 
 (ert-deftest ivy--split ()
   (should (equal (ivy--split "King of the who?")
