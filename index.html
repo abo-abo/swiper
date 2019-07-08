@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-04-03 Wed 18:11 -->
+<!-- 2019-07-08 Mon 12:18 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -135,7 +135,7 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#file-name-completion">8.1. File Name Completion</a>
 <ul>
-<li><a href="#orgheadline">8.1.1. Using TRAMP</a></li>
+<li><a href="#using-tramp">8.1.1. Using TRAMP</a></li>
 </ul>
 </li>
 <li><a href="#buffer-name-completion">8.2. Buffer Name Completion</a></li>
@@ -230,7 +230,7 @@ interfaces of completion to tailor the selection process. For
 example, adding a custom display function that points to a
 selected candidate with <code>&gt;</code>, instead of highlighting the selected
 candidate with the <code>ivy-current-match</code> face (see
-<code>ivy-format-function</code>). Or take the customization of actions, say
+<code>ivy-format-functions-alist</code>). Or take the customization of actions, say
 after the candidate function is selected. <kbd>RET</kbd> uses
 <code>counsel-describe-function</code> to describe the function, whereas
 <kbd>M-o d</kbd> jumps to that function's definition in the code. The
@@ -482,7 +482,7 @@ will cycle past the last and the first candidates respectively.
 </p>
 
 <p>
-Warp-around behavior is off by default.
+Wrap-around behavior is off by default.
 </p></dd>
 
 <dt>User Option <code>ivy-height</code></dt><dd><p>
@@ -1367,15 +1367,8 @@ likely at the end of the buffer</li>
 <dt><code>org-mode</code></dt><dd><code>org-mode</code> versions 8.3.3 or later obey
 <code>completing-read-function</code> (which <code>ivy-mode</code> sets). Try refiling
 headings with similar names to appreciate <code>ivy-mode</code>.</dd>
-<dt><code>magit</code></dt><dd><p>
-Magit requires this setting for ivy completion:
-</p>
-
-<div class="org-src-container">
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> magit-completing-read-function 'ivy-completing-read)
-</pre>
-</div></dd>
-<dt><code>find-file-in-project</code></dt><dd>It uses ivy by default if Ivy is installed.</dd>
+<dt><code>magit</code></dt><dd>Uses ivy by default if Ivy is installed.</dd>
+<dt><code>find-file-in-project</code></dt><dd>Uses ivy by default if Ivy is installed.</dd>
 <dt><code>projectile</code></dt><dd><p>
 Projectile requires this setting for ivy completion:
 </p>
@@ -1461,8 +1454,20 @@ files previously opened. It also works with TRAMP files.</dd>
 </div>
 
 <div id="outline-container-orgheadline" class="outline-4">
-<h4 id="orgheadline"><span class="section-number-4">8.1.1</span> Using TRAMP</h4>
-<div class="outline-text-4" id="text-8-1-1">
+<h4 id="using-tramp"><span class="section-number-4">8.1.1</span> Using TRAMP</h4>
+<div class="outline-text-4" id="text-using-tramp">
+<dl class="org-dl">
+<dt><kbd>~</kbd> (tilde)</dt><dd>Move to the home directory. Either the local or the remote one, depending on the
+current directory. The boolean option <code>ivy-magic-tilde</code> decides whether the binding to
+do this is <kbd>~</kbd> or <kbd>~/</kbd>.</dd>
+
+<dt><kbd>//</kbd> (double slash)</dt><dd>Move to the root directory. Either the local or the remote one, depending on the
+current directory. Here, you can also select a TRAMP connection method, such as <code>ssh</code>
+or <code>scpx</code>.</dd>
+
+<dt><kbd>/ RET</kbd></dt><dd>Move the the local root directory.</dd>
+</dl>
+
 <p>
 From any directory, with the empty input, inputting <code>/ssh:</code> and pressing
 <kbd>C-j</kbd> (or <kbd>RET</kbd>, which is the same thing) completes for host and user
@@ -1593,8 +1598,7 @@ It's recommended to use the <code>preselect</code> argument instead of this.
 </p></dd>
 <dt><code>history</code></dt><dd>Name of the symbol to store history. See <code>completing-read</code>.</dd>
 <dt><code>preselect</code></dt><dd><p>
-When set to a string value, select the first candidate matching
-this value.
+Determines which one of the candidates to initially select.
 </p>
 
 <p>
@@ -1603,7 +1607,14 @@ index value.
 </p>
 
 <p>
-Every time the input becomes empty, the item corresponding to to
+When set to any other non-nil value, select the first candidate
+matching this value.  Comparison is first done with <code>equal</code>.
+If this fails, and when applicable, match <code>preselect</code> as a
+regular expression.
+</p>
+
+<p>
+Every time the input becomes empty, the item corresponding to
 <code>preselect</code> is selected.
 </p></dd>
 <dt><code>keymap</code></dt><dd>A keymap to be composed with <code>ivy-minibuffer-map</code>. This keymap
