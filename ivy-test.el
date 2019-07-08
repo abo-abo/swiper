@@ -1089,6 +1089,13 @@ a buffer visiting a file."
    (string=
     (ivy-with-text
      "|(defun foo)\nasdf\n(defvar bar)"
+     (global-set-key (kbd "C-s") #'isearch-forward-regexp)
+     ("C-s" "defun\\|defvar" "RET"))
+    "(defun| foo)\nasdf\n(defvar bar)"))
+  (should
+   (string=
+    (ivy-with-text
+     "|(defun foo)\nasdf\n(defvar bar)"
      (global-set-key (kbd "C-s") #'swiper-isearch)
      ("C-s" "defun\\|defvar" "RET"))
     "(defun| foo)\nasdf\n(defvar bar)"))
@@ -1099,6 +1106,48 @@ a buffer visiting a file."
      (global-set-key (kbd "C-s") #'swiper-isearch)
      ("C-s" "defun\\|defvar" "C-n RET"))
     "(defun foo)\nasdf\n(defvar| bar)")))
+
+(ert-deftest swiper-isearch-backward ()
+  (should
+   (string=
+    (ivy-with-text
+     "abc\nasdf123 def\ndem|"
+     (global-set-key (kbd "C-r") #'isearch-backward-regexp)
+     ("C-r" "de" "" "RET"))
+    "abc\nasdf123 def\n|dem"))
+  (should
+   (string=
+    (ivy-with-text
+     "abc\nasdf123 def\ndem|"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "de" "" "RET"))
+    "abc\nasdf123 def\n|dem"))
+  (should
+   (string=
+    (ivy-with-text
+     "(defun foo)\nasdf\n(defvar bar)|"
+     (global-set-key (kbd "C-r") #'isearch-backward-regexp)
+     ("C-r" "defun\\|defvar" "RET"))
+    "(defun foo)\nasdf\n(|defvar bar)"))
+  ;; NOTE: The following two behaviors do not match
+  ;; `isearch-backward-regexp', but they match that of
+  ;; `swiper-isearch-forward', as `swiper-isearch' does not reset the
+  ;; point when the regexp becomes invalid, meaning the point is left
+  ;; at the initial match of the first part of the regexp.
+  (should
+   (string=
+    (ivy-with-text
+     "(defun foo)\nasdf\n(defvar bar)|"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "defun\\|defvar" "RET"))
+    "(|defun foo)\nasdf\n(defvar bar)"))
+  (should
+   (string=
+    (ivy-with-text
+     "(defun foo)\nasdf\n(defvar bar)|"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "defun\\|defvar" "C-n RET"))
+    "(defun foo)\nasdf\n(|defvar bar)")))
 
 (ert-deftest swiper-isearch-case-fold ()
   (should

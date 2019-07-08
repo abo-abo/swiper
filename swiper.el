@@ -129,7 +129,8 @@
   :group 'swiper)
 
 (defcustom swiper-goto-start-of-match nil
-  "When non-nil, go to the start of the match, not its end."
+  "When non-nil, go to the start of the match, not its end.
+Treated as non-nil when searching backwards."
   :type 'boolean
   :group 'swiper)
 
@@ -1303,6 +1304,8 @@ come back to the same place as when \"a\" was initially entered.")
               (invisible-p (overlay-get ov 'invisible)))
             (overlays-at (point))))))
 
+(defvar swiper--isearch-backward nil)
+
 (defun swiper--isearch-function (str)
   (let* ((case-fold-search (ivy--case-fold-p str))
          (re-full (funcall ivy--regex-function str))
@@ -1316,24 +1319,32 @@ come back to the same place as when \"a\" was initially entered.")
             idx-found
             (idx 0))
         (save-excursion
-          (goto-char (point-min))
-          (while (re-search-forward re nil t)
+          (goto-char (if swiper--isearch-backward (point-max) (point-min)))
+          (while (funcall (if swiper--isearch-backward #'re-search-backward #'re-search-forward) re nil t)
             (when (swiper-match-usable-p)
               (unless idx-found
-                (when (or
-                       (eq (match-beginning 0) pt-hist)
-                       (>= (match-beginning 0) (cdar swiper--isearch-point-history)))
+                (when (if swiper--isearch-backward
+                          ;; test if match is before point
+                          (<= (match-beginning 0) (cdar swiper--isearch-point-history))
+                        (or
+                         ;; test if match is at or after point
+                         (eq (match-beginning 0) pt-hist)
+                         (>= (match-beginning 0) (cdar swiper--isearch-point-history))))
                   (push (cons str (match-beginning 0)) swiper--isearch-point-history)
                   (setq idx-found idx)))
               (cl-incf idx)
-              (let ((pos (if swiper-goto-start-of-match
+              (let ((pos (if (or swiper--isearch-backward swiper-goto-start-of-match)
                              (match-beginning 0)
                            (point))))
                 (push pos cands)))))
         (setq ivy--old-re re)
         (when idx-found
-          (ivy-set-index idx-found))
-        (setq ivy--old-cands (nreverse cands))))))
+          (ivy-set-index (if swiper--isearch-backward
+                             (- (length cands) idx-found 1)
+                           idx-found)))
+        (setq ivy--old-cands (if swiper--isearch-backward
+                                 cands
+                               (nreverse cands)))))))
 
 (defcustom swiper-isearch-highlight-delay '(2 0.2)
   "When `ivy-text' is too short, delay showing the overlay.
@@ -1536,6 +1547,13 @@ When not running `swiper-isearch' already, start it."
       (isearch-clean-overlays)
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
+
+;;;###autoload
+(defun swiper-isearch-backward (&optional initial-input)
+  "Like `swiper-isearch' but the first result is before the point."
+  (interactive)
+  (let ((swiper--isearch-backward t))
+    (swiper-isearch initial-input)))
 
 (add-to-list 'ivy-format-functions-alist '(swiper-isearch . swiper-isearch-format-function))
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
