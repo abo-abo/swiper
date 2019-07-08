@@ -129,7 +129,8 @@
   :group 'swiper)
 
 (defcustom swiper-goto-start-of-match nil
-  "When non-nil, go to the start of the match, not its end."
+  "When non-nil, go to the start of the match, not its end.
+Treated as non-nil when searching backwards."
   :type 'boolean
   :group 'swiper)
 
@@ -1294,7 +1295,13 @@ come back to the same place as when \"a\" was initially entered.")
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
   (with-ivy-window
-    (swiper--isearch-function str)))
+    (swiper--isearch-function str nil)))
+
+(defun swiper-isearch-backward-function (str)
+  "Collect STR matches in the current buffer for `swiper-isearch'.
+However, the first result is before the point."
+  (with-ivy-window
+    (swiper--isearch-function str t)))
 
 (defun swiper-match-usable-p ()
   (or search-invisible
@@ -1303,7 +1310,7 @@ come back to the same place as when \"a\" was initially entered.")
               (invisible-p (overlay-get ov 'invisible)))
             (overlays-at (point))))))
 
-(defun swiper--isearch-function (str)
+(defun swiper--isearch-function (str &optional backward)
   (let* ((case-fold-search (ivy--case-fold-p str))
          (re-full (funcall ivy--regex-function str))
          (re (ivy-re-to-str re-full)))
@@ -1316,24 +1323,37 @@ come back to the same place as when \"a\" was initially entered.")
             idx-found
             (idx 0))
         (save-excursion
-          (goto-char (point-min))
-          (while (re-search-forward re nil t)
+          ;; We search from the beginning when going forward, and from
+          ;; the end when going backward, which changes the order of
+          ;; the stored candidates.
+          (goto-char (if backward (point-max) (point-min)))
+          (while (funcall (if backward #'re-search-backward #'re-search-forward) re nil t)
             (when (swiper-match-usable-p)
               (unless idx-found
-                (when (or
-                       (eq (match-beginning 0) pt-hist)
-                       (>= (match-beginning 0) (cdar swiper--isearch-point-history)))
+                (when (if backward ; test if match is before point
+                          (<= (match-beginning 0) (cdar swiper--isearch-point-history))
+                        (or ; test if match is at or after point
+                         (eq (match-beginning 0) pt-hist)
+                         (>= (match-beginning 0) (cdar swiper--isearch-point-history))))
                   (push (cons str (match-beginning 0)) swiper--isearch-point-history)
                   (setq idx-found idx)))
               (cl-incf idx)
-              (let ((pos (if swiper-goto-start-of-match
+              (let ((pos (if (or backward swiper-goto-start-of-match)
                              (match-beginning 0)
                            (point))))
                 (push pos cands)))))
         (setq ivy--old-re re)
+        ;; Here we reverse `cands' if we were searching forward, but
+        ;; the index is correct. However, if we were searching
+        ;; backward, `cands' is already in the correct order, but the
+        ;; index has to be inversed.
         (when idx-found
-          (ivy-set-index idx-found))
-        (setq ivy--old-cands (nreverse cands))))))
+          (ivy-set-index (if backward
+                             (- (length cands) idx-found 1)
+                           idx-found)))
+        (setq ivy--old-cands (if backward
+                                 cands
+                               (nreverse cands)))))))
 
 (defcustom swiper-isearch-highlight-delay '(2 0.2)
   "When `ivy-text' is too short, delay showing the overlay.
@@ -1502,8 +1522,13 @@ When not running `swiper-isearch' already, start it."
       (mapconcat #'identity (nreverse res) "\n"))))
 
 ;;;###autoload
-(defun swiper-isearch (&optional initial-input)
+(defun swiper-isearch (&optional initial-input backward)
   "A `swiper' that's not line-based."
+  ;; TODO: Perhaps most of this function should be refactored to an
+  ;; implementation `swiper--isearch' with `swiper-isearch' and
+  ;; `swiper-isearch-backward' just accepting `initial-input' and
+  ;; passing either `swiper-isearch-function' or
+  ;; `swiper-isearch-backward-function'.
   (interactive)
   (swiper--init)
   (swiper-font-lock-ensure)
@@ -1519,7 +1544,9 @@ When not running `swiper-isearch' already, start it."
           (setq res
                 (ivy-read
                  "Swiper: "
-                 #'swiper-isearch-function
+                 (if backward
+                     #'swiper-isearch-backward-function
+                   #'swiper-isearch-function)
                  :initial-input initial-input
                  :keymap swiper-isearch-map
                  :dynamic-collection t
@@ -1536,6 +1563,12 @@ When not running `swiper-isearch' already, start it."
       (isearch-clean-overlays)
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
+
+;;;###autoload
+(defun swiper-isearch-backward (&optional initial-input)
+  "Like `swiper-isearch' but the first result is before the point."
+  (interactive)
+  (swiper-isearch initial-input t))
 
 (add-to-list 'ivy-format-functions-alist '(swiper-isearch . swiper-isearch-format-function))
 (ivy-set-occur 'swiper-isearch 'swiper-occur)
