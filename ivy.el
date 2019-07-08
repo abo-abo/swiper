@@ -2903,6 +2903,20 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
   (make-directory dir)
   (ivy--cd dir))
 
+(defun ivy--magic-file-doubleslash-directory ()
+  "Return an appropriate directory for when two slashes are entered."
+  (let (remote)
+    (cond
+      ;; Windows
+      ((string-match "\\`[[:alpha:]]:/" ivy--directory)
+       (match-string 0 ivy--directory))
+      ;; Remote root if on remote
+      ((setq remote (file-remote-p ivy--directory))
+       (concat remote "/"))
+      ;; Local root
+      (t
+       "/"))))
+
 (defun ivy--magic-file-slash ()
   "Handle slash when completing file names."
   (when (or (and (eq this-command #'self-insert-command)
@@ -2913,9 +2927,8 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
       (cond ((member ivy-text ivy--all-candidates)
              (ivy--cd canonical))
             ((string-match-p "//\\'" ivy-text)
-             (ivy--cd (if (string-match "\\`[[:alpha:]]:/" default-directory)
-                          (match-string 0 default-directory)
-                        "/")))
+             (ivy--cd
+              (ivy--magic-file-doubleslash-directory)))
             ((string-match-p "\\`/ssh:" ivy-text)
              (ivy--cd (file-name-directory ivy-text)))
             ((string-match "[[:alpha:]]:/\\'" ivy-text)
