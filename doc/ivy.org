@@ -1022,6 +1022,22 @@ bindings that work here:
      files previously opened. It also works with TRAMP files.
 
 *** Using TRAMP
+:PROPERTIES:
+:CUSTOM_ID: using-tramp
+:END:
+- ~~~ (tilde) ::
+     Move to the home directory. Either the local or the remote one, depending on the
+     current directory. The boolean option =ivy-magic-tilde= decides whether the binding to
+     do this is ~~~ or ~~/~.
+
+- ~//~ (double slash) ::
+     Move to the root directory. Either the local or the remote one, depending on the
+     current directory. Here, you can also select a TRAMP connection method, such as =ssh=
+     or =scpx=.
+
+- ~/ RET~ ::
+     Move the the local root directory.
+
 From any directory, with the empty input, inputting =/ssh:= and pressing
 ~C-j~ (or ~RET~, which is the same thing) completes for host and user
 names.

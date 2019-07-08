@@ -1360,6 +1360,26 @@ files previously opened. It also works with TRAMP files.
 @node Using TRAMP
 @subsection Using TRAMP
 
+@subsubheading @kbd{~} (tilde)
+@kindex ~
+@indentedblock
+Move to the home directory. Either the local or the remote one, depending on the
+current directory. The boolean option @code{ivy-magic-tilde} decides whether the binding to
+do this is @kbd{~} or @kbd{~/}.
+@end indentedblock
+@subsubheading @kbd{//} (double slash)
+@kindex //
+@indentedblock
+Move to the root directory. Either the local or the remote one, depending on the
+current directory. Here, you can also select a TRAMP connection method, such as @code{ssh}
+or @code{scpx}.
+@end indentedblock
+@subsubheading @kbd{/ RET}
+@kindex / RET
+@indentedblock
+Move the the local root directory.
+@end indentedblock
+
 From any directory, with the empty input, inputting @code{/ssh:} and pressing
 @kbd{C-j} (or @kbd{RET}, which is the same thing) completes for host and user
 names.
