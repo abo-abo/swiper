@@ -1973,7 +1973,8 @@ customizations apply to the current completion session."
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
-            (ivy-alist-setting ivy-display-functions-alist caller))))
+            (ivy-alist-setting ivy-display-functions-alist caller)))
+         result)
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -2033,10 +2034,12 @@ customizations apply to the current completion session."
                  (unless (equal item "")
                    (set hist (cons (propertize item 'ivy-index ivy--index)
                                    (delete item
-                                           (cdr (symbol-value hist))))))))))
+                                           (cdr (symbol-value hist))))))))
+             (setq result (ivy-state-current ivy-last))))
       (ivy--cleanup))
     (ivy-call)
-    (ivy--remove-props (ivy-state-current ivy-last) 'idx)))
+    (ivy--remove-props (ivy-state-current ivy-last) 'idx)
+    result))
 
 (defun ivy--cleanup ()
   ;; Fixes a bug in ESS, #1660
