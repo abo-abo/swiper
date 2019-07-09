@@ -4396,7 +4396,7 @@ Also set `ivy--reverse-i-search-symbol' to SYM-OR-RING."
   "Enter a recursive `ivy-read' session using the current history.
 The selected history element will be inserted into the minibuffer.
 \\<ivy-reverse-i-search-map>
-You can also delete an emement from history with \\[ivy-reverse-i-search-kill]."
+You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
   (interactive)
   (cond
     ((= (minibuffer-depth) 0)
