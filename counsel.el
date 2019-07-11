@@ -1577,7 +1577,7 @@ done") "\n" t)))
 (defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
   "Command used for \"git log\".")
 
-(defvar counsel-git-log-split-string-re "\ncommit "
+(defvar counsel-git-log-split-string-re "^commit "
   "The `split-string' separates when split output of `counsel-git-log-cmd'.")
 
 (defun counsel-git-log-function (str)
