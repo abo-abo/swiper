@@ -1599,6 +1599,18 @@ done") "\n" t)))
   "Add candidate X to kill ring."
   (message "%S" (kill-new x)))
 
+(declare-function magit-show-commit "ext:magit-diff")
+
+(defun counsel-git-log-show-commit-action (log-entry)
+  "Visit the commit corresponding to LOG-ENTRY."
+  (require 'magit-diff)
+  (let ((commit (substring-no-properties log-entry 0 (string-match-p "\n" log-entry))))
+    (magit-show-commit commit)))
+
+(ivy-set-actions
+ 'counsel-git-log
+ '(("v" counsel-git-log-show-commit-action "visit commit")))
+
 ;;** `counsel-git-change-worktree'
 (defun counsel-git-change-worktree-action (git-root-dir tree)
   "Find the corresponding file in the worktree located at tree.
