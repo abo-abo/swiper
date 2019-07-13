@@ -326,6 +326,7 @@ Update the minibuffer with the amount of lines collected every
 (declare-function jedi:complete-request "ext:jedi-core")
 (declare-function jedi:ac-direct-matches "ext:jedi")
 
+;;;###autoload
 (defun counsel-jedi ()
   "Python completion at point."
   (interactive)
@@ -652,6 +653,7 @@ X is an item of a radio- or choice-type defcustom."
   "Face for displaying Lisp documentation."
   :group 'ivy-faces)
 
+;;;###autoload
 (defun counsel-set-variable (sym)
   "Set a variable SYM, with completion.
 
@@ -910,6 +912,7 @@ when available, in that order of precedence."
  '(("r" counsel-command-history-action-eval           "eval command")
    ("e" counsel-command-history-action-edit-and-eval  "edit and eval command")))
 
+;;;###autoload
 (defun counsel-command-history ()
   "Show the history of commands."
   (interactive)
@@ -1127,6 +1130,7 @@ back to the face of the character after point, and finally the
 `default' face."
   (symbol-name (or (face-at-point t) 'default)))
 
+;;;###autoload
 (defun counsel-describe-face ()
   "Completion for `describe-face'."
   (interactive)
@@ -2300,6 +2304,7 @@ string - the full shell command to run."
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
+;;;###autoload
 (defun counsel-locate-action-extern (x)
   "Pass X to `xdg-open' or equivalent command via the shell."
   (interactive "FFile: ")
@@ -3003,6 +3008,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 ;; You can try the GUI version of recoll with:
 ;;     sudo apt-get install recoll
 ;; Unfortunately, that does not install recollq.
+;;;###autoload
 (defun counsel-recoll (&optional initial-input)
   "Search for a string in the recoll database.
 You'll be given a list of files that match.
@@ -3156,6 +3162,7 @@ otherwise continue prompting for tags."
                  (org-get-tags nil t)
                (error (org-get-tags)))))
 
+;;;###autoload
 (defun counsel-org-tag ()
   "Add or remove tags in `org-mode'."
   (interactive)
@@ -3605,6 +3612,7 @@ This variable has no effect unless
       (with-ivy-window
         (forward-line (- linenum (line-number-at-pos)))))))
 
+;;;###autoload
 (defun counsel-mark-ring ()
   "Browse `mark-ring' interactively.
 Obeys `widen-automatically', which see."
@@ -3669,6 +3677,7 @@ Position of selected mark outside accessible part of buffer")))
                 package-archive-contents)
         #'counsel--package-sort))
 
+;;;###autoload
 (defun counsel-package ()
   "Install or delete packages.
 
@@ -4019,6 +4028,7 @@ matching the register's value description against a regexp in
   "The `ivy-height' of `counsel-evil-registers'."
   :type 'integer)
 
+;;;###autoload
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
   (interactive)
@@ -4212,6 +4222,7 @@ An extra action allows to switch to the process buffer."
 (defvar hydra-curr-body-fn)
 (declare-function hydra-keyboard-quit "ext:hydra")
 
+;;;###autoload
 (defun counsel-hydra-heads ()
   "Call a head of the current/last hydra."
   (interactive)
@@ -4286,6 +4297,7 @@ TREEP is used to expand internal nodes."
           (semantic-tag-get-attribute tag :members)))))
    (semantic-fetch-tags)))
 
+;;;###autoload
 (defun counsel-semantic ()
   "Jump to a semantic tag in the current buffer."
   (interactive)
@@ -4300,6 +4312,7 @@ TREEP is used to expand internal nodes."
               :history 'counsel-semantic-history
               :caller 'counsel-semantic)))
 
+;;;###autoload
 (defun counsel-semantic-or-imenu ()
   (interactive)
   (require 'semantic/fw)
@@ -5216,6 +5229,7 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
       (unless (member title counsel-wmctrl-ignore)
         (cons title id)))))
 
+;;;###autoload
 (defun counsel-wmctrl ()
   "Select a desktop window using wmctrl."
   (interactive)
