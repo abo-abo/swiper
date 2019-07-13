@@ -1249,7 +1249,7 @@ If the input is empty, select the previous history element instead."
   "Move cursor vertically up ARG candidates.
 If the input is empty, select the previous history element instead."
   (interactive "p")
-  (when (and (zerop ivy--index) (string= ivy-text ""))
+  (when (string= ivy-text "")
     (ivy-previous-history-element 1))
   (ivy-previous-line arg))
 
