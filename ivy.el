@@ -262,12 +262,12 @@ When display-function is nil, candidates are shown in the
 minibuffer."
   :type '(alist
           :key-type symbol
-          :value-type '(choice
-                        (const :tag "Minibuffer" nil)
-                        (const :tag "LV" ivy-display-function-lv)
-                        (const :tag "Popup" ivy-display-function-popup)
-                        (const :tag "Overlay" ivy-display-function-overlay)
-                        (function :tag "Custom function"))))
+          :value-type (choice
+                       (const :tag "Minibuffer" nil)
+                       (const :tag "LV" ivy-display-function-lv)
+                       (const :tag "Popup" ivy-display-function-popup)
+                       (const :tag "Overlay" ivy-display-function-overlay)
+                       (function :tag "Custom function"))))
 
 (defvar ivy-completing-read-dynamic-collection nil
   "Run `ivy-completing-read' with `:dynamic-collection t`.")
@@ -284,7 +284,7 @@ minibuffer."
     (Info-virtual-index . ivy-completing-read-with-empty-string-def)
     (info-display-manual . ivy-completing-read-with-empty-string-def))
   "An alist of handlers to replace `completing-read' in `ivy-mode'."
-  :type '(alist :key-type function :value-type function))
+  :type '(alist :key-type symbol :value-type function))
 
 (defcustom ivy-height-alist nil
   "An alist to customize `ivy-height'.
@@ -1620,11 +1620,12 @@ minibuffer."
 This string is inserted into the minibuffer."
   :type '(alist
           :key-type symbol
-          :value-type '(choice
-                        (const :tag "Default" ivy-format-function-default)
-                        (const :tag "Arrow prefix" ivy-format-function-arrow)
-                        (const :tag "Full line" ivy-format-function-line)
-                        (function :tag "Custom function"))))
+          :value-type
+          (choice
+           (const :tag "Default" ivy-format-function-default)
+           (const :tag "Arrow prefix" ivy-format-function-arrow)
+           (const :tag "Full line" ivy-format-function-line)
+           (function :tag "Custom function"))))
 
 (defvar ivy-format-function #'ivy-format-function-default
   "Function to transform the list of candidates into a string.
