@@ -1473,7 +1473,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
      (counsel--async-command (format counsel-git-grep-cmd regex))
      nil)))
 
-;;;###autoload
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
   (interactive)
@@ -1532,7 +1531,6 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
     (ivy--occur-insert-lines
      (mapcar #'counsel--normalize-grep-match cands))))
 
-;;;###autoload
 (defun counsel-git-grep-query-replace ()
   "Start `query-replace' with string to replace from last search string."
   (interactive)
@@ -2013,7 +2011,6 @@ If nil, then `counsel-up-directory' will go up a directory.
 For example: /a/long/path/file.jpg => /a/long/
              /a/long/path/     =>     /a/long/")
 
-;;;###autoload
 (defun counsel-up-directory ()
   "Go to the parent directory preselecting the current one.
 
