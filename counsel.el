@@ -1707,18 +1707,21 @@ currently checked out."
 
 (defvar counsel-yank-pop-truncate-radius)
 
+(defun counsel--git-log-format-function (str)
+  (let ((counsel-yank-pop-truncate-radius 5))
+    (counsel--yank-pop-format-function str)))
+
 ;;;###autoload
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
   (interactive)
-  (let ((counsel-yank-pop-truncate-radius 5))
-    (ivy-read "Grep log: " #'counsel-git-log-function
-              :dynamic-collection t
-              :action #'counsel-git-log-action
-              :unwind #'counsel-delete-process
-              :caller 'counsel-git-log)))
+  (ivy-read "Grep log: " #'counsel-git-log-function
+            :dynamic-collection t
+            :action #'counsel-git-log-action
+            :unwind #'counsel-delete-process
+            :caller 'counsel-git-log))
 
-(add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--yank-pop-format-function))
+(add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--git-log-format-function))
 (add-to-list 'ivy-height-alist '(counsel-git-log . 4))
 (add-to-list 'counsel-async-split-string-re-alist '(counsel-git-log . "^commit "))
 (add-to-list 'counsel-async-ignore-re-alist '(counsel-git-log . "^[ \n]*$"))
