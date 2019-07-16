@@ -1374,8 +1374,8 @@ Move to the root directory. Either the local or the remote one, depending on the
 current directory. Here, you can also select a TRAMP connection method, such as @code{ssh}
 or @code{scpx}.
 @end indentedblock
-@subsubheading @kbd{/ RET}
-@kindex / RET
+@subsubheading @kbd{/ C-j}
+@kindex / C-j
 @indentedblock
 Move the the local root directory.
 @end indentedblock

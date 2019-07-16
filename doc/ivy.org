@@ -1035,7 +1035,7 @@ bindings that work here:
      current directory. Here, you can also select a TRAMP connection method, such as =ssh=
      or =scpx=.
 
-- ~/ RET~ ::
+- ~/ C-j~ ::
      Move the the local root directory.
 
 From any directory, with the empty input, inputting =/ssh:= and pressing
