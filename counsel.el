@@ -201,6 +201,9 @@ respectively."
 
 (defvar counsel-grep-last-line nil)
 
+(defun counsel--split-string (&optional str)
+  (split-string (or str (buffer-string)) counsel-async-split-string-re t))
+
 (defun counsel--async-sentinel (process _msg)
   "Sentinel function for an asynchronous counsel PROCESS."
   (when (eq (process-status process) 'exit)
@@ -209,7 +212,7 @@ respectively."
           (ivy--set-candidates
            (ivy--sort-maybe
             (with-current-buffer (process-buffer process)
-              (split-string (buffer-string) counsel-async-split-string-re t))))
+              (counsel--split-string))))
           (setq counsel-grep-last-line nil)
           (when counsel--async-start
             (setq counsel--async-duration
@@ -253,9 +256,7 @@ Update the minibuffer with the amount of lines collected every
       (with-current-buffer (process-buffer process)
         (setq numlines (count-lines (point-min) (point-max)))
         (ivy--set-candidates
-         (let ((lines (split-string (buffer-string)
-                                    counsel-async-split-string-re
-                                    t)))
+         (let ((lines (counsel--split-string)))
            (if (stringp counsel-async-ignore-re)
                (cl-remove-if (lambda (line)
                                (string-match-p counsel-async-ignore-re line))
@@ -1519,10 +1520,7 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
                        " ")))
          (cmd (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns))
          cands)
-    (setq cands (split-string
-                 (shell-command-to-string cmd)
-                 counsel-async-split-string-re
-                 t))
+    (setq cands (counsel--split-string (shell-command-to-string cmd)))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
@@ -2760,9 +2758,7 @@ CALLER is passed to `ivy-read'."
                       (concat
                        switches
                        (shell-quote-argument regex))))
-         (cands (split-string (shell-command-to-string cmd)
-                              counsel-async-split-string-re
-                              t)))
+         (cands (counsel--split-string (shell-command-to-string cmd))))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                     default-directory))
