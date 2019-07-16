@@ -172,6 +172,11 @@ descriptions.")
 
 (defvar counsel-async-split-string-re "\n"
   "Store the regexp for splitting shell command output.")
+(make-obsolete-variable
+ 'counsel-async-split-string-re 'counsel-async-split-string-re-alist "<2019-07-16 Tue>")
+
+(defvar counsel-async-split-string-re-alist '((t . "\n"))
+  "Store the regexp for splitting shell command output.")
 
 (defvar counsel-async-ignore-re nil
   "Regexp matching candidates to ignore in `counsel--async-filter'.")
@@ -202,7 +207,10 @@ respectively."
 (defvar counsel-grep-last-line nil)
 
 (defun counsel--split-string (&optional str)
-  (split-string (or str (buffer-string)) counsel-async-split-string-re t))
+  (split-string
+   (or str (buffer-string))
+   (ivy-alist-setting counsel-async-split-string-re-alist)
+   t))
 
 (defun counsel--async-sentinel (process _msg)
   "Sentinel function for an asynchronous counsel PROCESS."
@@ -1580,6 +1588,8 @@ done") "\n" t)))
 
 (defvar counsel-git-log-split-string-re "^commit "
   "The `split-string' separates when split output of `counsel-git-log-cmd'.")
+(make-obsolete-variable
+ 'counsel-git-log-split-string-re 'counsel-async-split-string-re-alist "<2019-07-16 Tue>")
 
 (defun counsel-git-log-function (str)
   "Search for STR in git log."
@@ -1696,8 +1706,7 @@ currently checked out."
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
   (interactive)
-  (let ((counsel-async-split-string-re counsel-git-log-split-string-re)
-        (counsel-async-ignore-re "^[ \n]*$")
+  (let ((counsel-async-ignore-re "^[ \n]*$")
         (counsel-yank-pop-truncate-radius 5))
     (ivy-read "Grep log: " #'counsel-git-log-function
               :dynamic-collection t
@@ -1707,6 +1716,7 @@ currently checked out."
 
 (add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--yank-pop-format-function))
 (add-to-list 'ivy-height-alist '(counsel-git-log . 4))
+(add-to-list 'counsel-async-split-string-re-alist '(counsel-git-log . "^commit "))
 
 ;;* File
 ;;** `counsel-find-file'
