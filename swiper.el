@@ -314,17 +314,18 @@
 (defun swiper--avy-goto (candidate)
   (cond ((let ((win (cdr-safe candidate)))
            (and win (window-minibuffer-p win)))
-         (let ((cand-text (save-excursion
-                            (goto-char (car candidate))
-                            (buffer-substring-no-properties
-                             (line-beginning-position)
-                             (line-end-position)))))
-           (ivy-set-index (cl-position-if
-                           (lambda (x) (cl-search x cand-text))
-                           ivy--old-cands))
-           (ivy--exhibit)
-           (ivy-done)
-           (ivy-call)))
+         (let ((nlines (count-lines (point-min) (point-max))))
+           (ivy-set-index
+            (+ (car (ivy--minibuffer-index-bounds
+                     ivy--index ivy--length ivy-height))
+               (line-number-at-pos (car candidate))
+               (if (= nlines (1+ ivy-height))
+                   0
+                 (- ivy-height nlines))
+               -2)))
+         (ivy--exhibit)
+         (ivy-done)
+         (ivy-call))
         ((or (consp candidate)
              (number-or-marker-p candidate))
          (ivy-quit-and-run
