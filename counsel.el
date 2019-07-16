@@ -180,6 +180,10 @@ descriptions.")
 
 (defvar counsel-async-ignore-re nil
   "Regexp matching candidates to ignore in `counsel--async-filter'.")
+(make-obsolete-variable 'counsel-async-ignore-re 'counsel-async-ignore-re-alist "<2019-07-16 Tue>")
+
+(defvar counsel-async-ignore-re-alist nil
+  "An alist of regexp matching candidates to ignore in `counsel--async-filter'.")
 
 (defun counsel--async-command (cmd &optional sentinel filter name)
   "Start and return new counsel process by calling CMD.
@@ -264,10 +268,11 @@ Update the minibuffer with the amount of lines collected every
       (with-current-buffer (process-buffer process)
         (setq numlines (count-lines (point-min) (point-max)))
         (ivy--set-candidates
-         (let ((lines (counsel--split-string)))
-           (if (stringp counsel-async-ignore-re)
+         (let ((lines (counsel--split-string))
+               (ignore-re (ivy-alist-setting counsel-async-ignore-re-alist)))
+           (if (stringp ignore-re)
                (cl-remove-if (lambda (line)
-                               (string-match-p counsel-async-ignore-re line))
+                               (string-match-p ignore-re line))
                              lines)
              lines))))
       (let ((ivy--prompt (format "%d++ %s" numlines (ivy-state-prompt ivy-last))))
@@ -1706,8 +1711,7 @@ currently checked out."
 (defun counsel-git-log ()
   "Call the \"git log --grep\" shell command."
   (interactive)
-  (let ((counsel-async-ignore-re "^[ \n]*$")
-        (counsel-yank-pop-truncate-radius 5))
+  (let ((counsel-yank-pop-truncate-radius 5))
     (ivy-read "Grep log: " #'counsel-git-log-function
               :dynamic-collection t
               :action #'counsel-git-log-action
@@ -1717,6 +1721,7 @@ currently checked out."
 (add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--yank-pop-format-function))
 (add-to-list 'ivy-height-alist '(counsel-git-log . 4))
 (add-to-list 'counsel-async-split-string-re-alist '(counsel-git-log . "^commit "))
+(add-to-list 'counsel-async-ignore-re-alist '(counsel-git-log . "^[ \n]*$"))
 
 ;;* File
 ;;** `counsel-find-file'
