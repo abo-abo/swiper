@@ -647,7 +647,6 @@ X is an item of a radio- or choice-type defcustom."
 (declare-function lv-delete-window "ext:lv")
 (declare-function custom-variable-documentation "cus-edit")
 
-;;;###autoload
 (defface counsel-variable-documentation
   '((t :inherit font-lock-comment-face))
   "Face for displaying Lisp documentation."
@@ -3591,7 +3590,8 @@ This variable has no effect unless
 ;;** `counsel-mark-ring'
 (defface counsel--mark-ring-highlight
   '((t (:inherit highlight)))
-  "Face for current `counsel-mark-ring' line.")
+  "Face for current `counsel-mark-ring' line."
+  :group 'ivy-faces)
 
 (defvar counsel--mark-ring-overray nil
   "Intarnal overray to highlight line by candidate of `counsel-mark-ring'.")
