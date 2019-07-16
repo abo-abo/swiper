@@ -319,7 +319,8 @@
             (+ (car (ivy--minibuffer-index-bounds
                      ivy--index ivy--length ivy-height))
                (line-number-at-pos (car candidate))
-               (if (= nlines (1+ ivy-height))
+               (if (or (= nlines (1+ ivy-height))
+                       (< ivy--length ivy-height))
                    0
                  (- ivy-height nlines))
                -2)))
