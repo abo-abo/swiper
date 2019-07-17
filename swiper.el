@@ -1323,12 +1323,10 @@ come back to the same place as when \"a\" was initially entered.")
           (while (funcall (if swiper--isearch-backward #'re-search-backward #'re-search-forward) re nil t)
             (when (swiper-match-usable-p)
               (unless idx-found
-                (when (if swiper--isearch-backward
-                          ;; test if match is before point
-                          (<= (match-beginning 0) (cdar swiper--isearch-point-history))
-                        (or
-                         ;; test if match is at or after point
-                         (eq (match-beginning 0) pt-hist)
+                (when (or
+                       (eq (match-beginning 0) pt-hist)
+                       (if swiper--isearch-backward
+                           (<= (match-beginning 0) (cdar swiper--isearch-point-history))
                          (>= (match-beginning 0) (cdar swiper--isearch-point-history))))
                   (push (cons str (match-beginning 0)) swiper--isearch-point-history)
                   (setq idx-found idx)))

@@ -1149,6 +1149,22 @@ a buffer visiting a file."
      ("C-r" "defun\\|defvar" "C-n RET"))
     "(defun foo)\nasdf\n(|defvar bar)")))
 
+(ert-deftest swiper-isearch-backward-backspace ()
+  (should
+   (string=
+    (ivy-with-text
+     "(while (when |))"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "whi" "" "RET"))
+    "(while (|when ))"))
+  (should
+   (string=
+    (ivy-with-text
+     "(while (when |))"
+     (global-set-key (kbd "C-r") #'isearch-backward-regexp)
+     ("C-r" "whi" "" "RET"))
+    "(while (|when ))")))
+
 (ert-deftest swiper-isearch-case-fold ()
   (should
    (string=
