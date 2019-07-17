@@ -971,15 +971,22 @@ will bring the behavior in line with the newer Emacsen."
 a buffer visiting a file."
   (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
     (ivy-mode 1)
+    ;; `ivy-read' returns "~/dummy-dir/dummy-file" (same object, not a copy).
+    ;;
+    ;; `read-file-name-default' will then return "" in order for
+    ;; `set-visited-file-name' to detect that the user typed RET with
+    ;; the minibuffer empty.
     (should
-     (equal "~/dummy-dir/dummy-file" ;visiting file name, abbreviated form
-            (ivy-with
+     (equal (ivy-with
              '(let ((insert-default-directory t))
-                (with-temp-buffer
-                  (set-visited-file-name "~/dummy-dir/dummy-file")
-                  (read-file-name "Load file: " nil nil 'lambda))) ;load-file
+               (with-temp-buffer
+                 (set-visited-file-name "~/dummy-dir/dummy-file")
+                 (read-file-name "Load file: " nil nil 'lambda)))
              ;; No editing, just command ivy-immediate-done
-             "C-M-j")))
+             "C-M-j")
+            ""))
+    (should
+     (equal (ivy-state-current ivy-last) "~/dummy-dir/dummy-file"))
     (ivy-mode ivy-mode-reset-arg)))
 
 (ert-deftest ivy-starts-with-dotslash ()

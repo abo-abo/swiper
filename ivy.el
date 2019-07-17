@@ -1125,14 +1125,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
               ((and (string= ivy-text "")
                     (eq (ivy-state-collection ivy-last)
                         #'read-file-name-internal))
-                ;; For `read-file-name' compat, unchanged initial input means
-                ;; that `ivy-read' shall return INITIAL-INPUT.
-                ;; `read-file-name-default' `string-equal' return value with
-                ;; provided INITIAL-INPUT to detect that the user choose the
-                ;; default, `default-filename'.  We must return `ivy--directory'
-                ;; in unchanged form in cased `ivy--directory' started out as
-                ;; INITIAL-INPUT in abbreviated form.
-               ivy--directory)          ; Unchanged (unexpanded)
+               (or (ivy-state-def ivy-last)
+                   ivy--directory))
               (t
                (expand-file-name ivy-text ivy--directory))))
   (insert (ivy-state-current ivy-last))
@@ -2023,10 +2017,10 @@ customizations apply to the current completion session."
                          (car ivy--all-candidates))
                    (setq ivy-exit 'done))
                (read-from-minibuffer
-                prompt
-                (ivy-state-initial-input ivy-last)
-                (make-composed-keymap keymap ivy-minibuffer-map)
-                nil
+                          prompt
+                          (ivy-state-initial-input ivy-last)
+                          (make-composed-keymap keymap ivy-minibuffer-map)
+                          nil
                 hist))
              (when (eq ivy-exit 'done)
                (let ((item (if ivy--directory
@@ -2120,14 +2114,14 @@ This is useful for recursive `ivy-read'."
              (require 'tramp)
              (when (and (equal def initial-input)
                         (member "./" ivy-extra-directories))
-               (setf (ivy-state-def state) (setq def nil)))
+               (setq def nil))
              (setq ivy--directory default-directory)
              (when (and initial-input
                         (not (equal initial-input "")))
                (cond ((file-directory-p initial-input)
                       (when (equal (file-name-nondirectory initial-input) "")
                         (setf (ivy-state-preselect state) (setq preselect nil))
-                        (setf (ivy-state-def state) (setq def nil)))
+                        (setq def nil))
                       (setq ivy--directory (file-name-as-directory initial-input))
                       (setq initial-input nil)
                       (when preselect
