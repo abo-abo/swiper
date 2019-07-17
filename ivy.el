@@ -3275,11 +3275,11 @@ The alist VAL is a sorting function with the signature of
   "Re-sort candidates by NAME.
 All CANDIDATES are assumed to match NAME."
   (let (fun)
-    (cond ((and ivy--flx-featurep
+    (cond ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist))
+           (funcall fun name candidates))
+          ((and ivy--flx-featurep
                 (eq ivy--regex-function 'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
-          ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist))
-           (funcall fun name candidates))
           (t
            candidates))))
 
