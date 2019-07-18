@@ -1376,6 +1376,8 @@ that we search only for one character."
       (with-ivy-window
         (goto-char x)
         (isearch-range-invisible (point) (1+ (point)))
+        (when swiper-action-recenter
+          (recenter))
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--delayed-add-overlays)
