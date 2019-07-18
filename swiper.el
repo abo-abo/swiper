@@ -1520,7 +1520,7 @@ When not running `swiper-isearch' already, start it."
   (swiper-font-lock-ensure)
   (setq swiper--isearch-point-history
         (list
-         (cons "" (point))))
+         (cons "" (- (point) (if swiper--isearch-backward 1 0)))))
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
