@@ -1620,7 +1620,7 @@ done") "\n" t)))
 (defun counsel-git-log-show-commit-action (log-entry)
   "Visit the commit corresponding to LOG-ENTRY."
   (require 'magit-diff)
-  (let ((commit (substring-no-properties log-entry 0 (string-match-p "\n" log-entry))))
+  (let ((commit (substring-no-properties log-entry 0 (string-match-p "\\W" log-entry))))
     (magit-show-commit commit)))
 
 (ivy-set-actions
