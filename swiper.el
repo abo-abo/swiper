@@ -848,6 +848,7 @@ Matched candidates should have `swiper-invocation-face'."
         (overlay-put ov 'after-string (propertize " " 'face 'ivy-cursor))
       (overlay-put ov 'face 'ivy-cursor))
     (overlay-put ov 'window wnd)
+    (overlay-put ov 'priority 2)
     (push ov swiper--overlays)))
 
 (defun swiper--add-line-overlay (wnd)
