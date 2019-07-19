@@ -3240,8 +3240,18 @@ CANDIDATES are assumed to be static."
                    res))))
     (setq ivy--all-candidates res)))
 
+(defun ivy--shorter-matches-first (_name cands)
+  "Sort CANDS according to their length."
+  (if (< (length cands) ivy-sort-max-size)
+      (cl-sort
+       (copy-sequence cands)
+       (lambda (s1 s2)
+         (< (length s1) (length s2))))
+    cands))
+
 (defcustom ivy-sort-matches-functions-alist
   '((t . nil)
+    (ivy-completion-in-region . ivy--shorter-matches-first)
     (ivy-switch-buffer . ivy-sort-function-buffer))
   "An alist of functions for sorting matching candidates.
 
