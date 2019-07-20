@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-07-20 Sat 18:30 -->
+<!-- 2019-07-20 Sat 20:34 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy CHANGELOG</title>
@@ -8676,6 +8676,7 @@ one or more buffers while still in the minibuffer.
 <div id="outline-container-orgheadline" class="outline-2">
 <h2 id="0.12.0">0.12.0</h2>
 <div class="outline-text-2" id="text-0.12.0">
+<hr />
 </div>
 <div id="outline-container-orgheadline" class="outline-3">
 <h3 id="0-12-0-fixes">Fixes</h3>
@@ -9298,6 +9299,11 @@ recent directories. See <a href="https://github.com/abo-abo/swiper/issues/1956">
 </p>
 
 <p>
+Press <kbd>$</kbd> to get completion for your environment variables that are directories. See <a href="https://github.com/abo-abo/swiper/issues/1932">#1932</a>,
+<a href="https://github.com/abo-abo/swiper/issues/1937">#1937</a>.
+</p>
+
+<p>
 New action: <kbd>M-o c</kbd> el:counsel-find-file-copy. See <a href="https://github.com/abo-abo/swiper/issues/1955">#1955</a>.
 </p>
 
@@ -9318,6 +9324,16 @@ go to the local root, use <kbd>/ C-j</kbd>. See <a href="https://github.com/abo-
 <p>
 When on a remote, <kbd>~</kbd> will cd to the remote home, instead of the local home. If you want to
 go to the local home, use <kbd>/ C-j ~</kbd>. You can also try <code>`</code>.
+</p>
+
+<p>
+New binding when completing file names <kbd>C-M-y</kbd> el:ivy-insert-current-full that obsoletes
+el:counsel-yank-directory. See <a href="https://github.com/abo-abo/swiper/issues/2092">#2092</a>.
+</p>
+
+<p>
+You can now use <kbd>RET</kbd> or <kbd>C-m</kbd> (in place of <kbd>C-M-j</kbd>) to create a directory, even if it matches
+an existing file.
 </p>
 <hr />
 </div>
@@ -9486,11 +9502,6 @@ turn for each marked candidate. See <a href="https://github.com/abo-abo/swiper/i
 </p>
 
 <p>
-When completing file names, add environment variable completion. Press <kbd>$</kbd> to get completion
-for your environment variables that are directories. See <a href="https://github.com/abo-abo/swiper/issues/1932">#1932</a>, <a href="https://github.com/abo-abo/swiper/issues/1937">#1937</a>.
-</p>
-
-<p>
 el:ivy-inhibit-action can be a function. This allows you to effectively override the
 <code>:action</code> argument to el:ivy-read.
 </p>
@@ -9514,17 +9525,7 @@ New var el:ivy-display-functions-alist that obsoletes el:ivy-display-function. S
 </p>
 
 <p>
-New binding when completing file names <kbd>C-M-y</kbd> el:ivy-insert-current-full that obsoletes
-el:counsel-yank-directory. See <a href="https://github.com/abo-abo/swiper/issues/2092">#2092</a>.
-</p>
-
-<p>
 Add ability to resume dynamic collections. See <a href="https://github.com/abo-abo/swiper/issues/1095">#1095</a>, <a href="https://github.com/abo-abo/swiper/issues/2112">#2112</a>.
-</p>
-
-<p>
-You can now use <kbd>RET</kbd> or <kbd>C-m</kbd> (in place of <kbd>C-M-j</kbd>) to create a directory, even if it matches
-an existing file.
 </p>
 <hr />
 </div>
