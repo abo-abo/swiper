@@ -2865,8 +2865,7 @@ parts beyond their respective faces `ivy-confirm-face' and
         ;; option left.  Since the user input stays put, we have to manually
         ;; remove the face as well.
         (when ivy--use-selectable-prompt
-          (if (or (= ivy--index -1)
-                  (= ivy--length 0))
+          (if (= ivy--index -1)
               (ivy-add-face-text-property
                (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
             (remove-list-of-text-properties
