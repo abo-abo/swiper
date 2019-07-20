@@ -4581,7 +4581,7 @@ Use a non-regex locate on BSD. See [[https://github.com/abo-abo/swiper/issues/19
 :PROPERTIES:
 :CUSTOM_ID: 0-12-0-fx-counsel-org-file
 :END:
-Handle ATTACH_DIR property. Re-use el:org-attach-dir. See [[https://github.com/abo-abo/swiper/issues/2042][#2042]].
+Handle =ATTACH_DIR= property. Re-use el:org-attach-dir. See [[https://github.com/abo-abo/swiper/issues/2042][#2042]].
 -----
 *** counsel-org-goto-all
 :PROPERTIES:
