@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-07-20 Sat 20:34 -->
+<!-- 2019-07-20 Sat 22:00 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy CHANGELOG</title>
@@ -8687,7 +8687,7 @@ one or more buffers while still in the minibuffer.
 <h4 id="0-12-0-fx-counsel-ag">counsel-ag</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-counsel-ag">
 <p>
-Don't allow newlines in wildcards when using el:ivy&#x2013;regex-fuzzy. See <a href="https://github.com/abo-abo/swiper/issues/1907">#1907</a>.
+Don't allow newlines in wildcards when using <code>ivy--regex-fuzzy</code>. See <a href="https://github.com/abo-abo/swiper/issues/1907">#1907</a>.
 </p>
 <hr />
 </div>
@@ -8700,11 +8700,11 @@ Add caller. See <a href="https://github.com/abo-abo/swiper/issues/2051">#2051</a
 </p>
 
 <p>
-Use el:company-prefix. See <a href="https://github.com/abo-abo/swiper/issues/2054">#2054</a>, <a href="https://github.com/abo-abo/swiper/issues/2074">#2074</a>.
+Use <code>company-prefix</code>. See <a href="https://github.com/abo-abo/swiper/issues/2054">#2054</a>, <a href="https://github.com/abo-abo/swiper/issues/2074">#2074</a>.
 </p>
 
 <p>
-Don't rely on el:company-point See <a href="https://github.com/abo-abo/swiper/issues/2071">#2071</a>.
+Don't rely on <code>company-point</code> See <a href="https://github.com/abo-abo/swiper/issues/2071">#2071</a>.
 </p>
 <hr />
 </div>
@@ -8739,19 +8739,19 @@ Fix dotfiles not being shown. See <a href="https://github.com/abo-abo/swiper/iss
 <h4 id="0-12-0-fx-counsel-find-file">counsel-find-file</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-counsel-find-file">
 <p>
-Add nested hidden dotfiles to el:counsel-find-file-ignore-regexp. See <a href="https://github.com/abo-abo/swiper/issues/1820">#1820</a>.
+Add nested hidden dotfiles to <code>counsel-find-file-ignore-regexp</code>. See <a href="https://github.com/abo-abo/swiper/issues/1820">#1820</a>.
 </p>
 
 <p>
-Add lockfiles to el:counsel-find-file-ignore-regexp. See <a href="https://github.com/abo-abo/swiper/issues/2117">#2117</a>.
+Add lockfiles to <code>counsel-find-file-ignore-regexp</code>. See <a href="https://github.com/abo-abo/swiper/issues/2117">#2117</a>.
 </p>
 
 <p>
-Improve mkdir action with el:ivy-call: cd into the created directory.
+Improve mkdir action with <code>ivy-call</code>: cd into the created directory.
 </p>
 
 <p>
-Improve delete action with el:ivy-call: stay in the directory.
+Improve delete action with <code>ivy-call</code>: stay in the directory.
 </p>
 
 <p>
@@ -8773,11 +8773,11 @@ Quote branch names. See <a href="https://github.com/abo-abo/swiper/issues/1905">
 <h4 id="0-12-0-fx-counsel-git-log">counsel-git-log</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-counsel-git-log">
 <p>
-Change el:counsel-git-log-split-string-re. See <a href="https://github.com/abo-abo/swiper/issues/2129">#2129</a>.
+Change <code>counsel-git-log-split-string-re</code>. See <a href="https://github.com/abo-abo/swiper/issues/2129">#2129</a>.
 </p>
 
 <p>
-Fix el:ivy-resume. See <a href="https://github.com/abo-abo/swiper/issues/2133">#2133</a>.
+Fix <code>ivy-resume</code>. See <a href="https://github.com/abo-abo/swiper/issues/2133">#2133</a>.
 </p>
 <hr />
 </div>
@@ -8795,7 +8795,7 @@ Use a non-regex locate on BSD. See <a href="https://github.com/abo-abo/swiper/is
 <h4 id="0-12-0-fx-counsel-org-file">counsel-org-file</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-counsel-org-file">
 <p>
-Handle ATTACH<sub>DIR</sub> property. Re-use el:org-attach-dir. See <a href="https://github.com/abo-abo/swiper/issues/2042">#2042</a>.
+Handle <code>ATTACH_DIR</code> property. Re-use <code>org-attach-dir</code>. See <a href="https://github.com/abo-abo/swiper/issues/2042">#2042</a>.
 </p>
 <hr />
 </div>
@@ -8817,7 +8817,7 @@ Fix due to Org 9.2.3 API change. See <a href="https://github.com/abo-abo/swiper/
 </p>
 
 <p>
-Fix el:org-version testing. See <a href="https://github.com/abo-abo/swiper/issues/2006">#2006</a>.
+Fix <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/org.el#L354">org-version</a> testing. See <a href="https://github.com/abo-abo/swiper/issues/2006">#2006</a>.
 </p>
 <hr />
 </div>
@@ -8866,11 +8866,11 @@ Modify copy action to use actual result. See <a href="https://github.com/abo-abo
 <h4 id="0-12-0-fx-documentation">documentation</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-documentation">
 <p>
-el:ivy-initial-inputs-alist is now a defcustom.
+<code>ivy-initial-inputs-alist</code> is now a defcustom.
 </p>
 
 <p>
-el:swiper-mc docstring. See <a href="https://github.com/abo-abo/swiper/issues/1879">#1879</a>.
+<code>swiper-mc</code> docstring. See <a href="https://github.com/abo-abo/swiper/issues/1879">#1879</a>.
 </p>
 
 <p>
@@ -8878,7 +8878,7 @@ Update ivy.org. See <a href="https://github.com/abo-abo/swiper/issues/1951">#195
 </p>
 
 <p>
-Mention el:char-fold-to-regexp. See <a href="https://github.com/abo-abo/swiper/issues/1977">#1977</a>.
+Mention <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/char-fold.el#L147">char-fold-to-regexp</a>. See <a href="https://github.com/abo-abo/swiper/issues/1977">#1977</a>.
 </p>
 
 <p>
@@ -8890,11 +8890,11 @@ Remove outdated magit customization. See <a href="https://github.com/abo-abo/swi
 </p>
 
 <p>
-el:ivy-read docstring. See <a href="https://github.com/abo-abo/swiper/issues/2107">#2107</a>.
+<code>ivy-read</code> docstring. See <a href="https://github.com/abo-abo/swiper/issues/2107">#2107</a>.
 </p>
 
 <p>
-el:ivy-reverse-i-search docstring. See <a href="https://github.com/abo-abo/swiper/issues/2126">#2126</a>.
+<code>ivy-reverse-i-search</code> docstring. See <a href="https://github.com/abo-abo/swiper/issues/2126">#2126</a>.
 </p>
 
 <p>
@@ -8934,7 +8934,7 @@ Don't assume in-buffer completion. See <a href="https://github.com/abo-abo/swipe
 <h4 id="0-12-0-fx-ivy-help">ivy-help</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-ivy-help">
 <p>
-Set el:org-hide-emphasis-markers. Reveal all Org contents. See <a href="https://github.com/abo-abo/swiper/issues/2021">#2021</a>.
+Set <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/org.el#L4160">org-hide-emphasis-markers</a>. Reveal all Org contents. See <a href="https://github.com/abo-abo/swiper/issues/2021">#2021</a>.
 Hide Org markup locally. See <a href="https://github.com/abo-abo/swiper/issues/2085">#2085</a>.
 </p>
 <hr />
@@ -8944,7 +8944,7 @@ Hide Org markup locally. See <a href="https://github.com/abo-abo/swiper/issues/2
 <h4 id="0-12-0-fx-ivy-immediate-done">ivy-immediate-done</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-ivy-immediate-done">
 <p>
-Improve for el:make-directory. See <a href="https://github.com/abo-abo/swiper/issues/1170">#1170</a>, <a href="https://github.com/abo-abo/swiper/issues/1719">#1719</a>, <a href="https://github.com/abo-abo/swiper/issues/2139">#2139</a>.
+Improve for <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/files.el#L5420">make-directory</a>. See <a href="https://github.com/abo-abo/swiper/issues/1170">#1170</a>, <a href="https://github.com/abo-abo/swiper/issues/1719">#1719</a>, <a href="https://github.com/abo-abo/swiper/issues/2139">#2139</a>.
 </p>
 <hr />
 </div>
@@ -8962,7 +8962,7 @@ Insert text without properties. See <a href="https://github.com/abo-abo/swiper/i
 <h4 id="0-12-0-fx-ivy-next-history-element">ivy-next-history-element</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-ivy-next-history-element">
 <p>
-Use el:minibuffer-default for el:dired-dwim-target.
+Use <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/simple.el#L1442">minibuffer-default</a> for <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/dired.el#L186">dired-dwim-target</a>.
 </p>
 
 <div class="org-src-container">
@@ -8998,7 +8998,7 @@ Make swiper occur wgrep work for narrowed buffers. See <a href="https://github.c
 </p>
 
 <p>
-Don't setq-local el:ivy&#x2013;directory. See <a href="https://github.com/abo-abo/swiper/issues/1866">#1866</a>.
+Don't setq-local <code>ivy--directory</code>. See <a href="https://github.com/abo-abo/swiper/issues/1866">#1866</a>.
 </p>
 
 <p>
@@ -9010,11 +9010,11 @@ Fix missing line numbers. See <a href="https://github.com/abo-abo/swiper/issues/
 </p>
 
 <p>
-Fix for el:counsel-find-file. See <a href="https://github.com/abo-abo/swiper/issues/2094">#2094</a>.
+Fix for <code>counsel-find-file</code>. See <a href="https://github.com/abo-abo/swiper/issues/2094">#2094</a>.
 </p>
 
 <p>
-el:ivy-occur-revert-buffer should stay on the same line.
+<code>ivy-occur-revert-buffer</code> should stay on the same line.
 </p>
 <hr />
 </div>
@@ -9058,15 +9058,15 @@ Require TRAMP earlier so that there's completion. See <a href="https://github.co
 </p>
 
 <p>
-Allow all re-builders to use el:ivy-highlight-grep-commands. See <a href="https://github.com/abo-abo/swiper/issues/1983">#1983</a>.
+Allow all re-builders to use <code>ivy-highlight-grep-commands</code>. See <a href="https://github.com/abo-abo/swiper/issues/1983">#1983</a>.
 </p>
 
 <p>
-Improve column calculation in el:ivy-dispatching-done-hydra.
+Improve column calculation in <code>ivy-dispatching-done-hydra</code>.
 </p>
 
 <p>
-Allow recursive minibuffers to use el:ivy-display-functions-alist. See <a href="https://github.com/abo-abo/swiper/issues/1995">#1995</a>.
+Allow recursive minibuffers to use <code>ivy-display-functions-alist</code>. See <a href="https://github.com/abo-abo/swiper/issues/1995">#1995</a>.
 </p>
 
 <p>
@@ -9078,7 +9078,7 @@ Allow to select "" when prompt is selectable. See <a href="https://github.com/ab
 </p>
 
 <p>
-Fix el:all-completions returning $$. See <a href="https://github.com/abo-abo/swiper/issues/2012">#2012</a>.
+Fix <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/minibuf.c#L1457">all-completions</a> returning $$. See <a href="https://github.com/abo-abo/swiper/issues/2012">#2012</a>.
 </p>
 
 <p>
@@ -9086,15 +9086,15 @@ Fix matcher not called on input "". See <a href="https://github.com/abo-abo/swip
 </p>
 
 <p>
-Fix filter for el:ivy&#x2013;regex-ignore-order. See <a href="https://github.com/abo-abo/swiper/issues/2015">#2015</a>.
+Fix filter for <code>ivy--regex-ignore-order</code>. See <a href="https://github.com/abo-abo/swiper/issues/2015">#2015</a>.
 </p>
 
 <p>
-Don't offer virtual buffers for plain el:switch-to-buffer. See <a href="https://github.com/abo-abo/swiper/issues/839">#839</a>.
+Don't offer virtual buffers for plain <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/window.el#L7709">switch-to-buffer</a>. See <a href="https://github.com/abo-abo/swiper/issues/839">#839</a>.
 </p>
 
 <p>
-el:ivy-completion-in-region-action obeys :exit-function.
+<code>ivy-completion-in-region-action</code> obeys :exit-function.
 </p>
 
 <p>
@@ -9106,15 +9106,15 @@ Use single face for highlighting adjacent groups. See <a href="https://github.co
 </p>
 
 <p>
-Use el:ivy-flx-limit more. See <a href="https://github.com/abo-abo/swiper/issues/2081">#2081</a>.
+Use <code>ivy-flx-limit</code> more. See <a href="https://github.com/abo-abo/swiper/issues/2081">#2081</a>.
 </p>
 
 <p>
-Fix el:ivy-read-action. See <a href="https://github.com/abo-abo/swiper/issues/2082">#2082</a>.
+Fix <code>ivy-read-action</code>. See <a href="https://github.com/abo-abo/swiper/issues/2082">#2082</a>.
 </p>
 
 <p>
-Set el:line-spacing to nil in the minibuffer. See <a href="https://github.com/abo-abo/swiper/issues/2118">#2118</a>.
+Set <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/buffer.c#L6206">line-spacing</a> to nil in the minibuffer. See <a href="https://github.com/abo-abo/swiper/issues/2118">#2118</a>.
 </p>
 <hr />
 </div>
@@ -9132,7 +9132,7 @@ Don't bind ivy-recursive-restore to nil. See <a href="https://github.com/abo-abo
 <h4 id="0-12-0-fx-ivy--sort">ivy&#x2013;sort</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-ivy--sort">
 <p>
-Higher priority for el:ivy-sort-matches-functions-alist. See <a href="https://github.com/abo-abo/swiper/issues/2136">#2136</a>.
+Higher priority for <code>ivy-sort-matches-functions-alist</code>. See <a href="https://github.com/abo-abo/swiper/issues/2136">#2136</a>.
 </p>
 <hr />
 </div>
@@ -9180,8 +9180,8 @@ Documentation. See <a href="https://github.com/abo-abo/swiper/issues/643">#643</
 </p>
 
 <p>
-Don't rely on el:window-start in terminal.  el:window-start and el:window-end is not
-reliable when in a terminal. It can be made reliable if a el:redisplay is performed, but
+Don't rely on <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/window.c#L1577">window-start</a> in terminal.  <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/window.c#L1577">window-start</a> and <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/window.c#L1597">window-end</a> is not
+reliable when in a terminal. It can be made reliable if a <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/src/dispnew.c#L5812">redisplay</a> is performed, but
 then we get annoying blinking. See <a href="https://github.com/abo-abo/swiper/issues/1928">#1928</a>.
 </p>
 
@@ -9194,11 +9194,11 @@ Fix overlays clean up. See <a href="https://github.com/abo-abo/swiper/issues/206
 </p>
 
 <p>
-Obey el:search-invisible. See <a href="https://github.com/abo-abo/swiper/issues/1739">#1739</a>.
+Obey <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/isearch.el#L127">search-invisible</a>. See <a href="https://github.com/abo-abo/swiper/issues/1739">#1739</a>.
 </p>
 
 <p>
-Improve highlighting with el:char-fold-to-regexp. See <a href="https://github.com/abo-abo/swiper/issues/2124">#2124</a>.
+Improve highlighting with <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/char-fold.el#L147">char-fold-to-regexp</a>. See <a href="https://github.com/abo-abo/swiper/issues/2124">#2124</a>.
 </p>
 
 <p>
@@ -9219,7 +9219,7 @@ Warn if no input.
 </p>
 
 <p>
-Fix for el:swiper-background-faces. See <a href="https://github.com/abo-abo/swiper/issues/2019">#2019</a>.
+Fix for <code>swiper-background-faces</code>. See <a href="https://github.com/abo-abo/swiper/issues/2019">#2019</a>.
 </p>
 
 <p>
@@ -9227,7 +9227,7 @@ Handle quit. See <a href="https://github.com/abo-abo/swiper/issues/2062">#2062</
 </p>
 
 <p>
-Work for el:swiper-isearch. See <a href="https://github.com/abo-abo/swiper/issues/2134">#2134</a>.
+Work for <code>swiper-isearch</code>. See <a href="https://github.com/abo-abo/swiper/issues/2134">#2134</a>.
 </p>
 <hr />
 </div>
@@ -9236,7 +9236,7 @@ Work for el:swiper-isearch. See <a href="https://github.com/abo-abo/swiper/issue
 <h4 id="0-12-0-fx-swiper-font-lock-exclude-p">swiper-font-lock-exclude-p</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-swiper-font-lock-exclude-p">
 <p>
-Exclude el:xref&#x2013;xref-buffer-mode from font-lock. See <a href="https://github.com/abo-abo/swiper/issues/1917">#1917</a>.
+Exclude <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/progmodes/xref.el#L682">xref--xref-buffer-mode</a> from font-lock. See <a href="https://github.com/abo-abo/swiper/issues/1917">#1917</a>.
 </p>
 
 <p>
@@ -9258,7 +9258,7 @@ Misc fixes. See <a href="https://github.com/abo-abo/swiper/issues/2101">#2101</a
 <h4 id="0-12-0-fx-swiper-query-replace">swiper-query-replace</h4>
 <div class="outline-text-4" id="text-0-12-0-fx-swiper-query-replace">
 <p>
-Fix for el:ivy&#x2013;regex-ignore-order.
+Fix for <code>ivy--regex-ignore-order</code>.
 </p>
 
 <p>
@@ -9276,7 +9276,7 @@ Check for empty input. See <a href="https://github.com/abo-abo/swiper/issues/206
 <h4 id="0-12-0-nf-counsel-descbinds">counsel-descbinds</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-descbinds">
 <p>
-Add <kbd>M-o x</kbd> el:counsel-descbinds-action-exec. See <a href="https://github.com/abo-abo/swiper/issues/2024">#2024</a>.
+Add <kbd>M-o x</kbd> <code>counsel-descbinds-action-exec</code>. See <a href="https://github.com/abo-abo/swiper/issues/2024">#2024</a>.
 </p>
 <hr />
 </div>
@@ -9285,7 +9285,7 @@ Add <kbd>M-o x</kbd> el:counsel-descbinds-action-exec. See <a href="https://gith
 <h4 id="0-12-0-nf-counsel-file-jump">counsel-file-jump</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-file-jump">
 <p>
-Add <kbd>M-o d</kbd> that opens the item in el:dired. See <a href="https://github.com/abo-abo/swiper/issues/2057">#2057</a>.
+Add <kbd>M-o d</kbd> that opens the item in <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/dired.el#L770">dired</a>. See <a href="https://github.com/abo-abo/swiper/issues/2057">#2057</a>.
 </p>
 <hr />
 </div>
@@ -9304,15 +9304,15 @@ Press <kbd>$</kbd> to get completion for your environment variables that are dir
 </p>
 
 <p>
-New action: <kbd>M-o c</kbd> el:counsel-find-file-copy. See <a href="https://github.com/abo-abo/swiper/issues/1955">#1955</a>.
+New action: <kbd>M-o c</kbd> <code>counsel-find-file-copy</code>. See <a href="https://github.com/abo-abo/swiper/issues/1955">#1955</a>.
 </p>
 
 <p>
-New var el:counsel-up-directory-level that customizes <kbd>C-DEL</kbd>. See <a href="https://github.com/abo-abo/swiper/issues/1096">#1096</a>.
+New var <code>counsel-up-directory-level</code> that customizes <kbd>C-DEL</kbd>. See <a href="https://github.com/abo-abo/swiper/issues/1096">#1096</a>.
 </p>
 
 <p>
-New var el:counsel-find-file-extern-extensions. Allows to press <kbd>RET</kbd> instead of <kbd>M-o x</kbd> for
+New var <code>counsel-find-file-extern-extensions</code>. Allows to press <kbd>RET</kbd> instead of <kbd>M-o x</kbd> for
 selected file types, for which it doesn't make sense to be opened in Emacs.
 </p>
 
@@ -9327,8 +9327,8 @@ go to the local home, use <kbd>/ C-j ~</kbd>. You can also try <code>`</code>.
 </p>
 
 <p>
-New binding when completing file names <kbd>C-M-y</kbd> el:ivy-insert-current-full that obsoletes
-el:counsel-yank-directory. See <a href="https://github.com/abo-abo/swiper/issues/2092">#2092</a>.
+New binding when completing file names <kbd>C-M-y</kbd> <code>ivy-insert-current-full</code> that obsoletes
+<code>counsel-yank-directory</code>. See <a href="https://github.com/abo-abo/swiper/issues/2092">#2092</a>.
 </p>
 
 <p>
@@ -9342,7 +9342,7 @@ an existing file.
 <h4 id="0-12-0-nf-counsel-git-grep">counsel-git-grep</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-git-grep">
 <p>
-New variable el:counsel-git-grep-cmd-function. Customize how git-grep is called based on
+New variable <code>counsel-git-grep-cmd-function</code>. Customize how git-grep is called based on
 input.
 </p>
 <hr />
@@ -9352,8 +9352,8 @@ input.
 <h4 id="0-12-0-nf-counsel-git-log">counsel-git-log</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-git-log">
 <p>
-Bind <kbd>M-o v</kbd> el:counsel-git-log-show-commit-action to visit the item in
-el:magit-show-commit. See <a href="https://github.com/abo-abo/swiper/issues/2129">#2129</a>, <a href="https://github.com/abo-abo/swiper/issues/2148">#2148</a>.
+Bind <kbd>M-o v</kbd> <code>counsel-git-log-show-commit-action</code> to visit the item in
+<code>magit-show-commit</code>. See <a href="https://github.com/abo-abo/swiper/issues/2129">#2129</a>, <a href="https://github.com/abo-abo/swiper/issues/2148">#2148</a>.
 </p>
 <hr />
 </div>
@@ -9362,7 +9362,7 @@ el:magit-show-commit. See <a href="https://github.com/abo-abo/swiper/issues/2129
 <h4 id="0-12-0-nf-counsel-grep">counsel-grep</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-grep">
 <p>
-Add el:counsel-grep-history. See <a href="https://github.com/abo-abo/swiper/issues/1914">#1914</a>.
+Add <code>counsel-grep-history</code>. See <a href="https://github.com/abo-abo/swiper/issues/1914">#1914</a>.
 </p>
 <hr />
 </div>
@@ -9371,8 +9371,8 @@ Add el:counsel-grep-history. See <a href="https://github.com/abo-abo/swiper/issu
 <h4 id="0-12-0-nf-counsel-grep-use-swiper-p">counsel-grep-use-swiper-p</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-grep-use-swiper-p">
 <p>
-When this function returns non-nil, el:counsel-grep-or-swiper will call el:swiper, else
-el:counsel-grep-or-swiper. See <a href="https://github.com/abo-abo/swiper/issues/1908">#1908</a>.
+When this function returns non-nil, <code>counsel-grep-or-swiper</code> will call <code>swiper</code>, else
+<code>counsel-grep-or-swiper</code>. See <a href="https://github.com/abo-abo/swiper/issues/1908">#1908</a>.
 </p>
 <hr />
 </div>
@@ -9382,7 +9382,7 @@ el:counsel-grep-or-swiper. See <a href="https://github.com/abo-abo/swiper/issues
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-locate">
 <p>
 Automatically call <code>updatedb</code> when your home folder is encrypted.
-Use el:counsel-locate-db-path to customize.
+Use <code>counsel-locate-db-path</code> to customize.
 </p>
 <hr />
 </div>
@@ -9395,7 +9395,7 @@ Add preview and highlight by candidate. See <a href="https://github.com/abo-abo/
 </p>
 
 <p>
-New variable el:counsel-descbinds-function. See <a href="https://github.com/abo-abo/swiper/issues/1876">#1876</a>, <a href="https://github.com/abo-abo/swiper/issues/2091">#2091</a>.
+New variable <code>counsel-descbinds-function</code>. See <a href="https://github.com/abo-abo/swiper/issues/1876">#1876</a>, <a href="https://github.com/abo-abo/swiper/issues/2091">#2091</a>.
 </p>
 <hr />
 </div>
@@ -9404,9 +9404,9 @@ New variable el:counsel-descbinds-function. See <a href="https://github.com/abo-
 <h4 id="0-12-0-nf-counsel-m-x">counsel-M-x</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-counsel-m-x">
 <p>
-Optionally expand aliases.  For example, if <code>rb</code> is aliased to el:revert-buffer, and bound
-to <kbd>C-c r</kbd>, el:counsel-M-x will show: <code>rb (revert-buffer) (C-c r)</code>.
-Customize with el:counsel-alias-expand, enabled by default.
+Optionally expand aliases.  For example, if <code>rb</code> is aliased to <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/files.el#L5752">revert-buffer</a>, and bound
+to <kbd>C-c r</kbd>, <code>counsel-M-x</code> will show: <code>rb (revert-buffer) (C-c r)</code>.
+Customize with <code>counsel-alias-expand</code>, enabled by default.
 See <a href="https://github.com/abo-abo/swiper/issues/1904">#1904</a>.
 </p>
 <hr />
@@ -9428,13 +9428,13 @@ Add an example of inclusion patterns to the doc.
 </p>
 
 <p>
-Press <kbd>C-x C-d</kbd> calls el:counsel-cd that allows you to change the current directory.
+Press <kbd>C-x C-d</kbd> calls <code>counsel-cd</code> that allows you to change the current directory.
 </p>
 
 <p>
-Add dynamic case folding. Make sure el:counsel-ag-base-command or
-el:counsel-rg-base-command does not include "-i": it will be added automatically based on
-your input and el:ivy-case-fold-search. See <a href="https://github.com/abo-abo/swiper/issues/1869">#1869</a>.
+Add dynamic case folding. Make sure <code>counsel-ag-base-command</code> or
+<code>counsel-rg-base-command</code> does not include "-i": it will be added automatically based on
+your input and <code>ivy-case-fold-search</code>. See <a href="https://github.com/abo-abo/swiper/issues/1869">#1869</a>.
 </p>
 <hr />
 </div>
@@ -9481,8 +9481,8 @@ Allow to scroll with <kbd>C-v</kbd> and <kbd>M-v</kbd>.
 <h4 id="0-12-0-nf-ivy-dispatching-done-hydra">ivy-dispatching-done-hydra</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-ivy-dispatching-done-hydra">
 <p>
-New variable el:ivy-dispatching-done-hydra-exit-keys. In case you bind
-el:ivy-dispatching-done-hydra to a custom key.
+New variable <code>ivy-dispatching-done-hydra-exit-keys</code>. In case you bind
+<code>ivy-dispatching-done-hydra</code> to a custom key.
 </p>
 <hr />
 </div>
@@ -9492,7 +9492,7 @@ el:ivy-dispatching-done-hydra to a custom key.
 <div class="outline-text-4" id="text-0-12-0-nf-ivy-read">
 <p>
 Allow to mark/unmark candidates with <kbd>m</kbd>, <kbd>u</kbd>, <kbd>DEL</kbd>, <kbd>t</kbd>. The bindings are similar to what
-el:dired provides. They are available in the <kbd>C-o</kbd> hydra. See <a href="https://github.com/abo-abo/swiper/issues/561">#561</a>.
+<a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/dired.el#L770">dired</a> provides. They are available in the <kbd>C-o</kbd> hydra. See <a href="https://github.com/abo-abo/swiper/issues/561">#561</a>.
 </p>
 
 <p>
@@ -9502,12 +9502,12 @@ turn for each marked candidate. See <a href="https://github.com/abo-abo/swiper/i
 </p>
 
 <p>
-el:ivy-inhibit-action can be a function. This allows you to effectively override the
-<code>:action</code> argument to el:ivy-read.
+<code>ivy-inhibit-action</code> can be a function. This allows you to effectively override the
+<code>:action</code> argument to <code>ivy-read</code>.
 </p>
 
 <p>
-New var el:ivy-dispatching-done-idle can delay the hint by a specified amount of seconds.
+New var <code>ivy-dispatching-done-idle</code> can delay the hint by a specified amount of seconds.
 </p>
 
 <p>
@@ -9516,12 +9516,12 @@ candidate changes.
 </p>
 
 <p>
-New var el:ivy-format-functions-alist that obsoletes el:ivy-format-function. See <a href="https://github.com/abo-abo/swiper/issues/2083">#2083</a>,
+New var <code>ivy-format-functions-alist</code> that obsoletes <code>ivy-format-function</code>. See <a href="https://github.com/abo-abo/swiper/issues/2083">#2083</a>,
 <a href="https://github.com/abo-abo/swiper/issues/2084">#2084</a>, <a href="https://github.com/abo-abo/swiper/issues/2130">#2130</a>.
 </p>
 
 <p>
-New var el:ivy-display-functions-alist that obsoletes el:ivy-display-function. See <a href="https://github.com/abo-abo/swiper/issues/2089">#2089</a>.
+New var <code>ivy-display-functions-alist</code> that obsoletes <code>ivy-display-function</code>. See <a href="https://github.com/abo-abo/swiper/issues/2089">#2089</a>.
 </p>
 
 <p>
@@ -9544,7 +9544,7 @@ e.g. enter ".org" to switch between Org-mode files, ".el" for Elisp etc.
 <h4 id="0-12-0-nf-ivy-reverse-i-search">ivy-reverse-i-search</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-ivy-reverse-i-search">
 <p>
-New binding <kbd>C-k</kbd> el:ivy-reverse-i-search-kill. Remove elements from history.
+New binding <kbd>C-k</kbd> <code>ivy-reverse-i-search-kill</code>. Remove elements from history.
 </p>
 <hr />
 </div>
@@ -9553,7 +9553,7 @@ New binding <kbd>C-k</kbd> el:ivy-reverse-i-search-kill. Remove elements from hi
 <h4 id="0-12-0-nf-ivy-sort-matches-functions-alist">ivy-sort-matches-functions-alist</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-ivy-sort-matches-functions-alist">
 <p>
-Sort shorter matches first for el:ivy-completion-in-region.
+Sort shorter matches first for <code>ivy-completion-in-region</code>.
 </p>
 <hr />
 </div>
@@ -9562,15 +9562,15 @@ Sort shorter matches first for el:ivy-completion-in-region.
 <h4 id="0-12-0-nf-ivy-switch-buffer">ivy-switch-buffer</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-ivy-switch-buffer">
 <p>
-Add <kbd>M-o x</kbd> el:counsel-open-buffer-file-externally. See <a href="https://github.com/abo-abo/swiper/issues/2108">#2108</a>, <a href="https://github.com/abo-abo/swiper/issues/2115">#2115</a>.
+Add <kbd>M-o x</kbd> <code>counsel-open-buffer-file-externally</code>. See <a href="https://github.com/abo-abo/swiper/issues/2108">#2108</a>, <a href="https://github.com/abo-abo/swiper/issues/2115">#2115</a>.
 </p>
 
 <p>
-Move <kbd>C-c C-k</kbd> el:ivy-switch-buffer-kill to <kbd>C-k</kbd>.
+Move <kbd>C-c C-k</kbd> <code>ivy-switch-buffer-kill</code> to <kbd>C-k</kbd>.
 </p>
 
 <p>
-Fix el:ivy-push-view windows layout. See <a href="https://github.com/abo-abo/swiper/issues/2109">#2109</a>.
+Fix <code>ivy-push-view</code> windows layout. See <a href="https://github.com/abo-abo/swiper/issues/2109">#2109</a>.
 </p>
 <hr />
 </div>
@@ -9579,8 +9579,8 @@ Fix el:ivy-push-view windows layout. See <a href="https://github.com/abo-abo/swi
 <h4 id="0-12-0-nf-swiper">swiper</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-swiper">
 <p>
-New variable el:swiper-use-visual-line-p. Configure to prevent el:swiper from becoming
-slow in huge buffers where el:visual-line-mode is enabled.
+New variable <code>swiper-use-visual-line-p</code>. Configure to prevent <code>swiper</code> from becoming
+slow in huge buffers where <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/simple.el#L6850">visual-line-mode</a> is enabled.
 </p>
 
 <p>
@@ -9593,7 +9593,7 @@ Add preview overlays. See <a href="https://github.com/abo-abo/swiper/issues/1948
 <h4 id="0-12-0-nf-swiper-query-replace">swiper-query-replace</h4>
 <div class="outline-text-4" id="text-0-12-0-nf-swiper-query-replace">
 <p>
-Use el:query-replace-compile-replacement to allow using Elisp in replacements.  Simply use
+Use <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/replace.el#L242">query-replace-compile-replacement</a> to allow using Elisp in replacements.  Simply use
 <kbd>M-i</kbd> to insert and edit the suggested replacement. See <a href="https://github.com/abo-abo/swiper/issues/2096">#2096</a>.
 </p>
 
@@ -9608,7 +9608,7 @@ where TYPE is (group, face, fun, var &#x2026;).
 </p>
 
 <ol class="org-ol">
-<li>el:swiper-isearch for <code>(def\sw+ swiper</code></li>
+<li><code>swiper-isearch</code> for <code>(def\sw+ swiper</code></li>
 <li><kbd>M-q</kbd> to replace and <kbd>TAB</kbd> to get: <code>\,(concat \1 " " \2)</code></li>
 <li>Modify it to <code>\,(concat \1 " ivy")</code></li>
 </ol>
@@ -9624,12 +9624,12 @@ where TYPE is (group, face, fun, var &#x2026;).
 <h4 id="0-12-0-nc-counsel-compile">counsel-compile</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-counsel-compile">
 <p>
-Call el:compile, completing with smart suggestions. See <a href="https://github.com/abo-abo/swiper/issues/1941">#1941</a>, <a href="https://github.com/abo-abo/swiper/issues/1963">#1963</a>, <a href="https://github.com/abo-abo/swiper/issues/1966">#1966</a>, <a href="https://github.com/abo-abo/swiper/issues/1968">#1968</a>, <a href="https://github.com/abo-abo/swiper/issues/1972">#1972</a>,
+Call <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/progmodes/compile.el#L1533">compile</a>, completing with smart suggestions. See <a href="https://github.com/abo-abo/swiper/issues/1941">#1941</a>, <a href="https://github.com/abo-abo/swiper/issues/1963">#1963</a>, <a href="https://github.com/abo-abo/swiper/issues/1966">#1966</a>, <a href="https://github.com/abo-abo/swiper/issues/1968">#1968</a>, <a href="https://github.com/abo-abo/swiper/issues/1972">#1972</a>,
 <a href="https://github.com/abo-abo/swiper/issues/2077">#2077</a>.
 </p>
 
 <p>
-Add el:counsel-compile-env. See <a href="https://github.com/abo-abo/swiper/issues/2030">#2030</a>.
+Add <code>counsel-compile-env</code>. See <a href="https://github.com/abo-abo/swiper/issues/2030">#2030</a>.
 </p>
 <hr />
 </div>
@@ -9638,7 +9638,7 @@ Add el:counsel-compile-env. See <a href="https://github.com/abo-abo/swiper/issue
 <h4 id="0-12-0-nc-counsel-dired">counsel-dired</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-counsel-dired">
 <p>
-Like el:counsel-find-file, but open el:dired instead. See <a href="https://github.com/abo-abo/swiper/issues/1993">#1993</a>, <a href="https://github.com/abo-abo/swiper/issues/1999">#1999</a>.
+Like <code>counsel-find-file</code>, but open <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/dired.el#L770">dired</a> instead. See <a href="https://github.com/abo-abo/swiper/issues/1993">#1993</a>, <a href="https://github.com/abo-abo/swiper/issues/1999">#1999</a>.
 </p>
 <hr />
 </div>
@@ -9647,7 +9647,7 @@ Like el:counsel-find-file, but open el:dired instead. See <a href="https://githu
 <h4 id="0-12-0-nc-counsel-minor">counsel-minor</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-counsel-minor">
 <p>
-Toggle minor mode. The interface is similar to el:counsel-package, you enable modes with
+Toggle minor mode. The interface is similar to <code>counsel-package</code>, you enable modes with
 "+mode" and disable with "-mode". See <a href="https://github.com/abo-abo/swiper/issues/2000">#2000</a>, <a href="https://github.com/abo-abo/swiper/issues/2070">#2070</a>.
 </p>
 <hr />
@@ -9667,7 +9667,7 @@ configs, macros etc. See <a href="https://github.com/abo-abo/swiper/issues/2056"
 <h4 id="0-12-0-nc-counsel-switch-buffer">counsel-switch-buffer</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-counsel-switch-buffer">
 <p>
-Like el:ivy-switch-buffer, but you get automatic live preview.
+Like <code>ivy-switch-buffer</code>, but you get automatic live preview.
 See <a href="https://github.com/abo-abo/swiper/issues/1895">#1895</a>, <a href="https://github.com/abo-abo/swiper/issues/1897">#1897</a>, <a href="https://github.com/abo-abo/swiper/issues/1954">#1954</a>, <a href="https://github.com/abo-abo/swiper/issues/1971">#1971</a>, <a href="https://github.com/abo-abo/swiper/issues/1959">#1959</a>, <a href="https://github.com/abo-abo/swiper/issues/2009">#2009</a>, <a href="https://github.com/abo-abo/swiper/issues/2113">#2113</a>.
 </p>
 <hr />
@@ -9686,7 +9686,7 @@ Switch to another buffer in another window, with preview. See <a href="https://g
 <h4 id="0-12-0-nc-swiper-all-thing-at-point">swiper-all-thing-at-point</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-all-thing-at-point">
 <p>
-Start el:swiper-all with el:symbol-at-point as input. See <a href="https://github.com/abo-abo/swiper/issues/2106">#2106</a>.
+Start <code>swiper-all</code> with <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/thingatpt.el#L596">symbol-at-point</a> as input. See <a href="https://github.com/abo-abo/swiper/issues/2106">#2106</a>.
 </p>
 <hr />
 </div>
@@ -9695,7 +9695,7 @@ Start el:swiper-all with el:symbol-at-point as input. See <a href="https://githu
 <h4 id="0-12-0-nc-swiper-isearch">swiper-isearch</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-isearch">
 <p>
-A faster version of el:swiper that's not line-based:
+A faster version of <code>swiper</code> that's not line-based:
 </p>
 <ul class="org-ul">
 <li>Much faster startup</li>
@@ -9707,12 +9707,12 @@ See <a href="https://github.com/abo-abo/swiper/issues/1931">#1931</a>, <a href="
 </p>
 
 <p>
-New variable el:swiper-isearch-highlight-delay. Used to delay matches that are just one
+New variable <code>swiper-isearch-highlight-delay</code>. Used to delay matches that are just one
 character by 0.2s. Usually in that time frame a second key will be added to the input.
 </p>
 
 <p>
-Obey el:search-default-mode. See <a href="https://github.com/abo-abo/swiper/issues/622">#622</a>, <a href="https://github.com/abo-abo/swiper/issues/2095">#2095</a>.
+Obey <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/isearch.el#L231">search-default-mode</a>. See <a href="https://github.com/abo-abo/swiper/issues/622">#622</a>, <a href="https://github.com/abo-abo/swiper/issues/2095">#2095</a>.
 </p>
 <hr />
 </div>
@@ -9721,7 +9721,7 @@ Obey el:search-default-mode. See <a href="https://github.com/abo-abo/swiper/issu
 <h4 id="0-12-0-nc-swiper-isearch-thing-at-point">swiper-isearch-thing-at-point</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-isearch-thing-at-point">
 <p>
-Start el:swiper-isearch with el:symbol-at-point as input. See <a href="https://github.com/abo-abo/swiper/issues/2025">#2025</a>, <a href="https://github.com/abo-abo/swiper/issues/2029">#2029</a>.
+Start <code>swiper-isearch</code> with <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/thingatpt.el#L596">symbol-at-point</a> as input. See <a href="https://github.com/abo-abo/swiper/issues/2025">#2025</a>, <a href="https://github.com/abo-abo/swiper/issues/2029">#2029</a>.
 </p>
 <hr />
 </div>
@@ -9730,7 +9730,7 @@ Start el:swiper-isearch with el:symbol-at-point as input. See <a href="https://g
 <h4 id="0-12-0-nc-swiper-isearch-toggle">swiper-isearch-toggle</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-isearch-toggle">
 <p>
-A two-way toggle between el:swiper and el:isearch-mode. See <a href="https://github.com/abo-abo/swiper/issues/2061">#2061</a>, <a href="https://github.com/abo-abo/swiper/issues/2065">#2065</a>.
+A two-way toggle between <code>swiper</code> and <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/isearch.el#L861">isearch-mode</a>. See <a href="https://github.com/abo-abo/swiper/issues/2061">#2061</a>, <a href="https://github.com/abo-abo/swiper/issues/2065">#2065</a>.
 </p>
 <hr />
 </div>
@@ -9739,7 +9739,7 @@ A two-way toggle between el:swiper and el:isearch-mode. See <a href="https://git
 <h4 id="0-12-0-nc-swiper-thing-at-point">swiper-thing-at-point</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-thing-at-point">
 <p>
-Start el:swiper with el:symbol-at-point as input. See <a href="https://github.com/abo-abo/swiper/issues/2027">#2027</a>.
+Start <code>swiper</code> with <a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/thingatpt.el#L596">symbol-at-point</a> as input. See <a href="https://github.com/abo-abo/swiper/issues/2027">#2027</a>.
 </p>
 <hr />
 </div>
@@ -9748,7 +9748,7 @@ Start el:swiper with el:symbol-at-point as input. See <a href="https://github.co
 <h4 id="0-12-0-nc-swiper-backward">swiper-backward</h4>
 <div class="outline-text-4" id="text-0-12-0-nc-swiper-backward">
 <p>
-el:isearch-backward with an overview. See <a href="https://github.com/abo-abo/swiper/issues/1172">#1172</a>, <a href="https://github.com/abo-abo/swiper/issues/2132">#2132</a>.
+<a href="https://github.com/emacs-mirror/emacs/blob/emacs-26.2/lisp/isearch.el#L817">isearch-backward</a> with an overview. See <a href="https://github.com/abo-abo/swiper/issues/1172">#1172</a>, <a href="https://github.com/abo-abo/swiper/issues/2132">#2132</a>.
 </p>
 <hr />
 </div>
