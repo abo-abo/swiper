@@ -1326,7 +1326,7 @@ See `ivy-format-functions-alist' for further information."
                                             (match-beginning 0)
                                             swiper--isearch-start-point))))
                                      (eq mb-match 0))))
-                       (>= (match-beginning 0) swiper--isearch-start-point))
+                        (>= (match-beginning 0) swiper--isearch-start-point))
                   (setq idx-found idx)))
               (cl-incf idx)
               (let ((pos (if (or swiper--isearch-backward swiper-goto-start-of-match)
@@ -1513,11 +1513,11 @@ When not running `swiper-isearch' already, start it."
   "A `swiper' that's not line-based."
   (interactive)
   (swiper--init)
+  (setq swiper--isearch-start-point (point))
   (swiper-font-lock-ensure)
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
-        (swiper--isearch-start-point (point))
         res)
     (unwind-protect
          (and
