@@ -2170,7 +2170,7 @@ This is useful for recursive `ivy-read'."
                                                counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
-             (setq coll (funcall collection ivy-text)))
+             (setq coll (funcall collection (or initial-input ""))))
             ((consp (car-safe collection))
              (setq collection (cl-remove-if-not predicate collection))
              (when (and sort (setq sort-fn (ivy--sort-function caller)))
