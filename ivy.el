@@ -2485,7 +2485,9 @@ Minibuffer bindings:
 (defun ivy--preselect-index (preselect candidates)
   "Return the index of PRESELECT in CANDIDATES."
   (cond ((integerp preselect)
-         preselect)
+         (if (integerp (car candidates))
+             (cl-position preselect candidates)
+           preselect))
         ((cl-position preselect candidates :test #'equal))
         ((ivy--regex-p preselect)
          (cl-position preselect candidates :test #'string-match-p))))
