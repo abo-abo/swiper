@@ -1129,24 +1129,12 @@ a buffer visiting a file."
      (global-set-key (kbd "C-r") #'isearch-backward-regexp)
      ("C-r" "defun\\|defvar" "RET"))
     "(defun foo)\nasdf\n(|defvar bar)"))
-  ;; NOTE: The following two behaviors do not match
-  ;; `isearch-backward-regexp', but they match that of
-  ;; `swiper-isearch-forward', as `swiper-isearch' does not reset the
-  ;; point when the regexp becomes invalid, meaning the point is left
-  ;; at the initial match of the first part of the regexp.
   (should
    (string=
     (ivy-with-text
      "(defun foo)\nasdf\n(defvar bar)|"
      (global-set-key (kbd "C-r") #'swiper-isearch-backward)
      ("C-r" "defun\\|defvar" "RET"))
-    "(|defun foo)\nasdf\n(defvar bar)"))
-  (should
-   (string=
-    (ivy-with-text
-     "(defun foo)\nasdf\n(defvar bar)|"
-     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
-     ("C-r" "defun\\|defvar" "C-n RET"))
     "(defun foo)\nasdf\n(|defvar bar)"))
   (should
    (string=
@@ -1161,7 +1149,21 @@ a buffer visiting a file."
      "(defun foo)\nasdf\n(|defun bar)"
      (global-set-key (kbd "C-r") #'swiper-isearch-backward)
      ("C-r" "defun" "RET"))
-    "(|defun foo)\nasdf\n(defun bar)")))
+    "(|defun foo)\nasdf\n(defun bar)"))
+  (should
+   (string=
+    (ivy-with-text
+     "(defun foo)\nasdf\n(de|fun bar)"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "def" "RET"))
+    "(|defun foo)\nasdf\n(defun bar)"))
+  (should
+   (string=
+    (ivy-with-text
+     "(defun foo)\nasdf\n(de|fun bar)"
+     (global-set-key (kbd "C-r") #'swiper-isearch-backward)
+     ("C-r" "def?" "RET"))
+    "(defun foo)\nasdf\n(|defun bar)")))
 
 (ert-deftest swiper-isearch-backward-backspace ()
   (should
@@ -1205,9 +1207,7 @@ a buffer visiting a file."
     "Foo\nfoo|\nFOO\n")))
 
 (ert-deftest swiper--isearch-format ()
-  (setq swiper--isearch-point-history
-        (list
-         (cons "" 1)))
+  (setq swiper--isearch-start-point 0)
   (with-temp-buffer
     (insert
      "line0\nline1\nline line\nline line\nline5")

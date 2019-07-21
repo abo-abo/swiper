@@ -1285,14 +1285,6 @@ See `ivy-format-functions-alist' for further information."
     res))
 
 ;;* `swiper-isearch'
-(defvar swiper--isearch-point-history nil
-  "Store the current input and point history for a single search.
-Each element is a cons cell of an input and a point position that
-corresponds to it.
-
-This ensures that if the user enters \"ab\", the point will
-come back to the same place as when \"a\" was initially entered.")
-
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
   (with-ivy-window
@@ -1306,6 +1298,7 @@ come back to the same place as when \"a\" was initially entered.")
             (overlays-at (point))))))
 
 (defvar swiper--isearch-backward nil)
+(defvar swiper--isearch-start-point nil)
 
 (defun swiper--isearch-function (str)
   (let* ((case-fold-search (ivy--case-fold-p str))
@@ -1315,7 +1308,6 @@ come back to the same place as when \"a\" was initially entered.")
       (let ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
                     (match-string 1 re)
                   re))
-            (pt-hist (cdr (assoc str swiper--isearch-point-history)))
             cands
             idx-found
             (idx 0))
@@ -1324,12 +1316,17 @@ come back to the same place as when \"a\" was initially entered.")
           (while (funcall (if swiper--isearch-backward #'re-search-backward #'re-search-forward) re nil t)
             (when (swiper-match-usable-p)
               (unless idx-found
-                (when (or
-                       (eq (match-beginning 0) pt-hist)
-                       (if swiper--isearch-backward
-                           (<= (match-beginning 0) (cdar swiper--isearch-point-history))
-                         (>= (match-beginning 0) (cdar swiper--isearch-point-history))))
-                  (push (cons str (match-beginning 0)) swiper--isearch-point-history)
+                (when (if swiper--isearch-backward
+                          (or (<= (match-end 0) swiper--isearch-start-point)
+                              (and (< (match-beginning 0) swiper--isearch-start-point)
+                                   (let ((mb-match
+                                          (string-match-p
+                                           re
+                                           (buffer-substring-no-properties
+                                            (match-beginning 0)
+                                            swiper--isearch-start-point))))
+                                     (eq mb-match 0))))
+                       (>= (match-beginning 0) swiper--isearch-start-point))
                   (setq idx-found idx)))
               (cl-incf idx)
               (let ((pos (if (or swiper--isearch-backward swiper-goto-start-of-match)
@@ -1399,8 +1396,6 @@ When not running `swiper-isearch' already, start it."
                       (deactivate-mark))
                   (bounds-of-thing-at-point 'symbol)))
           (setq str (buffer-substring-no-properties (car bnd) (cdr bnd))))
-        (setq swiper--isearch-point-history
-              (list (cons "" (car bnd))))
         (insert str)
         (unless regionp
           (ivy--insert-symbol-boundaries)))
@@ -1519,12 +1514,10 @@ When not running `swiper-isearch' already, start it."
   (interactive)
   (swiper--init)
   (swiper-font-lock-ensure)
-  (setq swiper--isearch-point-history
-        (list
-         (cons "" (- (point) (if swiper--isearch-backward 1 0)))))
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
+        (swiper--isearch-start-point (point))
         res)
     (unwind-protect
          (and
