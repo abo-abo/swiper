@@ -3452,7 +3452,7 @@ CANDS are the current candidates."
                   (res 0)
                   (i 0))
               (dolist (c cands)
-                (when (eq n (read (get-text-property 0 'swiper-line-number c)))
+                (when (eq n (get-text-property 0 'swiper-line-number c))
                   (setq res i))
                 (cl-incf i))
               res))))
@@ -3463,7 +3463,7 @@ CANDS are the current candidates."
 CANDS are the current candidates."
   (let ((idx (ivy-recompute-index-swiper re-str cands)))
     (if (or (= idx -1)
-            (<= (read (get-text-property 0 'swiper-line-number (nth idx cands)))
+            (<= (get-text-property 0 'swiper-line-number (nth idx cands))
                 (line-number-at-pos)))
         idx
       (- idx 1))))
