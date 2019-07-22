@@ -1300,47 +1300,55 @@ See `ivy-format-functions-alist' for further information."
 (defvar swiper--isearch-backward nil)
 (defvar swiper--isearch-start-point nil)
 
+(defun swiper--isearch-function-1 (re backward)
+  (let ((idx 0)
+        cands idx-found)
+    (save-excursion
+      (goto-char (if backward (point-max) (point-min)))
+      (while (funcall (if backward #'re-search-backward #'re-search-forward) re nil t)
+        (when (swiper-match-usable-p)
+          (unless idx-found
+            (when (if backward
+                      (or (<= (match-end 0) swiper--isearch-start-point)
+                          (and (< (match-beginning 0) swiper--isearch-start-point)
+                               (let ((mb-match
+                                      (string-match-p
+                                       re
+                                       (buffer-substring-no-properties
+                                        (match-beginning 0)
+                                        swiper--isearch-start-point))))
+                                 (eq mb-match 0))))
+                    (>= (match-beginning 0) swiper--isearch-start-point))
+              (setq idx-found idx)))
+          (cl-incf idx)
+          (let ((pos (if (or backward swiper-goto-start-of-match)
+                         (match-beginning 0)
+                       (point))))
+            (push pos cands)))))
+    (cons
+     (if idx-found
+         (if backward
+             (- (length cands) idx-found 1)
+           idx-found)
+       0)
+     (if backward
+         cands
+       (nreverse cands)))))
+
 (defun swiper--isearch-function (str)
   (let* ((case-fold-search (ivy--case-fold-p str))
          (re-full (funcall ivy--regex-function str))
          (re (ivy-re-to-str re-full)))
     (unless (string= re "")
-      (let ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
-                    (match-string 1 re)
-                  re))
-            cands
-            idx-found
-            (idx 0))
-        (save-excursion
-          (goto-char (if swiper--isearch-backward (point-max) (point-min)))
-          (while (funcall (if swiper--isearch-backward #'re-search-backward #'re-search-forward) re nil t)
-            (when (swiper-match-usable-p)
-              (unless idx-found
-                (when (if swiper--isearch-backward
-                          (or (<= (match-end 0) swiper--isearch-start-point)
-                              (and (< (match-beginning 0) swiper--isearch-start-point)
-                                   (let ((mb-match
-                                          (string-match-p
-                                           re
-                                           (buffer-substring-no-properties
-                                            (match-beginning 0)
-                                            swiper--isearch-start-point))))
-                                     (eq mb-match 0))))
-                        (>= (match-beginning 0) swiper--isearch-start-point))
-                  (setq idx-found idx)))
-              (cl-incf idx)
-              (let ((pos (if (or swiper--isearch-backward swiper-goto-start-of-match)
-                             (match-beginning 0)
-                           (point))))
-                (push pos cands)))))
+      (let* ((re (if (string-match "\\`\\(.*\\)[\\]|\\'" re)
+                     (match-string 1 re)
+                   re))
+             (res (swiper--isearch-function-1 re swiper--isearch-backward))
+             (idx-found (car res))
+             (cands (cdr res)))
         (setq ivy--old-re re)
-        (when idx-found
-          (ivy-set-index (if swiper--isearch-backward
-                             (- (length cands) idx-found 1)
-                           idx-found)))
-        (setq ivy--old-cands (if swiper--isearch-backward
-                                 cands
-                               (nreverse cands)))))))
+        (ivy-set-index idx-found)
+        (setq ivy--old-cands cands)))))
 
 (defcustom swiper-isearch-highlight-delay '(2 0.2)
   "When `ivy-text' is too short, delay showing the overlay.
