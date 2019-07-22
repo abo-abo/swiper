@@ -219,7 +219,9 @@ will bring the behavior in line with the newer Emacsen."
                  "foo\\["))
   (should (equal (ivy--regex
                   ".org")
-                 "\\.org")))
+                 "\\.org"))
+  (should (equal (ivy--regex "foo\\") "foo"))
+  (should (equal (ivy--regex "foo\\|") "foo")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))
@@ -288,7 +290,9 @@ will bring the behavior in line with the newer Emacsen."
   (should (string= (ivy--regex-fuzzy "^")
                    "^"))
   (should (string= (ivy--regex-fuzzy "$")
-                   "$")))
+                   "$"))
+  (should (equal (ivy--regex-fuzzy "abc\\|")
+                 "\\(a\\)[^b\n]*\\(b\\)[^c\n]*\\(c\\)")))
 
 (ert-deftest ivy--regex-ignore-order ()
   (should (equal (ivy--regex-ignore-order "tmux")
@@ -320,7 +324,9 @@ will bring the behavior in line with the newer Emacsen."
   (ivy--regex-ignore-order "! ! !")
   ;; Escape invalid regexps.
   (should (equal (ivy--regex-ignore-order "foo[ bar[xy]")
-                 '(("foo\\[" . t) ("bar[xy]" . t)))))
+                 '(("foo\\[" . t) ("bar[xy]" . t))))
+  (should (equal (ivy--regex-ignore-order "foo\\|")
+                 '(("foo" . t)))))
 
 (ert-deftest ivy--format ()
   (should (string= (let ((ivy--index 10)

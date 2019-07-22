@@ -2563,6 +2563,13 @@ regexp is passed to `regexp-quote'."
         (push s res)))
     (mapcar #'ivy--regex-or-literal (nreverse res))))
 
+(defun ivy--trim-trailing-re (regex)
+  "Trim incomplete REGEX.
+If REGEX ends with \\|, trim it, since then it matches an empty string."
+  (if (string-match "\\`\\(.*\\)[\\]|\\'" regex)
+      (match-string 1 regex)
+    regex))
+
 (defun ivy--regex (str &optional greedy)
   "Re-build regex pattern from STR in case it has a space.
 When GREEDY is non-nil, join words in a greedy way."
@@ -2574,6 +2581,7 @@ When GREEDY is non-nil, join words in a greedy way."
           (cdr hashed))
       (when (string-match-p "\\(?:[^\\]\\|^\\)\\\\\\'" str)
         (setq str (substring str 0 -1)))
+      (setq str (ivy--trim-trailing-re str))
       (cdr (puthash str
                     (let ((subs (ivy--split str)))
                       (if (= (length subs) 1)
@@ -2663,6 +2671,7 @@ foo\!bar -> matches \"foo!bar\"
 foo\ bar -> matches \"foo bar\"
 
 Returns a list suitable for `ivy-re-match'."
+  (setq str (ivy--trim-trailing-re str))
   (let* (regex-parts
          (raw-parts (ivy--split-negation str)))
     (dolist (part (ivy--split-spaces (car raw-parts)))
@@ -2695,6 +2704,7 @@ match.  Everything after \"!\" should not match."
 (defun ivy--regex-fuzzy (str)
   "Build a regex sequence from STR.
 Insert .* between each char."
+  (setq str (ivy--trim-trailing-re str))
   (if (string-match "\\`\\(\\^?\\)\\(.*?\\)\\(\\$?\\)\\'" str)
       (prog1
           (concat (match-string 1 str)
