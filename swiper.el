@@ -772,7 +772,15 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                  candidates
                  :initial-input initial-input
                  :keymap swiper-map
-                 :preselect preselect
+                 :preselect
+                 (if initial-input
+                     (cl-position-if
+                      (lambda (x)
+                        (= (1+ preselect) (read (get-text-property 0 'swiper-line-number x))))
+                      (progn
+                        (setq ivy--old-re nil)
+                        (ivy--filter initial-input candidates)))
+                   preselect)
                  :require-match t
                  :update-fn #'swiper--update-input-ivy
                  :unwind #'swiper--cleanup

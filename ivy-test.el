@@ -1076,6 +1076,22 @@ a buffer visiting a file."
            (and (buffer-name temp-buffer)
                 (kill-buffer temp-buffer)))))))
 
+(ert-deftest swiper-thing-at-point ()
+  (should
+   (string=
+    (ivy-with-text
+     "let\n|let\nlet"
+     (global-set-key (kbd "C-s") #'swiper-thing-at-point)
+     ("C-s" "RET"))
+    "let\nlet|\nlet"))
+  (should
+   (string=
+    (ivy-with-text
+     "foo\nlet\nbar\n|let\nlet"
+     (global-set-key (kbd "C-s") #'swiper-thing-at-point)
+     ("C-s" "RET"))
+    "foo\nlet\nbar\nlet|\nlet")))
+
 (ert-deftest swiper-isearch ()
   (should
    (string=
