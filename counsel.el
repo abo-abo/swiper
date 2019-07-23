@@ -162,6 +162,9 @@ The time is measured in seconds.")
 This plist maps commands to a plist mapping their exit codes to
 descriptions.")
 
+(defvar counsel--async-last-error-string nil
+  "When the process returned non-0, store the output here.")
+
 (defun counsel-set-async-exit-code (cmd number str)
   "For CMD, associate NUMBER exit code with STR."
   (let ((plist (plist-get counsel--async-exit-code-plist cmd)))
@@ -243,6 +246,8 @@ respectively."
           (if ivy--all-candidates
               (ivy--exhibit)
             (ivy--insert-minibuffer "")))
+      (setq counsel--async-last-error-string
+            (with-current-buffer (process-buffer process) (buffer-string)))
       (setq ivy--all-candidates
             (let ((status (process-exit-status process))
                   (plist (plist-get counsel--async-exit-code-plist
