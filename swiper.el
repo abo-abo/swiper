@@ -1359,7 +1359,7 @@ See `ivy-format-functions-alist' for further information."
              (re
               (if (stringp re-full)
                   re-full
-                (regexp-opt (delq nil (mapcar (lambda (x) (and (cdr x) (car x))) re-full)))))
+                (mapconcat 'ivy--regex-or-literal (delq nil (mapcar (lambda (x) (and (cdr x) (car x))) re-full)) "\\|")))
              (cands (swiper--isearch-function-1 re swiper--isearch-backward)))
         (when (consp re-full)
           (setq cands (swiper--isearch-filter-ignore-order re-full cands)))
