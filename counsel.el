@@ -188,6 +188,9 @@ descriptions.")
 (defvar counsel-async-ignore-re-alist nil
   "An alist of regexp matching candidates to ignore in `counsel--async-filter'.")
 
+(defvar counsel--async-last-command nil
+  "Store the last command ran by `counsel--async-command'.")
+
 (defun counsel--async-command (cmd &optional sentinel filter name)
   "Start and return new counsel process by calling CMD.
 CMD can be either a shell command as a string, or a list of the
@@ -201,6 +204,7 @@ respectively."
   (setq name (or name " *counsel*"))
   (when (get-buffer name)
     (kill-buffer name))
+  (setq counsel--async-last-command cmd)
   (let* ((buf (get-buffer-create name))
          (proc (if (listp cmd)
                    (apply #'start-file-process name buf cmd)
