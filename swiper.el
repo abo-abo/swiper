@@ -898,8 +898,10 @@ the face, window and priority of the overlay."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length (ivy-state-current ivy-last)) 0)
-      (let ((regexps (swiper--positive-regexps ivy-text)))
+      (let ((regexps (swiper--positive-regexps ivy-text))
+            (re-idx -1))
         (dolist (re regexps)
+          (setq re-idx (1+ re-idx))
           (let* ((re (replace-regexp-in-string
                       "    " "\t"
                       re))
@@ -945,9 +947,11 @@ the face, window and priority of the overlay."
               (if (swiper--recenter-p)
                   (window-end (selected-window) t)
                 (line-end-position (window-height)))
-              swiper--point-max))))))))
+              swiper--point-max)
+             nil
+             re-idx)))))))
 
-(defun swiper--add-overlays (re &optional beg end wnd)
+(defun swiper--add-overlays (re &optional beg end wnd re-idx)
   "Add overlays for RE regexp in visible part of the current buffer.
 BEG and END, when specified, are the point bounds.
 WND, when specified is the window."
@@ -988,16 +992,16 @@ WND, when specified is the window."
                                                (buffer-substring-no-properties
                                                 (line-beginning-position)
                                                 (line-end-position)))))))
-                (swiper--add-properties faces adder-fn)))))))))
+                (swiper--add-properties faces adder-fn re-idx)))))))))
 
-(defun swiper--add-properties (faces adder-fn)
+(defun swiper--add-properties (faces adder-fn &optional re-idx)
   (let ((mb (match-beginning 0))
         (me (match-end 0)))
     (unless (> (- me mb) 2017)
       (funcall adder-fn
                mb me
                (if (zerop ivy--subexps)
-                   (cadr faces)
+                   (nth (1+ (mod (or re-idx 0) (1- (length faces)))) faces)
                  (car faces))
                0)))
   (let ((i 1)
