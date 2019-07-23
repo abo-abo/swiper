@@ -2758,9 +2758,11 @@ tries to ensure that it does not change depending on the number of candidates."
 (defun ivy--input ()
   "Return the current minibuffer input."
   ;; assume one-line minibuffer input
-  (buffer-substring-no-properties
-   (minibuffer-prompt-end)
-   (line-end-position)))
+  (save-excursion
+    (goto-char (minibuffer-prompt-end))
+    (buffer-substring-no-properties
+     (point)
+     (line-end-position))))
 
 (defun ivy--minibuffer-cleanup ()
   "Delete the displayed completion candidates."
