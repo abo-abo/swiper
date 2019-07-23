@@ -1340,7 +1340,7 @@ See `ivy-format-functions-alist' for further information."
 
 (defun swiper--isearch-filter-ignore-order (re-full cands)
   (let (filtered-cands)
-    (dolist (re-cons re-full)
+    (dolist (re-cons re-full cands)
       (save-excursion
         (dolist (cand cands)
           (goto-char cand)
