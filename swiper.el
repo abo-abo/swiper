@@ -1398,6 +1398,11 @@ that we search only for one character."
                (setq x (get-text-property 0 'point x))))
       (with-ivy-window
         (goto-char x)
+        (when (and (or (eq this-command 'ivy-previous-line-or-history)
+                       (and (eq this-command 'ivy-done)
+                            (eq last-command 'ivy-previous-line-or-history)))
+                   (looking-back ivy--old-re (line-beginning-position)))
+          (goto-char (match-beginning 0)))
         (isearch-range-invisible (point) (1+ (point)))
         (when swiper-action-recenter
           (recenter))
