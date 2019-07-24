@@ -14,4 +14,5 @@ before_install:
   - evm install $EVM_EMACS --use --skip
 
 script:
+  - make deps
   - make test

@@ -6,6 +6,9 @@ RM ?= rm -f
 
 all: test
 
+deps:
+	$(emacs) -batch -l targets/install-deps.el
+
 test:
 	$(emacs) -batch $(LOAD) -l ivy-test.el -f ert-run-tests-batch-and-exit
 
