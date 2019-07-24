@@ -1416,13 +1416,12 @@ files in a project.")
        (setq cmd counsel-git-grep-cmd-default)))
     (cons proj cmd)))
 
-(define-obsolete-function-alias 'counsel--call 'counsel--command "0.11.0")
-
-(defun counsel--command (&rest command)
+(defun counsel--call (command &optional result-fn)
   "Synchronously call COMMAND and return its output as a string.
 COMMAND comprises the program name followed by its arguments, as
 in `make-process'.  Signal `file-error' and emit a warning if
-COMMAND fails.  Obey file handlers based on `default-directory'."
+COMMAND fails.  Obey file handlers based on `default-directory'.
+On success, RESULT-FN is called in output buffer with no arguments."
   (let ((stderr (make-temp-file "counsel-call-stderr-"))
         status)
     (unwind-protect
@@ -1430,12 +1429,14 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
            (setq status (apply #'process-file (car command) nil
                                (list t stderr) nil (cdr command)))
            (if (eq status 0)
-               ;; Return all output except trailing newline.
-               (buffer-substring (point-min)
-                                 (- (point)
-                                    (if (eq (bobp) (bolp))
-                                        0
-                                      1)))
+               (if result-fn
+                   (funcall result-fn)
+                 ;; Return all output except trailing newline.
+                 (buffer-substring (point-min)
+                                   (- (point)
+                                      (if (eq (bobp) (bolp))
+                                          0
+                                        1))))
              ;; Convert process status into error list.
              (setq status (list 'file-error
                                 (mapconcat #'identity `(,@command "failed") " ")
@@ -1452,6 +1453,10 @@ COMMAND fails.  Obey file handlers based on `default-directory'."
              ;; Signal `file-error' with process status.
              (signal (car status) (cdr status))))
       (delete-file stderr))))
+
+(defun counsel--command (&rest command)
+  "Forward COMMAND to `counsel--call'."
+  (counsel--call command))
 
 ;;;###autoload
 (defun counsel-git-grep (&optional cmd initial-input)
@@ -2552,15 +2557,16 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 (defun counsel--find-return-list (args)
   (unless (listp args)
     (user-error "`counsel-file-jump-args' is a list now, please customize accordingly."))
-  (with-temp-buffer
-    (apply #'process-file find-program nil (current-buffer) nil args)
-    (goto-char (point-min))
-    (let (files)
-      (while (< (point) (point-max))
-        (push (buffer-substring
-               (+ 2 (line-beginning-position)) (line-end-position)) files)
-        (forward-line 1))
-      (nreverse files))))
+  (counsel--call
+   (cons find-program args)
+   (lambda ()
+     (goto-char (point-min))
+     (let (files)
+       (while (< (point) (point-max))
+         (push (buffer-substring
+                (+ 2 (line-beginning-position)) (line-end-position)) files)
+         (forward-line 1))
+       (nreverse files)))))
 
 (defcustom counsel-file-jump-args (split-string ". -name .git -prune -o -type f -print")
   "Arguments for the `find-command' when using `counsel-file-jump'."
