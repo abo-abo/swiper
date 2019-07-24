@@ -43,10 +43,15 @@
 (defvar ivy-result nil
   "Holds the eval result of `ivy-expr' by `ivy-eval'.")
 
+(defvar ivy-eval-dir nil
+  "Hold the `default-directory' value to be used by `ivy-eval'.
+Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
+
 (defun ivy-eval ()
   "Evaluate `ivy-expr'."
   (interactive)
-  (setq ivy-result (eval ivy-expr)))
+  (let ((default-directory (or ivy-eval-dir default-directory)))
+    (setq ivy-result (eval ivy-expr))))
 
 (global-set-key (kbd "C-c e") 'ivy-eval)
 
@@ -58,9 +63,9 @@
     (save-window-excursion
       (unwind-protect
            (progn
-             ;; `execute-kbd-macro' doesn't pick up `default-directory'
              (when dir
-               (dired (expand-file-name dir (counsel-locate-git-root))))
+               (setq dir (expand-file-name dir (counsel-locate-git-root))))
+             (setq ivy-eval-dir dir)
              (execute-kbd-macro
               (vconcat (kbd "C-c e")
                        (kbd keys))))
@@ -931,7 +936,7 @@ will bring the behavior in line with the newer Emacsen."
            '(read-directory-name "cd: " "/tmp")
            "RET")))
   (should
-   (equal "/tmp/"
+   (equal "/tmp"
           (ivy-with
            '(read-directory-name "cd: ")
            "C-M-j"
@@ -981,14 +986,8 @@ will bring the behavior in line with the newer Emacsen."
 (ert-deftest ivy-read-file-name-in-buffer-visiting-file ()
   "Test `ivy-immediate-done' command in `read-file-name' without any editing in
 a buffer visiting a file."
-  :expected-result :failed
   (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
     (ivy-mode 1)
-    ;; `ivy-read' returns "~/dummy-dir/dummy-file" (same object, not a copy).
-    ;;
-    ;; `read-file-name-default' will then return "" in order for
-    ;; `set-visited-file-name' to detect that the user typed RET with
-    ;; the minibuffer empty.
     (should
      (equal (ivy-with
              '(let ((insert-default-directory t))
@@ -997,7 +996,7 @@ a buffer visiting a file."
                  (read-file-name "Load file: " nil nil 'lambda)))
              ;; No editing, just command ivy-immediate-done
              "C-M-j")
-            ""))
+            "~/dummy-dir/dummy-file"))
     (should
      (equal (ivy-state-current ivy-last) "~/dummy-dir/dummy-file"))
     (ivy-mode ivy-mode-reset-arg)))
