@@ -1057,11 +1057,12 @@ a buffer visiting a file."
                         (let ((key (eval (cadr x))))
                           (list key (lookup-key global-map key)))))
                     body))))
-    `(let ((temp-buffer (generate-new-buffer " *temp*")))
+    `(let ((temp-buffer (get-buffer-create " *temp*")))
        (save-window-excursion
          (unwind-protect
               (progn
                 (switch-to-buffer temp-buffer)
+                (erase-buffer)
                 (insert ,text)
                 (search-backward "|")
                 (delete-char 1)
@@ -1234,6 +1235,24 @@ a buffer visiting a file."
        (global-set-key (kbd "C-s") #'swiper-isearch)
        ("C-s" "Foo" "C-n RET")))
     "Foo\nfoo|\nFOO\n")))
+
+(ert-deftest ivy-swiper-wgrep ()
+  (dolist (search-cmd '(swiper swiper-isearch))
+    (should
+     (string=
+      (let ((default-directory "/tmp/"))
+        (ivy-with-text
+         "|a one\na two\na three"
+         (global-set-key (kbd "C-s") search-cmd)
+         ("C-s" "a" "C-c C-o" "C-x C-q" "C-e" "1" "C-n" "2" "C-n" "C-e" "3")))
+      "-*- mode:grep; default-directory: \"/tmp/\" -*-
+
+
+3 candidates:
+./ *temp*:1:a one1
+./ *temp*:2:a two2
+./ *temp*:3:a three3|
+"))))
 
 (ert-deftest swiper--isearch-format ()
   (setq swiper--isearch-start-point 0)
