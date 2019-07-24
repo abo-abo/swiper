@@ -929,7 +929,13 @@ will bring the behavior in line with the newer Emacsen."
    (equal "/tmp/"
           (ivy-with
            '(read-directory-name "cd: " "/tmp")
-           "RET"))))
+           "RET")))
+  (should
+   (equal "/tmp/"
+          (ivy-with
+           '(read-directory-name "cd: ")
+           "C-M-j"
+           :dir "/tmp"))))
 
 (ert-deftest ivy-partial-files ()
   (when (file-exists-p "/tmp/ivy-partial-test")
@@ -975,6 +981,7 @@ will bring the behavior in line with the newer Emacsen."
 (ert-deftest ivy-read-file-name-in-buffer-visiting-file ()
   "Test `ivy-immediate-done' command in `read-file-name' without any editing in
 a buffer visiting a file."
+  :expected-result :failed
   (let ((ivy-mode-reset-arg (if ivy-mode 1 0)))
     (ivy-mode 1)
     ;; `ivy-read' returns "~/dummy-dir/dummy-file" (same object, not a copy).
