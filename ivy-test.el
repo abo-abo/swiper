@@ -1001,6 +1001,16 @@ a buffer visiting a file."
      (equal (ivy-state-current ivy-last) "~/dummy-dir/dummy-file"))
     (ivy-mode ivy-mode-reset-arg)))
 
+(ert-deftest ivy-read-file-name-make-directory ()
+  (should
+   (equal
+    (ivy-with
+     '(read-file-name "Make directory: " default-directory default-directory
+       nil nil)
+     "C-M-j"
+     :dir "/tmp/non-existant-dir/")
+    "/tmp/non-existant-dir/")))
+
 (ert-deftest ivy-starts-with-dotslash ()
   (should (ivy--starts-with-dotslash "./test1"))
   (should (ivy--starts-with-dotslash ".\\test2"))
