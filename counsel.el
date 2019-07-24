@@ -2549,21 +2549,22 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defun counsel--find-return-list (args skip-first)
+(defun counsel--find-return-list (args)
+  (unless (listp args)
+    (user-error "`counsel-file-jump-args' is a list now, please customize accordingly."))
   (with-temp-buffer
-    (apply #'call-process find-program nil (current-buffer) nil args)
+    (apply #'process-file find-program nil (current-buffer) nil args)
     (goto-char (point-min))
-    (when skip-first
-      (forward-line))
-    (let ((start (point)) files)
-      (while (search-forward "\n" nil t)
-		(push (buffer-substring (+ 2 start) (1- (point))) files)
-        (setq start (point)))
-      files)))
+    (let (files)
+      (while (< (point) (point-max))
+        (push (buffer-substring
+               (+ 2 (line-beginning-position)) (line-end-position)) files)
+        (forward-line 1))
+      (nreverse files))))
 
-(defcustom counsel-file-jump-args ". -name .git -prune -o -type f -print"
+(defcustom counsel-file-jump-args (split-string ". -name .git -prune -o -type f -print")
   "Arguments for the `find-command' when using `counsel-file-jump'."
-  :type 'string)
+  :type '(repeat string))
 
 ;;** `counsel-file-jump'
 ;;;###autoload
@@ -2579,7 +2580,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (counsel--find-return-list (split-string counsel-file-jump-args) nil)
+              (counsel--find-return-list counsel-file-jump-args)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'find-file
@@ -2595,9 +2596,9 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
            (dired (or (file-name-directory x) default-directory)))
     "open in dired")))
 
-(defcustom counsel-dired-jump-args ". -name .git -prune -o -type d -print"
+(defcustom counsel-dired-jump-args (split-string ". -name .git -prune -o -type d -print")
   "Arguments for the `find-command' when using `counsel-dired-jump'."
-  :type 'string)
+  :type '(repeat string))
 
 ;;** `counsel-dired-jump'
 ;;;###autoload
@@ -2613,7 +2614,8 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
-              (counsel--find-return-list (split-string counsel-dired-jump-args) t)
+              (cdr
+               (counsel--find-return-list counsel-dired-jump-args))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
