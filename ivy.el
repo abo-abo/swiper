@@ -1125,8 +1125,12 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
               ((and (string= ivy-text "")
                     (eq (ivy-state-collection ivy-last)
                         #'read-file-name-internal))
-               (or (copy-sequence (ivy-state-def ivy-last))
-                   ivy--directory))
+               (if (ivy-state-def ivy-last)
+                   (if (> (length ivy--directory)
+                          (1+ (length (expand-file-name (ivy-state-def ivy-last)))))
+                       ivy--directory
+                     (copy-sequence (ivy-state-def ivy-last)))
+                 ivy--directory))
               (t
                (expand-file-name ivy-text ivy--directory))))
   (insert (ivy-state-current ivy-last))
