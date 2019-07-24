@@ -1400,7 +1400,9 @@ that we search only for one character."
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
-  (if (numberp x)
+  (if (or (numberp x)
+          (and (> (length x) 0)
+               (setq x (get-text-property 0 'point x))))
       (with-ivy-window
         (goto-char x)
         (when (and (or (eq this-command 'ivy-previous-line-or-history)
