@@ -2083,7 +2083,7 @@ See variable `counsel-up-directory-level'."
   "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")
        (or (eq (vc-backend buffer-file-name) 'Git)
-           (eq major-mode 'magit-commit-mode)
+           (memq major-mode '(magit-commit-mode vc-git-log-view-mode))
            (bound-and-true-p magit-commit-mode))
        (match-string-no-properties 0)))
 
