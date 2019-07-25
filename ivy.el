@@ -3042,7 +3042,8 @@ Should be run via minibuffer `post-command-hook'."
   "Return an appropriate directory for when ~ or ~/ are entered."
   (expand-file-name
    (let (remote)
-     (if (setq remote (file-remote-p ivy--directory))
+     (if (and (setq remote (file-remote-p ivy--directory))
+              (not (string-match-p "/home/\\([^/]+\\)/\\'" (file-local-name ivy--directory))))
          (concat remote "~/")
        "~/"))))
 

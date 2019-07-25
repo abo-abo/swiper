@@ -1038,6 +1038,10 @@ bindings that work here:
 - ~/ C-j~ ::
      Move the the local root directory.
 
+- ~~~~ ::
+     Move to the local home directory.
+
+
 From any directory, with the empty input, inputting =/ssh:= and pressing
 ~C-j~ (or ~RET~, which is the same thing) completes for host and user
 names.

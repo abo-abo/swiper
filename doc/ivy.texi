@@ -1379,6 +1379,12 @@ or @code{scpx}.
 @indentedblock
 Move the the local root directory.
 @end indentedblock
+@subsubheading @kbd{~~}
+@kindex ~~
+@indentedblock
+Move to the local home directory.
+@end indentedblock
+
 
 From any directory, with the empty input, inputting @code{/ssh:} and pressing
 @kbd{C-j} (or @kbd{RET}, which is the same thing) completes for host and user
