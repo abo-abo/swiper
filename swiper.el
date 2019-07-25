@@ -1036,9 +1036,14 @@ WND, when specified is the window."
 (defun swiper--maybe-recenter ()
   (cond (swiper-action-recenter
          (recenter))
-        ((and swiper--current-window-start
-              (swiper--recenter-p))
-         (set-window-start (selected-window) swiper--current-window-start))))
+        ((swiper--recenter-p)
+         (when swiper--current-window-start
+           (set-window-start (selected-window) swiper--current-window-start))
+         (when (or
+                (< (point) (window-start))
+                (> (point) (window-end (ivy-state-window ivy-last) t)))
+           (recenter))))
+  (setq swiper--current-window-start (window-start)))
 
 (defun swiper--action (x)
   "Goto line X."
@@ -1408,7 +1413,7 @@ that we search only for one character."
           (and (> (length x) 0)
                (setq x (get-text-property 0 'point x))))
       (with-ivy-window
-          (goto-char x)
+        (goto-char x)
         (when (and (or (eq this-command 'ivy-previous-line-or-history)
                        (and (eq this-command 'ivy-done)
                             (eq last-command 'ivy-previous-line-or-history)))
@@ -1416,18 +1421,12 @@ that we search only for one character."
           (goto-char (match-beginning 0)))
         (isearch-range-invisible (point) (1+ (point)))
         (swiper--maybe-recenter)
-        (when (and (swiper--recenter-p)
-                   (or
-                    (< (point) (window-start))
-                    (> (point) (window-end (ivy-state-window ivy-last) t))))
-          (recenter))
-        (setq swiper--current-window-start (window-start))
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--delayed-add-overlays)
           (swiper--add-cursor-overlay
            (ivy-state-window ivy-last))))
-      (swiper--cleanup)))
+    (swiper--cleanup)))
 
 (defun swiper-isearch-thing-at-point ()
   "Insert `symbol-at-point' into the minibuffer of `swiper-isearch'.
