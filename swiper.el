@@ -668,7 +668,6 @@ When capture groups are present in the input, print them instead of lines."
       (unless (eq major-mode 'ivy-occur-grep-mode)
         (ivy-occur-grep-mode)
         (font-lock-mode -1))
-      (setq swiper--current-window-start nil)
       (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
                       default-directory))
       (insert (format "%d candidates:\n" (length cands)))
@@ -794,6 +793,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (goto-char swiper--opoint))
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history))
+      (setq swiper--current-window-start nil)
       (when swiper--reveal-mode
         (reveal-mode 1)))))
 
@@ -932,12 +932,7 @@ the face, window and priority of the overlay."
                     (setq swiper--current-match-start (match-beginning 0))))
                 (isearch-range-invisible (line-beginning-position)
                                          (line-end-position))
-                (when (and (swiper--recenter-p)
-                           (or
-                            (< (point) (window-start))
-                            (> (point) (window-end (ivy-state-window ivy-last) t))))
-                  (recenter))
-                (setq swiper--current-window-start (window-start))))
+                (swiper--maybe-recenter)))
             (swiper--add-overlays
              re
              (max
