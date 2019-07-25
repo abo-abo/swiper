@@ -1033,6 +1033,12 @@ WND, when specified is the window."
 (defvar evil-ex-search-direction)
 (declare-function evil-ex-search-activate-highlight "evil-ex")
 
+(defun swiper--maybe-recenter ()
+  (cond (swiper-action-recenter
+         (recenter))
+        ((and swiper--current-window-start
+              (swiper--recenter-p))
+         (set-window-start (selected-window) swiper--current-window-start))))
 
 (defun swiper--action (x)
   "Goto line X."
@@ -1055,11 +1061,7 @@ WND, when specified is the window."
         (when (and (re-search-forward re (line-end-position) t) swiper-goto-start-of-match)
           (goto-char (match-beginning 0)))
         (swiper--ensure-visible)
-        (cond (swiper-action-recenter
-               (recenter))
-              ((and swiper--current-window-start
-                    (swiper--recenter-p))
-               (set-window-start (selected-window) swiper--current-window-start)))
+        (swiper--maybe-recenter)
         (when (/= (point) swiper--opoint)
           (unless (and transient-mark-mode mark-active)
             (when (eq ivy-exit 'done)
@@ -1406,21 +1408,26 @@ that we search only for one character."
           (and (> (length x) 0)
                (setq x (get-text-property 0 'point x))))
       (with-ivy-window
-        (goto-char x)
+          (goto-char x)
         (when (and (or (eq this-command 'ivy-previous-line-or-history)
                        (and (eq this-command 'ivy-done)
                             (eq last-command 'ivy-previous-line-or-history)))
                    (looking-back ivy--old-re (line-beginning-position)))
           (goto-char (match-beginning 0)))
         (isearch-range-invisible (point) (1+ (point)))
-        (when swiper-action-recenter
+        (swiper--maybe-recenter)
+        (when (and (swiper--recenter-p)
+                   (or
+                    (< (point) (window-start))
+                    (> (point) (window-end (ivy-state-window ivy-last) t))))
           (recenter))
+        (setq swiper--current-window-start (window-start))
         (unless (eq ivy-exit 'done)
           (swiper--cleanup)
           (swiper--delayed-add-overlays)
           (swiper--add-cursor-overlay
            (ivy-state-window ivy-last))))
-    (swiper--cleanup)))
+      (swiper--cleanup)))
 
 (defun swiper-isearch-thing-at-point ()
   "Insert `symbol-at-point' into the minibuffer of `swiper-isearch'.
