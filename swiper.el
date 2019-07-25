@@ -370,11 +370,17 @@ Make sure `swiper-mc' is on `mc/cmds-to-run-once' list."
                (mc/create-fake-cursor-at-point))))
          (multiple-cursors-mode 1))))))
 
+(defvar swiper--current-window-start nil
+  "Store `window-start' to restore it later.
+This prevents a \"jumping\" behavior which occurs when variables
+such as `scroll-conservatively' are set to a high value.")
+
 (defun swiper-recenter-top-bottom (&optional arg)
   "Call (`recenter-top-bottom' ARG)."
   (interactive "P")
   (with-ivy-window
-    (recenter-top-bottom arg)))
+    (recenter-top-bottom arg)
+    (setq swiper--current-window-start (window-start))))
 
 (defvar swiper-font-lock-exclude
   '(Man-mode
@@ -570,11 +576,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (when (use-region-p)
       (deactivate-mark))
     (swiper-all thing)))
-
-(defvar swiper--current-window-start nil
-  "Store `window-start' to restore it later.
-This prevents a \"jumping\" behavior which occurs when variables
-such as `scroll-conservatively' are set to a high value.")
 
 (defun swiper--extract-matches (regex cands)
   "Extract captured REGEX groups from CANDS."
