@@ -1815,7 +1815,7 @@ like.")
   '((ivy--regex-ignore-order . ivy--highlight-ignore-order)
     (ivy--regex-fuzzy . ivy--highlight-fuzzy)
     (ivy--regex-plus . ivy--highlight-default))
-  "An alist of highlighting functions for each regex buidler function.")
+  "An alist of highlighting functions for each regex builder function.")
 
 (defcustom ivy-initial-inputs-alist
   '((org-refile . "^")
@@ -1940,7 +1940,7 @@ a regular expression.
 
 DEF is for compatibility with `completing-read'.
 
-UPDATE-FN is called each time the candidate list is redisplayed.
+UPDATE-FN is called each time the candidate list is re-displayed.
 
 When SORT is non-nil, `ivy-sort-functions-alist' determines how
 to sort candidates before displaying them.
@@ -2617,7 +2617,7 @@ When GREEDY is non-nil, join words in a greedy way."
   "Split STR into text before and after ! delimiter.
 Do not split if the delimiter is escaped as \\!.
 
-Assumes there is at most one unescaped delimiter and discards
+Assumes there is at most one un-escaped delimiter and discards
 text after delimiter if it is empty.  Modifies match data."
   (unless (string= str "")
     (let ((delim "\\(?:\\`\\|[^\\]\\)\\(!\\)"))
@@ -2625,7 +2625,7 @@ text after delimiter if it is empty.  Modifies match data."
                 ;; Store "\!" as "!".
                 (replace-regexp-in-string "\\\\!" "!" split t t))
               (if (string-match delim str)
-                  ;; Ignore everything past first unescaped ! rather than
+                  ;; Ignore everything past first un-escaped ! rather than
                   ;; crashing.  We can't warn or error because the minibuffer is
                   ;; already active.
                   (let* ((i (match-beginning 1))
@@ -2639,7 +2639,7 @@ text after delimiter if it is empty.  Modifies match data."
 
 (defun ivy--split-spaces (str)
   "Split STR on spaces, unless they're preceded by \\.
-No unescaped spaces are left in the output.  Any substring not
+No un-escaped spaces are left in the output.  Any substring not
 constituting a valid regexp is passed to `regexp-quote'."
   (when str
     (let ((i 0) ; End of last search.
@@ -2648,7 +2648,7 @@ constituting a valid regexp is passed to `regexp-quote'."
       (while (string-match "\\(\\\\ \\)\\| +" str i)
         (setq i (match-end 0))
         (if (not (match-beginning 1))
-            ;; Unescaped space(s).
+            ;; Un-escaped space(s).
             (let ((delim (match-beginning 0)))
               (when (< j delim)
                 (push (substring str j delim) parts))
@@ -3954,7 +3954,7 @@ TREE can be nested multiple times to have multiple window splits.")
 
 When ARG is non-nil, replace a selected item on `ivy-views'.
 
-Currently, the split configuration (i.e. horizonal or vertical)
+Currently, the split configuration (i.e. horizontal or vertical)
 and point positions are saved, but the split positions aren't.
 Use `ivy-pop-view' to delete any item from `ivy-views'."
   (interactive "P")
@@ -4663,7 +4663,7 @@ There is no limit on the number of *ivy-occur* buffers."
   "Refresh the buffer making it up-to date with the collection.
 
 Currently only works for `swiper'.  In that specific case, the
-*ivy-occur* buffer becomes nearly useless as the orignal buffer
+*ivy-occur* buffer becomes nearly useless as the original buffer
 is updated, since the line numbers no longer match.
 
 Calling this function is as if you called `ivy-occur' on the
