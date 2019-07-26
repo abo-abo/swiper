@@ -442,7 +442,7 @@ such as `scroll-conservatively' are set to a high value.")
       (not (derived-mode-p 'prog-mode))))
 
 (defun swiper-font-lock-ensure ()
-  "Ensure the entired buffer is highlighted."
+  "Ensure the entire buffer is highlighted."
   (unless (swiper-font-lock-ensure-p)
     (unless (or (> (buffer-size) 100000) (null font-lock-mode))
       (if (fboundp 'font-lock-ensure)
@@ -453,7 +453,7 @@ such as `scroll-conservatively' are set to a high value.")
   "Store the current candidates format spec.")
 
 (defvar swiper--width nil
-  "Store the number of digits needed for the longest line nubmer.")
+  "Store the number of digits needed for the longest line number.")
 
 (defvar swiper-use-visual-line nil
   "When non-nil, use `line-move' instead of `forward-line'.")
