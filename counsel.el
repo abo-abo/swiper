@@ -3340,7 +3340,7 @@ MAJOR-MODE and, if so, loads the settings specified by PLIST
 instead of the default settings.  The following settings are
 recognized:
 
-- `:outline-regexp' is a regexp to match the beggining of an
+- `:outline-regexp' is a regexp to match the beginning of an
   outline heading.  It is only checked at the start of a line and
   so need not start with \"^\".
   Defaults to the value of the variable `outline-regexp'.
