@@ -222,8 +222,15 @@ Only \"./\" and \"../\" apply here.  They appear in reverse order."
            (const :tag "Current Directory" "./"))))
 
 (defcustom ivy-use-virtual-buffers nil
-  "When non-nil, add recent files and bookmarks to `ivy-switch-buffer'."
-  :type 'boolean)
+  "When non-nil, add recent files and/or bookmarks to `ivy-switch-buffer'.
+The value `recentf' includes only recent files to the virtual
+buffers list, whereas the value `bookmarks' does the same for
+bookmarks.  Any other non-nil value includes both."
+  :type '(choice
+          (const :tag "Don't use virtual buffers" nil)
+          (const :tag "Recent files" recentf)
+          (const :tag "Bookmarks" bookmarks)
+          (const :tag "All virtual buffers" t)))
 
 (defvar ivy-display-function nil
   "Determine where to display candidates.
@@ -3826,12 +3833,19 @@ CANDS is a list of strings."
   (require 'bookmark)
   (unless recentf-mode
     (recentf-mode 1))
-  (let (virtual-buffers)
-    (bookmark-maybe-load-default-file)
-    (dolist (head (append recentf-list
-                          (delete "   - no file -"
-                                  (delq nil (mapcar #'bookmark-get-filename
-                                                    bookmark-alist)))))
+  (bookmark-maybe-load-default-file)
+  (let* ((vb-bkm (delete "   - no file -"
+                         (delq nil (mapcar #'bookmark-get-filename
+                                           bookmark-alist))))
+         (vb-list (cond ((eq ivy-use-virtual-buffers 'recentf)
+                         recentf-list)
+                        ((eq ivy-use-virtual-buffers 'bookmarks)
+                         vb-bkm)
+                        (ivy-use-virtual-buffers
+                         (append recentf-list vb-bkm))
+                        (t nil)))
+         virtual-buffers)
+    (dolist (head vb-list)
       (let* ((file-name (if (stringp head)
                             head
                           (cdr head)))
