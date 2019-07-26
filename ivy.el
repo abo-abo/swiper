@@ -4467,8 +4467,12 @@ You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
   "Restrict candidates to current input and erase input."
   (interactive)
   (delete-minibuffer-contents)
-  (setq ivy--all-candidates
-        (ivy--filter ivy-text ivy--all-candidates)))
+  (if (ivy-state-dynamic-collection ivy-last)
+      (progn
+        (setf (ivy-state-dynamic-collection ivy-last) nil)
+        (setq ivy--all-candidates ivy--old-cands))
+    (setq ivy--all-candidates
+          (ivy--filter ivy-text ivy--all-candidates))))
 
 ;;* Occur
 (defvar-local ivy-occur-last nil
