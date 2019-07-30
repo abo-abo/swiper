@@ -1984,29 +1984,31 @@ one that exists will be used.")
   "Return a command that filters a file list to match ivy candidates.
 If USE-IGNORE is non-nil, try to generate a command that respects
 `counsel-find-file-ignore-regexp'."
-  (let ((regex ivy--old-re)
-        (filter-cmd (cl-find-if
-                     (lambda (x)
-                       (executable-find
-                        (car (split-string (car x)))))
-                     counsel-file-name-filter-alist))
-        cmd)
-    (when (and use-ignore ivy-use-ignore
-               counsel-find-file-ignore-regexp
-               (cdr filter-cmd)
-               (not (string-match-p "\\`\\." ivy-text))
-               (not (string-match-p counsel-find-file-ignore-regexp
-                                    (or (car ivy--old-cands) ""))))
-      (let ((ignore-re (list (counsel--elisp-to-pcre
-                              counsel-find-file-ignore-regexp))))
-        (setq regex (if (stringp regex)
-                        (list ignore-re (cons regex t))
-                      (cons ignore-re regex)))))
-    (setq cmd (format (car filter-cmd)
-                      (counsel--elisp-to-pcre regex (cdr filter-cmd))))
-    (if (string-match-p "csh\\'" shell-file-name)
-        (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
-      cmd)))
+  (let ((regex ivy--old-re))
+    (if (= 0 (length regex))
+        "cat"
+      (let ((filter-cmd (cl-find-if
+                         (lambda (x)
+                           (executable-find
+                            (car (split-string (car x)))))
+                         counsel-file-name-filter-alist))
+            cmd)
+        (when (and use-ignore ivy-use-ignore
+                   counsel-find-file-ignore-regexp
+                   (cdr filter-cmd)
+                   (not (string-match-p "\\`\\." ivy-text))
+                   (not (string-match-p counsel-find-file-ignore-regexp
+                                        (or (car ivy--old-cands) ""))))
+          (let ((ignore-re (list (counsel--elisp-to-pcre
+                                  counsel-find-file-ignore-regexp))))
+            (setq regex (if (stringp regex)
+                            (list ignore-re (cons regex t))
+                          (cons ignore-re regex)))))
+        (setq cmd (format (car filter-cmd)
+                          (counsel--elisp-to-pcre regex (cdr filter-cmd))))
+        (if (string-match-p "csh\\'" shell-file-name)
+            (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
+          cmd)))))
 
 (defun counsel--occur-cmd-find ()
   (let ((cmd (format
