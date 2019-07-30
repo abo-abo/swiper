@@ -1833,12 +1833,12 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
                         'counsel-find-file-move))
 
 (defun counsel-find-file-mkdir-action (_x)
-  "Create a directory from `ivy-text'."
+  "Create a directory and any nonexistent parent dirs from `ivy-text'."
   (let ((dir (file-name-as-directory
               (expand-file-name ivy-text ivy--directory)))
         (win (and (not (eq ivy-exit 'done))
                   (active-minibuffer-window))))
-    (make-directory dir)
+    (make-directory dir t)
     (when win (with-selected-window win (ivy--cd dir)))))
 
 (ivy-set-actions
