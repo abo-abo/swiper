@@ -2793,9 +2793,10 @@ tries to ensure that it does not change depending on the number of candidates."
   ;; assume one-line minibuffer input
   (save-excursion
     (goto-char (minibuffer-prompt-end))
-    (buffer-substring-no-properties
-     (point)
-     (line-end-position))))
+    (let ((inhibit-field-text-motion t))
+      (buffer-substring-no-properties
+       (point)
+       (line-end-position)))))
 
 (defun ivy--minibuffer-cleanup ()
   "Delete the displayed completion candidates."
