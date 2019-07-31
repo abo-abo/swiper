@@ -919,7 +919,7 @@ selection, non-nil otherwise."
     (if (and (> (minibuffer-depth) 1)
              (eq (ivy-state-caller ivy-last) 'ivy-read-action-ivy))
         (minibuffer-keyboard-quit)
-      (ivy-read "action: "
+      (ivy-read (format "action (%s): " (ivy-state-current ivy-last))
                 (cl-mapcar
                  (lambda (a i) (cons (format "[%s] %s" (nth 0 a) (nth 2 a)) i))
                  (cdr actions) (number-sequence 1 (length (cdr actions))))
