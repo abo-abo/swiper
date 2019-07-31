@@ -916,14 +916,17 @@ selection, non-nil otherwise."
 (defun ivy-read-action-ivy (actions)
   "Select an action from ACTIONS using Ivy."
   (let ((enable-recursive-minibuffers t))
-    (ivy-read "action: "
-              (cl-mapcar
-               (lambda (a i) (cons (format "[%s] %s" (nth 0 a) (nth 2 a)) i))
-               (cdr actions) (number-sequence 1 (length (cdr actions))))
-              :action (lambda (a)
-                        (setcar actions (cdr a))
-                        (ivy-set-action actions))
-              :caller 'ivy-read-action-ivy)))
+    (if (and (> (minibuffer-depth) 1)
+             (eq (ivy-state-caller ivy-last) 'ivy-read-action-ivy))
+        (minibuffer-keyboard-quit)
+      (ivy-read "action: "
+                (cl-mapcar
+                 (lambda (a i) (cons (format "[%s] %s" (nth 0 a) (nth 2 a)) i))
+                 (cdr actions) (number-sequence 1 (length (cdr actions))))
+                :action (lambda (a)
+                          (setcar actions (cdr a))
+                          (ivy-set-action actions))
+                :caller 'ivy-read-action-ivy))))
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
