@@ -124,7 +124,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
                      (cdr actions))
            ,@extra-actions))))))
 
-(define-key ivy-minibuffer-map (kbd "M-o") 'ivy-dispatching-done-hydra)
+(setq ivy-read-action-function (lambda (_) (ivy-dispatching-done-hydra)))
 
 (provide 'ivy-hydra)
 

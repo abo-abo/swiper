@@ -873,6 +873,13 @@ key (a string), cmd and doc (a string)."
            actions
            "\n")))
 
+(defcustom ivy-read-action-function #'ivy-read-action-by-key
+  "Function used to read an action."
+  :type '(radio
+          (function-item ivy-read-action-by-key)
+          (function-item ivy-read-action-ivy)
+          (function-item ivy-read-action-hydra)))
+
 (defun ivy-read-action ()
   "Change the action to one of the available ones.
 
@@ -882,26 +889,41 @@ selection, non-nil otherwise."
   (let ((actions (ivy-state-action ivy-last)))
     (if (not (ivy--actionp actions))
         t
-      (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
-             (resize-mini-windows t)
-             (key "")
-             action-idx)
-        (while (and (setq action-idx (cl-position-if
-                                      (lambda (x)
-                                        (string-prefix-p key (car x)))
-                                      (cdr actions)))
-                    (not (string= key (car (nth action-idx (cdr actions))))))
-          (setq key (concat key (string (read-key hint)))))
-        (ivy-shrink-after-dispatching)
-        (cond ((member key '("" ""))
-               nil)
-              ((null action-idx)
-               (message "%s is not bound" key)
-               nil)
-              (t
-               (message "")
-               (setcar actions (1+ action-idx))
-               (ivy-set-action actions)))))))
+      (funcall ivy-read-action-function actions))))
+
+(defun ivy-read-action-by-key (actions)
+  (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
+         (resize-mini-windows t)
+         (key "")
+         action-idx)
+    (while (and (setq action-idx (cl-position-if
+                                  (lambda (x)
+                                    (string-prefix-p key (car x)))
+                                  (cdr actions)))
+                (not (string= key (car (nth action-idx (cdr actions))))))
+      (setq key (concat key (string (read-key hint)))))
+    (ivy-shrink-after-dispatching)
+    (cond ((member key '("" ""))
+           nil)
+          ((null action-idx)
+           (message "%s is not bound" key)
+           nil)
+          (t
+           (message "")
+           (setcar actions (1+ action-idx))
+           (ivy-set-action actions)))))
+
+(defun ivy-read-action-ivy (actions)
+  "Select an action from ACTIONS using Ivy."
+  (let ((enable-recursive-minibuffers t))
+    (ivy-read "action: "
+              (cl-mapcar
+               (lambda (a i) (cons (format "[%s] %s" (nth 0 a) (nth 2 a)) i))
+               (cdr actions) (number-sequence 1 (length (cdr actions))))
+              :action (lambda (a)
+                        (setcar actions (cdr a))
+                        (ivy-set-action actions))
+              :caller 'ivy-read-action-ivy)))
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
