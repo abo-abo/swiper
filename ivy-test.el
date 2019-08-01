@@ -186,7 +186,11 @@ will bring the behavior in line with the newer Emacsen."
   (should (string= (swiper--re-builder "^a")
                    "^ ?\\(a\\)"))
   (should (string= (swiper--re-builder "^a b")
-                   "^ \\(a\\).*?\\(b\\)")))
+                   "^ \\(a\\).*?\\(b\\)"))
+  (should
+   (string-match-p
+    "\\`\\\\_<.*\\\\_>\\'"
+    (swiper--re-builder "\\_<iv\\_>"))))
 
 (ert-deftest swiper--re-builder-char-fold ()
   :expected-result (if (>= emacs-major-version 25)

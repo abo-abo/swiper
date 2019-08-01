@@ -731,12 +731,17 @@ line numbers.  For the buffer, use `ivy--regex' instead."
                         (setq ivy--subexps 1))
                     (format "^ %s" re))))
                ((eq (bound-and-true-p search-default-mode) 'char-fold-to-regexp)
-                (let ((subs (ivy--split str)))
-                  (setq ivy--subexps (length subs))
-                  (mapconcat
-                   (lambda (s) (format "\\(%s\\)" (char-fold-to-regexp s)))
-                   subs
-                   ".*?")))
+                (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
+                    (concat
+                     "\\_<"
+                     (char-fold-to-regexp (match-string 1 str))
+                     "\\_>")
+                  (let ((subs (ivy--split str)))
+                    (setq ivy--subexps (length subs))
+                    (mapconcat
+                     (lambda (s) (format "\\(%s\\)" (char-fold-to-regexp s)))
+                     subs
+                     ".*?"))))
                (t
                 (funcall re-builder str)))))
     re))
