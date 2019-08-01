@@ -508,6 +508,7 @@ action functions.")
   caller
   current
   def
+  ignore
   multi-action)
 
 (defvar ivy-last (make-ivy-state)
@@ -1180,7 +1181,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                 '(swiper swiper-isearch swiper-backward swiper-isearch-backward))
       (switch-to-buffer (ivy-state-buffer ivy-last)))
     (with-current-buffer (ivy-state-buffer ivy-last)
-      (let ((default-directory (ivy-state-directory ivy-last)))
+      (let ((default-directory (ivy-state-directory ivy-last))
+            (ivy-use-ignore-default (ivy-state-ignore ivy-last)))
         (ivy-read
          (ivy-state-prompt ivy-last)
          (ivy-state-collection ivy-last)
@@ -1297,6 +1299,7 @@ If the input is empty, select the previous history element instead."
         (if ivy-use-ignore
             nil
           (or ivy-use-ignore-default t)))
+  (setf (ivy-state-ignore ivy-last) ivy-use-ignore)
   ;; invalidate cache
   (setq ivy--old-cands nil))
 
@@ -2136,6 +2139,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--index 0)
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
+    (setf (ivy-state-ignore state) ivy-use-ignore)
     (setq ivy--highlight-function
           (or (cdr (assq ivy--regex-function ivy-highlight-functions-alist))
               #'ivy--highlight-default))
