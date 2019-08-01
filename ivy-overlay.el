@@ -62,6 +62,8 @@ Lines are truncated to the window width."
   (when (fboundp 'company-abort)
     (company-abort)))
 
+(defvar ivy-height)
+
 (defun ivy-overlay-show-after (str)
   "Display STR in an overlay at point.
 
@@ -71,6 +73,9 @@ Then attach the overlay to the character before point."
       (progn
         (move-overlay ivy-overlay-at (1- (point)) (line-end-position))
         (overlay-put ivy-overlay-at 'invisible nil))
+    (let ((available-height (count-lines (point) (window-end nil t))))
+      (unless (>= available-height ivy-height)
+        (recenter (- (window-height) ivy-height 2))))
     (setq ivy-overlay-at (make-overlay (1- (point)) (line-end-position)))
     ;; Specify face to avoid clashing with other overlays.
     (overlay-put ivy-overlay-at 'face 'default)
@@ -95,7 +100,7 @@ Then attach the overlay to the character before point."
   (or
    (and (eq major-mode 'org-mode)
         (plist-get (text-properties-at (point)) 'src-block))
-   (<= (window-height) (+ ivy-height 3))
+   (<= (window-height) (+ ivy-height 2))
    (= (point) (point-min))
    (< (- (+ (window-width) (window-hscroll)) (current-column))
       30)))
