@@ -2204,6 +2204,49 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
    ("f" find-file-other-frame "other frame")
    ("x" counsel-find-file-extern "open externally")))
 
+(defun counsel-buffer-or-recentf-candidates ()
+  "Return candidates for `counsel-buffer-or-recentf'."
+  (require 'recentf)
+  (recentf-mode)
+  (let ((buffers
+         (delq nil
+               (mapcar (lambda (b)
+                         (when (buffer-file-name b)
+                           (buffer-file-name b)))
+                       (buffer-list)))))
+    (append
+     buffers
+     (cl-remove-if (lambda (f) (member f buffers))
+                   (mapcar #'substring-no-properties recentf-list)))))
+
+;;;###autoload
+(defun counsel-buffer-or-recentf ()
+  "Find a buffer visiting a file or file on `recentf-list'."
+  (interactive)
+  (ivy-read "Buffer File or Recentf: " (counsel-buffer-or-recentf-candidates)
+            :action (lambda (s)
+                      (with-ivy-window
+                        (if (bufferp s)
+                            (switch-to-buffer s)
+                          (find-file s))))
+            :require-match t
+            :caller 'counsel-buffer-or-recentf))
+
+(ivy-set-actions
+ 'counsel-buffer-or-recentf
+ '(("j" find-file-other-window "other window")
+   ("f" find-file-other-frame "other frame")
+   ("x" counsel-find-file-extern "open externally")))
+
+(defun counsel-buffer-or-recentf-transformer (var)
+  "Propertize VAR if it's a buffer visiting a file."
+  (if (member var (mapcar #'buffer-file-name (buffer-list)))
+      (ivy-append-face var 'ivy-highlight-face)
+    var))
+
+(ivy-set-display-transformer
+ 'counsel-buffer-or-recentf 'counsel-buffer-or-recentf-transformer)
+
 ;;** `counsel-bookmark'
 (defcustom counsel-bookmark-avoid-dired nil
   "If non-nil, open directory bookmarks with `counsel-find-file'.
