@@ -876,6 +876,18 @@ packages are, in order of precedence, `amx' and `smex'."
 (defvar counsel-M-x-history nil
   "History for `counsel-M-x'.")
 
+(defun counsel-M-x-action (cmd)
+  "Execute CMD."
+  (setq cmd (intern cmd))
+  (cond ((bound-and-true-p amx-initialized)
+         (amx-rank cmd))
+        ((bound-and-true-p smex-initialized-p)
+         (smex-rank cmd)))
+  (setq prefix-arg current-prefix-arg)
+  (setq this-command cmd)
+  (setq real-this-command cmd)
+  (command-execute cmd 'record))
+
 ;;;###autoload
 (defun counsel-M-x (&optional initial-input)
   "Ivy version of `execute-extended-command'.
@@ -896,16 +908,7 @@ when available, in that order of precedence."
                                      (not (get sym 'byte-obsolete-info)))))
               :require-match t
               :history 'counsel-M-x-history
-              :action (lambda (cmd)
-                        (setq cmd (intern cmd))
-                        (cond ((bound-and-true-p amx-initialized)
-                               (amx-rank cmd))
-                              ((bound-and-true-p smex-initialized-p)
-                               (smex-rank cmd)))
-                        (setq prefix-arg current-prefix-arg)
-                        (setq this-command cmd)
-                        (setq real-this-command cmd)
-                        (command-execute cmd 'record))
+              :action #'counsel-M-x-action
               :sort (not externs)
               :keymap counsel-describe-map
               :initial-input initial-input
@@ -5835,7 +5838,7 @@ Additional actions:\\<ivy-minibuffer-map>
                                          ;; major mode starters have no arguments
                                          (and doc-split (null (cdr (read (car doc-split)))))))
                                   (null (help-function-arglist f)))))
-            :action (lambda (mode) (funcall (intern mode)))
+            :action #'counsel-M-x-action
             :caller 'counsel-major))
 
 ;;* `counsel-mode'
