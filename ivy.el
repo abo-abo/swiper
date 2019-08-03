@@ -4269,7 +4269,6 @@ Skip buffers that match `ivy-ignore-buffers'."
 (defun ivy-switch-buffer ()
   "Switch to another buffer."
   (interactive)
-  (setq this-command #'ivy-switch-buffer)
   (ivy-read "Switch to buffer: " #'internal-complete-buffer
             :keymap ivy-switch-buffer-map
             :preselect (buffer-name (other-buffer (current-buffer)))
