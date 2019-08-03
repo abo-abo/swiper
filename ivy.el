@@ -4295,8 +4295,6 @@ Skip buffers that match `ivy-ignore-buffers'."
             :keymap ivy-switch-buffer-map
             :caller 'ivy-switch-buffer-other-window))
 
-(define-obsolete-function-alias 'ivy-recentf 'counsel-recentf "0.8.0")
-
 (defun ivy--yank-by (fn &rest args)
   "Pull buffer text from current line into search string.
 The region to extract is determined by the respective values of

@@ -530,9 +530,6 @@ Used by commands `counsel-describe-variable' and
                  (error "Couldn't find definition of %s"
                         sym))))))))
 
-(define-obsolete-function-alias 'counsel-symbol-at-point
-    'ivy-thing-at-point "0.7.0")
-
 (defun counsel--variable-p (symbol)
   "Return non-nil if SYMBOL is a bound or documented variable."
   (or (and (boundp symbol)
