@@ -2910,7 +2910,8 @@ parts beyond their respective faces `ivy-confirm-face' and
                          (concat n-str d-str "\n"))
                         (t
                          (concat n-str d-str)))))
-          (let ((p-str (funcall ivy-pre-prompt-function)))
+          (let ((p-str (when (functionp ivy-pre-prompt-function)
+                         (funcall ivy-pre-prompt-function))))
             (when (stringp p-str)
               (setq n-str (concat p-str n-str))))
           (when ivy-add-newline-after-prompt
