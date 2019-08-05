@@ -180,6 +180,12 @@ Set this to \"(%d/%d) \" to display both the index and the count."
           (const :tag "Count matches and show current match" "(%d/%d) ")
           string))
 
+(defcustom ivy-pre-prompt-function nil
+  "When non-nil, add strings before the `ivy-read' prompt."
+  :type '(choice
+          (const :tag "Do nothing" nil)
+          (function :tag "Custom function")))
+
 (defcustom ivy-add-newline-after-prompt nil
   "When non-nil, add a newline after the `ivy-read' prompt."
   :type 'boolean)
@@ -2904,6 +2910,8 @@ parts beyond their respective faces `ivy-confirm-face' and
                          (concat n-str d-str "\n"))
                         (t
                          (concat n-str d-str)))))
+          (when ivy-pre-prompt-function
+            (setq n-str (concat (funcall ivy-pre-prompt-function) n-str)))
           (when ivy-add-newline-after-prompt
             (setq n-str (concat n-str "\n")))
           (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
