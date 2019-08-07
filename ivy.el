@@ -43,6 +43,7 @@
 (require 'ivy-overlay)
 (require 'colir)
 (require 'ring)
+(require 'subr-x)
 
 ;;* Customization
 (defgroup ivy nil
@@ -1120,7 +1121,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                         ivy--old-cands)))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
-          ((string= (car tail) new) nil)
+          ((string= (car tail) (string-trim-right new)) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar tail
