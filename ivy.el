@@ -43,7 +43,6 @@
 (require 'ivy-overlay)
 (require 'colir)
 (require 'ring)
-(require 'subr-x)
 
 ;;* Customization
 (defgroup ivy nil
@@ -1112,7 +1111,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
   (interactive)
-  (let* ((parts (or (split-string ivy-text " " t) (list "")))
+  (let* ((parts (or (ivy--split-spaces ivy-text) (list "")))
          (tail (last parts))
          (postfix (car tail))
          (case-fold-search (ivy--case-fold-p ivy-text))
@@ -1126,7 +1125,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                                         ivy--old-cands)))))
     (cond ((eq new t) nil)
           ((string= new ivy-text) nil)
-          ((string= (car tail) (string-trim-right new)) nil)
+          ((string= (car tail) (car (ivy--split-spaces new))) nil)
           (new
            (delete-region (minibuffer-prompt-end) (point-max))
            (setcar tail
