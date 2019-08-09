@@ -5528,7 +5528,7 @@ list is passed to `compilation-environment'."
   "History for `counsel-compile-env'.")
 
 (defvar counsel-compile-env-pattern
-  "[_[:digit:][:upper:]]+=[/[:album:]]*"
+  "[_[:digit:][:upper:]]+=[/[:alnum:]]*"
   "Pattern to match valid environment variables.")
 
 (defcustom counsel-compile-make-pattern "\\`\\(?:GNUm\\|[Mm]\\)akefile\\'"
