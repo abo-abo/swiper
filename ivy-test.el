@@ -950,7 +950,13 @@ will bring the behavior in line with the newer Emacsen."
           (ivy-with
            '(read-directory-name "cd: ")
            "tmp C-j C-M-j"
-           :dir "/"))))
+           :dir "/")))
+  (should
+   (equal "/"
+          (ivy-with
+           '(read-directory-name "cd: ")
+           "DEL C-M-j"
+           :dir "/tmp"))))
 
 (ert-deftest ivy-partial-files ()
   (when (file-exists-p "/tmp/ivy-partial-test")
