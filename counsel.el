@@ -1372,6 +1372,8 @@ Typical value: '(recenter)."
       (goto-char (point-min))
       (forward-line (1- (string-to-number line-number)))
       (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+      (when swiper-goto-start-of-match
+        (goto-char (match-beginning 0)))
       (swiper--ensure-visible)
       (run-hooks 'counsel-grep-post-action-hook)
       (unless (eq ivy-exit 'done)
@@ -2985,6 +2987,8 @@ substituted by the search regexp and file, respectively.  Neither
             (forward-line (1- line-number)))
           (setq counsel-grep-last-line line-number)
           (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+          (when swiper-goto-start-of-match
+            (goto-char (match-beginning 0)))
           (run-hooks 'counsel-grep-post-action-hook)
           (if (eq ivy-exit 'done)
               (swiper--ensure-visible)
