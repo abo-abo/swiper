@@ -1324,17 +1324,7 @@ a buffer visiting a file."
   (should (equal (ivy--minibuffer-index-bounds 10 11 10) '(2 11 8)))
   (should (equal (ivy--minibuffer-index-bounds 1 3 10) '(0 3 1))))
 
-(defun counsel--setup-test-files ()
-  (unless (file-exists-p "tests/")
-    (shell-command
-     "git clone -b test --single-branch https://github.com/abo-abo/swiper/ tests"))
-  (let ((default-directory (expand-file-name "tests/"))
-        (version "066ec1d"))
-    (shell-command
-     (format "git checkout %s || git fetch && git checkout %s" version version))))
-
 (ert-deftest counsel-find-file-with-dollars ()
-  (counsel--setup-test-files)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "fo C-m"
@@ -1342,7 +1332,6 @@ a buffer visiting a file."
            "tests/find-file/files-with-dollar/foo$")))
 
 (ert-deftest counsel-find-file-with-dotfiles ()
-  (counsel--setup-test-files)
   (should (string=
            (file-relative-name
             (ivy-with '(counsel-find-file) "f C-m"
@@ -1355,7 +1344,6 @@ a buffer visiting a file."
            "tests/find-file/dotfiles/.foobar1")))
 
 (ert-deftest counsel-find-file-with-spaces ()
-  (counsel--setup-test-files)
   (let ((ivy-extra-directories nil))
     (should (string=
              (file-relative-name
