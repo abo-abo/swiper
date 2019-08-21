@@ -2605,12 +2605,13 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   (counsel--call
    (cons find-program args)
    (lambda ()
-     (goto-char (point-min))
      (let (files)
+       (goto-char (point-min))
        (while (< (point) (point-max))
-         (push (buffer-substring
-                (+ 2 (line-beginning-position)) (line-end-position)) files)
-         (forward-line 1))
+         (when (looking-at "\\./")
+           (goto-char (match-end 0)))
+         (push (buffer-substring (point) (line-end-position)) files)
+         (beginning-of-line 2))
        (nreverse files)))))
 
 (defcustom counsel-file-jump-args (split-string ". -name .git -prune -o -type f -print")
