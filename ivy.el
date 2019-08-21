@@ -1109,6 +1109,16 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
       (substring string (length prefix))
     string))
 
+(defun ivy--partial-cd-for-single-directory ()
+  (when (and
+         (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
+         (= 1 (length
+               (ivy--re-filter
+                (funcall ivy--regex-function ivy-text) ivy--all-candidates)))
+         (let ((default-directory ivy--directory))
+           (file-directory-p (ivy-state-current ivy-last))))
+    (ivy--directory-done)))
+
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
   (interactive)
@@ -1138,13 +1148,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                   (concat
                    (mapconcat #'identity parts " ")
                    (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " "))))
-           (when (and
-                  (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
-                  (= 1 (length
-                        (ivy--filter ivy-text ivy--all-candidates)))
-                  (let ((default-directory ivy--directory))
-                    (file-directory-p (ivy-state-current ivy-last))))
-             (ivy--directory-done))
+           (ivy--partial-cd-for-single-directory)
            t))))
 
 (defvar ivy-completion-beg nil
