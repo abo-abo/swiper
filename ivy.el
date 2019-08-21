@@ -4302,6 +4302,12 @@ Skip buffers that match `ivy-ignore-buffers'."
             :keymap ivy-switch-buffer-map
             :caller 'ivy-switch-buffer-other-window))
 
+(defun ivy--yank-handle-case-fold (text)
+  (if (and (> (length ivy-text) 0)
+           (string= (downcase ivy-text) ivy-text))
+      (downcase text)
+    text))
+
 (defun ivy--yank-by (fn &rest args)
   "Pull buffer text from current line into search string.
 The region to extract is determined by the respective values of
@@ -4320,7 +4326,10 @@ point before and after applying FN to ARGS."
           (unless text
             (goto-char beg)))))
     (when text
-      (insert (replace-regexp-in-string "  +" " " text t t)))))
+      (insert (replace-regexp-in-string
+               "  +" " "
+               (ivy--yank-handle-case-fold text)
+               t t)))))
 
 (defun ivy-yank-word (&optional arg)
   "Pull next word from buffer into search string.

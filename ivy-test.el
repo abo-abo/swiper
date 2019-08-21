@@ -1368,6 +1368,16 @@ a buffer visiting a file."
       (should (string= (ivy-with read-numbers "C-' a") "1"))
       (should (string= (ivy-with read-numbers "C-v C-' d") "7")))))
 
+(ert-deftest ivy--yank-handle-case-fold ()
+  (should (string=
+           (let ((ivy-text ""))
+             (ivy--yank-handle-case-fold "FirstName"))
+           "FirstName"))
+  (should (string=
+           (let ((ivy-text "f"))
+             (ivy--yank-handle-case-fold "irstName"))
+           "irstname")))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here
