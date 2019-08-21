@@ -1141,7 +1141,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
            (when (and
                   (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
                   (= 1 (length
-                        (all-completions ivy-text ivy--all-candidates)))
+                        (ivy--filter ivy-text ivy--all-candidates)))
                   (let ((default-directory ivy--directory))
                     (file-directory-p (ivy-state-current ivy-last))))
              (ivy--directory-done))
