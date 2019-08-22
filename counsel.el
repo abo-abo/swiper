@@ -2899,8 +2899,8 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command
   (if (memq system-type '(ms-dos windows-nt))
-      "rg -S --no-heading --line-number --color never %s ."
-    "rg -S --no-heading --line-number --color never %s")
+      "rg --no-heading --line-number --color never %s ."
+    "rg --no-heading --line-number --color never %s")
   "Alternative to `counsel-ag-base-command' using ripgrep.
 
 Note: don't use single quotes for the regex."
