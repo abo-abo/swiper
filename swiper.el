@@ -1585,6 +1585,7 @@ When not running `swiper-isearch' already, start it."
       (unless (or res swiper-stay-on-quit)
         (goto-char swiper--opoint))
       (isearch-clean-overlays)
+      (swiper--ensure-visible)
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
 
