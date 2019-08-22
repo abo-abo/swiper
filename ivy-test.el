@@ -1384,6 +1384,12 @@ a buffer visiting a file."
              (ivy--yank-handle-case-fold "irstName"))
            "irstname")))
 
+(ert-deftest ivy--handle-directory ()
+  (should (string= (ivy--handle-directory "/") "/"))
+  (should (string= (let ((ivy--directory "/tmp/"))
+                     (ivy--handle-directory "/sudo::"))
+                   "/sudo::/tmp/")))
+
 (provide 'ivy-test)
 
 ;;; ivy-test.el ends here

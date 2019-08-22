@@ -1010,14 +1010,18 @@ contains a single candidate.")
       (ivy--cd dir)
       (ivy--exhibit))))
 
+(defun ivy--handle-directory (input)
+  "Detect the next directory based on special values of INPUT."
+  (cond ((string= input "/")
+         "/")
+        ((string= input "/sudo::")
+         (concat input ivy--directory))))
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
-  (let (dir)
+  (let ((dir (ivy--handle-directory ivy-text)))
     (cond
-      ((equal ivy-text "/")
-       (ivy--cd "/"))
-      ((equal ivy-text "/sudo::")
-       (setq dir (concat ivy-text (expand-file-name ivy--directory)))
+      (dir
        (let ((inhibit-message t))
          (ivy--cd dir)))
       ((ivy--directory-enter))
