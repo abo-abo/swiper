@@ -1993,7 +1993,8 @@ When SORT is non-nil, `ivy-sort-functions-alist' determines how
 to sort candidates before displaying them.
 
 ACTION is a function to call after selecting a candidate.
-It takes the candidate, which is a string, as its only argument.
+It takes one argument, the selected candidate. If COLLECTION is
+an alist, the argument is a cons cell, otherwise it's a string.
 
 MULTI-ACTION, when non-nil, is called instead of ACTION when
 there are marked candidates. It takes the list of candidates as
@@ -2069,10 +2070,10 @@ customizations apply to the current completion session."
                          (car ivy--all-candidates))
                    (setq ivy-exit 'done))
                (read-from-minibuffer
-                          prompt
-                          (ivy-state-initial-input ivy-last)
-                          (make-composed-keymap keymap ivy-minibuffer-map)
-                          nil
+                prompt
+                (ivy-state-initial-input ivy-last)
+                (make-composed-keymap keymap ivy-minibuffer-map)
+                nil
                 hist))
              (when (eq ivy-exit 'done)
                (let ((item (if ivy--directory
