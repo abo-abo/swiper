@@ -1014,6 +1014,8 @@ contains a single candidate.")
   "Handle exit from the minibuffer when completing file names."
   (let (dir)
     (cond
+      ((equal ivy-text "/")
+       (ivy--cd "/"))
       ((equal ivy-text "/sudo::")
        (setq dir (concat ivy-text (expand-file-name ivy--directory)))
        (ivy--cd dir)
