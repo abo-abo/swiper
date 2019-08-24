@@ -39,10 +39,13 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'ffap)
 (require 'ivy-overlay)
 (require 'colir)
 (require 'ring)
+
+;; forward declaration of symbols defined in `ffap'.
+(declare-function ffap-url-p "ffap")
+(defvar ffap-url-fetcher)
 
 ;;* Customization
 (defgroup ivy nil
@@ -1515,7 +1518,7 @@ Call the permanent action if possible."
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
                    (eq (ivy-state-caller ivy-last) 'swiper)
                    (not (file-exists-p ivy--default))
-                   (not (ffap-url-p ivy--default))
+                   (not (ivy-ffap-url-p ivy--default))
                    (not (ivy-state-dynamic-collection ivy-last))
                    (> (point) (minibuffer-prompt-end)))
           (ivy--insert-symbol-boundaries)))
@@ -1533,7 +1536,7 @@ If so, move to that directory, while keeping only the file name."
   (when ivy--directory
     (let ((input (ivy--input))
           url)
-      (if (setq url (or (ffap-url-p input)
+      (if (setq url (or (ivy-ffap-url-p input)
                         (with-ivy-window
                           (cl-reduce
                            (lambda (a b)
@@ -1542,7 +1545,7 @@ If so, move to that directory, while keeping only the file name."
                            :initial-value nil))))
           (ivy-exit-with-action
            (lambda (_)
-             (funcall ffap-url-fetcher url)))
+             (ivy-ffap-url-fetcher url)))
         (setq input (expand-file-name input))
         (let ((file (file-name-nondirectory input))
               (dir (expand-file-name (file-name-directory input))))
@@ -4966,6 +4969,16 @@ make decisions based on the whole marked list."
         (pop-to-buffer buf)))
     (view-mode)
     (goto-char (point-min))))
+
+(defun ivy-ffap-url-p (string)
+  "Forward to `ffap-url-p'."
+  (require 'ffap)
+  (ffap-url-p string))
+
+(defun ivy-ffap-url-fetcher (url)
+  "Calls `ffap-url-fetcher'."
+  (require 'ffap)
+  (funcall ffap-url-fetcher url))
 
 (provide 'ivy)
 
