@@ -935,24 +935,24 @@ will bring the behavior in line with the newer Emacsen."
 
 (ert-deftest ivy-read-directory-name ()
   (should
-   (equal "/tmp/"
+   (equal (expand-file-name "/tmp/")
           (ivy-with
            '(read-directory-name "cd: " "/tmp")
            "RET")))
   (should
-   (equal "/tmp"
+   (equal (expand-file-name "/tmp")
           (ivy-with
            '(read-directory-name "cd: ")
            "C-M-j"
            :dir "/tmp")))
   (should
-   (equal "/tmp/"
+   (equal (expand-file-name "/tmp/")
           (ivy-with
            '(read-directory-name "cd: ")
            "tmp C-j C-M-j"
            :dir "/")))
   (should
-   (equal "/"
+   (equal (expand-file-name "/")
           (ivy-with
            '(read-directory-name "cd: ")
            "DEL C-M-j"
@@ -1026,7 +1026,7 @@ a buffer visiting a file."
        nil nil)
      "C-M-j"
      :dir "/tmp/non-existant-dir/")
-    "/tmp/non-existant-dir/")))
+    (expand-file-name "/tmp/non-existant-dir/"))))
 
 (ert-deftest ivy-starts-with-dotslash ()
   (should (ivy--starts-with-dotslash "./test1"))
