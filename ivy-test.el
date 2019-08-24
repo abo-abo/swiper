@@ -26,6 +26,12 @@
 
 ;;; Code:
 
+(defvar require-args nil)
+(defun ivy-tests-require-hook (&rest args)
+  (push (car args) require-args))
+
+(advice-add 'require :before #'ivy-tests-require-hook)
+
 (require 'ert)
 (require 'colir)
 
@@ -36,6 +42,14 @@
 (require 'counsel)
 
 (message "%s" (emacs-version))
+
+(ert-deftest ivy--lazy-load-ffap--ffap-url-p ()
+  (should (not (memq 'ffap require-args)))
+  (should (not (fboundp 'ffap-url-p)))
+  (should (string= (ivy-ffap-url-p "https://foo.org")
+                   "https://foo.org"))
+  (should (memq 'ffap require-args))
+  (should (fboundp 'ffap-url-p)))
 
 (defvar ivy-expr nil
   "Holds a test expression to evaluate with `ivy-eval'.")
@@ -1389,6 +1403,12 @@ a buffer visiting a file."
   (should (string= (let ((ivy--directory "/tmp/"))
                      (ivy--handle-directory "/sudo::"))
                    "/sudo::/tmp/")))
+
+(defun ivy-test-run-lazy-load-test ()
+  (ert-run-tests-batch-and-exit 'ivy--lazy-load-ffap--ffap-url-p))
+
+(defun ivy-test-run-other-tests ()
+  (ert-run-tests-batch-and-exit '(not ivy--lazy-load-ffap--ffap-url-p)))
 
 (provide 'ivy-test)
 

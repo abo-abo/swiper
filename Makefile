@@ -9,8 +9,12 @@ all: test
 deps:
 	$(emacs) -batch -l targets/install-deps.el
 
-test:
-	$(emacs) -batch $(LOAD) -l ivy-test.el -f ert-run-tests-batch-and-exit
+test: lazy-load-test other-tests
+
+other-tests:
+	$(emacs) -batch $(LOAD) -l ivy-test.el -f ivy-test-run-other-tests
+lazy-load-test:
+	$(emacs) -batch $(LOAD) -l ivy-test.el -f ivy-test-run-lazy-load-test
 
 checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
