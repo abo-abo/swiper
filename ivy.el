@@ -1481,7 +1481,7 @@ Call the permanent action if possible."
   (ivy-call))
 
 (defun ivy-previous-line-and-call (&optional arg)
-  "Move cursor vertically down ARG candidates.
+  "Move cursor vertically up ARG candidates.
 Call the permanent action if possible."
   (interactive "p")
   (ivy-previous-line arg)
