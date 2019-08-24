@@ -412,8 +412,7 @@ actions.
      the default one after ~C-M-o~.
 
 - ~C-M-n~ (=ivy-next-line-and-call=) ::
-     Combines ~C-n~ and ~C-M-m~. Applies an action and moves to next
-     line.
+     Combines ~C-n~ and ~C-M-m~. Moves to next line and applies an action.
 
      Comes in handy when opening multiple files from
      =counsel-find-file=, =counsel-git-grep=, =counsel-ag=, =counsel-rg=, or

@@ -532,8 +532,7 @@ the default one after @kbd{C-M-o}.
 @vindex ivy-next-line-and-call
 @kindex C-M-n
 @indentedblock
-Combines @kbd{C-n} and @kbd{C-M-m}. Applies an action and moves to next
-line.
+Combines @kbd{C-n} and @kbd{C-M-m}. Moves to next line and applies an action.
 
 Comes in handy when opening multiple files from
 @code{counsel-find-file}, @code{counsel-git-grep}, @code{counsel-ag}, @code{counsel-rg}, or
