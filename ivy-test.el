@@ -990,14 +990,15 @@ will bring the behavior in line with the newer Emacsen."
              (kill-buffer temp-buffer))))))
 
 (ert-deftest counsel-yank-pop ()
-  (let ((kill-ring '("foo")))
-    (should (equal
-             (ivy-with-temp-buffer '(counsel-yank-pop) "C-m")
-             '(4 "foo")))
-    (let ((counsel-yank-pop-after-point t))
-      (should (equal
-               (ivy-with-temp-buffer '(counsel-yank-pop) "C-m")
-               '(1 "foo"))))))
+  (should (equal
+           (let ((kill-ring '("foo")))
+             (ivy-with-temp-buffer '(counsel-yank-pop) "C-m"))
+           '(4 "foo")))
+  (should (equal
+           (let ((kill-ring '("foo"))
+                 (counsel-yank-pop-after-point t))
+             (ivy-with-temp-buffer '(counsel-yank-pop) "C-m"))
+           '(1 "foo"))))
 
 (ert-deftest ivy-read-file-name-in-buffer-visiting-file ()
   "Test `ivy-immediate-done' command in `read-file-name' without any editing in
