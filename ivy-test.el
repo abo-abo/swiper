@@ -26,6 +26,12 @@
 
 ;;; Code:
 
+(defvar require-features nil)
+
+(defadvice require (before ivy-tests-require-hook (feature &rest _) activate)
+  "Record the requires into `require-features'."
+  (push feature require-features))
+
 (require 'ert)
 (require 'colir)
 
@@ -36,6 +42,14 @@
 (require 'counsel)
 
 (message "%s" (emacs-version))
+
+(ert-deftest ivy--lazy-load-ffap--ffap-url-p ()
+  (should (not (memq 'ffap require-features)))
+  (should (not (fboundp 'ffap-url-p)))
+  (should (string= (ivy-ffap-url-p "https://foo.org")
+                   "https://foo.org"))
+  (should (memq 'ffap require-features))
+  (should (fboundp 'ffap-url-p)))
 
 (defvar ivy-expr nil
   "Holds a test expression to evaluate with `ivy-eval'.")
@@ -1389,6 +1403,18 @@ a buffer visiting a file."
   (should (string= (let ((ivy--directory "/tmp/"))
                      (ivy--handle-directory "/sudo::"))
                    "/sudo::/tmp/")))
+
+(defun ivy-test-run-tests ()
+  (let ((stats1
+         ;; this test must run first as other tests might force a load
+         (ert-run-tests-batch 'ivy--lazy-load-ffap--ffap-url-p))
+        (stats2
+         ;; run the rest of the tests
+         (ert-run-tests-batch '(not ivy--lazy-load-ffap--ffap-url-p))))
+    (kill-emacs (if (zerop (+ (ert-stats-completed-unexpected stats1)
+                              (ert-stats-completed-unexpected stats2)))
+                    0
+                  1))))
 
 (provide 'ivy-test)
 
