@@ -1417,16 +1417,19 @@ a buffer visiting a file."
                    "/sudo::/tmp/")))
 
 (defun ivy-test-run-tests ()
-  (let ((stats1
-         ;; this test must run first as other tests might force a load
-         (ert-run-tests-batch 'ivy--lazy-load-ffap--ffap-url-p))
-        (stats2
-         ;; run the rest of the tests
-         (ert-run-tests-batch '(not ivy--lazy-load-ffap--ffap-url-p))))
-    (kill-emacs (if (zerop (+ (ert-stats-completed-unexpected stats1)
-                              (ert-stats-completed-unexpected stats2)))
-                    0
-                  1))))
+  (let ((test-sets
+         '(
+           ;; this test must run first as other tests might force a load
+           ivy--lazy-load-ffap--ffap-url-p
+           ;; run the rest of the tests
+           (not ivy--lazy-load-ffap--ffap-url-p)))
+        (unexpected 0))
+    (dolist (test-set test-sets)
+      (cl-incf
+       unexpected
+       (ert-stats-completed-unexpected
+        (ert-run-tests-batch test-set))))
+    (kill-emacs (if (zerop unexpected) 0 1))))
 
 (provide 'ivy-test)
 
