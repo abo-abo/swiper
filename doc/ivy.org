@@ -58,7 +58,7 @@ ivy-ox.el then ~C-c C-e i t~ in the ivy.org buffer.
 :CUSTOM_ID: copying
 :END:
 #+TEXINFO: @ifnottex
-Ivy manual, version 0.11.0
+Ivy manual, version 0.12.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -70,7 +70,7 @@ final candidate is either through simple keyboard character inputs or
 through powerful regular expressions.
 #+TEXINFO: @end ifnottex
 
-Copyright (C) 2015-2018 Free Software Foundation, Inc.
+Copyright (C) 2015-2019 Free Software Foundation, Inc.
 
 #+BEGIN_QUOTE
 Permission is granted to copy, distribute and/or modify this document
@@ -251,14 +251,19 @@ with some sample bindings:
 - Ivy-based interface to standard commands ::
 
      #+begin_src elisp
-     (global-set-key (kbd "C-s") 'swiper)
+     (global-set-key (kbd "C-s") 'swiper-isearch)
      (global-set-key (kbd "M-x") 'counsel-M-x)
      (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+     (global-set-key (kbd "M-y") 'counsel-yank-pop)
      (global-set-key (kbd "<f1> f") 'counsel-describe-function)
      (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
      (global-set-key (kbd "<f1> l") 'counsel-find-library)
      (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
      (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+     (global-set-key (kbd "<f2> j") 'counsel-set-variable)
+     (global-set-key (kbd "C-x b") 'ivy-switch-buffer)
+     (global-set-key (kbd "C-c v") 'ivy-push-view)
+     (global-set-key (kbd "C-c V") 'ivy-pop-view)
      #+end_src
 
 - Ivy-based interface to shell and system tools ::
@@ -267,9 +272,14 @@ with some sample bindings:
      (global-set-key (kbd "C-c c") 'counsel-compile)
      (global-set-key (kbd "C-c g") 'counsel-git)
      (global-set-key (kbd "C-c j") 'counsel-git-grep)
-     (global-set-key (kbd "C-c k") 'counsel-ag)
+     (global-set-key (kbd "C-c L") 'counsel-git-log)
+     (global-set-key (kbd "C-c k") 'counsel-rg)
+     (global-set-key (kbd "C-c m") 'counsel-linux-app)
+     (global-set-key (kbd "C-c n") 'counsel-fzf)
      (global-set-key (kbd "C-x l") 'counsel-locate)
+     (global-set-key (kbd "C-c J") 'counsel-file-jump)
      (global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+     (global-set-key (kbd "C-c w") 'counsel-wmctrl)
      #+end_src
 
 - Ivy-resume and other commands ::
@@ -278,7 +288,15 @@ with some sample bindings:
 
      #+begin_src elisp
      (global-set-key (kbd "C-c C-r") 'ivy-resume)
+     (global-set-key (kbd "C-c b") 'counsel-bookmark)
+     (global-set-key (kbd "C-c d") 'counsel-descbinds)
+     (global-set-key (kbd "C-c g") 'counsel-git)
+     (global-set-key (kbd "C-c o") 'counsel-outline)
+     (global-set-key (kbd "C-c t") 'counsel-load-theme)
+     (global-set-key (kbd "C-c F") 'counsel-org-file)
      #+end_src
+
+You can also enable =counsel-mode= to make some global key binding remapping for you.
 
 ** Minibuffer key bindings
 :PROPERTIES:
