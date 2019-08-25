@@ -950,10 +950,7 @@ will bring the behavior in line with the newer Emacsen."
     (should (eq (ivy--sort-function 'c) fn1))))
 
 (ert-deftest ivy-read-directory-name ()
-  :expected-result (if (and (= emacs-major-version 24)
-                            (= emacs-minor-version 5))
-                       :failed
-                     :passed)
+  (ivy-mode 1)
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
@@ -1039,11 +1036,7 @@ a buffer visiting a file."
     (ivy-mode ivy-mode-reset-arg)))
 
 (ert-deftest ivy-read-file-name-make-directory ()
-  :expected-result (if (and (= emacs-major-version 24)
-                            (= emacs-minor-version 5))
-                       ;; result is "/tmp/non-existant-dir/\n" for some reason
-                       :failed
-                     :passed)
+  (ivy-mode 1)
   (should
    (equal
     (ivy-with
