@@ -513,17 +513,17 @@ actions.
 When Hydra is active, minibuffer editing is disabled and menus
 display short aliases:
 
-| Short | Normal    | Command name              |
-|-------+-----------+---------------------------|
-| ~o~   | ~C-g~     | =keyboard-escape-quit=    |
-| ~j~   | ~C-n~     | =ivy-next-line=           |
-| ~k~   | ~C-p~     | =ivy-previous-line=       |
-| ~h~   | ~M-<~     | =ivy-beginning-of-buffer= |
-| ~l~   | ~M->~     | =ivy-end-of-buffer=       |
-| ~d~   | ~C-m~     | =ivy-done=                |
-| ~f~   | ~C-j~     | =ivy-alt-done=            |
-| ~g~   | ~C-M-m~   | =ivy-call=                |
-| ~u~   | ~C-c C-o~ | =ivy-occur=               |
+| Short | Normal  | Command name            |
+|-------+---------+-------------------------|
+| ~o~     | ~C-g~     | =keyboard-escape-quit=    |
+| ~j~     | ~C-n~     | =ivy-next-line=           |
+| ~k~     | ~C-p~     | =ivy-previous-line=       |
+| ~h~     | ~M-<~     | =ivy-beginning-of-buffer= |
+| ~l~     | ~M->~     | =ivy-end-of-buffer=       |
+| ~d~     | ~C-m~     | =ivy-done=                |
+| ~f~     | ~C-j~     | =ivy-alt-done=            |
+| ~g~     | ~C-M-m~   | =ivy-call=                |
+| ~u~     | ~C-c C-o~ | =ivy-occur=               |
 
 Hydra reduces key strokes, for example: ~C-n C-n C-n C-n~ is ~C-o
 jjjj~ in Hydra.
@@ -555,6 +555,17 @@ Hydra menu offers these additional bindings:
 - ~C~ (=ivy-toggle-case-fold=) ::
      Toggle case folding (match both upper and lower case
      characters for lower case input).
+
+Hydra menu also offers bindings for marking multiple candidates:
+
+| Key | Command name        |
+|-----+---------------------|
+| ~m~   | =ivy-mark=            |
+| ~u~   | =ivy-unmark=          |
+| ~DEL~ | =ivy-unmark-backward= |
+| ~t~   | =ivy-toggle-marks=    |
+
+The action is called on each marked candidate one by one.
 
 *** Saving the current completion session to a buffer
 :PROPERTIES:
