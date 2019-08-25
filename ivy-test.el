@@ -69,10 +69,12 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
 
 (global-set-key (kbd "C-c e") 'ivy-eval)
 
+(defvar ivy-test-inhibit-message t)
+
 (cl-defun ivy-with (expr keys &key dir)
   "Evaluate EXPR followed by KEYS."
   (let ((ivy-expr expr)
-        (inhibit-message t)
+        (inhibit-message ivy-test-inhibit-message)
         (buf (current-buffer)))
     (save-window-excursion
       (unwind-protect
@@ -752,7 +754,7 @@ will bring the behavior in line with the newer Emacsen."
        (switch-to-buffer standard-output t)
        ,expr
        (ivy-mode)
-       (let ((inhibit-message t))
+       (let ((inhibit-message ivy-test-inhibit-message))
          (execute-kbd-macro
           ,(apply #'vconcat (mapcar #'kbd keys)))))))
 
@@ -1116,7 +1118,7 @@ a buffer visiting a file."
                 (search-backward "|")
                 (delete-char 1)
                 (setq current-prefix-arg nil)
-                (let ((inhibit-message t))
+                (let ((inhibit-message ivy-test-inhibit-message))
                   ,@(mapcar (lambda (x)
                               (if (and (listp x)
                                        (stringp (car x)))
