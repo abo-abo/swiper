@@ -2915,8 +2915,14 @@ Note: don't use single quotes for the regex."
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
   (if (eq major-mode 'dired-mode)
-      (let ((files (dired-get-marked-files 'no-dir nil nil t)))
-        (if (null (cdr files))
+      (let ((files
+             (dired-get-marked-files 'no-dir nil nil t)))
+        (if (and (null (cdr files))
+                 (not (when (string-match-p "\\*ivy-occur" (buffer-name))
+                        (dired-toggle-marks)
+                        (setq files (dired-get-marked-files 'no-dir))
+                        (dired-toggle-marks)
+                        t)))
             ""
           (concat
            " "
