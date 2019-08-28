@@ -2901,8 +2901,8 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command
   (if (memq system-type '(ms-dos windows-nt))
-      "rg --no-heading --line-number --color never %s ."
-    "rg --no-heading --line-number --color never %s")
+      "rg --with-filename --no-heading --line-number --color never %s ."
+    "rg --with-filename --no-heading --line-number --color never %s")
   "Alternative to `counsel-ag-base-command' using ripgrep.
 
 Note: don't use single quotes for the regex."
@@ -2911,6 +2911,17 @@ Note: don't use single quotes for the regex."
 (counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
 (ivy-set-occur 'counsel-rg 'counsel-ag-occur)
 (ivy-set-display-transformer 'counsel-rg 'counsel-git-grep-transformer)
+
+(defun counsel--rg-targets ()
+  "Return a list of files to operate on, based on `dired-mode' marks."
+  (if (eq major-mode 'dired-mode)
+      (let ((files (dired-get-marked-files 'no-dir nil nil t)))
+        (if (null (cdr files))
+            ""
+          (concat
+           " "
+           (mapconcat #'shell-quote-argument (delq t files) " "))))
+    ""))
 
 ;;;###autoload
 (defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
@@ -2923,7 +2934,8 @@ RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
 Example input with inclusion and exclusion file patterns:
     -g*.py -g!*test* -- ..."
   (interactive)
-  (let ((counsel-ag-base-command counsel-rg-base-command)
+  (let ((counsel-ag-base-command
+         (concat counsel-rg-base-command (counsel--rg-targets)))
         (counsel--grep-tool-look-around
          (let ((rg (car (split-string counsel-rg-base-command)))
                (switch "--pcre2"))
