@@ -4967,6 +4967,22 @@ selected color."
  '(("h" counsel-colors-action-insert-hex "insert hexadecimal value")
    ("H" counsel-colors-action-kill-hex "kill hexadecimal value")))
 
+;;** `counsel-fonts'
+(defvar counsel-fonts-history ()
+  "History for `counsel-fonts'.")
+
+;;;###autoload
+(defun counsel-fonts ()
+  "Show a list of all supported font families for a particular frame.
+
+You can insert or kill the name of the selected font."
+  (interactive)
+  (ivy-read "Font: " (delete-dups (font-family-list))
+            :require-match t
+            :history 'counsel-fonts-history
+            :action #'insert
+            :caller 'counsel-fonts))
+
 ;;* Misc. OS
 ;;** `counsel-rhythmbox'
 (declare-function dbus-call-method "dbus")
