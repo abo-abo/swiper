@@ -108,7 +108,8 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
          (estimated-len (length doc))
          (n-columns (if (> estimated-len (window-width))
                         ivy-dispatching-done-columns
-                      nil)))
+                      nil))
+         (i 0))
     (if (null (ivy--actionp actions))
         (ivy-done)
       (funcall
@@ -118,7 +119,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
            ,@(mapcar (lambda (x)
                        (list (nth 0 x)
                              `(progn
-                                (ivy-set-action ',(nth 1 x))
+                                (setcar (ivy-state-action ivy-last) ,(cl-incf i))
                                 (ivy-done))
                              (nth 2 x)))
                      (cdr actions))
