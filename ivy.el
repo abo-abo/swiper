@@ -4503,20 +4503,23 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
     (define-key map (kbd "C-k") 'ivy-reverse-i-search-kill)
     map))
 
-(defun ivy-history-contents (sym-or-ring)
-  "Copy contents of SYM-OR-RING.
+(defun ivy-history-contents (history)
+  "Copy contents of HISTORY.
 A copy is necessary so that we don't clobber any string attributes.
-Also set `ivy--reverse-i-search-symbol' to SYM-OR-RING."
-  (setq ivy--reverse-i-search-symbol sym-or-ring)
-  (cond ((symbolp sym-or-ring)
+Also set `ivy--reverse-i-search-symbol' to HISTORY."
+  (setq ivy--reverse-i-search-symbol history)
+  (cond ((symbolp history)
          (delete-dups
-          (copy-sequence (symbol-value sym-or-ring))))
-        ((ring-p sym-or-ring)
+          (copy-sequence (symbol-value history))))
+        ((ring-p history)
          (delete-dups
-          (when (> (ring-size sym-or-ring) 0)
-            (ring-elements sym-or-ring))))
+          (when (> (ring-size history) 0)
+            (ring-elements history))))
+        ((sequencep history)
+         (delete-dups
+          (copy-sequence history)))
         (t
-         (error "Expected a symbol or a ring: %S" sym-or-ring))))
+         (error "Expected a symbol, ring, or sequence: %S" history))))
 
 (defun ivy-reverse-i-search ()
   "Enter a recursive `ivy-read' session using the current history.

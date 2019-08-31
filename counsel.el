@@ -4394,6 +4394,15 @@ An extra action allows to switch to the process buffer."
   (require 'comint)
   (counsel--browse-history comint-input-ring))
 
+(defvar slime-repl-input-history)
+
+;;;###autoload
+(defun counsel-slime-repl-history ()
+  "Browse Slime REPL history."
+  (interactive)
+  (require 'slime-repl)
+  (counsel--browse-history slime-repl-input-history))
+
 ;;** `counsel-hydra-heads'
 (defvar hydra-curr-body-fn)
 (declare-function hydra-keyboard-quit "ext:hydra")
