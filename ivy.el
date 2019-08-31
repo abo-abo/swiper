@@ -2400,13 +2400,15 @@ behavior."
    prompt collection predicate require-match initial-input
    history (or def "") inherit-input-method))
 
+(declare-function mc/all-fake-cursors "ext:multiple-cursors-core")
+
 (defun ivy-completion-in-region-action (str)
   "Insert STR, erasing the previous one.
 The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
   (when (consp str)
     (setq str (cdr str)))
   (when (stringp str)
-    (let ((fake-cursors (and (fboundp 'mc/all-fake-cursors)
+    (let ((fake-cursors (and (require 'multiple-cursors-core nil t)
                              (mc/all-fake-cursors)))
           (pt (point))
           (beg ivy-completion-beg)
