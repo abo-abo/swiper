@@ -4644,6 +4644,19 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
       (setq ivy--regex-function 'ivy--regex-plus)
     (setq ivy--regex-function 'ivy--regex-fuzzy)))
 
+(defun ivy--label-and-delete-dups (entries)
+  "Label ENTRIES with history indices."
+  (let ((ht (make-hash-table :test 'equal))
+        (idx 0)
+        entry
+        accum)
+    (while (setq entry (pop entries))
+      (unless (gethash entry ht)
+        (puthash entry t ht)
+        (push `(,entry . ,idx) accum))
+      (cl-incf idx))
+    (nreverse accum)))
+
 (defvar ivy--reverse-i-search-symbol nil
   "Store the history symbol.")
 
@@ -4673,14 +4686,14 @@ A copy is necessary so that we don't clobber any string attributes.
 Also set `ivy--reverse-i-search-symbol' to HISTORY."
   (setq ivy--reverse-i-search-symbol history)
   (cond ((symbolp history)
-         (delete-dups
+         (ivy--label-and-delete-dups
           (copy-sequence (symbol-value history))))
         ((ring-p history)
-         (delete-dups
+         (ivy--label-and-delete-dups
           (when (> (ring-size history) 0)
             (ring-elements history))))
         ((sequencep history)
-         (delete-dups
+         (ivy--label-and-delete-dups
           (copy-sequence history)))
         (t
          (error "Expected a symbol, ring, or sequence: %S" history))))
@@ -4708,7 +4721,7 @@ You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
                            (ivy--reset-state
                             (setq ivy-last old-last))
                            (delete-minibuffer-contents)
-                           (insert (substring-no-properties x))
+                           (insert (substring-no-properties (car x)))
                            (ivy--cd-maybe))
                  :caller 'ivy-reverse-i-search)))))
 
