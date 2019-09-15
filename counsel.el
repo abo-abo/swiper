@@ -5477,8 +5477,10 @@ in the current window."
     (counsel-locate-action-extern (expand-file-name filename))))
 
 (ivy-add-actions
- 'ivy-switch-buffer
- '(("x" counsel-open-buffer-file-externally "open externally")))
+ 'counsel-switch-buffer
+ '(("x" counsel-open-buffer-file-externally "open externally")
+   ("j" switch-to-buffer-other-window "other window")
+   ("f" switch-to-buffer-other-frame "other frame")))
 
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
