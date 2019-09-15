@@ -5504,6 +5504,11 @@ in the current window."
  'ivy-switch-buffer
  '(("x" counsel-open-buffer-file-externally "open externally")))
 
+(ivy-set-actions
+ 'counsel-switch-buffer
+ '(("x" counsel-open-buffer-file-externally "open externally")
+   ("j" ivy--switch-buffer-other-window-action "other window")))
+
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
