@@ -5235,6 +5235,24 @@ If called with a prefix, will suggest those values."
    ("f" counsel-kmacro-action-copy-format "copy format")
    ("e" counsel-kmacro-action-execute-after-prompt "execute after prompt")))
 
+;;** `counsel-geiser-doc-look-up-manual'
+(declare-function geiser-doc-manual-for-symbol "ext:geiser-doc")
+(defvar geiser-completion-symbol-list-func)
+
+(defvar counsel-geiser-doc-look-up-manual-history ()
+  "History for `counsel-geiser-doc-look-up-manual'.")
+
+;;;###autoload
+(defun counsel-geiser-doc-look-up-manual ()
+  "Search Scheme documentation."
+  (interactive)
+  (ivy-read "Symbol: " geiser-completion-symbol-list-func
+            :require-match t
+            :history 'counsel-geiser-doc-look-up-manual-history
+            :action (lambda (cand)
+                      (geiser-doc-manual-for-symbol (intern cand)))
+            :caller 'counsel-geiser-doc-look-up-manual))
+
 ;;* Misc. OS
 ;;** `counsel-rhythmbox'
 (declare-function dbus-call-method "dbus")
@@ -6235,6 +6253,7 @@ We update it in the callback with `ivy-update-candidates'."
                 (yank-pop . counsel-yank-pop)
                 (info-lookup-symbol . counsel-info-lookup-symbol)
                 (pop-to-mark-command . counsel-mark-ring)
+                (geiser-doc-look-up-manual . counsel-geiser-doc-look-up-manual)
                 (bookmark-jump . counsel-bookmark)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
