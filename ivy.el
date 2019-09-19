@@ -3014,6 +3014,7 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
                (and (or (> ivy--index 0)
                         (= ivy--length 1)
                         magic)
+                    (not (ivy--prompt-selected-p))
                     (not (equal (ivy-state-current ivy-last) ""))
                     (file-directory-p (ivy-state-current ivy-last))
                     (or (eq ivy-magic-slash-non-match-action
