@@ -2725,8 +2725,8 @@ foo !bar baz -> matches if \"foo\" matches and neither \"bar\" nor \"baz\" match
 foo[a-z]     -> matches \"foo[a-z]\"
 
 Escaping examples:
-foo\!bar -> matches \"foo!bar\"
-foo\ bar -> matches \"foo bar\"
+foo\\!bar -> matches \"foo!bar\"
+foo\\ bar -> matches \"foo bar\"
 
 Returns a list suitable for `ivy-re-match'."
   (setq str (ivy--trim-trailing-re str))
