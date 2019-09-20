@@ -4244,7 +4244,7 @@ PREFIX is used to create the key."
          (imenu-auto-rescan-maxout (if current-prefix-arg
                                        (buffer-size)
                                      imenu-auto-rescan-maxout))
-         (items (imenu--make-index-alist t))
+         (items (progn (imenu--make-index-alist t) imenu--index-alist))
          (items (delete (assoc "*Rescan*" items) items))
          (items (counsel-imenu-categorize-functions items)))
     (ivy-read "imenu items: " (counsel-imenu-get-candidates-from items)
