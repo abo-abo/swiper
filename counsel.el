@@ -4182,7 +4182,7 @@ matching the register's value description against a regexp in
                 :caller 'counsel-evil-registers)
     (user-error "Required feature `evil' not installed.")))
 (add-to-list 'ivy-format-functions-alist '(counsel-evil-registers . counsel--yank-pop-format-function))
-(add-to-list 'ivy-height-alist '(counsel-evil-registers . 5))
+(add-to-list 'ivy-height-alist `(counsel-evil-registers . ,counsel-evil-registers-height))
 
 (defun counsel-evil-registers-action (s)
   "Paste contents of S, trimming the register part.
