@@ -3746,12 +3746,64 @@ This variable has no effect unless
   (counsel--mark-ring-delete-highlight))
 
 (defun counsel--mark-ring-update-fn ()
-  "Show preview by candidate."
-  (let ((linenum (string-to-number (ivy-state-current ivy-last))))
+  "Show preview by candidate.
+by jumping to the line shown by the current ivy candidate."
+  (let* ((ivy-current-line (ivy-state-current ivy-last))
+         ;; line is prefixed with an evil register.
+         ;; see `counsel-evil-marks' for more info.
+         (line-has-register (string-match-p "^\\[.\\]:"
+                                            ivy-current-line))
+         (linenum (string-to-number (if line-has-register
+                                        (substring ivy-current-line 5)
+                                      ivy-current-line))))
     (counsel--mark-ring-delete-highlight)
     (unless (= linenum 0)
       (with-ivy-window
         (forward-line (- linenum (line-number-at-pos)))))))
+
+(defun counsel-mark--get-candidates (marks)
+  "Convert a list of MARKS into mark candidates.
+Where candidates consists of a list of the form: (msg-string . point)"
+  (when marks
+    (save-excursion
+      (save-restriction
+        ;; Widen, both to save `line-number-at-pos' the trouble
+        ;; and for `buffer-substring' to work.
+        (widen)
+        (let ((fmt (format "%%%dd %%s"
+                           (length (number-to-string
+                                    (line-number-at-pos (point-max)))))))
+          (mapcar (lambda (mark)
+                    (goto-char (marker-position mark))
+                    (let ((linum (line-number-at-pos))
+                          (line  (buffer-substring
+                                  (line-beginning-position)
+                                  (line-end-position))))
+                      (cons (format fmt linum line) (point))))
+                  marks))))))
+
+(defun counsel-mark--ivy-read (candidates caller)
+  "call `ivy-read' with sane defaults for traversing marks.
+CANDIDATES should be an alist with the `car' of the list being
+the string displayed by ivy and the `cdr' being the point that
+mark should take you to.
+
+NOTE This has been abstracted out into it's own method so it can
+be used by both `counsel-mark-ring' and `counsel-evil-mark-ring'"
+  (ivy-read "Mark: " candidates
+            :require-match t
+            :update-fn #'counsel--mark-ring-update-fn
+            :action (lambda (cand)
+                      (let ((pos (cdr-safe cand)))
+                        (when pos
+                          (unless (<= (point-min) pos (point-max))
+                            (if widen-automatically
+                                (widen)
+                              (error "\
+Position of selected mark outside accessible part of buffer")))
+                          (goto-char pos))))
+            :unwind #'counsel--mark-ring-unwind
+            :caller caller))
 
 ;;;###autoload
 (defun counsel-mark-ring ()
@@ -3759,39 +3811,62 @@ This variable has no effect unless
 Obeys `widen-automatically', which see."
   (interactive)
   (let ((counsel--mark-ring-calling-point (point))
-        (cands
-         (save-excursion
-           (save-restriction
-             ;; Widen, both to save `line-number-at-pos' the trouble
-             ;; and for `buffer-substring' to work.
-             (widen)
-             (let ((fmt (format "%%%dd %%s"
-                                (length (number-to-string
-                                         (line-number-at-pos (point-max)))))))
-               (mapcar (lambda (mark)
-                         (goto-char (marker-position mark))
-                         (let ((linum (line-number-at-pos))
-                               (line  (buffer-substring
-                                       (line-beginning-position)
-                                       (line-end-position))))
-                           (cons (format fmt linum line) (point))))
-                       (sort (delete-dups (copy-sequence mark-ring)) #'<)))))))
+        (cands (counsel-mark--get-candidates
+                (sort (delete-dups (copy-sequence mark-ring)) #'<))))
     (if cands
-        (ivy-read "Mark: " cands
-                  :require-match t
-                  :update-fn #'counsel--mark-ring-update-fn
-                  :action (lambda (cand)
-                            (let ((pos (cdr-safe cand)))
-                              (when pos
-                                (unless (<= (point-min) pos (point-max))
-                                  (if widen-automatically
-                                      (widen)
-                                    (error "\
-Position of selected mark outside accessible part of buffer")))
-                                (goto-char pos))))
-                  :unwind #'counsel--mark-ring-unwind
-                  :caller 'counsel-mark-ring)
+        (counsel-mark--ivy-read cands 'counsel-mark-ring)
       (message "Mark ring is empty"))))
+
+;;** `counsel-evil-marks'
+;;;###autoload
+(defun counsel-evil-marks ()
+  "Ivy replacement for `evil-show-marks'."
+  (interactive)
+  ;; evil doesn't provide a standalone method to access the list of
+  ;; marks in the current buffer... as it does with registers. To
+  ;; compensate, I've just copied and pasted the block of code which
+  ;; finds all the evil marks. If they ever abstract it out into it's
+  ;; own method, switch to using that instead of the all-markers block
+
+  (if (and (boundp 'evil-markers-alist)
+           (fboundp 'evil-global-marker-p))
+      ;; see `evil-show-marks' for the source of the all-markers let clause.
+      (let* ((counsel--mark-ring-calling-point (point)) ;; defer to default
+             (all-markers ;;=> (mark-register . marker)
+              (append (cl-remove-if (lambda (m)
+                                      (or (evil-global-marker-p (car m))
+                                          (not (markerp (cdr m)))))
+                                    evil-markers-alist)
+                      (cl-remove-if (lambda (m)
+                                      (or (not (evil-global-marker-p (car m)))
+                                          (not (markerp (cdr m)))))
+                                    (default-value 'evil-markers-alist))))
+             ;; order marks by evil register in the same way as `evil-show-marks'
+             (all-markers (sort all-markers (lambda (i j) (< (car j) (car i)))))
+
+             ;; seperate the markers from the evil registers
+             ;; for call to `counsel-mark--get-candidates'
+             (evil-registers (mapcar #'car all-markers))
+             (all-markers    (mapcar #'cdr all-markers))
+
+             (candidates (counsel-mark--get-candidates all-markers))) ;;=> (msg . point)
+        (if candidates
+            (counsel-mark--ivy-read
+             ;; zip through all the marks and include the evil register
+             ;; in the string shown by the mark.
+             (let (register candidate result)
+               (while (and (setq register  (pop evil-registers))
+                           (setq candidate (pop candidates)))
+                 (push
+                  (cons (format "[%s]: %s"
+                                (char-to-string register)
+                                (car candidate))
+                        (cdr candidate))
+                  result))
+               result)
+             'counsel-evil-marks)
+          (message "no evil marks are active")))
+    (user-error "Required feature `evil' not installed or not loaded.")))
 
 ;;** `counsel-package'
 (defvar package--initialized)
