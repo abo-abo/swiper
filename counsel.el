@@ -3717,6 +3717,10 @@ This variable has no effect unless
 
 ;;* Misc. Emacs
 ;;** `counsel-mark-ring'
+(defcustom counsel-mark-ring-sort-selections t
+  "If non-nil, sort `mark-ring' list by line number."
+  :type 'boolean)
+
 (defface counsel--mark-ring-highlight
   '((t (:inherit highlight)))
   "Face for current `counsel-mark-ring' line."
@@ -3769,12 +3773,12 @@ Obeys `widen-automatically', which see."
                          (line-beginning-position) (line-end-position))))
               (cons (format fmt linum line) (point)))))
          (marks (copy-sequence mark-ring))
+         (marks (delete-dups marks))
          (marks
           ;; mark-marker is empty?
           (if (equal (mark-marker) (make-marker))
               marks
             (cons (copy-marker (mark-marker)) marks)))
-         (marks (sort (delete-dups marks) #'<))
          (cands
           ;; Widen, both to save `line-number-at-pos' the trouble
           ;; and for `buffer-substring' to work.
@@ -3786,6 +3790,7 @@ Obeys `widen-automatically', which see."
         (ivy-read "Mark: " cands
                   :require-match t
                   :update-fn #'counsel--mark-ring-update-fn
+                  :sort counsel-mark-ring-sort-selections
                   :action (lambda (cand)
                             (let ((pos (cdr-safe cand)))
                               (when pos
