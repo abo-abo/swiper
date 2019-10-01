@@ -5762,7 +5762,9 @@ specified by the `blddir' property."
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR."
   (interactive)
-  (setq counsel-compile--current-build-dir (or dir default-directory))
+  (setq counsel-compile--current-build-dir (or dir
+                                               (counsel--compile-root)
+                                               default-directory))
   (ivy-read "Compile command: "
             (delete-dups (counsel--get-compile-candidates dir))
             :action #'counsel-compile--action
