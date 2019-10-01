@@ -3768,7 +3768,13 @@ Obeys `widen-automatically', which see."
                   (line (buffer-substring
                          (line-beginning-position) (line-end-position))))
               (cons (format fmt linum line) (point)))))
-         (marks (sort (delete-dups (copy-sequence mark-ring)) #'<))
+         (marks (copy-sequence mark-ring))
+         (marks
+          ;; mark-marker is empty?
+          (if (equal (mark-marker) (make-marker))
+              marks
+            (cons (copy-marker (mark-marker)) marks)))
+         (marks (sort (delete-dups marks) #'<))
          (cands
           ;; Widen, both to save `line-number-at-pos' the trouble
           ;; and for `buffer-substring' to work.
