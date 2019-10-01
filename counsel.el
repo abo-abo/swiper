@@ -914,7 +914,7 @@ when available, in that order of precedence."
 (ivy-set-actions
  'counsel-M-x
  `(("d" counsel--find-symbol "definition")
-   ("h" ,(lambda (x) (describe-function (intern x))) "help")))
+   ("h" ,(lambda (x) (funcall counsel-describe-function-function (intern x))) "help")))
 
 (ivy-set-display-transformer
  'counsel-M-x
