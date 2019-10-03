@@ -3754,7 +3754,8 @@ This variable has no effect unless
   (let ((pos (get-text-property 0 'point (ivy-state-current ivy-last))))
     (counsel--mark-ring-delete-highlight)
     (with-ivy-window
-      (goto-char pos))))
+      (goto-char pos)
+      (counsel--mark-ring-add-highlight))))
 
 ;;;###autoload
 (defun counsel-mark-ring ()
