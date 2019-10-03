@@ -3751,11 +3751,10 @@ This variable has no effect unless
 
 (defun counsel--mark-ring-update-fn ()
   "Show preview by candidate."
-  (let ((linenum (string-to-number (ivy-state-current ivy-last))))
+  (let ((pos (get-text-property 0 'point (ivy-state-current ivy-last))))
     (counsel--mark-ring-delete-highlight)
-    (unless (= linenum 0)
-      (with-ivy-window
-        (forward-line (- linenum (line-number-at-pos)))))))
+    (with-ivy-window
+      (goto-char pos))))
 
 ;;;###autoload
 (defun counsel-mark-ring ()
@@ -3771,7 +3770,7 @@ Obeys `widen-automatically', which see."
             (let ((linum (line-number-at-pos))
                   (line (buffer-substring
                          (line-beginning-position) (line-end-position))))
-              (cons (format fmt linum line) (point)))))
+              (propertize (format fmt linum line) 'point (point)))))
          (marks (copy-sequence mark-ring))
          (marks (delete-dups marks))
          (marks
@@ -3792,7 +3791,7 @@ Obeys `widen-automatically', which see."
                   :update-fn #'counsel--mark-ring-update-fn
                   :sort counsel-mark-ring-sort-selections
                   :action (lambda (cand)
-                            (let ((pos (cdr-safe cand)))
+                            (let ((pos (get-text-property 0 'point cand)))
                               (when pos
                                 (unless (<= (point-min) pos (point-max))
                                   (if widen-automatically
