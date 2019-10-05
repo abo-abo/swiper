@@ -799,6 +799,11 @@ With prefix arg MODE a query for the symbol help mode is offered."
   "Face used by `counsel-M-x' for key bindings."
   :group 'ivy-faces)
 
+(defface counsel-active-mode
+  '((t :inherit font-lock-builtin-face))
+  "Face used by `counsel-M-x' for activated modes."
+  :group 'ivy-faces)
+
 (defcustom counsel-alias-expand t
   "When non-nil, show the expansion of aliases in `counsel-M-x'."
   :type 'boolean
@@ -806,8 +811,15 @@ With prefix arg MODE a query for the symbol help mode is offered."
 
 (defun counsel-M-x-transformer (cmd)
   "Return CMD annotated with its active key binding, if any."
-  (let ((alias (symbol-function (intern cmd)))
-        (key (where-is-internal (intern cmd) nil t)))
+  (let* ((sym (intern cmd))
+         (alias (symbol-function sym))
+         (key (where-is-internal sym nil t)))
+    (when (or (eq sym major-mode)
+              (and
+               (memq sym minor-mode-list)
+               (boundp sym)
+               (buffer-local-value sym (ivy-state-buffer ivy-last))))
+      (put-text-property 0 (length cmd) 'face 'counsel-active-mode cmd))
     (concat cmd
             (when (and (symbolp alias) counsel-alias-expand)
               (format " (%s)" alias))
