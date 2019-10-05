@@ -1311,6 +1311,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-c C-m") 'counsel-git-grep-switch-cmd)
+    (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
