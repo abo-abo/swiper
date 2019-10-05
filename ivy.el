@@ -4636,6 +4636,16 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
       (ivy-occur-previous-line arg)
       (ivy-occur-press-and-switch))))
 
+(defun ivy-occur-next-error (n &optional reset)
+  "A `next-error-function' for `ivy-occur-mode'."
+  (interactive "p")
+  (when reset
+    (goto-char (point-min)))
+  (setq n (or n 1))
+  (let ((ivy-calling t))
+    (cond ((< n 0) (ivy-occur-previous-line (- n)))
+          (t (ivy-occur-next-line n)))))
+
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
 

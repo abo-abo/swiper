@@ -677,7 +677,8 @@ When capture groups are present in the input, print them instead of lines."
         (lambda (cand) (concat "./" cand))
         cands))
       (goto-char (point-min))
-      (forward-line 4))))
+      (forward-line 4)
+      (setq-local next-error-function #'ivy-occur-next-error))))
 
 (ivy-set-occur 'swiper 'swiper-occur)
 
