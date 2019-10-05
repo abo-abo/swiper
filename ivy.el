@@ -4744,7 +4744,8 @@ There is no limit on the number of *ivy-occur* buffers."
       (ivy-exit-with-action
        (lambda (_)
          (pop-to-buffer buffer)
-         (setq next-error-last-buffer buffer))))))
+         (setq next-error-last-buffer buffer)
+         (setq-local next-error-function #'ivy-occur-next-error))))))
 
 (defun ivy-occur-revert-buffer ()
   "Refresh the buffer making it up-to date with the collection.
