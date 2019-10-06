@@ -2465,16 +2465,20 @@ string - the full shell command to run."
   "Location where to put the locatedb in case your home folder is encrypted."
   :type 'file)
 
+(defun counsel-file-stale-p (fname seconds)
+  "Return non-nil if FNAME was modified more than SECONDS ago."
+  (> (time-to-seconds
+      (time-subtract
+       (current-time)
+       (nth 5 (file-attributes fname))))
+     seconds))
+
 (defun counsel--locate-updatedb ()
   (when (file-exists-p "~/.Private")
     (let ((db-fname (expand-file-name counsel-locate-db-path)))
       (setenv "LOCATE_PATH" db-fname)
       (when (or (not (file-exists-p db-fname))
-                (> (time-to-seconds
-                    (time-subtract
-                     (current-time)
-                     (nth 5 (file-attributes db-fname))))
-                   60))
+                (counsel-file-stale-p db-fname 60))
         (message "Updating %s..." db-fname)
         (counsel--command
          "updatedb" "-l" "0" "-o" db-fname "-U" (expand-file-name "~"))))))
