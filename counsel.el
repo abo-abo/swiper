@@ -1323,7 +1323,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-c C-m") 'counsel-git-grep-switch-cmd)
-    (define-key map (kbd "C-x C-d") 'counsel-cd)
+    (define-key map (kbd "C-x C-d") 'counsel-cd-git-grep)
     map))
 
 (ivy-set-occur 'counsel-git-grep 'counsel-git-grep-occur)
@@ -1474,11 +1474,12 @@ On success, RESULT-FN is called in output buffer with no arguments."
   (counsel--call command))
 
 ;;;###autoload
-(defun counsel-git-grep (&optional cmd initial-input)
+(defun counsel-git-grep (&optional cmd initial-input dir)
   "Grep for a string in the current Git repository.
 When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command.
-INITIAL-INPUT can be given as the initial minibuffer input."
+INITIAL-INPUT can be given as the initial minibuffer input.
+DIR is the directory in which \"git grep\" runs."
   (interactive "P")
   (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
         proj)
@@ -1493,9 +1494,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (lambda ()
              (counsel-delete-process)
              (swiper--cleanup)))
-          (default-directory (if proj
-                                 (car proj)
-                               (counsel-locate-git-root))))
+          (default-directory (or dir
+                                 (if proj
+                                     (car proj)
+                                   (counsel-locate-git-root)))))
       (ivy-read "git grep: " collection-function
                 :initial-input initial-input
                 :dynamic-collection t
@@ -2721,7 +2723,7 @@ It applies no filtering to ivy--all-candidates."
     (define-key map (kbd "C-l") 'ivy-call-and-recenter)
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-'") 'swiper-avy)
-    (define-key map (kbd "C-x C-d") 'counsel-cd)
+    (define-key map (kbd "C-x C-d") 'counsel-cd-ag)
     map))
 
 (defcustom counsel-ag-base-command
@@ -2838,14 +2840,21 @@ CALLER is passed to `ivy-read'."
                         (swiper--cleanup))
               :caller (or caller 'counsel-ag))))
 
-(defun counsel-cd ()
-  "Change the directory for the currently running Ivy command."
+(defun counsel-cd-ag ()
+  "Change the directory for the currently running Ivy command (for `counsel-ag')."
   (interactive)
   (let ((input ivy-text)
         (new-dir (read-directory-name "cd: ")))
     (ivy-quit-and-run
-      (let ((default-directory new-dir))
-        (funcall (ivy-state-caller ivy-last) input)))))
+      (funcall (ivy-state-caller ivy-last) input new-dir))))
+
+(defun counsel-cd-git-grep ()
+  "Change the directory for the currently running Ivy command (for `counsel-git-grep')."
+  (interactive)
+  (let ((input ivy-text)
+        (new-dir (read-directory-name "cd: ")))
+    (ivy-quit-and-run
+      (funcall (ivy-state-caller ivy-last) nil input new-dir))))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
