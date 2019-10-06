@@ -2844,8 +2844,7 @@ CALLER is passed to `ivy-read'."
   (let ((input ivy-text)
         (new-dir (read-directory-name "cd: ")))
     (ivy-quit-and-run
-      (let ((default-directory new-dir))
-        (funcall (ivy-state-caller ivy-last) input)))))
+      (funcall (ivy-state-caller ivy-last) input new-dir))))
 
 (cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
