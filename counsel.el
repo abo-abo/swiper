@@ -819,7 +819,7 @@ With prefix arg MODE a query for the symbol help mode is offered."
                (memq sym minor-mode-list)
                (boundp sym)
                (buffer-local-value sym (ivy-state-buffer ivy-last))))
-      (put-text-property 0 (length cmd) 'face 'counsel-active-mode cmd))
+      (setq cmd (propertize cmd 'face 'counsel-active-mode)))
     (concat cmd
             (when (and (symbolp alias) counsel-alias-expand)
               (format " (%s)" alias))
