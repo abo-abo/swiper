@@ -1414,7 +1414,7 @@ files in a project.")
         proj)
     (cond
       ((stringp cmd))
-      (cmd
+      (current-prefix-arg
        (if (setq proj
                  (cl-find-if
                   (lambda (x)
@@ -1474,12 +1474,13 @@ On success, RESULT-FN is called in output buffer with no arguments."
   (counsel--call command))
 
 ;;;###autoload
-(defun counsel-git-grep (&optional cmd initial-input)
+(defun counsel-git-grep (&optional initial-input initial-directory cmd)
   "Grep for a string in the current Git repository.
+INITIAL-INPUT can be given as the initial minibuffer input.
+INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 When CMD is a string, use it as a \"git grep\" command.
-When CMD is non-nil, prompt for a specific \"git grep\" command.
-INITIAL-INPUT can be given as the initial minibuffer input."
-  (interactive "P")
+When CMD is non-nil, prompt for a specific \"git grep\" command."
+  (interactive)
   (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
         proj)
     (setq proj (car proj-and-cmd))
@@ -1493,9 +1494,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
            (lambda ()
              (counsel-delete-process)
              (swiper--cleanup)))
-          (default-directory (if proj
-                                 (car proj)
-                               (counsel-locate-git-root))))
+          (default-directory (or initial-directory
+                                 (if proj
+                                     (car proj)
+                                   (counsel-locate-git-root)))))
       (ivy-read "git grep: " collection-function
                 :initial-input initial-input
                 :dynamic-collection t
@@ -2839,7 +2841,8 @@ CALLER is passed to `ivy-read'."
               :caller (or caller 'counsel-ag))))
 
 (defun counsel-cd ()
-  "Change the directory for the currently running Ivy command."
+  "Change the directory for the currently running Ivy grep-like command.
+Works for `counsel-git-grep', `counsel-ag', etc."
   (interactive)
   (let ((input ivy-text)
         (new-dir (read-directory-name "cd: ")))
