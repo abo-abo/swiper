@@ -4205,10 +4205,6 @@ matching the register's value description against a regexp in
             :caller 'counsel-register))
 
 ;;** `counsel-evil-registers'
-(defcustom counsel-evil-registers-height 5
-  "The `ivy-height' of `counsel-evil-registers'."
-  :type 'integer)
-
 ;;;###autoload
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
