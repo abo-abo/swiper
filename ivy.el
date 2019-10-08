@@ -2465,7 +2465,7 @@ See `completion-in-region' for further information."
                   (string= str (car comps))))
            (message "Sole match"))
           (t
-           (when (eq collection #'crm--collection-fn)
+           (when (eq collection 'crm--collection-fn)
              (setq comps (delete-dups comps)))
            (let* ((len (ivy-completion-common-length (car comps)))
                   (initial (cond ((= len 0)

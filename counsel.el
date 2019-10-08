@@ -1356,7 +1356,11 @@ Typical value: '(recenter)."
 
 (defun counsel-git-grep-cmd-function-default (str)
   (format counsel-git-grep-cmd
-          (setq ivy--old-re (ivy--regex str t))))
+          (setq ivy--old-re
+                (if (eq ivy--regex-function #'ivy--regex-fuzzy)
+                    (replace-regexp-in-string
+                     "\n" "" (ivy--regex-fuzzy str))
+                  (ivy--regex str t)))))
 
 (defun counsel-git-grep-cmd-function-ignore-order (str)
   (setq ivy--old-re (ivy--regex str t))
@@ -1543,6 +1547,9 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
 
 (defun counsel--git-grep-occur-cmd (input)
   (let* ((regex (funcall ivy--regex-function input))
+         (regex (if (eq ivy--regex-function #'ivy--regex-fuzzy)
+                    (replace-regexp-in-string "\n" "" regex)
+                  regex))
          (positive-pattern (replace-regexp-in-string
                             ;; git-grep can't handle .*?
                             "\\.\\*\\?" ".*"
