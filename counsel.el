@@ -1541,16 +1541,8 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
       (setq str (replace-match "" t t str 1))))
   str)
 
-(defun counsel-git-grep-occur ()
-  "Generate a custom occur buffer for `counsel-git-grep'.
-When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode)
-    (setq default-directory (ivy-state-directory ivy-last)))
-  (setq ivy-text
-        (and (string-match "\"\\(.*\\)\"" (buffer-name))
-             (match-string 1 (buffer-name))))
-  (let* ((regex (funcall ivy--regex-function ivy-text))
+(defun counsel--git-grep-occur-cmd (input)
+  (let* ((regex (funcall ivy--regex-function input))
          (positive-pattern (replace-regexp-in-string
                             ;; git-grep can't handle .*?
                             "\\.\\*\\?" ".*"
@@ -1561,16 +1553,12 @@ When REVERT is non-nil, regenerate the current *ivy-occur* buffer."
                          (and (null (cdr x))
                               (format "| grep -v %s" (car x))))
                        regex
-                       " ")))
-         (cmd (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns))
-         cands)
-    (setq cands (counsel--split-string (shell-command-to-string cmd)))
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                    default-directory))
-    (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar #'counsel--normalize-grep-match cands))))
+                       " "))))
+    (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns)))
+
+(defun counsel-git-grep-occur ()
+  "Generate a custom occur buffer for `counsel-git-grep'."
+  (counsel-grep-like-occur #'counsel--git-grep-occur-cmd))
 
 (defun counsel-git-grep-query-replace ()
   "Start `query-replace' with string to replace from last search string."
@@ -2858,14 +2846,17 @@ Works for `counsel-git-grep', `counsel-ag', etc."
   (setq ivy-text
         (and (string-match "\"\\(.*\\)\"" (buffer-name))
              (match-string 1 (buffer-name))))
-  (let* ((command-args (counsel--split-command-args ivy-text))
-         (regex (counsel--grep-regex (cdr command-args)))
-         (switches (concat (car command-args)
-                           (counsel--ag-extra-switches regex)))
-         (cmd (format cmd-template
+  (let* ((cmd
+          (if (functionp cmd-template)
+              (funcall cmd-template ivy-text)
+            (let* ((command-args (counsel--split-command-args ivy-text))
+                   (regex (counsel--grep-regex (cdr command-args)))
+                   (switches (concat (car command-args)
+                                     (counsel--ag-extra-switches regex))))
+              (format cmd-template
                       (concat
                        switches
-                       (shell-quote-argument regex))))
+                       (shell-quote-argument regex))))))
          (cands (counsel--split-string (shell-command-to-string cmd))))
     ;; Need precise number of header lines for `wgrep' to work.
     (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
