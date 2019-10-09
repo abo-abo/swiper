@@ -5921,22 +5921,27 @@ Additional actions:\\<ivy-minibuffer-map>
 
 ;;* `counsel-google'
 (defun counsel-google-function (input)
+  "Create a request to Google with INPUT.
+Return 0 tells `ivy--exhibit' not to update the minibuffer.
+We update it in the callback with `ivy-update-candidates'."
   (or
    (ivy-more-chars)
-   (mapcar #'identity
-           (aref
-            (request-response-data
-             (request
-              "http://suggestqueries.google.com/complete/search"
-              :type "GET"
-              :params (list
-                       (cons "client" "firefox")
-                       (cons "q" input))
-              :parser 'json-read
-              :sync t))
-            1))))
+   (progn
+     (request
+      "http://suggestqueries.google.com/complete/search"
+      :type "GET"
+      :params (list
+               (cons "client" "firefox")
+               (cons "q" input))
+      :parser 'json-read
+      :success (cl-function
+                (lambda (&key data &allow-other-keys)
+                  (ivy-update-candidates
+                   (mapcar #'identity (aref data 1))))))
+     0)))
 
 (defun counsel-google ()
+  "Ivy interface for Google."
   (interactive)
   (ivy-read "search: " #'counsel-google-function
             :action (lambda (x)
