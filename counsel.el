@@ -5919,6 +5919,31 @@ Additional actions:\\<ivy-minibuffer-map>
             :action #'counsel-M-x-action
             :caller 'counsel-major))
 
+;;* `counsel-google'
+(defun counsel-google-function (input)
+  (or
+   (ivy-more-chars)
+   (mapcar #'identity
+           (aref
+            (request-response-data
+             (request
+              "http://suggestqueries.google.com/complete/search"
+              :type "GET"
+              :params (list
+                       (cons "client" "firefox")
+                       (cons "q" input))
+              :parser 'json-read
+              :sync t))
+            1))))
+
+(defun counsel-google ()
+  (interactive)
+  (ivy-read "search: " #'counsel-google-function
+            :action (lambda (x)
+                      (browse-url (concat "https://www.google.com/search?q=" x)))
+            :dynamic-collection t
+            :caller 'counsel-google))
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
