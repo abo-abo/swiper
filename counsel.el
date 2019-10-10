@@ -5938,6 +5938,7 @@ We update it in the callback with `ivy-update-candidates'."
    (ivy-more-chars)
    (progn
      (require 'request)
+     (require 'json)
      (request
       "http://suggestqueries.google.com/complete/search"
       :type "GET"
