@@ -5920,6 +5920,7 @@ Additional actions:\\<ivy-minibuffer-map>
             :caller 'counsel-major))
 
 ;;* `counsel-google'
+(declare-function request "ext:request")
 (defun counsel-google-function (input)
   "Create a request to Google with INPUT.
 Return 0 tells `ivy--exhibit' not to update the minibuffer.
@@ -5927,6 +5928,7 @@ We update it in the callback with `ivy-update-candidates'."
   (or
    (ivy-more-chars)
    (progn
+     (require 'request)
      (request
       "http://suggestqueries.google.com/complete/search"
       :type "GET"
