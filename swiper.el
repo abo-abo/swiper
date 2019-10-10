@@ -170,8 +170,9 @@ Treated as non-nil when searching backwards."
     (let ((end (window-end (selected-window) t))
           (re (ivy--regex ivy-text)))
       (save-excursion
-        (goto-char (window-start))
-        (while (re-search-forward re end t)
+        (beginning-of-line)
+        (while (and (re-search-forward re end t)
+                    (not (eobp)))
           (let ((ov (make-overlay (1- (match-end 0)) (match-end 0)))
                 (md (match-data)))
             (overlay-put
@@ -180,7 +181,9 @@ Treated as non-nil when searching backwards."
               (lambda (x)
                 (list `(match-string ,x) (match-string x)))
               (number-sequence 0 (1- (/ (length md) 2)))))
-            (push ov swiper--query-replace-overlays)))))))
+            (push ov swiper--query-replace-overlays))
+          (unless (> (match-end 0) (match-beginning 0))
+            (forward-char)))))))
 
 (defun swiper-query-replace ()
   "Start `query-replace' with string to replace from last search string."
