@@ -730,10 +730,14 @@ line numbers.  For the buffer, use `ivy--regex' instead."
                                           (cl-remove-if-not #'cdr re)
                                           ".*?")
                              re)))
-                  (if (zerop ivy--subexps)
-                      (prog1 (format "^ ?\\(%s\\)" re)
-                        (setq ivy--subexps 1))
-                    (format "^ %s" re))))
+                  (cond
+                    ((string= re "$")
+                     "^$")
+                    ((zerop ivy--subexps)
+                     (prog1 (format "^ ?\\(%s\\)" re)
+                       (setq ivy--subexps 1)))
+                    (t
+                     (format "^ %s" re)))))
                ((eq (bound-and-true-p search-default-mode) 'char-fold-to-regexp)
                 (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
                     (concat
@@ -1323,18 +1327,24 @@ See `ivy-format-functions-alist' for further information."
 (defvar swiper--isearch-start-point nil)
 
 (defun swiper--isearch-function-1 (re backward)
-  (let (cands)
-    (save-excursion
-      (goto-char (if backward (point-max) (point-min)))
-      (while (funcall (if backward #'re-search-backward #'re-search-forward) re nil t)
-        (when (swiper-match-usable-p)
-          (let ((pos (if (or backward swiper-goto-start-of-match)
-                         (match-beginning 0)
-                       (point))))
-            (push pos cands)))))
-    (if backward
-        cands
-      (nreverse cands))))
+  (unless (string= re ".")
+    (let (cands)
+      (save-excursion
+        (goto-char (if backward (point-max) (point-min)))
+        (while (and (funcall (if backward #'re-search-backward #'re-search-forward) re nil t)
+                    (not (if backward (bobp) (eobp))))
+          (when (swiper-match-usable-p)
+            (let ((pos (if (or backward swiper-goto-start-of-match)
+                           (match-beginning 0)
+                         (point))))
+              (push pos cands)))
+          (when (= (match-beginning 0) (match-end 0))
+            (if backward
+                (backward-char)
+              (forward-char)))))
+      (if backward
+          cands
+        (nreverse cands)))))
 
 (defun swiper--isearch-next-item (re cands)
   (if swiper--isearch-backward
@@ -1489,11 +1499,13 @@ When not running `swiper-isearch' already, start it."
 
 (defun swiper-isearch-format-function (cands)
   (if (numberp (car-safe cands))
-      (swiper--isearch-format
-       ivy--index ivy--length ivy--old-cands
-       ivy--old-re
-       (ivy-state-current ivy-last)
-       (ivy-state-buffer ivy-last))
+      (if (string= ivy--old-re "^$")
+          ""
+        (swiper--isearch-format
+         ivy--index ivy--length ivy--old-cands
+         ivy--old-re
+         (ivy-state-current ivy-last)
+         (ivy-state-buffer ivy-last)))
     (ivy-format-function-default cands)))
 
 (defun swiper--line-at-point (pt)
