@@ -1058,7 +1058,8 @@ WND, when specified is the window."
 (defun swiper--action (x)
   "Goto line X."
   (let ((ln (1- (get-text-property 0 'swiper-line-number x)))
-        (re (ivy--regex ivy-text)))
+        (re (ivy--regex ivy-text))
+        (case-fold-search (ivy--case-fold-p ivy-text)))
     (if (null x)
         (user-error "No candidates")
       (with-ivy-window
