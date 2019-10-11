@@ -1520,7 +1520,8 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
 
 (ivy-configure 'counsel-git-grep
   :occur #'counsel-git-grep-occur
-  :unwind-fn #'counsel--grep-unwind)
+  :unwind-fn #'counsel--grep-unwind
+  :index-fn #'ivy-recompute-index-swiper-async)
 
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
@@ -3085,7 +3086,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
         (init-point (point))
         res)
     (unwind-protect
-         (setq res (ivy-read "grep: " 'counsel-grep-function
+         (setq res (ivy-read "grep: " #'counsel-grep-function
                              :initial-input initial-input
                              :dynamic-collection t
                              :preselect
@@ -3096,7 +3097,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                                         (buffer-substring-no-properties
                                          (line-beginning-position)
                                          (line-end-position)))))
-
                              :keymap counsel-grep-map
                              :history 'counsel-grep-history
                              :re-builder #'ivy--regex
@@ -3108,6 +3108,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (ivy-configure 'counsel-grep
   :update-fn 'auto
   :unwind-fn #'counsel--grep-unwind
+  :index-fn #'ivy-recompute-index-swiper-async
   :occur #'counsel-grep-occur
   :more-chars 2)
 

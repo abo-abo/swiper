@@ -809,7 +809,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (ivy-configure 'swiper
   :occur #'swiper-occur
   :update-fn #'swiper--update-input-ivy
-  :unwind-fn #'swiper--cleanup)
+  :unwind-fn #'swiper--cleanup
+  :index-fn #'ivy-recompute-index-swiper)
 
 (defun swiper-toggle-face-matching ()
   "Toggle matching only the candidates with `swiper-invocation-face'."
@@ -1133,7 +1134,8 @@ Run `swiper' for those buffers."
               :caller 'swiper-multi)))
 
 (ivy-configure 'swiper-multi
-  :unwind-fn #'swiper--cleanup)
+  :unwind-fn #'swiper--cleanup
+  :index-fn #'ivy-recompute-index-swiper)
 
 (defun swiper-multi-action-1 (x)
   "Add X to list of selected buffers `swiper-multi-buffers'.

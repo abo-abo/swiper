@@ -1829,11 +1829,7 @@ specified for the current collection in
       (ivy--reset-state ivy-last))))
 
 (defvar ivy-index-functions-alist
-  '((swiper . ivy-recompute-index-swiper)
-    (swiper-multi . ivy-recompute-index-swiper)
-    (counsel-git-grep . ivy-recompute-index-swiper)
-    (counsel-grep . ivy-recompute-index-swiper-async)
-    (t . ivy-recompute-index-zero))
+  '((t . ivy-recompute-index-zero))
   "An alist of index recomputing functions for each collection function.
 When the input changes, the appropriate function returns an
 integer - the index of the matched candidate that should be
@@ -1921,6 +1917,7 @@ May supersede `ivy-initial-inputs-alist'."
                            occur
                            update-fn
                            unwind-fn
+                           index-fn
                            more-chars)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
@@ -1932,6 +1929,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy--alist-set 'ivy-update-fns-alist caller update-fn))
   (when unwind-fn
     (ivy--alist-set 'ivy-unwind-fns-alist caller unwind-fn))
+  (when index-fn
+    (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
   (when more-chars
     (ivy--alist-set 'ivy-more-chars-alist caller more-chars)))
 
