@@ -209,7 +209,7 @@ Treated as non-nil when searching backwards."
                        (ivy-read
                         (format "Query replace %s with: " from) nil
                         :def default
-                        :update-fn #'swiper--query-replace-updatefn)
+                        :caller 'swiper-query-replace)
                        t)))
                 (swiper--cleanup)
                 (ivy-exit-with-action
@@ -220,6 +220,9 @@ Treated as non-nil when searching backwards."
                        (perform-replace from to
                                         t t nil))))))
            (swiper--query-replace-cleanup)))))
+
+(ivy-configure 'swiper-query-replace
+  :update-fn #'swiper--query-replace-updatefn)
 
 (defvar inhibit-message)
 
@@ -553,6 +556,10 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (interactive)
   (swiper--ivy (swiper--candidates) initial-input))
 
+(ivy-configure 'swiper
+  :occur #'swiper-occur
+  :update-fn #'swiper--update-input-ivy)
+
 ;;;###autoload
 (defun swiper-backward (&optional initial-input)
   "`isearch-backward' with an overview.
@@ -683,8 +690,6 @@ When capture groups are present in the input, print them instead of lines."
       (forward-line 4)
       (setq-local next-error-function #'ivy-occur-next-error))))
 
-(ivy-set-occur 'swiper 'swiper-occur)
-
 (declare-function evil-set-jump "ext:evil-jumps")
 
 (defvar swiper--current-line nil)
@@ -796,7 +801,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                         (ivy--filter initial-input candidates)))
                    preselect)
                  :require-match t
-                 :update-fn #'swiper--update-input-ivy
                  :unwind #'swiper--cleanup
                  :action #'swiper--action
                  :re-builder #'swiper--re-builder
@@ -1275,13 +1279,16 @@ See `ivy-format-functions-alist' for further information."
     (ivy-read "swiper-all: " 'swiper-all-function
               :action #'swiper-all-action
               :unwind #'swiper--cleanup
-              :update-fn 'auto
               :dynamic-collection t
               :keymap swiper-all-map
               :initial-input initial-input
-              :caller 'swiper-multi)))
+              :caller 'swiper-all)))
+
+(ivy-configure 'swiper-all
+  :update-fn 'auto)
 
 (add-to-list 'ivy-format-functions-alist '(swiper-multi . swiper--all-format-function))
+(add-to-list 'ivy-format-functions-alist '(swiper-all . swiper--all-format-function))
 
 (defun swiper-all-action (x)
   "Move to candidate X from `swiper-all'."
@@ -1602,7 +1609,6 @@ When not running `swiper-isearch' already, start it."
                  :dynamic-collection t
                  :require-match t
                  :action #'swiper-isearch-action
-                 :update-fn 'auto
                  :unwind #'swiper--cleanup
                  :re-builder #'swiper--re-builder
                  :history 'swiper-history
@@ -1615,6 +1621,10 @@ When not running `swiper-isearch' already, start it."
       (unless (or res (string= ivy-text ""))
         (cl-pushnew ivy-text swiper-history)))))
 
+(ivy-configure 'swiper-isearch
+  :occur #'swiper-occur
+  :update-fn 'auto)
+
 ;;;###autoload
 (defun swiper-isearch-backward (&optional initial-input)
   "Like `swiper-isearch' but the first result is before the point."
@@ -1623,7 +1633,6 @@ When not running `swiper-isearch' already, start it."
     (swiper-isearch initial-input)))
 
 (add-to-list 'ivy-format-functions-alist '(swiper-isearch . swiper-isearch-format-function))
-(ivy-set-occur 'swiper-isearch 'swiper-occur)
 
 (defun swiper-isearch-toggle ()
   "Two-way toggle between `swiper-isearch' and isearch.

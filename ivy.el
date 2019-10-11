@@ -677,8 +677,7 @@ functionality, e.g. as seen in `isearch'."
   "Store the current overriding `case-fold-search'.")
 
 (defvar ivy-more-chars-alist
-  '((counsel-grep . 2)
-    (t . 3))
+  '((t . 3))
   "Map commands to their minimum required input length.
 That is the number of characters prompted for before fetching
 candidates.  The special key t is used as a fallback.")
@@ -1873,18 +1872,15 @@ like.")
   '((org-refile . "^")
     (org-agenda-refile . "^")
     (org-capture-refile . "^")
-    (counsel-M-x . "^")
-    (counsel-describe-function . "^")
-    (counsel-describe-variable . "^")
-    (counsel-org-capture . "^")
     (Man-completion-table . "^")
     (woman . "^"))
   "An alist associating commands with their initial input.
 
 Each cdr is either a string or a function called in the context
 of a call to `ivy-read'."
-  :type '(alist :key-type (symbol)
-                :value-type (choice (string) (function))))
+  :type '(alist
+          :key-type (symbol)
+          :value-type (choice (string) (function))))
 
 (defcustom ivy-hooks-alist nil
   "An alist associating commands to setup functions.
@@ -1900,6 +1896,23 @@ May supersede `ivy-initial-inputs-alist'."
           (radio
            (const :tag "Off" nil)
            (const :tag "Call action on change" auto))))
+
+(cl-defun ivy-configure (caller
+                         &key
+                           initial-input
+                           occur
+                           update-fn
+                           more-chars)
+  "Configure `ivy-read' params for CALLER."
+  (declare (indent 1))
+  (when initial-input
+    (setf (alist-get caller ivy-initial-inputs-alist) initial-input))
+  (when occur
+    (ivy-set-occur caller occur))
+  (when update-fn
+    (setf (alist-get caller ivy-update-fns-alist) update-fn))
+  (when more-chars
+    (setf (alist-get caller ivy-more-chars-alist) more-chars)))
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
@@ -2037,7 +2050,7 @@ customizations apply to the current completion session."
                     (not (window-minibuffer-p)))
             (ivy-alist-setting ivy-display-functions-alist caller)))
          result)
-    (setq update-fn (ivy-alist-setting ivy-update-fns-alist caller))
+    (setq update-fn (or update-fn (ivy-alist-setting ivy-update-fns-alist caller)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -4325,6 +4338,9 @@ Skip buffers that match `ivy-ignore-buffers'."
             :matcher #'ivy--switch-buffer-matcher
             :caller 'ivy-switch-buffer))
 
+(ivy-configure 'ivy-switch-buffer
+  :occur #'ivy-switch-buffer-occur)
+
 ;;;###autoload
 (defun ivy-switch-view ()
   "Switch to one of the window views stored by `ivy-push-view'."
@@ -4343,6 +4359,9 @@ Skip buffers that match `ivy-ignore-buffers'."
             :action #'ivy--switch-buffer-other-window-action
             :keymap ivy-switch-buffer-map
             :caller 'ivy-switch-buffer-other-window))
+
+(ivy-configure 'ivy-switch-buffer-other-window
+  :occur #'ivy-switch-buffer-occur)
 
 (defun ivy--yank-handle-case-fold (text)
   (if (and (> (length ivy-text) 0)
@@ -4712,9 +4731,6 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   "Assign CMD a custom OCCUR function."
   (setq ivy--occurs-list
         (plist-put ivy--occurs-list cmd occur)))
-
-(ivy-set-occur 'ivy-switch-buffer 'ivy-switch-buffer-occur)
-(ivy-set-occur 'ivy-switch-buffer-other-window 'ivy-switch-buffer-occur)
 
 (defun ivy--starts-with-dotslash (str)
   (string-match-p "\\`\\.[/\\]" str))
