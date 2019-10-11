@@ -1913,6 +1913,7 @@ May supersede `ivy-initial-inputs-alist'."
                            unwind-fn
                            index-fn
                            sort-fn
+                           format-fn
                            display-transformer-fn
                            more-chars
                            grep-p)
@@ -1930,6 +1931,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
   (when sort-fn
     (ivy--alist-set 'ivy-sort-functions-alist caller sort-fn))
+  (when format-fn
+    (ivy--alist-set 'ivy-format-functions-alist caller format-fn))
   (when display-transformer-fn
     (ivy-set-display-transformer caller display-transformer-fn))
   (when more-chars

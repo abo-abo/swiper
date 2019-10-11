@@ -1137,7 +1137,8 @@ Run `swiper' for those buffers."
 
 (ivy-configure 'swiper-multi
   :unwind-fn #'swiper--cleanup
-  :index-fn #'ivy-recompute-index-swiper)
+  :index-fn #'ivy-recompute-index-swiper
+  :format-fn #'swiper--all-format-function)
 
 (defun swiper-multi-action-1 (x)
   "Add X to list of selected buffers `swiper-multi-buffers'.
@@ -1287,10 +1288,8 @@ See `ivy-format-functions-alist' for further information."
 
 (ivy-configure 'swiper-all
   :update-fn 'auto
-  :unwind-fn #'swiper--cleanup)
-
-(add-to-list 'ivy-format-functions-alist '(swiper-multi . swiper--all-format-function))
-(add-to-list 'ivy-format-functions-alist '(swiper-all . swiper--all-format-function))
+  :unwind-fn #'swiper--cleanup
+  :format-fn #'swiper--all-format-function)
 
 (defun swiper-all-action (x)
   "Move to candidate X from `swiper-all'."
@@ -1625,7 +1624,8 @@ When not running `swiper-isearch' already, start it."
 (ivy-configure 'swiper-isearch
   :occur #'swiper-occur
   :update-fn 'auto
-  :unwind-fn #'swiper--cleanup)
+  :unwind-fn #'swiper--cleanup
+  :format-fn #'swiper-isearch-format-function)
 
 ;;;###autoload
 (defun swiper-isearch-backward (&optional initial-input)
@@ -1633,8 +1633,6 @@ When not running `swiper-isearch' already, start it."
   (interactive)
   (let ((swiper--isearch-backward t))
     (swiper-isearch initial-input)))
-
-(add-to-list 'ivy-format-functions-alist '(swiper-isearch . swiper-isearch-format-function))
 
 (defun swiper-isearch-toggle ()
   "Two-way toggle between `swiper-isearch' and isearch.

@@ -1195,8 +1195,7 @@ back to the face of the character after point, and finally the
 (defvar counsel--faces-format "%-40s %s")
 
 (defun counsel--faces-format-function (names)
-  "Customize `ivy-format-functions-alist' for `counsel-faces'.
-Each candidate is formatted based on the given FORMAT string."
+  "Format NAMES according to `counsel--faces-format'."
   (let ((formatter
          (lambda (name)
            (format counsel--faces-format name
@@ -1225,9 +1224,8 @@ selected face."
               :caller 'counsel-faces)))
 
 (ivy-configure 'counsel-faces
-  :sort-fn #'ivy-string<)
-
-(add-to-list 'ivy-format-functions-alist '(counsel-faces . counsel--faces-format-function))
+  :sort-fn #'ivy-string<
+  :format-fn #'counsel--faces-format-function)
 
 (ivy-set-actions
  'counsel-faces
@@ -1756,9 +1754,9 @@ currently checked out."
             :caller 'counsel-git-log))
 
 (ivy-configure 'counsel-git-log
-  :unwind-fn #'counsel-delete-process)
+  :unwind-fn #'counsel-delete-process
+  :format-fn #'counsel--git-log-format-function)
 
-(add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--git-log-format-function))
 (add-to-list 'ivy-height-alist '(counsel-git-log . 4))
 (add-to-list 'counsel-async-split-string-re-alist '(counsel-git-log . "^commit "))
 (add-to-list 'counsel-async-ignore-re-alist '(counsel-git-log . "^[ \n]*$"))
@@ -4179,7 +4177,9 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :preselect preselect
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
-(add-to-list 'ivy-format-functions-alist '(counsel-yank-pop . counsel--yank-pop-format-function))
+
+(ivy-configure 'counsel-yank-pop
+  :format-fn #'counsel--yank-pop-format-function)
 (add-to-list 'ivy-height-alist '(counsel-yank-pop . 5))
 
 (ivy-set-actions
@@ -4254,7 +4254,8 @@ matching the register's value description against a regexp in
                 :action #'counsel-evil-registers-action
                 :caller 'counsel-evil-registers)
     (user-error "Required feature `evil' not installed.")))
-(add-to-list 'ivy-format-functions-alist '(counsel-evil-registers . counsel--yank-pop-format-function))
+(ivy-configure 'counsel-evil-registers
+  :format-fn #'counsel--yank-pop-format-function)
 (add-to-list 'ivy-height-alist '(counsel-evil-registers . 5))
 
 (defun counsel-evil-registers-action (s)
@@ -4997,7 +4998,8 @@ selected color."
               :history 'counsel-colors-emacs-history
               :action #'insert
               :caller 'counsel-colors-emacs)))
-(add-to-list 'ivy-format-functions-alist '(counsel-colors-emacs . counsel--colors-emacs-format-function))
+(ivy-configure 'counsel-colors-emacs
+  :format-fn #'counsel--colors-emacs-format-function)
 
 (ivy-set-actions
  'counsel-colors-emacs
@@ -5045,9 +5047,9 @@ selected color."
               :caller 'counsel-colors-web)))
 
 (ivy-configure 'counsel-colors-web
-  :sort-fn #'ivy-string<)
+  :sort-fn #'ivy-string<
+  :format-fn #'counsel--colors-web-format-function)
 
-(add-to-list 'ivy-format-functions-alist '(counsel-colors-web . counsel--colors-web-format-function))
 (ivy-set-actions
  'counsel-colors-web
  '(("h" counsel-colors-action-insert-hex "insert hexadecimal value")
@@ -5893,7 +5895,9 @@ specified by the `blddir' property."
                                          cand))
             :history 'counsel-compile-env-history
             :caller 'counsel-compile-env))
-(add-to-list 'ivy-format-functions-alist '(counsel-compile-env . counsel-compile-env--format-hint))
+
+(ivy-configure 'counsel-compile-env
+  :format-fn #'counsel-compile-env--format-hint)
 
 ;;** `counsel-minor'
 (defvar counsel-minor-history nil
