@@ -1918,6 +1918,7 @@ May supersede `ivy-initial-inputs-alist'."
                            update-fn
                            unwind-fn
                            index-fn
+                           display-transformer-fn
                            more-chars)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
@@ -1931,6 +1932,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy--alist-set 'ivy-unwind-fns-alist caller unwind-fn))
   (when index-fn
     (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
+  (when display-transformer-fn
+    (ivy-set-display-transformer caller display-transformer-fn))
   (when more-chars
     (ivy--alist-set 'ivy-more-chars-alist caller more-chars)))
 
@@ -3875,13 +3878,6 @@ Note: The usual last two arguments are flipped for convenience.")
        olen (length str) 'ivy-completions-annotations str))
     str))
 
-(ivy-set-display-transformer
- 'counsel-find-file 'ivy-read-file-transformer)
-(ivy-set-display-transformer
- 'counsel-dired 'ivy-read-file-transformer)
-(ivy-set-display-transformer
- 'read-file-name-internal 'ivy-read-file-transformer)
-
 (defun ivy-read-file-transformer (str)
   "Transform candidate STR when reading files."
   (if (ivy--dirname-p str)
@@ -4318,11 +4314,6 @@ Skip buffers that match `ivy-ignore-buffers'."
           (and (eq ivy-use-ignore t)
                res)))))
 
-(ivy-set-display-transformer
- 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
-(ivy-set-display-transformer
- 'internal-complete-buffer 'ivy-switch-buffer-transformer)
-
 (defun ivy-append-face (str face)
   "Append to STR the property FACE."
   (setq str (copy-sequence str))
@@ -4364,7 +4355,8 @@ Skip buffers that match `ivy-ignore-buffers'."
             :caller 'ivy-switch-buffer))
 
 (ivy-configure 'ivy-switch-buffer
-  :occur #'ivy-switch-buffer-occur)
+  :occur #'ivy-switch-buffer-occur
+  :display-transformer-fn #'ivy-switch-buffer-transformer)
 
 ;;;###autoload
 (defun ivy-switch-view ()
@@ -5056,6 +5048,12 @@ make decisions based on the whole marked list."
   "Calls `ffap-url-fetcher'."
   (require 'ffap)
   (funcall ffap-url-fetcher url))
+
+(ivy-configure 'read-file-name-internal
+  :display-transformer-fn #'ivy-read-file-transformer)
+
+(ivy-configure 'internal-complete-buffer
+  :display-transformer-fn #'ivy-switch-buffer-transformer)
 
 (provide 'ivy)
 
