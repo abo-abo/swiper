@@ -315,7 +315,7 @@ If `(minibuffer-depth)' equals this, `ivy-completing-read' will
 act as if `ivy-completing-read-handlers-alist' is empty.")
 
 (defvar ivy-highlight-grep-commands nil
-  "List of counsel grep-like commands.")
+  "List of grep-like commands.")
 
 (defvar ivy--actions-list nil
   "A list of extra actions per command.")
@@ -1382,8 +1382,8 @@ If the input is empty, select the previous history element instead."
 Example use:
 
     (let* ((ivy-inhibit-action t)
-          (str (counsel-locate \"lispy.el\")))
-     ;; do whatever with str - the corresponding file will not be opened
+           (str (ivy-switch-buffer)))
+     ;; do whatever with str - the corresponding buffer will not be opened
      )")
 
 (defun ivy-recursive-restore ()
