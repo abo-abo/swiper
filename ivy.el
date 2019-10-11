@@ -1908,6 +1908,13 @@ May supersede `ivy-initial-inputs-alist'."
 (defvar ivy-unwind-fns-alist nil
   "An alist associating commands to their :unwind values.")
 
+(defun ivy--alist-set (alist-sym key val)
+  (let ((cell (assoc key (symbol-value alist-sym))))
+    (if cell
+        (setcdr cell val)
+      (set alist-sym (cons (cons key val)
+                           (symbol-value alist-sym))))))
+
 (cl-defun ivy-configure (caller
                          &key
                            initial-input
@@ -1918,15 +1925,15 @@ May supersede `ivy-initial-inputs-alist'."
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
   (when initial-input
-    (setf (alist-get caller ivy-initial-inputs-alist) initial-input))
+    (ivy--alist-set 'ivy-initial-inputs-alist caller initial-input))
   (when occur
     (ivy-set-occur caller occur))
   (when update-fn
-    (setf (alist-get caller ivy-update-fns-alist) update-fn))
+    (ivy--alist-set 'ivy-update-fns-alist caller update-fn))
   (when unwind-fn
-    (setf (alist-get caller ivy-unwind-fns-alist) unwind-fn))
+    (ivy--alist-set 'ivy-unwind-fns-alist caller unwind-fn))
   (when more-chars
-    (setf (alist-get caller ivy-more-chars-alist) more-chars)))
+    (ivy--alist-set 'ivy-more-chars-alist caller more-chars)))
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
