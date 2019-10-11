@@ -1919,7 +1919,8 @@ May supersede `ivy-initial-inputs-alist'."
                            unwind-fn
                            index-fn
                            display-transformer-fn
-                           more-chars)
+                           more-chars
+                           grep-p)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
   (when initial-input
@@ -1935,7 +1936,9 @@ May supersede `ivy-initial-inputs-alist'."
   (when display-transformer-fn
     (ivy-set-display-transformer caller display-transformer-fn))
   (when more-chars
-    (ivy--alist-set 'ivy-more-chars-alist caller more-chars)))
+    (ivy--alist-set 'ivy-more-chars-alist caller more-chars))
+  (when grep-p
+    (cl-pushnew caller ivy-highlight-grep-commands)))
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."

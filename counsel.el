@@ -1514,9 +1514,8 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
   :occur #'counsel-git-grep-occur
   :unwind-fn #'counsel--grep-unwind
   :index-fn #'ivy-recompute-index-swiper-async
-  :display-transformer-fn #'counsel-git-grep-transformer)
-
-(cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
+  :display-transformer-fn #'counsel-git-grep-transformer
+  :grep-p t)
 
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current Git repository."
@@ -2849,7 +2848,8 @@ CALLER is passed to `ivy-read'."
 (ivy-configure 'counsel-ag
   :occur #'counsel-ag-occur
   :unwind-fn #'counsel--grep-unwind
-  :display-transformer-fn #'counsel-git-grep-transformer)
+  :display-transformer-fn #'counsel-git-grep-transformer
+  :grep-p t)
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
@@ -2859,8 +2859,6 @@ Works for `counsel-git-grep', `counsel-ag', etc."
         (new-dir (read-directory-name "cd: ")))
     (ivy-quit-and-run
       (funcall (ivy-state-caller ivy-last) input new-dir))))
-
-(cl-pushnew 'counsel-ag ivy-highlight-grep-commands)
 
 (defun counsel-grep-like-occur (cmd-template)
   (unless (eq major-mode 'ivy-occur-grep-mode)
@@ -2908,7 +2906,11 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
   (let ((counsel-ag-base-command counsel-pt-base-command)
         (counsel--grep-tool-look-around nil))
     (counsel-ag initial-input :caller 'counsel-pt)))
-(cl-pushnew 'counsel-pt ivy-highlight-grep-commands)
+
+(ivy-configure 'counsel-pt
+  :unwind-fn #'counsel--grep-unwind
+  :display-transformer-fn #'counsel-git-grep-transformer
+  :grep-p t)
 
 ;;** `counsel-ack'
 (defcustom counsel-ack-base-command
@@ -2984,9 +2986,8 @@ Example input with inclusion and exclusion file patterns:
 (ivy-configure 'counsel-rg
   :occur #'counsel-ag-occur
   :unwind-fn #'counsel--grep-unwind
-  :display-transformer-fn #'counsel-git-grep-transformer)
-
-(cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
+  :display-transformer-fn #'counsel-git-grep-transformer
+  :grep-p t)
 
 ;;** `counsel-grep'
 (defvar counsel-grep-map
