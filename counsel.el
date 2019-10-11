@@ -215,8 +215,6 @@ respectively."
     (set-process-filter proc (or filter #'counsel--async-filter))
     proc))
 
-(defvar counsel-grep-last-line nil)
-
 (defun counsel--split-string (&optional str)
   (split-string
    (or str (buffer-string))
@@ -232,7 +230,6 @@ respectively."
            (ivy--sort-maybe
             (with-current-buffer (process-buffer process)
               (counsel--split-string))))
-          (setq counsel-grep-last-line nil)
           (when counsel--async-start
             (setq counsel--async-duration
                   (time-to-seconds (time-since counsel--async-start))))
@@ -3017,6 +3014,12 @@ substituted by the search regexp and file, respectively.  Neither
       (format counsel-grep-command (shell-quote-argument regex)))
      nil)))
 
+(defvar counsel--grep-last-pos nil
+  "Store the last point and line that `counsel-grep-action' scrolled to.
+This speeds up scrolling: instead of going to `point-min' and
+`forward-line' with a huge arg (e.g. to scroll 50K lines), scroll
+relative to the last position stored here.")
+
 (defun counsel-grep-action (x)
   "Go to candidate X."
   (with-ivy-window
@@ -3037,11 +3040,11 @@ substituted by the search regexp and file, respectively.  Neither
         (with-current-buffer (or (get-file-buffer file-name)
                                  (find-file file-name))
           (setq line-number (string-to-number line-number))
-          (if counsel-grep-last-line
-              (forward-line (- line-number counsel-grep-last-line))
+          (if (and counsel--grep-last-pos (= (point) (car counsel--grep-last-pos)))
+              (forward-line (- line-number (cdr counsel--grep-last-pos)))
             (goto-char (point-min))
             (forward-line (1- line-number)))
-          (setq counsel-grep-last-line line-number)
+          (setq counsel--grep-last-pos (cons (point) line-number))
           (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
             (when swiper-goto-start-of-match
               (goto-char (match-beginning 0))))
@@ -3075,7 +3078,6 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (unless buffer-file-name
     (user-error "Current buffer is not visiting a file"))
   (counsel-require-program counsel-grep-base-command)
-  (setq counsel-grep-last-line nil)
   (setq counsel-grep-command
         (format counsel-grep-base-command
                 "%s" (shell-quote-argument

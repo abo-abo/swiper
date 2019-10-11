@@ -4877,7 +4877,6 @@ EVENT gives the mouse position."
 (declare-function swiper--cleanup "swiper")
 (declare-function swiper--add-overlays "swiper")
 (defvar ivy-occur-timer nil)
-(defvar counsel-grep-last-line)
 
 (defun ivy--occur-press-update-window ()
   (cl-case (ivy-state-caller ivy-occur-last)
@@ -4922,7 +4921,6 @@ EVENT gives the mouse position."
            (action (ivy--get-action ivy-last))
            (ivy-exit 'done))
       (with-ivy-window
-        (setq counsel-grep-last-line nil)
         (with-current-buffer (ivy--occur-press-buffer)
           (save-restriction
             (widen)
