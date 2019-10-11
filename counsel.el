@@ -5507,16 +5507,11 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
 Display a preview of the selected ivy completion candidate buffer
 in the current window."
   (interactive)
-  (ivy-read "Switch to buffer: " 'internal-complete-buffer
-            :preselect (buffer-name (other-buffer (current-buffer)))
-            :keymap ivy-switch-buffer-map
-            :action #'ivy--switch-buffer-action
-            :matcher #'ivy--switch-buffer-matcher
-            :unwind #'counsel--switch-buffer-unwind
-            :caller 'counsel-switch-buffer))
-
-(ivy-configure 'counsel-switch-buffer
-  :update-fn #'counsel--switch-buffer-update-fn)
+  (let ((ivy-update-fns-alist
+         '((ivy-switch-buffer . counsel--switch-buffer-update-fn)))
+        (ivy-unwind-fns-alist
+         '((ivy-switch-buffer . counsel--switch-buffer-unwind))))
+    (ivy-switch-buffer)))
 
 ;;;###autoload
 (defun counsel-switch-buffer-other-window ()
@@ -5524,15 +5519,11 @@ in the current window."
 Display a preview of the selected ivy completion candidate buffer
 in the current window."
   (interactive)
-  (ivy-read "Switch to buffer in other window: " 'internal-complete-buffer
-            :preselect (buffer-name (other-buffer (current-buffer)))
-            :action #'ivy--switch-buffer-other-window-action
-            :matcher #'ivy--switch-buffer-matcher
-            :unwind #'counsel--switch-buffer-unwind
-            :caller 'counsel-switch-buffer-other-window))
-
-(ivy-configure 'counsel-switch-buffer-other-window
-  :update-fn #'counsel--switch-buffer-update-fn)
+  (let ((ivy-update-fns-alist
+         '((ivy-switch-buffer-other-window . counsel--switch-buffer-update-fn)))
+        (ivy-unwind-fns-alist
+         '((ivy-switch-buffer-other-window . counsel--switch-buffer-unwind))))
+    (ivy-switch-buffer-other-window)))
 
 (defun counsel-open-buffer-file-externally (buffer)
   "Open the file associated with BUFFER with an external program."

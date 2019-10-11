@@ -1888,6 +1888,14 @@ Examples: `toggle-input-method', (lambda () (insert \"^\")), etc.
 May supersede `ivy-initial-inputs-alist'."
   :type '(alist :key-type symbol :value-type function))
 
+(defvar ivy--occurs-list nil
+  "A list of custom occur generators per command.")
+
+(defun ivy-set-occur (cmd occur)
+  "Assign CMD a custom OCCUR function."
+  (setq ivy--occurs-list
+        (plist-put ivy--occurs-list cmd occur)))
+
 (defcustom ivy-update-fns-alist nil
   "An alist associating commands to their :update-fn values."
   :type '(alist
@@ -1897,11 +1905,15 @@ May supersede `ivy-initial-inputs-alist'."
            (const :tag "Off" nil)
            (const :tag "Call action on change" auto))))
 
+(defvar ivy-unwind-fns-alist nil
+  "An alist associating commands to their :unwind values.")
+
 (cl-defun ivy-configure (caller
                          &key
                            initial-input
                            occur
                            update-fn
+                           unwind-fn
                            more-chars)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
@@ -1911,6 +1923,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy-set-occur caller occur))
   (when update-fn
     (setf (alist-get caller ivy-update-fns-alist) update-fn))
+  (when unwind-fn
+    (setf (alist-get caller ivy-unwind-fns-alist) unwind-fn))
   (when more-chars
     (setf (alist-get caller ivy-more-chars-alist) more-chars)))
 
@@ -2051,6 +2065,7 @@ customizations apply to the current completion session."
             (ivy-alist-setting ivy-display-functions-alist caller)))
          result)
     (setq update-fn (or update-fn (ivy-alist-setting ivy-update-fns-alist caller)))
+    (setq unwind (or unwind (ivy-alist-setting ivy-unwind-fns-alist caller)))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
@@ -4723,14 +4738,6 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (setq-local view-read-only nil)
   (when (fboundp 'wgrep-setup)
     (wgrep-setup)))
-
-(defvar ivy--occurs-list nil
-  "A list of custom occur generators per command.")
-
-(defun ivy-set-occur (cmd occur)
-  "Assign CMD a custom OCCUR function."
-  (setq ivy--occurs-list
-        (plist-put ivy--occurs-list cmd occur)))
 
 (defun ivy--starts-with-dotslash (str)
   (string-match-p "\\`\\.[/\\]" str))
