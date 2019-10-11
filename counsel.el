@@ -3088,6 +3088,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
          (setq res (ivy-read "grep: " #'counsel-grep-function
                              :initial-input initial-input
                              :dynamic-collection t
+                             :require-match t
                              :preselect
                              (when (< (- (line-end-position) (line-beginning-position)) 300)
                                (format "%d:%s"
