@@ -426,8 +426,10 @@ Update the minibuffer with the amount of lines collected every
       (setq ivy-completion-end (point))
       (ivy-read "Candidate: " company-candidates
                 :action #'ivy-completion-in-region-action
-                :unwind #'company-abort
                 :caller 'counsel-company))))
+
+(ivy-configure 'counsel-company
+  :unwind-fn #'company-abort)
 
 ;;** `counsel-irony'
 (declare-function irony-completion-candidates-async "ext:irony-completion")
@@ -1483,6 +1485,10 @@ On success, RESULT-FN is called in output buffer with no arguments."
   "Forward COMMAND to `counsel--call'."
   (counsel--call command))
 
+(defun counsel--grep-unwind ()
+  (counsel-delete-process)
+  (swiper--cleanup))
+
 ;;;###autoload
 (defun counsel-git-grep (&optional initial-input initial-directory cmd)
   "Grep for a string in the current Git repository.
@@ -1500,10 +1506,6 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
            (if proj
                #'counsel-git-grep-proj-function
              #'counsel-git-grep-function))
-          (unwind-function
-           (lambda ()
-             (counsel-delete-process)
-             (swiper--cleanup)))
           (default-directory (or initial-directory
                                  (if proj
                                      (car proj)
@@ -1513,12 +1515,13 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
                 :dynamic-collection t
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
-                :unwind unwind-function
                 :history 'counsel-git-grep-history
                 :caller 'counsel-git-grep))))
 
 (ivy-configure 'counsel-git-grep
-  :occur #'counsel-git-grep-occur)
+  :occur #'counsel-git-grep-occur
+  :unwind-fn #'counsel--grep-unwind)
+
 (cl-pushnew 'counsel-git-grep ivy-highlight-grep-commands)
 
 (defun counsel-git-grep-proj-function (str)
@@ -1753,8 +1756,10 @@ currently checked out."
   (ivy-read "Grep log: " #'counsel-git-log-function
             :dynamic-collection t
             :action #'counsel-git-log-action
-            :unwind #'counsel-delete-process
             :caller 'counsel-git-log))
+
+(ivy-configure 'counsel-git-log
+  :unwind-fn #'counsel-delete-process)
 
 (add-to-list 'ivy-format-functions-alist '(counsel-git-log . counsel--git-log-format-function))
 (add-to-list 'ivy-height-alist '(counsel-git-log . 4))
@@ -2505,8 +2510,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                         (with-ivy-window
                           (find-file
                            (concat (file-remote-p default-directory) file)))))
-            :unwind #'counsel-delete-process
             :caller 'counsel-locate))
+
+(ivy-configure 'counsel-locate
+  :unwind-fn #'counsel-delete-process)
 
 ;;** `counsel-fzf'
 (defvar counsel-fzf-cmd "fzf -f \"%s\""
@@ -2556,11 +2563,11 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
             :re-builder #'ivy--regex-fuzzy
             :dynamic-collection t
             :action #'counsel-fzf-action
-            :unwind #'counsel-delete-process
             :caller 'counsel-fzf))
 
 (ivy-configure 'counsel-fzf
-  :occur #'counsel-fzf-occur)
+  :occur #'counsel-fzf-occur
+  :unwind-fn #'counsel-delete-process)
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
@@ -2840,13 +2847,11 @@ CALLER is passed to `ivy-read'."
               :keymap counsel-ag-map
               :history 'counsel-git-grep-history
               :action #'counsel-git-grep-action
-              :unwind (lambda ()
-                        (counsel-delete-process)
-                        (swiper--cleanup))
               :caller (or caller 'counsel-ag))))
 
 (ivy-configure 'counsel-ag
-  :occur #'counsel-ag-occur)
+  :occur #'counsel-ag-occur
+  :unwind-fn #'counsel--grep-unwind)
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
@@ -2980,7 +2985,8 @@ Example input with inclusion and exclusion file patterns:
                 :caller 'counsel-rg)))
 
 (ivy-configure 'counsel-rg
-  :occur #'counsel-ag-occur)
+  :occur #'counsel-ag-occur
+  :unwind-fn #'counsel--grep-unwind)
 (cl-pushnew 'counsel-rg ivy-highlight-grep-commands)
 
 ;;** `counsel-grep'
@@ -3095,15 +3101,13 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                              :history 'counsel-grep-history
                              :re-builder #'ivy--regex
                              :action #'counsel-grep-action
-                             :unwind (lambda ()
-                                       (counsel-delete-process)
-                                       (swiper--cleanup))
                              :caller 'counsel-grep))
       (unless res
         (goto-char init-point)))))
 
 (ivy-configure 'counsel-grep
   :update-fn 'auto
+  :unwind-fn #'counsel--grep-unwind
   :occur #'counsel-grep-occur
   :more-chars 2)
 
@@ -3201,8 +3205,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
                           (find-file file-name)
                           (unless (string-match "pdf$" x)
                             (swiper ivy-text)))))
-            :unwind #'counsel-delete-process
             :caller 'counsel-recoll))
+
+(ivy-configure 'counsel-recoll
+  :unwind-fn #'counsel-delete-process)
 
 ;;* Org
 ;;** `counsel-org-tag'
@@ -3837,12 +3843,12 @@ Obeys `widen-automatically', which see."
                                     (error "\
 Position of selected mark outside accessible part of buffer")))
                                 (goto-char pos))))
-                  :unwind #'counsel--mark-ring-unwind
                   :caller 'counsel-mark-ring)
       (message "Mark ring is empty"))))
 
 (ivy-configure 'counsel-mark-ring
-  :update-fn #'counsel--mark-ring-update-fn)
+  :update-fn #'counsel--mark-ring-update-fn
+  :unwind-fn #'counsel--mark-ring-unwind)
 
 ;;** `counsel-package'
 (defvar package--initialized)
