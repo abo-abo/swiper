@@ -4879,8 +4879,9 @@ EVENT gives the mouse position."
 (defvar ivy-occur-timer nil)
 
 (defun ivy--occur-press-update-window ()
-  (cl-case (ivy-state-caller ivy-occur-last)
-    ((swiper swiper-isearch counsel-git-grep counsel-grep counsel-ag counsel-rg)
+  (cond
+    ((memq (ivy-state-caller ivy-occur-last)
+           (append '(swiper swiper-isearch) ivy-highlight-grep-commands))
      (let ((window (ivy-state-window ivy-occur-last))
            (buffer (ivy-state-buffer ivy-occur-last)))
        (when (buffer-live-p buffer)
@@ -4893,7 +4894,8 @@ EVENT gives the mouse position."
                 (with-selected-window window
                   (switch-to-buffer buffer)))))))
 
-    ((counsel-describe-function counsel-describe-variable)
+    ((memq (ivy-state-caller ivy-occur-last)
+           '(counsel-describe-function counsel-describe-variable))
      (setf (ivy-state-window ivy-occur-last)
            (selected-window))
      (selected-window))))
