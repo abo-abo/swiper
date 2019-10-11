@@ -919,7 +919,6 @@ when available, in that order of precedence."
               :require-match t
               :history 'counsel-M-x-history
               :action #'counsel-M-x-action
-              :sort (not externs)
               :keymap counsel-describe-map
               :initial-input initial-input
               :caller 'counsel-M-x)))
