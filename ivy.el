@@ -2063,6 +2063,9 @@ candidates is updated after each input by calling COLLECTION.
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
+  ;; get un-stuck from an existing `read-key' overriding minibuffer keys
+  (when (equal overriding-local-map '(keymap))
+    (keyboard-quit))
   (setq caller (or caller this-command))
   (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
          (ivy--display-function
