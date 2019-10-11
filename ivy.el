@@ -1892,6 +1892,15 @@ Examples: `toggle-input-method', (lambda () (insert \"^\")), etc.
 May supersede `ivy-initial-inputs-alist'."
   :type '(alist :key-type symbol :value-type function))
 
+(defcustom ivy-update-fns-alist nil
+  "An alist associating commands to their :update-fn values."
+  :type '(alist
+          :key-type symbol
+          :value-type
+          (radio
+           (const :tag "Off" nil)
+           (const :tag "Call action on change" auto))))
+
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
   :type 'integer)
@@ -2028,6 +2037,7 @@ customizations apply to the current completion session."
                     (not (window-minibuffer-p)))
             (ivy-alist-setting ivy-display-functions-alist caller)))
          result)
+    (setq update-fn (ivy-alist-setting ivy-update-fns-alist caller))
     (setq ivy-last
           (make-ivy-state
            :prompt prompt
