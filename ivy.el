@@ -3911,6 +3911,7 @@ CANDS is a list of strings."
     (let* ((bnd (ivy--minibuffer-index-bounds
                  ivy--index ivy--length ivy-height))
            (wnd-cands (cl-subseq cands (car bnd) (cadr bnd)))
+           (case-fold-search (ivy--case-fold-p ivy-text))
            transformer-fn)
       (setq ivy--window-index (nth 2 bnd))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
