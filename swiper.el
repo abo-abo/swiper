@@ -916,7 +916,8 @@ the face, window and priority of the overlay."
     (swiper--cleanup)
     (when (> (length (ivy-state-current ivy-last)) 0)
       (let ((regexps (swiper--positive-regexps ivy-text))
-            (re-idx -1))
+            (re-idx -1)
+            (case-fold-search (ivy--case-fold-p ivy-text)))
         (dolist (re regexps)
           (setq re-idx (1+ re-idx))
           (let* ((re (replace-regexp-in-string
