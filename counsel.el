@@ -3109,7 +3109,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   :unwind-fn #'counsel--grep-unwind
   :index-fn #'ivy-recompute-index-swiper-async
   :occur #'counsel-grep-occur
-  :more-chars 2)
+  :more-chars 2
+  :grep-p t)
 
 ;;;###autoload
 (defun counsel-grep-backward (&optional initial-input)
