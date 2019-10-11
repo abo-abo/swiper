@@ -1774,13 +1774,7 @@ This function is suitable as a replacement for
            (if (consp y) (car y) y)))
 
 (defcustom ivy-sort-functions-alist
-  '((read-file-name-internal . ivy-sort-file-function-default)
-    (internal-complete-buffer . nil)
-    (ivy-completion-in-region . nil)
-    (counsel-git-grep-function . nil)
-    (Man-goto-section . nil)
-    (org-refile . nil)
-    (t . ivy-string<))
+  '((t . ivy-string<))
   "An alist of sorting functions for each collection function.
 Interactive functions that call completion fit in here as well.
 
@@ -1918,6 +1912,7 @@ May supersede `ivy-initial-inputs-alist'."
                            update-fn
                            unwind-fn
                            index-fn
+                           sort-fn
                            display-transformer-fn
                            more-chars
                            grep-p)
@@ -1933,6 +1928,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy--alist-set 'ivy-unwind-fns-alist caller unwind-fn))
   (when index-fn
     (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
+  (when sort-fn
+    (ivy--alist-set 'ivy-sort-functions-alist caller sort-fn))
   (when display-transformer-fn
     (ivy-set-display-transformer caller display-transformer-fn))
   (when more-chars
@@ -2427,7 +2424,6 @@ INHERIT-INPUT-METHOD is currently ignored."
                   :def def
                   :history history
                   :keymap nil
-                  :sort t
                   :dynamic-collection ivy-completing-read-dynamic-collection
                   :caller (if (and collection (symbolp collection))
                               collection
@@ -2551,7 +2547,6 @@ See `completion-in-region' for further information."
                          ;; `completion-all-completions'.
                          :predicate nil
                          :initial-input initial
-                         :sort t
                          :action #'ivy-completion-in-region-action
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
@@ -5052,6 +5047,7 @@ make decisions based on the whole marked list."
   (funcall ffap-url-fetcher url))
 
 (ivy-configure 'read-file-name-internal
+  :sort-fn #'ivy-sort-file-function-default
   :display-transformer-fn #'ivy-read-file-transformer)
 
 (ivy-configure 'internal-complete-buffer

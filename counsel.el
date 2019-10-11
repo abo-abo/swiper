@@ -555,14 +555,14 @@ Variables declared using `defcustom' are highlighted according to
               :history 'counsel-describe-symbol-history
               :keymap counsel-describe-map
               :preselect (ivy-thing-at-point)
-              :sort t
               :action (lambda (x)
                         (funcall counsel-describe-variable-function (intern x)))
               :caller 'counsel-describe-variable)))
 
 (ivy-configure 'counsel-describe-variable
   :initial-input "^"
-  :display-transformer-fn #'counsel-describe-variable-transformer)
+  :display-transformer-fn #'counsel-describe-variable-transformer
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-describe-function'
 (ivy-set-actions
@@ -606,14 +606,14 @@ to `ivy-highlight-face'."
               :history 'counsel-describe-symbol-history
               :keymap counsel-describe-map
               :preselect (funcall counsel-describe-function-preselect)
-              :sort t
               :action (lambda (x)
                         (funcall counsel-describe-function-function (intern x)))
               :caller 'counsel-describe-function)))
 
 (ivy-configure 'counsel-describe-function
   :initial-input "^"
-  :display-transformer-fn #'counsel-describe-function-transformer)
+  :display-transformer-fn #'counsel-describe-function-transformer
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-set-variable'
 (defvar counsel-set-variable-history nil
@@ -742,7 +742,6 @@ a symbol and how to search for them."
                              (symbol-plist sym)))
             :history 'counsel-apropos-history
             :preselect (ivy-thing-at-point)
-            :sort t
             :action (lambda (pattern)
                       (when (string= pattern "")
                         (user-error "Please specify a pattern"))
@@ -756,6 +755,9 @@ a symbol and how to search for them."
                             (apropos pattern))
                         (apropos (concat "\\`" pattern "\\'"))))
             :caller 'counsel-apropos))
+
+(ivy-configure 'counsel-apropos
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-info-lookup-symbol'
 (defvar info-lookup-mode)
@@ -785,10 +787,12 @@ With prefix arg MODE a query for the symbol help mode is offered."
        (list (ivy-read "Describe symbol: " (info-lookup->completions topic mode)
                        :history 'info-lookup-history
                        :preselect (info-lookup-guess-default topic mode)
-                       :sort t
                        :caller 'counsel-info-lookup-symbol)
              mode))))
   (info-lookup-symbol symbol mode))
+
+(ivy-configure 'counsel-info-lookup-symbol
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-M-x'
 (defface counsel-key-binding
@@ -1169,9 +1173,11 @@ back to the face of the character after point, and finally the
             :require-match t
             :history 'face-name-history
             :preselect (counsel--face-at-point)
-            :sort t
             :action counsel-describe-face-function
             :caller 'counsel-describe-face))
+
+(ivy-configure 'counsel-describe-face
+  :sort-fn #'ivy-string<)
 
 (defun counsel-customize-face (name)
   "Customize face with NAME."
@@ -1216,9 +1222,11 @@ selected face."
               :require-match t
               :history 'face-name-history
               :preselect (counsel--face-at-point)
-              :sort t
               :action counsel-describe-face-function
               :caller 'counsel-faces)))
+
+(ivy-configure 'counsel-faces
+  :sort-fn #'ivy-string<)
 
 (add-to-list 'ivy-format-functions-alist '(counsel-faces . counsel--faces-format-function))
 
@@ -2371,12 +2379,14 @@ can use `C-x r j i' to open that file."
                       (if (eq 'file (cadr register-alist-entry))
                           (cddr register-alist-entry)))
                     register-alist)
-            :sort t
             :require-match t
             :history 'counsel-file-register
             :caller 'counsel-file-register
             :action (lambda (register-file)
                       (with-ivy-window (find-file register-file)))))
+
+(ivy-configure 'counsel-file-register
+  :sort-fn #'ivy-string<)
 
 (ivy-set-actions
  'counsel-file-register
@@ -3765,10 +3775,6 @@ This variable has no effect unless
 
 ;;* Misc. Emacs
 ;;** `counsel-mark-ring'
-(defcustom counsel-mark-ring-sort-selections t
-  "If non-nil, sort `mark-ring' list by line number."
-  :type 'boolean)
-
 (defface counsel--mark-ring-highlight
   '((t (:inherit highlight)))
   "Face for current `counsel-mark-ring' line."
@@ -3837,7 +3843,6 @@ Obeys `widen-automatically', which see."
     (if cands
         (ivy-read "Mark: " cands
                   :require-match t
-                  :sort counsel-mark-ring-sort-selections
                   :action (lambda (cand)
                             (let ((pos (get-text-property 0 'point cand)))
                               (when pos
@@ -3852,7 +3857,8 @@ Position of selected mark outside accessible part of buffer")))
 
 (ivy-configure 'counsel-mark-ring
   :update-fn #'counsel--mark-ring-update-fn
-  :unwind-fn #'counsel--mark-ring-unwind)
+  :unwind-fn #'counsel--mark-ring-unwind
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-package'
 (defvar package--initialized)
@@ -3960,8 +3966,7 @@ Additional actions:\\<ivy-minibuffer-map>
     (map-keymap (lambda (k v) (tmm-get-keymap (cons k v))) menu)
     (setq tmm-km-list (nreverse tmm-km-list))
     (setq out (ivy-read "Menu bar: " (tmm--completion-table tmm-km-list)
-                        :require-match t
-                        :sort nil))
+                        :require-match t))
     (setq choice (cdr (assoc out tmm-km-list)))
     (setq chosen-string (car choice))
     (setq choice (cdr choice))
@@ -4230,10 +4235,12 @@ matching the register's value description against a regexp in
                    (list s))))
              register-alist)
             :require-match t
-            :sort t
             :history 'counsel-register-history
             :action #'counsel-register-action
             :caller 'counsel-register))
+
+(ivy-configure 'counsel-register
+  :sort-fn #'ivy-string<)
 
 ;;** `counsel-evil-registers'
 ;;;###autoload
@@ -4881,7 +4888,6 @@ COUNT defaults to 1."
   (setq ivy-completion-end (point))
   (ivy-read "Unicode name: " counsel--unicode-table
             :history 'counsel-unicode-char-history
-            :sort t
             :action (lambda (name)
                       (with-ivy-window
                         (delete-region ivy-completion-beg ivy-completion-end)
@@ -4889,6 +4895,9 @@ COUNT defaults to 1."
                         (insert-char (get-text-property 0 'code name) count)
                         (setq ivy-completion-end (point))))
             :caller 'counsel-unicode-char))
+
+(ivy-configure 'counsel-unicode-char
+  :sort-fn #'ivy-string<)
 
 (defun counsel-unicode-copy (name)
   "Ivy action to copy the unicode from NAME to the kill ring."
@@ -5033,9 +5042,11 @@ selected color."
     (ivy-read "Web color: " colors
               :require-match t
               :history 'counsel-colors-web-history
-              :sort t
               :action #'insert
               :caller 'counsel-colors-web)))
+
+(ivy-configure 'counsel-colors-web
+  :sort-fn #'ivy-string<)
 
 (add-to-list 'ivy-format-functions-alist '(counsel-colors-web . counsel--colors-web-format-function))
 (ivy-set-actions
@@ -5930,11 +5941,12 @@ Additional actions:\\<ivy-minibuffer-map>
             (counsel--minor-candidates)
             :require-match t
             :history 'counsel-minor-history
-            :sort t
             :action (lambda (x)
                       (call-interactively (cdr x)))))
 
-(cl-pushnew '(counsel-minor . "^+") ivy-initial-inputs-alist :key #'car)
+(ivy-configure 'counsel-minor
+  :initial-input "^+"
+  :sort-fn #'ivy-string<)
 
 (ivy-set-actions
  'counsel-minor

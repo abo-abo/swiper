@@ -1239,7 +1239,6 @@ later use yourself. However, it's recommended that you use the
             :preselect (ivy-thing-at-point)
             :history 'counsel-describe-symbol-history
             :require-match t
-            :sort t
             :action (lambda (x)
                       (describe-function
                        (intern x)))
@@ -1260,13 +1259,6 @@ Here are the interesting features of the above function, in the order that they 
   separate from the common history in =ivy-history=.
 - The =require-match= is set to =t= since it doesn't make sense to
   call =describe-function= on an un-interned symbol.
-- The =sort= argument is set to =t= so choosing between similar
-  candidates becomes easier. Sometimes, the collection size will
-  exceed =ivy-sort-max-size=, which is 30000 by default. In that case
-  the sorting will not happen to avoid delays.
-
-  Adjust this variable to choose between sorting time and completion
-  start-up time.
 - The =action= argument calls =describe-function= on the interned
   selected candidate.
 - The =caller= argument identifies this completion session. This is
