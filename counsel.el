@@ -1334,8 +1334,6 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
-(counsel-set-async-exit-code 'counsel-git-grep 1 "No matches found")
-
 (defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
   "Initial command for `counsel-git-grep'.")
 
@@ -1522,7 +1520,8 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
   :unwind-fn #'counsel--grep-unwind
   :index-fn #'ivy-recompute-index-swiper-async
   :display-transformer-fn #'counsel-git-grep-transformer
-  :grep-p t)
+  :grep-p t
+  :exit-codes '(1 "No matches found"))
 
 (defun counsel-git-grep-proj-function (str)
   "Grep for STR in the current Git repository."
@@ -2418,8 +2417,6 @@ string - the full shell command to run."
    ("r" counsel-find-file-as-root "open as root")
    ("d" counsel-locate-action-dired "dired")))
 
-(counsel-set-async-exit-code 'counsel-locate 1 "Nothing found")
-
 (defvar counsel-locate-history nil
   "History for `counsel-locate'.")
 
@@ -2519,7 +2516,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :caller 'counsel-locate))
 
 (ivy-configure 'counsel-locate
-  :unwind-fn #'counsel-delete-process)
+  :unwind-fn #'counsel-delete-process
+  :exit-codes '(1 "Nothing found"))
 
 ;;** `counsel-fzf'
 (defvar counsel-fzf-cmd "fzf -f \"%s\""
@@ -2573,7 +2571,8 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (ivy-configure 'counsel-fzf
   :occur #'counsel-fzf-occur
-  :unwind-fn #'counsel-delete-process)
+  :unwind-fn #'counsel-delete-process
+  :exit-codes '(1 "Nothing found"))
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
@@ -2594,8 +2593,6 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
  'counsel-fzf
  '(("x" counsel-locate-action-extern "xdg-open")
    ("d" counsel-locate-action-dired "dired")))
-
-(counsel-set-async-exit-code 'counsel-fzf 1 "Nothing found")
 
 ;;** `counsel-dpkg'
 ;;;###autoload
@@ -2760,8 +2757,6 @@ regex string."
 
 (defvar counsel--regex-look-around nil)
 
-(counsel-set-async-exit-code 'counsel-ag 1 "No matches found")
-
 (defconst counsel--command-args-separator "-- ")
 
 (defun counsel--split-command-args (arguments)
@@ -2858,7 +2853,8 @@ CALLER is passed to `ivy-read'."
   :occur #'counsel-ag-occur
   :unwind-fn #'counsel--grep-unwind
   :display-transformer-fn #'counsel-git-grep-transformer
-  :grep-p t)
+  :grep-p t
+  :exit-codes '(1 "No matches found"))
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
@@ -2952,8 +2948,6 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 Note: don't use single quotes for the regex."
   :type 'string)
 
-(counsel-set-async-exit-code 'counsel-rg 1 "No matches found")
-
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
   (if (eq major-mode 'dired-mode)
@@ -2996,7 +2990,8 @@ Example input with inclusion and exclusion file patterns:
   :occur #'counsel-ag-occur
   :unwind-fn #'counsel--grep-unwind
   :display-transformer-fn #'counsel-git-grep-transformer
-  :grep-p t)
+  :grep-p t
+  :exit-codes '(1 "No matches found"))
 
 ;;** `counsel-grep'
 (defvar counsel-grep-map
@@ -3077,8 +3072,6 @@ relative to the last position stored here.")
       (buffer-file-name
        (ivy-state-buffer ivy-last)))))))
 
-(counsel-set-async-exit-code 'counsel-grep 1 "")
-
 (defvar counsel-grep-history nil
   "History for `counsel-grep'.")
 
@@ -3125,7 +3118,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   :index-fn #'ivy-recompute-index-swiper-async
   :occur #'counsel-grep-occur
   :more-chars 2
-  :grep-p t)
+  :grep-p t
+  :exit-codes '(1 ""))
 
 ;;;###autoload
 (defun counsel-grep-backward (&optional initial-input)

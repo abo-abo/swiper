@@ -1910,6 +1910,8 @@ May supersede `ivy-initial-inputs-alist'."
       (set alist-sym (cons (cons key val)
                            (symbol-value alist-sym))))))
 
+(declare-function counsel-set-async-exit-code "counsel")
+
 (cl-defun ivy-configure (caller
                          &key
                            initial-input
@@ -1922,7 +1924,8 @@ May supersede `ivy-initial-inputs-alist'."
                            format-fn
                            display-transformer-fn
                            more-chars
-                           grep-p)
+                           grep-p
+                           exit-codes)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
   (when initial-input
@@ -1946,7 +1949,12 @@ May supersede `ivy-initial-inputs-alist'."
   (when more-chars
     (ivy--alist-set 'ivy-more-chars-alist caller more-chars))
   (when grep-p
-    (cl-pushnew caller ivy-highlight-grep-commands)))
+    (cl-pushnew caller ivy-highlight-grep-commands))
+  (when exit-codes
+    (let (code msg)
+      (while (and (setq code (pop exit-codes))
+                  (setq msg (pop exit-codes)))
+        (counsel-set-async-exit-code caller code msg)))))
 
 (defcustom ivy-sort-max-size 30000
   "Sorting won't be done for collections larger than this."
