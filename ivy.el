@@ -1762,21 +1762,13 @@ Prioritize directories."
         nil
       (string< x y))))
 
-(declare-function ido-file-extension-lessp "ido")
-
-(defun ivy-sort-file-function-using-ido (x y)
-  "Compare two files X and Y using `ido-file-extensions-order'.
-
-This function is suitable as a replacement for
-`ivy-sort-file-function-default' in `ivy-sort-functions-alist'."
-  (if (and (bound-and-true-p ido-file-extensions-order))
-      (ido-file-extension-lessp x y)
-    (ivy-sort-file-function-default x y)))
-
 (defun ivy-string< (x y)
   "Like `string<', but operate on CARs when given cons cells."
   (string< (if (consp x) (car x) x)
            (if (consp y) (car y) y)))
+
+(define-obsolete-function-alias 'ivy-sort-file-function-using-ido
+    'ido-file-extension-lessp "<2019-10-12 Sat>")
 
 (defcustom ivy-sort-functions-alist
   '((t . ivy-string<))
@@ -1802,6 +1794,7 @@ See also `ivy-sort-max-size'."
     :value-type (choice
                  (const :tag "Plain sort" string-lessp)
                  (const :tag "File sort" ivy-sort-file-function-default)
+                 (const :tag "File sort using Ido" ido-file-extension-lessp)
                  (const :tag "No sort" nil)
                  (function :tag "Custom function")
                  (repeat (function :tag "Custom function")))))
