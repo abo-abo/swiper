@@ -4324,8 +4324,9 @@ PREFIX is used to create the key."
                `(("Functions" ,@fns)))
       items)))
 
-(defun counsel-imenu-action (candidate)
-  (goto-char (cdr candidate)))
+(defun counsel-imenu-action (x)
+  (when x
+    (goto-char (cdr x))))
 
 ;;;###autoload
 (defun counsel-imenu ()
