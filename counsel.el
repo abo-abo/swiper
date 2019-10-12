@@ -4276,28 +4276,40 @@ S will be of the form \"[register]: content\"."
 (declare-function imenu--subalist-p "imenu")
 (declare-function imenu--make-index-alist "imenu")
 
+(defun counsel--imenu-candidates ()
+  (unless (featurep 'imenu)
+    (require 'imenu nil t))
+  (let* ((imenu-auto-rescan t)
+         (imenu-auto-rescan-maxout (if current-prefix-arg
+                                       (buffer-size)
+                                     imenu-auto-rescan-maxout))
+         (items (imenu--make-index-alist t))
+         (items (delete (assoc "*Rescan*" items) items))
+         (items (counsel-imenu-categorize-functions items)))
+    (counsel-imenu-get-candidates-from items)))
+
 (defun counsel-imenu-get-candidates-from (alist &optional prefix)
   "Create a list of (key . value) from ALIST.
 PREFIX is used to create the key."
-  (cl-mapcan (lambda (elm)
-               (if (imenu--subalist-p elm)
-                   (counsel-imenu-get-candidates-from
-                    (cl-loop for (e . v) in (cdr elm) collect
-                         (cons e (if (integerp v) (copy-marker v) v)))
-                    ;; pass the prefix to next recursive call
-                    (concat prefix (if prefix ".") (car elm)))
-                 (let ((key (concat
-                             (when prefix
-                               (concat
-                                (propertize prefix 'face 'ivy-grep-info)
-                                ": "))
-                             (car elm))))
-                   (list (cons key
-                               ;; create a imenu candidate here
-                               (cons key (if (overlayp (cdr elm))
-                                             (overlay-start (cdr elm))
-                                           (cdr elm))))))))
-             alist))
+  (cl-mapcan
+   (lambda (elm)
+     (if (imenu--subalist-p elm)
+         (counsel-imenu-get-candidates-from
+          (cl-loop for (e . v) in (cdr elm) collect
+               (cons e (if (integerp v) (copy-marker v) v)))
+          ;; pass the prefix to next recursive call
+          (concat prefix (if prefix ".") (car elm)))
+       (let ((key (concat
+                   (when prefix
+                     (concat
+                      (propertize prefix 'face 'ivy-grep-info)
+                      ": "))
+                   (car elm))))
+         (list (cons key
+                     (if (overlayp (cdr elm))
+                         (overlay-start (cdr elm))
+                       (cdr elm)))))))
+   alist))
 
 (defvar counsel-imenu-map
   (let ((map (make-sparse-keymap)))
@@ -4312,29 +4324,19 @@ PREFIX is used to create the key."
                `(("Functions" ,@fns)))
       items)))
 
+(defun counsel-imenu-action (candidate)
+  (goto-char (cdr candidate)))
+
 ;;;###autoload
 (defun counsel-imenu ()
   "Jump to a buffer position indexed by imenu."
   (interactive)
-  (unless (featurep 'imenu)
-    (require 'imenu nil t))
-  (let* ((imenu-auto-rescan t)
-         (imenu-auto-rescan-maxout (if current-prefix-arg
-                                       (buffer-size)
-                                     imenu-auto-rescan-maxout))
-         (items (imenu--make-index-alist t))
-         (items (delete (assoc "*Rescan*" items) items))
-         (items (counsel-imenu-categorize-functions items)))
-    (ivy-read "imenu items: " (counsel-imenu-get-candidates-from items)
-              :preselect (thing-at-point 'symbol)
-              :require-match t
-              :action (lambda (candidate)
-                        (with-ivy-window
-                          ;; In org-mode, (imenu candidate) will expand child node
-                          ;; after jump to the candidate position
-                          (imenu (cdr candidate))))
-              :keymap counsel-imenu-map
-              :caller 'counsel-imenu)))
+  (ivy-read "imenu items: " (counsel--imenu-candidates)
+            :preselect (thing-at-point 'symbol)
+            :require-match t
+            :action #'counsel-imenu-action
+            :keymap counsel-imenu-map
+            :caller 'counsel-imenu))
 
 ;;** `counsel-list-processes'
 (defun counsel-list-processes-action-delete (x)

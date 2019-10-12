@@ -2093,8 +2093,13 @@ customizations apply to the current completion session."
            :keymap keymap
            :update-fn (if (eq update-fn 'auto)
                           (lambda ()
-                            (funcall (ivy--get-action ivy-last)
-                                     (ivy-state-current ivy-last)))
+                            (with-ivy-window
+                              (funcall
+                               (ivy--get-action ivy-last)
+                               (if (consp (car-safe (ivy-state-collection ivy-last)))
+                                   (assoc (ivy-state-current ivy-last)
+                                          (ivy-state-collection ivy-last))
+                                 (ivy-state-current ivy-last)))))
                         update-fn)
            :sort sort
            :action (ivy--compute-extra-actions action caller)
