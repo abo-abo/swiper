@@ -313,16 +313,16 @@ Update the minibuffer with the amount of lines collected every
     (if (string= str "")
         (mapatoms
          (lambda (x)
-           (when (symbolp x)
+           (when (and (symbolp x) (funcall pred x))
              (push (symbol-name x) symbol-names))))
       (setq symbol-names (all-completions str obarray pred)))
     (ivy-read "Symbol name: " symbol-names
-              :caller 'counsel-el
-              :predicate pred
               :initial-input str
-              :action #'ivy-completion-in-region-action)))
+              :action #'ivy-completion-in-region-action
+              :caller 'counsel-el)))
 
-(add-to-list 'ivy-height-alist '(counsel-el . 7))
+(ivy-configure 'counsel-el
+  :height 7)
 
 ;;** `counsel-cl'
 (declare-function slime-symbol-start-pos "ext:slime")
@@ -387,7 +387,8 @@ Update the minibuffer with the amount of lines collected every
         (delete-region (car bnd) (cdr bnd)))
       (insert res))))
 
-(add-to-list 'ivy-height-alist '(counsel--generic . 7))
+(ivy-configure 'counsel--generic
+  :height 7)
 
 ;;;###autoload
 (defun counsel-clj ()
@@ -1758,10 +1759,10 @@ currently checked out."
             :caller 'counsel-git-log))
 
 (ivy-configure 'counsel-git-log
+  :height 4
   :unwind-fn #'counsel-delete-process
   :format-fn #'counsel--git-log-format-function)
 
-(add-to-list 'ivy-height-alist '(counsel-git-log . 4))
 (add-to-list 'counsel-async-split-string-re-alist '(counsel-git-log . "^commit "))
 (add-to-list 'counsel-async-ignore-re-alist '(counsel-git-log . "^[ \n]*$"))
 
@@ -4025,9 +4026,6 @@ Additional actions:\\<ivy-minibuffer-map>
           (const :tag "Dashes" "\n----\n")
           string))
 
-(define-obsolete-variable-alias 'counsel-yank-pop-height
-    'ivy-height-alist "0.11.0")
-
 (defun counsel--yank-pop-format-function (cand-pairs)
   "Transform CAND-PAIRS into a string for `counsel-yank-pop'."
   (ivy--format-function-generic
@@ -4183,8 +4181,8 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :caller 'counsel-yank-pop)))
 
 (ivy-configure 'counsel-yank-pop
+  :height 5
   :format-fn #'counsel--yank-pop-format-function)
-(add-to-list 'ivy-height-alist '(counsel-yank-pop . 5))
 
 (ivy-set-actions
  'counsel-yank-pop
@@ -4259,8 +4257,8 @@ matching the register's value description against a regexp in
                 :caller 'counsel-evil-registers)
     (user-error "Required feature `evil' not installed.")))
 (ivy-configure 'counsel-evil-registers
+  :height 5
   :format-fn #'counsel--yank-pop-format-function)
-(add-to-list 'ivy-height-alist '(counsel-evil-registers . 5))
 
 (defun counsel-evil-registers-action (s)
   "Paste contents of S, trimming the register part.

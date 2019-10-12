@@ -1913,6 +1913,7 @@ May supersede `ivy-initial-inputs-alist'."
 (cl-defun ivy-configure (caller
                          &key
                            initial-input
+                           height
                            occur
                            update-fn
                            unwind-fn
@@ -1926,6 +1927,8 @@ May supersede `ivy-initial-inputs-alist'."
   (declare (indent 1))
   (when initial-input
     (ivy--alist-set 'ivy-initial-inputs-alist caller initial-input))
+  (when height
+    (ivy--alist-set 'ivy-height-alist caller height))
   (when occur
     (ivy-set-occur caller occur))
   (when update-fn
