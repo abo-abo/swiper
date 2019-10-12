@@ -4256,9 +4256,9 @@ PREFIX is used to create the key."
                       ": "))
                    (car elm))))
          (list (cons key
-                     (if (overlayp (cdr elm))
-                         (overlay-start (cdr elm))
-                       (cdr elm)))))))
+                     (cons key (if (overlayp (cdr elm))
+                                   (overlay-start (cdr elm))
+                                 (cdr elm))))))))
    alist))
 
 (defvar counsel-imenu-map
@@ -4275,8 +4275,8 @@ PREFIX is used to create the key."
       items)))
 
 (defun counsel-imenu-action (x)
-  (when x
-    (goto-char (cdr x))))
+  (with-ivy-window
+    (imenu (cdr x))))
 
 ;;;###autoload
 (defun counsel-imenu ()
