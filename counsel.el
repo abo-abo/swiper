@@ -483,6 +483,7 @@ Used by commands `counsel-describe-variable' and
   "Jump to the definition of the current symbol."
   (interactive)
   (ivy-exit-with-action #'counsel--find-symbol))
+(put 'counsel-find-symbol 'no-counsel-M-x t)
 
 (defun counsel--info-lookup-symbol ()
   "Lookup the current symbol in the info docs."
@@ -912,10 +913,13 @@ when available, in that order of precedence."
   (setq real-this-command real-last-command)
   (let ((externs (counsel--M-x-externs)))
     (ivy-read (counsel--M-x-prompt) (or externs obarray)
-              :predicate (and (not externs)
-                              (lambda (sym)
-                                (and (commandp sym)
-                                     (not (get sym 'byte-obsolete-info)))))
+              :predicate (if externs
+                             (lambda (x)
+                               (not (get (intern x) 'no-counsel-M-x)))
+                           (lambda (sym)
+                             (and (commandp sym)
+                                  (not (get sym 'byte-obsolete-info))
+                                  (not (get sym 'no-counsel-M-x)))))
               :require-match t
               :history 'counsel-M-x-history
               :action #'counsel-M-x-action
