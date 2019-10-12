@@ -1,11 +1,11 @@
 ;;; swiper.el --- Isearch with an overview. Oh, man! -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015-2018  Free Software Foundation, Inc.
+;; Copyright (C) 2015-2019  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.12.0
-;; Package-Requires: ((emacs "24.1") (ivy "0.12.0"))
+;; Version: 0.13.0
+;; Package-Requires: ((emacs "24.5") (ivy "0.13.0"))
 ;; Keywords: matching
 
 ;; This file is part of GNU Emacs.
