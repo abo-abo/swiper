@@ -237,22 +237,6 @@ bookmarks.  Any other non-nil value includes both."
           (const :tag "Bookmarks" bookmarks)
           (const :tag "All virtual buffers" t)))
 
-(defvar ivy-display-function nil
-  "Determine where to display candidates.
-When nil (the default), candidates are shown in the minibuffer.
-Otherwise, this can be set to a function which takes a string
-argument comprising the current matching candidates and displays
-it somewhere.
-
-This user option acts as a global default for Ivy-based
-completion commands.  You can customize the display function on a
-per-command basis via `ivy-display-functions-alist', which see.
-See also URL
-`https://github.com/abo-abo/swiper/wiki/ivy-display-function'.")
-
-(make-obsolete-variable
- 'ivy-display-function 'ivy-display-functions-alist "<2019-12-05 Mon>")
-
 (defvar ivy--display-function nil
   "The display-function is used in current.")
 
@@ -264,14 +248,14 @@ Examples of properties include associated `:cleanup' functions.")
 (defcustom ivy-display-functions-alist
   '((ivy-completion-in-region . ivy-display-function-overlay)
     (t . nil))
-  "An alist for customizing display-function.
+  "An alist for customizing where to display the candidates.
 
-display-function determine where to display candidates. it takes
-a string argument comprising the current matching candidates and
-displays it somewhere.
+Each key is a caller symbol. When the value is nil (the default),
+the candidates are shown in the minibuffer. Otherwise, the value
+is a function which takes a string argument comprising the
+current matching candidates and displays it somewhere.
 
-When display-function is nil, candidates are shown in the
-minibuffer."
+See also `https://github.com/abo-abo/swiper/wiki/ivy-display-function'."
   :type '(alist
           :key-type symbol
           :value-type (choice
@@ -1681,13 +1665,6 @@ This string is inserted into the minibuffer."
            (const :tag "Arrow prefix" ivy-format-function-arrow)
            (const :tag "Full line" ivy-format-function-line)
            (function :tag "Custom function"))))
-
-(defvar ivy-format-function #'ivy-format-function-default
-  "Function to transform the list of candidates into a string.
-This string is inserted into the minibuffer.")
-
-(make-obsolete-variable
- 'ivy-format-function 'ivy-format-functions-alist "<2019-06-03 Mon>")
 
 (eval-after-load 'avy
   '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
@@ -3474,9 +3451,6 @@ Prefix matches to NAME are put ahead of the list."
 (defvar ivy--virtual-buffers nil
   "Store the virtual buffers alist.")
 
-(define-obsolete-function-alias 'ivy-generic-regex-to-str
-    'ivy-re-to-str "0.10.0")
-
 (defun ivy-re-to-str (re)
   "Transform RE to a string.
 
@@ -4518,9 +4492,6 @@ Don't finish completion."
   "Insert the full Yank the current directory into the minibuffer."
   (interactive)
   (insert ivy--directory))
-
-(define-obsolete-variable-alias 'ivy--preferred-re-builders
-  'ivy-preferred-re-builders "0.10.0")
 
 (defcustom ivy-preferred-re-builders
   '((ivy--regex-plus . "ivy")

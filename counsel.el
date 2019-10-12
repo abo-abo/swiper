@@ -50,10 +50,6 @@
   :prefix "counsel-")
 
 ;;* Utility
-(define-obsolete-variable-alias 'counsel-more-chars-alist 'ivy-more-chars-alist "0.10.0")
-
-(define-obsolete-function-alias 'counsel-more-chars 'ivy-more-chars "0.10.0")
-
 (defun counsel--elisp-to-pcre (regex &optional look-around)
   "Convert REGEX from Elisp format to PCRE format, on best-effort basis.
 REGEX may be of any format returned by an Ivy regex function,
@@ -127,11 +123,6 @@ To skip the `executable-find' check, start the string with a space."
                (executable-find program))
           (user-error "Required program \"%s\" not found in your path" program)))))
 
-(defun counsel-prompt-function-default ()
-  "Return prompt appended with a semicolon."
-  (declare (obsolete ivy-set-prompt "0.10.0"))
-  (ivy-add-prompt-count (concat (ivy-state-prompt ivy-last) ": ")))
-
 (declare-function eshell-split-path "esh-util")
 
 (defun counsel-prompt-function-dir ()
@@ -173,17 +164,8 @@ descriptions.")
                      cmd
                      (plist-put plist number str)))))
 
-(defvar counsel-async-split-string-re "\n"
-  "Store the regexp for splitting shell command output.")
-(make-obsolete-variable
- 'counsel-async-split-string-re 'counsel-async-split-string-re-alist "<2019-07-16 Tue>")
-
 (defvar counsel-async-split-string-re-alist '((t . "\n"))
   "Store the regexp for splitting shell command output.")
-
-(defvar counsel-async-ignore-re nil
-  "Regexp matching candidates to ignore in `counsel--async-filter'.")
-(make-obsolete-variable 'counsel-async-ignore-re 'counsel-async-ignore-re-alist "<2019-07-16 Tue>")
 
 (defvar counsel-async-ignore-re-alist nil
   "An alist of regexp matching candidates to ignore in `counsel--async-filter'.")
@@ -1628,11 +1610,6 @@ done") "\n" t)))
 (defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
   "Command used for \"git log\".")
 
-(defvar counsel-git-log-split-string-re "^commit "
-  "The `split-string' separates when split output of `counsel-git-log-cmd'.")
-(make-obsolete-variable
- 'counsel-git-log-split-string-re 'counsel-async-split-string-re-alist "<2019-07-16 Tue>")
-
 (defun counsel-git-log-function (str)
   "Search for STR in git log."
   (or
@@ -1773,9 +1750,6 @@ currently checked out."
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
     (define-key map (kbd "`") (ivy-make-magic-action 'counsel-find-file "b"))
     map))
-
-(define-obsolete-function-alias 'counsel-yank-directory 'ivy-insert-current-full
-  "<2019-06-13 Thu>")
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
@@ -3400,15 +3374,9 @@ otherwise continue prompting for tags."
              #'counsel-org-tag))
     (org-agenda-set-tags)))
 
-(define-obsolete-variable-alias 'counsel-org-goto-display-tags
-    'counsel-org-headline-display-tags "0.10.0")
-
 (defcustom counsel-org-headline-display-tags nil
   "If non-nil, display tags in matched `org-mode' headlines."
   :type 'boolean)
-
-(define-obsolete-variable-alias 'counsel-org-goto-display-todo
-    'counsel-org-headline-display-todo "0.10.0")
 
 (defcustom counsel-org-headline-display-todo nil
   "If non-nil, display todo keywords in matched `org-mode' headlines."
@@ -3680,11 +3648,6 @@ include attachments of other Org buffers."
 (defvar counsel-org-agenda-headlines-history nil
   "History for `counsel-org-agenda-headlines'.")
 
-(define-obsolete-variable-alias 'counsel-org-goto-display-style
-    'counsel-outline-display-style "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-display-style
-    'counsel-outline-display-style "0.10.0")
-
 (defcustom counsel-outline-display-style 'path
   "The style used when displaying matched outline headings.
 
@@ -3705,11 +3668,6 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
           (const :tag "Title only" title)
           (const :tag "Headline" headline)
           (const :tag "Path" path)))
-
-(define-obsolete-variable-alias 'counsel-org-goto-separator
-    'counsel-outline-path-separator "0.10.0")
-(define-obsolete-variable-alias 'counsel-org-headline-path-separator
-    'counsel-outline-path-separator "0.10.0")
 
 (defcustom counsel-outline-path-separator "/"
   "String separating path entries in matched outline headings.
@@ -4544,9 +4502,6 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
-(define-obsolete-variable-alias 'counsel-org-goto-face-style
-    'counsel-outline-face-style "0.10.0")
-
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
 
@@ -4584,9 +4539,6 @@ For displaying tags and TODO keywords in `org-mode' buffers, see
           (const :tag "Verbatim" verbatim)
           (const :tag "Custom" custom)
           (const :tag "No style" nil)))
-
-(define-obsolete-variable-alias 'counsel-org-goto-custom-faces
-    'counsel-outline-custom-faces "0.10.0")
 
 (defcustom counsel-outline-custom-faces nil
   "List of faces for custom display of outline headings.
