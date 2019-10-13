@@ -3883,7 +3883,7 @@ Note: The usual last two arguments are flipped for convenience.")
 
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
-CANDS is a list of strings."
+CANDS is a list of candidates that :display-transformer can turn into strings."
   (setq ivy--length (length cands))
   (when (>= ivy--index ivy--length)
     (ivy-set-index (max (1- ivy--length) 0)))
