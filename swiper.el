@@ -630,6 +630,16 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (setq last-pt pt))
     (nreverse res)))
 
+(defun swiper--occur-insert-lines (cands)
+  ;; Need precise number of header lines for `wgrep' to work.
+  (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                  default-directory))
+  (insert (format "%d candidates:\n" (length cands)))
+  (ivy--occur-insert-lines cands)
+  (goto-char (point-min))
+  (forward-line 4)
+  (setq-local next-error-function #'ivy-occur-next-error))
+
 (defun swiper-occur (&optional revert)
   "Generate a custom occur buffer for `swiper'.
 When REVERT is non-nil, regenerate the current *ivy-occur* buffer.
@@ -668,16 +678,8 @@ When capture groups are present in the input, print them instead of lines."
       (unless (eq major-mode 'ivy-occur-grep-mode)
         (ivy-occur-grep-mode)
         (font-lock-mode -1))
-      (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                      default-directory))
-      (insert (format "%d candidates:\n" (length cands)))
-      (ivy--occur-insert-lines
-       (mapcar
-        (lambda (cand) (concat "./" cand))
-        cands))
-      (goto-char (point-min))
-      (forward-line 4)
-      (setq-local next-error-function #'ivy-occur-next-error))))
+      (swiper--occur-insert-lines
+       (mapcar (lambda (cand) (concat "./" cand)) cands)))))
 
 (declare-function evil-set-jump "ext:evil-jumps")
 

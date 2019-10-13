@@ -2862,12 +2862,7 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                        switches
                        (shell-quote-argument regex))))))
          (cands (counsel--split-string (shell-command-to-string cmd))))
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                    default-directory))
-    (insert (format "%d candidates:\n" (length cands)))
-    (ivy--occur-insert-lines
-     (mapcar #'counsel--normalize-grep-match cands))))
+    (swiper--occur-insert-lines (mapcar #'counsel--normalize-grep-match cands))))
 
 (defun counsel-ag-occur ()
   "Generate a custom occur buffer for `counsel-ag'."
