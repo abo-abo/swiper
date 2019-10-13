@@ -498,7 +498,8 @@ action functions.")
   current
   def
   ignore
-  multi-action)
+  multi-action
+  extra-props)
 
 (defvar ivy-last (make-ivy-state)
   "The last parameters passed to `ivy-read'.
@@ -1204,6 +1205,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          :re-builder (ivy-state-re-builder ivy-last)
          :matcher (ivy-state-matcher ivy-last)
          :dynamic-collection (ivy-state-dynamic-collection ivy-last)
+         :extra-props (ivy-state-extra-props ivy-last)
          :caller (ivy-state-caller ivy-last))))))
 
 (defvar-local ivy-calling nil
@@ -1993,7 +1995,9 @@ found, it falls back to the key t."
                       history preselect def keymap update-fn sort
                       action multi-action
                       unwind re-builder matcher
-                      dynamic-collection caller)
+                      dynamic-collection
+                      extra-props
+                      caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string, normally ending in a colon and a space.
@@ -2052,6 +2056,9 @@ list of candidates, and returns the list of matching candidates.
 DYNAMIC-COLLECTION is a boolean specifying whether the list of
 candidates is updated after each input by calling COLLECTION.
 
+EXTRA-PROPS can be used to store collection-specific
+session-specific data.
+
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
@@ -2099,6 +2106,7 @@ customizations apply to the current completion session."
            :dynamic-collection dynamic-collection
            :display-transformer-fn (plist-get ivy--display-transformers-list caller)
            :directory default-directory
+           :extra-props extra-props
            :caller caller
            :def def))
     (ivy--reset-state ivy-last)
@@ -4803,13 +4811,10 @@ updated original buffer."
   (let ((caller (ivy-state-caller ivy-occur-last))
         (ivy-last ivy-occur-last))
     (cond ((member caller '(swiper swiper-isearch))
-           (let ((buffer (ivy-state-buffer ivy-occur-last)))
-             (unless (buffer-live-p buffer)
-               (error "Buffer was killed"))
-             (let ((inhibit-read-only t))
-               (erase-buffer)
-               (funcall (plist-get ivy--occurs-list caller) t)
-               (ivy-occur-grep-mode))))
+           (let ((inhibit-read-only t))
+             (erase-buffer)
+             (funcall (plist-get ivy--occurs-list caller) t)
+             (ivy-occur-grep-mode)))
           ((memq caller ivy-highlight-grep-commands)
            (let ((inhibit-read-only t)
                  (line (line-number-at-pos)))

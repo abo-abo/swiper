@@ -640,11 +640,23 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (forward-line 4)
   (setq-local next-error-function #'ivy-occur-next-error))
 
+(defun swiper--occur-buffer ()
+  (let ((buffer (ivy-state-buffer ivy-last)))
+    (unless (buffer-live-p buffer)
+      (setq buffer
+            (setf (ivy-state-buffer ivy-last)
+                  (find-file-noselect
+                   (plist-get (ivy-state-extra-props ivy-last) :fname))))
+      (save-selected-window
+        (pop-to-buffer buffer))
+      (setf (ivy-state-window ivy-last) (selected-window)))
+    buffer))
+
 (defun swiper-occur (&optional revert)
   "Generate a custom occur buffer for `swiper'.
 When REVERT is non-nil, regenerate the current *ivy-occur* buffer.
 When capture groups are present in the input, print them instead of lines."
-  (let* ((buffer (ivy-state-buffer ivy-last))
+  (let* ((buffer (swiper--occur-buffer))
          (fname (propertize
                  (with-ivy-window
                    (if (buffer-file-name buffer)
@@ -798,6 +810,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                    :action #'swiper--action
                    :re-builder #'swiper--re-builder
                    :history 'swiper-history
+                   :extra-props (list :fname (buffer-file-name))
                    :caller 'swiper))
             (point))
         (unless (or res swiper-stay-on-quit)
@@ -1614,6 +1627,7 @@ When not running `swiper-isearch' already, start it."
                  :action #'swiper-isearch-action
                  :re-builder #'swiper--re-builder
                  :history 'swiper-history
+                 :extra-props (list :fname (buffer-file-name))
                  :caller 'swiper-isearch))
           (point))
       (unless (or res swiper-stay-on-quit)
