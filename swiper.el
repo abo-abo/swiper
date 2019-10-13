@@ -637,8 +637,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (insert (format "%d candidates:\n" (length cands)))
   (ivy--occur-insert-lines cands)
   (goto-char (point-min))
-  (forward-line 4)
-  (setq-local next-error-function #'ivy-occur-next-error))
+  (forward-line 4))
 
 (defun swiper--occur-buffer ()
   (let ((buffer (ivy-state-buffer ivy-last)))
