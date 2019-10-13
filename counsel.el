@@ -1936,15 +1936,19 @@ The preselect behavior can be customized via user options
         (file-name-nondirectory buffer-file-name))))
 
 (defun counsel--find-file-1 (prompt initial-input action caller)
-  (ivy-read prompt #'read-file-name-internal
-            :matcher #'counsel--find-file-matcher
-            :initial-input initial-input
-            :action action
-            :preselect (counsel--preselect-file)
-            :require-match 'confirm-after-completion
-            :history 'file-name-history
-            :keymap counsel-find-file-map
-            :caller caller))
+  (let ((default-directory
+         (if (eq major-mode 'dired-mode)
+             (dired-current-directory)
+           default-directory)))
+    (ivy-read prompt #'read-file-name-internal
+              :matcher #'counsel--find-file-matcher
+              :initial-input initial-input
+              :action action
+              :preselect (counsel--preselect-file)
+              :require-match 'confirm-after-completion
+              :history 'file-name-history
+              :keymap counsel-find-file-map
+              :caller caller)))
 
 ;;;###autoload
 (defun counsel-find-file (&optional initial-input)
