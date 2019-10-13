@@ -4330,15 +4330,18 @@ Skip buffers that match `ivy-ignore-buffers'."
           (t str))
       str)))
 
-(defun ivy-switch-buffer-occur ()
-  "Occur function for `ivy-switch-buffer' using `ibuffer'."
+(defun ivy-switch-buffer-occur (cands)
+  "Occur function for `ivy-switch-buffer' using `ibuffer'.
+CANDS are the candidates to be displayed."
+  (unless cands
+    (setq cands (all-completions ivy-text #'internal-complete-buffer)))
   (ibuffer
    nil (buffer-name)
    `((or ,@(cl-mapcan
             (lambda (cand)
               (unless (eq (get-text-property 0 'face cand) 'ivy-virtual)
                 `((name . ,(format "\\_<%s\\_>" (regexp-quote cand))))))
-            ivy--old-cands)))))
+            cands)))))
 
 ;;;###autoload
 (defun ivy-switch-buffer ()
@@ -4759,6 +4762,18 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
     (insert (if (string-match-p "\\`.[/\\]" cand) "" "    ")
             cand ?\n)))
 
+(defun ivy--occur-default (cands)
+  "Insert CANDS into the current occur buffer."
+  (unless cands
+    (let ((coll (ivy-state-collection ivy-last)))
+      (when (arrayp coll)
+        (setq coll (all-completions "" coll (ivy-state-predicate ivy-last))))
+      (setq cands (ivy--filter (ivy-state-text ivy-last) coll))))
+  (ivy-occur-mode)
+  (insert (format "%d candidates:\n" (length cands)))
+  (ivy--occur-insert-lines cands)
+  (read-only-mode))
+
 (defun ivy-occur ()
   "Stop completion and put the current candidates into a new buffer.
 
@@ -4772,7 +4787,8 @@ There is no limit on the number of *ivy-occur* buffers."
   (if (not (window-minibuffer-p))
       (user-error "No completion session is active")
     (let* ((caller (ivy-state-caller ivy-last))
-           (occur-fn (plist-get ivy--occurs-list caller))
+           (occur-fn (or (plist-get ivy--occurs-list caller)
+                         #'ivy--occur-default))
            (buffer
             (generate-new-buffer
              (format "*ivy-occur%s \"%s\"*"
@@ -4781,15 +4797,7 @@ There is no limit on the number of *ivy-occur* buffers."
                        "")
                      ivy-text))))
       (with-current-buffer buffer
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-          (if occur-fn
-              (funcall occur-fn)
-            (ivy-occur-mode)
-            (insert (format "%d candidates:\n" (length ivy--old-cands)))
-            (read-only-mode)
-            (ivy--occur-insert-lines
-             ivy--old-cands)))
+        (funcall occur-fn ivy--old-cands)
         (setf (ivy-state-text ivy-last) ivy-text)
         (setq ivy-occur-last ivy-last))
       (ivy-exit-with-action
@@ -4810,13 +4818,13 @@ updated original buffer."
   (interactive)
   (let ((caller (ivy-state-caller ivy-occur-last))
         (ivy-last ivy-occur-last))
-    (when (memq caller (append '(swiper swiper-isearch) ivy-highlight-grep-commands))
-      (let ((inhibit-read-only t)
-            (line (line-number-at-pos)))
-        (erase-buffer)
-        (funcall (plist-get ivy--occurs-list caller))
-        (goto-char (point-min))
-        (forward-line (1- line))))
+    (let ((inhibit-read-only t)
+          (line (line-number-at-pos)))
+      (erase-buffer)
+      (funcall (or (plist-get ivy--occurs-list caller)
+                   #'ivy--occur-default) nil)
+      (goto-char (point-min))
+      (forward-line (1- line)))
     (setq ivy-occur-last ivy-last)))
 
 (declare-function wgrep-change-to-wgrep-mode "ext:wgrep")

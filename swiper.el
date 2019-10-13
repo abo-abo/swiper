@@ -631,13 +631,14 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
     (nreverse res)))
 
 (defun swiper--occur-insert-lines (cands)
-  ;; Need precise number of header lines for `wgrep' to work.
-  (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
-                  default-directory))
-  (insert (format "%d candidates:\n" (length cands)))
-  (ivy--occur-insert-lines cands)
-  (goto-char (point-min))
-  (forward-line 4))
+  (let ((inhibit-read-only t))
+    ;; Need precise number of header lines for `wgrep' to work.
+    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n"
+                    default-directory))
+    (insert (format "%d candidates:\n" (length cands)))
+    (ivy--occur-insert-lines cands)
+    (goto-char (point-min))
+    (forward-line 4)))
 
 (defun swiper--occur-buffer ()
   (let ((buffer (ivy-state-buffer ivy-last)))
@@ -651,7 +652,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (setf (ivy-state-window ivy-last) (selected-window)))
     buffer))
 
-(defun swiper-occur ()
+(defun swiper-occur (&optional cands)
   "Generate a custom occur buffer for `swiper'.
 When capture groups are present in the input, print them instead of lines."
   (let* ((buffer (swiper--occur-buffer))
@@ -669,15 +670,14 @@ When capture groups are present in the input, print them instead of lines."
          (cands
           (swiper--occur-cands
            fname
-           (if (not (eq this-command 'ivy-occur-revert-buffer))
-               ivy--old-cands
-             (setq ivy--old-re nil)
-             (save-window-excursion
-               (switch-to-buffer buffer)
-               (if (eq (ivy-state-caller ivy-last) 'swiper)
-                   (let ((ivy--regex-function 'swiper--re-builder))
-                     (ivy--filter re (swiper--candidates)))
-                 (swiper-isearch-function ivy-text)))))))
+           (or cands
+               (save-window-excursion
+                 (setq ivy--old-re nil)
+                 (switch-to-buffer buffer)
+                 (if (eq (ivy-state-caller ivy-last) 'swiper)
+                     (let ((ivy--regex-function 'swiper--re-builder))
+                       (ivy--filter re (swiper--candidates)))
+                   (swiper-isearch-function ivy-text)))))))
     (if (string-match-p "\\\\(" re)
         (insert
          (mapconcat #'identity
