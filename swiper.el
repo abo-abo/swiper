@@ -652,9 +652,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
       (setf (ivy-state-window ivy-last) (selected-window)))
     buffer))
 
-(defun swiper-occur (&optional revert)
+(defun swiper-occur ()
   "Generate a custom occur buffer for `swiper'.
-When REVERT is non-nil, regenerate the current *ivy-occur* buffer.
 When capture groups are present in the input, print them instead of lines."
   (let* ((buffer (swiper--occur-buffer))
          (fname (propertize
@@ -671,7 +670,7 @@ When capture groups are present in the input, print them instead of lines."
          (cands
           (swiper--occur-cands
            fname
-           (if (not revert)
+           (if (not (eq this-command 'ivy-occur-revert-buffer))
                ivy--old-cands
              (setq ivy--old-re nil)
              (save-window-excursion
