@@ -1808,7 +1808,8 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
                         ivy--directory
                         (lambda (new-name)
                           (dired-copy-file x new-name 1))
-                        'counsel-find-file-copy))
+                        'counsel-find-file-copy
+                        nil))
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
@@ -1829,7 +1830,8 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
                         ivy--directory
                         (lambda (new-name)
                           (dired-rename-file x new-name 1))
-                        'counsel-find-file-move))
+                        'counsel-find-file-move
+                        nil))
 
 (defun counsel-find-file-mkdir-action (_x)
   "Create a directory and any nonexistent parent dirs from `ivy-text'."
@@ -1879,6 +1881,9 @@ but the leading dot is a lot faster."
                  ,(regexp-opt completion-ignored-extensions))
           (regexp :tag "Regex")))
 
+(defvar counsel--find-file-matcher-file-type nil
+  "Indicate the type of file that `counsel-find-file' should match.")
+
 (defun counsel--find-file-matcher (regexp candidates)
   "Return REGEXP matching CANDIDATES.
 Skip some dotfiles unless `ivy-text' requires them."
@@ -1888,6 +1893,15 @@ Skip some dotfiles unless `ivy-text' requires them."
           (lambda (re-str)
             (lambda (x)
               (string-match re-str (directory-file-name x)))))))
+    ;; filter out non-compliant file types
+    (let ((filter (cond ((eq counsel--find-file-matcher-file-type 'directory) #'file-directory-p)
+                        ((eq counsel--find-file-matcher-file-type 'regular) #'file-regular-p))))
+      (when filter
+        (setq res
+              (cl-remove-if-not
+               (lambda (x)
+                 (funcall filter (concat ivy--directory x)))
+               res))))
     (if (or (null ivy-use-ignore)
             (null counsel-find-file-ignore-regexp)
             (string-match-p "\\`\\." ivy-text))
@@ -1935,11 +1949,12 @@ The preselect behavior can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
-(defun counsel--find-file-1 (prompt initial-input action caller)
+(defun counsel--find-file-1 (prompt initial-input action caller file-type)
   (let ((default-directory
          (if (eq major-mode 'dired-mode)
              (dired-current-directory)
-           default-directory)))
+           default-directory))
+        (counsel--find-file-matcher-file-type file-type))
     (ivy-read prompt #'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -1951,14 +1966,17 @@ The preselect behavior can be customized via user options
               :caller caller)))
 
 ;;;###autoload
-(defun counsel-find-file (&optional initial-input)
+(defun counsel-find-file (&optional initial-input file-type)
   "Forward to `find-file'.
-When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
+When INITIAL-INPUT is non-nil, use it in the minibuffer during completion.
+When FILE-TYPE is 'regular, match regular file only.
+When FILE-TYPE is 'directory, match directory only."
   (interactive)
   (counsel--find-file-1
    "Find file: " initial-input
    #'counsel-find-file-action
-   'counsel-find-file))
+   'counsel-find-file
+   file-type))
 
 (ivy-configure 'counsel-find-file
   :occur #'counsel-find-file-occur
@@ -2185,7 +2203,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (counsel--find-file-1
    "Dired (directory): " initial-input
    (lambda (d) (dired (expand-file-name d)))
-   'counsel-dired))
+   'counsel-dired
+   'directory))
 
 (ivy-configure 'counsel-dired
   :display-transformer-fn #'ivy-read-file-transformer)
