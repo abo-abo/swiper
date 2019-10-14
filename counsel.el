@@ -1847,6 +1847,7 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
+   ("R" find-file-read-only "read only")
    ("k" counsel-find-file-delete "delete")
    ("c" counsel-find-file-copy "copy file")
    ("m" counsel-find-file-move "move or rename")
