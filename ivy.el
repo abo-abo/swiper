@@ -3150,12 +3150,14 @@ Should be run via minibuffer `post-command-hook'."
                'ivy--exhibit)))
     (ivy--exhibit)))
 
-(defun ivy--magic-tilde-directory ()
-  "Return an appropriate directory for when ~ or ~/ are entered."
+(defun ivy--magic-tilde-directory (dir)
+  "Return an appropriate home for DIR for when ~ or ~/ are entered."
   (expand-file-name
    (let (remote)
-     (if (and (setq remote (file-remote-p ivy--directory))
-              (not (string-match-p "/home/\\([^/]+\\)/\\'" (file-local-name ivy--directory))))
+     (if (and (setq remote (file-remote-p dir))
+              (let ((local (file-local-name dir)))
+                (not (or (string= "/root/" local)
+                         (string-match-p "/home/\\([^/]+\\)/\\'" local)))))
          (concat remote "~/")
        "~/"))))
 
@@ -3199,7 +3201,7 @@ Should be run via minibuffer `post-command-hook'."
              (cond ((or (string= "~/" ivy-text)
                         (and (string= "~" ivy-text)
                              ivy-magic-tilde))
-                    (ivy--cd (ivy--magic-tilde-directory)))
+                    (ivy--cd (ivy--magic-tilde-directory ivy--directory)))
                    ((string-match "/\\'" ivy-text)
                     (ivy--magic-file-slash))))
             ((eq (ivy-state-collection ivy-last) #'internal-complete-buffer)
