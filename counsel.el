@@ -2540,9 +2540,9 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    (let ((fzf-basename (car (split-string counsel-fzf-cmd))))
      (list nil
            (when current-prefix-arg
-             (read-directory-name (concat
-                                   fzf-basename
-                                   " in directory: "))))))
+             (counsel-read-directory-name (concat
+                                           fzf-basename
+                                           " in directory: "))))))
   (counsel-require-program counsel-fzf-cmd)
   (setq counsel--fzf-dir
         (or initial-directory
@@ -2651,7 +2651,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (interactive
    (list nil
          (when current-prefix-arg
-           (read-directory-name "From directory: "))))
+           (counsel-read-directory-name "From directory: "))))
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
@@ -2685,7 +2685,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (interactive
    (list nil
          (when current-prefix-arg
-           (read-directory-name "From directory: "))))
+           (counsel-read-directory-name "From directory: "))))
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
@@ -2813,9 +2813,9 @@ CALLER is passed to `ivy-read'."
   (when current-prefix-arg
     (setq initial-directory
           (or initial-directory
-              (read-directory-name (concat
-                                    (car (split-string counsel-ag-command))
-                                    " in directory: "))))
+              (counsel-read-directory-name (concat
+                                            (car (split-string counsel-ag-command))
+                                            " in directory: "))))
     (setq extra-ag-args
           (or extra-ag-args
               (read-from-minibuffer (format
@@ -2842,12 +2842,25 @@ CALLER is passed to `ivy-read'."
   :grep-p t
   :exit-codes '(1 "No matches found"))
 
+(defun counsel-read-directory-name (prompt)
+  "Read a directory name from user, a (partial) replacement of `read-directory-name'."
+  (let ((counsel--find-file-predicate #'file-directory-p))
+    (ivy-read prompt
+              #'read-file-name-internal
+              :matcher #'counsel--find-file-matcher
+              :history 'file-name-history
+              :keymap counsel-find-file-map
+              :caller 'counsel-read-directory-name)))
+
+(ivy-configure 'counsel-read-directory-name
+  :display-transformer-fn #'ivy-read-file-transformer)
+
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
 Works for `counsel-git-grep', `counsel-ag', etc."
   (interactive)
   (let ((input ivy-text)
-        (new-dir (read-directory-name "cd: ")))
+        (new-dir (counsel-read-directory-name "cd: ")))
     (ivy-quit-and-run
       (funcall (ivy-state-caller ivy-last) input new-dir))))
 
