@@ -1942,6 +1942,9 @@ The preselect behavior can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
+(defvar counsel--find-file-1-require-match t
+  "The value of :require-match passed to `ivy-read' in `counsel--find-file-1'.")
+
 (defun counsel--find-file-1 (prompt initial-input action caller)
   (let ((default-directory
          (if (eq major-mode 'dired-mode)
@@ -1952,7 +1955,7 @@ The preselect behavior can be customized via user options
               :initial-input initial-input
               :action action
               :preselect (counsel--preselect-file)
-              :require-match 'confirm-after-completion
+              :require-match counsel--find-file-1-require-match
               :history 'file-name-history
               :keymap counsel-find-file-map
               :caller caller)))
@@ -2540,9 +2543,10 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
    (let ((fzf-basename (car (split-string counsel-fzf-cmd))))
      (list nil
            (when current-prefix-arg
-             (read-directory-name (concat
-                                   fzf-basename
-                                   " in directory: "))))))
+             (counsel-read-directory-name (concat
+                                           fzf-basename
+                                           " in directory: ")
+                                          nil nil t)))))
   (counsel-require-program counsel-fzf-cmd)
   (setq counsel--fzf-dir
         (or initial-directory
@@ -2651,7 +2655,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (interactive
    (list nil
          (when current-prefix-arg
-           (read-directory-name "From directory: "))))
+           (counsel-read-directory-name "From directory: " nil nil t))))
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
@@ -2685,7 +2689,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (interactive
    (list nil
          (when current-prefix-arg
-           (read-directory-name "From directory: "))))
+           (counsel-read-directory-name "From directory: " nil nil t))))
   (counsel-require-program find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
@@ -2813,9 +2817,10 @@ CALLER is passed to `ivy-read'."
   (when current-prefix-arg
     (setq initial-directory
           (or initial-directory
-              (read-directory-name (concat
-                                    (car (split-string counsel-ag-command))
-                                    " in directory: "))))
+              (counsel-read-directory-name (concat
+                                            (car (split-string counsel-ag-command))
+                                            " in directory: ")
+                                           nil nil t)))
     (setq extra-ag-args
           (or extra-ag-args
               (read-from-minibuffer (format
@@ -2842,12 +2847,34 @@ CALLER is passed to `ivy-read'."
   :grep-p t
   :exit-codes '(1 "No matches found"))
 
+(defvar counsel-read-directory-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-DEL") 'counsel-up-directory)
+    (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
+    map))
+
+(defun counsel-read-directory-name (prompt &optional dir default-dirname mustmatch initial)
+  "Read a directory name from user, a (partial) replacement of `read-directory-name'.
+Read directory name, prompting with PROMPT and completing in
+directory DIR. DEFAULT-DIRNAME is for the purpose of
+compatibility with `read-directory-name' and is not used. See
+`read-directory-name' for additional parameters."
+  (interactive)
+  (let ((default-directory (or dir default-directory))
+        (counsel--find-file-predicate #'file-directory-p)
+        (counsel--find-file-1-require-match mustmatch)
+        (counsel-find-file-map counsel-read-directory-map))
+    (counsel--find-file-1
+     prompt initial
+     nil
+     'counsel-read-directory-name)))
+
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
 Works for `counsel-git-grep', `counsel-ag', etc."
   (interactive)
   (let ((input ivy-text)
-        (new-dir (read-directory-name "cd: ")))
+        (new-dir (counsel-read-directory-name "cd: " nil nil t)))
     (ivy-quit-and-run
       (funcall (ivy-state-caller ivy-last) input new-dir))))
 

@@ -975,6 +975,13 @@ will bring the behavior in line with the newer Emacsen."
            "DEL C-M-j"
            :dir "/tmp"))))
 
+(ert-deftest ivy-counsel-read-directory-name ()
+  (should
+   (equal (expand-file-name "/tmp/")
+          (ivy-with
+           '(counsel-read-directory-name "cd: " "/tmp")
+           "RET"))))
+
 (ert-deftest ivy-partial-files ()
   (when (file-exists-p "/tmp/ivy-partial-test")
     (delete-directory "/tmp/ivy-partial-test" t))
