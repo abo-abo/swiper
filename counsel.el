@@ -2446,12 +2446,22 @@ string - the full shell command to run."
   (counsel-require-program "mdfind")
   (format "mdfind -name '%s'" input))
 
+(defvar w32-ansi-code-page)
+
 (defun counsel-locate-cmd-es (input)
   "Return a shell command based on INPUT."
   (counsel-require-program "es.exe")
-  (format "es.exe -i -r -p %s"
-          (counsel--elisp-to-pcre
-           (ivy--regex input t))))
+  (let ((raw-string (format "es.exe -i -r -p %s"
+                            (counsel--elisp-to-pcre
+                             (ivy--regex input t)))))
+    ;; W32 don't use Unicode by default, so we encode search command
+    ;; to local codepage to support searching filename contains non-ASCII
+    ;; characters.
+    (if (and (eq system-type 'windows-nt)
+             (boundp 'w32-ansi-code-page))
+        (encode-coding-string raw-string
+                              (intern (format "cp%d" w32-ansi-code-page)))
+      raw-string)))
 
 (defun counsel-locate-function (input)
   "Call the \"locate\" shell command with INPUT."
