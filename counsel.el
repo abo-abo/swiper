@@ -1316,7 +1316,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
-(defvar counsel-git-grep-cmd-default "git --no-pager grep --full-name -n --no-color -i -I -e \"%s\""
+(defvar counsel-git-grep-cmd-default "git --no-pager grep -n --no-color -i -I -e \"%s\""
   "Initial command for `counsel-git-grep'.")
 
 (defvar counsel-git-grep-cmd nil
