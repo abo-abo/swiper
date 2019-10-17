@@ -2801,7 +2801,9 @@ NEEDLE is the search string."
             (regex (counsel--grep-regex search-term))
             (switches (concat (car command-args)
                               (counsel--ag-extra-switches regex)
-                              (and (ivy--case-fold-p string) " -i "))))
+                              (if (ivy--case-fold-p string)
+                                  " -i "
+                                " -s "))))
        (counsel--async-command (counsel--format-ag-command
                                 switches
                                 (shell-quote-argument regex)))
