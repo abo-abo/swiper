@@ -6116,11 +6116,11 @@ Additional actions:\\<ivy-minibuffer-map>
   '((google
      "http://suggestqueries.google.com/complete/search"
      "https://www.google.com/search?q="
-     #'counsel--search-request-data-google)
+     counsel--search-request-data-google)
     (ddg
      "https://duckduckgo.com/ac/"
      "https://duckduckgo.com/html/?q="
-     #'counsel--search-request-data-ddg))
+     counsel--search-request-data-ddg))
   "Search engine parameters for `counsel-search'."
   :type '(list))
 
@@ -6136,20 +6136,19 @@ Return 0 tells `ivy--exhibit' not to update the minibuffer.
 We update it in the callback with `ivy-update-candidates'."
   (or
    (ivy-more-chars)
-   (progn
-     (let ((engine (cdr (assoc counsel-search-engine counsel-search-engines-alist))))
-       (request
-        (nth 0 engine)
-        :type "GET"
-        :params (list
-                 (cons "client" "firefox")
-                 (cons "q" input))
-        :parser 'json-read
-        :success (cl-function
-                  (lambda (&key data &allow-other-keys)
-                    (ivy-update-candidates
-                     (funcall (nth 2 engine) data)))))
-       0))))
+   (let ((engine (cdr (assoc counsel-search-engine counsel-search-engines-alist))))
+     (request
+      (nth 0 engine)
+      :type "GET"
+      :params (list
+               (cons "client" "firefox")
+               (cons "q" input))
+      :parser 'json-read
+      :success (cl-function
+                (lambda (&key data &allow-other-keys)
+                  (ivy-update-candidates
+                   (funcall (nth 2 engine) data)))))
+     0)))
 
 (defun counsel-search-action (x)
   "Search for X."
