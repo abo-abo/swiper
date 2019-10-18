@@ -868,7 +868,7 @@ key (a string), cmd and doc (a string)."
   :type '(radio
           (function-item ivy-read-action-by-key)
           (function-item ivy-read-action-ivy)
-          (function-item ivy-read-action-hydra)))
+          (function-item ivy-hydra-read-action)))
 
 (defun ivy-read-action ()
   "Change the action to one of the available ones.
@@ -925,8 +925,9 @@ selection, non-nil otherwise."
 (defun ivy-dispatching-done ()
   "Select one of the available actions and call `ivy-done'."
   (interactive)
-  (when (ivy-read-action)
-    (ivy-done))
+  (let ((ivy-exit 'ivy-dispatching-done))
+    (when (ivy-read-action)
+      (ivy-done)))
   (ivy-shrink-after-dispatching))
 
 (defun ivy-dispatching-call ()

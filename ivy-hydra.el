@@ -62,7 +62,7 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
   ("t" ivy-toggle-marks)
   ;; actions
   ("o" keyboard-escape-quit :exit t)
-  ("r" ivy-dispatching-done-hydra :exit t)
+  ("r" ivy-dispatching-done :exit t)
   ("C-g" keyboard-escape-quit :exit t)
   ("i" nil)
   ("C-o" nil)
@@ -94,13 +94,12 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
 
 (defvar ivy-dispatching-done-hydra-exit-keys '(("M-o" nil "back")
                                                ("C-g" nil))
-  "Keys that can be used to exit `ivy-dispatching-done-hydra'.")
+  "Keys that can be used to exit `ivy-hydra-read-action'.")
 
-(defun ivy-dispatching-done-hydra ()
+(defun ivy-hydra-read-action (actions)
   "Select one of the available actions and call `ivy-done'."
   (interactive)
-  (let* ((actions (ivy-state-action ivy-last))
-         (extra-actions ivy-dispatching-done-hydra-exit-keys)
+  (let* ((extra-actions ivy-dispatching-done-hydra-exit-keys)
          (doc (concat "action: "
                       (mapconcat
                        (lambda (x) (format "[%s] %s" (nth 0 x) (nth 2 x)))
@@ -121,12 +120,13 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
                        (list (nth 0 x)
                              `(progn
                                 (setcar (ivy-state-action ivy-last) ,(cl-incf i))
-                                (ivy-done))
+                                ,(when (eq ivy-exit 'ivy-dispatching-done)
+                                   '(ivy-done)))
                              (nth 2 x)))
                      (cdr actions))
-           ,@extra-actions))))))
+           ,@extra-actions)))
+      nil)))
 
-(setq ivy-read-action-function (lambda (_) (ivy-dispatching-done-hydra)))
 
 (provide 'ivy-hydra)
 
