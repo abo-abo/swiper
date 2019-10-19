@@ -2187,11 +2187,8 @@ This is useful for recursive `ivy-read'."
          (sort (or (ivy-state-sort state) (assoc caller ivy-sort-functions-alist)))
          (initial-input
           (or (ivy-state-initial-input state)
-              (let ((init (cdr (assq caller ivy-initial-inputs-alist))))
-                (cond ((functionp init)
-                       (funcall init))
-                      (t
-                       init)))))
+              (let ((init (ivy-alist-setting ivy-initial-inputs-alist caller)))
+                (if (functionp init) (funcall init) init))))
          (def (ivy-state-def state)))
     (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
