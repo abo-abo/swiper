@@ -1316,7 +1316,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
-(defvar counsel-git-grep-cmd-default "git --no-pager grep -n --no-color -i -I -e \"%s\""
+(defvar counsel-git-grep-cmd-default "git --no-pager grep -n --no-color -I -e \"%s\""
   "Initial command for `counsel-git-grep'.")
 
 (defvar counsel-git-grep-cmd nil
@@ -1362,7 +1362,9 @@ Typical value: '(recenter)."
    (ivy-more-chars)
    (progn
      (counsel--async-command
-      (funcall counsel-git-grep-cmd-function string))
+      (concat
+       (funcall counsel-git-grep-cmd-function string)
+       (if (ivy--case-fold-p string) " -i" "")))
      nil)))
 
 (defun counsel-git-grep-action (x)
@@ -1511,7 +1513,10 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
    (ivy-more-chars)
    (let ((regex (setq ivy--old-re
                       (ivy--regex str t))))
-     (counsel--async-command (format counsel-git-grep-cmd regex))
+     (counsel--async-command
+      (concat
+       (format counsel-git-grep-cmd regex)
+       (if (ivy--case-fold-p str) " -i" "")))
      nil)))
 
 (defun counsel-git-grep-switch-cmd ()
