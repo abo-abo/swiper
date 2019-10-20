@@ -5729,7 +5729,8 @@ This variable is suitable for addition to
 `savehist-additional-variables'.")
 
 (defvar counsel-compile-root-functions
-  '(counsel--project-current
+  '(counsel--projectile-root
+    counsel--project-current
     counsel--configure-root
     counsel--git-root
     counsel--dir-locals-root)
@@ -5743,6 +5744,12 @@ found.")
 The root is determined by `counsel-compile-root-functions'."
   (or (run-hook-with-args-until-success 'counsel-compile-root-functions)
       (error "Couldn't find project root")))
+
+(defun counsel--projectile-root ()
+  "Return root of current projectile project or nil on failure.
+Use `projectile-project-root' to determine the root."
+  (and (fboundp 'projectile-project-root)
+       (projectile-project-root)))
 
 (defun counsel--project-current ()
   "Return root of current project or nil on failure.
