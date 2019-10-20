@@ -5991,6 +5991,14 @@ specified by the `blddir' property."
             :action #'counsel-compile--action
             :caller 'counsel-compile))
 
+(defun counsel-compile-forget-command (cmd)
+  "Delete CMD from `counsel-compile-history'."
+  (setq counsel-compile-history
+        (delete cmd counsel-compile-history)))
+
+(ivy-add-actions
+ 'counsel-compile
+ '(("d" counsel-compile-forget-command "delete")))
 
 (defun counsel-compile-env--format-hint (cands)
   "Return a formatter for compile-env CANDS."
