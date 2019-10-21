@@ -565,7 +565,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (let ((thing (ivy-thing-at-point)))
     (when (use-region-p)
       (deactivate-mark))
-    (swiper thing)))
+    (swiper (regexp-quote thing))))
 
 ;;;###autoload
 (defun swiper-all-thing-at-point ()
@@ -574,7 +574,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   (let ((thing (ivy-thing-at-point)))
     (when (use-region-p)
       (deactivate-mark))
-    (swiper-all thing)))
+    (swiper-all (regexp-quote thing))))
 
 (defun swiper--extract-matches (regex cands)
   "Extract captured REGEX groups from CANDS."
