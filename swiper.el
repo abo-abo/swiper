@@ -1100,6 +1100,7 @@ WND, when specified is the window."
         (swiper--remember-search-history re)))))
 
 (defun swiper--remember-search-history (re)
+  "Add the search pattern RE to the search history ring."
   (add-to-history
    'regexp-search-ring
    re
@@ -1460,7 +1461,8 @@ that we search only for one character."
           (goto-char (match-beginning 0)))
         (isearch-range-invisible (point) (1+ (point)))
         (swiper--maybe-recenter)
-        (unless (eq ivy-exit 'done)
+        (if (eq ivy-exit 'done)
+            (swiper--remember-search-history (ivy--regex ivy-text))
           (swiper--cleanup)
           (swiper--delayed-add-overlays)
           (swiper--add-cursor-overlay
