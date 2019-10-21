@@ -1097,20 +1097,23 @@ WND, when specified is the window."
             (when (eq ivy-exit 'done)
               (push-mark swiper--opoint t)
               (message "Mark saved where search started"))))
-        (add-to-history
-         'regexp-search-ring
-         re
-         regexp-search-ring-max)
-        ;; integration with evil-mode's search
-        (when (bound-and-true-p evil-mode)
-          (when (eq evil-search-module 'isearch)
-            (setq isearch-string ivy-text))
-          (when (eq evil-search-module 'evil-search)
-            (add-to-history 'evil-ex-search-history re)
-            (setq evil-ex-search-pattern (list re t t))
-            (setq evil-ex-search-direction 'forward)
-            (when evil-ex-search-persistent-highlight
-              (evil-ex-search-activate-highlight evil-ex-search-pattern))))))))
+        (swiper--remember-search-history re)))))
+
+(defun swiper--remember-search-history (re)
+  (add-to-history
+   'regexp-search-ring
+   re
+   regexp-search-ring-max)
+  ;; integration with evil-mode's search
+  (when (bound-and-true-p evil-mode)
+    (when (eq evil-search-module 'isearch)
+      (setq isearch-string ivy-text))
+    (when (eq evil-search-module 'evil-search)
+      (add-to-history 'evil-ex-search-history re)
+      (setq evil-ex-search-pattern (list re t t))
+      (setq evil-ex-search-direction 'forward)
+      (when evil-ex-search-persistent-highlight
+        (evil-ex-search-activate-highlight evil-ex-search-pattern)))))
 
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
