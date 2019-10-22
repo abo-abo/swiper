@@ -2946,7 +2946,9 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
   (interactive)
   (let ((counsel-ag-base-command counsel-ack-base-command)
         (counsel--grep-tool-look-around t))
-    (counsel-ag initial-input :caller 'counsel-ack)))
+    (counsel-ag
+     initial-input nil nil nil
+     :caller 'counsel-ack)))
 
 
 ;;** `counsel-rg'
