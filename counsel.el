@@ -1957,7 +1957,7 @@ The preselect behavior can be customized via user options
               :initial-input initial-input
               :action action
               :preselect (counsel--preselect-file)
-              :require-match 'confirm-after-completion
+              :require-match nil
               :history 'file-name-history
               :keymap counsel-find-file-map
               :caller caller)))
@@ -2675,7 +2675,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :initial-input initial-input
               :action #'find-file
               :preselect (counsel--preselect-file)
-              :require-match 'confirm-after-completion
+              :require-match nil
               :history 'file-name-history
               :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))

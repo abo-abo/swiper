@@ -760,8 +760,7 @@ candidate, not the prompt."
 (defun ivy--prompt-selectable-p ()
   "Return t if the prompt line is selectable."
   (and ivy-use-selectable-prompt
-       (or (memq (ivy-state-require-match ivy-last)
-                 '(nil confirm confirm-after-completion))
+       (or (null (ivy-state-require-match ivy-last))
            ;; :require-match is t, but "" is in the collection
            (let ((coll (ivy-state-collection ivy-last)))
              (and (listp coll)
@@ -795,8 +794,7 @@ candidate, not the prompt."
              (setq ivy--prompt-extra " (confirm)")
              (insert ivy-text)
              (ivy--exhibit)))
-          ((memq (ivy-state-require-match ivy-last)
-                 '(nil confirm confirm-after-completion))
+          ((null (ivy-state-require-match ivy-last))
            (ivy--done ivy-text))
           (t
            (setq ivy--prompt-extra " (match required)")
