@@ -2876,6 +2876,7 @@ CALLER is passed to `ivy-read'."
   "Change the directory for the currently running Ivy grep-like command.
 Works for `counsel-git-grep', `counsel-ag', etc."
   (interactive)
+  (counsel-delete-process)
   (let ((input ivy-text)
         (new-dir (counsel-read-directory-name "cd: ")))
     (ivy-quit-and-run
