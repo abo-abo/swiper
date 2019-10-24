@@ -40,6 +40,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'swiper)
 (require 'compile)
 (require 'dired)
@@ -6242,6 +6243,55 @@ Local bindings (`counsel-mode-map'):
           'counsel-minibuffer-history))
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
+
+(defun counsel--compilation-errors-buffer (buf)
+  (require 'compile)
+  (save-excursion
+    (with-current-buffer buf
+      (let ((res '())
+            (pt (point-min)))
+        (while (setq pt (compilation-next-single-property-change
+                         pt 'compilation-message))
+          (let ((loc (get-text-property pt 'compilation-message)))
+            (when loc
+              (let* ((loc (compilation--message->loc loc))
+                     (fs (compilation--loc->file-struct loc))
+                     (file-name (caar fs))
+                     (line-number (compilation--loc->line loc)))
+                (push (propertize
+                       (format "%d:%s" line-number file-name)
+                       'filename (concat default-directory file-name)
+                       'line line-number) res)))))
+        (nreverse res)))))
+
+(defun counsel--collect-compilation-errors ()
+  (cl-loop
+   for buf in (buffer-list)
+   when (compilation-buffer-p buf)
+   nconc
+   (counsel--compilation-errors-buffer buf)))
+
+(defun counsel--compilation-error-action (x)
+  (with-ivy-window
+    (let* ((file-name (get-text-property 0 'filename x))
+           (line-number (get-text-property 0 'line x)))
+      ;; If the file buffer is already open, just get it. Prevent doing
+      ;; `find-file', as that file could have already been opened using
+      ;; `find-file-literally'.
+      (with-current-buffer (or (get-file-buffer file-name)
+                               (find-file file-name))
+        (switch-to-buffer (current-buffer))
+        (goto-char (point-min))
+        (forward-line line-number)))))
+
+;;;###autoload
+(defun counsel-compilation-errors ()
+  "Compilation errors"
+  (interactive)
+  (ivy-read "compilation errors: " (counsel--collect-compilation-errors)
+            :require-match t
+            :action #'counsel--compilation-error-action
+            :history 'counsel-compilation-errors-history))
 
 (provide 'counsel)
 
