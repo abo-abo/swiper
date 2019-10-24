@@ -6238,6 +6238,44 @@ We update it in the callback with `ivy-update-candidates'."
 (define-obsolete-function-alias 'counsel-google
     'counsel-search "<2019-10-17 Thu>")
 
+;;* `counsel-compilation-errors'
+(defun counsel--compilation-errors-buffer (buf)
+  (with-current-buffer buf
+    (let ((res nil)
+          (pt (point-min)))
+      (while (setq pt (compilation-next-single-property-change
+                       pt 'compilation-message))
+        (let ((loc (get-text-property pt 'compilation-message)))
+          (when (and loc (setq loc (compilation--message->loc loc)))
+            (let* ((fs (compilation--loc->file-struct loc))
+                   (file-name (caar fs))
+                   (line-number (compilation--loc->line loc)))
+              (push (propertize
+                     (format "%d:%s" line-number file-name)
+                     'pt pt
+                     'buffer buf) res)))))
+      (nreverse res))))
+
+(defun counsel-compilation-errors-cands ()
+  (cl-loop
+     for buf in (buffer-list)
+     when (compilation-buffer-p buf)
+     nconc (counsel--compilation-errors-buffer buf)))
+
+(defun counsel-compilation-errors-action (x)
+  (pop-to-buffer (get-text-property 0 'buffer x))
+  (goto-char (get-text-property 0 'pt x))
+  (compile-goto-error))
+
+;;;###autoload
+(defun counsel-compilation-errors ()
+  "Compilation errors."
+  (interactive)
+  (ivy-read "compilation errors: " (counsel-compilation-errors-cands)
+            :require-match t
+            :action #'counsel-compilation-errors-action
+            :history 'counsel-compilation-errors-history))
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
