@@ -409,7 +409,13 @@ Update the minibuffer with the amount of lines collected every
                 :caller 'counsel-company))))
 
 (ivy-configure 'counsel-company
+  :display-transformer-fn #'counsel--company-display-transformer
   :unwind-fn #'company-abort)
+
+(defun counsel--company-display-transformer (s)
+  (concat s (let ((annot (company-call-backend 'annotation s)))
+              (when annot
+                (company--clean-string annot)))))
 
 ;;** `counsel-irony'
 (declare-function irony-completion-candidates-async "ext:irony-completion")
