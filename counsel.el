@@ -1948,7 +1948,8 @@ The preselect behavior can be customized via user options
    (when counsel-find-file-at-point
      (require 'ffap)
      (let ((f (ffap-guesser)))
-       (when f (expand-file-name f))))
+       (when (and f (not (ivy-ffap-url-p f)))
+         (expand-file-name f))))
    (and counsel-preselect-current-file
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
