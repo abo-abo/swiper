@@ -1585,10 +1585,10 @@ When not running `swiper-isearch' already, start it."
         (dotimes (_ (1+ j))
           (string-match regex current-str start)
           (setq start (match-end 0)))
-        (swiper--isearch-highlight current-str j)
-        (font-lock-append-text-property
+        (font-lock-prepend-text-property
          0 (length current-str)
          'face 'swiper-line-face current-str)
+        (swiper--isearch-highlight current-str j)
         (push current-str res))
       (cl-incf len)
       (setq i (1+ index))
