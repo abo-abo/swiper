@@ -709,13 +709,13 @@ N is obtained from `ivy-more-chars-alist'."
                       ,@body)))
      (abort-recursive-edit)))
 
-(defun ivy-exit-with-action (action)
+(defun ivy-exit-with-action (action &optional exit-code)
   "Quit the minibuffer and call ACTION afterwards."
   (ivy-set-action
    `(lambda (x)
       (funcall ',action x)
       (ivy-set-action ',(ivy-state-action ivy-last))))
-  (setq ivy-exit 'done)
+  (setq ivy-exit (or exit-code 'done))
   (exit-minibuffer))
 
 (defmacro with-ivy-window (&rest body)
@@ -1532,7 +1532,8 @@ If so, move to that directory, while keeping only the file name."
                            :initial-value nil))))
           (ivy-exit-with-action
            (lambda (_)
-             (ivy-ffap-url-fetcher url)))
+             (ivy-ffap-url-fetcher url))
+           'no-update-history)
         (setq input (expand-file-name input))
         (let ((file (file-name-nondirectory input))
               (dir (expand-file-name (file-name-directory input))))
@@ -2132,20 +2133,23 @@ customizations apply to the current completion session."
                 (ivy-state-initial-input ivy-last)
                 (make-composed-keymap keymap ivy-minibuffer-map)
                 nil
-                hist))
+                hist)
+               (pop (symbol-value hist)))
              (when (eq ivy-exit 'done)
-               (let ((item (if ivy--directory
-                               (ivy-state-current ivy-last)
-                             ivy-text)))
-                 (unless (equal item "")
-                   (set hist (cons (propertize item 'ivy-index ivy--index)
-                                   (delete item
-                                           (cdr (symbol-value hist))))))))
+               (ivy--update-history hist))
              (setq result (ivy-state-current ivy-last))))
       (ivy--cleanup))
     (ivy-call)
     (ivy--remove-props (ivy-state-current ivy-last) 'idx)
     result))
+
+(defun ivy--update-history (hist)
+  (let ((item (if ivy--directory
+                  (ivy-state-current ivy-last)
+                ivy-text)))
+    (unless (equal item "")
+      (set hist (cons (propertize item 'ivy-index ivy--index)
+                      (delete item (symbol-value hist)))))))
 
 (defun ivy--cleanup ()
   ;; Fixes a bug in ESS, #1660
