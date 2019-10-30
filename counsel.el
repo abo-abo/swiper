@@ -389,6 +389,8 @@ Update the minibuffer with the amount of lines collected every
 (declare-function company-abort "ext:company")
 (declare-function company-complete "ext:company")
 (declare-function company-mode "ext:company")
+(declare-function company-call-backend "ext:company")
+(declare-function company--clean-string "ext:company")
 
 ;;;###autoload
 (defun counsel-company ()
