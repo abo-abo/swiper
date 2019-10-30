@@ -1910,7 +1910,7 @@ Skip some dotfiles unless `ivy-text' requires them."
         (setq res (cl-remove-if-not counsel--find-file-predicate res))))
     (if (or (null ivy-use-ignore)
             (null counsel-find-file-ignore-regexp)
-            (string-match-p "\\`\\." ivy-text))
+            (string-match-p counsel-find-file-ignore-regexp ivy-text))
         res
       (or (cl-remove-if
            (lambda (x)
@@ -2022,7 +2022,7 @@ If USE-IGNORE is non-nil, try to generate a command that respects
         (when (and use-ignore ivy-use-ignore
                    counsel-find-file-ignore-regexp
                    (cdr filter-cmd)
-                   (not (string-match-p "\\`\\." ivy-text))
+                   (not (string-match-p counsel-find-file-ignore-regexp ivy-text))
                    (not (string-match-p counsel-find-file-ignore-regexp
                                         (or (car ivy--old-cands) ""))))
           (let ((ignore-re (list (counsel--elisp-to-pcre
