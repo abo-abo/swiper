@@ -1567,7 +1567,10 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
                               (format "| grep -v %s" (car x))))
                        regex
                        " "))))
-    (concat (format counsel-git-grep-cmd positive-pattern) negative-patterns)))
+    (concat
+     (format counsel-git-grep-cmd positive-pattern)
+     negative-patterns
+     (if (ivy--case-fold-p input) " -i" ""))))
 
 (defun counsel-git-grep-occur (&optional _cands)
   "Generate a custom occur buffer for `counsel-git-grep'."
