@@ -3037,11 +3037,16 @@ substituted by the search regexp and file, respectively.  Neither
   "Grep in the current directory for STRING."
   (or
    (ivy-more-chars)
-   (let ((regex (counsel--elisp-to-pcre
-                 (setq ivy--old-re
-                       (ivy--regex string)))))
+   (let* ((regex (counsel--elisp-to-pcre
+                  (setq ivy--old-re
+                        (ivy--regex string))))
+          (cmd (format counsel-grep-command (shell-quote-argument regex))))
      (counsel--async-command
-      (format counsel-grep-command (shell-quote-argument regex)))
+      (if (ivy--case-fold-p regex)
+          (progn
+            (string-match " " cmd)
+            (replace-match " -i " nil nil cmd))
+        cmd))
      nil)))
 
 (defvar counsel--grep-last-pos nil
