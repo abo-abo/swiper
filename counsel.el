@@ -1,5 +1,4 @@
 ;;; counsel.el --- Various completion functions using Ivy -*- lexical-binding: t -*-
-
 ;; Copyright (C) 2015-2019  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
@@ -6208,28 +6207,88 @@ We update it in the callback with `ivy-update-candidates'."
             :caller 'counsel-search))
 
 (define-obsolete-function-alias 'counsel-google
-    'counsel-search "<2019-10-17 Thu>")
+  'counsel-search "<2019-10-17 Thu>")
+
+;;* `counsel-info'
+
+(defun counsel-info--top-level-nodes ()
+  "Return list of top-level info nodes to use for `counsel-info'.
+Elements of the list are strings of Info file names without
+extensions (e.g. \"emacs\" for file \"emacs.info.gz\"). Info
+files are found by searching directories in `Info-directory-list'."
+  (info-initialize)
+  (let (files nodes)
+    (dolist (dir (or Info-directory-list Info-default-directory-list))
+      (when (file-directory-p dir)
+        (setq files (append files (directory-files dir nil "\\.info")))))
+    (save-match-data
+      (dolist (file files)
+        (string-match "\\(.+?\\)\\..+" file)
+        (push (match-string 1 file) nodes)))
+    (cl-remove-duplicates (nreverse nodes) :test 'equal)))
+
+(defvar counsel-info--node-line-regexp
+  "\\* +\\([^\n]*.+[^\n]*\\):[\011 ]+\\([^\n]*\\)\\.\\(?:[\011\n ]*(line +\\([0-9]+\\))\\)?"
+  "Regexp used to find info-node lines.")
+
+(defun counsel-info--child-node-lines (top-node)
+  "Return a list of child nodes and their description as strings."
+  (with-temp-buffer
+    (save-selected-window
+      (info top-node (current-buffer))
+      (let (collection Info-history start end line)
+        (cl-dolist (node (Info-index-nodes))
+          (Info-goto-node node)
+          (goto-char (point-min))
+          (while (search-forward "\n* " nil t)
+            (unless (search-forward "Menu:\n" (1+ (point-at-eol)) t)
+              (setq start (point-at-bol)
+                    end (or (save-excursion
+                              (goto-char (point-at-bol))
+                              (re-search-forward "(line +[0-9]+)" nil t))
+                            (point-at-eol))
+                    line (replace-regexp-in-string
+                          "\n" "" (buffer-substring start end)))
+              (push line collection))))
+        (nreverse collection)))))
+
+(defun counsel-info--action (top-node)
+  "Prompt for node to jump to based on TOP-NODE."
+  (ivy-read "Child Node: " (counsel-info--child-node-lines top-node)
+            :action (lambda (line)
+                      (string-match "\\*[[:space:]].+:[[:space:]]+\\(.+\\)\\." line)
+                      (Info-goto-node (format "(%s)%s" top-node (match-string 1 line))))))
+
+;;;###autoload
+(defun counsel-info ()
+  "Search the child-nodes of a select top-level Info node.
+First prompt for the specific node to search in (ie. emacs, elisp,
+org-mode). Then search the child nodes (along with their description) of that
+node."
+  (interactive)
+  (ivy-read "Top Node: " (counsel-info--top-level-nodes)
+            :action #'counsel-info--action))
 
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
     (dolist (binding
-              '((execute-extended-command . counsel-M-x)
-                (describe-bindings . counsel-descbinds)
-                (describe-function . counsel-describe-function)
-                (describe-variable . counsel-describe-variable)
-                (apropos-command . counsel-apropos)
-                (describe-face . counsel-describe-face)
-                (list-faces-display . counsel-faces)
-                (find-file . counsel-find-file)
-                (find-library . counsel-find-library)
-                (imenu . counsel-imenu)
-                (load-library . counsel-load-library)
-                (load-theme . counsel-load-theme)
-                (yank-pop . counsel-yank-pop)
-                (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-to-mark-command . counsel-mark-ring)
-                (bookmark-jump . counsel-bookmark)))
+             '((execute-extended-command . counsel-M-x)
+               (describe-bindings . counsel-descbinds)
+               (describe-function . counsel-describe-function)
+               (describe-variable . counsel-describe-variable)
+               (apropos-command . counsel-apropos)
+               (describe-face . counsel-describe-face)
+               (list-faces-display . counsel-faces)
+               (find-file . counsel-find-file)
+               (find-library . counsel-find-library)
+               (imenu . counsel-imenu)
+               (load-library . counsel-load-library)
+               (load-theme . counsel-load-theme)
+               (yank-pop . counsel-yank-pop)
+               (info-lookup-symbol . counsel-info-lookup-symbol)
+               (pop-to-mark-command . counsel-mark-ring)
+               (bookmark-jump . counsel-bookmark)))
       (define-key map (vector 'remap (car binding)) (cdr binding)))
     map)
   "Map for `counsel-mode'.
