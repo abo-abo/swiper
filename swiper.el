@@ -158,7 +158,11 @@ Treated as non-nil when searching backwards."
        (propertize
         (if (stringp lisp)
             lisp
-          ivy-text)
+          (set-match-data (overlay-get ov 'md))
+          (condition-case nil
+              (with-current-buffer (nth 4 (overlay-get ov 'md))
+                (match-substitute-replacement ivy-text))
+            (error ivy-text)))
         'face 'error)))))
 
 (defun swiper--query-replace-cleanup ()
@@ -174,13 +178,14 @@ Treated as non-nil when searching backwards."
         (while (and (re-search-forward re end t)
                     (not (eobp)))
           (let ((ov (make-overlay (1- (match-end 0)) (match-end 0)))
-                (md (match-data)))
+                (md (match-data t)))
             (overlay-put
              ov 'matches
              (mapcar
               (lambda (x)
                 (list `(match-string ,x) (match-string x)))
               (number-sequence 0 (1- (/ (length md) 2)))))
+            (overlay-put ov 'md md)
             (push ov swiper--query-replace-overlays))
           (unless (> (match-end 0) (match-beginning 0))
             (forward-char)))))))
