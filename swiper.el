@@ -175,8 +175,7 @@ Treated as non-nil when searching backwards."
           (re (ivy--regex ivy-text)))
       (save-excursion
         (beginning-of-line)
-        (while (and (re-search-forward re end t)
-                    (not (eobp)))
+        (while (re-search-forward re end t)
           (let ((ov (make-overlay (1- (match-end 0)) (match-end 0)))
                 (md (match-data t)))
             (overlay-put
@@ -228,6 +227,7 @@ Treated as non-nil when searching backwards."
 
 (ivy-configure 'swiper-query-replace
   :update-fn #'swiper--query-replace-updatefn)
+(put 'swiper-query-replace 'no-counsel-M-x t)
 
 (defvar inhibit-message)
 
