@@ -1362,7 +1362,9 @@ See `ivy-format-functions-alist' for further information."
       (save-excursion
         (goto-char (if backward (point-max) (point-min)))
         (while (and (funcall (if backward #'re-search-backward #'re-search-forward) re nil t)
-                    (not (if backward (bobp) (eobp))))
+                    (not (and
+                          (= (match-beginning 0) (match-end 0))
+                          (if backward (bobp) (eobp)))))
           (when (swiper-match-usable-p)
             (let ((pos (if (or backward swiper-goto-start-of-match)
                            (match-beginning 0)
