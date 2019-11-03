@@ -1505,6 +1505,7 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
                 :keymap counsel-git-grep-map
                 :action #'counsel-git-grep-action
                 :history 'counsel-git-grep-history
+                :require-match t
                 :caller 'counsel-git-grep))))
 
 (ivy-configure 'counsel-git-grep
