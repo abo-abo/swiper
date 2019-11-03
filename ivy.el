@@ -521,6 +521,8 @@ the restoring themselves.")
 
 (defvar inhibit-message)
 
+(defvar ffap-machine-p-known)
+
 (defun ivy-thing-at-point ()
   "Return a string that corresponds to the current thing at point."
   (substring-no-properties
@@ -532,7 +534,8 @@ the restoring themselves.")
         (buffer-substring-no-properties beg (min end eol))))
      ((thing-at-point 'url))
      ((and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
-           (let ((inhibit-message t))
+           (let ((inhibit-message t)
+                 (ffap-machine-p-known 'reject))
              (run-hook-with-args-until-success 'file-name-at-point-functions))))
      ((let ((s (thing-at-point 'symbol)))
         (and (stringp s)
