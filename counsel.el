@@ -2863,6 +2863,7 @@ CALLER is passed to `ivy-read'."
               :keymap counsel-ag-map
               :history 'counsel-git-grep-history
               :action #'counsel-git-grep-action
+              :require-match t
               :caller (or caller 'counsel-ag))))
 
 (ivy-configure 'counsel-ag
