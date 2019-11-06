@@ -3200,14 +3200,14 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--magic-tilde-directory (dir)
   "Return an appropriate home for DIR for when ~ or ~/ are entered."
-  (expand-file-name
-   (let (remote)
-     (if (and (setq remote (file-remote-p dir))
-              (let ((local (file-local-name dir)))
-                (not (or (string= "/root/" local)
-                         (string-match-p "/home/\\([^/]+\\)/\\'" local)))))
-         (concat remote "~/")
-       "~/"))))
+  (file-name-as-directory
+   (expand-file-name
+    (let* ((home (expand-file-name (concat (file-remote-p dir) "~/")))
+           (dir-path (file-local-name dir))
+           (home-path (file-local-name home)))
+      (if (string= dir-path home-path)
+          "~"
+        home)))))
 
 (defun ivy-update-candidates (cands)
   (ivy--insert-minibuffer
