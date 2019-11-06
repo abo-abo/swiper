@@ -4710,7 +4710,7 @@ Make swiper occur wgrep work for narrowed buffers. See [[https://github.com/abo-
 
 Don't setq-local el:ivy--directory. See [[https://github.com/abo-abo/swiper/issues/1866][#1866]].
 
-Don't hightlight the file name part. See [[https://github.com/abo-abo/swiper/issues/2073][#2073]].
+Don't highlight the file name part. See [[https://github.com/abo-abo/swiper/issues/2073][#2073]].
 
 Fix missing line numbers. See [[https://github.com/abo-abo/swiper/issues/2076][#2076]].
 
@@ -5648,7 +5648,7 @@ Example:
 :PROPERTIES:
 :CUSTOM_ID: 0.13.0-nf-ivy-use-virtual-buffers
 :END:
-Allow to choose beween: recent files, or bookmarks, or both, or none. See [[https://github.com/abo-abo/swiper/issues/2169][#2169]], [[https://github.com/abo-abo/swiper/issues/2172][#2172]].
+Allow to choose between: recent files, or bookmarks, or both, or none. See [[https://github.com/abo-abo/swiper/issues/2169][#2169]], [[https://github.com/abo-abo/swiper/issues/2172][#2172]].
 -----
 *** swiper-goto-start-of-match
 :PROPERTIES:
