@@ -1395,7 +1395,7 @@ Typical value: '(recenter)."
         (swiper--add-overlays (ivy--regex ivy-text))))))
 
 (defun counsel-git-grep-transformer (str)
-  "Higlight file and line number in STR."
+  "Highlight file and line number in STR."
   (when (string-match "\\`\\([^:]+\\):\\([^:]+\\):" str)
     (ivy-add-face-text-property (match-beginning 1) (match-end 1)
                                 'ivy-grep-info
