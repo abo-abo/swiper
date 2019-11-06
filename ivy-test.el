@@ -1321,14 +1321,13 @@ a buffer visiting a file."
            (len (length cands)))
       (should (equal cands '(3 9 15 20 25 30 35)))
       (dotimes (index len)
-        (should (string= (substring-no-properties
-                          (swiper--isearch-format
-                           index len
-                           cands
-                           input
-                           (nth index cands)
-                           (current-buffer)))
-                         "line0\nline1\nline line\nline line\nline5"))))))
+        (should (equal (swiper--isearch-format
+                        index len
+                        cands
+                        input
+                        (nth index cands)
+                        (current-buffer))
+                       '("line0" "line1" "line line" "line line" "line5")))))))
 
 (ert-deftest ivy-use-selectable-prompt ()
   (let ((ivy-use-selectable-prompt t)

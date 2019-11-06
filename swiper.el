@@ -1534,12 +1534,17 @@ When not running `swiper-isearch' already, start it."
   (if (numberp (car-safe cands))
       (if (string= ivy--old-re "^$")
           ""
-        (swiper--isearch-format
-         ivy--index ivy--length ivy--old-cands
-         ivy--old-re
-         (ivy-state-current ivy-last)
-         (ivy-state-buffer ivy-last)))
-    (ivy-format-function-default cands)))
+        (mapconcat
+         #'identity
+         (swiper--isearch-format
+          ivy--index ivy--length ivy--old-cands
+          ivy--old-re
+          (ivy-state-current ivy-last)
+          (ivy-state-buffer ivy-last))
+         "\n"))
+    (funcall
+     (ivy-alist-setting ivy-format-functions-alist t)
+     cands)))
 
 (defun swiper--line-at-point (pt)
   (save-excursion
@@ -1611,7 +1616,7 @@ When not running `swiper-isearch' already, start it."
           (push (swiper--isearch-highlight s) res)
           (cl-incf len))
         (cl-incf i))
-      (mapconcat #'identity (nreverse res) "\n"))))
+      (nreverse res))))
 
 ;;;###autoload
 (defun swiper-isearch (&optional initial-input)
