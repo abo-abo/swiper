@@ -2654,7 +2654,7 @@ regexp is passed to `regexp-quote'."
         match-len)
     (while (and (string-match " +" str start1)
                 (< start1 len))
-      (if (and (> (match-beginning 0) 2)
+      (if (and (>= (match-beginning 0) 2)
                (string= "[^" (substring
                               str
                               (- (match-beginning 0) 2)
