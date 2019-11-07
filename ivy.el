@@ -2655,12 +2655,13 @@ regexp is passed to `regexp-quote'."
     (while (and (string-match " +" str start1)
                 (< start1 len))
       (if (and (>= (match-beginning 0) 2)
-               (string= "[^" (substring
-                              str
-                              (- (match-beginning 0) 2)
-                              (match-beginning 0))))
+               (member (substring
+                        str
+                        (- (match-beginning 0) 2)
+                        (match-beginning 0))
+                       '("[^" "\\(")))
           (progn
-            (setq start0 start1)
+            (setq start0 (or start0 start1))
             (setq start1 (match-end 0)))
         (setq match-len (- (match-end 0) (match-beginning 0)))
         (if (= match-len 1)

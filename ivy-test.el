@@ -232,7 +232,9 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--split "^[^ ] bar") '("^[^ ]" "bar")))
   (should (equal (ivy--split "defun [^ ]+") '("defun" "[^ ]+")))
   (should (equal (ivy--split "[^ ]+ -> .*")
-                 '("[^ ]+" "->" ".*"))))
+                 '("[^ ]+" "->" ".*")))
+  (should (equal (ivy--split "[^ \n]+ \\( ->\\)")
+                 '("[^ \n]+" "\\( ->\\)"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
