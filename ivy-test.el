@@ -240,7 +240,13 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--split "abc[^ \n]+\\( -> \\)def")
                  '("abc[^ \n]+" "\\( -> \\)" "def")))
   (should (equal (ivy--split "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
-                 '("\\(?:interactive\\|swiper\\)" "\\(?:list\\|symbol\\)"))))
+                 '("\\(?:interactive\\|swiper\\)" "\\(?:list\\|symbol\\)")))
+  (should (equal (ivy--split "\\([^ \n]+\\)\\( -> \\).*")
+                 '("\\([^ \n]+\\)"
+                   "\\( -> \\)"
+                   ".*")))
+  (should (equal (ivy--split "[^ ]\\( -> \\).*")
+                 '("[^ ]" "\\( -> \\)" ".*"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
@@ -256,7 +262,11 @@ will bring the behavior in line with the newer Emacsen."
                   ".org")
                  "\\.org"))
   (should (equal (ivy--regex "foo\\") "foo"))
-  (should (equal (ivy--regex "foo\\|") "foo")))
+  (should (equal (ivy--regex "foo\\|") "foo"))
+  (should (equal (ivy--regex "[^ \n]+\\( -> \\).*")
+                 "\\([^ \n]+\\)\\( -> \\).*?\\(.*\\)"))
+  (should (equal (ivy--regex "\\([^ \\n]+\\)\\( -> \\).*")
+                 "\\([^ \\n]+\\)\\( -> \\).*?\\(.*\\)")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))

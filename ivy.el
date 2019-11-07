@@ -2673,7 +2673,7 @@ regexp is passed to `regexp-quote'."
                    (progn
                      (when (> i start)
                        (push (substring str start i) res))
-                     (if (string-match "\\\\(.*?\\\\)" str i)
+                     (if (eq (string-match "\\\\([^\0]*?\\\\)" str i) i)
                          (progn
                            (push (match-string 0 str) res)
                            (setq i (match-end 0))
@@ -2715,7 +2715,7 @@ regexp is passed to `regexp-quote'."
              (cl-decf open-count)))
       (cl-incf i))
     (when (= open-count 0)
-      (if (string-match "[+*?]" str i)
+      (if (eq (string-match "[+*?]" str i) i)
           (match-end 0)
         i))))
 
@@ -2748,13 +2748,17 @@ When GREEDY is non-nil, join words in a greedy way."
                              (car subs)))
                         (cons
                          (setq ivy--subexps (length subs))
-                         (mapconcat
-                          (lambda (x)
-                            (if (string-match-p "\\`\\\\([^?].*\\\\)\\'" x)
-                                x
-                              (format "\\(%s\\)" x)))
-                          subs
-                          (if greedy ".*" ".*?")))))
+                         (replace-regexp-in-string
+                          "\\.\\*\\??\\\\( "
+                          "\\( "
+                          (mapconcat
+                           (lambda (x)
+                             (if (string-match-p "\\`\\\\([^?][^\0]*\\\\)\\'" x)
+                                 x
+                               (format "\\(%s\\)" x)))
+                           subs
+                           (if greedy ".*" ".*?"))
+                          nil t))))
                     ivy--regex-hash)))))
 
 (defun ivy--regex-p (object)

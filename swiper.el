@@ -1047,10 +1047,11 @@ WND, when specified is the window."
             (em (match-end j)))
         (when (and (integerp em)
                    (integerp bm))
-          (while (and (< j ivy--subexps)
-                      (integerp (match-beginning (+ j 1)))
-                      (= em (match-beginning (+ j 1))))
-            (setq em (match-end (cl-incf j))))
+          (when (eq (ivy-alist-setting ivy-re-builders-alist t) #'ivy--regex-fuzzy)
+            (while (and (< j ivy--subexps)
+                        (integerp (match-beginning (+ j 1)))
+                        (= em (match-beginning (+ j 1))))
+              (setq em (match-end (cl-incf j)))))
           (funcall adder-fn
                    bm em
                    (nth (1+ (mod (+ i 2) (1- (length faces))))
