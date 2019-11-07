@@ -727,6 +727,7 @@ When capture groups are present in the input, print them instead of lines."
 This is the regex used in the minibuffer where candidates have
 line numbers.  For the buffer, use `ivy--regex' instead."
   (let* ((re-builder (ivy-alist-setting ivy-re-builders-alist))
+         (str (replace-regexp-in-string "\\\\n" "\n" str))
          (re (cond
                ((equal str "")
                 "")
