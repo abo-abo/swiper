@@ -1001,8 +1001,12 @@ WND, when specified is the window."
       (save-excursion
         (goto-char beg)
         ;; RE can become an invalid regexp
-        (while (and (ignore-errors (re-search-forward re end t))
-                    (> (- (match-end 0) (match-beginning 0)) 0))
+        (while (progn
+                 (when (eolp)
+                   (unless (eobp)
+                     (forward-char)))
+                 (and (ignore-errors (re-search-forward re end t))
+                      (> (- (match-end 0) (match-beginning 0)) 0)))
           ;; Don't highlight a match if it spans multiple
           ;; lines. `count-lines' returns 1 if the match is within a
           ;; single line, even if it includes the newline, and 2 or
