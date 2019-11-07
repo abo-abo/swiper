@@ -1558,16 +1558,19 @@ When not running `swiper-isearch' already, start it."
 (defun swiper--isearch-highlight (str &optional current)
   (let ((start 0)
         (i 0))
-    (while (string-match ivy--old-re str start)
-      (setq start (match-end 0))
-      (swiper--add-properties
-       (if (eq current i)
-           swiper-faces
-         swiper-background-faces)
-       (lambda (beg end face _priority)
-         (ivy-add-face-text-property
-          beg end face str)))
-      (cl-incf i))
+    (catch 'done
+      (while (string-match ivy--old-re str start)
+        (if (= (match-beginning 0) (match-end 0))
+            (throw 'done t)
+          (setq start (match-end 0)))
+        (swiper--add-properties
+         (if (eq current i)
+             swiper-faces
+           swiper-background-faces)
+         (lambda (beg end face _priority)
+           (ivy-add-face-text-property
+            beg end face str)))
+        (cl-incf i)))
     str))
 
 (defun swiper--isearch-format (index length cands regex current buffer)
