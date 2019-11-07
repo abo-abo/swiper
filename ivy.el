@@ -2640,6 +2640,8 @@ This concept is used to generalize regular expressions for
   (make-hash-table :test #'equal)
   "Store pre-computed regex.")
 
+(defvar ivy--input-garbage nil)
+
 (defun ivy--split (str)
   "Split STR into list of substrings bounded by spaces.
 Single spaces act as splitting points.  Consecutive spaces
@@ -2648,40 +2650,74 @@ split.  This allows the literal interpretation of N spaces by
 inputting N+1 spaces.  Any substring not constituting a valid
 regexp is passed to `regexp-quote'."
   (let ((len (length str))
-        start0
-        (start1 0)
-        res s
-        match-len)
-    (while (and (string-match " +" str start1)
-                (< start1 len))
-      (if (and (>= (match-beginning 0) 2)
-               (member (substring
-                        str
-                        (- (match-beginning 0) 2)
-                        (match-beginning 0))
-                       '("[^" "\\(")))
-          (progn
-            (setq start0 (or start0 start1))
-            (setq start1 (match-end 0)))
-        (setq match-len (- (match-end 0) (match-beginning 0)))
-        (if (= match-len 1)
-            (progn
-              (when start0
-                (setq start1 start0)
-                (setq start0 nil))
-              (push (substring str start1 (match-beginning 0)) res)
-              (setq start1 (match-end 0)))
-          (setq str (replace-match
-                     (make-string (1- match-len) ?\ )
-                     nil nil str))
-          (setq start0 (or start0 start1))
-          (setq start1 (1- (match-end 0))))))
-    (if start0
-        (push (substring str start0) res)
-      (setq s (substring str start1))
-      (unless (= (length s) 0)
-        (push s res)))
+        (i 0)
+        (start 0)
+        (res nil)
+        match-len
+        end
+        c)
+    (catch 'break
+      (while (< i len)
+        (setq c (aref str i))
+        (cond ((= ?\[ c)
+               (if (setq end (ivy--match-regex-brackets
+                              (substring str i)))
+                   (progn
+                     (push (substring str start (+ i end)) res)
+                     (cl-incf i end)
+                     (setq start i))
+                 (setq ivy--input-garbage (substring str i))
+                 (throw 'break nil)))
+              ((= ?\\ c)
+               (if (= ?\( (aref str (1+ i)))
+                   (progn
+                     (when (> i start)
+                       (push (substring str start i) res))
+                     (if (string-match "\\\\(.*?\\\\)" str i)
+                         (progn
+                           (push (match-string 0 str) res)
+                           (setq i (match-end 0))
+                           (setq start i))
+                       (setq ivy--input-garbage (substring str i))
+                       (throw 'break nil)))
+                 (cl-incf i)))
+              ((= ?\  c)
+               (string-match " +" str i)
+               (setq match-len (- (match-end 0) (match-beginning 0)))
+               (if (= match-len 1)
+                   (progn
+                     (when (> i start)
+                       (push (substring str start i) res))
+                     (setq start (1+ i)))
+                 (setq str (replace-match
+                            (make-string (1- match-len) ?\ )
+                            nil nil str))
+                 (setq len (length str))
+                 (cl-incf i (1- match-len)))
+               (cl-incf i))
+              (t
+               (cl-incf i)))))
+    (when (< start i)
+      (push (substring str start) res))
     (mapcar #'ivy--regex-or-literal (nreverse res))))
+
+(defun ivy--match-regex-brackets (str)
+  (let ((len (length str))
+        (i 1)
+        (open-count 1)
+        c)
+    (while (and (< i len)
+                (> open-count 0))
+      (setq c (aref str i))
+      (cond ((= c ?\[)
+             (cl-incf open-count))
+            ((= c ?\])
+             (cl-decf open-count)))
+      (cl-incf i))
+    (when (= open-count 0)
+      (if (string-match "[+*?]" str i)
+          (match-end 0)
+        i))))
 
 (defun ivy--trim-trailing-re (regex)
   "Trim incomplete REGEX.

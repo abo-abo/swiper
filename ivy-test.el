@@ -234,7 +234,13 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--split "[^ ]+ -> .*")
                  '("[^ ]+" "->" ".*")))
   (should (equal (ivy--split "[^ \n]+ \\( ->\\)")
-                 '("[^ \n]+" "\\( ->\\)"))))
+                 '("[^ \n]+" "\\( ->\\)")))
+  (should (equal (ivy--split "abc[^ \n]+\\( ->\\)")
+                 '("abc[^ \n]+" "\\( ->\\)")))
+  (should (equal (ivy--split "abc[^ \n]+\\( -> \\)def")
+                 '("abc[^ \n]+" "\\( -> \\)" "def")))
+  (should (equal (ivy--split "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
+                 '("\\(?:interactive\\|swiper\\)" "\\(?:list\\|symbol\\)"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
