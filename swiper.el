@@ -1030,13 +1030,22 @@ WND, when specified is the window."
                                                 (line-end-position)))))))
                 (swiper--add-properties faces adder-fn re-idx)))))))))
 
+
+(defcustom swiper-use-group-face-if-no-groups t
+  "If t, and the expression has no subgroups, highlight whole match as a group.
+
+It will then use the second face (first of the \"group\" faces)
+of `swiper-faces' (or `swiper-background-faces').  Otherwise,
+always use the first face in this case."
+  :type 'boolean)
+
 (defun swiper--add-properties (faces adder-fn &optional re-idx)
   (let ((mb (match-beginning 0))
         (me (match-end 0)))
     (unless (> (- me mb) 2017)
       (funcall adder-fn
                mb me
-               (if (zerop ivy--subexps)
+               (if (and swiper-use-group-face-if-no-groups (zerop ivy--subexps))
                    (nth (1+ (mod (or re-idx 0) (1- (length faces)))) faces)
                  (car faces))
                0)))
