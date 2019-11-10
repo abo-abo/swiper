@@ -1036,7 +1036,7 @@ WND, when specified is the window."
     (unless (> (- me mb) 2017)
       (funcall adder-fn
                mb me
-               (if (zerop ivy--subexps)
+               (if (and ivy-use-group-face-if-no-groups (zerop ivy--subexps))
                    (nth (1+ (mod (or re-idx 0) (1- (length faces)))) faces)
                  (car faces))
                0)))
