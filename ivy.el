@@ -3859,6 +3859,14 @@ Note: The usual last two arguments are flipped for convenience.")
          (cons (flx-score str flx-name ivy--flx-cache) str)))
     (ivy--highlight-default str)))
 
+(defcustom ivy-use-group-face-if-no-groups t
+  "If t, and the expression has no subgroups, highlight whole match as a group.
+
+It will then use the second face (first of the \"group\" faces)
+of `ivy-minibuffer-faces'.  Otherwise, always use the first face
+in this case."
+  :type 'boolean)
+
 (defun ivy--highlight-default (str)
   "Highlight STR, using the default method."
   (unless ivy--old-re
@@ -3883,7 +3891,8 @@ Note: The usual last two arguments are flipped for convenience.")
                   (unless (and prev (= prev beg))
                     (cl-incf n))
                   (let ((face
-                         (cond ((zerop ivy--subexps)
+                         (cond ((and ivy-use-group-face-if-no-groups
+                                     (zerop ivy--subexps))
                                 (cadr ivy-minibuffer-faces))
                                ((zerop i)
                                 (car ivy-minibuffer-faces))
