@@ -4337,6 +4337,9 @@ PREFIX is used to create the key."
   (with-ivy-window
     (imenu (cdr x))))
 
+(defvar counsel-imenu-history nil
+  "History for `counsel-imenu'.")
+
 ;;;###autoload
 (defun counsel-imenu ()
   "Jump to a buffer position indexed by imenu."
@@ -4346,6 +4349,7 @@ PREFIX is used to create the key."
             :require-match t
             :action #'counsel-imenu-action
             :keymap counsel-imenu-map
+            :history 'counsel-imenu-history
             :caller 'counsel-imenu))
 
 ;;** `counsel-list-processes'
