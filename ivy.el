@@ -4645,7 +4645,12 @@ You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
                            (ivy--reset-state
                             (setq ivy-last old-last))
                            (delete-minibuffer-contents)
-                           (insert (substring-no-properties x))
+                           (let* ((caller (ivy-state-caller ivy-last))
+                                  (s (cond
+                                      ((memq caller '(swiper swiper-isearch))
+                                       (car x))
+                                      (t x))))
+                             (insert (substring-no-properties s)))
                            (ivy--cd-maybe))
                  :caller 'ivy-reverse-i-search)))))
 
