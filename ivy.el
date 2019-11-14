@@ -2365,7 +2365,10 @@ This is useful for recursive `ivy-read'."
          (error
           "`ivy-count-format' can't be nil.  Set it to \"\" instead"))
         ((string-match "%d.*\\(%d\\)" ivy-count-format)
-         (let* ((w (1+ (floor (log (max 1 (length ivy--all-candidates)) 10))))
+         (let* ((w
+                  (if (listp ivy--all-candidates)
+                      (1+ (floor (log (max 1 (length ivy--all-candidates)) 10)))
+                      1))
                 (s (replace-match (format "%%-%dd" w) t t ivy-count-format 1)))
            (string-match "%d" s)
            (concat (replace-match (format "%%%dd" w) t t s)
