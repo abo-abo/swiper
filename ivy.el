@@ -3199,6 +3199,11 @@ Should be run via minibuffer `post-command-hook'."
                'ivy--exhibit)))
     (ivy--exhibit)))
 
+(unless (fboundp 'file-local-name)
+  (defun file-local-name (file)
+    "Emacs has this function since 26.1."
+    (or (file-remote-p file 'localname) file)))
+
 (defun ivy--magic-tilde-directory (dir)
   "Return an appropriate home for DIR for when ~ or ~/ are entered."
   (file-name-as-directory
