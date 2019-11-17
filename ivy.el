@@ -1127,6 +1127,19 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
            (file-directory-p (ivy-state-current ivy-last))))
     (ivy--directory-done)))
 
+(defun ivy-partial-tramp ()
+  "Complete the minibuffer text as much as possible, else use tramp to complete it.
+This command is useful to be bound to `TAB', it doesn't call done after completion,
+so minibuffer text can be edited and completed further, even with remote files."
+  (interactive)
+  (or (ivy-partial)
+      (let ((dir (ivy--handle-directory ivy-text))
+	    (inhibit-message t))
+	(and dir
+	     (ivy--cd dir)))
+      (and (ivy--tramp-prefix-p)
+	   (ivy--tramp-completion-list))))
+
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
   (interactive)
