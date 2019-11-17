@@ -1004,8 +1004,51 @@ contains a single candidate.")
         ((string= input "/sudo::")
          (concat input ivy--directory))))
 
+(defun ivy--tramp-prefix-p ()
+  "bymoz, detect if ivy-text is a tramp prefix."
+  ;; extracted from ivy--directory-done
+  (or (and (equal ivy--directory "/")
+	   (cond ((string-match
+		   "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+		   ivy-text)
+		  (setq ivy-text (ivy-state-current ivy-last)))
+		 ((string-match
+		   "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+		   (ivy-state-current ivy-last))
+		  (setq ivy-text (ivy-state-current ivy-last)))))
+      (string-match
+       "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+       ivy-text)))
+
+(defun ivy--tramp-completion-list ()
+  "bymoz: build list for tramp completion."
+  ;; extracted from ivy--directory-done
+  (let ((method (match-string 1 ivy-text))
+	(user (match-string 2 ivy-text))
+	(rest (match-string 3 ivy-text))
+	res)
+    (dolist (x (tramp-get-completion-function method))
+      (setq res (append res (funcall (car x) (cadr x)))))
+    (setq res (delq nil res))
+    (when user
+      (dolist (x res)
+	(setcar x user)))
+    (setq res (delete-dups res))
+    (let* ((old-ivy-last ivy-last)
+	   (enable-recursive-minibuffers t)
+	   (host (let ((ivy-auto-select-single-candidate nil))
+		   (ivy-read "user@host: "
+			     (mapcar #'ivy-build-tramp-name res)
+			     :initial-input rest))))
+      (setq ivy-last old-ivy-last)
+      (when host
+	(setq ivy--directory "/")
+	(ivy--cd (concat "/" method ":" host ":"))))))
+
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
+  ;; bymoz extracted tramp completion handling from this function
   (let ((dir (ivy--handle-directory ivy-text)))
     (cond
       (dir
@@ -1027,39 +1070,8 @@ contains a single candidate.")
                 (string-match-p "\\`[^/]+:.*:.*\\'" ivy-text))
            (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
        (ivy-done))
-      ((or (and (equal ivy--directory "/")
-                (cond ((string-match
-                        "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        ivy-text)
-                       (setq ivy-text (ivy-state-current ivy-last)))
-                      ((string-match
-                        "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        (ivy-state-current ivy-last))
-                       (setq ivy-text (ivy-state-current ivy-last)))))
-           (string-match
-            "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-            ivy-text))
-       (let ((method (match-string 1 ivy-text))
-             (user (match-string 2 ivy-text))
-             (rest (match-string 3 ivy-text))
-             res)
-         (dolist (x (tramp-get-completion-function method))
-           (setq res (append res (funcall (car x) (cadr x)))))
-         (setq res (delq nil res))
-         (when user
-           (dolist (x res)
-             (setcar x user)))
-         (setq res (delete-dups res))
-         (let* ((old-ivy-last ivy-last)
-                (enable-recursive-minibuffers t)
-                (host (let ((ivy-auto-select-single-candidate nil))
-                        (ivy-read "user@host: "
-                                  (mapcar #'ivy-build-tramp-name res)
-                                  :initial-input rest))))
-           (setq ivy-last old-ivy-last)
-           (when host
-             (setq ivy--directory "/")
-             (ivy--cd (concat "/" method ":" host ":"))))))
+      ((ivy--tramp-prefix-p)
+       (ivy--tramp-completion-list))
       (t
        (ivy-done)))))
 
@@ -1118,6 +1130,17 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (let ((default-directory ivy--directory))
            (file-directory-p (ivy-state-current ivy-last))))
     (ivy--directory-done)))
+
+(defun ivy-partial-tramp ()
+  "try to complete minibuffer text as much as possible, or to complete as tramp prefix."
+  (interactive)
+  (or (ivy-partial)
+      (let ((dir (ivy--handle-directory ivy-text))
+	    (inhibit-message t))
+	(and dir
+	     (ivy--cd dir)))
+      (and (ivy--tramp-prefix-p)
+	   (ivy--tramp-completion-list))))
 
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
