@@ -1090,7 +1090,8 @@ When this directory doesn't exist, return nil."
 If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (interactive)
   (cond
-    ((and completion-cycle-threshold (< (length ivy--all-candidates) completion-cycle-threshold))
+    ((and (numberp completion-cycle-threshold)
+          (< (length ivy--all-candidates) completion-cycle-threshold))
      (let ((ivy-wrap t))
        (ivy-next-line)))
     ((and (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
