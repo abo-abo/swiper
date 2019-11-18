@@ -1004,6 +1004,29 @@ contains a single candidate.")
         ((string= input "/sudo::")
          (concat input ivy--directory))))
 
+(defun ivy--tramp-candidates ()
+  (let ((method (match-string 1 ivy-text))
+        (user (match-string 2 ivy-text))
+        (rest (match-string 3 ivy-text))
+        res)
+    (dolist (x (tramp-get-completion-function method))
+      (setq res (append res (funcall (car x) (cadr x)))))
+    (setq res (delq nil res))
+    (when user
+      (dolist (x res)
+        (setcar x user)))
+    (setq res (delete-dups res))
+    (let* ((old-ivy-last ivy-last)
+           (enable-recursive-minibuffers t)
+           (host (let ((ivy-auto-select-single-candidate nil))
+                   (ivy-read "user@host: "
+                             (mapcar #'ivy-build-tramp-name res)
+                             :initial-input rest))))
+      (setq ivy-last old-ivy-last)
+      (when host
+        (setq ivy--directory "/")
+        (ivy--cd (concat "/" method ":" host ":"))))))
+
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let ((dir (ivy--handle-directory ivy-text)))
@@ -1028,27 +1051,7 @@ contains a single candidate.")
            (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
        (ivy-done))
       ((ivy--tramp-prefix-p)
-       (let ((method (match-string 1 ivy-text))
-             (user (match-string 2 ivy-text))
-             (rest (match-string 3 ivy-text))
-             res)
-         (dolist (x (tramp-get-completion-function method))
-           (setq res (append res (funcall (car x) (cadr x)))))
-         (setq res (delq nil res))
-         (when user
-           (dolist (x res)
-             (setcar x user)))
-         (setq res (delete-dups res))
-         (let* ((old-ivy-last ivy-last)
-                (enable-recursive-minibuffers t)
-                (host (let ((ivy-auto-select-single-candidate nil))
-                        (ivy-read "user@host: "
-                                  (mapcar #'ivy-build-tramp-name res)
-                                  :initial-input rest))))
-           (setq ivy-last old-ivy-last)
-           (when host
-             (setq ivy--directory "/")
-             (ivy--cd (concat "/" method ":" host ":"))))))
+       (ivy--tramp-candidates))
       (t
        (ivy-done)))))
 
