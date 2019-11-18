@@ -4104,9 +4104,12 @@ possible match.  See `all-completions' for further information."
 
 The default value is given as an example.
 
-Each element is a list of (NAME TREE).  NAME is a string, it's
+Each element is a list of (NAME VIEW). NAME is a string, it's
 recommended to end it with a distinctive snippet e.g. \"{}\" so
 that it's easy to distinguish the window configurations.
+
+VIEW is either a TREE or a window-configuration (see
+`ivy--get-view-config').
 
 TREE is a nested list with the following valid cars:
 - vert: split the window vertically
@@ -4149,6 +4152,22 @@ TREE can be nested multiple times to have multiple window splits.")
           (t
            default-view-name))))
 
+(defun ivy--get-view-config ()
+  "Get `current-window-configuration' for `ivy-views'."
+  (dolist (w (window-list))
+    (set-window-parameter w 'ivy-view-data
+                          (with-current-buffer (window-buffer w)
+                            (cond (buffer-file-name
+                                   (list 'file buffer-file-name (point)))
+                                  ((eq major-mode 'dired-mode)
+                                   (list 'file default-directory (point)))
+                                  (t
+                                   (list 'buffer (buffer-name) (point)))))))
+  (let ((window-persistent-parameters
+         (append window-persistent-parameters
+                 (list (cons 'ivy-view-data t)))))
+    (current-window-configuration)))
+
 (defun ivy-push-view (&optional arg)
   "Push the current window tree on `ivy-views'.
 
@@ -4158,22 +4177,7 @@ Currently, the split configuration (i.e. horizontal or vertical)
 and point positions are saved, but the split positions aren't.
 Use `ivy-pop-view' to delete any item from `ivy-views'."
   (interactive "P")
-  (let* ((view (cl-labels
-                   ((ft (tr)
-                      (if (consp tr)
-                          (if (eq (car tr) t)
-                              (cons 'vert
-                                    (mapcar #'ft (cddr tr)))
-                            (cons 'horz
-                                  (mapcar #'ft (cddr tr))))
-                        (with-current-buffer (window-buffer tr)
-                          (cond (buffer-file-name
-                                 (list 'file buffer-file-name (point)))
-                                ((eq major-mode 'dired-mode)
-                                 (list 'file default-directory (point)))
-                                (t
-                                 (list 'buffer (buffer-name) (point))))))))
-                 (ft (car (window-tree)))))
+  (let* ((view (ivy--get-view-config))
          (view-name
           (if arg
               (ivy-read "Update view: " ivy-views)
@@ -4211,7 +4215,13 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
 
 (defun ivy-set-view-recur (view)
   "Set VIEW recursively."
-  (cond ((eq (car view) 'vert)
+  (cond  ((window-configuration-p view)
+          (set-window-configuration view)
+          (dolist (w (window-list))
+            (with-selected-window w
+              (ivy-set-view-recur
+               (window-parameter w 'ivy-view-data)))))
+         ((eq (car view) 'vert)
          (let* ((wnd1 (selected-window))
                 (wnd2 (split-window-vertically))
                 (views (cdr view))
