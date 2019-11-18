@@ -1027,18 +1027,7 @@ contains a single candidate.")
                 (string-match-p "\\`[^/]+:.*:.*\\'" ivy-text))
            (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
        (ivy-done))
-      ((or (and (equal ivy--directory "/")
-                (cond ((string-match
-                        "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        ivy-text)
-                       (setq ivy-text (ivy-state-current ivy-last)))
-                      ((string-match
-                        "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-                        (ivy-state-current ivy-last))
-                       (setq ivy-text (ivy-state-current ivy-last)))))
-           (string-match
-            "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
-            ivy-text))
+      ((ivy--tramp-prefix-p)
        (let ((method (match-string 1 ivy-text))
              (user (match-string 2 ivy-text))
              (rest (match-string 3 ivy-text))
@@ -1062,6 +1051,20 @@ contains a single candidate.")
              (ivy--cd (concat "/" method ":" host ":"))))))
       (t
        (ivy-done)))))
+
+(defun ivy--tramp-prefix-p ()
+  (or (and (equal ivy--directory "/")
+           (cond ((string-match
+                   "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                   ivy-text)
+                  (setq ivy-text (ivy-state-current ivy-last)))
+                 ((string-match
+                   "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+                   (ivy-state-current ivy-last))
+                  (setq ivy-text (ivy-state-current ivy-last)))))
+      (string-match
+       "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
+       ivy-text)))
 
 (defun ivy-expand-file-if-directory (file-name)
   "Expand FILE-NAME as directory.
