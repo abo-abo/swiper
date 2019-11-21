@@ -1014,6 +1014,16 @@ bindings that work here:
      On a directory, restarts completion from that directory.
 
      On a file or =./=, exit completion with the selected candidate.
+- (=ivy-partial-tramp=) ::
+     Alternative to =ivy-partial-or-done= intended to be bound to
+     ~TAB~.
+
+     This command tries to complete minibuffers current file or
+     directory name.  If that fails, it tries to complete current
+     minibuffer text with help of tramp method, username, etc.
+
+     It does not end minibuffer, so it enables the user to edit and
+     complete the minibuffer text any further.
 - ~DEL~ (=ivy-backward-delete-char=) ::
      Restart the completion in the parent directory if current input
      is empty.
