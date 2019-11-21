@@ -1322,6 +1322,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-c C-m") 'counsel-git-grep-switch-cmd)
     (define-key map (kbd "C-x C-d") 'counsel-cd)
+    (define-key map (kbd "C-c C-d") 'counsel-cd-to-current-buffer)
     map))
 
 (defvar counsel-git-grep-cmd-default "git --no-pager grep -n --no-color -I -e \"%s\""
@@ -2754,6 +2755,7 @@ It applies no filtering to ivy--all-candidates."
     (define-key map (kbd "M-q") 'counsel-git-grep-query-replace)
     (define-key map (kbd "C-'") 'swiper-avy)
     (define-key map (kbd "C-x C-d") 'counsel-cd)
+    (define-key map (kbd "C-c C-d") 'counsel-cd-to-current-buffer)
     map))
 
 (defcustom counsel-ag-base-command
@@ -2885,6 +2887,20 @@ CALLER is passed to `ivy-read'."
 
 (ivy-configure 'counsel-read-directory-name
   :display-transformer-fn #'ivy-read-file-transformer)
+
+(defun counsel-cd-to-current-buffer ()
+  "Change the directory for the currently running Ivy grep-like command to the directory of the current working buffer.
+
+Works for `counsel-git-grep', `counsel-ag', etc."
+  (interactive)
+  (counsel-delete-process)
+  (let ((input ivy-text))
+    (ivy-quit-and-run
+      (funcall (ivy-state-caller ivy-last)
+               input
+               (file-name-directory
+                (buffer-file-name
+                 (ivy-state-buffer (or ivy-recursive-last ivy-last))))))))
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.
