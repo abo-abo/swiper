@@ -49,6 +49,7 @@ warning:
 
 Before submitting a change, run:
 - =make compile= - check for new compilation warnings
+- =make deps= - install dependencies for testing
 - =make test= - check for failing tests
 - =make checkdoc= - check documentation guidelines
 
