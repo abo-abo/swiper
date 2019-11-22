@@ -1333,6 +1333,19 @@ On a directory, restarts completion from that directory.
 
 On a file or @code{./}, exit completion with the selected candidate.
 @end indentedblock
+@subsubheading (@code{ivy-partial-tramp})
+@vindex ivy-partial-tramp
+@kindex TAB
+@indentedblock
+Alternative to @code{ivy-partial-or-done} intended to be bound to @kbd{TAB}.
+
+This command tries to complete minibuffers current file or directory
+name. If that fails, it tries to complete current minibuffer text with
+help of tramp method, username, etc.
+
+It does not end minibuffer, so it enables the user to edit and complete
+the minibuffer text any further.
+@end indentedblock
 @subsubheading @kbd{DEL} (@code{ivy-backward-delete-char})
 @vindex ivy-backward-delete-char
 @kindex DEL
