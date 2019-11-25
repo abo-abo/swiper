@@ -1419,54 +1419,63 @@ will be called for each element of this list.")
                                ivy-alt-done
                                ivy-dispatching-done))
     (setq ivy-current-prefix-arg current-prefix-arg))
-  (let ((action
-         (if (functionp ivy-inhibit-action)
-             ivy-inhibit-action
-           (and (not ivy-inhibit-action)
-                (ivy--get-action ivy-last)))))
-    (when action
-      (let* ((collection (ivy-state-collection ivy-last))
-             (current (ivy-state-current ivy-last))
-             (x (cond
-                  ;; Alist type.
-                  ((and (consp (car-safe collection))
-                        ;; Previously, the cdr of the selected
-                        ;; candidate would be returned.  Now, the
-                        ;; whole candidate is returned.
-                        (let ((idx (get-text-property 0 'idx current)))
-                          (if idx
-                              (nth idx collection)
-                            (assoc current collection)))))
-                  (ivy--directory
-                   (expand-file-name current ivy--directory))
-                  ((equal current "")
-                   ivy-text)
-                  (t
-                   current))))
-        (if (eq action #'identity)
-            (prog1 x
-              (ivy-recursive-restore))
-          (select-window (ivy--get-window ivy-last))
-          (set-buffer (ivy-state-buffer ivy-last))
-          (prog1 (unwind-protect
-                      (if ivy-marked-candidates
-                          (let ((prefix-len (length ivy-mark-prefix)))
-                            (setq ivy-marked-candidates
-                                  (mapcar (lambda (s) (substring s prefix-len))
-                                          ivy-marked-candidates))
-                            (if (ivy-state-multi-action ivy-last)
-                                (funcall
-                                 (ivy-state-multi-action ivy-last)
-                                 ivy-marked-candidates)
-                              (dolist (c ivy-marked-candidates)
-                                (let ((default-directory (ivy-state-directory ivy-last)))
-                                  (funcall action c)))))
-                        (funcall action x))
-                   (ivy-recursive-restore))
-            (unless (or (eq ivy-exit 'done)
-                        (minibuffer-window-active-p (selected-window))
-                        (null (active-minibuffer-window)))
-              (select-window (active-minibuffer-window)))))))))
+  (let* ((action
+          (if (functionp ivy-inhibit-action)
+              ivy-inhibit-action
+            (and (not ivy-inhibit-action)
+                 (ivy--get-action ivy-last))))
+         (collection (ivy-state-collection ivy-last))
+         (current (ivy-state-current ivy-last))
+         (x (cond
+              ;; Alist type.
+              ((and (consp (car-safe collection))
+                    ;; Previously, the cdr of the selected
+                    ;; candidate would be returned.  Now, the
+                    ;; whole candidate is returned.
+                    (let ((idx (get-text-property 0 'idx current)))
+                      (if idx
+                          (progn
+                            (ivy--remove-props current 'idx)
+                            (nth idx collection))
+                        (assoc current collection)))))
+              (ivy--directory
+               (expand-file-name current ivy--directory))
+              ((equal current "")
+               ivy-text)
+              (t
+               current)))
+         (res
+          (cond
+            ((null action)
+             current)
+            ((eq action #'identity)
+             (prog1 x
+               (ivy-recursive-restore)))
+            (t
+             (select-window (ivy--get-window ivy-last))
+             (set-buffer (ivy-state-buffer ivy-last))
+             (prog1 (unwind-protect
+                         (if ivy-marked-candidates
+                             (let ((prefix-len (length ivy-mark-prefix)))
+                               (setq ivy-marked-candidates
+                                     (mapcar (lambda (s) (substring s prefix-len))
+                                             ivy-marked-candidates))
+                               (if (ivy-state-multi-action ivy-last)
+                                   (funcall
+                                    (ivy-state-multi-action ivy-last)
+                                    ivy-marked-candidates)
+                                 (dolist (c ivy-marked-candidates)
+                                   (let ((default-directory (ivy-state-directory ivy-last)))
+                                     (funcall action c)))))
+                           (funcall action x))
+                      (ivy-recursive-restore))
+               (unless (or (eq ivy-exit 'done)
+                           (minibuffer-window-active-p (selected-window))
+                           (null (active-minibuffer-window)))
+                 (select-window (active-minibuffer-window))))))))
+    (if ivy-inhibit-action
+        res
+      current)))
 
 (defun ivy-call-and-recenter ()
   "Call action and recenter window according to the selected candidate."
@@ -2085,8 +2094,7 @@ customizations apply to the current completion session."
          (ivy--display-function
           (when (or ivy-recursive-last
                     (not (window-minibuffer-p)))
-            (ivy-alist-setting ivy-display-functions-alist caller)))
-         result)
+            (ivy-alist-setting ivy-display-functions-alist caller))))
     (setq update-fn (or update-fn (ivy-alist-setting ivy-update-fns-alist caller)))
     (setq unwind (or unwind (ivy-alist-setting ivy-unwind-fns-alist caller)))
     (setq ivy-last
@@ -2149,12 +2157,9 @@ customizations apply to the current completion session."
                 hist)
                (pop (symbol-value hist)))
              (when (eq ivy-exit 'done)
-               (ivy--update-history hist))
-             (setq result (ivy-state-current ivy-last))))
+               (ivy--update-history hist))))
       (ivy--cleanup))
-    (ivy-call)
-    (ivy--remove-props (ivy-state-current ivy-last) 'idx)
-    result))
+    (ivy-call)))
 
 (defun ivy--update-history (hist)
   (let ((item (if ivy--directory

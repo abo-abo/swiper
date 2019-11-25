@@ -1436,6 +1436,18 @@ a buffer visiting a file."
                      (ivy--handle-directory "/sudo::"))
                    "/sudo::/tmp/")))
 
+(ert-deftest ivy-inhibit-action ()
+  (should (equal (ivy-with
+                  '(let ((ivy-inhibit-action #'identity))
+                    (ivy-read "pattern: " '(("a" . 1) ("b" . 2))))
+                  "C-m")
+                 '("a" . 1)))
+  (should (equal (ivy-with
+                  '(let ((ivy-inhibit-action #'cdr))
+                    (ivy-read "pattern: " '(("a" . 1) ("b" . 2))))
+                  "C-n C-m")
+                 2)))
+
 (defun ivy-test-run-tests ()
   (let ((test-sets
          '(
