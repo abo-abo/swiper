@@ -627,13 +627,14 @@ to `ivy-highlight-face'."
                      (insert (format "%S " sym)))
                  (read-from-minibuffer "Eval: "
                                        (format
-                                        (if (and sym-value (consp sym-value))
+                                        (if (and sym-value (or (consp sym-value)
+                                                               (symbolp sym-value)))
                                             "(setq '%S)"
                                           "(setq %S)")
                                         sym-value)
                                        read-expression-map t
                                        'read-expression-history))))
-    (eval-expression expr)))
+    expr))
 
 (defun counsel--setq-doconst (x)
   "Return a cons of description and value for X.
@@ -710,12 +711,15 @@ With a prefix arg, restrict list to variables defined using
                          (if (assoc res cands)
                              (cdr (assoc res cands))
                            (read res)))
+                   (kill-new (format "(setq %S %S)" sym res))
                    (set sym (if (and (listp res) (eq (car res) 'quote))
                                 (cadr res)
                               res))))
              (unless (boundp sym)
                (set sym nil))
-             (counsel-read-setq-expression sym)))
+             (let ((expr (counsel-read-setq-expression sym)))
+               (kill-new (prin1-char expr))
+               (eval-expression expr))))
       (when doc
         (lv-delete-window)))))
 

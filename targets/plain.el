@@ -6,4 +6,5 @@
 (global-set-key (kbd "C-s") 'swiper)
 (global-set-key (kbd "C-c j") 'counsel-git-grep)
 (global-set-key (kbd "C-c k") 'counsel-rg)
+(global-set-key (kbd "<f2> j") 'counsel-set-variable)
 (global-set-key (kbd "C-c s") 'isearch-forward-regexp)
