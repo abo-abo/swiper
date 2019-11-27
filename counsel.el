@@ -6243,17 +6243,18 @@ We update it in the callback with `ivy-update-candidates'."
   (with-current-buffer buf
     (let ((res nil)
           (pt (point-min)))
-      (while (setq pt (compilation-next-single-property-change
-                       pt 'compilation-message))
-        (let ((loc (get-text-property pt 'compilation-message)))
-          (when (and loc (setq loc (compilation--message->loc loc)))
-            (let* ((fs (compilation--loc->file-struct loc))
-                   (file-name (caar fs))
-                   (line-number (compilation--loc->line loc)))
-              (push (propertize
-                     (format "%d:%s" line-number file-name)
-                     'pt pt
-                     'buffer buf) res)))))
+      (save-excursion
+        (while (setq pt (compilation-next-single-property-change
+                         pt 'compilation-message))
+          (let ((loc (get-text-property pt 'compilation-message)))
+            (when (and loc (setq loc (compilation--message->loc loc)))
+              (goto-char pt)
+              (push
+               (propertize
+                (buffer-substring-no-properties pt (line-end-position))
+                'pt pt
+                'buffer buf)
+               res)))))
       (nreverse res))))
 
 (defun counsel-compilation-errors-cands ()
