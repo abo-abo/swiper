@@ -2756,14 +2756,14 @@ It applies no filtering to ivy--all-candidates."
     (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
-(defcustom counsel-ag-base-command
-  (if (memq system-type '(ms-dos windows-nt))
-      "ag --vimgrep %s"
-    "ag --nocolor --nogroup %s")
+(defcustom counsel-ag-base-command "ag --vimgrep %s"
   "Format string to use in `counsel-ag-function' to construct the command.
 The %s will be replaced by optional extra ag arguments followed by the
 regex string."
-  :type 'string)
+  :type '(radio
+          (const "ag --vimgrep %s")
+          (const "ag --nocolor --nogroup %s")
+          (string :tag "custom")))
 
 (defvar counsel-ag-command nil)
 
