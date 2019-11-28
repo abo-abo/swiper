@@ -149,20 +149,16 @@ Treated as non-nil when searching backwards."
 (defun swiper--query-replace-updatefn ()
   (let ((lisp (ignore-errors (nth 2 (query-replace-compile-replacement ivy-text t)))))
     (dolist (ov swiper--query-replace-overlays)
-      (when lisp
-        (dolist (x (overlay-get ov 'matches))
-          (setq lisp (cl-subst (cadr x) (car x) lisp :test #'equal)))
-        (setq lisp (ignore-errors (eval lisp))))
       (overlay-put
        ov 'after-string
        (propertize
-        (if (stringp lisp)
-            lisp
-          (set-match-data (overlay-get ov 'md))
-          (condition-case nil
-              (with-current-buffer (overlay-buffer ov)
-                (match-substitute-replacement ivy-text))
-            (error ivy-text)))
+        (condition-case nil
+            (with-current-buffer (overlay-buffer ov)
+              (set-match-data (overlay-get ov 'md))
+              (if (consp lisp)
+                  (eval lisp)
+                (match-substitute-replacement ivy-text)))
+          (error ivy-text))
         'face 'error)))))
 
 (defun swiper--query-replace-cleanup ()
