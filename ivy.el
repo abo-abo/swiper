@@ -2687,7 +2687,7 @@ regexp is passed to `regexp-quote'."
                  (setq ivy--input-garbage (substring str i))
                  (throw 'break nil)))
               ((= ?\\ c)
-               (if (= ?\( (aref str (1+ i)))
+               (if (and (< (1+ i) len) (= ?\( (aref str (1+ i))))
                    (progn
                      (when (> i start)
                        (push (substring str start i) res))

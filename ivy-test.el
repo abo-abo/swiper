@@ -266,7 +266,8 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--regex "[^ \n]+\\( -> \\).*")
                  "\\([^ \n]+\\)\\( -> \\).*?\\(.*\\)"))
   (should (equal (ivy--regex "\\([^ \\n]+\\)\\( -> \\).*")
-                 "\\([^ \\n]+\\)\\( -> \\).*?\\(.*\\)")))
+                 "\\([^ \\n]+\\)\\( -> \\).*?\\(.*\\)"))
+  (should (equal (ivy--regex "\\\\") "\\\\")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))
