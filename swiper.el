@@ -160,7 +160,7 @@ Treated as non-nil when searching backwards."
             lisp
           (set-match-data (overlay-get ov 'md))
           (condition-case nil
-              (with-current-buffer (nth 4 (overlay-get ov 'md))
+              (with-current-buffer (overlay-buffer ov)
                 (match-substitute-replacement ivy-text))
             (error ivy-text)))
         'face 'error)))))
@@ -172,7 +172,7 @@ Treated as non-nil when searching backwards."
 (defun swiper--query-replace-setup ()
   (with-ivy-window
     (let ((end (window-end (selected-window) t))
-          (re (ivy--regex ivy-text)))
+          (re ivy--old-re))
       (save-excursion
         (beginning-of-line)
         (while (re-search-forward re end t)
@@ -200,7 +200,7 @@ Treated as non-nil when searching backwards."
          (swiper--query-replace-setup)
          (unwind-protect
               (let* ((enable-recursive-minibuffers t)
-                     (from (ivy--regex ivy-text))
+                     (from ivy--old-re)
                      (default
                       (format "\\,(concat %s)"
                               (if (<= ivy--subexps 1)
@@ -252,6 +252,7 @@ Treated as non-nil when searching backwards."
                     (goto-char (point-min))
                     (perform-replace from to t t nil)))
              (set-window-configuration wnd-conf))))))))
+(put 'swiper-all-query-replace 'no-counsel-M-x t)
 
 (defvar avy-all-windows)
 (defvar avy-style)
