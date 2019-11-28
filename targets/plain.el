@@ -8,3 +8,4 @@
 (global-set-key (kbd "C-c k") 'counsel-rg)
 (global-set-key (kbd "<f2> j") 'counsel-set-variable)
 (global-set-key (kbd "C-c s") 'isearch-forward-regexp)
+(setq ivy-use-virtual-buffers t)
