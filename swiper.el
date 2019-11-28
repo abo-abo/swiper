@@ -197,13 +197,17 @@ Treated as non-nil when searching backwards."
          (unwind-protect
               (let* ((enable-recursive-minibuffers t)
                      (from ivy--old-re)
+                     (groups (number-sequence 1 ivy--subexps))
                      (default
-                      (format "\\,(concat %s)"
-                              (if (<= ivy--subexps 1)
-                                  "\\&"
-                                (mapconcat (lambda (i) (format "\\%d" i))
-                                           (number-sequence 1 ivy--subexps)
-                                           " \" \" "))))
+                      (list
+                       (mapconcat (lambda (i) (format "\\%d" i)) groups " ")
+                       (format "\\,(concat %s)"
+                               (if (<= ivy--subexps 1)
+                                   "\\&"
+                                 (mapconcat
+                                  (lambda (i) (format "\\%d" i))
+                                  groups
+                                  " \" \" ")))))
                      (to
                       (query-replace-compile-replacement
                        (ivy-read
