@@ -2327,11 +2327,6 @@ This is useful for recursive `ivy-read'."
              (setq coll (all-completions "" collection predicate))))
       (unless (ivy-state-dynamic-collection ivy-last)
         (setq coll (delete "" coll)))
-      (when def
-        (cond ((stringp (car-safe def))
-               (setq coll (cl-union def coll :test #'equal)))
-              ((and (stringp def) (not (member def coll)))
-               (push def coll))))
       (when (and sort
                  (or (functionp collection)
                      (not (eq history 'org-refile-history)))
@@ -2340,6 +2335,13 @@ This is useful for recursive `ivy-read'."
                  (listp coll)
                  (null (nthcdr ivy-sort-max-size coll)))
         (setq coll (sort (copy-sequence coll) sort-fn)))
+      (when def
+        (cond ((stringp (car-safe def))
+               (setq coll
+                     (delete-dups
+                      (append def coll))))
+              ((and (stringp def) (not (member def coll)))
+               (push def coll))))
       (setq coll (ivy--set-candidates coll))
       (setq ivy--old-re nil)
       (setq ivy--old-cands nil)
