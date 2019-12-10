@@ -2434,7 +2434,7 @@ INHERIT-INPUT-METHOD is currently ignored."
         (setq history (car history)))
       (when (consp def)
         (setq def (car def)))
-      (let ((str (ivy-read
+      (let ((res (ivy-read
                   prompt collection
                   :predicate predicate
                   :require-match (and collection require-match)
@@ -2455,11 +2455,12 @@ INHERIT-INPUT-METHOD is currently ignored."
                   :caller (if (and collection (symbolp collection))
                               collection
                             this-command))))
-        (if (string= str "")
+        (if (and (stringp res)
+                 (string= res ""))
             ;; For `completing-read' compat, return the first element of
             ;; DEFAULT, if it is a list; "", if DEFAULT is nil; or DEFAULT.
             (or def "")
-          str)))))
+          res)))))
 
 (defun ivy-completing-read-with-empty-string-def
     (prompt collection
