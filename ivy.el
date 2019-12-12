@@ -3628,7 +3628,9 @@ RE-STR is the regexp, CANDS are the current candidates."
                           (string-match-p preselect current))))
                ivy--old-cands
                (cl-position current cands :test #'equal))
-          (funcall func re-str cands)))))
+          (if (= ivy--index -1)              ; prompt is selected?
+              -1                             ; then leave it selected
+            (funcall func re-str cands)))))) ; otherwise call fallback
     (when (or empty (string= name "^"))
       (ivy-set-index
        (or (ivy--preselect-index preselect cands)
