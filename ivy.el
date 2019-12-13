@@ -787,7 +787,10 @@ candidate, not the prompt."
       (ivy-immediate-done)
     (setq ivy-current-prefix-arg current-prefix-arg)
     (delete-minibuffer-contents)
-    (cond ((or (> ivy--length 0)
+    (cond ((and (= ivy--length 0)
+                (eq this-command 'ivy-dispatching-done))
+           (ivy--done ivy-text))
+          ((or (> ivy--length 0)
                ;; the action from `ivy-dispatching-done' may not need a
                ;; candidate at all
                (eq this-command 'ivy-dispatching-done))
