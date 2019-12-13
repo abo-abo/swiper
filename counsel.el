@@ -1233,7 +1233,7 @@ selected face."
 
 ;;* Git
 ;;** `counsel-git'
-(defvar counsel-git-cmd "git ls-files --full-name --"
+(defvar counsel-git-cmd "git ls-files -z --full-name --"
   "Command for `counsel-git'.")
 
 (ivy-set-actions
@@ -1257,7 +1257,7 @@ Like `locate-dominating-file', but DIR defaults to
   (let ((default-directory (counsel-locate-git-root)))
     (split-string
      (shell-command-to-string counsel-git-cmd)
-     "\n"
+     "\0"
      t)))
 
 ;;;###autoload
