@@ -1287,7 +1287,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (counsel-cmd-to-dired
    (counsel--expand-ls
     (format "%s | %s | xargs ls"
-            counsel-git-cmd
+            (replace-regexp-in-string "\\(-0\\)\\|\\(-z\\)" "" counsel-git-cmd)
             (counsel--file-name-filter)))))
 
 (defvar counsel-dired-listing-switches "-alh"
