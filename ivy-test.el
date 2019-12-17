@@ -27,6 +27,7 @@
 ;;; Code:
 
 (defvar require-features nil)
+(defvar ivy-empty "tests/find-file/empty-dir/")
 
 (defadvice require (before ivy-tests-require-hook (feature &rest _) activate)
   "Record the requires into `require-features'."
@@ -983,6 +984,13 @@ will bring the behavior in line with the newer Emacsen."
 
 (ert-deftest ivy-read-directory-name ()
   (ivy-mode 1)
+  (when (not (file-exists-p ivy-empty))
+    (make-directory ivy-empty))
+  (should
+   (equal (expand-file-name ivy-empty)
+          (ivy-with
+           '(read-directory-name "cd: " ivy-empty nil t)
+           "RET")))
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
@@ -1459,6 +1467,15 @@ a buffer visiting a file."
                     (ivy-read "pattern: " '(("a" . 1) ("b" . 2))))
                   "C-n C-m")
                  2)))
+
+(ert-deftest ivy-empty-directory-open ()
+  (when (not (file-exists-p ivy-empty))
+    (make-directory ivy-empty))
+  (should (string= (file-relative-name
+                    (ivy-with '(counsel-find-file)
+                              "RET"
+                              :dir ivy-empty))
+                   ivy-empty)))
 
 (defun ivy-test-run-tests ()
   (let ((test-sets
