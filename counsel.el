@@ -4206,14 +4206,14 @@ Note: Duplicate elements of `kill-ring' are always deleted."
 
 ;;** `counsel-register'
 (defvar counsel-register-actions
-  '(("\\`buffer position" . jump-to-register)
+  '(("\\`buffer" . jump-to-register)
     ("\\`text" . insert-register)
     ("\\`rectangle" . insert-register)
-    ("\\`window configuration" . jump-to-register)
-    ("\\`frame configuration" . jump-to-register)
+    ("\\`window" . jump-to-register)
+    ("\\`frame" . jump-to-register)
     ("\\`[-+]?[0-9]+\\(?:\\.[0-9]\\)?\\'" . insert-register)
-    ("\\`the file" . jump-to-register)
-    ("\\`keyboard macro" . jump-to-register)
+    ("\\`\\(?:the \\)?file " . jump-to-register)
+    ("\\`keyboard" . jump-to-register)
     ("\\`file-query" . jump-to-register))
   "Alist of (REGEXP . FUNCTION) pairs for `counsel-register'.
 Selecting a register whose description matches REGEXP specifies
