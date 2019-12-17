@@ -800,6 +800,12 @@ will bring the behavior in line with the newer Emacsen."
             "C-M-i")
            "(nconc")))
 
+(ert-deftest ivy-completing-read ()
+  (should (equal (ivy-with '(ivy-completing-read
+                             "Test: " '(("1" . "a") ("2" . "b")))
+                           "RET")
+                 "1")))
+
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
   (should
