@@ -189,6 +189,11 @@ will bring the behavior in line with the newer Emacsen."
                            "C-m")
                  '(("b" . "1") ("a" . "2")))))
 
+(ert-deftest ivy-read-sort-def ()
+  (should (equal (ivy-with '(ivy-read "Test: " '("1" "2") :def '("a" "b" "c"))
+                           "C-m")
+                 "a")))
+
 (ert-deftest ivy-read-remap ()
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow" "red"))
