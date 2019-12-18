@@ -718,7 +718,7 @@ With a prefix arg, restrict list to variables defined using
             (unless (boundp sym)
               (set sym nil))
             (let ((expr (counsel-read-setq-expression sym)))
-              (kill-new (prin1-char expr))
+              (kill-new (format "%S" expr))
               (eval-expression expr))))
       (when doc
         (lv-delete-window)))))
