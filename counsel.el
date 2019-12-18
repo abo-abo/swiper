@@ -689,37 +689,37 @@ With a prefix arg, restrict list to variables defined using
         sym-type
         cands)
     (unwind-protect
-         (progn
-           (when doc
-             (lv-message (ivy--quote-format-string doc)))
-           (if (and (boundp sym)
-                    (setq sym-type (get sym 'custom-type))
-                    (cond
-                      ((and (consp sym-type)
-                            (memq (car sym-type) '(choice radio)))
-                       (setq cands (delq nil (mapcar #'counsel--setq-doconst
-                                                     (cdr sym-type)))))
-                      ((eq sym-type 'boolean)
-                       (setq cands '(("nil" . nil) ("t" . t))))
-                      (t nil)))
-               (let* ((sym-val (symbol-value sym))
-                      (res (ivy-read (format "Set (%S <%s>): " sym sym-val)
-                                     cands
-                                     :preselect (prin1-to-string sym-val))))
-                 (when res
-                   (setq res
-                         (if (assoc res cands)
-                             (cdr (assoc res cands))
-                           (read res)))
-                   (kill-new (format "(setq %S %S)" sym res))
-                   (set sym (if (and (listp res) (eq (car res) 'quote))
-                                (cadr res)
-                              res))))
-             (unless (boundp sym)
-               (set sym nil))
-             (let ((expr (counsel-read-setq-expression sym)))
-               (kill-new (prin1-char expr))
-               (eval-expression expr))))
+        (progn
+          (when doc
+            (lv-message (ivy--quote-format-string doc)))
+          (if (and (boundp sym)
+                   (setq sym-type (get sym 'custom-type))
+                   (cond
+                    ((and (consp sym-type)
+                          (memq (car sym-type) '(choice radio)))
+                     (setq cands (delq nil (mapcar #'counsel--setq-doconst
+                                                   (cdr sym-type)))))
+                    ((eq sym-type 'boolean)
+                     (setq cands '(("nil" . nil) ("t" . t))))
+                    (t nil)))
+              (let* ((sym-val (symbol-value sym))
+                     (res (ivy-read (format "Set (%S <%s>): " sym sym-val)
+                                    cands
+                                    :preselect (prin1-to-string sym-val))))
+                (when res
+                  (setq res
+                        (if (assoc res cands)
+                            (cdr (assoc res cands))
+                          (read res)))
+                  (kill-new (format "(setq %S %S)" sym res))
+                  (set sym (if (and (listp res) (eq (car res) 'quote))
+                               (cadr res)
+                             res))))
+            (unless (boundp sym)
+              (set sym nil))
+            (let ((expr (counsel-read-setq-expression sym)))
+              (kill-new (prin1-char expr))
+              (eval-expression expr))))
       (when doc
         (lv-delete-window)))))
 
