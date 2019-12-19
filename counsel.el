@@ -5686,6 +5686,10 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
   (setq counsel--switch-buffer-temporary-buffers nil
         counsel--switch-buffer-previous-buffers nil))
 
+(defcustom counsel-switch-buffer-preview-virtual-buffers t
+  "When non-nil, `counsel-switch-buffer' will preview virtual buffers."
+  :type 'boolean)
+
 (defun counsel--switch-buffer-update-fn ()
   (unless counsel--switch-buffer-previous-buffers
     (setq counsel--switch-buffer-previous-buffers (buffer-list)))
@@ -5694,7 +5698,7 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
     (cond
       ((get-buffer current)
        (ivy-call))
-      ((and virtual (file-exists-p (cdr virtual)))
+      ((and counsel-switch-buffer-preview-virtual-buffers virtual (file-exists-p (cdr virtual)))
        (let ((buf (ignore-errors
                     ;; may not open due to `large-file-warning-threshold' etc.
                     (find-file-noselect (cdr virtual)))))
