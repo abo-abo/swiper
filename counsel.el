@@ -3892,6 +3892,10 @@ Obeys `widen-automatically', which see."
       (message "Mark ring is empty"))))
 
 ;;** `counsel-evil-marks'
+(defvar counsel--evil-marks-exclude-registers nil
+  "list of evil registers to not display in `counsel-evil-marks' by default.
+each member of the list should be a character (stored as an integer).")
+
 (defun counsel-mark--get-evil-candidates ()
   "Convert all evil MARKS in the current buffer to mark candidates.
 works like `counsel-mark--get-candidates' but also prepends the
@@ -3913,8 +3917,12 @@ register tied to a mark in the message string."
                                (not (markerp (cdr m)))))
                          (default-value 'evil-markers-alist))))
 
-         ;; order marks by evil register in the same way as `evil-show-marks'
-         ;; (all-markers (sort all-markers (lambda (i j) (< (car j) (car i)))))
+         (all-markers
+          (if prefix-arg
+              all-markers ;; with prefix, ignore register exclusion list.
+            (let ((filter (lambda (_) (not (member (car _)
+                                              counsel--evil-marks-exclude-registers)))))
+              (seq-filter filter all-markers))))
 
          ;; seperate the markers from the evil registers
          ;; for call to `counsel-mark--get-candidates'
@@ -3942,7 +3950,9 @@ register tied to a mark in the message string."
 
 ;;;###autoload
 (defun counsel-evil-marks ()
-  "Ivy replacement for `evil-show-marks'."
+  "Ivy replacement for `evil-show-marks'.
+By default, this function respects `counsel--evil-marks-exclude-registers'.
+Pass a prefix argument to display all active evil registers."
   (interactive)
 
   (if (and (boundp 'evil-markers-alist)
