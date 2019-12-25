@@ -58,7 +58,7 @@ ivy-ox.el then ~C-c C-e i t~ in the ivy.org buffer.
 :CUSTOM_ID: copying
 :END:
 #+TEXINFO: @ifnottex
-Ivy manual, version 0.12.0
+Ivy manual, version 0.13.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -74,14 +74,11 @@ Copyright (C) 2015-2019 Free Software Foundation, Inc.
 
 #+BEGIN_QUOTE
 Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.3 or
-any later version published by the Free Software Foundation; with no
-Invariant Sections, with the Front-Cover Texts being ``A GNU Manual,''
-and with the Back-Cover Texts as in (a) below.  A copy of the license
-is included in the section entitled ``GNU Free Documentation License.''
-
-(a) The FSF's Back-Cover Text is: ``You have the freedom to copy and
-modify this GNU manual.''
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
 #+END_QUOTE
 
 #+HTML: <a href="https://github.com/abo-abo/swiper/blob/master/doc/ivy.org">This manual source</a>
@@ -1242,7 +1239,6 @@ later use yourself. However, it's recommended that you use the
             :preselect (ivy-thing-at-point)
             :history 'counsel-describe-symbol-history
             :require-match t
-            :sort t
             :action (lambda (x)
                       (describe-function
                        (intern x)))
@@ -1263,13 +1259,6 @@ Here are the interesting features of the above function, in the order that they 
   separate from the common history in =ivy-history=.
 - The =require-match= is set to =t= since it doesn't make sense to
   call =describe-function= on an un-interned symbol.
-- The =sort= argument is set to =t= so choosing between similar
-  candidates becomes easier. Sometimes, the collection size will
-  exceed =ivy-sort-max-size=, which is 30000 by default. In that case
-  the sorting will not happen to avoid delays.
-
-  Adjust this variable to choose between sorting time and completion
-  start-up time.
 - The =action= argument calls =describe-function= on the interned
   selected candidate.
 - The =caller= argument identifies this completion session. This is

@@ -73,7 +73,7 @@ Then attach the overlay to the character before point."
       (progn
         (move-overlay ivy-overlay-at (1- (point)) (line-end-position))
         (overlay-put ivy-overlay-at 'invisible nil))
-    (let ((available-height (count-lines (point) (window-end nil t))))
+    (let ((available-height (- (window-height) (count-lines (window-start) (point)) 1)))
       (unless (>= available-height ivy-height)
         (recenter (- (window-height) ivy-height 2))))
     (setq ivy-overlay-at (make-overlay (1- (point)) (line-end-position)))
@@ -138,7 +138,7 @@ Hide the minibuffer contents and cursor."
                                     (bound-and-true-p org-indent-mode))
                                (if (org-at-heading-p)
                                    (1- (org-current-level))
-                                 (* org-indent-indentation-per-level (org-current-level)))
+                                 (* org-indent-indentation-per-level (or (org-current-level) 1)))
                              0)
                            (save-excursion
                              (when ivy-completion-beg

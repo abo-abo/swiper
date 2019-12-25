@@ -27,6 +27,7 @@
 ;;; Code:
 
 (defvar require-features nil)
+(defvar ivy-empty "tests/find-file/empty-dir/")
 
 (defadvice require (before ivy-tests-require-hook (feature &rest _) activate)
   "Record the requires into `require-features'."
@@ -189,6 +190,11 @@ will bring the behavior in line with the newer Emacsen."
                            "C-m")
                  '(("b" . "1") ("a" . "2")))))
 
+(ert-deftest ivy-read-sort-def ()
+  (should (equal (ivy-with '(ivy-read "Test: " '("1" "2") :def '("a" "b" "c"))
+                           "C-m")
+                 "a")))
+
 (ert-deftest ivy-read-remap ()
   (should (equal
            (ivy-with '(ivy-read "pattern: " '("blue" "yellow" "red"))
@@ -230,7 +236,23 @@ will bring the behavior in line with the newer Emacsen."
                    "your  king.")))
   (should (equal (ivy--split "^[^ ]") '("^[^ ]")))
   (should (equal (ivy--split "^[^ ] bar") '("^[^ ]" "bar")))
-  (should (equal (ivy--split "defun [^ ]+") '("defun" "[^ ]+"))))
+  (should (equal (ivy--split "defun [^ ]+") '("defun" "[^ ]+")))
+  (should (equal (ivy--split "[^ ]+ -> .*")
+                 '("[^ ]+" "->" ".*")))
+  (should (equal (ivy--split "[^ \n]+ \\( ->\\)")
+                 '("[^ \n]+" "\\( ->\\)")))
+  (should (equal (ivy--split "abc[^ \n]+\\( ->\\)")
+                 '("abc[^ \n]+" "\\( ->\\)")))
+  (should (equal (ivy--split "abc[^ \n]+\\( -> \\)def")
+                 '("abc[^ \n]+" "\\( -> \\)" "def")))
+  (should (equal (ivy--split "\\(?:interactive\\|swiper\\) \\(?:list\\|symbol\\)")
+                 '("\\(?:interactive\\|swiper\\)" "\\(?:list\\|symbol\\)")))
+  (should (equal (ivy--split "\\([^ \n]+\\)\\( -> \\).*")
+                 '("\\([^ \n]+\\)"
+                   "\\( -> \\)"
+                   ".*")))
+  (should (equal (ivy--split "[^ ]\\( -> \\).*")
+                 '("[^ ]" "\\( -> \\)" ".*"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
@@ -246,7 +268,12 @@ will bring the behavior in line with the newer Emacsen."
                   ".org")
                  "\\.org"))
   (should (equal (ivy--regex "foo\\") "foo"))
-  (should (equal (ivy--regex "foo\\|") "foo")))
+  (should (equal (ivy--regex "foo\\|") "foo"))
+  (should (equal (ivy--regex "[^ \n]+\\( -> \\).*")
+                 "\\([^ \n]+\\)\\( -> \\).*?\\(.*\\)"))
+  (should (equal (ivy--regex "\\([^ \\n]+\\)\\( -> \\).*")
+                 "\\([^ \\n]+\\)\\( -> \\).*?\\(.*\\)"))
+  (should (equal (ivy--regex "\\\\") "\\\\")))
 
 (ert-deftest ivy--split-negation ()
   (should (equal (ivy--split-negation "") ()))
@@ -774,6 +801,12 @@ will bring the behavior in line with the newer Emacsen."
             "C-M-i")
            "(nconc")))
 
+(ert-deftest ivy-completing-read ()
+  (should (equal (ivy-with '(ivy-completing-read
+                             "Test: " '(("1" . "a") ("2" . "b")))
+                           "RET")
+                 "1")))
+
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
   (should
@@ -951,6 +984,12 @@ will bring the behavior in line with the newer Emacsen."
 
 (ert-deftest ivy-read-directory-name ()
   (ivy-mode 1)
+  (unless (file-exists-p ivy-empty)
+    (make-directory ivy-empty))
+  (should (equal (expand-file-name ivy-empty)
+                 (ivy-with
+                  '(read-directory-name "cd: " ivy-empty nil t)
+                  "RET")))
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
@@ -974,6 +1013,14 @@ will bring the behavior in line with the newer Emacsen."
            '(read-directory-name "cd: ")
            "DEL C-M-j"
            :dir "/tmp"))))
+
+(ert-deftest ivy-counsel-read-directory-name ()
+  (should
+   (equal (expand-file-name "/tmp/")
+          (ivy-with
+           '(counsel-read-directory-name "cd: ")
+           "RET"
+           :dir "/tmp/"))))
 
 (ert-deftest ivy-partial-files ()
   (when (file-exists-p "/tmp/ivy-partial-test")
@@ -1313,14 +1360,13 @@ a buffer visiting a file."
            (len (length cands)))
       (should (equal cands '(3 9 15 20 25 30 35)))
       (dotimes (index len)
-        (should (string= (substring-no-properties
-                          (swiper--isearch-format
-                           index len
-                           cands
-                           input
-                           (nth index cands)
-                           (current-buffer)))
-                         "line0\nline1\nline line\nline line\nline5"))))))
+        (should (equal (swiper--isearch-format
+                        index len
+                        cands
+                        input
+                        (nth index cands)
+                        (current-buffer))
+                       '("line0" "line1" "line line" "line line" "line5")))))))
 
 (ert-deftest ivy-use-selectable-prompt ()
   (let ((ivy-use-selectable-prompt t)
@@ -1408,6 +1454,27 @@ a buffer visiting a file."
   (should (string= (let ((ivy--directory "/tmp/"))
                      (ivy--handle-directory "/sudo::"))
                    "/sudo::/tmp/")))
+
+(ert-deftest ivy-inhibit-action ()
+  (should (equal (ivy-with
+                  '(let ((ivy-inhibit-action #'identity))
+                    (ivy-read "pattern: " '(("a" . 1) ("b" . 2))))
+                  "C-m")
+                 '("a" . 1)))
+  (should (equal (ivy-with
+                  '(let ((ivy-inhibit-action #'cdr))
+                    (ivy-read "pattern: " '(("a" . 1) ("b" . 2))))
+                  "C-n C-m")
+                 2)))
+
+(ert-deftest ivy-empty-directory-open ()
+  (unless (file-exists-p ivy-empty)
+    (make-directory ivy-empty))
+  (should (string= (file-relative-name
+                    (ivy-with '(counsel-find-file)
+                              "RET"
+                              :dir ivy-empty))
+                   ivy-empty)))
 
 (defun ivy-test-run-tests ()
   (let ((test-sets
