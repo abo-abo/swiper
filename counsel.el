@@ -4432,12 +4432,20 @@ An extra action allows to switch to the process buffer."
 ;;** `counsel-esh-history'
 (defun counsel--browse-history (ring)
   "Use Ivy to navigate through RING."
-  (setq ivy-completion-beg (point))
-  (setq ivy-completion-end (point))
-  (ivy-read "History: " (ivy-history-contents ring)
-            :keymap ivy-reverse-i-search-map
-            :action #'ivy-completion-in-region-action
-            :caller 'counsel-shell-history))
+  (let* ((proc (get-buffer-process (current-buffer)))
+         (end (point))
+         (beg (if proc
+                  (min (process-mark proc) end)
+                end))
+         (input (when (< beg end)
+                  (concat "^" (buffer-substring beg end)))))
+    (setq ivy-completion-beg beg)
+    (setq ivy-completion-end end)
+    (ivy-read "History: " (ivy-history-contents ring)
+              :keymap ivy-reverse-i-search-map
+              :initial-input input
+              :action #'ivy-completion-in-region-action
+              :caller 'counsel-shell-history)))
 
 (defvar eshell-history-ring)
 
