@@ -3332,6 +3332,10 @@ Should be run via minibuffer `post-command-hook'."
         (when (region-active-p)
           (set-mark old-mark))))))
 
+(defcustom ivy-auto-shrink-minibuffer nil
+  "When non-nil and the height < `ivy-height', auto-shrink the minibuffer."
+  :type 'boolean)
+
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
   (unless (frame-root-window-p (minibuffer-window))
@@ -3339,13 +3343,19 @@ Should be run via minibuffer `post-command-hook'."
       (if (fboundp 'window-text-pixel-size)
           (let ((text-height (cdr (window-text-pixel-size)))
                 (body-height (window-body-height nil t)))
-            (when (> text-height body-height)
-              ;; Note: the size increment needs to be at least
-              ;; frame-char-height, otherwise resizing won't do
-              ;; anything.
-              (let ((delta (max (- text-height body-height)
-                                (frame-char-height))))
-                (window-resize nil delta nil t t))))
+            (cond ((> text-height body-height)
+                   ;; Note: the size increment needs to be at least
+                   ;; frame-char-height, otherwise resizing won't do
+                   ;; anything.
+                   (let ((delta (max (- text-height body-height)
+                                     (frame-char-height))))
+                     (window-resize nil delta nil t t)))
+                  ((and ivy-auto-shrink-minibuffer
+                        (< ivy--length ivy-height))
+                   (shrink-window (-
+                                   (/ (window-body-height nil t)
+                                      (frame-char-height))
+                                   ivy--length 1)))))
         (let ((text-height (count-screen-lines))
               (body-height (window-body-height)))
           (when (> text-height body-height)
