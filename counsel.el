@@ -2285,6 +2285,87 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
       (ivy-append-face var 'ivy-highlight-face)
     var))
 
+;;** `counsel-xdg-recentf'
+(eval-when-compile (require 'dom))
+
+(defcustom counsel-xdg-recentf-extra-info-separator
+  "\n-------------------\n" "Separator used between candidates in `counsel-xdg-recentf'when displaying extra information on a second line."
+  :type 'string
+  :group 'counsel)
+
+(defcustom counsel-xdg-recentf-include-extra-info
+  t "Whether to include the \"modified\" and \"visited\" timestamps in the line below the file name in `counsel-xdg-recentf'."
+  :type 'boolean
+  :group 'counsel)
+
+;;;###autoload
+(defun counsel-xdg-recentf ()
+  "Interactively opens a recently used file or directory used by an application complying with the Freedesktop.org standards.
+
+With prefix, find file/directory in other window.
+
+It searches for the file \"recently-used.xbel\" which lists files
+and directories, in the directory returned by the function
+`xdg-data-home'.  This file is processed using functionality
+provided by the libxml2 bindings and the \"dom\" library."
+  (interactive)
+  (let ((target-file (concat (xdg-data-home)
+                             "/recently-used.xbel")))
+    (if (not (file-readable-p target-file))
+        (message "counsel-xdg-recentf: List of files not found.")
+      (ivy-read "File or Directory: "
+                (remove nil
+                        (mapcar (lambda (bookmark-node)
+                                  (let ((full-file-name (substring (dom-attr bookmark-node 'href)
+                                                                   7))) ; Strip "file://"
+                                    (when (file-exists-p full-file-name)
+                                      (list (concat full-file-name
+                                                    (if counsel-xdg-recentf-include-extra-info
+                                                        (concat "\nVisited: "
+                                                                (dom-attr bookmark-node 'visited)
+                                                                ", Modified: "
+                                                                (dom-attr bookmark-node 'modified))))
+                                            full-file-name))))
+                                (nreverse (seq-filter (lambda (node)
+                                                        (eq (dom-tag node) 'bookmark))
+                                                      (dom-children (with-temp-buffer
+                                                                      (insert-file-contents target-file)
+                                                                      (libxml-parse-xml-region (point-min)
+                                                                                               (point-max))))))))
+                :sort nil
+                :require-match t
+                :action (lambda (chosen-file)
+                          (if current-prefix-arg
+                              (find-file-other-window (cadr chosen-file))
+                            (find-file (cadr chosen-file))))
+                :caller 'counsel-xdg-recentf))))
+
+(defun counsel--xdg-recentf-format-function (candidates)
+  "Format CANDIDATES with colors and separators for `counsel-xdg-recentf'."
+  (ivy--format-function-generic (lambda (str)
+                                  (ivy--add-face str 'ivy-current-match))
+                                (lambda (str)
+                                  str)
+                                candidates
+                                (if counsel-xdg-recentf-include-extra-info
+                                    (propertize counsel-xdg-recentf-extra-info-separator
+                                                'face 'ivy-separator)
+                                  "\n")))
+
+(defun counsel--xdg-recentf-transformer (candidate)
+  "Transform CANDIDATE for `counsel-xdg-recentf' so that directories are highlighted."
+  (let* ((splitted-str (split-string candidate "\n"))
+         (full-file-name (car splitted-str))
+         (file-info (cadr splitted-str))) ; `nil' if no extra info.
+    (if (file-directory-p full-file-name)
+        (concat (propertize full-file-name 'face 'ivy-subdir)
+                "\n"
+                file-info)
+      full-file-name)))
+
+(ivy-configure 'counsel-xdg-recentf :format-fn #'counsel--xdg-recentf-format-function
+               :display-transformer-fn #'counsel--xdg-recentf-transformer)
+
 ;;** `counsel-bookmark'
 (defcustom counsel-bookmark-avoid-dired nil
   "If non-nil, open directory bookmarks with `counsel-find-file'.
