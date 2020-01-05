@@ -5701,11 +5701,14 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
 (defun counsel--switch-buffer-update-fn ()
   (unless counsel--switch-buffer-previous-buffers
     (setq counsel--switch-buffer-previous-buffers (buffer-list)))
-  (let* ((current (ivy-state-current ivy-last))
-         (virtual (assoc current ivy--virtual-buffers)))
+  (let* ((virtual (assoc (ivy-state-current ivy-last) ivy--virtual-buffers)))
+    (when (member (ivy-state-current ivy-last) ivy-marked-candidates)
+      (setf (ivy-state-current ivy-last)
+            (substring (ivy-state-current ivy-last) (length ivy-mark-prefix))))
     (cond
-      ((get-buffer current)
-       (ivy-call))
+      ((get-buffer (ivy-state-current ivy-last))
+       (let ((ivy-marked-candidates nil))
+         (ivy-call)))
       ((and counsel-switch-buffer-preview-virtual-buffers virtual (file-exists-p (cdr virtual)))
        (let ((buf (ignore-errors
                     ;; may not open due to `large-file-warning-threshold' etc.
