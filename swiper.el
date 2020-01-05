@@ -745,7 +745,9 @@ line numbers.  For the buffer, use `ivy--regex' instead."
                              re)))
                   (cond
                     ((string= re "$")
-                     "^$")
+                     (if (eq (ivy-state-caller ivy-last) 'swiper)
+                         "^ $"
+                       "^$"))
                     ((zerop ivy--subexps)
                      (prog1 (format "^ ?\\(%s\\)" re)
                        (setq ivy--subexps 1)))
