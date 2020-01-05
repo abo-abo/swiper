@@ -1465,15 +1465,15 @@ will be called for each element of this list.")
              (set-buffer (ivy-state-buffer ivy-last))
              (prog1 (unwind-protect
                          (if ivy-marked-candidates
-                             (let ((prefix-len (length ivy-mark-prefix)))
-                               (setq ivy-marked-candidates
-                                     (mapcar (lambda (s) (substring s prefix-len))
-                                             ivy-marked-candidates))
+                             (let* ((prefix-len (length ivy-mark-prefix))
+                                    (marked-candidates (mapcar
+                                                        (lambda (s) (substring s prefix-len))
+                                                        ivy-marked-candidates)))
                                (if (ivy-state-multi-action ivy-last)
                                    (funcall
                                     (ivy-state-multi-action ivy-last)
-                                    ivy-marked-candidates)
-                                 (dolist (c ivy-marked-candidates)
+                                    marked-candidates)
+                                 (dolist (c marked-candidates)
                                    (let ((default-directory (ivy-state-directory ivy-last)))
                                      (funcall action c)))))
                            (funcall action x))
