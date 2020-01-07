@@ -2224,13 +2224,18 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 (defvar recentf-list)
 (declare-function recentf-mode "recentf")
 
+(defcustom counsel-recentf-include-xdg-list nil
+  "Include recently used files listed by XDG-compliant environments, e.g. GNOME and KDE.
+https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
+  :type 'boolean)
+
 ;;;###autoload
 (defun counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
   (require 'recentf)
   (recentf-mode)
-  (ivy-read "Recentf: " (mapcar #'substring-no-properties recentf-list)
+  (ivy-read "Recentf: " (counsel-recentf-candidates)
             :action (lambda (f)
                       (with-ivy-window
                         (find-file f)))
@@ -2241,6 +2246,43 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
  '(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
    ("x" counsel-find-file-extern "open externally")))
+
+(defun counsel-recentf-candidates ()
+  "Return candidates for `counsel-recentf'."
+  (append (mapcar #'substring-no-properties recentf-list)
+          (and counsel-recentf-include-xdg-list
+               (version< "25" emacs-version)
+               (counsel--recentf-get-xdg-recent-files))))
+
+(defun counsel--recentf-get-xdg-recent-files ()
+
+  "Get recent files as listed by XDG compliant programs.
+
+Requires Emacs 25.
+
+It searches for the file \"recently-used.xbel\" which lists files
+and directories, in the directory returned by the function
+`xdg-data-home'. This file is processed using functionality
+provided by the libxml2 bindings and the \"dom\" library."
+  (require 'dom)
+  (let ((file-of-recent-files
+         (expand-file-name "recently-used.xbel" (xdg-data-home))))
+    (if (not (file-readable-p file-of-recent-files))
+        (user-error "List of XDG recent files not found.")
+      (delq
+       nil
+       (mapcar
+        (lambda (bookmark-node)
+          (let ((full-file-name (url-unhex-string
+                                 (substring (dom-attr bookmark-node 'href)
+                                            7)))) ; Strip "file://"
+            (when (file-exists-p full-file-name)
+              full-file-name)))
+        (nreverse (dom-by-tag (with-temp-buffer
+                                (insert-file-contents file-of-recent-files)
+                                (libxml-parse-xml-region (point-min)
+                                                         (point-max)))
+                              'bookmark)))))))
 
 (defun counsel-buffer-or-recentf-candidates ()
   "Return candidates for `counsel-buffer-or-recentf'."
@@ -2255,7 +2297,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
     (append
      buffers
      (cl-remove-if (lambda (f) (member f buffers))
-                   (mapcar #'substring-no-properties recentf-list)))))
+                   (counsel-recentf-candidates)))))
 
 ;;;###autoload
 (defun counsel-buffer-or-recentf ()
