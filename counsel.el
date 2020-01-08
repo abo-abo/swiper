@@ -2254,6 +2254,14 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
                (version< "25" emacs-version)
                (counsel--recentf-get-xdg-recent-files))))
 
+(defun counsel--strip-prefix (prefix str)
+  (let ((l (length prefix)))
+    (when (string= (substring str 0 l) prefix)
+      (substring str l))))
+
+(declare-function dom-attr "dom")
+(declare-function dom-by-tag "dom")
+
 (defun counsel--recentf-get-xdg-recent-files ()
 
   "Get recent files as listed by XDG compliant programs.
@@ -2273,11 +2281,16 @@ provided by the libxml2 bindings and the \"dom\" library."
        nil
        (mapcar
         (lambda (bookmark-node)
-          (let ((full-file-name (url-unhex-string
-                                 (substring (dom-attr bookmark-node 'href)
-                                            7)))) ; Strip "file://"
-            (when (file-exists-p full-file-name)
-              full-file-name)))
+          (let ((local-path
+                 (counsel--strip-prefix
+                  "file://" (dom-attr bookmark-node 'href))))
+            (when local-path
+              (let ((full-file-name
+                     (decode-coding-string
+                      (url-unhex-string local-path)
+                      'utf-8)))
+                (when (file-exists-p full-file-name)
+                  full-file-name)))))
         (nreverse (dom-by-tag (with-temp-buffer
                                 (insert-file-contents file-of-recent-files)
                                 (libxml-parse-xml-region (point-min)
