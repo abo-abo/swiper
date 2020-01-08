@@ -6324,6 +6324,29 @@ Local bindings (`counsel-mode-map'):
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
 
+(defun counsel-flycheck-errors-cands ()
+  (seq-map
+   (lambda (error)
+     (propertize
+      (format "%s:%d:%s"
+              (file-name-base (flycheck-error-filename error))
+              (flycheck-error-line error)
+              (flycheck-error-message error)) 'error error))
+   flycheck-current-errors))
+
+(defun counsel-flycheck-errors-action (error)
+  (flycheck-jump-to-error (get-text-property 0 'error error)))
+
+;;;###autoload
+(defun counsel-flycheck ()
+  "Flycheck errors."
+  (interactive)
+  (require 'flycheck)
+  (ivy-read "flycheck errors: " (counsel-flycheck-errors-cands)
+            :require-match t
+            :action #'counsel-flycheck-errors-action
+            :history 'counsel-flycheck-errors-history))
+
 (provide 'counsel)
 
 ;;; counsel.el ends here
