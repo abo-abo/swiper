@@ -3026,9 +3026,7 @@ substituted by the search regexp and file, respectively.  Neither
   "Grep in the current directory for STRING."
   (or
    (ivy-more-chars)
-   (let* ((regex (counsel--elisp-to-pcre
-                  (setq ivy--old-re
-                        (ivy--regex string))))
+   (let* ((regex (counsel--grep-regex string))
           (cmd (format counsel-grep-command (shell-quote-argument regex))))
      (counsel--async-command
       (if (ivy--case-fold-p regex)
