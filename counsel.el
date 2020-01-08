@@ -6272,6 +6272,58 @@ We update it in the callback with `ivy-update-candidates'."
             :action #'counsel-compilation-errors-action
             :history 'counsel-compilation-errors-history))
 
+;;* `counsel-flycheck'
+(defvar flycheck-current-errors)
+(declare-function flycheck-error-filename "ext:flycheck")
+(declare-function flycheck-error-line "ext:flycheck")
+(declare-function flycheck-error-message "ext:flycheck")
+(declare-function flycheck-jump-to-error "ext:flycheck")
+
+(defun counsel-flycheck-errors-cands ()
+  (mapcar
+   (lambda (err)
+     (propertize
+      (format "%s:%d:%s"
+              (file-name-base (flycheck-error-filename err))
+              (flycheck-error-line err)
+              (flycheck-error-message err)) 'error err))
+   flycheck-current-errors))
+
+(defun counsel-flycheck-occur (cands)
+  "Generate a custom occur buffer for `counsel-flycheck'."
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode)
+    (setq default-directory (ivy-state-directory ivy-last)))
+  (swiper--occur-insert-lines
+   (mapcar
+    (lambda (cand)
+      (let ((err (get-text-property 0 'error cand)))
+        (propertize
+         (format
+          "%s:%d:%s"
+          (flycheck-error-filename err)
+          (flycheck-error-line err)
+          cand)
+         'error err)))
+    cands)))
+
+(defun counsel-flycheck-errors-action (err)
+  (flycheck-jump-to-error (get-text-property 0 'error err)))
+
+(ivy-configure 'counsel-flycheck
+  :occur #'counsel-flycheck-occur)
+
+;;;###autoload
+(defun counsel-flycheck ()
+  "Flycheck errors."
+  (interactive)
+  (require 'flycheck)
+  (ivy-read "flycheck errors: " (counsel-flycheck-errors-cands)
+            :require-match t
+            :action #'counsel-flycheck-errors-action
+            :history 'counsel-flycheck-errors-history))
+
+
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
@@ -6323,56 +6375,6 @@ Local bindings (`counsel-mode-map'):
           'counsel-minibuffer-history))
     (when (fboundp 'advice-remove)
       (advice-remove #'describe-bindings #'counsel-descbinds))))
-
-(defun counsel-flycheck-errors-cands ()
-  (seq-map
-   (lambda (error)
-     (propertize
-      (format "%s:%d:%s"
-              (file-name-base (flycheck-error-filename error))
-              (flycheck-error-line error)
-              (flycheck-error-message error)) 'error error))
-   flycheck-current-errors))
-
-(defun counsel-flycheck-occur (cands)
-  "Generate a custom occur buffer for `counsel-flycheck'."
-  (require 'thingatpt)
-  (unless cands
-    (message "need to handle empty cands"))
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode)
-    (setq default-directory (ivy-state-directory ivy-last)))
-  (swiper--occur-insert-lines
-   (mapcar
-    (lambda (cand)
-      (let ((err (get-text-property 0 'error cand)))
-        (propertize
-         (format
-          "%s:%d:%s"
-          (flycheck-error-filename err)
-          (flycheck-error-line err)
-          (save-excursion
-            (with-current-buffer (flycheck-error-buffer err)
-              (goto-line (flycheck-error-line err))
-              (string-trim (thing-at-point 'line)))))
-         'error err)))
-    cands)))
-
-(defun counsel-flycheck-errors-action (error)
-  (flycheck-jump-to-error (get-text-property 0 'error error)))
-
-(ivy-configure 'counsel-flycheck
-  :occur #'counsel-flycheck-occur)
-
-;;;###autoload
-(defun counsel-flycheck ()
-  "Flycheck errors."
-  (interactive)
-  (require 'flycheck)
-  (ivy-read "flycheck errors: " (counsel-flycheck-errors-cands)
-            :require-match t
-            :action #'counsel-flycheck-errors-action
-            :history 'counsel-flycheck-errors-history))
 
 (provide 'counsel)
 
