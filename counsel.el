@@ -6334,8 +6334,33 @@ Local bindings (`counsel-mode-map'):
               (flycheck-error-message error)) 'error error))
    flycheck-current-errors))
 
+(defun counsel-flycheck-occur (cands)
+  "generate a custom occur buffer for `counsel-flycheck'."
+  (require 'thingatpt)
+  (unless cands
+    (message "need to handle empty cands"))
+  (unless (eq major-mode 'ivy-occur-grep-mode)
+    (ivy-occur-grep-mode)
+    (setq default-directory (ivy-state-directory ivy-last)))
+  (swiper--occur-insert-lines
+   (mapcar
+    (lambda (cand)
+      (let ((err (get-text-property 0 'error cand)))
+        (format
+         "%s:%d:%s"
+         (flycheck-error-filename err)
+         (flycheck-error-line err)
+         (save-excursion
+           (with-current-buffer (flycheck-error-buffer err)
+             (goto-line (flycheck-error-line err))
+             (string-trim (thing-at-point 'line)))))))
+    cands)))
+
 (defun counsel-flycheck-errors-action (error)
   (flycheck-jump-to-error (get-text-property 0 'error error)))
+
+(ivy-configure 'counsel-flycheck
+  :occur #'counsel-flycheck-occur)
 
 ;;;###autoload
 (defun counsel-flycheck ()
