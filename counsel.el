@@ -2731,26 +2731,6 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :caller 'counsel-dired-jump)))
 
 ;;* Grep
-(defun counsel--grep-mode-occur (git-grep-dir-is-file)
-  "Generate a custom occur buffer for grep like commands.
-If GIT-GREP-DIR-IS-FILE is t, then `ivy-state-directory' is treated as a full
-path to a file rather than a directory (e.g. for `counsel-grep-occur').
-
-This function expects that the candidates have already been filtered.
-It applies no filtering to ivy--all-candidates."
-  (unless (eq major-mode 'ivy-occur-grep-mode)
-    (ivy-occur-grep-mode))
-  (let ((directory
-         (if git-grep-dir-is-file
-             (file-name-directory (ivy-state-directory ivy-last))
-           (ivy-state-directory ivy-last))))
-    (setq default-directory directory)
-    ;; Need precise number of header lines for `wgrep' to work.
-    (insert (format "-*- mode:grep; default-directory: %S -*-\n\n\n" default-directory))
-    (insert (format "%d candidates:\n" (length ivy--all-candidates)))
-    (ivy--occur-insert-lines
-     (mapcar #'counsel--normalize-grep-match ivy--all-candidates))))
-
 ;;** `counsel-ag'
 (defvar counsel-ag-map
   (let ((map (make-sparse-keymap)))
