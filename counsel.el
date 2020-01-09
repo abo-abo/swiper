@@ -3393,7 +3393,9 @@ otherwise continue prompting for tags."
                              (delete-dups
                               (append (counsel--org-get-tags) add-tags)))
                        (counsel-org--set-tags))))))
-           (counsel-org--set-tags)))
+           (counsel-org--set-tags)
+           (unless (member x counsel-org-tags)
+             (message "Tag %S has been removed." x))))
         ((eq this-command 'ivy-call)
          (with-selected-window (active-minibuffer-window)
            (delete-minibuffer-contents)))))
