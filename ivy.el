@@ -2182,6 +2182,7 @@ customizations apply to the current completion session."
   ;; Fixes a bug in ESS, #1660
   (put 'post-command-hook 'permanent-local nil)
   (remove-hook 'post-command-hook #'ivy--queue-exhibit)
+  (remove-hook 'window-size-change-functions #'ivy--window-size-changed)
   (let ((cleanup (ivy--display-function-prop :cleanup))
         (unwind (ivy-state-unwind ivy-last)))
     (when (functionp cleanup)
@@ -2941,6 +2942,7 @@ tries to ensure that it does not change depending on the number of candidates."
     (when height
       (set-window-text-height nil height)))
   (add-hook 'post-command-hook #'ivy--queue-exhibit nil t)
+  (add-hook 'window-size-change-functions #'ivy--window-size-changed nil t)
   (let ((hook (ivy-alist-setting ivy-hooks-alist)))
     (when (functionp hook)
       (funcall hook))))
@@ -3360,6 +3362,11 @@ Should be run via minibuffer `post-command-hook'."
               (body-height (window-body-height)))
           (when (> text-height body-height)
             (window-resize nil (- text-height body-height) nil t)))))))
+
+(defun ivy--window-size-changed (&rest _)
+  "Resize ivy window to fit with current frame's size."
+  (when ivy-mode
+    (ivy--resize-minibuffer-to-fit)))
 
 (defun ivy--add-face (str face)
   "Propertize STR with FACE."
