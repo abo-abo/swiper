@@ -4115,7 +4115,7 @@ possible match.  See `all-completions' for further information."
               (dir (buffer-local-value 'default-directory buf))
               (face (if (and dir
                              (ignore-errors
-                               (file-remote-p (abbreviate-file-name dir))))
+                               (file-remote-p dir)))
                         'ivy-remote
                       (cdr (assq (buffer-local-value 'major-mode buf)
                                  ivy-switch-buffer-faces-alist)))))
