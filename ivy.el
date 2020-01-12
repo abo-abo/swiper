@@ -55,9 +55,9 @@
 
 (defface ivy-current-match
   '((((class color) (background light))
-     :background "#1a4b77" :foreground "white")
+     :background "#1a4b77" :foreground "white" :extend t)
     (((class color) (background dark))
-     :background "#65a7e2" :foreground "black"))
+     :background "#65a7e2" :foreground "black" :extend t))
   "Face used by Ivy for highlighting the current match.")
 
 (defface ivy-minibuffer-match-highlight
