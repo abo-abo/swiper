@@ -898,7 +898,7 @@ selection, non-nil otherwise."
                                     (string-prefix-p key (car x)))
                                   (cdr actions)))
                 (not (string= key (car (nth action-idx (cdr actions))))))
-      (setq key (concat key (string (read-key hint)))))
+      (setq key (concat key (key-description (string (read-key hint))))))
     (ivy-shrink-after-dispatching)
     (cond ((member key '("" ""))
            nil)
