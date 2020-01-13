@@ -1253,8 +1253,8 @@ Like `locate-dominating-file', but DIR defaults to
   (or (counsel--git-root)
       (error "Not in a Git repository")))
 
-(defun counsel-git-cands ()
-  (let ((default-directory (counsel-locate-git-root)))
+(defun counsel-git-cands (dir)
+  (let ((default-directory dir))
     (split-string
      (shell-command-to-string counsel-git-cmd)
      "\0"
@@ -1267,7 +1267,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (counsel-require-program counsel-git-cmd)
   (let ((default-directory (counsel-locate-git-root)))
-    (ivy-read "Find file: " (counsel-git-cands)
+    (ivy-read "Find file: " (counsel-git-cands default-directory)
               :initial-input initial-input
               :action #'counsel-git-action
               :caller 'counsel-git)))
