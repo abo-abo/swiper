@@ -3475,10 +3475,10 @@ CANDIDATES are assumed to be static."
                     ivy-recompute-index-swiper-async-backward
                     ivy-recompute-index-swiper-backward))
             (progn
-              (ivy--recompute-index name re-str cands)
+              (ivy--recompute-index re-str cands)
               (setq ivy--old-cands (ivy--sort name cands)))
           (setq ivy--old-cands (ivy--sort name cands))
-          (ivy--recompute-index name re-str ivy--old-cands))
+          (ivy--recompute-index re-str ivy--old-cands))
         (setq ivy--old-re re)
         ivy--old-cands))))
 
@@ -3620,24 +3620,24 @@ no sorting is done.")
 (defvar ivy--recompute-index-inhibit nil
   "When non-nil, `ivy--recompute-index' is a no-op.")
 
-(defun ivy--recompute-index (name re-str cands)
-  "Recompute index of selected candidate matching NAME.
-RE-STR is the regexp, CANDS are the current candidates."
+(defun ivy--recompute-index (re-str cands)
+  "Recompute index of selected candidate matching RE-STR.
+CANDS are the current candidates."
   (let ((caller (ivy-state-caller ivy-last))
         (func (or (ivy-alist-setting ivy-index-functions-alist)
                   #'ivy-recompute-index-zero))
-        (case-fold-search (ivy--case-fold-p name))
+        (case-fold-search (ivy--case-fold-p re-str))
         (preselect (ivy-state-preselect ivy-last))
         (current (ivy-state-current ivy-last))
-        (empty (string= name "")))
+        (empty (string= re-str "")))
     (unless (or (memq this-command '(ivy-resume ivy-partial-or-done))
                 ivy--recompute-index-inhibit)
       (ivy-set-index
-       (if (or (string= name "")
+       (if (or (string= re-str "")
                (and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero)))
            0
          (or
-          (cl-position (ivy--remove-prefix "^" name)
+          (cl-position (ivy--remove-prefix "^" re-str)
                        cands
                        :test #'ivy--case-fold-string=)
           (and ivy--directory
@@ -3667,7 +3667,7 @@ RE-STR is the regexp, CANDS are the current candidates."
                ivy--old-cands
                (cl-position current cands :test #'equal))
           (funcall func re-str cands)))))
-    (when (or empty (string= name "^"))
+    (when (or empty (string= re-str "^"))
       (ivy-set-index
        (or (ivy--preselect-index preselect cands)
            ivy--index)))))
