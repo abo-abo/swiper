@@ -1347,7 +1347,8 @@ Typical value: '(recenter)."
   :type 'hook)
 
 (defcustom counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-default
-  "How a git-grep shell call is built from the input."
+  "How a git-grep shell call is built from the input.
+This function should set `ivy--old-re'."
   :type '(radio
           (function-item counsel-git-grep-cmd-function-default)
           (function-item counsel-git-grep-cmd-function-ignore-order)
@@ -1557,10 +1558,7 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
   str)
 
 (defun counsel--git-grep-occur-cmd (input)
-  (let* ((regex (funcall ivy--regex-function input))
-         (regex (if (eq ivy--regex-function #'ivy--regex-fuzzy)
-                    (replace-regexp-in-string "\n" "" regex)
-                  regex))
+  (let* ((regex ivy--old-re)
          (positive-pattern (replace-regexp-in-string
                             ;; git-grep can't handle .*?
                             "\\.\\*\\?" ".*"
