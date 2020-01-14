@@ -215,7 +215,7 @@ respectively."
           (when counsel--async-start
             (setq counsel--async-duration
                   (time-to-seconds (time-since counsel--async-start))))
-          (let ((re (ivy-re-to-str (funcall ivy--regex-function ivy-text))))
+          (let ((re (ivy-re-to-str ivy-regex)))
             (if ivy--old-cands
                 (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
                     (ivy-set-index 0)
@@ -1629,13 +1629,13 @@ done") "\n" t)))
 (defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
   "Command used for \"git log\".")
 
-(defun counsel-git-log-function (str)
-  "Search for STR in git log."
+(defun counsel-git-log-function (_)
+  "Search for `ivy-regex' in git log."
   (or
    (ivy-more-chars)
    (progn
      ;; `counsel--yank-pop-format-function' uses this
-     (setq ivy--old-re (funcall ivy--regex-function str))
+     (setq ivy--old-re ivy-regex)
      (counsel--async-command
       ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
       ;; But it doesn't like the non-greedy ".*?".
