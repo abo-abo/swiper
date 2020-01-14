@@ -563,9 +563,16 @@ of `history-length'.")
 (defvar ivy-text ""
   "Store the user's string as it is typed in.")
 
+(defvar ivy-regex ""
+  "Store the regex value that corresponds to `ivy-text'.")
+
+(defvar ivy--regex-function 'ivy--regex
+  "Current function for building a regex.")
+
 (defun ivy-set-text (str)
   "Set `ivy-text' to STR."
-  (setq ivy-text str))
+  (setq ivy-text str)
+  (setq ivy-regex (funcall ivy--regex-function ivy-text)))
 
 (defvar ivy--index 0
   "Store the index of the current candidate.")
@@ -622,9 +629,6 @@ Either a string or a list for `ivy-re-match'.")
 
 (defvar ivy--old-cands nil
   "Store the candidates matched by `ivy--old-re'.")
-
-(defvar ivy--regex-function 'ivy--regex
-  "Current function for building a regex.")
 
 (defvar ivy--highlight-function 'ivy--highlight-default
   "Current function for formatting the candidates.")
@@ -1134,8 +1138,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (when (and
          (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
          (= 1 (length
-               (ivy--re-filter
-                (funcall ivy--regex-function ivy-text) ivy--all-candidates)))
+               (ivy--re-filter ivy-regex ivy--all-candidates)))
          (let ((default-directory ivy--directory))
            (file-directory-p (ivy-state-current ivy-last))))
     (ivy--directory-done)))
@@ -1681,7 +1684,8 @@ minibuffer."
   "Toggle the regexp quoting."
   (interactive)
   (setq ivy--old-re nil)
-  (cl-rotatef ivy--regex-function ivy--regexp-quote))
+  (cl-rotatef ivy--regex-function ivy--regexp-quote)
+  (setq ivy-regex (funcall ivy--regex-function ivy-text)))
 
 (defvar avy-all-windows)
 (defvar avy-action)
@@ -2240,7 +2244,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--regexp-quote #'regexp-quote)
     (setq ivy--old-text "")
     (setq ivy--full-length nil)
-    (ivy-set-text "")
+    (ivy-set-text (or initial-input ""))
     (setq ivy--index 0)
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
@@ -3925,7 +3929,7 @@ in this case."
 (defun ivy--highlight-default (str)
   "Highlight STR, using the default method."
   (unless ivy--old-re
-    (setq ivy--old-re (funcall ivy--regex-function ivy-text)))
+    (setq ivy--old-re ivy-regex))
   (let ((regexps
          (if (listp ivy--old-re)
              (mapcar #'car (cl-remove-if-not #'cdr ivy--old-re))

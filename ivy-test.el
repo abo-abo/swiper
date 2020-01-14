@@ -1357,7 +1357,9 @@ a buffer visiting a file."
     (insert
      "line0\nline1\nline line\nline line\nline5")
     (let* ((input "li")
-           (cands (swiper--isearch-function input))
+           (cands (progn
+                    (ivy-set-text input)
+                    (swiper--isearch-function input)))
            (len (length cands)))
       (should (equal cands '(3 9 15 20 25 30 35)))
       (dotimes (index len)
