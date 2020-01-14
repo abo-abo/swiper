@@ -2835,7 +2835,7 @@ NEEDLE is the search string."
 (defun counsel--grep-regex (str)
   (counsel--elisp-to-pcre
    (setq ivy--old-re
-         (funcall ivy--regex-function str))
+         (funcall (ivy-state-re-builder ivy-last) str))
    counsel--regex-look-around))
 
 (defun counsel--ag-extra-switches (regex)

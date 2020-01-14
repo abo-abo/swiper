@@ -44,6 +44,8 @@
 
 (message "%s" (emacs-version))
 
+(setq ivy-last (make-ivy-state))
+
 (ert-deftest ivy--lazy-load-ffap--ffap-url-p ()
   (should (not (memq 'ffap require-features)))
   (should (not (fboundp 'ffap-url-p)))
@@ -401,7 +403,6 @@ will bring the behavior in line with the newer Emacsen."
                      90 96 (face ivy-current-match read-only nil)))))
 
 (ert-deftest ivy--filter ()
-  (setq ivy-last (make-ivy-state))
   (should (equal (ivy--filter "the" '("foo" "the" "The"))
                  '("the" "The")))
   (should (equal (ivy--filter "The" '("foo" "the" "The"))
@@ -1128,14 +1129,14 @@ a buffer visiting a file."
   ;; negative lookahead: lines with "ivy", without "-"
   (should
    (string=
-    (let ((counsel--regex-look-around t)
-          (ivy--regex-function 'ivy--regex-plus))
+    (cl-letf ((counsel--regex-look-around t)
+              ((ivy-state-re-builder ivy-last) #'ivy--regex-plus))
       (counsel--grep-regex "ivy ! -"))
     "^(?=.*ivy)(?!.*-)"))
   (should
    (string=
-    (let ((counsel--regex-look-around t)
-          (ivy--regex-function 'ivy--regex-fuzzy))
+    (cl-letf ((counsel--regex-look-around t)
+              ((ivy-state-re-builder ivy-last) #'ivy--regex-fuzzy))
       (counsel--grep-regex "ivy"))
     "(i)[^v\n]*(v)[^y\n]*(y)")))
 
