@@ -2225,12 +2225,13 @@ This is useful for recursive `ivy-read'."
     (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
-    (setq ivy--regex-function
-          (or re-builder
-              (and (functionp collection)
-                   (cdr (assq collection ivy-re-builders-alist)))
-              (ivy-alist-setting ivy-re-builders-alist)
-              #'ivy--regex))
+    (setf (ivy-state-re-builder ivy-last)
+          (setq ivy--regex-function
+                (or re-builder
+                    (and (functionp collection)
+                         (cdr (assq collection ivy-re-builders-alist)))
+                    (ivy-alist-setting ivy-re-builders-alist)
+                    #'ivy--regex)))
     (setq ivy--subexps 0)
     (setq ivy--regexp-quote #'regexp-quote)
     (setq ivy--old-text "")
