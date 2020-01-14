@@ -563,6 +563,10 @@ of `history-length'.")
 (defvar ivy-text ""
   "Store the user's string as it is typed in.")
 
+(defun ivy-set-text (str)
+  "Set `ivy-text' to STR."
+  (setq ivy-text str))
+
 (defvar ivy--index 0
   "Store the index of the current candidate.")
 
@@ -1070,11 +1074,11 @@ contains a single candidate.")
            (cond ((string-match
                    "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                    ivy-text)
-                  (setq ivy-text (ivy-state-current ivy-last)))
+                  (ivy-set-text (ivy-state-current ivy-last)))
                  ((string-match
                    "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                    (ivy-state-current ivy-last))
-                  (setq ivy-text (ivy-state-current ivy-last)))))
+                  (ivy-set-text (ivy-state-current ivy-last)))))
       (string-match
        "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
        ivy-text)))
@@ -1111,7 +1115,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
      (let ((default-directory ivy--directory)
            dir)
        (minibuffer-complete)
-       (setq ivy-text (ivy--input))
+       (ivy-set-text (ivy--input))
        (when (setq dir (ivy-expand-file-if-directory ivy-text))
          (ivy--cd dir))))
     (t
@@ -1161,10 +1165,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                        (concat "^" new)
                      new))
            (insert
-            (setq ivy-text
-                  (concat
-                   (mapconcat #'identity parts " ")
-                   (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " "))))
+            (ivy-set-text
+             (concat
+              (mapconcat #'identity parts " ")
+              (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " "))))
            (ivy--partial-cd-for-single-directory)
            t))))
 
@@ -1603,7 +1607,7 @@ If so, move to that directory, while keeping only the file name."
                (lambda (s) (substring s 1))
                (tramp-get-completion-methods ""))
               #'string<))))
-    (setq ivy-text "")
+    (ivy-set-text "")
     (setf (ivy-state-directory ivy-last) dir)
     (delete-minibuffer-contents)))
 
@@ -2236,7 +2240,7 @@ This is useful for recursive `ivy-read'."
     (setq ivy--regexp-quote #'regexp-quote)
     (setq ivy--old-text "")
     (setq ivy--full-length nil)
-    (setq ivy-text "")
+    (ivy-set-text "")
     (setq ivy--index 0)
     (setq ivy-calling nil)
     (setq ivy-use-ignore ivy-use-ignore-default)
@@ -3258,7 +3262,7 @@ Should be run via minibuffer `post-command-hook'."
   (when (memq 'ivy--queue-exhibit post-command-hook)
     (let ((inhibit-field-text-motion nil))
       (constrain-to-field nil (point-max)))
-    (setq ivy-text (ivy--input))
+    (ivy-set-text (ivy--input))
     (if (ivy-state-dynamic-collection ivy-last)
         ;; while-no-input would cause annoying
         ;; "Waiting for process to die...done" message interruptions

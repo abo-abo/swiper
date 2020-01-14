@@ -2104,7 +2104,7 @@ See variable `counsel-up-directory-level'."
           (ivy-set-index 0)
           (setq ivy--directory "")
           (setq ivy--all-candidates nil)
-          (setq ivy-text "")
+          (ivy-set-text "")
           (delete-minibuffer-contents)
           (insert up-dir))
       (if (and counsel-up-directory-level (not (string= ivy-text "")))
@@ -2937,9 +2937,9 @@ Works for `counsel-git-grep', `counsel-ag', etc."
   (unless (eq major-mode 'ivy-occur-grep-mode)
     (ivy-occur-grep-mode)
     (setq default-directory (ivy-state-directory ivy-last)))
-  (setq ivy-text
-        (and (string-match "\"\\(.*\\)\"" (buffer-name))
-             (match-string 1 (buffer-name))))
+  (ivy-set-text
+   (and (string-match "\"\\(.*\\)\"" (buffer-name))
+        (match-string 1 (buffer-name))))
   (let* ((cmd
           (if (functionp cmd-template)
               (funcall cmd-template ivy-text)
