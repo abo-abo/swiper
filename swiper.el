@@ -1541,16 +1541,17 @@ When not running `swiper-isearch' already, start it."
 
 (defun swiper-isearch-format-function (cands)
   (if (numberp (car-safe cands))
-      (if (string= ivy-regex "^$")
-          ""
-        (mapconcat
-         #'identity
-         (swiper--isearch-format
-          ivy--index ivy--length ivy--old-cands
-          ivy-regex
-          (ivy-state-current ivy-last)
-          (ivy-state-buffer ivy-last))
-         "\n"))
+      (let ((re (ivy-re-to-str ivy-regex)))
+        (if (string= re "^$")
+            ""
+          (mapconcat
+           #'identity
+           (swiper--isearch-format
+            ivy--index ivy--length ivy--old-cands
+            re
+            (ivy-state-current ivy-last)
+            (ivy-state-buffer ivy-last))
+           "\n")))
     (funcall
      (ivy-alist-setting ivy-format-functions-alist t)
      cands)))
@@ -1568,9 +1569,10 @@ When not running `swiper-isearch' already, start it."
 
 (defun swiper--isearch-highlight (str &optional current)
   (let ((start 0)
-        (i 0))
+        (i 0)
+        (re (ivy-re-to-str ivy-regex)))
     (catch 'done
-      (while (string-match ivy-regex str start)
+      (while (string-match re str start)
         (if (= (match-beginning 0) (match-end 0))
             (throw 'done t)
           (setq start (match-end 0)))
