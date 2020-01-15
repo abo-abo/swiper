@@ -1167,11 +1167,11 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                    (if (= (string-to-char postfix) ?^)
                        (concat "^" new)
                      new))
-           (insert
-            (ivy-set-text
-             (concat
-              (mapconcat #'identity parts " ")
-              (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " "))))
+           (ivy-set-text
+            (concat
+             (mapconcat #'identity parts " ")
+             (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " ")))
+           (insert ivy-text)
            (ivy--partial-cd-for-single-directory)
            t))))
 
