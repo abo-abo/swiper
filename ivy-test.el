@@ -1176,6 +1176,16 @@ a buffer visiting a file."
            (and (buffer-name temp-buffer)
                 (kill-buffer temp-buffer)))))))
 
+(ert-deftest swiper-query-replace ()
+  (dolist (re-builder '(regexp-quote ivy--regex ivy--regex-plus ivy--regex-fuzzy ivy--regex-ignore-order))
+    (dolist (swiper-cmd '(swiper swiper-isearch))
+      (let ((ivy-re-builders-alist `((t . ,re-builder))))
+        (should (equal (ivy-with-text
+                        "|foo bar"
+                        (global-set-key (kbd "C-s") swiper-cmd)
+                        ("C-s" "foo" "M-q" "asdf" "C-j" "y"))
+                       "asdf| bar"))))))
+
 (ert-deftest swiper-thing-at-point ()
   (should
    (string=
