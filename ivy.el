@@ -3353,7 +3353,10 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
-  (unless (frame-root-window-p (minibuffer-window))
+  (unless (or (frame-root-window-p (minibuffer-window))
+              (memq this-command '(ivy-read-action
+                                   ivy-dispatching-done
+                                   ivy-dispatching-call)))
     (with-selected-window (minibuffer-window)
       (if (fboundp 'window-text-pixel-size)
           (let ((text-height (cdr (window-text-pixel-size)))
