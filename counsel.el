@@ -5336,10 +5336,10 @@ using them for the next defined macro."
   :format-fn #'counsel--kmacro-format-function)
 
 (defvar counsel-kmacro-separator "\n------------------------\n"
-  "Separator used between macros in the list.")
+  "Separator displayed between keyboard macros in `counsel-kmacro'.")
 
 (defun counsel--kmacro-format-function (formatted-kmacro)
-  "Transform CAND-PAIRS into a string for `counsel-kmacro'."
+  "Transform FORMATTED-KMACRO into a string for `counsel-kmacro'."
   (ivy--format-function-generic
    (lambda (str) (ivy--add-face str 'ivy-current-match))
    (lambda (str) str)
@@ -5348,7 +5348,7 @@ using them for the next defined macro."
 
 (defun counsel--kmacro-candidates ()
   "Create the list of keyboard macros used by `counsel-kmacro'.
-This is a combination of `kmacro-ring' and `last-kbd-macro',
+This is a combination of `kmacro-ring' and, together in a list, `last-kbd-macro',
 `kmacro-counter-format-start', and `kmacro-counter-value-start'."
   (mapcar
    (lambda (kmacro)
@@ -5390,7 +5390,7 @@ Either remove a macro from `kmacro-ring', or pop the head of the
       (setq kmacro-ring (remove actual-macro kmacro-ring)))))
 
 (defun counsel-kmacro-action-copy-counter (x)
-  "Set `kmacro-counter' a value used by an existing macro."
+  "Set `kmacro-counter' to a value used by an existing macro."
   (let* ((actual-kmacro (cdr x))
          (number (nth 1 actual-kmacro)))
     (kmacro-set-counter number)))
@@ -5405,7 +5405,8 @@ Either remove a macro from `kmacro-ring', or pop the head of the
   "Execute an existing keyboard macro, prompting for a starting counter value, a
 counter format, and the number of times to execute the macro.
 
-If called with a prefix, will suggest those values."
+If called with a prefix, will suggest that value for both the
+counter value and iteration amount."
   (let* ((default-string (if current-prefix-arg
                              (number-to-string current-prefix-arg)
                            nil))
