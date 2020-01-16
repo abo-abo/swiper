@@ -168,7 +168,7 @@ Treated as non-nil when searching backwards."
 (defun swiper--query-replace-setup ()
   (with-ivy-window
     (let ((end (window-end (selected-window) t))
-          (re ivy-regex))
+          (re (ivy-re-to-str ivy-regex)))
       (save-excursion
         (beginning-of-line)
         (while (re-search-forward re end t)
@@ -196,7 +196,7 @@ Treated as non-nil when searching backwards."
          (swiper--query-replace-setup)
          (unwind-protect
               (let* ((enable-recursive-minibuffers t)
-                     (from ivy-regex)
+                     (from (ivy-re-to-str ivy-regex))
                      (groups (number-sequence 1 ivy--subexps))
                      (default
                       (list
