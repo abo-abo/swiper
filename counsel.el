@@ -2946,7 +2946,10 @@ Works for `counsel-git-grep', `counsel-ag', etc."
             (let* ((command-args (counsel--split-command-args ivy-text))
                    (regex (counsel--grep-regex (cdr command-args)))
                    (switches (concat (car command-args)
-                                     (counsel--ag-extra-switches regex))))
+                                     (counsel--ag-extra-switches regex)
+                                     (if (ivy--case-fold-p ivy-text)
+                                         " -i "
+                                       " -s "))))
               (format cmd-template
                       (concat
                        switches
