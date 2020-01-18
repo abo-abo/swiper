@@ -5357,7 +5357,10 @@ This is a combination of `kmacro-ring' and, together in a list, `last-kbd-macro'
    (lambda (kmacro)
      (cons
       (concat "(" (nth 2 kmacro) "," (number-to-string (nth 1 kmacro)) "): "
-              (format-kbd-macro (if (listp kmacro) (car kmacro) kmacro) 1))
+              (condition-case nil
+                  (format-kbd-macro (if (listp kmacro) (car kmacro) kmacro) 1)
+                ;; Recover from error from `edmacro-fix-menu-commands'.
+                (error "Warning: Cannot display macros containing mouse clicks.")))
       kmacro))
    (cons
     (if (listp last-kbd-macro)
