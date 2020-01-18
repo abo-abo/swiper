@@ -5209,9 +5209,12 @@ You can insert or kill the name of the selected font."
 
 With prefix argument, run macro that many times.
 
-Macros are run using the current value of `kmacro-counter-value-start' their defined format.
-One can use actions to copy the counter format or initial counter value of a command,
-using them for the next defined macro."
+Macros are run using the current value of `kmacro-counter-value'
+and their respective counter format. Displayed next to each macro is
+the counter's format and initial value.
+
+One can use actions to copy the counter format or initial counter
+value of a macro, using them for a new macro."
   (interactive)
   (if (and (eq last-kbd-macro nil) (eq kmacro-ring nil))
       (message "counsel-kmacro: No keyboard macros defined.")
@@ -5282,14 +5285,16 @@ Either remove a macro from `kmacro-ring', or pop the head of the
                     prev-macro))))
       (setq kmacro-ring (remove actual-macro kmacro-ring)))))
 
-(defun counsel-kmacro-action-copy-counter (x)
-  "Set `kmacro-counter' to a value used by an existing macro."
+(defun counsel-kmacro-action-copy-initial-counter-value-for-new-macro (x)
+  "Set `kmacro-initial-counter-value' to an existing keyboard macro's original counter value.
+This will apply to the next macro a user defines."
   (let* ((actual-kmacro (cdr x))
          (number (nth 1 actual-kmacro)))
     (kmacro-set-counter number)))
 
-(defun counsel-kmacro-action-copy-format (x)
-  "Copy the format of the chosen macro for the next defined macro."
+(defun counsel-kmacro-action-copy-counter-format-for-new-macro (x)
+  "Set `kmacro-default-counter-format' to an existing keyboard macro's counter format.
+This will apply to the next macro a user defines."
   (let* ((actual-kmacro (cdr x))
          (format (nth 2 actual-kmacro)))
     (kmacro-set-format format)))
@@ -5332,9 +5337,9 @@ counter value and iteration amount."
 
 (ivy-set-actions
  'counsel-kmacro
- '(("c" counsel-kmacro-action-copy-counter "copy counter")
+ '(("c" counsel-kmacro-action-copy-initial-counter-value-for-new-macro "copy initial counter value for new macro")
    ("d" counsel-kmacro-action-delete-kmacro "delete")
-   ("f" counsel-kmacro-action-copy-format "copy format")
+   ("f" counsel-kmacro-action-copy-counter-format-for-new-macro "copy counter format for new macro")
    ("e" counsel-kmacro-action-execute-after-prompt "execute after prompt")))
 
 ;;** `counsel-geiser-doc-look-up-manual'
