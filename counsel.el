@@ -5323,17 +5323,17 @@ the counter's format and initial value.
 One can use actions to copy the counter format or initial counter
 value of a macro, using them for a new macro."
   (interactive)
-  (if (and (eq last-kbd-macro nil) (eq kmacro-ring nil))
-      (message "counsel-kmacro: No keyboard macros defined.")
-    (ivy-read
-     (concat "Execute macro (counter at "
-             (number-to-string (or kmacro-initial-counter-value kmacro-counter))
-             "): ")
-     (counsel--kmacro-candidates)
-     :keymap counsel-kmacro-map
-     :require-match t
-     :action #'counsel-kmacro-action-run
-     :caller 'counsel-kmacro)))
+  (if (or last-kbd-macro kmacro-ring)
+      (ivy-read
+       (concat "Execute macro (counter at "
+               (number-to-string (or kmacro-initial-counter-value kmacro-counter))
+               "): ")
+       (counsel--kmacro-candidates)
+       :keymap counsel-kmacro-map
+       :require-match t
+       :action #'counsel-kmacro-action-run
+       :caller 'counsel-kmacro)
+    (user-error "No keyboard macros defined")))
 
 (ivy-configure 'counsel-kmacro
   :format-fn #'counsel--kmacro-format-function)
@@ -5380,10 +5380,10 @@ This is a combination of `kmacro-ring' and, together in a list, `last-kbd-macro'
     (kmacro-call-macro (or current-prefix-arg 1) t nil kmacro-keys)))
 
 (defun counsel-kmacro-action-delete-kmacro (x)
-  "Delete a keyboard macro within `counsel-kmacro'.
+  "Delete a keyboard macro from within `counsel-kmacro'.
 
-Either remove a macro from `kmacro-ring', or pop the head of the
-`kmacro-ring' and set `last-kbd-macro' to that value."
+Either delete a macro from `kmacro-ring', or set `last-kbd-macro'
+to the popped head of the ring."
   (let ((actual-macro (cdr x)))
     (if (eq (nth 0 actual-macro) last-kbd-macro)
         (setq last-kbd-macro
@@ -5393,7 +5393,7 @@ Either remove a macro from `kmacro-ring', or pop the head of the
                   (if (listp prev-macro)
                       (nth 0 prev-macro)
                     prev-macro))))
-      (setq kmacro-ring (remove actual-macro kmacro-ring)))))
+      (setq kmacro-ring (delq actual-macro kmacro-ring)))))
 
 (defun counsel-kmacro-action-copy-initial-counter-value-for-new-macro (x)
   "Set `kmacro-initial-counter-value' to an existing keyboard macro's original counter value.
