@@ -2246,13 +2246,23 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
    ("x" counsel-find-file-extern "open externally")))
 
 (defun counsel-recentf-candidates ()
-  "Return candidates for `counsel-recentf'."
-  (append (mapcar #'substring-no-properties recentf-list)
-          (and counsel-recentf-include-xdg-list
-               (version< "25" emacs-version)
-               (counsel--recentf-get-xdg-recent-files))))
+  "Return candidates for `counsel-recentf'.
+
+When `counsel-recentf-include-xdg-list' is non-nil, also include
+the files in said list, sorting the combined list by file access
+time."
+  (if (and counsel-recentf-include-xdg-list
+           (version< "25" emacs-version))
+      (delete-dups
+       (sort (append (mapcar #'substring-no-properties recentf-list)
+                     (counsel--recentf-get-xdg-recent-files))
+             (lambda (file1 file2)
+               (> (time-to-seconds (file-attribute-access-time (file-attributes file1)))
+                  (time-to-seconds (file-attribute-access-time (file-attributes file2)))))))
+    (mapcar #'substring-no-properties recentf-list)))
 
 (defun counsel--strip-prefix (prefix str)
+  "Strip PREFIX from STR."
   (let ((l (length prefix)))
     (when (string= (substring str 0 l) prefix)
       (substring str l))))
@@ -2268,7 +2278,7 @@ Requires Emacs 25.
 
 It searches for the file \"recently-used.xbel\" which lists files
 and directories, in the directory returned by the function
-`xdg-data-home'. This file is processed using functionality
+`xdg-data-home'.  This file is processed using functionality
 provided by the libxml2 bindings and the \"dom\" library."
   (require 'dom)
   (let ((file-of-recent-files
