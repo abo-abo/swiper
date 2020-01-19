@@ -2946,7 +2946,10 @@ Works for `counsel-git-grep', `counsel-ag', etc."
             (let* ((command-args (counsel--split-command-args ivy-text))
                    (regex (counsel--grep-regex (cdr command-args)))
                    (switches (concat (car command-args)
-                                     (counsel--ag-extra-switches regex))))
+                                     (counsel--ag-extra-switches regex)
+                                     (if (ivy--case-fold-p ivy-text)
+                                         " -i "
+                                       " -s "))))
               (format cmd-template
                       (concat
                        switches
@@ -4331,7 +4334,9 @@ S will be of the form \"[register]: content\"."
                                      imenu-auto-rescan-maxout))
          (items (imenu--make-index-alist t))
          (items (delete (assoc "*Rescan*" items) items))
-         (items (counsel-imenu-categorize-functions items)))
+         (items (if (eq major-mode 'emacs-lisp-mode)
+                    (counsel-imenu-categorize-functions items)
+                  items)))
     (counsel-imenu-get-candidates-from items)))
 
 (defun counsel-imenu-get-candidates-from (alist &optional prefix)

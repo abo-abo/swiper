@@ -1709,8 +1709,18 @@ This string is inserted into the minibuffer."
            (const :tag "Full line" ivy-format-function-line)
            (function :tag "Custom function"))))
 
+(defcustom ivy-avy-style 'pre
+  "The `avy-style' setting for `ivy-avy'."
+  :type '(choice
+          (const :tag "Pre" pre)
+          (const :tag "At" at)
+          (const :tag "At Full" at-full)
+          (const :tag "Post" post)
+          (const :tag "De Bruijn" de-bruijn)
+          (const :tag "Words" words)))
+
 (eval-after-load 'avy
-  '(add-to-list 'avy-styles-alist '(ivy-avy . pre)))
+  '(add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style)))
 
 (defun ivy--avy-candidates ()
   (let (candidates)
@@ -3353,7 +3363,10 @@ Should be run via minibuffer `post-command-hook'."
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
-  (unless (frame-root-window-p (minibuffer-window))
+  (unless (or (frame-root-window-p (minibuffer-window))
+              (memq this-command '(ivy-read-action
+                                   ivy-dispatching-done
+                                   ivy-dispatching-call)))
     (with-selected-window (minibuffer-window)
       (if (fboundp 'window-text-pixel-size)
           (let ((text-height (cdr (window-text-pixel-size)))
