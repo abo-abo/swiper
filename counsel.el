@@ -5395,9 +5395,19 @@ to the popped head of the ring."
                     prev-macro))))
       (setq kmacro-ring (delq actual-macro kmacro-ring)))))
 
-(defun counsel-kmacro-action-copy-initial-counter-value-for-new-macro (x)
-  "Set `kmacro-initial-counter-value' to an existing keyboard macro's original counter value.
-This will apply to the next macro a user defines."
+(defun counsel-kmacro-action-copy-initial-counter-value (x)
+  "Pass an existing keyboard macro's original value to `kmacro-set-counter'.
+This value will be used by the next executed macro, or as an
+initial value by the next macro defined.
+
+Note that calling an existing macro that itself uses a counter
+effectively resets the initial counter value for the next defined macro
+to 0."
+  ;; NOTE:
+  ;; Calling `kmacro-start-macro' without an argument sets `kmacro-counter'
+  ;; to 0 if `kmacro-initial-counter'is nil, and sets `kmacro-initial-counter'
+  ;; to nil regardless.
+  ;; Using `kmacro-insert-counter' sets `kmacro-initial-counter' to nil.
   (let* ((actual-kmacro (cdr x))
          (number (nth 1 actual-kmacro)))
     (kmacro-set-counter number)))
@@ -5447,7 +5457,7 @@ counter value and iteration amount."
 
 (ivy-set-actions
  'counsel-kmacro
- '(("c" counsel-kmacro-action-copy-initial-counter-value-for-new-macro "copy initial counter value for new macro")
+ '(("c" counsel-kmacro-action-copy-initial-counter-value "copy initial counter value")
    ("d" counsel-kmacro-action-delete-kmacro "delete")
    ("f" counsel-kmacro-action-copy-counter-format-for-new-macro "copy counter format for new macro")
    ("e" counsel-kmacro-action-execute-after-prompt "execute after prompt")))
