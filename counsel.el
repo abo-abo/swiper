@@ -2246,11 +2246,20 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
    ("x" counsel-find-file-extern "open externally")))
 
 (defun counsel-recentf-candidates ()
-  "Return candidates for `counsel-recentf'."
-  (append (mapcar #'substring-no-properties recentf-list)
-          (and counsel-recentf-include-xdg-list
-               (version< "25" emacs-version)
-               (counsel--recentf-get-xdg-recent-files))))
+  "Return candidates for `counsel-recentf'.
+
+When `counsel-recentf-include-xdg-list' is non-nil, also include
+the list of recently used files as specified by XDG-compliant
+environments, and sort all candidates by access time."
+  (if (and counsel-recentf-include-xdg-list
+           (version< "25" emacs-version))
+      (seq-uniq (sort (append (mapcar #'substring-no-properties recentf-list)
+                              (counsel--recentf-get-xdg-recent-files))
+                      (lambda (file1 file2)
+                        (> (time-to-seconds (file-attribute-access-time (file-attributes file1)))
+                           (time-to-seconds (file-attribute-access-time (file-attributes file2))))))
+                #'string-equal)
+    (mapcar #'substring-no-properties recentf-list)))
 
 (defun counsel--strip-prefix (prefix str)
   (let ((l (length prefix)))
