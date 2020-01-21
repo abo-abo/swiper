@@ -4323,6 +4323,11 @@ matching the register's value description against a regexp in
   :sort-fn #'ivy-string<)
 
 ;;** `counsel-evil-registers'
+(defface counsel-evil-register-face
+  '((t (:inherit counsel-outline-1)))
+  "Face for highlighting `evil' registers in ivy."
+  :group 'ivy-faces)
+
 ;;;###autoload
 (defun counsel-evil-registers ()
   "Ivy replacement for `evil-show-registers'."
@@ -4330,11 +4335,15 @@ matching the register's value description against a regexp in
   (if (fboundp 'evil-register-list)
       (ivy-read "evil-registers: "
                 (cl-loop for (key . val) in (evil-register-list)
-                   collect (format "[%c]: %s" key (if (stringp val) val "")))
+                   collect (format "[%s]: %s"
+                                   (propertize (char-to-string key)
+                                               'face 'counsel-evil-register-face)
+                                   (if (stringp val) val "")))
                 :require-match t
                 :action #'counsel-evil-registers-action
                 :caller 'counsel-evil-registers)
     (user-error "Required feature `evil' not installed.")))
+
 (ivy-configure 'counsel-evil-registers
   :height 5
   :format-fn #'counsel--yank-pop-format-function)
