@@ -3941,6 +3941,68 @@ Position of selected mark outside accessible part of buffer")))
   :unwind-fn #'counsel--mark-ring-unwind
   :sort-fn #'ivy-string<)
 
+;;** `counsel-evil-marks'
+(defvar counsel--evil-marks-exclude-registers nil
+  "List of evil registers to not display in `counsel-evil-marks' by default.
+Each member of the list should be a character (stored as an integer).")
+
+(defun counsel-mark--get-evil-candidates ()
+  "Convert all evil MARKS in the current buffer to mark candidates.
+works like `counsel-mark--get-candidates' but also prepends the
+register tied to a mark in the message string."
+  ;; evil doesn't provide a standalone method to access the list of
+  ;; marks in the current buffer, as it does with registers.
+  (let* ((all-markers
+          (append
+           (cl-remove-if (lambda (m)
+                           (or (evil-global-marker-p (car m))
+                               (not (markerp (cdr m)))))
+                         evil-markers-alist)
+           (cl-remove-if (lambda (m)
+                           (or (not (evil-global-marker-p (car m)))
+                               (not (markerp (cdr m)))))
+                         (default-value 'evil-markers-alist))))
+
+         (all-markers
+          ;; with prefix, ignore register exclusion list.
+          (if prefix-arg
+              all-markers
+            (cl-remove-if-not
+             (lambda (x) (not (member (car x) counsel--evil-marks-exclude-registers)))
+             all-markers)))
+         ;; seperate the markers from the evil registers
+         ;; for call to `counsel-mark--get-candidates'
+         (registers (mapcar #'car all-markers))
+         (markers (mapcar #'cdr all-markers))
+         (candidates (counsel-mark--get-candidates markers)))
+    (when candidates
+      (let (register candidate result)
+        (while (and (setq register (pop registers))
+                    (setq candidate (pop candidates)))
+          (let ((point (get-text-property 0 'point candidate))
+                (evil-candidate
+                 (format "[%s]: %s"
+                         (propertize (char-to-string register)
+                                     'face 'counsel-evil-register-face)
+                         candidate)))
+            (push (propertize evil-candidate 'point point) result)))
+        result))))
+
+;;;###autoload
+(defun counsel-evil-marks ()
+  "Ivy replacement for `evil-show-marks'.
+By default, this function respects `counsel--evil-marks-exclude-registers'.
+Pass a prefix argument to display all active evil registers."
+  (interactive)
+  (if (and (boundp 'evil-markers-alist)
+           (fboundp 'evil-global-marker-p))
+      (let* ((counsel--mark-ring-calling-point (point))
+             (candidates (counsel-mark--get-evil-candidates)))
+        (if candidates
+            (counsel-mark--ivy-read candidates 'counsel-evil-marks)
+          (message "no evil marks are active")))
+    (user-error "Required feature `evil' not installed or not loaded.")))
+
 ;;** `counsel-package'
 (defvar package--initialized)
 (defvar package-alist)
