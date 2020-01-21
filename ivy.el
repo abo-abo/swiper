@@ -1348,6 +1348,16 @@ If the input is empty, select the previous history element instead."
           action
         (cadr (nth (car action) action))))))
 
+(defun ivy--get-multi-action (state)
+  "Get the multi-action function from STATE."
+  (let* ((action (ivy-state-action state))
+         (multi-action
+          (and (listp action)
+               (nth 3 (nth (car action) action)))))
+    (if multi-action
+        multi-action
+      (ivy-state-multi-action state))))
+
 (defun ivy--get-window (state)
   "Get the window from STATE."
   (if (ivy-state-p state)
@@ -1473,16 +1483,19 @@ will be called for each element of this list.")
              (prog1 (unwind-protect
                          (if ivy-marked-candidates
                              (let* ((prefix-len (length ivy-mark-prefix))
-                                    (marked-candidates (mapcar
-                                                        (lambda (s) (substring s prefix-len))
-                                                        ivy-marked-candidates)))
-                               (if (ivy-state-multi-action ivy-last)
-                                   (funcall
-                                    (ivy-state-multi-action ivy-last)
-                                    marked-candidates)
+                                    (marked-candidates
+                                     (mapcar
+                                      (lambda (s)
+                                        (let ((cand (substring s prefix-len)))
+                                          (if ivy--directory
+                                              (expand-file-name cand ivy--directory)
+                                            cand)))
+                                      ivy-marked-candidates))
+                                    (multi-action (ivy--get-multi-action ivy-last)))
+                               (if multi-action
+                                   (funcall multi-action marked-candidates)
                                  (dolist (c marked-candidates)
-                                   (let ((default-directory (ivy-state-directory ivy-last)))
-                                     (funcall action c)))))
+                                   (funcall action c))))
                            (funcall action x))
                       (ivy-recursive-restore))
                (unless (or (eq ivy-exit 'done)
