@@ -3880,15 +3880,6 @@ This variable has no effect unless
 Obeys `widen-automatically', which see."
   (interactive)
   (let* ((counsel--mark-ring-calling-point (point))
-         (width (length (number-to-string (line-number-at-pos (point-max)))))
-         (fmt (format "%%%dd %%s" width))
-         (make-candidate
-          (lambda (mark)
-            (goto-char (marker-position mark))
-            (let ((linum (line-number-at-pos))
-                  (line (buffer-substring
-                         (line-beginning-position) (line-end-position))))
-              (propertize (format fmt linum line) 'point (point)))))
          (marks (copy-sequence mark-ring))
          (marks (delete-dups marks))
          (marks
@@ -3896,27 +3887,54 @@ Obeys `widen-automatically', which see."
           (if (equal (mark-marker) (make-marker))
               marks
             (cons (copy-marker (mark-marker)) marks)))
-         (cands
-          ;; Widen, both to save `line-number-at-pos' the trouble
-          ;; and for `buffer-substring' to work.
-          (save-excursion
-            (save-restriction
-              (widen)
-              (mapcar make-candidate marks)))))
-    (if cands
-        (ivy-read "Mark: " cands
-                  :require-match t
-                  :action (lambda (cand)
-                            (let ((pos (get-text-property 0 'point cand)))
-                              (when pos
-                                (unless (<= (point-min) pos (point-max))
-                                  (if widen-automatically
-                                      (widen)
-                                    (error "\
-Position of selected mark outside accessible part of buffer")))
-                                (goto-char pos))))
-                  :caller 'counsel-mark-ring)
+         (candidates (counsel-mark--get-candidates marks)))
+    (if candidates
+        (counsel-mark--ivy-read candidates 'counsel-mark-ring)
       (message "Mark ring is empty"))))
+
+(defun counsel-mark--get-candidates (marks)
+  "Convert a list of MARKS into mark candidates.
+candidates are simply strings formatted to have the line number of the
+associated mark prepended to them and having an extra text property of
+point to indicarte where the candidate mark is."
+  (when marks
+    (save-excursion
+      (save-restriction
+        ;; Widen, both to save `line-number-at-pos' the trouble
+        ;; and for `buffer-substring' to work.
+        (widen)
+        (let* ((width (length (number-to-string (line-number-at-pos (point-max)))))
+               (fmt (format "%%%dd %%s" width)))
+          (mapcar (lambda (mark)
+                    (goto-char (marker-position mark))
+                    (let ((linum (line-number-at-pos))
+                          (line  (buffer-substring
+                                  (line-beginning-position) (line-end-position))))
+                      (propertize (format fmt linum line) 'point (point))))
+                  marks))))))
+
+(defun counsel-mark--ivy-read (candidates caller)
+  "call `ivy-read' with sane defaults for traversing marks.
+CANDIDATES should be an alist with the `car' of the list being
+the string displayed by ivy and the `cdr' being the point that
+mark should take you to.
+
+NOTE This has been abstracted out into it's own method so it can
+be used by both `counsel-mark-ring' and `counsel-evil-marks'"
+  (ivy-read "Mark: " candidates
+            :require-match t
+            :update-fn #'counsel--mark-ring-update-fn
+            :action (lambda (cand)
+                      (let ((pos (get-text-property 0 'point cand)))
+                        (when pos
+                          (unless (<= (point-min) pos (point-max))
+                            (if widen-automatically
+                                (widen)
+                              (error "\
+Position of selected mark outside accessible part of buffer")))
+                          (goto-char pos))))
+            :unwind #'counsel--mark-ring-unwind
+            :caller caller))
 
 (ivy-configure 'counsel-mark-ring
   :update-fn #'counsel--mark-ring-update-fn
