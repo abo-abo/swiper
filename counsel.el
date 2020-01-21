@@ -2536,7 +2536,7 @@ string - the full shell command to run."
 (defun counsel-locate-cmd-es (input)
   "Return a shell command based on INPUT."
   (counsel-require-program "es.exe")
-  (let ((raw-string (format "es.exe -i -r -p %s"
+  (let ((raw-string (format "es.exe -i -p -r %s"
                             (counsel--elisp-to-pcre
                              (ivy--regex input t)))))
     ;; W32 don't use Unicode by default, so we encode search command
