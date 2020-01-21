@@ -3942,13 +3942,16 @@ Position of selected mark outside accessible part of buffer")))
   :sort-fn #'ivy-string<)
 
 ;;** `counsel-evil-marks'
-(defvar counsel--evil-marks-exclude-registers nil
+(defvar counsel-evil-marks-exclude-registers nil
   "List of evil registers to not display in `counsel-evil-marks' by default.
 Each member of the list should be a character (stored as an integer).")
 
-(defun counsel-mark--get-evil-candidates ()
+(defvar evil-markers-alist)
+(declare-function evil-global-marker-p "ext:evil")
+
+(defun counsel-mark--get-evil-candidates (all-markers-p)
   "Convert all evil MARKS in the current buffer to mark candidates.
-works like `counsel-mark--get-candidates' but also prepends the
+Works like `counsel-mark--get-candidates' but also prepends the
 register tied to a mark in the message string."
   ;; evil doesn't provide a standalone method to access the list of
   ;; marks in the current buffer, as it does with registers.
@@ -3965,10 +3968,10 @@ register tied to a mark in the message string."
 
          (all-markers
           ;; with prefix, ignore register exclusion list.
-          (if prefix-arg
+          (if all-markers-p
               all-markers
             (cl-remove-if-not
-             (lambda (x) (not (member (car x) counsel--evil-marks-exclude-registers)))
+             (lambda (x) (not (member (car x) counsel-evil-marks-exclude-registers)))
              all-markers)))
          ;; seperate the markers from the evil registers
          ;; for call to `counsel-mark--get-candidates'
@@ -3989,15 +3992,15 @@ register tied to a mark in the message string."
         result))))
 
 ;;;###autoload
-(defun counsel-evil-marks ()
+(defun counsel-evil-marks (&optional arg)
   "Ivy replacement for `evil-show-marks'.
-By default, this function respects `counsel--evil-marks-exclude-registers'.
-Pass a prefix argument to display all active evil registers."
-  (interactive)
+By default, this function respects `counsel-evil-marks-exclude-registers'.
+When ARG is non-nil, display all active evil registers."
+  (interactive "P")
   (if (and (boundp 'evil-markers-alist)
            (fboundp 'evil-global-marker-p))
       (let* ((counsel--mark-ring-calling-point (point))
-             (candidates (counsel-mark--get-evil-candidates)))
+             (candidates (counsel-mark--get-evil-candidates arg)))
         (if candidates
             (counsel-mark--ivy-read candidates 'counsel-evil-marks)
           (message "no evil marks are active")))
