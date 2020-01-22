@@ -3947,7 +3947,7 @@ Position of selected mark outside accessible part of buffer")))
 Each member of the list should be a character (stored as an integer).")
 
 (defvar evil-markers-alist)
-(declare-function evil-global-marker-p "ext:evil")
+(declare-function evil-global-marker-p "ext:evil-common")
 
 (defun counsel-mark--get-evil-candidates (all-markers-p)
   "Convert all evil MARKS in the current buffer to mark candidates.
