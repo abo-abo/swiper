@@ -1695,7 +1695,7 @@ Intended to be bound in `isearch-mode-map' and `swiper-map'."
         (swiper-isearch query))
     (ivy-exit-with-action
      (lambda (_)
-       (when (looking-back ivy-regex (line-beginning-position))
+       (when (looking-back (ivy-re-to-str ivy-regex) (line-beginning-position))
          (goto-char (match-beginning 0)))
        (isearch-mode t)
        (unless (string= ivy-text "")
