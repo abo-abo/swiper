@@ -2243,7 +2243,9 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
  'counsel-recentf
  '(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
-   ("x" counsel-find-file-extern "open externally")))
+   ("x" counsel-find-file-extern "open externally")
+   ("d" (lambda (file) (setq recentf-list (delete file recentf-list)))
+    "delete from recentf")))
 
 (defun counsel-recentf-candidates ()
   "Return candidates for `counsel-recentf'.
