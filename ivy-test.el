@@ -1445,6 +1445,21 @@ a buffer visiting a file."
                         :dir "tests/find-file/directories-with-spaces/"))
              "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
+(ert-deftest counsel--split-string-with-eol-cr ()
+  (should
+     (equal (counsel--split-string "one\rtwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-lf ()
+  (should
+     (equal (counsel--split-string "one\ntwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-crlf ()
+  (should
+     (equal (counsel--split-string "one\r\ntwo")
+            '("one" "two"))))
+
 (ert-deftest ivy-avy ()
   (when (require 'avy nil t)
     (let ((enable-recursive-minibuffers t)
@@ -1493,9 +1508,10 @@ a buffer visiting a file."
   (let ((test-sets
          '(
            ;; this test must run first as other tests might force a load
-           ivy--lazy-load-ffap--ffap-url-p
+           ;; ivy--lazy-load-ffap--ffap-url-p
            ;; run the rest of the tests
-           (not ivy--lazy-load-ffap--ffap-url-p)))
+           ;; (not ivy--lazy-load-ffap--ffap-url-p)
+           "counsel--split"))
         (unexpected 0))
     (dolist (test-set test-sets)
       (cl-incf
