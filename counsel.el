@@ -2259,8 +2259,13 @@ time."
        (sort (append (mapcar #'substring-no-properties recentf-list)
                      (counsel--recentf-get-xdg-recent-files))
              (lambda (file1 file2)
-               (> (time-to-seconds (file-attribute-access-time (file-attributes file1)))
-                  (time-to-seconds (file-attribute-access-time (file-attributes file2)))))))
+               (cond ((file-remote-p file1)
+                      nil)
+                     ((file-remote-p file2)
+                      t)
+                     (t
+                      (> (time-to-seconds (file-attribute-access-time (file-attributes file1)))
+                         (time-to-seconds (file-attribute-access-time (file-attributes file2)))))))))
     (mapcar #'substring-no-properties recentf-list)))
 
 (defun counsel--strip-prefix (prefix str)
