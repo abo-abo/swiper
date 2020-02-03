@@ -856,8 +856,11 @@ candidate, not the prompt."
       (ivy--exhibit)
       (ivy-dispatching-done))))
 
-(defvar ivy-read-action-format-function 'ivy-read-action-format-default
-  "Function used to transform the actions list into a docstring.")
+(defcustom ivy-read-action-format-function 'ivy-read-action-format-default
+  "Function used to transform the actions list into a docstring."
+  :type '(radio
+          (function-item ivy-read-action-format-default)
+          (function-item ivy-read-action-format-columns)))
 
 (defun ivy-read-action-format-default (actions)
   "Create a docstring from ACTIONS.
@@ -884,38 +887,38 @@ key (a string), cmd and doc (a string)."
 ACTIONS is a list.  Each list item is a list of 3 items: key (a
 string), cmd and doc (a string)."
   (let ((length (length actions))
-	(i 0)
-	(max-rows (- ivy-height 1))
-	rows cols col lwidth rwidth)
+        (i 0)
+        (max-rows (- ivy-height 1))
+        rows cols col lwidth rwidth)
     (while (< i length)
       (setq col (cl-subseq actions i (min length (cl-incf i max-rows))))
       (setq lwidth (apply 'max (mapcar (lambda (x)
-					 (length (nth 0 x)))
-				       col)))
+                                         (length (nth 0 x)))
+                                       col)))
       (setq rwidth (apply 'max (mapcar (lambda (x)
-					 (length (nth 2 x)))
-				       col)))
+                                         (length (nth 2 x)))
+                                       col)))
       (setq col (mapcar (lambda (x)
-			  (format (format "%%%ds: %%-%ds" lwidth rwidth)
-				  (propertize (car x) 'face 'ivy-action)
-				  (nth 2 x)))
-			col))
+                          (format (format "%%%ds: %%-%ds" lwidth rwidth)
+                                  (propertize (car x) 'face 'ivy-action)
+                                  (nth 2 x)))
+                        col))
       (cond
-       ((null rows)
-	(setq rows (length col)))
-       ((< (length col) rows)
-	(setq col (append col (make-list (- rows (length col)) "")))))
+        ((null rows)
+         (setq rows (length col)))
+        ((< (length col) rows)
+         (setq col (append col (make-list (- rows (length col)) "")))))
       (push col cols))
     (format "%s\n%s\n"
             (if (eq this-command 'ivy-read-action)
-		"Select action: "
+                "Select action: "
               (ivy-state-current ivy-last))
-	    (mapconcat 'identity
-		       (apply 'cl-mapcar
-			      (lambda (&rest args)
-				(mapconcat 'identity args " | "))
-			      (nreverse cols))
-		       "\n"))))
+            (mapconcat 'identity
+                       (apply 'cl-mapcar
+                              (lambda (&rest args)
+                                (mapconcat 'identity args " | "))
+                              (nreverse cols))
+                       "\n"))))
 
 (defcustom ivy-read-action-function #'ivy-read-action-by-key
   "Function used to read an action."
