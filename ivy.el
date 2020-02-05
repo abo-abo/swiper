@@ -4455,13 +4455,20 @@ BUFFER may be a string or nil."
   (let ((ivy--recompute-index-inhibit t))
     (ivy--exhibit)))
 
+(defun ivy--kill-current-candidate-buffer ()
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  (setq ivy--old-re nil)
+  (setq ivy--all-candidates (ivy--buffer-list "" ivy-use-virtual-buffers nil))
+  (let ((ivy--recompute-index-inhibit t))
+    (ivy--exhibit)))
+
 (defun ivy--kill-buffer-action (buffer)
   "Kill BUFFER."
   (ivy--kill-buffer-or-virtual buffer)
   (unless (buffer-live-p (ivy-state-buffer ivy-last))
     (setf (ivy-state-buffer ivy-last)
           (with-ivy-window (current-buffer))))
-  (ivy--kill-current-candidate))
+  (ivy--kill-current-candidate-buffer))
 
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
