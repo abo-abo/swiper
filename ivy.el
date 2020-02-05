@@ -4445,10 +4445,10 @@ BUFFER may be a string or nil."
                         (cdr (assoc buffer ivy--virtual-buffers))
                         recentf-list))))
 
-(defun ivy--kill-current-candidate ()
+(defun ivy--kill-current-candidate-buffer ()
   (setf (ivy-state-preselect ivy-last) ivy--index)
   (setq ivy--old-re nil)
-  (setq ivy--all-candidates (delete (ivy-state-current ivy-last) ivy--all-candidates))
+  (setq ivy--all-candidates (ivy--buffer-list "" ivy-use-virtual-buffers nil))
   (let ((ivy--recompute-index-inhibit t))
     (ivy--exhibit)))
 
@@ -4458,7 +4458,7 @@ BUFFER may be a string or nil."
   (unless (buffer-live-p (ivy-state-buffer ivy-last))
     (setf (ivy-state-buffer ivy-last)
           (with-ivy-window (current-buffer))))
-  (ivy--kill-current-candidate))
+  (ivy--kill-current-candidate-buffer))
 
 (defvar ivy-switch-buffer-map
   (let ((map (make-sparse-keymap)))
@@ -4747,6 +4747,13 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
 
 (defvar ivy--reverse-i-search-symbol nil
   "Store the history symbol.")
+
+(defun ivy--kill-current-candidate ()
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  (setq ivy--old-re nil)
+  (setq ivy--all-candidates (delete (ivy-state-current ivy-last) ivy--all-candidates))
+  (let ((ivy--recompute-index-inhibit t))
+    (ivy--exhibit)))
 
 (defun ivy-reverse-i-search-kill ()
   "Remove the current item from history"
