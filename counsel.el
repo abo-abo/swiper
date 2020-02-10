@@ -882,6 +882,8 @@ packages are, in order of precedence, `amx' and `smex'."
 (defvar counsel-M-x-history nil
   "History for `counsel-M-x'.")
 
+(declare-function string-trim-left "subr-x")
+
 (defun counsel-M-x-action (cmd)
   "Execute CMD."
   (setq cmd (intern (string-trim-left cmd "\\^")))
