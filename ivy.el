@@ -1128,11 +1128,13 @@ contains a single candidate.")
            (cond ((string-match
                    "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                    ivy-text)
-                  (ivy-set-text (ivy-state-current ivy-last)))
+                  (save-match-data
+                    (ivy-set-text (ivy-state-current ivy-last))))
                  ((string-match
                    "\\`\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
                    (ivy-state-current ivy-last))
-                  (ivy-set-text (ivy-state-current ivy-last)))))
+                  (save-match-data
+                    (ivy-set-text (ivy-state-current ivy-last))))))
       (string-match
        "\\`/\\([^/]+?\\):\\(?:\\(.*\\)@\\)?\\(.*\\)\\'"
        ivy-text)))
