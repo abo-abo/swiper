@@ -2773,7 +2773,6 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :preselect (counsel--preselect-file)
               :require-match 'confirm-after-completion
               :history 'file-name-history
-              :keymap counsel-find-file-map
               :caller 'counsel-file-jump)))
 
 (ivy-set-actions
