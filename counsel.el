@@ -1875,6 +1875,7 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
    ("R" find-file-read-only "read only")
+   ("l" find-file-literally "open literally")
    ("k" counsel-find-file-delete "delete")
    ("c" counsel-find-file-copy "copy file")
    ("m" counsel-find-file-move "move or rename")
