@@ -134,8 +134,17 @@ Treated as non-nil when searching backwards."
   :type 'boolean
   :group 'swiper)
 
+(defun swiper-C-s (&optional arg)
+  "Move cursor vertically down ARG candidates.
+If the input is empty, select the previous history element instead."
+  (interactive "p")
+  (if (string= ivy-text "")
+      (ivy-previous-history-element 1)
+    (ivy-next-line arg)))
+
 (defvar swiper-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-s") 'swiper-C-s)
     (define-key map (kbd "M-q") 'swiper-query-replace)
     (define-key map (kbd "C-l") 'swiper-recenter-top-bottom)
     (define-key map (kbd "C-'") 'swiper-avy)
