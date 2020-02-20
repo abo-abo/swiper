@@ -4179,7 +4179,7 @@ CANDS is a list of candidates that :display-transformer can turn into strings."
       (setq ivy--virtual-buffers (nreverse virtual-buffers))
       (mapcar #'car ivy--virtual-buffers))))
 
-(defcustom ivy-ignore-buffers '("\\` ")
+(defcustom ivy-ignore-buffers '("\\` " "\\`\\*tramp/")
   "List of regexps or functions matching buffer names to ignore."
   :type '(repeat (choice regexp function)))
 
