@@ -1087,7 +1087,7 @@ contains a single candidate.")
       (setq ivy-last old-ivy-last)
       (when host
         (setq ivy--directory "/")
-        (ivy--cd (concat "/" method ":" host ":"))))))
+        (ivy--cd (concat "/" method ":" host ":/"))))))
 
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
