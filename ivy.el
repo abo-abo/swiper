@@ -2390,7 +2390,7 @@ This is useful for recursive `ivy-read'."
                                                counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
-             (setq coll (funcall collection (or initial-input ""))))
+             (setq coll (ivy--dynamic-collection-cands (or initial-input ""))))
             ((consp (car-safe collection))
              (setq collection (cl-remove-if-not predicate collection))
              (when (and sort (setq sort-fn (ivy--sort-function caller)))
@@ -3341,6 +3341,10 @@ Should be run via minibuffer `post-command-hook'."
         (ivy--insert-minibuffer new-minibuffer)))
     t))
 
+(defun ivy--dynamic-collection-cands (input)
+  (mapcar (lambda (x) (if (consp x) (car x) x))
+          (funcall (ivy-state-collection ivy-last) input)))
+
 (defun ivy--update-minibuffer ()
   (prog1
       (if (ivy-state-dynamic-collection ivy-last)
@@ -3350,7 +3354,7 @@ Should be run via minibuffer `post-command-hook'."
                 coll in-progress)
             (unless (equal ivy--old-text ivy-text)
               (while-no-input
-                (setq coll (funcall (ivy-state-collection ivy-last) ivy-text))
+                (setq coll (ivy--dynamic-collection-cands ivy-text))
                 (when (eq coll 0)
                   (setq coll nil)
                   (setq ivy--old-re nil)

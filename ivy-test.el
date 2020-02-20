@@ -182,7 +182,17 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy-with
                   '(ivy-read "x: " '("one" "two" ("three" . "four")))
                   "th C-m")
-                 "three")))
+                 "three"))
+  (should (equal (ivy-with
+                  '(ivy-read "x: "
+                    (lambda (_input)
+                      '(("one" . 1)
+                        ("two" . 2)))
+                    :dynamic-collection t
+                    :action (lambda (choice)
+                              (message "%s" choice)))
+                  "C-m")
+                 "one")))
 
 (ert-deftest ivy-read-sort-alist ()
   (should (equal (ivy-with '(let ((coll '(("b" . "1") ("a" . "2"))))
