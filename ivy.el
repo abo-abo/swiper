@@ -4089,6 +4089,10 @@ in this case."
 (defun ivy--format (cands)
   "Return a string for CANDS suitable for display in the minibuffer.
 CANDS is a list of candidates that :display-transformer can turn into strings."
+  (setq cands
+        (mapcar (lambda (x)
+                  (if (consp x) (car x) x))
+                cands))
   (setq ivy--length (length cands))
   (when (>= ivy--index ivy--length)
     (ivy-set-index (max (1- ivy--length) 0)))
