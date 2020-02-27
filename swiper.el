@@ -833,6 +833,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
             (point))
         (unless (or res swiper-stay-on-quit)
           (goto-char swiper--opoint))
+        (isearch-clean-overlays)
         (unless (or res (string= ivy-text ""))
           (cl-pushnew ivy-text swiper-history))
         (setq swiper--current-window-start nil)
