@@ -935,7 +935,8 @@ selection, non-nil otherwise."
   (let ((actions (ivy-state-action ivy-last)))
     (if (not (ivy--actionp actions))
         t
-      (funcall ivy-read-action-function actions))))
+      (let ((ivy--directory ivy--directory))
+        (funcall ivy-read-action-function actions)))))
 
 (defun ivy-read-action-by-key (actions)
   (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
