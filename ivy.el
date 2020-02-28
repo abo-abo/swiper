@@ -321,11 +321,16 @@ ACTIONS that have the same key."
 
 (defun ivy--compute-extra-actions (action caller)
   "Add extra actions to ACTION based on CALLER."
-  (let ((extra-actions (cl-delete-duplicates
-                        (append (plist-get ivy--actions-list t)
-                                (plist-get ivy--actions-list this-command)
-                                (plist-get ivy--actions-list caller))
-                        :key #'car :test #'equal)))
+  (let* ((extra-actions (cl-delete-duplicates
+                         (append (plist-get ivy--actions-list t)
+                                 (plist-get ivy--actions-list this-command)
+                                 (plist-get ivy--actions-list caller))
+                         :key #'car :test #'equal))
+         (override-default (assoc "o" extra-actions)))
+    (when override-default
+      (setq action (cadr override-default))
+      (setq extra-actions
+            (assoc-delete-all "o" extra-actions)))
     (if extra-actions
         (cond ((functionp action)
                `(1
