@@ -327,22 +327,20 @@ ACTIONS that have the same key."
                                  (plist-get ivy--actions-list caller))
                          :key #'car :test #'equal))
          (override-default (assoc "o" extra-actions)))
-    (when override-default
-      (setq action (cadr override-default))
-      (setq extra-actions
-            (assoc-delete-all "o" extra-actions)))
-    (if extra-actions
-        (cond ((functionp action)
-               `(1
-                 ("o" ,action "default")
-                 ,@extra-actions))
-              ((null action)
-               `(1
-                 ("o" identity "default")
-                 ,@extra-actions))
-              (t
-               (delete-dups (append action extra-actions))))
-      action)))
+    (cond (override-default
+           (cons 1 (cons override-default (assoc-delete-all "o" extra-actions))))
+          ((not extra-actions)
+           action)
+          ((functionp action)
+           `(1
+             ("o" ,action "default")
+             ,@extra-actions))
+          ((null action)
+           `(1
+             ("o" identity "default")
+             ,@extra-actions))
+          (t
+           (delete-dups (append action extra-actions))))))
 
 (defvar ivy--prompts-list nil)
 
