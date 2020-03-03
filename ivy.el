@@ -941,8 +941,11 @@ selection, non-nil otherwise."
       (let ((ivy--directory ivy--directory))
         (funcall ivy-read-action-function actions)))))
 
+(defvar set-message-function)
+
 (defun ivy-read-action-by-key (actions)
-  (let* ((hint (funcall ivy-read-action-format-function (cdr actions)))
+  (let* ((set-message-function nil)
+         (hint (funcall ivy-read-action-format-function (cdr actions)))
          (resize-mini-windows t)
          (key "")
          action-idx)
