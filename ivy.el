@@ -3346,8 +3346,10 @@ Should be run via minibuffer `post-command-hook'."
     t))
 
 (defun ivy--dynamic-collection-cands (input)
-  (mapcar (lambda (x) (if (consp x) (car x) x))
-          (funcall (ivy-state-collection ivy-last) input)))
+  (let ((coll (funcall (ivy-state-collection ivy-last) input)))
+    (if (listp coll)
+        (mapcar (lambda (x) (if (consp x) (car x) x)) coll)
+      coll)))
 
 (defun ivy--update-minibuffer ()
   (prog1
