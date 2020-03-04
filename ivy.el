@@ -1834,19 +1834,23 @@ This string is inserted into the minibuffer."
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
   (interactive)
-  (unless (require 'avy nil 'noerror)
-    (error "Package avy isn't installed"))
-  (let* ((avy-all-windows nil)
-         (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
-                       avy-keys))
-         (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
-                        avy-style))
-         (avy-action #'identity)
-         (avy-handler-function #'ivy--avy-handler-function)
-         res)
-    (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
-    (when res
-      (ivy--avy-action res))))
+  (cond ((not (require 'avy nil 'noerror))
+         (error "Package avy isn't installed"))
+        ((= (minibuffer-depth) 0)
+         (user-error
+          "This command is intended to be called with \"C-'\" from `ivy-read'."))
+        (t
+         (let* ((avy-all-windows nil)
+                (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
+                              avy-keys))
+                (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
+                               avy-style))
+                (avy-action #'identity)
+                (avy-handler-function #'ivy--avy-handler-function)
+                res)
+           (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
+           (when res
+             (ivy--avy-action res))))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
