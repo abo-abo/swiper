@@ -1851,6 +1851,7 @@ This string is inserted into the minibuffer."
            (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
            (when res
              (ivy--avy-action res))))))
+(put 'ivy-avy 'no-counsel-M-x t)
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
