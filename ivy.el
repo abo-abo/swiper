@@ -3219,6 +3219,7 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
           (magic (not (string= ivy-text "/"))))
       (cond ((member ivy-text ivy--all-candidates)
              (ivy--cd canonical))
+            ((and (eq system-type 'windows-nt) (string= ivy-text "//")))
             ((string-match-p "//\\'" ivy-text)
              (ivy--cd
               (ivy--magic-file-doubleslash-directory)))
