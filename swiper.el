@@ -670,6 +670,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
 (defun swiper-occur (&optional cands)
   "Generate a custom occur buffer for `swiper'.
 When capture groups are present in the input, print them instead of lines."
+  (setq cands (or ivy-marked-candidates cands))
   (let* ((buffer (swiper--occur-buffer))
          (fname (propertize
                  (with-ivy-window

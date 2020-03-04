@@ -1413,6 +1413,7 @@ If the input is empty, select the previous history element instead."
   (let* ((action (ivy-state-action state))
          (multi-action
           (and (listp action)
+               (not (eq (car action) 'lambda))
                (nth 3 (nth (car action) action)))))
     (if multi-action
         multi-action
