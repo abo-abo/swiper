@@ -2110,17 +2110,25 @@ found, it falls back to the key t."
     (remove-list-of-text-properties 0 (length str) props str))
   str)
 
+(defun ivy--update-prompt (prompt)
+  (cond ((equal prompt "Keyword, C-h: ")
+         ;; auto-insert.el
+         "Keyword (C-M-j to end): ")
+        (t
+         ;; misearch.el
+         (replace-regexp-in-string "RET to end" "C-M-j to end" prompt))))
+
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
-                    &key
-                      predicate require-match initial-input
-                      history preselect def keymap update-fn sort
-                      action multi-action
-                      unwind re-builder matcher
-                      dynamic-collection
-                      extra-props
-                      caller)
+                           &key
+                           predicate require-match initial-input
+                           history preselect def keymap update-fn sort
+                           action multi-action
+                           unwind re-builder matcher
+                           dynamic-collection
+                           extra-props
+                           caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string, normally ending in a colon and a space.
@@ -2198,7 +2206,7 @@ customizations apply to the current completion session."
     (setq unwind (or unwind (ivy-alist-setting ivy-unwind-fns-alist caller)))
     (setq ivy-last
           (make-ivy-state
-           :prompt prompt
+           :prompt (ivy--update-prompt prompt)
            :collection collection
            :predicate predicate
            :require-match require-match
@@ -2233,30 +2241,30 @@ customizations apply to the current completion session."
            :def def))
     (ivy--reset-state ivy-last)
     (unwind-protect
-         (minibuffer-with-setup-hook
-             #'ivy--minibuffer-setup
-           (let* ((hist (or history 'ivy-history))
-                  (minibuffer-completion-table collection)
-                  (minibuffer-completion-predicate predicate)
-                  (ivy-height (ivy--height caller))
-                  (resize-mini-windows (unless (display-graphic-p)
-                                         'grow-only)))
-             (if (and ivy-auto-select-single-candidate
-                      ivy--all-candidates
-                      (null (cdr ivy--all-candidates)))
-                 (progn
-                   (setf (ivy-state-current ivy-last)
-                         (car ivy--all-candidates))
-                   (setq ivy-exit 'done))
-               (read-from-minibuffer
-                prompt
-                (ivy-state-initial-input ivy-last)
-                (make-composed-keymap keymap ivy-minibuffer-map)
-                nil
-                hist)
-               (pop (symbol-value hist)))
-             (when (eq ivy-exit 'done)
-               (ivy--update-history hist))))
+        (minibuffer-with-setup-hook
+            #'ivy--minibuffer-setup
+          (let* ((hist (or history 'ivy-history))
+                 (minibuffer-completion-table collection)
+                 (minibuffer-completion-predicate predicate)
+                 (ivy-height (ivy--height caller))
+                 (resize-mini-windows (unless (display-graphic-p)
+                                        'grow-only)))
+            (if (and ivy-auto-select-single-candidate
+                     ivy--all-candidates
+                     (null (cdr ivy--all-candidates)))
+                (progn
+                  (setf (ivy-state-current ivy-last)
+                        (car ivy--all-candidates))
+                  (setq ivy-exit 'done))
+              (read-from-minibuffer
+               prompt
+               (ivy-state-initial-input ivy-last)
+               (make-composed-keymap keymap ivy-minibuffer-map)
+               nil
+               hist)
+              (pop (symbol-value hist)))
+            (when (eq ivy-exit 'done)
+              (ivy--update-history hist))))
       (ivy--cleanup))
     (ivy-call)))
 
@@ -2393,8 +2401,6 @@ This is useful for recursive `ivy-read'."
                          (equal (ivy--get-action ivy-last) 'identity))
                  (setq initial-input nil))))
             ((eq collection #'internal-complete-buffer)
-             (setq prompt
-                   (replace-regexp-in-string "RET to end" "C-M-j to end" prompt))
              (setq coll (ivy--buffer-list
                          ""
                          (and ivy-use-virtual-buffers
