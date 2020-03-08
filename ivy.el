@@ -3596,7 +3596,10 @@ CANDIDATES are assumed to be static."
         (setq res (append
                    (ivy--filter ivy-text (cadr source))
                    res))))
-    (setq ivy--all-candidates (delete-dups res))))
+    (setq ivy--all-candidates
+          (if (cdr ivy--extra-candidates)
+              (delete-dups res)
+            res))))
 
 (defun ivy--shorter-matches-first (_name cands)
   "Sort CANDS according to their length."
