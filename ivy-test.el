@@ -1499,6 +1499,14 @@ a buffer visiting a file."
                               :dir ivy-empty))
                    ivy-empty)))
 
+(ert-deftest counsel--split-command-args ()
+  (should (equal
+           (counsel--split-command-args "require -- -g*.el")
+           '("-g*.el" . "require")))
+  (should (equal
+           (counsel--split-command-args "counsel--format")
+           '("" . "counsel--format"))))
+
 (defun ivy-test-run-tests ()
   (let ((test-sets
          '(

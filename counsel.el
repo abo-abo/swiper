@@ -2834,20 +2834,16 @@ regex string."
 
 (defvar counsel--regex-look-around nil)
 
-(defconst counsel--command-args-separator "-- ")
+(defconst counsel--command-args-separator " -- ")
 
 (defun counsel--split-command-args (arguments)
   "Split ARGUMENTS into its switches and search-term parts.
 Return pair of corresponding strings (SWITCHES . SEARCH-TERM)."
-  (let ((switches "")
-        (search-term arguments))
-    (when (string-prefix-p "-" arguments)
-      (let ((index (string-match counsel--command-args-separator arguments)))
-        (when index
-          (setq search-term
-                (substring arguments (+ (length counsel--command-args-separator) index)))
-          (setq switches (substring arguments 0 index)))))
-    (cons switches search-term)))
+  (if (string-match counsel--command-args-separator arguments)
+      (cons
+       (substring arguments (match-end 0))
+       (substring arguments 0 (match-beginning 0)))
+    (cons "" arguments)))
 
 (defun counsel--format-ag-command (extra-args needle)
   "Construct a complete `counsel-ag-command' as a string.
@@ -3071,7 +3067,7 @@ EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
 RG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
 
 Example input with inclusion and exclusion file patterns:
-    -g*.py -g!*test* -- ..."
+    require i -- -g*.el"
   (interactive)
   (let ((counsel-ag-base-command
          (concat counsel-rg-base-command (counsel--rg-targets)))
