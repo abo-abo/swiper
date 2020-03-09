@@ -1098,6 +1098,13 @@ WND, when specified is the window."
   (or (get-text-property 0 'swiper-line-number x)
       (get-text-property 1 'swiper-line-number x)))
 
+(defun swiper--push-mark ()
+  (when (/= (point) swiper--opoint)
+    (unless (and transient-mark-mode mark-active)
+      (when (eq ivy-exit 'done)
+        (push-mark swiper--opoint t)
+        (message "Mark saved where search started")))))
+
 (defun swiper--action (x)
   "Goto line X."
   (let ((ln (1- (swiper--line-number x)))
@@ -1121,11 +1128,7 @@ WND, when specified is the window."
           (goto-char (match-beginning 0)))
         (swiper--ensure-visible)
         (swiper--maybe-recenter)
-        (when (/= (point) swiper--opoint)
-          (unless (and transient-mark-mode mark-active)
-            (when (eq ivy-exit 'done)
-              (push-mark swiper--opoint t)
-              (message "Mark saved where search started"))))
+        (swiper--push-mark)
         (swiper--remember-search-history re)))))
 
 (defun swiper--remember-search-history (re)
@@ -1493,7 +1496,9 @@ that we search only for one character."
         (isearch-range-invisible (point) (1+ (point)))
         (swiper--maybe-recenter)
         (if (eq ivy-exit 'done)
-            (swiper--remember-search-history (ivy--regex ivy-text))
+            (progn
+              (swiper--push-mark)
+              (swiper--remember-search-history (ivy--regex ivy-text)))
           (swiper--cleanup)
           (swiper--delayed-add-overlays)
           (swiper--add-cursor-overlay
