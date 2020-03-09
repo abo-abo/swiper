@@ -3215,8 +3215,8 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
   (let (remote)
     (cond
       ;; Windows
-      ((string-match "\\`[[:alpha:]]:/" ivy--directory)
-       (match-string 0 ivy--directory))
+      ;; ((string-match "\\`[[:alpha:]]:/" ivy--directory)
+      ;;  (match-string 0 ivy--directory))
       ;; Remote root if on remote
       ((setq remote (file-remote-p ivy--directory))
        (concat remote "/"))
