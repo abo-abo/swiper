@@ -1740,9 +1740,12 @@ minibuffer."
         (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
         (ivy--exhibit))
     (ignore-errors
-      (let ((pt (point)))
+      (let ((pt (point))
+            (last-command (if (eq last-command 'ivy-backward-kill-word)
+                              'kill-region
+                            last-command)))
         (forward-word -1)
-        (delete-region (point) pt)))))
+        (kill-region pt (point))))))
 
 (defvar ivy--regexp-quote #'regexp-quote
   "Store the regexp quoting state.")

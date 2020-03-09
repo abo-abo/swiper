@@ -454,6 +454,18 @@ will bring the behavior in line with the newer Emacsen."
      (insert ,text)
      ,@body))
 
+(ert-deftest ivy-backward-kill-word ()
+  (should (string= (ivy-with
+                    '(ivy-read "test: " nil
+                      :initial-input "one two three")
+                    "M-DEL M-DEL C-M-j")
+                   "one "))
+  (should (string= (ivy-with
+                    '(ivy-read "test: " nil
+                      :initial-input "one two three")
+                    "M-DEL M-DEL M-DEL C-y C-M-j")
+                   "one two three")))
+
 (ert-deftest counsel-url-expand ()
   "Test ffap expansion using `counsel-url-expansions-alist'."
   ;; no expansions defined
@@ -462,8 +474,8 @@ will bring the behavior in line with the newer Emacsen."
   (let ((counsel-url-expansions-alist
          '(("^foo$" . "https://foo.com/%s")
            ("^issue\\([0-9]+\\)" . (lambda (word)
-                                     (concat "https://foo.com/issues/"
-                                             (match-string 1 word)))))))
+                                 (concat "https://foo.com/issues/"
+                                         (match-string 1 word)))))))
     ;; no match
     (should (equal (ivy--string-buffer
                     "foobar"
