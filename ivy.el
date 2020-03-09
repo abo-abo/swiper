@@ -3980,7 +3980,9 @@ and SEPARATOR is used to join them."
    "\n"))
 
 (defun ivy-format-function-line (cands)
-  "Transform CANDS into a string for minibuffer."
+  "Transform CANDS into a string for minibuffer.
+Note that since Emacs 27, `ivy-current-match' needs to have :extend t attribute.
+It has it by default, but the current theme also needs to set it."
   (ivy--format-function-generic
    (lambda (str)
      (ivy--add-face (concat str "\n") 'ivy-current-match))
