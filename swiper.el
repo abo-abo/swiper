@@ -1098,12 +1098,17 @@ WND, when specified is the window."
   (or (get-text-property 0 'swiper-line-number x)
       (get-text-property 1 'swiper-line-number x)))
 
+(defcustom swiper-verbose t
+  "When non-nil, print more informational messages."
+  :type 'boolean)
+
 (defun swiper--push-mark ()
   (when (/= (point) swiper--opoint)
     (unless (and transient-mark-mode mark-active)
       (when (eq ivy-exit 'done)
         (push-mark swiper--opoint t)
-        (message "Mark saved where search started")))))
+        (when swiper-verbose
+          (message "Mark saved where search started"))))))
 
 (defun swiper--action (x)
   "Goto line X."
