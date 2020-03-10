@@ -1467,6 +1467,21 @@ a buffer visiting a file."
                         :dir "tests/find-file/directories-with-spaces/"))
              "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
+(ert-deftest counsel--split-string-with-eol-cr ()
+  (should
+     (equal (counsel--split-string "one\rtwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-lf ()
+  (should
+     (equal (counsel--split-string "one\ntwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-crlf ()
+  (should
+     (equal (counsel--split-string "one\r\ntwo")
+            '("one" "two"))))
+
 (ert-deftest ivy-avy ()
   (when (require 'avy nil t)
     (let ((enable-recursive-minibuffers t)
