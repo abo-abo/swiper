@@ -2958,6 +2958,13 @@ Works for `counsel-git-grep', `counsel-ag', etc."
     (ivy-quit-and-run
       (funcall (ivy-state-caller ivy-last) input new-dir))))
 
+(defun counsel--grep-smart-case-flag ()
+  (if (ivy--case-fold-p ivy-text)
+      " -i "
+    (if (string-match-p "\\`pt" counsel-ag-base-command)
+        " -S "
+      " -s ")))
+
 (defun counsel-grep-like-occur (cmd-template)
   (unless (eq major-mode 'ivy-occur-grep-mode)
     (ivy-occur-grep-mode)
@@ -2972,9 +2979,7 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                    (regex (counsel--grep-regex (cdr command-args)))
                    (switches (concat (car command-args)
                                      (counsel--ag-extra-switches regex)
-                                     (if (ivy--case-fold-p ivy-text)
-                                         " -i "
-                                       " -s "))))
+                                     (counsel--grep-smart-case-flag))))
               (format cmd-template
                       (concat
                        switches
