@@ -3067,7 +3067,7 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command
   (if (memq system-type '(ms-dos windows-nt))
-      "rg -M 120 --with-filename --no-heading --line-number --color never %s --path-separator /."
+      "rg -M 120 --with-filename --no-heading --line-number --color never %s --path-separator / ."
     "rg -M 120 --with-filename --no-heading --line-number --color never %s")
   "Alternative to `counsel-ag-base-command' using ripgrep.
 
