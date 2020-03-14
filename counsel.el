@@ -2617,6 +2617,34 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   :unwind-fn #'counsel-delete-process
   :exit-codes '(1 "Nothing found"))
 
+;;** `counsel-tracker'
+(defun counsel-tracker-function (input)
+  "Call the \"tracker\" shell command with INPUT."
+  (or
+   (ivy-more-chars)
+   (progn
+     (counsel--async-command
+      (format
+       "tracker sparql -q \"SELECT ?url WHERE { ?s a nfo:FileDataObject ; nie:url ?url . FILTER (STRSTARTS (?url, 'file://$HOME/')) . FILTER regex(?url, '%s') }\" | tail -n +2 | head -n -1"
+       (counsel--elisp-to-pcre (funcall ivy--regex-function input))))
+     '("" "working..."))))
+
+(defun counsel-tracker-transformer (str)
+  (if (string-match "file:///" str)
+      (decode-coding-string (url-unhex-string (substring str 9)) 'utf-8)
+    str))
+
+;;;###autoload
+(defun counsel-tracker ()
+  (interactive)
+  (ivy-read "Tracker: " 'counsel-tracker-function
+            :dynamic-collection t
+            :action (lambda (s) (find-file (counsel-tracker-transformer s)))
+            :caller 'counsel-tracker))
+
+(ivy-configure 'counsel-tracker
+  :display-transformer-fn #'counsel-tracker-transformer)
+
 ;;** `counsel-fzf'
 (defvar counsel-fzf-cmd "fzf -f \"%s\""
   "Command for `counsel-fzf'.")
