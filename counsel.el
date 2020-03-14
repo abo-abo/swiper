@@ -3519,6 +3519,10 @@ otherwise continue prompting for tags."
   "If non-nil, display COMMENT string in matched `org-mode' headlines."
   :type 'boolean)
 
+(defcustom counsel-org-headline-display-statistics nil
+  "If non-nil, display statistics cookie in matched `org-mode' headlines."
+  :type 'boolean)
+
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
 (declare-function outline-next-heading "outline")
@@ -4798,6 +4802,8 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
+(declare-function org-trim "org-macs")
+
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
 
@@ -4857,7 +4863,11 @@ Intended as a value for the `:outline-title' setting in
   "Return title of current outline heading.
 Like `counsel-outline-title' (which see), but for `org-mode'
 buffers."
-  (apply #'org-get-heading (counsel--org-get-heading-args)))
+  (let ((statistics-re "\\[[0-9]*\\(?:%\\|/[0-9]*\\)\\]")
+        (heading (apply #'org-get-heading (counsel--org-get-heading-args))))
+    (if counsel-org-headline-display-statistics
+        heading
+      (org-trim (replace-regexp-in-string statistics-re " " heading)))))
 
 (defun counsel-outline-title-markdown ()
   "Return title of current outline heading.
