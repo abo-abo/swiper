@@ -3515,6 +3515,10 @@ otherwise continue prompting for tags."
   "If non-nil, display priorities in matched `org-mode' headlines."
   :type 'boolean)
 
+(defcustom counsel-org-headline-display-comment nil
+  "If non-nil, display COMMENT string in matched `org-mode' headlines."
+  :type 'boolean)
+
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
 (declare-function outline-next-heading "outline")
@@ -3634,11 +3638,12 @@ version.  Argument values are based on the
 `counsel-org-headline-display-*' user options."
   (nbutlast (mapcar #'not (list counsel-org-headline-display-tags
                                 counsel-org-headline-display-todo
-                                counsel-org-headline-display-priority))
+                                counsel-org-headline-display-priority
+                                counsel-org-headline-display-comment))
             (if (if (fboundp 'func-arity)
                     (< (cdr (func-arity #'org-get-heading)) 3)
                   (version< org-version "9.1.1"))
-                1 0)))
+                2 0)))
 
 ;;** `counsel-org-file'
 (declare-function org-attach-dir "org-attach")
