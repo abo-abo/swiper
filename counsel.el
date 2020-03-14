@@ -3543,6 +3543,14 @@ otherwise continue prompting for tags."
   "If non-nil, display priorities in matched `org-mode' headlines."
   :type 'boolean)
 
+(defcustom counsel-org-headline-display-comment nil
+  "If non-nil, display COMMENT string in matched `org-mode' headlines."
+  :type 'boolean)
+
+(defcustom counsel-org-headline-display-statistics nil
+  "If non-nil, display statistics cookie in matched `org-mode' headlines."
+  :type 'boolean)
+
 (declare-function org-get-heading "org")
 (declare-function org-goto-marker-or-bmk "org")
 (declare-function outline-next-heading "outline")
@@ -3662,11 +3670,12 @@ version.  Argument values are based on the
 `counsel-org-headline-display-*' user options."
   (nbutlast (mapcar #'not (list counsel-org-headline-display-tags
                                 counsel-org-headline-display-todo
-                                counsel-org-headline-display-priority))
+                                counsel-org-headline-display-priority
+                                counsel-org-headline-display-comment))
             (if (if (fboundp 'func-arity)
                     (< (cdr (func-arity #'org-get-heading)) 3)
                   (version< org-version "9.1.1"))
-                1 0)))
+                2 0)))
 
 ;;** `counsel-org-file'
 (declare-function org-attach-dir "org-attach")
@@ -3884,7 +3893,28 @@ This variable has no effect unless
               :history 'counsel-org-agenda-headlines-history
               :caller 'counsel-org-agenda-headlines)))
 
-;;* Misc. Emacs
+;;** `counsel-org-link'
+(declare-function org-insert-link "ol")
+(declare-function org-id-get-create "org-id")
+
+(defun counsel-org-link-action (x)
+  "Insert a link to X."
+  (let ((id (save-excursion
+              (goto-char (cdr x))
+              (org-id-get-create))))
+    (org-insert-link nil (concat "id:" id) (car x))))
+
+;;;###autoload
+(defun counsel-org-link ()
+  "Insert a link to an headline with completion."
+  (interactive)
+  (ivy-read "Link: " (counsel-outline-candidates
+                      '(:outline-title counsel-outline-title-org ))
+            :action #'counsel-org-link-action
+            :history 'counsel-org-link-history
+            :caller 'counsel-org-link))
+
+;; Misc. Emacs
 ;;** `counsel-mark-ring'
 (defface counsel--mark-ring-highlight
   '((t (:inherit highlight)))
@@ -4821,6 +4851,8 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;** `counsel-outline'
+(declare-function org-trim "org-macs")
+
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
 
@@ -4880,7 +4912,11 @@ Intended as a value for the `:outline-title' setting in
   "Return title of current outline heading.
 Like `counsel-outline-title' (which see), but for `org-mode'
 buffers."
-  (apply #'org-get-heading (counsel--org-get-heading-args)))
+  (let ((statistics-re "\\[[0-9]*\\(?:%\\|/[0-9]*\\)\\]")
+        (heading (apply #'org-get-heading (counsel--org-get-heading-args))))
+    (if counsel-org-headline-display-statistics
+        heading
+      (org-trim (replace-regexp-in-string statistics-re " " heading)))))
 
 (defun counsel-outline-title-markdown ()
   "Return title of current outline heading.
