@@ -4983,7 +4983,11 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (setq n (or n 1))
   (let ((ivy-calling t))
     (cond ((< n 0) (ivy-occur-previous-line (- n)))
-          (t (ivy-occur-next-line n)))))
+          (t (ivy-occur-next-line n))))
+  ;; the window's point overrides the buffer's point every time it's redisplayed
+  (cl-dolist (window (get-buffer-window-list nil nil t))
+    (set-window-point window (point)))
+  )
 
 (define-derived-mode ivy-occur-mode fundamental-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
