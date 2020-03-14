@@ -1572,7 +1572,7 @@ When not running `swiper-isearch' already, start it."
           (mapconcat
            #'identity
            (swiper--isearch-format
-            ivy--index ivy--length ivy--old-cands
+            ivy--index ivy--length (or ivy--old-cands ivy--all-candidates)
             re
             (ivy-state-current ivy-last)
             (ivy-state-buffer ivy-last))
