@@ -1659,33 +1659,36 @@ When not running `swiper-isearch' already, start it."
         (cl-incf i))
       (nreverse res))))
 
+(defun swiper--isearch-init ()
+  "Initialize `swiper-isearch'."
+  (swiper--init)
+  (setq swiper--isearch-start-point (point))
+  (swiper-font-lock-ensure))
+
 ;;;###autoload
 (defun swiper-isearch (&optional initial-input)
   "A `swiper' that's not line-based."
   (interactive)
-  (swiper--init)
-  (setq swiper--isearch-start-point (point))
-  (swiper-font-lock-ensure)
   (let ((ivy-fixed-height-minibuffer t)
         (cursor-in-non-selected-windows nil)
         (swiper-min-highlight 1)
         res)
     (unwind-protect
-         (and
-          (setq res
-                (ivy-read
-                 "Swiper: "
-                 #'swiper-isearch-function
-                 :initial-input initial-input
-                 :keymap swiper-isearch-map
-                 :dynamic-collection t
-                 :require-match t
-                 :action #'swiper-isearch-action
-                 :re-builder #'swiper--re-builder
-                 :history 'swiper-history
-                 :extra-props (list :fname (buffer-file-name))
-                 :caller 'swiper-isearch))
-          (point))
+        (and
+         (setq res
+               (ivy-read
+                "Swiper: "
+                #'swiper-isearch-function
+                :initial-input initial-input
+                :keymap swiper-isearch-map
+                :dynamic-collection t
+                :require-match t
+                :action #'swiper-isearch-action
+                :re-builder #'swiper--re-builder
+                :history 'swiper-history
+                :extra-props (list :fname (buffer-file-name))
+                :caller 'swiper-isearch))
+         (point))
       (unless (or res swiper-stay-on-quit)
         (goto-char swiper--opoint))
       (isearch-clean-overlays)
@@ -1695,6 +1698,7 @@ When not running `swiper-isearch' already, start it."
 
 (ivy-configure 'swiper-isearch
   :occur #'swiper-occur
+  :init-fn #'swiper--isearch-init
   :update-fn 'auto
   :unwind-fn #'swiper--cleanup
   :format-fn #'swiper-isearch-format-function)
