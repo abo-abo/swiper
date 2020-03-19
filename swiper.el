@@ -447,6 +447,7 @@ such as `scroll-conservatively' are set to a high value.")
     package-menu-mode
     rcirc-mode
     sauron-mode
+    sieve-mode
     treemacs-mode
     twittering-mode
     vc-dir-mode
