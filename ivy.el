@@ -2001,6 +2001,11 @@ May supersede `ivy-initial-inputs-alist'."
 (defvar ivy-unwind-fns-alist nil
   "An alist associating commands to their :unwind values.")
 
+(defvar ivy-init-fns-alist nil
+  "An alist associating commands to their :init values.
+An :init is a function with no arguments.
+`ivy-read' calls it to initialize.")
+
 (defun ivy--alist-set (alist-sym key val)
   (let ((cell (assoc key (symbol-value alist-sym))))
     (if cell
@@ -2012,18 +2017,19 @@ May supersede `ivy-initial-inputs-alist'."
 
 (cl-defun ivy-configure (caller
                          &key
-                           initial-input
-                           height
-                           occur
-                           update-fn
-                           unwind-fn
-                           index-fn
-                           sort-fn
-                           format-fn
-                           display-transformer-fn
-                           more-chars
-                           grep-p
-                           exit-codes)
+                         initial-input
+                         height
+                         occur
+                         update-fn
+                         init-fn
+                         unwind-fn
+                         index-fn
+                         sort-fn
+                         format-fn
+                         display-transformer-fn
+                         more-chars
+                         grep-p
+                         exit-codes)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
   (when initial-input
@@ -2036,6 +2042,8 @@ May supersede `ivy-initial-inputs-alist'."
     (ivy--alist-set 'ivy-update-fns-alist caller update-fn))
   (when unwind-fn
     (ivy--alist-set 'ivy-unwind-fns-alist caller unwind-fn))
+  (when init-fn
+    (ivy--alist-set 'ivy-init-fns-alist caller init-fn))
   (when index-fn
     (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
   (when sort-fn
@@ -2196,6 +2204,9 @@ session-specific data.
 CALLER is a symbol to uniquely identify the caller to `ivy-read'.
 It is used, along with COLLECTION, to determine which
 customizations apply to the current completion session."
+  (let ((init-fn (ivy-alist-setting ivy-init-fns-alist caller)))
+    (when init-fn
+      (funcall init-fn)))
   ;; get un-stuck from an existing `read-key' overriding minibuffer keys
   (when (equal overriding-local-map '(keymap))
     (keyboard-quit))
