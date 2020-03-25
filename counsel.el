@@ -2869,8 +2869,8 @@ regex string."
 Return pair of corresponding strings (SWITCHES . SEARCH-TERM)."
   (if (string-match counsel--command-args-separator arguments)
       (cons
-       (substring arguments (match-end 0))
-       (substring arguments 0 (match-beginning 0)))
+       (substring arguments 0 (match-beginning 0))
+       (substring arguments (match-end 0)))
     (cons "" arguments)))
 
 (defun counsel--format-ag-command (extra-args needle)
