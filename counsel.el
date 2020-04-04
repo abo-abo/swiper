@@ -5422,8 +5422,9 @@ value of a macro, using them for a new macro."
 (ivy-configure 'counsel-kmacro
   :format-fn #'counsel--kmacro-format-function)
 
-(defvar counsel-kmacro-separator "\n------------------------\n"
-  "Separator displayed between keyboard macros in `counsel-kmacro'.")
+(defcustom counsel-kmacro-separator "\n------------------------\n"
+  "Separator displayed between keyboard macros in `counsel-kmacro'."
+  :type 'string)
 
 (defun counsel--kmacro-format-function (formatted-kmacro)
   "Transform FORMATTED-KMACRO into a string for `counsel-kmacro'."
