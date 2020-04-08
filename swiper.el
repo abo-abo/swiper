@@ -204,10 +204,10 @@ If the input is empty, select the previous history element instead."
         (t
          (swiper--query-replace-setup)
          (unwind-protect
-              (let* ((enable-recursive-minibuffers t)
-                     (from (ivy-re-to-str ivy-regex))
-                     (groups (number-sequence 1 ivy--subexps))
-                     (default
+             (let* ((enable-recursive-minibuffers t)
+                    (from (ivy-re-to-str ivy-regex))
+                    (groups (number-sequence 1 ivy--subexps))
+                    (default
                       (list
                        (mapconcat (lambda (i) (format "\\%d" i)) groups " ")
                        (format "\\,(concat %s)"
@@ -217,21 +217,21 @@ If the input is empty, select the previous history element instead."
                                   (lambda (i) (format "\\%d" i))
                                   groups
                                   " \" \" ")))))
-                     (to
-                      (query-replace-compile-replacement
-                       (ivy-read
-                        (format "Query replace %s with: " from) nil
-                        :def default
-                        :caller 'swiper-query-replace)
-                       t)))
-                (swiper--cleanup)
-                (ivy-exit-with-action
-                 (lambda (_)
-                   (with-ivy-window
-                     (move-beginning-of-line 1)
-                     (let ((inhibit-read-only t))
-                       (perform-replace from to
-                                        t t nil))))))
+                    (to
+                     (query-replace-compile-replacement
+                      (ivy-read
+                       (format "Query replace %s with: " from) nil
+                       :def default
+                       :caller 'swiper-query-replace)
+                      t)))
+               (swiper--cleanup)
+               (ivy-exit-with-action
+                (lambda (_)
+                  (with-ivy-window
+                    (move-beginning-of-line 1)
+                    (let ((inhibit-read-only t))
+                      (perform-replace from to
+                                       t t nil))))))
            (swiper--query-replace-cleanup)))))
 
 (ivy-configure 'swiper-query-replace
@@ -255,11 +255,11 @@ If the input is empty, select the previous history element instead."
          (let ((wnd-conf (current-window-configuration))
                (inhibit-message t))
            (unwind-protect
-                (dolist (cand ivy--old-cands)
-                  (let ((buffer (get-text-property 0 'buffer cand)))
-                    (switch-to-buffer buffer)
-                    (goto-char (point-min))
-                    (perform-replace from to t t nil)))
+               (dolist (cand ivy--old-cands)
+                 (let ((buffer (get-text-property 0 'buffer cand)))
+                   (switch-to-buffer buffer)
+                   (goto-char (point-min))
+                   (perform-replace from to t t nil)))
              (set-window-configuration wnd-conf))))))))
 (put 'swiper-all-query-replace 'no-counsel-M-x t)
 
@@ -321,16 +321,16 @@ If the input is empty, select the previous history element instead."
   (let ((candidates (swiper--avy-candidates))
         (avy-all-windows nil))
     (unwind-protect
-         (prog2
-             (avy--make-backgrounds
-              (append (avy-window-list)
-                      (list (ivy-state-window ivy-last))))
-             (if (eq avy-style 'de-bruijn)
-                 (avy-read-de-bruijn candidates avy-keys)
-               (avy-read (avy-tree candidates avy-keys)
-                         #'avy--overlay-post
-                         #'avy--remove-leading-chars))
-           (avy-push-mark))
+        (prog2
+            (avy--make-backgrounds
+             (append (avy-window-list)
+                     (list (ivy-state-window ivy-last))))
+            (if (eq avy-style 'de-bruijn)
+                (avy-read-de-bruijn candidates avy-keys)
+              (avy-read (avy-tree candidates avy-keys)
+                        #'avy--overlay-post
+                        #'avy--remove-leading-chars))
+          (avy-push-mark))
       (avy--done))))
 
 (defun swiper--avy-goto (candidate)
@@ -743,43 +743,43 @@ line numbers.  For the buffer, use `ivy--regex' instead."
   (let* ((re-builder (ivy-alist-setting ivy-re-builders-alist))
          (str (replace-regexp-in-string "\\\\n" "\n" str))
          (re (cond
-               ((equal str "")
-                "")
-               ((equal str "^")
-                (setq ivy--subexps 0)
-                ".")
-               ((= (aref str 0) ?^)
-                (let* ((re (funcall re-builder (substring str 1)))
-                       (re (if (listp re)
-                               (mapconcat (lambda (x)
-                                            (format "\\(%s\\)" (car x)))
-                                          (cl-remove-if-not #'cdr re)
-                                          ".*?")
-                             re)))
-                  (cond
-                    ((string= re "$")
-                     (if (eq (ivy-state-caller ivy-last) 'swiper)
-                         "^ $"
-                       "^$"))
-                    ((zerop ivy--subexps)
-                     (prog1 (format "^ ?\\(%s\\)" re)
-                       (setq ivy--subexps 1)))
-                    (t
-                     (format "^ %s" re)))))
-               ((fboundp (bound-and-true-p search-default-mode))
-                (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
-                    (concat
-                     "\\_<"
-                     (funcall search-default-mode (match-string 1 str))
-                     "\\_>")
-                  (let ((subs (ivy--split str)))
-                    (setq ivy--subexps (length subs))
-                    (mapconcat
-                     (lambda (s) (format "\\(%s\\)" (funcall search-default-mode s)))
-                     subs
-                     ".*?"))))
-               (t
-                (funcall re-builder str)))))
+              ((equal str "")
+               "")
+              ((equal str "^")
+               (setq ivy--subexps 0)
+               ".")
+              ((= (aref str 0) ?^)
+               (let* ((re (funcall re-builder (substring str 1)))
+                      (re (if (listp re)
+                              (mapconcat (lambda (x)
+                                           (format "\\(%s\\)" (car x)))
+                                         (cl-remove-if-not #'cdr re)
+                                         ".*?")
+                            re)))
+                 (cond
+                  ((string= re "$")
+                   (if (eq (ivy-state-caller ivy-last) 'swiper)
+                       "^ $"
+                     "^$"))
+                  ((zerop ivy--subexps)
+                   (prog1 (format "^ ?\\(%s\\)" re)
+                     (setq ivy--subexps 1)))
+                  (t
+                   (format "^ %s" re)))))
+              ((fboundp (bound-and-true-p search-default-mode))
+               (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
+                   (concat
+                    "\\_<"
+                    (funcall search-default-mode (match-string 1 str))
+                    "\\_>")
+                 (let ((subs (ivy--split str)))
+                   (setq ivy--subexps (length subs))
+                   (mapconcat
+                    (lambda (s) (format "\\(%s\\)" (funcall search-default-mode s)))
+                    subs
+                    ".*?"))))
+              (t
+               (funcall re-builder str)))))
     re))
 
 (defvar swiper-history nil
@@ -810,29 +810,29 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
           (minibuffer-allow-text-properties t)
           res)
       (unwind-protect
-           (and
-            (setq res
-                  (ivy-read
-                   "Swiper: "
-                   candidates
-                   :initial-input initial-input
-                   :keymap swiper-map
-                   :preselect
-                   (if initial-input
-                       (cl-position-if
-                        (lambda (x)
-                          (= (1+ preselect) (swiper--line-number x)))
-                        (progn
-                          (setq ivy--old-re nil)
-                          (ivy--filter initial-input candidates)))
-                     preselect)
-                   :require-match t
-                   :action #'swiper--action
-                   :re-builder #'swiper--re-builder
-                   :history 'swiper-history
-                   :extra-props (list :fname (buffer-file-name))
-                   :caller 'swiper))
-            (point))
+          (and
+           (setq res
+                 (ivy-read
+                  "Swiper: "
+                  candidates
+                  :initial-input initial-input
+                  :keymap swiper-map
+                  :preselect
+                  (if initial-input
+                      (cl-position-if
+                       (lambda (x)
+                         (= (1+ preselect) (swiper--line-number x)))
+                       (progn
+                         (setq ivy--old-re nil)
+                         (ivy--filter initial-input candidates)))
+                    preselect)
+                  :require-match t
+                  :action #'swiper--action
+                  :re-builder #'swiper--re-builder
+                  :history 'swiper-history
+                  :extra-props (list :fname (buffer-file-name))
+                  :caller 'swiper))
+           (point))
         (unless (or res swiper-stay-on-quit)
           (goto-char swiper--opoint))
         (isearch-clean-overlays)
@@ -1240,19 +1240,19 @@ otherwise continue prompting for buffers."
   "Return non-nil if BUFFER should be considered by `swiper-all'."
   (let ((mode (buffer-local-value 'major-mode (get-buffer buffer))))
     (cond
-      ;; Ignore TAGS buffers, they tend to add duplicate results.
-      ((eq mode #'tags-table-mode) nil)
-      ;; Always consider dired buffers, even though they're not backed
-      ;; by a file.
-      ((eq mode #'dired-mode) t)
-      ;; Always consider stash buffers too, as they may have
-      ;; interesting content not present in any buffers. We don't #'
-      ;; quote to satisfy the byte-compiler.
-      ((eq mode 'magit-stash-mode) t)
-      ;; Email buffers have no file, but are useful to search
-      ((eq mode 'gnus-article-mode) t)
-      ;; Otherwise, only consider the file if it's backed by a file.
-      (t (buffer-file-name buffer)))))
+     ;; Ignore TAGS buffers, they tend to add duplicate results.
+     ((eq mode #'tags-table-mode) nil)
+     ;; Always consider dired buffers, even though they're not backed
+     ;; by a file.
+     ((eq mode #'dired-mode) t)
+     ;; Always consider stash buffers too, as they may have
+     ;; interesting content not present in any buffers. We don't #'
+     ;; quote to satisfy the byte-compiler.
+     ((eq mode 'magit-stash-mode) t)
+     ;; Email buffers have no file, but are useful to search
+     ((eq mode 'gnus-article-mode) t)
+     ;; Otherwise, only consider the file if it's backed by a file.
+     (t (buffer-file-name buffer)))))
 
 ;;* `swiper-all'
 (defun swiper-all-function (str)

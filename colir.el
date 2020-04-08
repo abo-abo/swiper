@@ -111,12 +111,12 @@ See also `font-lock-append-text-property'."
                       (cl-find-if #'atom prev)
                     prev))
       (cond
-        ((or (keywordp (car-safe prev)) (consp (car-safe prev)))
-         (put-text-property start next 'face (cons face prev) object))
-        ((facep prevn)
-         (colir--blend-background start next prevn face object))
-        (t
-         (put-text-property start next 'face face object)))
+       ((or (keywordp (car-safe prev)) (consp (car-safe prev)))
+        (put-text-property start next 'face (cons face prev) object))
+       ((facep prevn)
+        (colir--blend-background start next prevn face object))
+       (t
+        (put-text-property start next 'face face object)))
       (setq start next))))
 
 (provide 'colir)
