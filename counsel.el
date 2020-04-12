@@ -5379,11 +5379,14 @@ selected color."
 
 You can insert or kill the name of the selected font."
   (interactive)
-  (ivy-read "Font: " (delete-dups (font-family-list))
-            :require-match t
-            :history 'counsel-fonts-history
-            :action #'insert
-            :caller 'counsel-fonts))
+  (let ((current-font
+         (symbol-name (font-get (face-attribute 'default :font) :family))))
+    (ivy-read "Font: " (delete-dups (font-family-list))
+              :preselect current-font
+              :require-match t
+              :history 'counsel-fonts-history
+              :action #'insert
+              :caller 'counsel-fonts)))
 
 ;;** `counsel-kmacro'
 (defvar counsel-kmacro-map
