@@ -5388,6 +5388,15 @@ You can insert or kill the name of the selected font."
               :action #'insert
               :caller 'counsel-fonts)))
 
+(ivy-configure 'counsel-fonts
+  :display-transformer-fn #'counsel--font-with-sample)
+
+(defun counsel--font-with-sample (font-name)
+  "Format function for `counsel-fonts'."
+  (format "%-75s%s" font-name
+          (propertize "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                      'face (list :family font-name))))
+
 ;;** `counsel-kmacro'
 (defvar counsel-kmacro-map
   (let ((map (make-sparse-keymap)))
