@@ -5606,6 +5606,15 @@ counter value and iteration amount."
     (dbus-call-method :session service path interface
                       "AddToQueue" (cdr song))))
 
+(defun counsel-rhythmbox-playpause-current-song ()
+  "Play/pause the current song."
+  (interactive)
+  (let ((service "org.gnome.Rhythmbox3")
+        (path "/org/mpris/MediaPlayer2")
+        (interface "org.mpris.MediaPlayer2.Player"))
+    (dbus-call-method :session service path interface
+                      "PlayPause")))
+
 (defun counsel-rhythmbox-toggle-shuffle (_song)
   "Toggle Rhythmbox shuffle setting."
   (let* ((old-order (counsel--command "dconf" "read" "/org/gnome/rhythmbox/player/play-order"))
