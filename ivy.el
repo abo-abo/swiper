@@ -2026,6 +2026,7 @@ An :init is a function with no arguments.
                          index-fn
                          sort-fn
                          format-fn
+                         display-fn
                          display-transformer-fn
                          more-chars
                          grep-p
@@ -2050,6 +2051,8 @@ An :init is a function with no arguments.
     (ivy--alist-set 'ivy-sort-functions-alist caller sort-fn))
   (when format-fn
     (ivy--alist-set 'ivy-format-functions-alist caller format-fn))
+  (when display-fn
+    (ivy--alist-set 'ivy-display-functions-alist caller display-fn))
   (when display-transformer-fn
     (ivy-set-display-transformer caller display-transformer-fn))
   (when more-chars
