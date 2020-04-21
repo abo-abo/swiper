@@ -1005,9 +1005,11 @@ will be called for each element of this list.")
   "Select one of the available actions and call `ivy-call'."
   (interactive)
   (setq ivy-current-prefix-arg current-prefix-arg)
-  (let ((actions (copy-sequence (ivy-state-action ivy-last))))
+  (let ((actions (copy-sequence (ivy-state-action ivy-last)))
+        (old-ivy-text ivy-text))
     (unwind-protect
          (when (ivy-read-action)
+           (ivy-set-text old-ivy-text)
            (ivy-call))
       (ivy-set-action actions)))
   (ivy-shrink-after-dispatching))
