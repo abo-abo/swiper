@@ -2811,10 +2811,7 @@ regexp is passed to `regexp-quote'."
         (cond ((= ?\[ c)
                (if (setq end (ivy--match-regex-brackets
                               (substring str i)))
-                   (progn
-                     (push (substring str start (+ i end)) res)
-                     (cl-incf i end)
-                     (setq start i))
+                   (cl-incf i end)
                  (setq ivy--input-garbage (substring str i))
                  (throw 'break nil)))
               ((= ?\\ c)

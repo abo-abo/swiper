@@ -264,7 +264,11 @@ will bring the behavior in line with the newer Emacsen."
                    "\\( -> \\)"
                    ".*")))
   (should (equal (ivy--split "[^ ]\\( -> \\).*")
-                 '("[^ ]" "\\( -> \\)" ".*"))))
+                 '("[^ ]" "\\( -> \\)" ".*")))
+  (should (equal (ivy--split "[ab][cd]") '("[ab][cd]")))
+  (should (equal (ivy--split "[a b][c d]") '("[a b][c d]")))
+  (should (equal (ivy--split "[ab] [cd]") '("[ab]" "[cd]")))
+  (should (equal (ivy--split "[a b] [c d]") '("[a b]" "[c d]"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
