@@ -4570,18 +4570,22 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
-  (let* ((buf (get-buffer str))
-         (dir (buffer-local-value 'default-directory buf))
-         (mode (buffer-local-value 'major-mode buf)))
-    (cond
-      ((and dir (ignore-errors (file-remote-p dir)))
-       (ivy-append-face str 'ivy-remote))
-      ((not (verify-visited-file-modtime buf))
-       (ivy-append-face str 'ivy-modified-outside-buffer))
-      ((buffer-modified-p buf)
-       (ivy-append-face str 'ivy-modified-buffer))
-      (t
-       (ivy-append-face str (cdr (assq mode ivy-switch-buffer-faces-alist)))))))
+  (let ((buf (get-buffer str)))
+    (if buf
+        (let ((dir (buffer-local-value 'default-directory buf))
+              (mode (buffer-local-value 'major-mode buf)))
+          (cond
+            ((and dir (ignore-errors (setq dir (file-remote-p dir))))
+             (concat
+              (ivy-append-face str 'ivy-remote)
+              " " dir))
+            ((not (verify-visited-file-modtime buf))
+             (ivy-append-face str 'ivy-modified-outside-buffer))
+            ((buffer-modified-p buf)
+             (ivy-append-face str 'ivy-modified-buffer))
+            (t
+             (ivy-append-face str (cdr (assq mode ivy-switch-buffer-faces-alist))))))
+      str)))
 
 (defun ivy-switch-buffer-occur (cands)
   "Occur function for `ivy-switch-buffer' using `ibuffer'.
