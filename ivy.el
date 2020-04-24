@@ -4545,21 +4545,30 @@ Otherwise, forward to `ivy-kill-line'."
 (defun ivy--switch-buffer-matcher (regexp candidates)
   "Return REGEXP matching CANDIDATES.
 Skip buffers that match `ivy-ignore-buffers'."
-  (let ((res (ivy--re-filter regexp candidates)))
-    (if (or (null ivy-use-ignore)
-            (null ivy-ignore-buffers))
-        res
-      (or (cl-remove-if
-           (lambda (buf)
-             (cl-find-if
-              (lambda (f-or-r)
-                (if (functionp f-or-r)
-                    (funcall f-or-r buf)
-                  (string-match-p f-or-r buf)))
-              ivy-ignore-buffers))
-           res)
-          (and (eq ivy-use-ignore t)
-               res)))))
+  (if (string-match-p "^:" ivy-text)
+      (delete-dups
+       (cl-remove-if-not
+        (lambda (s)
+          (let ((b (get-buffer s)))
+            (and b
+                 (string-match-p regexp (buffer-local-value 'default-directory b))
+                 (not (string-match-p "^\\*" s)))))
+        candidates))
+    (let ((res (ivy--re-filter regexp candidates)))
+      (if (or (null ivy-use-ignore)
+              (null ivy-ignore-buffers))
+          res
+        (or (cl-remove-if
+             (lambda (buf)
+               (cl-find-if
+                (lambda (f-or-r)
+                  (if (functionp f-or-r)
+                      (funcall f-or-r buf)
+                    (string-match-p f-or-r buf)))
+                ivy-ignore-buffers))
+             res)
+            (and (eq ivy-use-ignore t)
+                 res))))))
 
 (defun ivy-append-face (str face)
   "Append to STR the property FACE."
