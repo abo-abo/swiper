@@ -4575,10 +4575,8 @@ Skip buffers that match `ivy-ignore-buffers'."
         (let ((dir (buffer-local-value 'default-directory buf))
               (mode (buffer-local-value 'major-mode buf)))
           (cond
-            ((and dir (ignore-errors (setq dir (file-remote-p dir))))
-             (concat
-              (ivy-append-face str 'ivy-remote)
-              " " dir))
+            ((and dir (ignore-errors (file-remote-p dir)))
+             (ivy-append-face dir 'ivy-remote))
             ((not (verify-visited-file-modtime buf))
              (ivy-append-face str 'ivy-modified-outside-buffer))
             ((buffer-modified-p buf)
