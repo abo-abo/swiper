@@ -4244,20 +4244,7 @@ If optional argument PREDICATE is non-nil, use it to test each
 possible match.  See `all-completions' for further information."
   (delete-dups
    (nconc
-    (mapcar
-     (lambda (x)
-       (let* ((buf (get-buffer x))
-              (dir (buffer-local-value 'default-directory buf))
-              (face (if (and dir
-                             (ignore-errors
-                               (file-remote-p dir)))
-                        'ivy-remote
-                      (cdr (assq (buffer-local-value 'major-mode buf)
-                                 ivy-switch-buffer-faces-alist)))))
-         (if face
-             (propertize x 'face face)
-           x)))
-     (all-completions str #'internal-complete-buffer predicate))
+    (all-completions str #'internal-complete-buffer predicate)
     (and virtual
          (ivy--virtual-buffers)))))
 
@@ -4582,16 +4569,21 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
-  (let ((b (get-buffer str)))
-    (if (and b (buffer-file-name b))
-        (cond
-          ((and (not (ignore-errors (file-remote-p (buffer-file-name b))))
-                (not (verify-visited-file-modtime b)))
-           (ivy-append-face str 'ivy-modified-outside-buffer))
-          ((buffer-modified-p b)
-           (ivy-append-face str 'ivy-modified-buffer))
-          (t str))
-      str)))
+  (let* ((b (get-buffer str))
+         (dir (buffer-local-value 'default-directory b))
+         (mode (buffer-local-value 'major-mode b)))
+    (cond
+      ((and dir (ignore-errors (file-remote-p dir)))
+       (ivy-append-face str 'ivy-remote))
+      ((not (verify-visited-file-modtime b))
+       (ivy-append-face str 'ivy-modified-outside-buffer))
+      ((buffer-modified-p b)
+       (ivy-append-face str 'ivy-modified-buffer))
+      (t
+       (let ((face (cdr (assq mode ivy-switch-buffer-faces-alist))))
+         (if face
+             (ivy-append-face str face)
+           str))))))
 
 (defun ivy-switch-buffer-occur (cands)
   "Occur function for `ivy-switch-buffer' using `ibuffer'.
