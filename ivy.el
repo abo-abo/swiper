@@ -4563,27 +4563,25 @@ Skip buffers that match `ivy-ignore-buffers'."
 
 (defun ivy-append-face (str face)
   "Append to STR the property FACE."
-  (setq str (copy-sequence str))
-  (ivy-add-face-text-property 0 (length str) face str t)
+  (when face
+    (setq str (copy-sequence str))
+    (ivy-add-face-text-property 0 (length str) face str t))
   str)
 
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
-  (let* ((b (get-buffer str))
-         (dir (buffer-local-value 'default-directory b))
-         (mode (buffer-local-value 'major-mode b)))
+  (let* ((buf (get-buffer str))
+         (dir (buffer-local-value 'default-directory buf))
+         (mode (buffer-local-value 'major-mode buf)))
     (cond
       ((and dir (ignore-errors (file-remote-p dir)))
        (ivy-append-face str 'ivy-remote))
-      ((not (verify-visited-file-modtime b))
+      ((not (verify-visited-file-modtime buf))
        (ivy-append-face str 'ivy-modified-outside-buffer))
-      ((buffer-modified-p b)
+      ((buffer-modified-p buf)
        (ivy-append-face str 'ivy-modified-buffer))
       (t
-       (let ((face (cdr (assq mode ivy-switch-buffer-faces-alist))))
-         (if face
-             (ivy-append-face str face)
-           str))))))
+       (ivy-append-face str (cdr (assq mode ivy-switch-buffer-faces-alist)))))))
 
 (defun ivy-switch-buffer-occur (cands)
   "Occur function for `ivy-switch-buffer' using `ibuffer'.
