@@ -2713,8 +2713,10 @@ See `completion-in-region' for further information."
                                      (goto-char ivy-completion-beg)
                                      (when initial
                                        (insert initial))))
-                         :caller 'ivy-completion-in-region)
-               t))))))
+                         :caller 'ivy-completion-in-region)))
+           ;; Return value should be non-nil on valid completion;
+           ;; see `completion-in-region'.
+           t))))
 
 (defun ivy-completion-in-region-prompt ()
   "Prompt function for `ivy-completion-in-region'.
