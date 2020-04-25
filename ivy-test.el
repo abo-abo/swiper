@@ -1365,11 +1365,9 @@ a buffer visiting a file."
     "Foo\nfoo|\nFOO\n")))
 
 (ert-deftest ivy-swiper-wgrep ()
-  :expected-result (if (and (= emacs-major-version 24)
-                            (<= emacs-minor-version 3))
-                       ;; `wgrep' requires at least 24.5
-                       :failed
-                     :passed)
+  ;; `wgrep' requires Emacs 25 or later.
+  (skip-unless (and (>= emacs-major-version 25)
+                    (require 'wgrep nil t)))
   (dolist (search-cmd '(swiper swiper-isearch))
     (should
      (string=
