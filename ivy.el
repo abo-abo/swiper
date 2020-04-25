@@ -192,17 +192,13 @@ Set this to \"(%d/%d) \" to display both the index and the count."
   "When non-nil, wrap around after the first and the last candidate."
   :type 'boolean)
 
-(defcustom ivy-display-style (and (fboundp 'add-face-text-property) 'fancy)
+(defcustom ivy-display-style 'fancy
   "The style for formatting the minibuffer.
 
 By default, the matched strings are copied as is.
 
 The fancy display style highlights matching parts of the regexp,
-a behavior similar to `swiper'.
-
-This setting depends on `add-face-text-property' - a C function
-available since Emacs 24.4.  Fancy style will render poorly in
-earlier versions of Emacs."
+a behavior similar to `swiper'."
   :type '(choice
           (const :tag "Plain" nil)
           (const :tag "Fancy" fancy)))
@@ -328,7 +324,9 @@ ACTIONS that have the same key."
                          :key #'car :test #'equal))
          (override-default (assoc "o" extra-actions)))
     (cond (override-default
-           (cons 1 (cons override-default (assoc-delete-all "o" extra-actions))))
+           (cons 1 (cons override-default
+                         (cl-delete "o" extra-actions
+                                    :key #'car :test #'equal))))
           ((not extra-actions)
            action)
           ((functionp action)
@@ -699,18 +697,6 @@ N is obtained from `ivy-more-chars-alist'."
 (defun ivy--case-fold-string= (s1 s2)
   "Like `string=', but obeys `case-fold-search'."
   (eq t (compare-strings s1 nil nil s2 nil nil case-fold-search)))
-
-(eval-and-compile
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var)))))
-  (unless (fboundp 'setq-local)
-    (defmacro setq-local (var val)
-      "Set variable VAR to value VAL in current buffer."
-      (list 'set (list 'make-local-variable (list 'quote var)) val))))
 
 (defmacro ivy-quit-and-run (&rest body)
   "Quit the minibuffer and run BODY afterwards."
@@ -1823,7 +1809,7 @@ This string is inserted into the minibuffer."
 
 (defun ivy--avy-handler-function (char)
   (let (cmd)
-    (cond ((memq char '(27 ?\C-g))
+    (cond ((memq char '(?\C-\[ ?\C-g))
            ;; exit silently
            (throw 'done 'abort))
           ((memq (setq cmd (lookup-key ivy-minibuffer-map (vector char)))
@@ -2074,6 +2060,7 @@ An :init is a function with no arguments.
   :type 'integer)
 
 (defalias 'ivy--dirname-p
+  ;; Added in Emacs 25.1.
   (if (fboundp 'directory-name-p)
       #'directory-name-p
     (lambda (name)
@@ -3193,7 +3180,7 @@ parts beyond their respective faces `ivy-confirm-face' and
         ;; remove the face as well.
         (when ivy--use-selectable-prompt
           (if (= ivy--index -1)
-              (ivy-add-face-text-property
+              (add-face-text-property
                (minibuffer-prompt-end) (line-end-position) 'ivy-prompt-match)
             (remove-list-of-text-properties
              (minibuffer-prompt-end) (line-end-position) '(face))))
@@ -3348,18 +3335,21 @@ Should be run via minibuffer `post-command-hook'."
                'ivy--exhibit)))
     (ivy--exhibit)))
 
-(unless (fboundp 'file-local-name)
-  (defun file-local-name (file)
-    "Emacs has this function since 26.1."
-    (or (file-remote-p file 'localname) file)))
+(defalias 'ivy--file-local-name
+  (if (fboundp 'file-local-name)
+      #'file-local-name
+    (lambda (file)
+      (or (file-remote-p file 'localname) file)))
+  "Compatibility shim for `file-local-name'.
+The function was added in Emacs 26.1.")
 
 (defun ivy--magic-tilde-directory (dir)
   "Return an appropriate home for DIR for when ~ or ~/ are entered."
   (file-name-as-directory
    (expand-file-name
     (let* ((home (expand-file-name (concat (file-remote-p dir) "~/")))
-           (dir-path (file-local-name dir))
-           (home-path (file-local-name home)))
+           (dir-path (ivy--file-local-name dir))
+           (home-path (ivy--file-local-name home)))
       (if (string= dir-path home-path)
           "~"
         home)))))
@@ -3508,8 +3498,8 @@ Should be run via minibuffer `post-command-hook'."
           (colir-blend-face-background 0 len face str)
           (let ((foreground (face-foreground face)))
             (when foreground
-              (ivy-add-face-text-property
-               0 len (list :foreground foreground) str))))
+              (add-face-text-property
+               0 len (list :foreground foreground) nil str))))
       (error
        (ignore-errors
          (font-lock-append-text-property 0 len 'face face str)))))
@@ -3905,7 +3895,7 @@ N wraps around, but skips the first element of the list."
       (unless (eq j (1+ last-j))
         (cl-incf i))
       (setq last-j j)
-      (ivy-add-face-text-property j (1+ j) (ivy--minibuffer-face i) str))
+      (add-face-text-property j (1+ j) (ivy--minibuffer-face i) nil str))
     str))
 
 (defun ivy--flx-sort (name cands)
@@ -4009,31 +3999,16 @@ It has it by default, but the current theme also needs to set it."
    cands
    ""))
 
-(defalias 'ivy-add-face-text-property
-  (if (fboundp 'add-face-text-property)
-      (lambda (start end face &optional object append)
-        (add-face-text-property start end face append object))
-    (lambda (start end face &optional object append)
-      (funcall (if append
-                   #'font-lock-append-text-property
-                 #'font-lock-prepend-text-property)
-               start end 'face face object)))
-  "Compatibility shim for `add-face-text-property'.
-Fall back on `font-lock-prepend-text-property' in Emacs versions
-prior to 24.4 (`font-lock-append-text-property' when APPEND is
-non-nil).
-Note: The usual last two arguments are flipped for convenience.")
-
 (defun ivy--highlight-ignore-order (str)
   "Highlight STR, using the ignore-order method."
   (when (consp ivy--old-re)
     (let ((i 1))
       (dolist (re ivy--old-re)
         (when (string-match (car re) str)
-          (ivy-add-face-text-property
+          (add-face-text-property
            (match-beginning 0) (match-end 0)
            (ivy--minibuffer-face i)
-           str))
+           nil str))
         (cl-incf i))))
   str)
 
@@ -4085,7 +4060,7 @@ in this case."
                                 (car ivy-minibuffer-faces))
                                (t
                                 (ivy--minibuffer-face n)))))
-                    (ivy-add-face-text-property beg end face str))
+                    (add-face-text-property beg end face nil str))
                   (unless (zerop i)
                     (setq prev end))))
               (cl-incf i)))))))
@@ -4119,8 +4094,8 @@ in this case."
      str)
     (when annot
       (setq str (concat str (funcall annot str)))
-      (ivy-add-face-text-property
-       olen (length str) 'ivy-completions-annotations str))
+      (add-face-text-property
+       olen (length str) 'ivy-completions-annotations nil str))
     str))
 
 (defun ivy-read-file-transformer (str)
@@ -4576,7 +4551,7 @@ Skip buffers that match `ivy-ignore-buffers'."
   "Append to STR the property FACE."
   (when face
     (setq str (copy-sequence str))
-    (ivy-add-face-text-property 0 (length str) face str t))
+    (add-face-text-property 0 (length str) face t str))
   str)
 
 (defun ivy-switch-buffer-transformer (str)
@@ -4687,9 +4662,6 @@ words (previous if ARG is negative)."
 If optional ARG is non-nil, pull in the next ARG
 symbols (previous if ARG is negative)."
   (interactive "p")
-  ;; Emacs < 24.4 compatibility
-  (unless (fboundp 'forward-symbol)
-    (require 'thingatpt))
   (ivy--yank-by #'forward-symbol (or arg 1)))
 
 (defun ivy-yank-char (&optional arg)

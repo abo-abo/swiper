@@ -485,6 +485,7 @@ Used by commands `counsel-describe-variable' and
 (declare-function xref-push-marker-stack "xref")
 
 (defalias 'counsel--push-xref-marker
+  ;; Added in Emacs 25.1.
   (if (require 'xref nil t)
       #'xref-push-marker-stack
     (require 'etags)
@@ -618,6 +619,8 @@ to `ivy-highlight-face'."
          (sym-value (symbol-value sym))
          (expr (minibuffer-with-setup-hook
                    (lambda ()
+                     ;; Functions `elisp-eldoc-documentation-function' and
+                     ;; `elisp-completion-at-point' added in Emacs 25.1.
                      (add-function :before-until (local 'eldoc-documentation-function)
                                    #'elisp-eldoc-documentation-function)
                      (add-hook 'completion-at-point-functions #'elisp-completion-at-point nil t)
@@ -1410,12 +1413,10 @@ This function should set `ivy--old-re'."
 (defun counsel-git-grep-transformer (str)
   "Highlight file and line number in STR."
   (when (string-match "\\`\\([^:]+\\):\\([^:]+\\):" str)
-    (ivy-add-face-text-property (match-beginning 1) (match-end 1)
-                                'ivy-grep-info
-                                str)
-    (ivy-add-face-text-property (match-beginning 2) (match-end 2)
-                                'ivy-grep-line-number
-                                str))
+    (add-face-text-property (match-beginning 1) (match-end 1)
+                            'ivy-grep-info nil str)
+    (add-face-text-property (match-beginning 2) (match-end 2)
+                            'ivy-grep-line-number nil str))
   str)
 
 (defvar counsel-git-grep-projects-alist nil
@@ -2263,7 +2264,8 @@ When `counsel-recentf-include-xdg-list' is non-nil, also include
 the files in said list, sorting the combined list by file access
 time."
   (if (and counsel-recentf-include-xdg-list
-           (version< "25" emacs-version))
+           (>= emacs-major-version 26))
+      (declare-function file-attribute-access-time "files" (attributes))
       (delete-dups
        (sort (append (mapcar #'substring-no-properties recentf-list)
                      (counsel--recentf-get-xdg-recent-files))
@@ -2298,7 +2300,7 @@ and directories, in the directory returned by the function
 provided by the libxml2 bindings and the \"dom\" library."
   (require 'dom)
   (let ((file-of-recent-files
-         (expand-file-name "recently-used.xbel" (xdg-data-home))))
+         (expand-file-name "recently-used.xbel" (counsel--xdg-data-home))))
     (if (not (file-readable-p file-of-recent-files))
         (user-error "List of XDG recent files not found.")
       (delq
@@ -3673,6 +3675,7 @@ version.  Argument values are based on the
                                 counsel-org-headline-display-todo
                                 counsel-org-headline-display-priority
                                 counsel-org-headline-display-comment))
+            ;; Added in Emacs 26.1.
             (if (if (fboundp 'func-arity)
                     (< (cdr (func-arity #'org-get-heading)) 3)
                   (version< org-version "9.1.1"))
@@ -4507,8 +4510,7 @@ S will be of the form \"[register]: content\"."
 (declare-function imenu--make-index-alist "imenu")
 
 (defun counsel--imenu-candidates ()
-  (unless (featurep 'imenu)
-    (require 'imenu nil t))
+  (require 'imenu)
   (let* ((imenu-auto-rescan t)
          (imenu-auto-rescan-maxout (if current-prefix-arg
                                        (buffer-size)
@@ -5686,6 +5688,8 @@ counter value and iteration amount."
             :caller 'counsel-rhythmbox))
 
 ;;** `counsel-linux-app'
+
+;; Added in Emacs 26.1.
 (require 'xdg nil t)
 
 (defalias 'counsel--xdg-data-home
@@ -5835,6 +5839,7 @@ This function always returns its elements in a stable order."
     (dolist (dir counsel-linux-apps-directories)
       (when (file-exists-p dir)
         (let ((dir (file-name-as-directory dir)))
+          ;; Function `directory-files-recursively' added in Emacs 25.1.
           (dolist (file (directory-files-recursively dir ".*\\.desktop$"))
             (let ((id (subst-char-in-string ?/ ?- (file-relative-name file dir))))
               (when (and (not (gethash id hash)) (file-readable-p file))
@@ -6437,7 +6442,7 @@ and minor mode symbol."
         (mapcar
          (lambda (mode)
            (when (and (boundp mode) (commandp mode))
-             (let ((lighter (alist-get mode minor-mode-alist)))
+             (let ((lighter (cdr (assq mode minor-mode-alist))))
                (cons (concat
                       (if (symbol-value mode) "-" "+")
                       (symbol-name mode)
@@ -6697,13 +6702,11 @@ Local bindings (`counsel-mode-map'):
   :lighter " counsel"
   (if counsel-mode
       (progn
-        (when (and (fboundp 'advice-add)
-                   counsel-mode-override-describe-bindings)
+        (when counsel-mode-override-describe-bindings
           (advice-add #'describe-bindings :override #'counsel-descbinds))
         (define-key minibuffer-local-map (kbd "C-r")
           'counsel-minibuffer-history))
-    (when (fboundp 'advice-remove)
-      (advice-remove #'describe-bindings #'counsel-descbinds))))
+    (advice-remove #'describe-bindings #'counsel-descbinds)))
 
 (provide 'counsel)
 

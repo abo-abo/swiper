@@ -90,7 +90,6 @@ Then attach the overlay to the character before point."
 (defvar ivy-last)
 (defvar ivy-text)
 (defvar ivy-completion-beg)
-(declare-function ivy-add-face-text-property "ivy")
 (declare-function ivy--get-window "ivy")
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
@@ -115,8 +114,8 @@ Hide the minibuffer contents and cursor."
         (save-excursion
           (forward-line 1)
           (insert str)))
-    (ivy-add-face-text-property (minibuffer-prompt-end) (point-max)
-                                '(:foreground "white"))
+    (add-face-text-property (minibuffer-prompt-end) (point-max)
+                            '(:foreground "white"))
     (setq cursor-type nil)
     (with-selected-window (ivy--get-window ivy-last)
       (when cursor-type
@@ -145,8 +144,8 @@ Hide the minibuffer contents and cursor."
                                (goto-char ivy-completion-beg))
                              (current-column)))))))))
         (let ((cursor-offset (1+ (length ivy-text))))
-          (ivy-add-face-text-property cursor-offset (1+ cursor-offset)
-                                      'ivy-cursor overlay-str t))
+          (add-face-text-property cursor-offset (1+ cursor-offset)
+                                  'ivy-cursor t overlay-str))
         (ivy-overlay-show-after overlay-str)))))
 
 (provide 'ivy-overlay)

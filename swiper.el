@@ -468,6 +468,7 @@ such as `scroll-conservatively' are set to a high value.")
   (unless (swiper-font-lock-ensure-p)
     (unless (or (> (buffer-size) 100000) (null font-lock-mode))
       (if (fboundp 'font-lock-ensure)
+          ;; Added in Emacs 25.1.
           (font-lock-ensure)
         (with-no-warnings (font-lock-fontify-buffer))))))
 
@@ -504,8 +505,6 @@ such as `scroll-conservatively' are set to a high value.")
      " "
      (buffer-substring beg end))))
 
-(declare-function outline-show-all "outline")
-
 (defvar swiper-use-visual-line-p
   (lambda (n-lines)
     (and visual-line-mode
@@ -527,6 +526,7 @@ numbers; replaces calculating the width from buffer line count."
           (when (eq major-mode 'org-mode)
             (require 'outline)
             (if (fboundp 'outline-show-all)
+                ;; Added in Emacs 25.1.
                 (outline-show-all)
               (with-no-warnings
                 (show-all))))
@@ -766,6 +766,7 @@ line numbers.  For the buffer, use `ivy--regex' instead."
                        (setq ivy--subexps 1)))
                     (t
                      (format "^ %s" re)))))
+               ;; Added in Emacs 25.1.
                ((fboundp (bound-and-true-p search-default-mode))
                 (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
                     (concat
@@ -1607,8 +1608,7 @@ When not running `swiper-isearch' already, start it."
              swiper-faces
            swiper-background-faces)
          (lambda (beg end face _priority)
-           (ivy-add-face-text-property
-            beg end face str)))
+           (add-face-text-property beg end face nil str)))
         (cl-incf i)))
     str))
 
