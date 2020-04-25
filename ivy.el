@@ -956,7 +956,7 @@ selection, non-nil otherwise."
                 (not (string= key (car (nth action-idx (cdr actions))))))
       (setq key (concat key (key-description (string (read-key hint))))))
     (ivy-shrink-after-dispatching)
-    (cond ((member key '("" ""))
+    (cond ((member key '("ESC" "C-g"))
            nil)
           ((null action-idx)
            (message "%s is not bound" key)
