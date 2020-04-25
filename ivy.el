@@ -1112,6 +1112,8 @@ contains a single candidate.")
          (ivy--cd dir)))
       ((ivy--directory-enter))
       ((unless (string= ivy-text "")
+         ;; Obsolete since 26.1 and removed in 28.1.
+         (defvar tramp-completion-mode)
          (with-no-warnings
            (let* ((tramp-completion-mode t)
                   (file (expand-file-name
