@@ -26,32 +26,37 @@
 
 ;;; Code:
 
-(defvar require-features nil)
 (defvar ivy-empty "tests/find-file/empty-dir/")
 
-(defadvice require (before ivy-tests-require-hook (feature &rest _) activate)
-  "Record the requires into `require-features'."
-  (push feature require-features))
+(defvar ivy-features nil
+  "Like `features' but for Ivy testing purposes.")
 
-(require 'ert)
-(require 'colir)
+(defun ivy-test--record-feature (feature &rest _)
+  "Record FEATURE in `ivy-features'.
+Intended as :after-while advice for `require'."
+  (add-to-list 'ivy-features feature nil #'eq))
+
+(advice-add 'require :after-while #'ivy-test--record-feature)
 
 ;; Useful for #'ivy-read-remap.  It must arrive before (require 'ivy).
 (define-key global-map (kbd "<S-right>") #'end-of-buffer)
 
-(require 'ivy)
+(require 'colir)
 (require 'counsel)
+(require 'ivy)
+
+(require 'ert)
 
 (message "%s" (emacs-version))
 
 (setq ivy-last (make-ivy-state))
 
 (ert-deftest ivy--lazy-load-ffap--ffap-url-p ()
-  (should (not (memq 'ffap require-features)))
+  (should (not (memq 'ffap ivy-features)))
   (should (not (fboundp 'ffap-url-p)))
   (should (string= (ivy-ffap-url-p "https://foo.org")
                    "https://foo.org"))
-  (should (memq 'ffap require-features))
+  (should (memq 'ffap ivy-features))
   (should (fboundp 'ffap-url-p)))
 
 (defvar ivy-expr nil
@@ -95,18 +100,6 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   "Like `command-execute' but sets `this-command' first."
   (setq this-command cmd)
   (apply #'command-execute cmd args))
-
-(defadvice symbol-function (around no-void-function activate)
-  "Suppress void-function errors.
-
-This advice makes `symbol-function' return nil when called on a
-symbol with no function rather than throwing a void-function
-error. On Emacs 24.4 and above, this has no effect, because
-`symbol-function' already does this, but on 24.3 and earlier, it
-will bring the behavior in line with the newer Emacsen."
-  (condition-case nil
-      ad-do-it
-    (void-function nil)))
 
 (ert-deftest ivy-partial-1 ()
   (should (equal
@@ -336,13 +329,9 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--regex-plus "add path\\!") "\\(add\\).*?\\(path!\\)")))
 
 (ert-deftest ivy-partial-2 ()
-  (when (fboundp 'read--expression)
-    (should
-     (equal
-      (ivy-with '(read--expression "Eval: "
-                  "'s-c-t-st")
-                "<tab> C-m")
-      '(quote shell-command-to-string)))))
+  (should (equal (ivy-with '(read--expression "Eval: " "'s-c-t-st")
+                           "<tab> C-m")
+                 '(quote shell-command-to-string))))
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
