@@ -2078,7 +2078,7 @@ An :init is a function with no arguments.
       #'directory-name-p
     (lambda (name)
       "Return non-nil if NAME ends with a directory separator."
-      (string-match-p "/\\'" name))))
+      (string-suffix-p "/" name))))
 
 (defun ivy--sorted-files (dir)
   "Return the list of files in DIR.
@@ -3251,7 +3251,7 @@ Possible choices are 'ivy-magic-slash-non-match-cd-selected,
       (cond ((member ivy-text ivy--all-candidates)
              (ivy--cd canonical))
             ((and (eq system-type 'windows-nt) (string= ivy-text "//")))
-            ((string-match-p "//\\'" ivy-text)
+            ((string-suffix-p "//" ivy-text)
              (ivy--cd
               (ivy--magic-file-doubleslash-directory)))
             ((string-match-p "\\`/ssh:" ivy-text)
@@ -5038,7 +5038,7 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
        highlight
        help-echo "mouse-1: call ivy-action")
      cand)
-    (insert (if (string-match-p "\\`.[/\\]" cand) "" "    ")
+    (insert (if (ivy--starts-with-dotslash cand) "" "    ")
             cand ?\n)))
 
 (defun ivy--occur-default (cands)
