@@ -4051,7 +4051,7 @@ register tied to a mark in the message string."
             (cl-remove-if-not
              (lambda (x) (not (member (car x) counsel-evil-marks-exclude-registers)))
              all-markers)))
-         ;; seperate the markers from the evil registers
+         ;; separate the markers from the evil registers
          ;; for call to `counsel-mark--get-candidates'
          (registers (mapcar #'car all-markers))
          (markers (mapcar #'cdr all-markers))
