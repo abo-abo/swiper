@@ -2265,18 +2265,21 @@ the files in said list, sorting the combined list by file access
 time."
   (if (and counsel-recentf-include-xdg-list
            (>= emacs-major-version 26))
-      (declare-function file-attribute-access-time "files" (attributes))
       (delete-dups
-       (sort (append (mapcar #'substring-no-properties recentf-list)
-                     (counsel--recentf-get-xdg-recent-files))
+       (sort (nconc (mapcar #'substring-no-properties recentf-list)
+                    (counsel--recentf-get-xdg-recent-files))
              (lambda (file1 file2)
                (cond ((file-remote-p file1)
                       nil)
-                     ((file-remote-p file2)
-                      t)
+                     ((file-remote-p file2))
                      (t
-                      (> (time-to-seconds (file-attribute-access-time (file-attributes file1)))
-                         (time-to-seconds (file-attribute-access-time (file-attributes file2)))))))))
+                      ;; Added in Emacs 26.1.
+                      (declare-function file-attribute-access-time "files"
+                                        (attributes))
+                      (time-less-p (file-attribute-access-time
+                                    (file-attributes file2))
+                                   (file-attribute-access-time
+                                    (file-attributes file1))))))))
     (mapcar #'substring-no-properties recentf-list)))
 
 (defun counsel--strip-prefix (prefix str)
