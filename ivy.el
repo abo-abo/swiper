@@ -734,13 +734,14 @@ N is obtained from `ivy-more-chars-alist'."
   "Insert TEXT and exit minibuffer."
   (if (member (ivy-state-prompt ivy-last) '("Create directory: " "Make directory: "))
       (ivy-immediate-done)
-    (if (stringp text)
-        (insert
-         (setf (ivy-state-current ivy-last)
-               (if (and ivy--directory
-                        (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
-                   (expand-file-name text ivy--directory)
-                 text))))
+    (when (stringp text)
+      (insert
+       (setf (ivy-state-current ivy-last)
+             (if (and ivy--directory
+                      (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
+                 (expand-file-name text ivy--directory)
+               text)))
+      (ivy-set-text (ivy--input)))
     (setq ivy-exit 'done)
     (exit-minibuffer)))
 
