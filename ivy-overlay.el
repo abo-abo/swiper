@@ -26,6 +26,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (defface ivy-cursor
   '((((class color) (background light))
      :background "black" :foreground "white")
@@ -93,7 +96,6 @@ Then attach the overlay to the character before point."
 (declare-function ivy--get-window "ivy")
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
-(declare-function ivy--remove-prefix "ivy")
 
 (defun ivy-overlay-impossible-p (_str)
   (or
@@ -131,7 +133,7 @@ Hide the minibuffer contents and cursor."
               (and (> (length str) 0)
                    (list "\n"
                          (ivy-left-pad
-                          (ivy--remove-prefix "\n" str)
+                          (string-remove-prefix "\n" str)
                           (+
                            (if (and (eq major-mode 'org-mode)
                                     (bound-and-true-p org-indent-mode))

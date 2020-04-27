@@ -41,8 +41,12 @@
 ;;; Code:
 
 (require 'swiper)
+
 (require 'compile)
 (require 'dired)
+
+(eval-when-compile
+  (require 'subr-x))
 
 (defgroup counsel nil
   "Completion functions using Ivy."
@@ -885,17 +889,9 @@ packages are, in order of precedence, `amx' and `smex'."
 (defvar counsel-M-x-history nil
   "History for `counsel-M-x'.")
 
-(defsubst counsel--string-trim-left (string &optional regexp)
-  "Trim STRING of leading string matching REGEXP.
-
-REGEXP defaults to \"[ \\t\\n\\r]+\"."
-  (if (string-match (concat "\\`\\(?:" (or regexp "[ \t\n\r]+") "\\)") string)
-      (replace-match "" t t string)
-    string))
-
 (defun counsel-M-x-action (cmd)
   "Execute CMD."
-  (setq cmd (intern (counsel--string-trim-left cmd "\\^")))
+  (setq cmd (intern (string-remove-prefix "^" cmd)))
   (cond ((bound-and-true-p amx-initialized)
          (amx-rank cmd))
         ((bound-and-true-p smex-initialized-p)
@@ -2233,9 +2229,12 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 (declare-function recentf-mode "recentf")
 
 (defcustom counsel-recentf-include-xdg-list nil
-  "Include recently used files listed by XDG-compliant environments, e.g. GNOME and KDE.
-https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
-  :type 'boolean)
+  "Include recently used files listed by XDG-compliant environments.
+Examples of such environments are GNOME and KDE.  See the URL
+`https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec'."
+  :type 'boolean
+  :link '(url-link "\
+https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
 
 ;;;###autoload
 (defun counsel-recentf ()
@@ -2249,6 +2248,7 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec/."
                         (find-file f)))
             :require-match t
             :caller 'counsel-recentf))
+
 (ivy-set-actions
  'counsel-recentf
  '(("j" find-file-other-window "other window")
@@ -2282,49 +2282,51 @@ time."
                                     (file-attributes file1))))))))
     (mapcar #'substring-no-properties recentf-list)))
 
-(defun counsel--strip-prefix (prefix str)
-  "Strip PREFIX from STR."
-  (let ((l (length prefix)))
-    (when (string= (substring str 0 l) prefix)
-      (substring str l))))
+(defalias 'counsel--xml-parse-region
+  (if (cond ((fboundp 'libxml-available-p)
+             ;; Added in Emacs 27.1.
+             (libxml-available-p))
+            ((fboundp 'libxml-parse-xml-region)
+             ;; Checking for `fboundp' is not enough on Windows, where it
+             ;; will return non-nil even if the library is not installed.
+             (with-temp-buffer
+               (insert "<xml/>")
+               (libxml-parse-xml-region (point-min) (point-max)))))
+      (lambda (&optional beg end)
+        (libxml-parse-xml-region (or beg (point-min)) (or end (point-max))))
+    #'xml-parse-region)
+  "Compatibility shim for `libxml-parse-xml-region'.
+For convenience, BEG and END default to `point-min' and
+`point-max', respectively.
 
-(declare-function dom-attr "dom")
-(declare-function dom-by-tag "dom")
+\(fn &optional BEG END)")
 
 (defun counsel--recentf-get-xdg-recent-files ()
+  "Return list of XDG recent files.
 
-  "Get recent files as listed by XDG compliant programs.
-
-Requires Emacs 25.
-
-It searches for the file \"recently-used.xbel\" which lists files
-and directories, in the directory returned by the function
-`xdg-data-home'.  This file is processed using functionality
-provided by the libxml2 bindings and the \"dom\" library."
-  (require 'dom)
+This information is parsed from the file \"recently-used.xbel\",
+which lists both files and directories, under `xdg-data-home'.
+This function uses the `dom' library from Emacs 25.1 or later."
+  (unless (require 'dom nil t)
+    (user-error "This function requires Emacs 25.1 or later"))
+  (declare-function dom-attr "dom" (node attr))
+  (declare-function dom-by-tag "dom" (dom tag))
   (let ((file-of-recent-files
          (expand-file-name "recently-used.xbel" (counsel--xdg-data-home))))
-    (if (not (file-readable-p file-of-recent-files))
-        (user-error "List of XDG recent files not found.")
-      (delq
-       nil
-       (mapcar
-        (lambda (bookmark-node)
-          (let ((local-path
-                 (counsel--strip-prefix
-                  "file://" (dom-attr bookmark-node 'href))))
-            (when local-path
-              (let ((full-file-name
-                     (decode-coding-string
-                      (url-unhex-string local-path)
-                      'utf-8)))
-                (when (file-exists-p full-file-name)
-                  full-file-name)))))
-        (nreverse (dom-by-tag (with-temp-buffer
-                                (insert-file-contents file-of-recent-files)
-                                (libxml-parse-xml-region (point-min)
-                                                         (point-max)))
-                              'bookmark)))))))
+    (unless (file-readable-p file-of-recent-files)
+      (user-error "List of XDG recent files not found: %s"
+                  file-of-recent-files))
+    (cl-mapcan (lambda (bookmark-node)
+                 (let* ((file (dom-attr bookmark-node 'href))
+                        (file (string-remove-prefix "file://" file))
+                        (file (url-unhex-string file t))
+                        (file (decode-coding-string file 'utf-8 t)))
+                   (and (file-exists-p file)
+                        (list file))))
+               (let ((dom (with-temp-buffer
+                            (insert-file-contents file-of-recent-files)
+                            (counsel--xml-parse-region))))
+                 (nreverse (dom-by-tag dom 'bookmark))))))
 
 (defun counsel-buffer-or-recentf-candidates ()
   "Return candidates for `counsel-buffer-or-recentf'."

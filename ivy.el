@@ -38,10 +38,14 @@
 
 ;;; Code:
 
-(require 'cl-lib)
-(require 'ivy-overlay)
 (require 'colir)
+(require 'ivy-overlay)
+
+(require 'cl-lib)
 (require 'ring)
+
+(eval-when-compile
+  (require 'subr-x))
 
 ;;* Customization
 (defgroup ivy nil
@@ -1176,12 +1180,6 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                    (eq ivy--length 1))
            (ivy-alt-done))))))
 
-(defun ivy--remove-prefix (prefix string)
-  "Compatibility shim for `string-remove-prefix'."
-  (if (string-prefix-p prefix string)
-      (substring string (length prefix))
-    string))
-
 (defun ivy--partial-cd-for-single-directory ()
   (when (and
          (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
@@ -1199,7 +1197,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
          (postfix (car tail))
          (case-fold-search (ivy--case-fold-p ivy-text))
          (completion-ignore-case case-fold-search)
-         (new (try-completion (ivy--remove-prefix "^" postfix)
+         (new (try-completion (string-remove-prefix "^" postfix)
                               (if (ivy-state-dynamic-collection ivy-last)
                                   ivy--all-candidates
                                 (mapcar (lambda (str)
@@ -3755,7 +3753,7 @@ CANDS are the current candidates."
                (and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero)))
            0
          (or
-          (cl-position (ivy--remove-prefix "^" re-str)
+          (cl-position (string-remove-prefix "^" re-str)
                        cands
                        :test #'ivy--case-fold-string=)
           (and ivy--directory
@@ -4018,7 +4016,7 @@ It has it by default, but the current theme also needs to set it."
   "Highlight STR, using the fuzzy method."
   (if (and ivy--flx-featurep
            (eq (ivy-alist-setting ivy-re-builders-alist) 'ivy--regex-fuzzy))
-      (let ((flx-name (ivy--remove-prefix "^" ivy-text)))
+      (let ((flx-name (string-remove-prefix "^" ivy-text)))
         (ivy--flx-propertize
          (cons (flx-score str flx-name ivy--flx-cache) str)))
     (ivy--highlight-default str)))
