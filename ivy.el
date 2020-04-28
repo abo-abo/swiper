@@ -3458,9 +3458,19 @@ Should be run via minibuffer `post-command-hook'."
         (when (region-active-p)
           (set-mark old-mark))))))
 
-(defcustom ivy-auto-shrink-minibuffer nil
-  "When non-nil and the height < `ivy-height', auto-shrink the minibuffer."
-  :type 'boolean)
+(defcustom ivy-auto-shrink-minibuffer-alist nil
+  "An alist to configure auto-shrinking of the minibuffer.
+
+Each key is a caller symbol. When the value is non-nil, and the
+height < `ivy-height', auto-shrink the minibuffer."
+  :type '(alist
+          :key-type symbol
+          :value-type boolean))
+
+(define-obsolete-variable-alias
+    'ivy-auto-shrink-minibuffer
+    'ivy-auto-shrink-minibuffer-alist
+  "<2020-04-28 Tue>")
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
@@ -3479,7 +3489,7 @@ Should be run via minibuffer `post-command-hook'."
                    (let ((delta (max (- text-height body-height)
                                      (frame-char-height))))
                      (window-resize nil delta nil t t)))
-                  ((and ivy-auto-shrink-minibuffer
+                  ((and (ivy-alist-setting ivy-auto-shrink-minibuffer)
                         (< ivy--length ivy-height))
                    (shrink-window (-
                                    (/ (window-body-height nil t)
