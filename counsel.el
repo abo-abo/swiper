@@ -1631,7 +1631,7 @@ done") "\n" t)))
               :caller 'counsel-git-stash)))
 
 ;;** `counsel-git-log'
-(defvar counsel-git-log-cmd "GIT_PAGER=cat git log --grep '%s'"
+(defvar counsel-git-log-cmd "GIT_PAGER=cat git log --no-color --grep '%s'"
   "Command used for \"git log\".")
 
 (defun counsel-git-log-function (_)
