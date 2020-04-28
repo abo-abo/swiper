@@ -3461,7 +3461,7 @@ Should be run via minibuffer `post-command-hook'."
 (defcustom ivy-auto-shrink-minibuffer-alist nil
   "An alist to configure auto-shrinking of the minibuffer.
 
-Each key is a caller symbol. When the value is non-nil, and the
+Each key is a caller symbol.  When the value is non-nil, and the
 height < `ivy-height', auto-shrink the minibuffer."
   :type '(alist
           :key-type symbol
