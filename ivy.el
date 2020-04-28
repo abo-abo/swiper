@@ -2263,12 +2263,16 @@ customizations apply to the current completion session."
                   (setf (ivy-state-current ivy-last)
                         (car ivy--all-candidates))
                   (setq ivy-exit 'done))
-              (read-from-minibuffer
-               prompt
-               (ivy-state-initial-input ivy-last)
-               (make-composed-keymap keymap ivy-minibuffer-map)
-               nil
-               hist)
+              (condition-case err
+                  (read-from-minibuffer
+                   prompt
+                   (ivy-state-initial-input ivy-last)
+                   (make-composed-keymap keymap ivy-minibuffer-map)
+                   nil
+                   hist)
+                (error
+                 (unless (equal err '(error "Selecting deleted buffer"))
+                   (signal (car err) (cdr err)))))
               (pop (symbol-value hist)))
             (when (eq ivy-exit 'done)
               (ivy--update-history hist))))
