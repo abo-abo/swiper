@@ -6503,7 +6503,7 @@ Additional actions:\\<ivy-minibuffer-map>
             :action #'counsel-M-x-action
             :caller 'counsel-major))
 
-;;* `counsel-search'
+;;** `counsel-search'
 (declare-function request "ext:request")
 
 (defcustom counsel-search-engine 'ddg
@@ -6570,7 +6570,7 @@ We update it in the callback with `ivy-update-candidates'."
 (define-obsolete-function-alias 'counsel-google
     'counsel-search "<2019-10-17 Thu>")
 
-;;* `counsel-compilation-errors'
+;;** `counsel-compilation-errors'
 (defun counsel--compilation-errors-buffer (buf)
   (with-current-buffer buf
     (let ((res nil)
@@ -6609,7 +6609,7 @@ We update it in the callback with `ivy-update-candidates'."
             :action #'counsel-compilation-errors-action
             :history 'counsel-compilation-errors-history))
 
-;;* `counsel-flycheck'
+;;** `counsel-flycheck'
 (defvar flycheck-current-errors)
 (declare-function flycheck-error-filename "ext:flycheck")
 (declare-function flycheck-error-line "ext:flycheck")
