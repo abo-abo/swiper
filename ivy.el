@@ -3458,6 +3458,11 @@ Should be run via minibuffer `post-command-hook'."
         (when (region-active-p)
           (set-mark old-mark))))))
 
+(define-obsolete-variable-alias
+    'ivy-auto-shrink-minibuffer
+    'ivy-auto-shrink-minibuffer-alist
+  "<2020-04-28 Tue>")
+
 (defcustom ivy-auto-shrink-minibuffer-alist nil
   "An alist to configure auto-shrinking of the minibuffer.
 
@@ -3466,11 +3471,6 @@ height < `ivy-height', auto-shrink the minibuffer."
   :type '(alist
           :key-type symbol
           :value-type boolean))
-
-(define-obsolete-variable-alias
-    'ivy-auto-shrink-minibuffer
-    'ivy-auto-shrink-minibuffer-alist
-  "<2020-04-28 Tue>")
 
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
