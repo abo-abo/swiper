@@ -740,8 +740,7 @@ N is obtained from `ivy-more-chars-alist'."
              (if (and ivy--directory
                       (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
                  (expand-file-name text ivy--directory)
-               text)))
-      (ivy-set-text (ivy--input)))
+               text))))
     (setq ivy-exit 'done)
     (exit-minibuffer)))
 
@@ -2280,12 +2279,11 @@ customizations apply to the current completion session."
     (ivy-call)))
 
 (defun ivy--update-history (hist)
-  (let ((item (if ivy--directory
-                  (ivy-state-current ivy-last)
-                ivy-text)))
-    (unless (equal item "")
-      (set hist (cons (propertize item 'ivy-index ivy--index)
-                      (delete item (symbol-value hist)))))))
+  (let ((item (ivy-state-current ivy-last)))
+    (cond ((equal item ""))
+          ((stringp item)
+           (set hist (cons (propertize item 'ivy-index ivy--index)
+                           (delete item (symbol-value hist))))))))
 
 (defun ivy--cleanup ()
   ;; Fixes a bug in ESS, #1660
