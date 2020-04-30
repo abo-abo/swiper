@@ -2279,7 +2279,10 @@ customizations apply to the current completion session."
     (ivy-call)))
 
 (defun ivy--update-history (hist)
-  (let ((item (ivy-state-current ivy-last)))
+  (let ((item
+         (if (string= ivy-text "")
+             (ivy-state-current ivy-last)
+           ivy-text)))
     (cond ((equal item ""))
           ((stringp item)
            (set hist (cons (propertize item 'ivy-index ivy--index)
