@@ -4532,8 +4532,25 @@ Otherwise, forward to `ivy-kill-line'."
 
 (ivy-set-actions
  t
- `(("i" ,(lambda (x) (insert (if (stringp x) x (car x)))) "insert")
-   ("w" ,(lambda (x) (kill-new (if (stringp x) x (car x)))) "copy")))
+ '(("i" ivy--action-insert "insert")
+   ("w" ivy--action-copy "copy")))
+
+(defun ivy--trim-grep-line-number (x)
+  (if (string-match ":[0-9]+:" x)
+      (substring x (match-end 0))
+    x))
+
+(defun ivy--action-insert (x)
+  (insert
+   (if (stringp x)
+       (ivy--trim-grep-line-number x)
+       x (car x))))
+
+(defun ivy--action-copy (x)
+  (kill-new
+   (if (stringp x)
+       (ivy--trim-grep-line-number x)
+     (car x))))
 
 (defun ivy--switch-buffer-matcher (regexp candidates)
   "Return REGEXP matching CANDIDATES.
