@@ -1576,6 +1576,28 @@ a buffer visiting a file."
   (should (eql (ivy--preselect-index "a+" '("a")) 0))
   (should (eql (ivy--preselect-index "a+" '("b" "a")) 1)))
 
+(ert-deftest ivy-multi-resume ()
+  (let ((ivy-last ivy-last)
+        ivy-text ivy--all-candidates ivy--sessions)
+    (ivy-with '(ivy-read "A: " '(a123 b456 c789) :caller 'test-a :action #'ignore)
+              "b4 RET")
+    (ivy-with '(ivy-read "A: " '(d123 e456 f789) :caller 'test-b)
+              "d1 RET")
+    (ivy-with '(ivy-read "A: " '(g123 h456 k789) :action #'ignore
+                         :extra-props '(:session test-c))
+              "k7 RET")
+    (should (equal ivy-text "k7"))
+    (should (equal (mapcar #'car ivy--sessions) '(test-c test-a)))
+    (should (equal (ivy-with '(let ((current-prefix-arg '(4)))
+                               (ivy-resume))
+                             "test-a RET RET")
+                   "b456"))
+    (should (equal ivy-text "b4"))
+
+    (should (equal (ivy-with '(ivy-resume 'test-c) "RET")
+                   "k789"))
+    (should (equal ivy-text "k7"))))
+
 (defun ivy-test-run-tests ()
   (let ((test-sets
          '(

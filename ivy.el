@@ -513,6 +513,9 @@ action functions.")
 This should eventually become a stack so that you could use
 `ivy-read' recursively.")
 
+(defvar ivy--sessions nil
+  "Alist mapping session symbols to `ivy-state' objects.")
+
 (defvar ivy-recursive-last nil)
 
 (defvar ivy-recursive-restore t
@@ -1266,12 +1269,35 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
+(defun ivy--restore-session (&optional session)
+  "Resume a recorded completion SESSION, if any exists."
+  (when ivy--sessions
+    (unless session
+      (setq session (intern
+                     (let ((ivy-last ivy-last)
+                           ivy--all-candidates
+                           ivy-text)
+                       (ivy-read "Choose ivy session: "
+                                 ivy--sessions
+                                 :require-match t)))))
+    (setq ivy-last (or (cdr (assq session ivy--sessions))
+                       ivy-last)))
+  (let ((data (plist-get (ivy-state-extra-props ivy-last) :ivy-data)))
+    (when data
+      (setq ivy--all-candidates (plist-get data :all-candidates))
+      (setq ivy-text (plist-get data :text)))))
+
 ;;;###autoload
-(defun ivy-resume ()
-  "Resume the last completion session."
+(defun ivy-resume (&optional session)
+  "Resume the last completion session, or SESSION if non-nil.
+With a prefix arg, try to restore a recorded completion session,
+if one exists."
   (interactive)
+  (when (or current-prefix-arg session)
+    (ivy--restore-session session))
+
   (if (or (null (ivy-state-action ivy-last))
-          (eq (ivy--get-action ivy-last) 'identity))
+          (eq (ivy--get-action ivy-last) #'identity))
       (user-error "The last session isn't compatible with `ivy-resume'")
     (when (memq (ivy-state-caller ivy-last)
                 '(swiper swiper-isearch swiper-backward swiper-isearch-backward))
@@ -2152,14 +2178,14 @@ found, it falls back to the key t."
 ;;** Entry Point
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
-                           &key
-                           predicate require-match initial-input
-                           history preselect def keymap update-fn sort
-                           action multi-action
-                           unwind re-builder matcher
-                           dynamic-collection
-                           extra-props
-                           caller)
+                    &key
+                      predicate require-match initial-input
+                      history preselect def keymap update-fn sort
+                      action multi-action
+                      unwind re-builder matcher
+                      dynamic-collection
+                      extra-props
+                      caller)
   "Read a string in the minibuffer, with completion.
 
 PROMPT is a string, normally ending in a colon and a space.
@@ -2275,33 +2301,43 @@ customizations apply to the current completion session."
            :def def))
     (ivy--reset-state ivy-last)
     (unwind-protect
-        (minibuffer-with-setup-hook
-            #'ivy--minibuffer-setup
-          (let* ((hist (or history 'ivy-history))
-                 (minibuffer-completion-table collection)
-                 (minibuffer-completion-predicate predicate)
-                 (ivy-height (ivy--height caller))
-                 (resize-mini-windows (unless (display-graphic-p)
-                                        'grow-only)))
-            (if (and ivy-auto-select-single-candidate
-                     ivy--all-candidates
-                     (null (cdr ivy--all-candidates)))
-                (progn
-                  (setf (ivy-state-current ivy-last)
-                        (car ivy--all-candidates))
-                  (setq ivy-exit 'done))
-              (condition-case err
-                  (read-from-minibuffer
-                   prompt
-                   (ivy-state-initial-input ivy-last)
-                   (make-composed-keymap keymap ivy-minibuffer-map)
-                   nil
-                   hist)
-                (error
-                 (unless (equal err '(error "Selecting deleted buffer"))
-                   (signal (car err) (cdr err))))))
-            (when (eq ivy-exit 'done)
-              (ivy--update-history hist))))
+         (minibuffer-with-setup-hook
+             #'ivy--minibuffer-setup
+           (let* ((hist (or history 'ivy-history))
+                  (minibuffer-completion-table collection)
+                  (minibuffer-completion-predicate predicate)
+                  (ivy-height (ivy--height caller))
+                  (resize-mini-windows (unless (display-graphic-p)
+                                         'grow-only)))
+             (if (and ivy-auto-select-single-candidate
+                      ivy--all-candidates
+                      (null (cdr ivy--all-candidates)))
+                 (progn
+                   (setf (ivy-state-current ivy-last)
+                         (car ivy--all-candidates))
+                   (setq ivy-exit 'done))
+               (condition-case err
+                   (read-from-minibuffer
+                    prompt
+                    (ivy-state-initial-input ivy-last)
+                    (make-composed-keymap keymap ivy-minibuffer-map)
+                    nil
+                    hist)
+                 (error
+                  (unless (equal err '(error "Selecting deleted buffer"))
+                    (signal (car err) (cdr err))))))
+             (when (eq ivy-exit 'done)
+               (ivy--update-history hist))))
+      (let ((session (or (plist-get extra-props :session)
+                         (unless (or (minibufferp)
+                                     (null (ivy-state-action ivy-last))
+                                     (eq (ivy--get-action ivy-last) #'identity))
+                           caller))))
+        (when session
+          (setf (ivy-state-extra-props ivy-last)
+                (plist-put extra-props :ivy-data `(:all-candidates ,ivy--all-candidates
+                                                   :text ,ivy-text)))
+          (ivy--alist-set 'ivy--sessions session ivy-last)))
       (ivy--cleanup))
     (ivy-call)))
 
@@ -2441,7 +2477,7 @@ This is useful for recursive `ivy-read'."
                            (equal initial-input ""))
                  (setq coll (cons initial-input coll)))
                (when (or (not (ivy-state-action ivy-last))
-                         (equal (ivy--get-action ivy-last) 'identity))
+                         (equal (ivy--get-action ivy-last) #'identity))
                  (setq initial-input nil))))
             ((eq collection #'internal-complete-buffer)
              (setq coll (ivy--buffer-list
