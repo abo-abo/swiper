@@ -188,9 +188,17 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
                  "one")))
 
 (ert-deftest ivy-read-history ()
-  (defvar ivy-read-hist '("c" "b" "a"))
-  (ivy-with '(ivy-read "test: " '("c" "d") :history 'ivy-read-hist) "RET")
-  (should (equal ivy-read-hist '("c" "b" "a"))))
+  (defvar ivy-read-hist nil)
+  (should (equal (progn
+                   (setq ivy-read-hist '("c" "b" "a"))
+                   (ivy-with '(ivy-read "test: " '("c" "d") :history 'ivy-read-hist) "RET")
+                   ivy-read-hist)
+                 '("c" "b" "a")))
+  (should (equal (progn
+                   (setq ivy-read-hist '("cdef" "b" "a"))
+                   (ivy-with '(ivy-read "test: " '("cdef" "g") :history 'ivy-read-hist) "cd RET")
+                   ivy-read-hist)
+                 '("cd" "cdef" "b" "a"))))
 
 (ert-deftest ivy-read-sort-alist ()
   (should (equal (ivy-with '(let ((coll '(("b" . "1") ("a" . "2"))))

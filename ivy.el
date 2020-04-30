@@ -2271,8 +2271,7 @@ customizations apply to the current completion session."
                    hist)
                 (error
                  (unless (equal err '(error "Selecting deleted buffer"))
-                   (signal (car err) (cdr err)))))
-              (pop (symbol-value hist)))
+                   (signal (car err) (cdr err))))))
             (when (eq ivy-exit 'done)
               (ivy--update-history hist))))
       (ivy--cleanup))
