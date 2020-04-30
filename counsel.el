@@ -403,8 +403,13 @@ Update the minibuffer with the amount of lines collected every
   (company-mode 1)
   (unless company-candidates
     (company-complete))
-  (let ((len (cond (company-common
-                    (length company-common))
+  (let ((len (cond ((let (l)
+                      (and company-common
+                           (string= company-common
+                                    (buffer-substring
+                                     (- (point) (setq l (length company-common)))
+                                     (point)))
+                           l)))
                    (company-prefix
                     (length company-prefix)))))
     (when len
