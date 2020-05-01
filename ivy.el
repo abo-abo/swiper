@@ -2751,8 +2751,8 @@ Minibuffer bindings:
              (cl-position preselect candidates)
            preselect))
         ((cl-position preselect candidates :test #'equal))
-        ((ivy--regex-p preselect)
-         (cl-position preselect candidates :test #'string-match-p))
+        ((and (ivy--regex-p preselect)
+              (cl-position preselect candidates :test #'string-match-p)))
         (t 0)))
 
 ;;* Implementation
