@@ -3613,7 +3613,9 @@ CANDIDATES are assumed to be static."
 
 (defun ivy--set-candidates (x)
   "Update `ivy--all-candidates' with X."
-  (let (res)
+  (let (res
+        ;; (ivy--recompute-index-inhibit t)
+        )
     (dolist (source ivy--extra-candidates)
       (if (equal source '(original-source))
           (if (null res)
@@ -3764,45 +3766,43 @@ CANDS are the current candidates."
         (empty (string= re-str "")))
     (unless (or (memq this-command '(ivy-resume ivy-partial-or-done))
                 ivy--recompute-index-inhibit)
-      (ivy-set-index
-       (if (or (string= re-str "")
-               (and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero)))
-           0
-         (or
-          (cl-position (string-remove-prefix "^" re-str)
-                       cands
-                       :test #'ivy--case-fold-string=)
-          (and ivy--directory
-               (cl-position (concat re-str "/")
-                            cands
-                            :test #'ivy--case-fold-string=))
-          (and (eq caller 'ivy-switch-buffer)
-               (not empty)
-               0)
-          (and (not empty)
-               (not (eq caller 'swiper))
-               (not (and ivy--flx-featurep
-                         (eq ivy--regex-function 'ivy--regex-fuzzy)
-                         ;; Limit to configured number of candidates
-                         (null (nthcdr ivy-flx-limit cands))))
-               ;; If there was a preselected candidate, don't try to
-               ;; keep it selected even if the regexp still matches it.
-               ;; See issue #1563.  See also `ivy--preselect-index',
-               ;; which this logic roughly mirrors.
-               (not (or
-                     (and (integerp preselect)
-                          (= ivy--index preselect))
-                     (equal current preselect)
-                     (and (ivy--regex-p preselect)
-                          (stringp current)
-                          (string-match-p preselect current))))
-               ivy--old-cands
-               (cl-position current cands :test #'equal))
-          (funcall func re-str cands)
-          0))))
-    (when (or empty (string= re-str "^"))
-      (ivy-set-index
-       (ivy--preselect-index preselect cands)))))
+      (let ((index (cond
+                     ((or empty (string= re-str "^"))
+                      (ivy--preselect-index preselect cands))
+                     ((and (> (length cands) 10000) (eq func #'ivy-recompute-index-zero))
+                      0)
+                     ((cl-position (string-remove-prefix "^" re-str)
+                                   cands
+                                   :test #'ivy--case-fold-string=))
+                     ((and ivy--directory
+                           (cl-position (concat re-str "/")
+                                        cands
+                                        :test #'ivy--case-fold-string=)))
+                     ((and (eq caller 'ivy-switch-buffer)
+                           (not empty)
+                           0))
+                     ((and (not empty)
+                           (not (eq caller 'swiper))
+                           (not (and ivy--flx-featurep
+                                     (eq ivy--regex-function 'ivy--regex-fuzzy)
+                                     ;; Limit to configured number of candidates
+                                     (null (nthcdr ivy-flx-limit cands))))
+                           ;; If there was a preselected candidate, don't try to
+                           ;; keep it selected even if the regexp still matches it.
+                           ;; See issue #1563.  See also `ivy--preselect-index',
+                           ;; which this logic roughly mirrors.
+                           (not (or
+                                 (and (integerp preselect)
+                                      (= ivy--index preselect))
+                                 (equal current preselect)
+                                 (and (ivy--regex-p preselect)
+                                      (stringp current)
+                                      (string-match-p preselect current))))
+                           ivy--old-cands
+                           (cl-position current cands :test #'equal)))
+                     ((funcall func re-str cands))
+                     (t 0))))
+        (ivy-set-index index)))))
 
 (defun ivy-recompute-index-swiper (_re-str cands)
   "Recompute index of selected candidate when using `swiper'.
