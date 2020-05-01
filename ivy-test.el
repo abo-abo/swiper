@@ -1538,6 +1538,24 @@ a buffer visiting a file."
            (counsel--split-command-args "counsel--format")
            '("" . "counsel--format"))))
 
+(ert-deftest ivy--preselect-index ()
+  "Test `ivy--preselect-index' behavior."
+  (should (eql (ivy--preselect-index nil ()) 0))
+  (should (eql (ivy--preselect-index nil '(nil)) 0))
+  (should (eql (ivy--preselect-index nil '(t)) 0))
+  (should (eql (ivy--preselect-index nil '(t nil)) 1))
+  (should (eql (ivy--preselect-index 0 ()) 0))
+  (should (eql (ivy--preselect-index 0 '(0)) 0))
+  (should (eql (ivy--preselect-index 0 '(1)) 0))
+  (should (eql (ivy--preselect-index 0 '(1 0)) 1))
+  (should (eql (ivy--preselect-index 0 '(a)) 0))
+  (should (eql (ivy--preselect-index 1 '(a)) 1))
+  (should (eql (ivy--preselect-index "" ()) 0))
+  (should (eql (ivy--preselect-index "" '("")) 0))
+  (should (eql (ivy--preselect-index "" '("a")) 0))
+  (should (eql (ivy--preselect-index "a+" '("a")) 0))
+  (should (eql (ivy--preselect-index "a+" '("b" "a")) 1)))
+
 (defun ivy-test-run-tests ()
   (let ((test-sets
          '(
