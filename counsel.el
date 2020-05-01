@@ -5592,7 +5592,7 @@ values when running different macros."
                                                                         "): ")
                                                                 nil nil t nil
                                                                 default-kmacro-counter-string)
-                                          (caddr this-macro-in-ring))
+                                          (cl-caddr this-macro-in-ring))
                                   this-macro-in-ring))
                               kmacro-ring))))
 
