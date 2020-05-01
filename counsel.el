@@ -222,13 +222,12 @@ respectively."
               (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
                   (ivy-set-index 0)
                 (ivy--recompute-index re ivy--all-candidates))
-            (unless (ivy-set-index
-                     (ivy--preselect-index
-                      (if (> (length re) 0)
-                          cur
-                        (ivy-state-preselect ivy-last))
-                      ivy--all-candidates))
-              (ivy--recompute-index re ivy--all-candidates))))
+            (ivy-set-index
+             (ivy--preselect-index
+              (if (> (length re) 0)
+                  cur
+                (ivy-state-preselect ivy-last))
+              ivy--all-candidates))))
         (setq ivy--old-cands ivy--all-candidates)
         (if ivy--all-candidates
             (ivy--exhibit)
