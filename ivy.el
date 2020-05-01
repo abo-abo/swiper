@@ -1347,7 +1347,7 @@ If the input is empty, select the previous history element instead."
   (interactive "p")
   (let ((orig-index ivy--index))
     (ivy-next-line arg)
-    (when (and (string= ivy-text "") (eq ivy--index orig-index))
+    (when (and (string= ivy-text "") (= ivy--index orig-index))
       (ivy-previous-history-element 1))))
 
 (defun ivy-previous-line (&optional arg)
@@ -1368,7 +1368,7 @@ If the input is empty, select the previous history element instead."
   (interactive "p")
   (let ((orig-index ivy--index))
     (ivy-previous-line arg)
-    (when (and (string= ivy-text "") (eq ivy--index orig-index))
+    (when (and (string= ivy-text "") (= ivy--index orig-index))
       (ivy-previous-history-element 1))))
 
 (defun ivy-toggle-calling ()
@@ -2752,7 +2752,8 @@ Minibuffer bindings:
            preselect))
         ((cl-position preselect candidates :test #'equal))
         ((ivy--regex-p preselect)
-         (cl-position preselect candidates :test #'string-match-p))))
+         (cl-position preselect candidates :test #'string-match-p))
+        (t 0)))
 
 ;;* Implementation
 ;;** Regex
@@ -3797,11 +3798,11 @@ CANDS are the current candidates."
                           (string-match-p preselect current))))
                ivy--old-cands
                (cl-position current cands :test #'equal))
-          (funcall func re-str cands)))))
+          (funcall func re-str cands)
+          0))))
     (when (or empty (string= re-str "^"))
       (ivy-set-index
-       (or (ivy--preselect-index preselect cands)
-           ivy--index)))))
+       (ivy--preselect-index preselect cands)))))
 
 (defun ivy-recompute-index-swiper (_re-str cands)
   "Recompute index of selected candidate when using `swiper'.
