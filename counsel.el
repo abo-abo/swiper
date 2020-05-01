@@ -1528,10 +1528,29 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
                 :require-match t
                 :caller 'counsel-git-grep))))
 
+(defun counsel--git-grep-index (_re-str cands)
+  (if (null ivy--old-cands)
+      (let ((ln (with-ivy-window
+                  (line-number-at-pos)))
+            (name (file-name-nondirectory (with-ivy-window (buffer-file-name)))))
+        (or
+         ;; closest to current line going forwards
+         (cl-position-if (lambda (x)
+                           (and (string-prefix-p name x)
+                                (>= (string-to-number
+                                     (substring x (1+ (length name)))) ln)))
+                         cands)
+         ;; closest to current line going backwards
+         (cl-position-if (lambda (x)
+                           (string-prefix-p name x))
+                         cands
+                         :from-end t)))
+    (ivy-recompute-index-swiper-async nil cands)))
+
 (ivy-configure 'counsel-git-grep
   :occur #'counsel-git-grep-occur
   :unwind-fn #'counsel--grep-unwind
-  :index-fn #'ivy-recompute-index-swiper-async
+  :index-fn #'counsel--git-grep-index
   :display-transformer-fn #'counsel-git-grep-transformer
   :grep-p t
   :exit-codes '(1 "No matches found"))
