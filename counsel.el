@@ -207,42 +207,47 @@ respectively."
    (ivy-alist-setting counsel-async-split-string-re-alist)
    t))
 
+(defun counsel--sync-sentinel-on-exit (process)
+  (if (zerop (process-exit-status process))
+      (let ((cur (ivy-state-current ivy-last)))
+        (ivy--set-candidates
+         (ivy--sort-maybe
+          (with-current-buffer (process-buffer process)
+            (counsel--split-string))))
+        (when counsel--async-start
+          (setq counsel--async-duration
+                (time-to-seconds (time-since counsel--async-start))))
+        (let ((re (ivy-re-to-str ivy-regex)))
+          (if ivy--old-cands
+              (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
+                  (ivy-set-index 0)
+                (ivy--recompute-index re ivy--all-candidates))
+            (unless (ivy-set-index
+                     (ivy--preselect-index
+                      (if (> (length re) 0)
+                          cur
+                        (ivy-state-preselect ivy-last))
+                      ivy--all-candidates))
+              (ivy--recompute-index re ivy--all-candidates))))
+        (setq ivy--old-cands ivy--all-candidates)
+        (if ivy--all-candidates
+            (ivy--exhibit)
+          (ivy--insert-minibuffer "")))
+    (setq counsel--async-last-error-string
+          (with-current-buffer (process-buffer process) (buffer-string)))
+    (setq ivy--all-candidates
+          (let ((status (process-exit-status process))
+                (plist (plist-get counsel--async-exit-code-plist
+                                  (ivy-state-caller ivy-last))))
+            (list (or (plist-get plist status)
+                      (format "error code %d" status)))))
+    (setq ivy--old-cands ivy--all-candidates)
+    (ivy--exhibit)))
+
 (defun counsel--async-sentinel (process _msg)
   "Sentinel function for an asynchronous counsel PROCESS."
   (when (eq (process-status process) 'exit)
-    (if (zerop (process-exit-status process))
-        (progn
-          (ivy--set-candidates
-           (ivy--sort-maybe
-            (with-current-buffer (process-buffer process)
-              (counsel--split-string))))
-          (when counsel--async-start
-            (setq counsel--async-duration
-                  (time-to-seconds (time-since counsel--async-start))))
-          (let ((re (ivy-re-to-str ivy-regex)))
-            (if ivy--old-cands
-                (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
-                    (ivy-set-index 0)
-                  (ivy--recompute-index re ivy--all-candidates))
-              (unless (ivy-set-index
-                       (ivy--preselect-index
-                        (ivy-state-preselect ivy-last)
-                        ivy--all-candidates))
-                (ivy--recompute-index re ivy--all-candidates))))
-          (setq ivy--old-cands ivy--all-candidates)
-          (if ivy--all-candidates
-              (ivy--exhibit)
-            (ivy--insert-minibuffer "")))
-      (setq counsel--async-last-error-string
-            (with-current-buffer (process-buffer process) (buffer-string)))
-      (setq ivy--all-candidates
-            (let ((status (process-exit-status process))
-                  (plist (plist-get counsel--async-exit-code-plist
-                                    (ivy-state-caller ivy-last))))
-              (list (or (plist-get plist status)
-                        (format "error code %d" status)))))
-      (setq ivy--old-cands ivy--all-candidates)
-      (ivy--exhibit))))
+    (counsel--sync-sentinel-on-exit process)))
 
 (defcustom counsel-async-filter-update-time 500000
   "The amount of microseconds to wait until updating `counsel--async-filter'."
