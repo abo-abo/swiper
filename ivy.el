@@ -4587,25 +4587,28 @@ Skip buffers that match `ivy-ignore-buffers'."
     (add-face-text-property 0 (length str) face t str))
   str)
 
-(defun ivy--remote-name (str dir)
-  (ivy-append-face (expand-file-name str dir) 'ivy-remote))
+(defun ivy--remote-buffer-p (buffer)
+  "Return non-nil if BUFFER object is visiting a remote file.
+If that is the case, value is a string identifying the remote
+connection."
+  (let ((dir (buffer-local-value 'default-directory buffer)))
+    (ignore-errors (file-remote-p dir))))
 
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
   (let ((buf (get-buffer str)))
-    (if buf
-        (let ((dir (buffer-local-value 'default-directory buf))
-              (mode (buffer-local-value 'major-mode buf)))
-          (cond
-            ((and dir (ignore-errors (file-remote-p dir)))
-             (ivy--remote-name str dir))
-            ((not (verify-visited-file-modtime buf))
-             (ivy-append-face str 'ivy-modified-outside-buffer))
-            ((buffer-modified-p buf)
-             (ivy-append-face str 'ivy-modified-buffer))
-            (t
-             (ivy-append-face str (cdr (assq mode ivy-switch-buffer-faces-alist))))))
-      str)))
+    (cond ((not buf) str)
+          ((let ((remote (ivy--remote-buffer-p buf)))
+             (when remote
+               (format "%s (%s)" (ivy-append-face str 'ivy-remote) remote))))
+          ((not (verify-visited-file-modtime buf))
+           (ivy-append-face str 'ivy-modified-outside-buffer))
+          ((buffer-modified-p buf)
+           (ivy-append-face str 'ivy-modified-buffer))
+          (t
+           (let* ((mode (buffer-local-value 'major-mode buf))
+                  (face (cdr (assq mode ivy-switch-buffer-faces-alist))))
+             (ivy-append-face str face))))))
 
 (defun ivy-switch-buffer-occur (cands)
   "Occur function for `ivy-switch-buffer' using `ibuffer'.
