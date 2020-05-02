@@ -1777,8 +1777,8 @@ This string is inserted into the minibuffer."
           (const :tag "De Bruijn" de-bruijn)
           (const :tag "Words" words)))
 
-(eval-after-load 'avy
-  '(add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style)))
+(with-eval-after-load 'avy
+  (add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style)))
 
 (defun ivy--avy-candidates ()
   (let (candidates)
@@ -3529,8 +3529,8 @@ height < `ivy-height', auto-shrink the minibuffer."
 
 (defvar ivy--flx-cache nil)
 
-(eval-after-load 'flx
-  '(setq ivy--flx-cache (flx-make-string-cache)))
+(with-eval-after-load 'flx
+  (setq ivy--flx-cache (flx-make-string-cache)))
 
 (defun ivy-toggle-case-fold ()
   "Toggle `case-fold-search' for Ivy operations.
