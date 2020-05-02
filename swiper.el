@@ -734,7 +734,22 @@ When capture groups are present in the input, print them instead of lines."
   (when (bound-and-true-p evil-mode)
     (evil-set-jump)))
 
-(declare-function char-fold-to-regexp "char-fold")
+(defun swiper--normalize-regex (re)
+  "Normalize the swiper regex RE.
+Add a space after a leading `^' if needed and apply
+`search-default-mode' if bound."
+  (replace-regexp-in-string
+   "^\\(?:\\\\(\\)?\\^"
+   (concat "\\&" (if (eq 'swiper (ivy-state-caller ivy-last)) " " ""))
+   (if (functionp (bound-and-true-p search-default-mode))
+       (mapconcat
+        (lambda (x)
+          (if (string-match-p "\\`[^$\\^]+\\'" x)
+              (funcall search-default-mode x)
+            x))
+        (split-string re "\\b") "")
+     re)
+   t))
 
 (defun swiper--re-builder (str)
   "Transform STR into a swiper regex.
@@ -742,46 +757,14 @@ This is the regex used in the minibuffer where candidates have
 line numbers.  For the buffer, use `ivy--regex' instead."
   (let* ((re-builder (ivy-alist-setting ivy-re-builders-alist))
          (str (replace-regexp-in-string "\\\\n" "\n" str))
-         (re (cond
-               ((equal str "")
-                "")
-               ((equal str "^")
-                (setq ivy--subexps 0)
-                ".")
-               ((= (aref str 0) ?^)
-                (let* ((re (funcall re-builder (substring str 1)))
-                       (re (if (listp re)
-                               (mapconcat (lambda (x)
-                                            (format "\\(%s\\)" (car x)))
-                                          (cl-remove-if-not #'cdr re)
-                                          ".*?")
-                             re)))
-                  (cond
-                    ((string= re "$")
-                     (if (eq (ivy-state-caller ivy-last) 'swiper)
-                         "^ $"
-                       "^$"))
-                    ((zerop ivy--subexps)
-                     (prog1 (format "^ ?\\(%s\\)" re)
-                       (setq ivy--subexps 1)))
-                    (t
-                     (format "^ %s" re)))))
-               ;; Added in Emacs 25.1.
-               ((fboundp (bound-and-true-p search-default-mode))
-                (if (string-match "\\`\\\\_<\\(.+\\)\\\\_>\\'" str)
-                    (concat
-                     "\\_<"
-                     (funcall search-default-mode (match-string 1 str))
-                     "\\_>")
-                  (let ((subs (ivy--split str)))
-                    (setq ivy--subexps (length subs))
-                    (mapconcat
-                     (lambda (s) (format "\\(%s\\)" (funcall search-default-mode s)))
-                     subs
-                     ".*?"))))
-               (t
-                (funcall re-builder str)))))
-    re))
+         (re (funcall re-builder str)))
+    (if (consp re)
+        (mapcar
+         (lambda (x)
+           (cons (swiper--normalize-regex (car x))
+                 (cdr x)))
+         re)
+      (swiper--normalize-regex re))))
 
 (defvar swiper-history nil
   "History for `swiper'.")

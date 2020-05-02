@@ -221,12 +221,13 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
+  (setf (ivy-state-caller ivy-last) 'swiper)
   (should (string= (swiper--re-builder "^")
-                   "."))
+                   "^ "))
   (should (string= (swiper--re-builder "^a")
-                   "^ ?\\(a\\)"))
+                   "^ a"))
   (should (string= (swiper--re-builder "^a b")
-                   "^ \\(a\\).*?\\(b\\)"))
+                   "\\(^ a\\).*?\\(b\\)"))
   (should
    (string-match-p
     "\\`\\\\_<.*\\\\_>\\'"
