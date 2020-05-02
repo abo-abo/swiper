@@ -4407,6 +4407,7 @@ preselected.  Otherwise, the prefix argument defaults to 0, which
 results in the most recent kill being preselected."
   :type 'boolean)
 
+;; Moved to subr.el in Emacs 27.1.
 (autoload 'xor "array")
 
 ;;;###autoload
