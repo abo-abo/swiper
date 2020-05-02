@@ -5181,7 +5181,9 @@ EVENT gives the mouse position."
                   (switch-to-buffer buffer)))))))
 
     ((memq (ivy-state-caller ivy-occur-last)
-           '(counsel-describe-function counsel-describe-variable))
+           '(counsel-describe-function
+             counsel-describe-variable
+             counsel-describe-symbol))
      (setf (ivy-state-window ivy-occur-last)
            (selected-window))
      (selected-window))))
