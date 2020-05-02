@@ -3070,7 +3070,7 @@ This uses `counsel-ag' with `counsel-pt-base-command' instead of
   (interactive)
   (let ((counsel-ag-base-command counsel-pt-base-command)
         (counsel--grep-tool-look-around nil))
-    (counsel-ag initial-input :caller 'counsel-pt)))
+    (counsel-ag initial-input nil nil nil :caller 'counsel-pt)))
 
 (ivy-configure 'counsel-pt
   :unwind-fn #'counsel--grep-unwind
