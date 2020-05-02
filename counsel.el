@@ -1734,7 +1734,7 @@ TREE is the selected candidate."
     (ivy-read "Select worktree: "
               (or (cl-delete default-directory (counsel-git-worktree-list)
                              :key #'counsel-git-worktree-parse-root :test #'string=)
-                  (error "No other worktrees!"))
+                  (error "No other worktrees"))
               :action (lambda (tree)
                         (counsel-git-change-worktree-action
                          (ivy-state-directory ivy-last) tree))
@@ -2799,7 +2799,8 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel--find-return-list (args)
   (unless (listp args)
-    (user-error "`counsel-file-jump-args' is a list now, please customize accordingly."))
+    (user-error
+     "`counsel-file-jump-args' is a list now; please customize accordingly"))
   (counsel--call
    (cons find-program args)
    (lambda ()
@@ -4119,7 +4120,7 @@ When ARG is non-nil, display all active evil registers."
         (if candidates
             (counsel-mark--ivy-read candidates 'counsel-evil-marks)
           (message "no evil marks are active")))
-    (user-error "Required feature `evil' not installed or not loaded.")))
+    (user-error "Required feature `evil' not installed or loaded")))
 
 ;;** `counsel-package'
 (defvar package--initialized)
@@ -4523,7 +4524,7 @@ matching the register's value description against a regexp in
                 :require-match t
                 :action #'counsel-evil-registers-action
                 :caller 'counsel-evil-registers)
-    (user-error "Required feature `evil' not installed.")))
+    (user-error "Required feature `evil' not installed")))
 
 (ivy-configure 'counsel-evil-registers
   :height 5
@@ -5494,7 +5495,7 @@ This is a combination of `kmacro-ring' and, together in a list, `last-kbd-macro'
               (condition-case nil
                   (format-kbd-macro (if (listp kmacro) (car kmacro) kmacro) 1)
                 ;; Recover from error from `edmacro-fix-menu-commands'.
-                (error "Warning: Cannot display macros containing mouse clicks.")))
+                (error "Warning: Cannot display macros containing mouse clicks")))
       kmacro))
    (cons
     (if (listp last-kbd-macro)

@@ -1829,7 +1829,7 @@ This string is inserted into the minibuffer."
          (error "Package avy isn't installed"))
         ((= (minibuffer-depth) 0)
          (user-error
-          "This command is intended to be called with \"C-'\" from `ivy-read'."))
+          "This command is intended to be called from within `ivy-read'"))
         (t
          (let* ((avy-all-windows nil)
                 (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
@@ -2498,8 +2498,7 @@ This is useful for recursive `ivy-read'."
 (defun ivy-add-prompt-count (prompt)
   "Add count information to PROMPT."
   (cond ((null ivy-count-format)
-         (error
-          "`ivy-count-format' can't be nil.  Set it to \"\" instead"))
+         (error "`ivy-count-format' must not be nil; set it to \"\" instead"))
         ((string-match "%d.*\\(%d\\)" ivy-count-format)
          (let* ((w
                   (if (listp ivy--all-candidates)
@@ -4873,7 +4872,7 @@ You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
   (cond
     ((= (minibuffer-depth) 0)
      (user-error
-      "This command is intended to be called with \"C-r\" from `ivy-read'."))
+      "This command is intended to be called from within `ivy-read'"))
     ;; don't recur
     ((and (> (minibuffer-depth) 1)
           (eq (ivy-state-caller ivy-last) 'ivy-reverse-i-search)))
