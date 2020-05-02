@@ -2279,10 +2279,10 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
 
 (ivy-set-actions
  'counsel-recentf
- '(("j" find-file-other-window "other window")
+ `(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
    ("x" counsel-find-file-extern "open externally")
-   ("d" (lambda (file) (setq recentf-list (delete file recentf-list)))
+   ("d" ,(lambda (file) (setq recentf-list (delete file recentf-list)))
     "delete from recentf")))
 
 (defun counsel-recentf-candidates ()
@@ -2471,12 +2471,12 @@ current value of `default-directory'."
             :action #'dired))
 
 (ivy-set-actions 'counsel-bookmarked-directory
-                 '(("j" dired-other-window "other window")
+                 `(("j" dired-other-window "other window")
                    ("x" counsel-find-file-extern "open externally")
                    ("r" counsel-find-file-as-root "open as root")
-                   ("f" (lambda (dir)
-                          (let ((default-directory dir))
-                            (call-interactively #'find-file)))
+                   ("f" ,(lambda (dir)
+                           (let ((default-directory dir))
+                             (call-interactively #'find-file)))
                     "find-file")))
 
 ;;** `counsel-file-register'
