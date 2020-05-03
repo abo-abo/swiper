@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-10-16 Wed 18:55 -->
+<!-- 2020-05-03 Sun 15:47 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -17,50 +17,28 @@
 <link rel="stylesheet" type="text/css" href="css/readtheorg.css"/>
 <link rel="stylesheet" type="text/css" href="css/kbd-style.css"/>
 <script type="text/javascript">
-/*
-@licstart  The following is the entire license notice for the
-JavaScript code in this tag.
-
-Copyright (C) 2012-2019 Free Software Foundation, Inc.
-
-The JavaScript code in this tag is free software: you can
-redistribute it and/or modify it under the terms of the GNU
-General Public License (GNU GPL) as published by the Free Software
-Foundation, either version 3 of the License, or (at your option)
-any later version.  The code is distributed WITHOUT ANY WARRANTY;
-without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
-
-As additional permission under GNU GPL version 3 section 7, you
-may distribute non-source (e.g., minimized or compacted) forms of
-that code without the copy of the GNU GPL normally required by
-section 4, provided you include this license notice and a URL
-through which recipients can access the Corresponding Source.
-
-
-@licend  The above is the entire license notice
-for the JavaScript code in this tag.
-*/
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 <!--/*--><![CDATA[/*><!--*/
- function CodeHighlightOn(elem, id)
- {
-   var target = document.getElementById(id);
-   if(null != target) {
-     elem.cacheClassElem = elem.className;
-     elem.cacheClassTarget = target.className;
-     target.className = "code-highlighted";
-     elem.className   = "code-highlighted";
-   }
- }
- function CodeHighlightOff(elem, id)
- {
-   var target = document.getElementById(id);
-   if(elem.cacheClassElem)
-     elem.className = elem.cacheClassElem;
-   if(elem.cacheClassTarget)
-     target.className = elem.cacheClassTarget;
- }
-/*]]>*///-->
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.cacheClassElem = elem.className;
+         elem.cacheClassTarget = target.className;
+         target.className = "code-highlighted";
+         elem.className   = "code-highlighted";
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(elem.cacheClassElem)
+         elem.className = elem.cacheClassElem;
+       if(elem.cacheClassTarget)
+         target.className = elem.cacheClassTarget;
+     }
+    /*]]>*///-->
+// @license-end
 </script>
 </head>
 <body>
@@ -156,7 +134,7 @@ for the JavaScript code in this tag.
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-copying" class="outline-2">
 <h2 id="copying"><span class="section-number-2">1</span> Copying</h2>
 <div class="outline-text-2" id="text-copying">
 <p>
@@ -191,7 +169,7 @@ Free Documentation License".
 <a href="https://github.com/abo-abo/swiper/blob/master/doc/ivy.org">This manual source</a>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-introduction" class="outline-2">
 <h2 id="introduction"><span class="section-number-2">2</span> Introduction</h2>
 <div class="outline-text-2" id="text-introduction">
 <p>
@@ -244,7 +222,7 @@ for documentation look-ups.</dd>
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-installation" class="outline-2">
 <h2 id="installation"><span class="section-number-2">3</span> Installation</h2>
 <div class="outline-text-2" id="text-installation">
 <p>
@@ -258,7 +236,7 @@ version that runs Ivy with fancy faces display.
 </p>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-installing-from-emacs-package-manager" class="outline-3">
 <h3 id="installing-from-emacs-package-manager"><span class="section-number-3">3.1</span> Installing from Emacs Package Manager</h3>
 <div class="outline-text-3" id="text-installing-from-emacs-package-manager">
 <p>
@@ -296,7 +274,7 @@ For package manager details, see <a href="https://www.gnu.org/software/emacs/man
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-installing-from-the-git-repository" class="outline-3">
 <h3 id="installing-from-the-git-repository"><span class="section-number-3">3.2</span> Installing from the Git repository</h3>
 <div class="outline-text-3" id="text-installing-from-the-git-repository">
 <dl class="org-dl">
@@ -343,7 +321,7 @@ make
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-getting-started" class="outline-2">
 <h2 id="getting-started"><span class="section-number-2">4</span> Getting started</h2>
 <div class="outline-text-2" id="text-getting-started">
 <p>
@@ -359,7 +337,7 @@ First enable Ivy completion everywhere:
 Note: <code>ivy-mode</code> can be toggled on and off with <kbd>M-x</kbd> <code>ivy-mode</code>.
 </p>
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-basic-customization" class="outline-3">
 <h3 id="basic-customization"><span class="section-number-3">4.1</span> Basic customization</h3>
 <div class="outline-text-3" id="text-basic-customization">
 <p>
@@ -387,11 +365,11 @@ documentation.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-key-bindings" class="outline-2">
 <h2 id="key-bindings"><span class="section-number-2">5</span> Key bindings</h2>
 <div class="outline-text-2" id="text-key-bindings">
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-global-key-bindings" class="outline-3">
 <h3 id="global-key-bindings"><span class="section-number-3">5.1</span> Global key bindings</h3>
 <div class="outline-text-3" id="text-global-key-bindings">
 <p>
@@ -454,7 +432,7 @@ You can also enable <code>counsel-mode</code> to make some global key binding re
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-minibuffer-key-bindings" class="outline-3">
 <h3 id="minibuffer-key-bindings"><span class="section-number-3">5.2</span> Minibuffer key bindings</h3>
 <div class="outline-text-3" id="text-minibuffer-key-bindings">
 <p>
@@ -476,7 +454,7 @@ where the familiar <kbd>C-a</kbd>, <kbd>C-f</kbd>, <kbd>M-d</kbd>, <kbd>M-DEL</k
 </p>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-key-bindings-for-navigation" class="outline-4">
 <h4 id="key-bindings-for-navigation"><span class="section-number-4">5.2.1</span> Key bindings for navigation</h4>
 <div class="outline-text-4" id="text-key-bindings-for-navigation">
 <ul class="org-ul">
@@ -512,7 +490,7 @@ affects scroll size when using <kbd>C-v</kbd> and <kbd>M-v</kbd> key bindings.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-key-bindings-for-single-selection-action-then-exit-minibuffer" class="outline-4">
 <h4 id="key-bindings-for-single-selection-action-then-exit-minibuffer"><span class="section-number-4">5.2.2</span> Key bindings for single selection, action, then exit minibuffer</h4>
 <div class="outline-text-4" id="text-key-bindings-for-single-selection-action-then-exit-minibuffer">
 <p>
@@ -576,7 +554,7 @@ keystrokes followed by <kbd>C-m</kbd>.</dd>
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open" class="outline-4">
 <h4 id="key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open"><span class="section-number-4">5.2.3</span> Key bindings for multiple selections and actions, keep minibuffer open</h4>
 <div class="outline-text-4" id="text-key-bindings-for-multiple-selections-and-actions-keep-minibuffer-open">
 <p>
@@ -647,7 +625,7 @@ Useful after an accidental <kbd>C-m</kbd> (<code>ivy-done</code>).
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-key-bindings-that-alter-the-minibuffer-input" class="outline-4">
 <h4 id="key-bindings-that-alter-the-minibuffer-input"><span class="section-number-4">5.2.4</span> Key bindings that alter the minibuffer input</h4>
 <div class="outline-text-4" id="text-key-bindings-that-alter-the-minibuffer-input">
 <dl class="org-dl">
@@ -706,7 +684,7 @@ selected candidate string is inserted into the minibuffer.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-other-key-bindings" class="outline-4">
 <h4 id="other-key-bindings"><span class="section-number-4">5.2.5</span> Other key bindings</h4>
 <div class="outline-text-4" id="text-other-key-bindings">
 <dl class="org-dl">
@@ -721,7 +699,7 @@ Copies the region if the region is active.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-hydra-in-the-minibuffer" class="outline-4">
 <h4 id="hydra-in-the-minibuffer"><span class="section-number-4">5.2.6</span> Hydra in the minibuffer</h4>
 <div class="outline-text-4" id="text-hydra-in-the-minibuffer">
 <dl class="org-dl">
@@ -883,7 +861,7 @@ The action is called on each marked candidate one by one.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-saving-the-current-completion-session-to-a-buffer" class="outline-4">
 <h4 id="saving-the-current-completion-session-to-a-buffer"><span class="section-number-4">5.2.7</span> Saving the current completion session to a buffer</h4>
 <div class="outline-text-4" id="text-saving-the-current-completion-session-to-a-buffer">
 <dl class="org-dl">
@@ -926,7 +904,7 @@ names. For example: <code>*ivy-occur counsel-describe-variable
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-completion-styles" class="outline-2">
 <h2 id="completion-styles"><span class="section-number-2">6</span> Completion Styles</h2>
 <div class="outline-text-2" id="text-completion-styles">
 <p>
@@ -995,7 +973,7 @@ entry on <code>ivy-re-builders-alist</code>.</li>
 </ol>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-ivy--regex-plus" class="outline-3">
 <h3 id="ivy--regex-plus"><span class="section-number-3">6.1</span> ivy&#x2013;regex-plus</h3>
 <div class="outline-text-3" id="text-ivy--regex-plus">
 <p>
@@ -1048,7 +1026,7 @@ beginning of a negation group.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-ivy--regex-ignore-order" class="outline-3">
 <h3 id="ivy--regex-ignore-order"><span class="section-number-3">6.2</span> ivy&#x2013;regex-ignore-order</h3>
 <div class="outline-text-3" id="text-ivy--regex-ignore-order">
 <p>
@@ -1059,7 +1037,7 @@ searching for matching candidates. For instance, the input
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-ivy--regex-fuzzy" class="outline-3">
 <h3 id="ivy--regex-fuzzy"><span class="section-number-3">6.3</span> ivy&#x2013;regex-fuzzy</h3>
 <div class="outline-text-3" id="text-ivy--regex-fuzzy">
 <p>
@@ -1077,11 +1055,11 @@ installed.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-customization" class="outline-2">
 <h2 id="customization"><span class="section-number-2">7</span> Customization</h2>
 <div class="outline-text-2" id="text-customization">
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-faces" class="outline-3">
 <h3 id="faces"><span class="section-number-3">7.1</span> Faces</h3>
 <div class="outline-text-3" id="text-faces">
 <dl class="org-dl">
@@ -1165,7 +1143,7 @@ This takes precedence over <code>ivy-modified-buffer</code>.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-defcustoms" class="outline-3">
 <h3 id="defcustoms"><span class="section-number-3">7.2</span> Defcustoms</h3>
 <div class="outline-text-3" id="text-defcustoms">
 <dl class="org-dl">
@@ -1231,11 +1209,11 @@ handy key to invoke after mistakenly triggering a completion.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-actions" class="outline-3">
 <h3 id="actions"><span class="section-number-3">7.3</span> Actions</h3>
 <div class="outline-text-3" id="text-actions">
 </div>
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-what-are-actions" class="outline-4">
 <h4 id="what-are-actions"><span class="section-number-4">7.3.1</span> What are actions?</h4>
 <div class="outline-text-4" id="text-what-are-actions">
 <p>
@@ -1267,7 +1245,7 @@ macro.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-how-can-different-actions-be-called" class="outline-4">
 <h4 id="how-can-different-actions-be-called"><span class="section-number-4">7.3.2</span> How can different actions be called?</h4>
 <div class="outline-text-4" id="text-how-can-different-actions-be-called">
 <ul class="org-ul">
@@ -1280,7 +1258,7 @@ selection, calls it after selection, and then does not exit.</li>
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-how-to-modify-the-actions-list" class="outline-4">
 <h4 id="how-to-modify-the-actions-list"><span class="section-number-4">7.3.3</span> How to modify the actions list?</h4>
 <div class="outline-text-4" id="text-how-to-modify-the-actions-list">
 <p>
@@ -1298,7 +1276,7 @@ equivalent to <kbd>C-m</kbd>.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-example---add-two-actions-to-each-command" class="outline-4">
 <h4 id="example---add-two-actions-to-each-command"><span class="section-number-4">7.3.4</span> Example - add two actions to each command</h4>
 <div class="outline-text-4" id="text-example---add-two-actions-to-each-command">
 <p>
@@ -1331,7 +1309,7 @@ Then in any completion session, <kbd>M-o y</kbd> invokes <code>ivy-yank-action</
 </p>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-5">
+<div id="outline-container-how-to-undo-adding-the-two-actions" class="outline-5">
 <h5 id="how-to-undo-adding-the-two-actions"><span class="section-number-5">7.3.4.1</span> How to undo adding the two actions</h5>
 <div class="outline-text-5" id="text-how-to-undo-adding-the-two-actions">
 <p>
@@ -1347,7 +1325,7 @@ the <code>t</code> key as follows:
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-5">
+<div id="outline-container-how-to-add-actions-to-a-specific-command" class="outline-5">
 <h5 id="how-to-add-actions-to-a-specific-command"><span class="section-number-5">7.3.4.2</span> How to add actions to a specific command</h5>
 <div class="outline-text-5" id="text-how-to-add-actions-to-a-specific-command">
 <p>
@@ -1365,7 +1343,7 @@ Use the command name as the key:
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-example---define-a-new-command-with-several-actions" class="outline-4">
 <h4 id="example---define-a-new-command-with-several-actions"><span class="section-number-4">7.3.5</span> Example - define a new command with several actions</h4>
 <div class="outline-text-4" id="text-example---define-a-new-command-with-several-actions">
 <div class="org-src-container">
@@ -1394,7 +1372,7 @@ action has its own string description for easy selection.
 </p>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-5">
+<div id="outline-container-test-the-above-function-with-ivy-occur" class="outline-5">
 <h5 id="test-the-above-function-with-ivy-occur"><span class="section-number-5">7.3.5.1</span> Test the above function with <code>ivy-occur</code></h5>
 <div class="outline-text-5" id="text-test-the-above-function-with-ivy-occur">
 <p>
@@ -1419,7 +1397,7 @@ likely at the end of the buffer</li>
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-packages" class="outline-3">
 <h3 id="packages"><span class="section-number-3">7.4</span> Packages</h3>
 <div class="outline-text-3" id="text-packages">
 <dl class="org-dl">
@@ -1452,11 +1430,11 @@ Helm-make requires this setting for ivy completion.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-commands" class="outline-2">
 <h2 id="commands"><span class="section-number-2">8</span> Commands</h2>
 <div class="outline-text-2" id="text-commands">
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-file-name-completion" class="outline-3">
 <h3 id="file-name-completion"><span class="section-number-3">8.1</span> File Name Completion</h3>
 <div class="outline-text-3" id="text-file-name-completion">
 <p>
@@ -1479,6 +1457,7 @@ is empty.</dd>
 <dt><kbd>~</kbd> (<code>self-insert-command</code>)</dt><dd>Switch to the home directory.</dd>
 <dt><kbd>/</kbd> (<code>self-insert-command</code>)</dt><dd>If the current input matches an existing directory name exactly,
 switch the completion to that directory.</dd>
+<dt><kbd>C-M-y</kbd> (<code>ivy-insert-current-full</code>)</dt><dd>Insert the current full path, in case you want to edit a part of it.</dd>
 <dt><kbd>M-r</kbd> (<code>ivy-toggle-regexp-quote</code>)</dt><dd><p>
 Toggle between input as regexp or not.
 </p>
@@ -1512,7 +1491,7 @@ files previously opened. It also works with TRAMP files.</dd>
 </dl>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-4">
+<div id="outline-container-using-tramp" class="outline-4">
 <h4 id="using-tramp"><span class="section-number-4">8.1.1</span> Using TRAMP</h4>
 <div class="outline-text-4" id="text-using-tramp">
 <dl class="org-dl">
@@ -1563,7 +1542,7 @@ Multi-hopping is possible, although a bit complex.
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-buffer-name-completion" class="outline-3">
 <h3 id="buffer-name-completion"><span class="section-number-3">8.2</span> Buffer Name Completion</h3>
 <div class="outline-text-3" id="text-buffer-name-completion">
 <dl class="org-dl">
@@ -1589,7 +1568,7 @@ files. Selecting such virtual buffers, which are highlighted with
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-counsel-commands" class="outline-3">
 <h3 id="counsel-commands"><span class="section-number-3">8.3</span> Counsel commands</h3>
 <div class="outline-text-3" id="text-counsel-commands">
 <p>
@@ -1609,7 +1588,7 @@ sessions.</li>
 </div>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-api" class="outline-2">
 <h2 id="api"><span class="section-number-2">9</span> API</h2>
 <div class="outline-text-2" id="text-api">
 <p>
@@ -1621,7 +1600,7 @@ features such as multi-actions, non-exiting actions, <code>ivy-occur</code> and
 </p>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-required-arguments-for-ivy-read" class="outline-3">
 <h3 id="required-arguments-for-ivy-read"><span class="section-number-3">9.1</span> Required arguments for <code>ivy-read</code></h3>
 <div class="outline-text-3" id="text-required-arguments-for-ivy-read">
 <dl class="org-dl">
@@ -1640,7 +1619,7 @@ If a function, then it has to be compatible with
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-optional-arguments-for-ivy-read" class="outline-3">
 <h3 id="optional-arguments-for-ivy-read"><span class="section-number-3">9.2</span> Optional arguments for <code>ivy-read</code></h3>
 <div class="outline-text-3" id="text-optional-arguments-for-ivy-read">
 <dl class="org-dl">
@@ -1710,7 +1689,7 @@ strings. See <code>counsel-locate</code> for an example usage.</dd>
 </dl>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-example---counsel-describe-function" class="outline-3">
 <h3 id="example---counsel-describe-function"><span class="section-number-3">9.3</span> Example - <code>counsel-describe-function</code></h3>
 <div class="outline-text-3" id="text-example---counsel-describe-function">
 <p>
@@ -1781,7 +1760,7 @@ another command called <code>counsel-describe-function</code>.</li>
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-example---counsel-locate" class="outline-3">
 <h3 id="example---counsel-locate"><span class="section-number-3">9.4</span> Example - <code>counsel-locate</code></h3>
 <div class="outline-text-3" id="text-example---counsel-locate">
 <p>
@@ -1867,7 +1846,7 @@ we want to kill the running process created by
 </ul>
 </div>
 </div>
-<div id="outline-container-orgheadline" class="outline-3">
+<div id="outline-container-example---ivy-read-with-extra-properties" class="outline-3">
 <h3 id="example---ivy-read-with-extra-properties"><span class="section-number-3">9.5</span> Example - <code>ivy-read-with-extra-properties</code></h3>
 <div class="outline-text-3" id="text-example---ivy-read-with-extra-properties">
 <p>
@@ -1909,13 +1888,13 @@ then retrieves that value and displays it.</li>
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-variable-index" class="outline-2">
 <h2 id="variable-index"><span class="section-number-2">10</span> Variable Index</h2>
 <div class="outline-text-2" id="text-variable-index">
 </div>
 </div>
 
-<div id="outline-container-orgheadline" class="outline-2">
+<div id="outline-container-key-index" class="outline-2">
 <h2 id="key-index"><span class="section-number-2">11</span> Keystroke Index</h2>
 <div class="outline-text-2" id="text-key-index">
 </div>
