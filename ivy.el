@@ -3493,7 +3493,8 @@ height < `ivy-height', auto-shrink the minibuffer."
                                      (frame-char-height))))
                      (window-resize nil delta nil t t)))
                   ((and (or ivy-auto-shrink-minibuffer
-                            (ivy-alist-setting ivy-auto-shrink-minibuffer))
+                            (ivy-alist-setting
+                             ivy-auto-shrink-minibuffer-alist))
                         (< ivy--length ivy-height))
                    (shrink-window (-
                                    (/ (window-body-height nil t)
