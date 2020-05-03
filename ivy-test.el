@@ -26,30 +26,37 @@
 
 ;;; Code:
 
-(defvar require-features nil)
 (defvar ivy-empty "tests/find-file/empty-dir/")
 
-(defadvice require (before ivy-tests-require-hook (feature &rest _) activate)
-  "Record the requires into `require-features'."
-  (push feature require-features))
+(defvar ivy-features nil
+  "Like `features' but for Ivy testing purposes.")
 
-(require 'ert)
-(require 'colir)
+(defun ivy-test--record-feature (feature &rest _)
+  "Record FEATURE in `ivy-features'.
+Intended as :after-while advice for `require'."
+  (add-to-list 'ivy-features feature nil #'eq))
+
+(advice-add 'require :after-while #'ivy-test--record-feature)
 
 ;; Useful for #'ivy-read-remap.  It must arrive before (require 'ivy).
 (define-key global-map (kbd "<S-right>") #'end-of-buffer)
 
-(require 'ivy)
+(require 'colir)
 (require 'counsel)
+(require 'ivy)
+
+(require 'ert)
 
 (message "%s" (emacs-version))
 
+(setq ivy-last (make-ivy-state))
+
 (ert-deftest ivy--lazy-load-ffap--ffap-url-p ()
-  (should (not (memq 'ffap require-features)))
+  (should (not (memq 'ffap ivy-features)))
   (should (not (fboundp 'ffap-url-p)))
   (should (string= (ivy-ffap-url-p "https://foo.org")
                    "https://foo.org"))
-  (should (memq 'ffap require-features))
+  (should (memq 'ffap ivy-features))
   (should (fboundp 'ffap-url-p)))
 
 (defvar ivy-expr nil
@@ -93,18 +100,6 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   "Like `command-execute' but sets `this-command' first."
   (setq this-command cmd)
   (apply #'command-execute cmd args))
-
-(defadvice symbol-function (around no-void-function activate)
-  "Suppress void-function errors.
-
-This advice makes `symbol-function' return nil when called on a
-symbol with no function rather than throwing a void-function
-error. On Emacs 24.4 and above, this has no effect, because
-`symbol-function' already does this, but on 24.3 and earlier, it
-will bring the behavior in line with the newer Emacsen."
-  (condition-case nil
-      ad-do-it
-    (void-function nil)))
 
 (ert-deftest ivy-partial-1 ()
   (should (equal
@@ -180,7 +175,30 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy-with
                   '(ivy-read "x: " '("one" "two" ("three" . "four")))
                   "th C-m")
-                 "three")))
+                 "three"))
+  (should (equal (ivy-with
+                  '(ivy-read "x: "
+                    (lambda (_input)
+                      '(("one" . 1)
+                        ("two" . 2)))
+                    :dynamic-collection t
+                    :action (lambda (choice)
+                              (message "%s" choice)))
+                  "C-m")
+                 "one")))
+
+(ert-deftest ivy-read-history ()
+  (defvar ivy-read-hist nil)
+  (should (equal (progn
+                   (setq ivy-read-hist '("c" "b" "a"))
+                   (ivy-with '(ivy-read "test: " '("c" "d") :history 'ivy-read-hist) "RET")
+                   ivy-read-hist)
+                 '("c" "b" "a")))
+  (should (equal (progn
+                   (setq ivy-read-hist '("cdef" "b" "a"))
+                   (ivy-with '(ivy-read "test: " '("cdef" "g") :history 'ivy-read-hist) "cd RET")
+                   ivy-read-hist)
+                 '("cd" "cdef" "b" "a"))))
 
 (ert-deftest ivy-read-sort-alist ()
   (should (equal (ivy-with '(let ((coll '(("b" . "1") ("a" . "2"))))
@@ -203,12 +221,13 @@ will bring the behavior in line with the newer Emacsen."
 
 (ert-deftest swiper--re-builder ()
   (setq swiper--width 4)
+  (setf (ivy-state-caller ivy-last) 'swiper)
   (should (string= (swiper--re-builder "^")
-                   "."))
+                   "^ "))
   (should (string= (swiper--re-builder "^a")
-                   "^ ?\\(a\\)"))
+                   "^ a"))
   (should (string= (swiper--re-builder "^a b")
-                   "^ \\(a\\).*?\\(b\\)"))
+                   "\\(^ a\\).*?\\(b\\)"))
   (should
    (string-match-p
     "\\`\\\\_<.*\\\\_>\\'"
@@ -252,7 +271,11 @@ will bring the behavior in line with the newer Emacsen."
                    "\\( -> \\)"
                    ".*")))
   (should (equal (ivy--split "[^ ]\\( -> \\).*")
-                 '("[^ ]" "\\( -> \\)" ".*"))))
+                 '("[^ ]" "\\( -> \\)" ".*")))
+  (should (equal (ivy--split "[ab][cd]") '("[ab][cd]")))
+  (should (equal (ivy--split "[a b][c d]") '("[a b][c d]")))
+  (should (equal (ivy--split "[ab] [cd]") '("[ab]" "[cd]")))
+  (should (equal (ivy--split "[a b] [c d]") '("[a b]" "[c d]"))))
 
 (ert-deftest ivy--regex ()
   (should (equal (ivy--regex
@@ -320,13 +343,9 @@ will bring the behavior in line with the newer Emacsen."
   (should (equal (ivy--regex-plus "add path\\!") "\\(add\\).*?\\(path!\\)")))
 
 (ert-deftest ivy-partial-2 ()
-  (when (fboundp 'read--expression)
-    (should
-     (equal
-      (ivy-with '(read--expression "Eval: "
-                  "'s-c-t-st")
-                "<tab> C-m")
-      '(quote shell-command-to-string)))))
+  (should (equal (ivy-with '(read--expression "Eval: " "'s-c-t-st")
+                           "<tab> C-m")
+                 '(quote shell-command-to-string))))
 
 (ert-deftest ivy--regex-fuzzy ()
   (should (string= (ivy--regex-fuzzy "tmux")
@@ -401,7 +420,6 @@ will bring the behavior in line with the newer Emacsen."
                      90 96 (face ivy-current-match read-only nil)))))
 
 (ert-deftest ivy--filter ()
-  (setq ivy-last (make-ivy-state))
   (should (equal (ivy--filter "the" '("foo" "the" "The"))
                  '("the" "The")))
   (should (equal (ivy--filter "The" '("foo" "the" "The"))
@@ -443,6 +461,18 @@ will bring the behavior in line with the newer Emacsen."
      (insert ,text)
      ,@body))
 
+(ert-deftest ivy-backward-kill-word ()
+  (should (string= (ivy-with
+                    '(ivy-read "test: " nil
+                      :initial-input "one two three")
+                    "M-DEL M-DEL C-M-j")
+                   "one "))
+  (should (string= (ivy-with
+                    '(ivy-read "test: " nil
+                      :initial-input "one two three")
+                    "M-DEL M-DEL M-DEL C-y C-M-j")
+                   "one two three")))
+
 (ert-deftest counsel-url-expand ()
   "Test ffap expansion using `counsel-url-expansions-alist'."
   ;; no expansions defined
@@ -451,8 +481,8 @@ will bring the behavior in line with the newer Emacsen."
   (let ((counsel-url-expansions-alist
          '(("^foo$" . "https://foo.com/%s")
            ("^issue\\([0-9]+\\)" . (lambda (word)
-                                     (concat "https://foo.com/issues/"
-                                             (match-string 1 word)))))))
+                                 (concat "https://foo.com/issues/"
+                                         (match-string 1 word)))))))
     ;; no match
     (should (equal (ivy--string-buffer
                     "foobar"
@@ -1128,14 +1158,14 @@ a buffer visiting a file."
   ;; negative lookahead: lines with "ivy", without "-"
   (should
    (string=
-    (let ((counsel--regex-look-around t)
-          (ivy--regex-function 'ivy--regex-plus))
+    (cl-letf ((counsel--regex-look-around t)
+              ((ivy-state-re-builder ivy-last) #'ivy--regex-plus))
       (counsel--grep-regex "ivy ! -"))
     "^(?=.*ivy)(?!.*-)"))
   (should
    (string=
-    (let ((counsel--regex-look-around t)
-          (ivy--regex-function 'ivy--regex-fuzzy))
+    (cl-letf ((counsel--regex-look-around t)
+              ((ivy-state-re-builder ivy-last) #'ivy--regex-fuzzy))
       (counsel--grep-regex "ivy"))
     "(i)[^v\n]*(v)[^y\n]*(y)")))
 
@@ -1174,6 +1204,16 @@ a buffer visiting a file."
              (apply #'global-set-key old-binding))
            (and (buffer-name temp-buffer)
                 (kill-buffer temp-buffer)))))))
+
+(ert-deftest swiper-query-replace ()
+  (dolist (re-builder '(regexp-quote ivy--regex ivy--regex-plus ivy--regex-fuzzy ivy--regex-ignore-order))
+    (dolist (swiper-cmd '(swiper swiper-isearch))
+      (let ((ivy-re-builders-alist `((t . ,re-builder))))
+        (should (equal (ivy-with-text
+                        "|foo bar"
+                        (global-set-key (kbd "C-s") swiper-cmd)
+                        ("C-s" "foo" "M-q" "asdf" "C-j" "y"))
+                       "asdf| bar"))))))
 
 (ert-deftest swiper-thing-at-point ()
   (should
@@ -1328,11 +1368,9 @@ a buffer visiting a file."
     "Foo\nfoo|\nFOO\n")))
 
 (ert-deftest ivy-swiper-wgrep ()
-  :expected-result (if (and (= emacs-major-version 24)
-                            (<= emacs-minor-version 3))
-                       ;; `wgrep' requires at least 24.5
-                       :failed
-                     :passed)
+  ;; `wgrep' requires Emacs 25 or later.
+  (skip-unless (and (>= emacs-major-version 25)
+                    (require 'wgrep nil t)))
   (dolist (search-cmd '(swiper swiper-isearch))
     (should
      (string=
@@ -1356,7 +1394,9 @@ a buffer visiting a file."
     (insert
      "line0\nline1\nline line\nline line\nline5")
     (let* ((input "li")
-           (cands (swiper--isearch-function input))
+           (cands (progn
+                    (ivy-set-text input)
+                    (swiper--isearch-function input)))
            (len (length cands)))
       (should (equal cands '(3 9 15 20 25 30 35)))
       (dotimes (index len)
@@ -1432,6 +1472,21 @@ a buffer visiting a file."
                         :dir "tests/find-file/directories-with-spaces/"))
              "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
+(ert-deftest counsel--split-string-with-eol-cr ()
+  (should
+     (equal (counsel--split-string "one\rtwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-lf ()
+  (should
+     (equal (counsel--split-string "one\ntwo")
+            '("one" "two"))))
+
+(ert-deftest counsel--split-string-with-eol-crlf ()
+  (should
+     (equal (counsel--split-string "one\r\ntwo")
+            '("one" "two"))))
+
 (ert-deftest ivy-avy ()
   (when (require 'avy nil t)
     (let ((enable-recursive-minibuffers t)
@@ -1475,6 +1530,32 @@ a buffer visiting a file."
                               "RET"
                               :dir ivy-empty))
                    ivy-empty)))
+
+(ert-deftest counsel--split-command-args ()
+  (should (equal
+           (counsel--split-command-args "require -- -g*.el")
+           '("-g*.el" . "require")))
+  (should (equal
+           (counsel--split-command-args "counsel--format")
+           '("" . "counsel--format"))))
+
+(ert-deftest ivy--preselect-index ()
+  "Test `ivy--preselect-index' behavior."
+  (should (eql (ivy--preselect-index nil ()) 0))
+  (should (eql (ivy--preselect-index nil '(nil)) 0))
+  (should (eql (ivy--preselect-index nil '(t)) 0))
+  (should (eql (ivy--preselect-index nil '(t nil)) 1))
+  (should (eql (ivy--preselect-index 0 ()) 0))
+  (should (eql (ivy--preselect-index 0 '(0)) 0))
+  (should (eql (ivy--preselect-index 0 '(1)) 0))
+  (should (eql (ivy--preselect-index 0 '(1 0)) 1))
+  (should (eql (ivy--preselect-index 0 '(a)) 0))
+  (should (eql (ivy--preselect-index 1 '(a)) 1))
+  (should (eql (ivy--preselect-index "" ()) 0))
+  (should (eql (ivy--preselect-index "" '("")) 0))
+  (should (eql (ivy--preselect-index "" '("a")) 0))
+  (should (eql (ivy--preselect-index "a+" '("a")) 0))
+  (should (eql (ivy--preselect-index "a+" '("b" "a")) 1)))
 
 (defun ivy-test-run-tests ()
   (let ((test-sets

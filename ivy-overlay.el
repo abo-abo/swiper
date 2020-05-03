@@ -26,6 +26,9 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'subr-x))
+
 (defface ivy-cursor
   '((((class color) (background light))
      :background "black" :foreground "white")
@@ -90,11 +93,9 @@ Then attach the overlay to the character before point."
 (defvar ivy-last)
 (defvar ivy-text)
 (defvar ivy-completion-beg)
-(declare-function ivy-add-face-text-property "ivy")
 (declare-function ivy--get-window "ivy")
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
-(declare-function ivy--remove-prefix "ivy")
 
 (defun ivy-overlay-impossible-p (_str)
   (or
@@ -115,8 +116,8 @@ Hide the minibuffer contents and cursor."
         (save-excursion
           (forward-line 1)
           (insert str)))
-    (ivy-add-face-text-property (minibuffer-prompt-end) (point-max)
-                                '(:foreground "white"))
+    (add-face-text-property (minibuffer-prompt-end) (point-max)
+                            '(:foreground "white"))
     (setq cursor-type nil)
     (with-selected-window (ivy--get-window ivy-last)
       (when cursor-type
@@ -132,7 +133,7 @@ Hide the minibuffer contents and cursor."
               (and (> (length str) 0)
                    (list "\n"
                          (ivy-left-pad
-                          (ivy--remove-prefix "\n" str)
+                          (string-remove-prefix "\n" str)
                           (+
                            (if (and (eq major-mode 'org-mode)
                                     (bound-and-true-p org-indent-mode))
@@ -145,8 +146,8 @@ Hide the minibuffer contents and cursor."
                                (goto-char ivy-completion-beg))
                              (current-column)))))))))
         (let ((cursor-offset (1+ (length ivy-text))))
-          (ivy-add-face-text-property cursor-offset (1+ cursor-offset)
-                                      'ivy-cursor overlay-str t))
+          (add-face-text-property cursor-offset (1+ cursor-offset)
+                                  'ivy-cursor t overlay-str))
         (ivy-overlay-show-after overlay-str)))))
 
 (provide 'ivy-overlay)

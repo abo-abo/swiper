@@ -1024,6 +1024,8 @@ bindings that work here:
 - ~/~ (=self-insert-command=) ::
      If the current input matches an existing directory name exactly,
      switch the completion to that directory.
+- ~C-M-y~ (=ivy-insert-current-full=) ::
+     Insert the current full path, in case you want to edit a part of it.
 - ~M-r~ (=ivy-toggle-regexp-quote=) ::
      Toggle between input as regexp or not.
 

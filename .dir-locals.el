@@ -8,7 +8,7 @@
   (sentence-end-double-space . t))
  (emacs-lisp-mode
   (indent-tabs-mode . nil)
-  (outline-regexp . ";;[;*]+[\s\t]+")
+  (outline-regexp . ";;\\([;*]+ [^\s\t\n]\\|###autoload\\)\\|(")
   ;; extra config here: https://github.com/abo-abo/oremacs/blob/github/modes/ora-elisp-style-guide.el
   ;; (lisp-indent-function . common-lisp-indent-function)
   ))
