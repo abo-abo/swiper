@@ -1886,7 +1886,7 @@ See also `ivy-sort-max-size'."
                (const :tag "Fall-through" t)
                (symbol :tag "Collection"))
     :value-type (choice
-                 (const :tag "Plain sort" string-lessp)
+                 (const :tag "Plain sort" ivy-string<)
                  (const :tag "File sort" ivy-sort-file-function-default)
                  (const :tag "File sort using Ido" ido-file-extension-lessp)
                  (const :tag "No sort" nil)
