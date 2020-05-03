@@ -1356,6 +1356,12 @@ Switch to the home directory.
 If the current input matches an existing directory name exactly,
 switch the completion to that directory.
 @end indentedblock
+@subsubheading @kbd{C-M-y} (@code{ivy-insert-current-full})
+@vindex ivy-insert-current-full
+@kindex C-M-y
+@indentedblock
+Insert the current full path, in case you want to edit a part of it.
+@end indentedblock
 @subsubheading @kbd{M-r} (@code{ivy-toggle-regexp-quote})
 @vindex ivy-toggle-regexp-quote
 @kindex M-r
