@@ -1257,7 +1257,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-resume ()
   "Resume the last completion session."
   (interactive)
-  (if (null (ivy-state-action ivy-last))
+  (if (or (null (ivy-state-action ivy-last))
+          (eq (ivy--get-action ivy-last) 'identity))
       (user-error "The last session isn't compatible with `ivy-resume'")
     (when (memq (ivy-state-caller ivy-last)
                 '(swiper swiper-isearch swiper-backward swiper-isearch-backward))
