@@ -626,6 +626,7 @@ to `ivy-highlight-face'."
   "Function to call to describe a symbol passed as parameter."
   :type 'function)
 
+;;;###autoload
 (defun counsel-describe-symbol ()
   "Forward to `describe-symbol'."
   (interactive)
