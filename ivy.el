@@ -3636,12 +3636,9 @@ CANDIDATES are assumed to be static."
 
 (defun ivy--shorter-matches-first (_name cands)
   "Sort CANDS according to their length."
-  (if (< (length cands) ivy-sort-max-size)
-      (cl-sort
-       (copy-sequence cands)
-       (lambda (s1 s2)
-         (< (length s1) (length s2))))
-    cands))
+  (if (nthcdr ivy-sort-max-size cands)
+      cands
+    (cl-sort (copy-sequence cands) #'< :key #'length)))
 
 (defcustom ivy-sort-matches-functions-alist
   '((t . nil)
