@@ -1567,21 +1567,24 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
 
 (defun counsel--git-grep-index (_re-str cands)
   (if (null ivy--old-cands)
-      (let ((ln (with-ivy-window
-                  (line-number-at-pos)))
-            (name (file-name-nondirectory (with-ivy-window (buffer-file-name)))))
-        (or
-         ;; closest to current line going forwards
-         (cl-position-if (lambda (x)
-                           (and (string-prefix-p name x)
-                                (>= (string-to-number
-                                     (substring x (1+ (length name)))) ln)))
-                         cands)
-         ;; closest to current line going backwards
-         (cl-position-if (lambda (x)
-                           (string-prefix-p name x))
-                         cands
-                         :from-end t)))
+      (let ((bname (with-ivy-window (buffer-file-name))))
+        (if bname
+            (let ((ln (with-ivy-window
+                        (line-number-at-pos)))
+                  (name (file-name-nondirectory bname)))
+              (or
+               ;; closest to current line going forwards
+               (cl-position-if (lambda (x)
+                                 (and (string-prefix-p name x)
+                                      (>= (string-to-number
+                                           (substring x (1+ (length name)))) ln)))
+                               cands)
+               ;; closest to current line going backwards
+               (cl-position-if (lambda (x)
+                                 (string-prefix-p name x))
+                               cands
+                               :from-end t)))
+          0))
     (ivy-recompute-index-swiper-async nil cands)))
 
 (ivy-configure 'counsel-git-grep
