@@ -1566,26 +1566,27 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
                 :caller 'counsel-git-grep))))
 
 (defun counsel--git-grep-index (_re-str cands)
-  (if (null ivy--old-cands)
-      (let ((bname (with-ivy-window (buffer-file-name))))
-        (if bname
-            (let ((ln (with-ivy-window
-                        (line-number-at-pos)))
-                  (name (file-name-nondirectory bname)))
-              (or
-               ;; closest to current line going forwards
-               (cl-position-if (lambda (x)
-                                 (and (string-prefix-p name x)
-                                      (>= (string-to-number
-                                           (substring x (1+ (length name)))) ln)))
-                               cands)
-               ;; closest to current line going backwards
-               (cl-position-if (lambda (x)
-                                 (string-prefix-p name x))
-                               cands
-                               :from-end t)))
-          0))
-    (ivy-recompute-index-swiper-async nil cands)))
+  (let (name ln)
+    (cond
+      (ivy--old-cands
+       (ivy-recompute-index-swiper-async nil cands))
+      ((unless (with-ivy-window
+                 (when buffer-file-name
+                   (setq ln (line-number-at-pos))
+                   (setq name (file-name-nondirectory buffer-file-name))))
+         0))
+      ;; Closest to current line going forwards.
+      ((let ((beg (1+ (length name))))
+         (cl-position-if (lambda (x)
+                           (and (string-prefix-p name x)
+                                (>= (string-to-number (substring x beg)) ln)))
+                         cands)))
+      ;; Closest to current line going backwards.
+      ((cl-position-if (lambda (x)
+                         (string-prefix-p name x))
+                       cands
+                       :from-end t))
+      (t 0))))
 
 (ivy-configure 'counsel-git-grep
   :occur #'counsel-git-grep-occur
