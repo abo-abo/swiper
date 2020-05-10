@@ -145,8 +145,10 @@ To skip the `executable-find' check, start the string with a space."
 Or the time of the last minibuffer update.")
 
 (defvar counsel--async-start nil
-  "Store the time when a new process was started.
-Or the time of the last minibuffer update.")
+  "Store the time when a new process was started.")
+
+(defvar counsel--async-timer nil
+  "Timer used to dispose `counsel--async-command.")
 
 (defvar counsel--async-duration nil
   "Store the time a process takes to gather all its candidates.
@@ -175,9 +177,9 @@ descriptions.")
   "An alist of regexp matching candidates to ignore in `counsel--async-filter'.")
 
 (defvar counsel--async-last-command nil
-  "Store the last command ran by `counsel--async-command'.")
+  "Store the last command ran by `counsel--async-command-1'.")
 
-(defun counsel--async-command (cmd &optional sentinel filter name)
+(defun counsel--async-command-1 (cmd &optional sentinel filter name)
   "Start and return new counsel process by calling CMD.
 CMD can be either a shell command as a string, or a list of the
 program name to be called directly, followed by its arguments.
@@ -200,6 +202,25 @@ respectively."
     (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
     (set-process-filter proc (or filter #'counsel--async-filter))
     proc))
+
+(defcustom counsel-async-command-delay 0.2
+  "Number of seconds to wait before spawning another async command."
+  :type 'float
+  :group 'counsel)
+
+(defun counsel--async-command (&rest args)
+  "Like `counsel--async-command-1', with same ARGS, but debounced.
+Calls to `counsel--async-command-1' are separated by at least
+`counsel-async-command-delay' seconds, so as to avoid issues
+caused by spawning too many subprocesses too quickly."
+  (when counsel--async-timer
+    (cancel-timer counsel--async-timer))
+  (setq counsel--async-timer
+        (apply #'run-with-timer
+               counsel-async-command-delay
+               nil
+               #'counsel--async-command-1
+               args)))
 
 (defun counsel--split-string (&optional str)
   (split-string
