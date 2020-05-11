@@ -730,6 +730,18 @@ N is obtained from `ivy-more-chars-alist'."
   `(with-selected-window (ivy--get-window ivy-last)
      ,@body))
 
+(defun ivy--expand-file-name (text)
+  (cond
+    ((eq (ivy-state-history ivy-last) 'grep-files-history)
+     text)
+    (ivy--directory
+     (if (and (string-match-p "^/" text) (file-remote-p ivy--directory))
+         (let ((parts (split-string ivy--directory ":")))
+           (concat (nth 0 parts) ":" (nth 1 parts) ":" text))
+       (expand-file-name text ivy--directory)))
+    (t
+     text)))
+
 (defun ivy--done (text)
   "Insert TEXT and exit minibuffer."
   (if (member (ivy-state-prompt ivy-last) '("Create directory: " "Make directory: "))
@@ -737,10 +749,7 @@ N is obtained from `ivy-more-chars-alist'."
     (when (stringp text)
       (insert
        (setf (ivy-state-current ivy-last)
-             (if (and ivy--directory
-                      (not (eq (ivy-state-history ivy-last) 'grep-files-history)))
-                 (expand-file-name text ivy--directory)
-               text))))
+             (ivy--expand-file-name text))))
     (setq ivy-exit 'done)
     (exit-minibuffer)))
 

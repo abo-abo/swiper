@@ -1510,6 +1510,13 @@ a buffer visiting a file."
                      (ivy--handle-directory "/sudo::"))
                    "/sudo::/tmp/")))
 
+(ert-deftest ivy--handle-full-path-yank-on-remote ()
+  (should
+   (string=
+    (let ((ivy--directory "/ssh:dev:/bin/"))
+      (ivy--expand-file-name "/etc/hosts"))
+    "/ssh:dev:/etc/hosts")))
+
 (ert-deftest ivy-inhibit-action ()
   (should (equal (ivy-with
                   '(let ((ivy-inhibit-action #'identity))
