@@ -1693,7 +1693,8 @@ there is no more text to delete at the beginning of the
 minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
-      (progn
+      (if (fboundp 'counsel-up-directory)
+          (counsel-up-directory)
         (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
         (ivy--exhibit))
     (setq prefix-arg current-prefix-arg)
