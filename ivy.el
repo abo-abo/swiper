@@ -561,6 +561,10 @@ of `history-length'.")
 (defvar ivy--directory nil
   "Current directory when completing file names.")
 
+(defvar ivy--directory-hist nil
+  "Store the history of directories.
+This allows RET to reverse consecutive DEL.")
+
 (defvar ivy--length 0
   "Store the amount of viable candidates.")
 
@@ -1680,7 +1684,15 @@ If so, move to that directory, while keeping only the file name."
               #'string<))))
     (ivy-set-text "")
     (setf (ivy-state-directory ivy-last) dir)
-    (delete-minibuffer-contents)))
+    (delete-minibuffer-contents)
+    (when (equal dir (car ivy--directory-hist))
+      (pop ivy--directory-hist)
+      (setf (ivy-state-preselect ivy-last)
+            (if ivy--directory-hist
+                (file-name-nondirectory
+                 (directory-file-name
+                  (car ivy--directory-hist)))
+              nil)))))
 
 (defun ivy--parent-dir (filename)
   "Return parent directory of absolute FILENAME."
@@ -1693,10 +1705,12 @@ there is no more text to delete at the beginning of the
 minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
-      (if (fboundp 'counsel-up-directory)
-          (counsel-up-directory)
-        (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
-        (ivy--exhibit))
+      (progn
+        (push ivy--directory ivy--directory-hist)
+        (if (fboundp 'counsel-up-directory)
+            (counsel-up-directory)
+          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
+          (ivy--exhibit)))
     (setq prefix-arg current-prefix-arg)
     (condition-case nil
         (call-interactively #'delete-backward-char)
@@ -2347,6 +2361,7 @@ This is useful for recursive `ivy-read'."
          (def (ivy-state-def state)))
     (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
+    (setq ivy--directory-hist nil)
     (setq ivy-case-fold-search ivy-case-fold-search-default)
     (setf (ivy-state-re-builder ivy-last)
           (setq ivy--regex-function
