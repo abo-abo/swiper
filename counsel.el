@@ -1843,6 +1843,7 @@ currently checked out."
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
     (define-key map (kbd "`") (ivy-make-magic-action 'counsel-find-file "b"))
+    (define-key map [remap undo] 'counsel-find-file-undo)
     map))
 
 (when (executable-find "git")
@@ -2193,6 +2194,15 @@ See variable `counsel-up-directory-level'."
   "Descend into the current directory."
   (interactive)
   (ivy--directory-enter))
+
+(defun counsel-find-file-undo ()
+  (interactive)
+  (if (string= ivy-text "")
+      (progn
+        (ivy-backward-delete-char)
+        (ivy--exhibit)
+        (ivy-insert-current))
+    (undo)))
 
 (defun counsel-at-git-issue-p ()
   "When point is at an issue in a Git-versioned file, return the issue string."
