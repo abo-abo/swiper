@@ -1274,7 +1274,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
           (eq (ivy--get-action ivy-last) 'identity))
       (user-error "The last session isn't compatible with `ivy-resume'")
     (when (memq (ivy-state-caller ivy-last)
-                '(swiper swiper-isearch swiper-backward swiper-isearch-backward))
+                '(swiper swiper-isearch swiper-backward
+                  swiper-isearch-backward
+                  counsel-grep))
       (switch-to-buffer (ivy-state-buffer ivy-last)))
     (with-current-buffer (ivy-state-buffer ivy-last)
       (let ((default-directory (ivy-state-directory ivy-last))
