@@ -2956,9 +2956,11 @@ regex string."
   "Split ARGUMENTS into its switches and search-term parts.
 Return pair of corresponding strings (SWITCHES . SEARCH-TERM)."
   (if (string-match counsel--command-args-separator arguments)
-      (cons
-       (substring arguments (match-end 0))
-       (substring arguments 0 (match-beginning 0)))
+      (let ((args (substring arguments (match-end 0)))
+            (search-term (substring arguments 0 (match-beginning 0))))
+        (if (string-prefix-p "-" arguments)
+            (cons search-term args)
+          (cons args search-term)))
     (cons "" arguments)))
 
 (defun counsel--format-ag-command (extra-args needle)

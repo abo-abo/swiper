@@ -1543,6 +1543,9 @@ a buffer visiting a file."
            (counsel--split-command-args "require -- -g*.el")
            '("-g*.el" . "require")))
   (should (equal
+           (counsel--split-command-args "-g*.el -- require")
+           '("-g*.el" . "require")))
+  (should (equal
            (counsel--split-command-args "counsel--format")
            '("" . "counsel--format"))))
 
