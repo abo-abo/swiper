@@ -2707,9 +2707,6 @@ See `completion-in-region' for further information."
                                       str)))
                                  (t
                                   (substring str (- len))))))
-             (setq ivy--old-re nil)
-             (unless (ivy--filter initial comps)
-               (setq initial nil))
              (delete-region (- end len) end)
              (setq ivy-completion-beg (- end len))
              (setq ivy-completion-end ivy-completion-beg)
@@ -2719,14 +2716,14 @@ See `completion-in-region' for further information."
                      (setf (ivy-state-window ivy-last) (selected-window)))
                    (ivy-completion-in-region-action
                     (substring-no-properties (car comps))))
-               (dolist (s comps)
-                 ;; Remove face `completions-first-difference'.
-                 (ivy--remove-props s 'face))
-               (ivy-read (format "(%s): " str) comps
-                         ;; Predicate was already applied by
-                         ;; `completion-all-completions'.
-                         :predicate nil
-                         :initial-input initial
+               (setq ivy--old-re nil)
+               (unless (ivy--filter initial comps)
+                 (setq initial nil)
+                 (setq predicate nil)
+                 (setq collection comps))
+               (ivy-read (format "(%s): " str) collection
+                         :predicate predicate
+                         :initial-input (concat "^" initial)
                          :action #'ivy-completion-in-region-action
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
