@@ -2359,6 +2359,8 @@ This is useful for recursive `ivy-read'."
               (let ((init (ivy-alist-setting ivy-initial-inputs-alist caller)))
                 (if (functionp init) (funcall init) init))))
          (def (ivy-state-def state)))
+    (when (and (eq caller 'swiper-isearch) (buffer-modified-p))
+      (setq preselect nil))
     (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
     (setq ivy--directory-hist nil)
@@ -2449,7 +2451,7 @@ This is useful for recursive `ivy-read'."
                                                counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
-             (setq coll (if (eq this-command 'ivy-resume)
+             (setq coll (if (and (eq this-command 'ivy-resume) (not (buffer-modified-p)))
                             ivy--all-candidates
                           (ivy--dynamic-collection-cands (or initial-input "")))))
             ((consp (car-safe collection))
