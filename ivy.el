@@ -2307,7 +2307,8 @@ customizations apply to the current completion session."
 
 (defun ivy--update-history (hist)
   (let ((item
-         (if (string= ivy-text "")
+         (if (or (string= ivy-text "")
+                 (eq (ivy-state-extra-props ivy-last) 'ivy-completing-read))
              (ivy-state-current ivy-last)
            ivy-text)))
     (cond ((equal item ""))
@@ -2605,6 +2606,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                   :history history
                   :keymap nil
                   :dynamic-collection ivy-completing-read-dynamic-collection
+                  :extra-props 'ivy-completing-read
                   :caller (if (and collection (symbolp collection))
                               collection
                             this-command))))

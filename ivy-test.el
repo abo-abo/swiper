@@ -31,6 +31,8 @@
 (defvar ivy-features nil
   "Like `features' but for Ivy testing purposes.")
 
+(defvar ivy-read-hist nil)
+
 (defun ivy-test--record-feature (feature &rest _)
   "Record FEATURE in `ivy-features'.
 Intended as :after-while advice for `require'."
@@ -188,7 +190,6 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
                  "one")))
 
 (ert-deftest ivy-read-history ()
-  (defvar ivy-read-hist nil)
   (should (equal (progn
                    (setq ivy-read-hist '("c" "b" "a"))
                    (ivy-with '(ivy-read "test: " '("c" "d") :history 'ivy-read-hist) "RET")
@@ -835,7 +836,15 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   (should (equal (ivy-with '(ivy-completing-read
                              "Test: " '(("1" . "a") ("2" . "b")))
                            "RET")
-                 "1")))
+                 "1"))
+  (should (equal (progn
+                   (setq ivy-read-hist '("foo"))
+                   (ivy-with
+                    '(completing-read "test: " '("foo" "bar" "baz") nil t nil
+                      'ivy-read-hist)
+                    "fo RET")
+                   ivy-read-hist)
+                 '("foo"))))
 
 (ert-deftest ivy-completing-read-def-handling ()
   ;; DEF in COLLECTION
