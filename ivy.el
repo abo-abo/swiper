@@ -3504,6 +3504,16 @@ height < `ivy-height', auto-shrink the minibuffer."
           :key-type symbol
           :value-type boolean))
 
+(defun ivy--do-shrink-window ()
+  (let ((h (save-excursion
+             (goto-char (minibuffer-prompt-end))
+             (let ((inhibit-field-text-motion t))
+               (line-number-at-pos)))))
+    (shrink-window (-
+                    (/ (window-body-height nil t)
+                       (frame-char-height))
+                    ivy--length h))))
+
 (defun ivy--resize-minibuffer-to-fit ()
   "Resize the minibuffer window size to fit the text in the minibuffer."
   (unless (or (frame-root-window-p (minibuffer-window))
@@ -3525,10 +3535,7 @@ height < `ivy-height', auto-shrink the minibuffer."
                             (ivy-alist-setting
                              ivy-auto-shrink-minibuffer-alist))
                         (< ivy--length ivy-height))
-                   (shrink-window (-
-                                   (/ (window-body-height nil t)
-                                      (frame-char-height))
-                                   ivy--length 1)))))
+                   (ivy--do-shrink-window))))
         (let ((text-height (count-screen-lines))
               (body-height (window-body-height)))
           (when (> text-height body-height)
