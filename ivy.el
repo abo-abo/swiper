@@ -2718,14 +2718,20 @@ See `completion-in-region' for further information."
                      (setf (ivy-state-window ivy-last) (selected-window)))
                    (ivy-completion-in-region-action
                     (substring-no-properties (car comps))))
+               (dolist (s comps)
+                 ;; Remove face `completions-first-difference'.
+                 (ivy--remove-props s 'face))
                (setq ivy--old-re nil)
                (unless (ivy--filter initial comps)
                  (setq initial nil)
                  (setq predicate nil)
                  (setq collection comps))
+               (if (functionp collection)
+                   (setq collection comps)
+                 (setq initial (concat "^" initial)))
                (ivy-read (format "(%s): " str) collection
                          :predicate predicate
-                         :initial-input (concat "^" initial)
+                         :initial-input initial
                          :action #'ivy-completion-in-region-action
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
