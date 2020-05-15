@@ -2726,12 +2726,12 @@ See `completion-in-region' for further information."
                  (setq initial nil)
                  (setq predicate nil)
                  (setq collection comps))
-               (if (functionp collection)
-                   (setq collection comps)
-                 (setq initial (concat "^" initial)))
-               (ivy-read (format "(%s): " str) collection
+               (ivy-read (format "(%s): " str)
+                         (if (functionp collection) comps collection)
                          :predicate predicate
-                         :initial-input initial
+                         :initial-input (concat (unless (functionp collection)
+                                                  "^")
+                                                initial)
                          :action #'ivy-completion-in-region-action
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
