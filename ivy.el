@@ -3463,8 +3463,10 @@ Should be run via minibuffer `post-command-hook'."
                          (ivy--buffer-list "" ivy-use-virtual-buffers)))
                  (setq ivy--old-re nil))))
         (with-current-buffer (ivy-state-buffer ivy-last)
-          (ivy--format
-           (ivy--filter ivy-text ivy--all-candidates))))
+          (let ((ret (while-no-input
+                       (ivy--format
+                        (ivy--filter ivy-text ivy--all-candidates)))))
+            (unless (booleanp ret) ret))))
     (setq ivy--old-text ivy-text)))
 
 (defun ivy-display-function-fallback (str)
