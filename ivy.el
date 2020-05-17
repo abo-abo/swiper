@@ -3327,8 +3327,9 @@ Should be run via minibuffer `post-command-hook'."
                          (ivy--buffer-list "" ivy-use-virtual-buffers)))
                  (setq ivy--old-re nil))))
         (with-current-buffer (ivy-state-buffer ivy-last)
-          (ivy--format
-           (ivy--filter ivy-text ivy--all-candidates))))
+          (let ((non-essential t))
+            (ivy--format
+             (ivy--filter ivy-text ivy--all-candidates)))))
     (setq ivy--old-text ivy-text)))
 
 (defun ivy-display-function-fallback (str)
@@ -3458,7 +3459,20 @@ In any Ivy completion session, the case folding starts with
   ;; Reset cache so that the candidate list updates.
   (setq ivy--old-re nil))
 
+(defmacro ivy--while-no-input (&rest body)
+  "Wrap BODY in `while-no-input' and respecting `non-essential'.
+Return result of last form in BODY if it finished successfully."
+  (declare (debug t) (indent 0))
+  `(if non-essential
+       (let ((ret (while-no-input ,@body)))
+         (unless (booleanp ret) ret))
+     ,@body))
+
 (defun ivy--re-filter (re candidates &optional mkpred)
+  "Like `ivy--re-filter-1' but interruptible by keyboard."
+  (ivy--while-no-input (ivy--re-filter-1 re candidates mkpred)))
+
+(defun ivy--re-filter-1 (re candidates &optional mkpred)
   "Return all RE matching CANDIDATES.
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
@@ -3664,6 +3678,10 @@ no sorting is done.")
   "When non-nil, `ivy--recompute-index' is a no-op.")
 
 (defun ivy--recompute-index (re-str cands)
+  "Like `ivy--recompute-index-1' but interruptible by keyboard."
+  (ivy--while-no-input (ivy--recompute-index-1 re-str cands)))
+
+(defun ivy--recompute-index-1 (re-str cands)
   "Recompute index of selected candidate matching RE-STR.
 CANDS are the current candidates."
   (let ((caller (ivy-state-caller ivy-last))
