@@ -445,6 +445,7 @@ actions.
      exit.
 
      Useful after an accidental ~C-m~ (=ivy-done=).
+     Use it with =universal-argument= to resume any previous session.
 
 *** Key bindings that alter the minibuffer input
 :PROPERTIES:

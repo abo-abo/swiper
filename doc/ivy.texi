@@ -570,6 +570,7 @@ Recalls the state of the completion session just before its last
 exit.
 
 Useful after an accidental @kbd{C-m} (@code{ivy-done}).
+Use it with @code{universal-argument} to resume any previous session.
 @end indentedblock
 
 @node Key bindings that alter the minibuffer input
