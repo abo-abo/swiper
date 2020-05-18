@@ -3143,10 +3143,9 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                   (counsel--format
                    cmd-template
                    (mapconcat #'shell-quote-argument all-args " "))
-                (cl-assert (equal (last cmd-template) '("%s")))
-                (append
-                 (butlast cmd-template)
-                 all-args)))))
+                (cl-mapcan
+                 (lambda (x) (if (string= x "%s") all-args (list x)))
+                 (copy-sequence cmd-template))))))
          (cands (counsel--split-string
                  (if (stringp cmd-template)
                      (shell-command-to-string cmd)
