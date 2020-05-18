@@ -3204,13 +3204,16 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
 
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command
-  (if (memq system-type '(ms-dos windows-nt))
-      "rg -M 240 --with-filename --no-heading --line-number --color never %s --path-separator / ."
-    "rg -M 240 --with-filename --no-heading --line-number --color never %s")
+  (split-string
+   (if (memq system-type '(ms-dos windows-nt))
+       "rg -M 240 --with-filename --no-heading --line-number --color never %s --path-separator / ."
+     "rg -M 240 --with-filename --no-heading --line-number --color never %s"))
   "Alternative to `counsel-ag-base-command' using ripgrep.
 
 Note: don't use single quotes for the regex."
-  :type 'string)
+  :type '(choice
+          (repeat :tag "List to be used in `process-file'." string)
+          (string :tag "String to be used in `shell-command-to-string'.")))
 
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
