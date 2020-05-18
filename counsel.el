@@ -3115,10 +3115,10 @@ Works for `counsel-git-grep', `counsel-ag', etc."
 
 (defun counsel--grep-smart-case-flag ()
   (if (ivy--case-fold-p ivy-text)
-      " -i "
+      "-i"
     (if (string-match-p "\\`pt" counsel-ag-base-command)
-        " -S "
-      " -s ")))
+        "-S"
+      "-s")))
 
 (defun counsel-grep-like-occur (cmd-template)
   (unless (eq major-mode 'ivy-occur-grep-mode)
@@ -3132,14 +3132,25 @@ Works for `counsel-git-grep', `counsel-ag', etc."
               (funcall cmd-template ivy-text)
             (let* ((command-args (counsel--split-command-args ivy-text))
                    (regex (counsel--grep-regex (cdr command-args)))
-                   (switches (concat (car command-args)
-                                     (counsel--ag-extra-switches regex)
-                                     (counsel--grep-smart-case-flag))))
-              (format cmd-template
-                      (concat
-                       switches
-                       (shell-quote-argument regex))))))
-         (cands (counsel--split-string (shell-command-to-string cmd))))
+                   (all-args (append
+                              (when (car command-args)
+                                (split-string (car command-args)))
+                              (counsel--ag-extra-switches regex)
+                              (list
+                               (counsel--grep-smart-case-flag)
+                               regex))))
+              (if (stringp cmd-template)
+                  (counsel--format
+                   cmd-template
+                   (mapconcat #'shell-quote-argument all-args " "))
+                (cl-assert (equal (last cmd-template) '("%s")))
+                (append
+                 (butlast cmd-template)
+                 all-args)))))
+         (cands (counsel--split-string
+                 (if (stringp cmd-template)
+                     (shell-command-to-string cmd)
+                   (counsel--call cmd)))))
     (swiper--occur-insert-lines (mapcar #'counsel--normalize-grep-match cands))))
 
 (defun counsel-ag-occur (&optional _cands)
