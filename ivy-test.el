@@ -1065,6 +1065,26 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
            "DEL C-M-j"
            :dir "/tmp"))))
 
+(ert-deftest ivy-read-file-name-initial-input ()
+  (let ((fname (expand-file-name "ivy.el")))
+    (should (string=
+             fname
+             (ivy-with
+              `(ivy-read "Find file: " 'read-file-name-internal
+                         :predicate 'file-exists-p
+                         :require-match 'confirm-after-completion
+                         :initial-input ,fname
+                         :preselect ,fname
+                         :def ,fname
+                         :history 'file-name-history
+                         :keymap nil
+                         :sort t
+                         :dynamic-collection nil
+                         :caller 'read-file-name-internal
+                         :action (lambda (x) x))
+              "RET"))))
+  (should (string= (ivy-state-initial-input ivy-last) "ivy.el")))
+
 (ert-deftest ivy-counsel-read-directory-name ()
   (should
    (equal (expand-file-name "/tmp/")

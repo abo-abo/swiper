@@ -2485,9 +2485,7 @@ This is useful for recursive `ivy-read'."
                            (equal initial-input default-directory)
                            (equal initial-input ""))
                  (setq coll (cons initial-input coll)))
-               (when (or (not (ivy-state-action ivy-last))
-                         (equal (ivy--get-action ivy-last) #'identity))
-                 (setq initial-input nil))))
+               (setq initial-input (file-name-nondirectory initial-input))))
             ((eq collection #'internal-complete-buffer)
              (setq coll (ivy--buffer-list
                          ""
