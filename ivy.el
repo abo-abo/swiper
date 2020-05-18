@@ -1536,7 +1536,7 @@ See variable `ivy-recursive-restore' for further information."
           (funcall multi-action marked-candidates))
       (dolist (c marked-candidates)
         (let ((default-directory (ivy-state-directory ivy-last)))
-          (funcall action c))))))
+          (funcall action (ivy--call-cand c)))))))
 
 (defun ivy--call-cand (current)
   (let ((collection (ivy-state-collection ivy-last)))
