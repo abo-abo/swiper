@@ -2355,7 +2355,8 @@ customizations apply to the current completion session."
          (if (or (string= ivy-text "")
                  (eq
                   (plist-get (ivy-state-extra-props ivy-last) :caller)
-                  'ivy-completing-read))
+                  'ivy-completing-read)
+                 (eq (ivy-state-history ivy-last) 'file-name-history))
              (ivy-state-current ivy-last)
            ivy-text)))
     (cond ((equal item ""))
