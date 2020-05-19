@@ -250,15 +250,16 @@ respectively."
               (if (eq (ivy-alist-setting ivy-index-functions-alist) 'ivy-recompute-index-zero)
                   (ivy-set-index 0)
                 (ivy--recompute-index re ivy--all-candidates))
-            (ivy-set-index
-             (let ((func (ivy-alist-setting ivy-index-functions-alist)))
-               (if func
-                   (funcall func re ivy--all-candidates)
-                 (ivy--preselect-index
-                  (if (> (length re) 0)
-                      cur
-                    (ivy-state-preselect ivy-last))
-                  ivy--all-candidates))))))
+            ;; index was changed before a long-running query exited
+            (unless (string= cur (nth ivy--index ivy--all-candidates))
+              (let ((func (ivy-alist-setting ivy-index-functions-alist)))
+                (if func
+                    (funcall func re ivy--all-candidates)
+                  (ivy--preselect-index
+                   (if (> (length re) 0)
+                       cur
+                     (ivy-state-preselect ivy-last))
+                   ivy--all-candidates))))))
         (setq ivy--old-cands ivy--all-candidates)
         (if ivy--all-candidates
             (ivy--exhibit)
