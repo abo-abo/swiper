@@ -3224,8 +3224,8 @@ Note: don't use single quotes for the regex."
                   (dired-toggle-marks)
                   (setq files (dired-get-marked-files 'no-dir))
                   (dired-toggle-marks)
-                  t)))
-      (delq t files))))
+                  t))
+        (delq t files)))))
 
 ;;;###autoload
 (defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
