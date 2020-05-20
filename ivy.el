@@ -228,7 +228,7 @@ PROMPT-FN is a function of no arguments that returns a prompt string."
   (setq ivy--prompts-list
         (plist-put ivy--prompts-list caller prompt-fn)))
 
-(defvar ivy--display-transformers-list nil
+(defvar ivy--display-transformers-alist nil
   "A list of str->str transformers per command.")
 
 (defun ivy-set-display-transformer (cmd transformer)
@@ -240,8 +240,8 @@ plus some extra information.
 
 This lambda is called only on the `ivy-height' candidates that
 are about to be displayed, not on the whole collection."
-  (setq ivy--display-transformers-list
-        (plist-put ivy--display-transformers-list cmd transformer)))
+  (declare (obsolete "Use `ivy-configure' :display-transformer-fn" "<2020-05-20 Wed>"))
+  (ivy--alist-set 'ivy--display-transformers-alist cmd transformer))
 
 (defvar ivy--sources-list nil
   "A list of extra sources per command.")
@@ -1888,7 +1888,7 @@ An :init is a function with no arguments.
   (when display-fn
     (ivy--alist-set 'ivy-display-functions-alist caller display-fn))
   (when display-transformer-fn
-    (ivy-set-display-transformer caller display-transformer-fn))
+    (ivy--alist-set 'ivy--display-transformers-alist caller display-transformer-fn))
   (when alt-done-fn
     (ivy--alist-set 'ivy-alt-done-functions-alist caller alt-done-fn))
   (when more-chars
@@ -2088,7 +2088,7 @@ customizations apply to the current completion session."
            :re-builder re-builder
            :matcher matcher
            :dynamic-collection dynamic-collection
-           :display-transformer-fn (plist-get ivy--display-transformers-list caller)
+           :display-transformer-fn (ivy-alist-setting ivy--display-transformers-alist caller)
            :directory default-directory
            :extra-props extra-props
            :caller caller
