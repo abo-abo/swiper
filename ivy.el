@@ -2557,12 +2557,13 @@ See `completion-in-region' for further information."
                  (setq initial nil)
                  (setq predicate nil)
                  (setq collection comps))
-               (ivy-read (format "(%s): " str)
-                         (if (functionp collection) comps collection)
+               (if (memq major-mode '(lisp-interaction-mode emacs-lisp-mode))
+                   (setq initial (concat "^" initial))
+                 (setq collection comps)
+                 (setq predicate nil))
+               (ivy-read (format "(%s): " str) collection
                          :predicate predicate
-                         :initial-input (concat (unless (functionp collection)
-                                                  "^")
-                                                initial)
+                         :initial-input initial
                          :action #'ivy-completion-in-region-action
                          :unwind (lambda ()
                                    (unless (eq ivy-exit 'done)
