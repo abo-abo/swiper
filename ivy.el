@@ -1347,20 +1347,6 @@ if one exists."
   (ivy-set-index (max (1+ (- ivy--index ivy-height))
                       0)))
 
-(defun ivy-minibuffer-grow ()
-  "Grow the minibuffer window by 1 line."
-  (interactive)
-  (setq-local max-mini-window-height
-              (cl-incf ivy-height)))
-
-(defun ivy-minibuffer-shrink ()
-  "Shrink the minibuffer window by 1 line."
-  (interactive)
-  (when (> ivy-height 2)
-    (setq-local max-mini-window-height
-                (cl-decf ivy-height))
-    (window-resize nil -1)))
-
 (defun ivy-next-line (&optional arg)
   "Move cursor vertically down ARG candidates."
   (interactive "p")
