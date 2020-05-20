@@ -457,7 +457,6 @@ action functions.")
     (define-key map [remap kill-whole-line] 'ivy-kill-whole-line)
     (define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (define-key map [remap kill-ring-save] 'ivy-kill-ring-save)
-    (define-key map (kbd "C-'") 'ivy-avy)
     (define-key map (kbd "C-M-a") 'ivy-read-action)
     (define-key map (kbd "C-c C-o") 'ivy-occur)
     (define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
@@ -1808,15 +1807,6 @@ minibuffer."
   (cl-rotatef ivy--regex-function ivy--regexp-quote)
   (setq ivy-regex (funcall ivy--regex-function ivy-text)))
 
-(defvar avy-all-windows)
-(defvar avy-action)
-(defvar avy-keys)
-(defvar avy-keys-alist)
-(defvar avy-style)
-(defvar avy-styles-alist)
-(declare-function avy-process "ext:avy")
-(declare-function avy--style-fn "ext:avy")
-
 (defcustom ivy-format-functions-alist
   '((t . ivy-format-function-default))
   "An alist of functions that transform the list of candidates into a string.
@@ -1829,83 +1819,6 @@ This string is inserted into the minibuffer."
            (const :tag "Arrow prefix" ivy-format-function-arrow)
            (const :tag "Full line" ivy-format-function-line)
            (function :tag "Custom function"))))
-
-(defcustom ivy-avy-style 'pre
-  "The `avy-style' setting for `ivy-avy'."
-  :type '(choice
-          (const :tag "Pre" pre)
-          (const :tag "At" at)
-          (const :tag "At Full" at-full)
-          (const :tag "Post" post)
-          (const :tag "De Bruijn" de-bruijn)
-          (const :tag "Words" words)))
-
-(with-eval-after-load 'avy
-  (add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style)))
-
-(defun ivy--avy-candidates ()
-  (let (candidates)
-    (save-excursion
-      (save-restriction
-        (narrow-to-region
-         (window-start)
-         (window-end))
-        (goto-char (point-min))
-        (forward-line)
-        (while (< (point) (point-max))
-          (push
-           (cons (point)
-                 (selected-window))
-           candidates)
-          (forward-line))))
-    (nreverse candidates)))
-
-(defun ivy--avy-action (pt)
-  (when (number-or-marker-p pt)
-    (let ((bnd (ivy--minibuffer-index-bounds
-                ivy--index ivy--length ivy-height)))
-      (ivy--done
-       (substring-no-properties
-        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
-
-(defun ivy--avy-handler-function (char)
-  (let (cmd)
-    (cond ((memq char '(?\C-\[ ?\C-g))
-           ;; exit silently
-           (throw 'done 'abort))
-          ((memq (setq cmd (lookup-key ivy-minibuffer-map (vector char)))
-                 '(ivy-scroll-up-command
-                   ivy-scroll-down-command))
-           (funcall cmd)
-           (ivy--exhibit)
-           (throw 'done 'exit))
-          ;; ignore wrong key
-          (t
-           (throw 'done 'restart)))))
-
-(defvar avy-handler-function)
-
-(defun ivy-avy ()
-  "Jump to one of the current ivy candidates."
-  (interactive)
-  (cond ((not (require 'avy nil 'noerror))
-         (error "Package avy isn't installed"))
-        ((= (minibuffer-depth) 0)
-         (user-error
-          "This command is intended to be called from within `ivy-read'"))
-        (t
-         (let* ((avy-all-windows nil)
-                (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
-                              avy-keys))
-                (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
-                               avy-style))
-                (avy-action #'identity)
-                (avy-handler-function #'ivy--avy-handler-function)
-                res)
-           (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
-           (when res
-             (ivy--avy-action res))))))
-(put 'ivy-avy 'no-counsel-M-x t)
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.

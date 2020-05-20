@@ -1529,7 +1529,7 @@ a buffer visiting a file."
             '("one" "two"))))
 
 (ert-deftest ivy-avy ()
-  (when (require 'avy nil t)
+  (when (require 'ivy-avy nil t)
     (let ((enable-recursive-minibuffers t)
           (read-numbers '(ivy-read "test: " (mapcar #'number-to-string (number-sequence 1 100)))))
       (should (string= (ivy-with read-numbers "C-' a") "1"))
