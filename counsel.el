@@ -518,9 +518,8 @@ Variables declared using `defcustom' are highlighted according to
               :caller 'counsel-describe-variable)))
 
 (ivy-configure 'counsel-describe-variable
-  :initial-input "^"
-  :display-transformer-fn #'counsel-describe-variable-transformer
-  :sort-fn #'ivy-string<)
+  :parent 'counsel-describe-symbol
+  :display-transformer-fn #'counsel-describe-variable-transformer)
 
 ;;** `counsel-describe-function'
 (ivy-set-actions
@@ -569,9 +568,8 @@ to `ivy-highlight-face'."
               :caller 'counsel-describe-function)))
 
 (ivy-configure 'counsel-describe-function
-  :initial-input "^"
-  :display-transformer-fn #'counsel-describe-function-transformer
-  :sort-fn #'ivy-string<)
+  :parent 'counsel-describe-symbol
+  :display-transformer-fn #'counsel-describe-function-transformer)
 
 ;;** `counsel-describe-symbol'
 (defcustom counsel-describe-symbol-function #'describe-symbol
@@ -599,12 +597,12 @@ to `ivy-highlight-face'."
                         (funcall counsel-describe-symbol-function (intern x)))
               :caller 'counsel-describe-symbol)))
 
-(ivy-configure #'counsel-describe-symbol
+(ivy-configure 'counsel-describe-symbol
   :initial-input "^"
   :sort-fn #'ivy-string<)
 
 (ivy-set-actions
- #'counsel-describe-symbol
+ 'counsel-describe-symbol
  `(("I" ,#'counsel-info-lookup-symbol "info")
    ("d" ,#'counsel--find-symbol "definition")))
 
@@ -1226,7 +1224,7 @@ selected face."
               :caller 'counsel-faces)))
 
 (ivy-configure 'counsel-faces
-  :sort-fn #'ivy-string<
+  :parent 'counsel-describe-face
   :format-fn #'counsel--faces-format-function)
 
 (ivy-set-actions
@@ -2014,9 +2012,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
    'counsel-find-file))
 
 (ivy-configure 'counsel-find-file
-  :alt-done-fn #'ivy--directory-done
-  :occur #'counsel-find-file-occur
-  :display-transformer-fn #'ivy-read-file-transformer)
+  :parent 'read-file-name-internal
+  :occur #'counsel-find-file-occur)
 
 (defvar counsel-find-file-occur-cmd "ls -a | %s | xargs -d '\\n' ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
@@ -2252,8 +2249,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
      'counsel-dired)))
 
 (ivy-configure 'counsel-dired
-  :alt-done-fn #'ivy--directory-done
-  :display-transformer-fn #'ivy-read-file-transformer)
+  :parent 'read-file-name-internal)
 
 ;;** `counsel-recentf'
 (defvar recentf-list)
@@ -2681,7 +2677,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :caller 'counsel-tracker))
 
 (ivy-configure 'counsel-tracker
-  :display-transformer-fn #'counsel-tracker-transformer)
+  :display-transformer-fn #'counsel-tracker-transformer
+  :unwind-fn #'counsel-delete-process)
 
 ;;** `counsel-fzf'
 (defvar counsel-fzf-cmd "fzf -f \"%s\""
@@ -3021,7 +3018,7 @@ CALLER is passed to `ivy-read'."
               :caller 'counsel-read-directory-name)))
 
 (ivy-configure 'counsel-read-directory-name
-  :display-transformer-fn #'ivy-read-file-transformer)
+  :parent 'read-file-name-internal)
 
 (defun counsel-cd ()
   "Change the directory for the currently running Ivy grep-like command.

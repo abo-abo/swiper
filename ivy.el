@@ -1848,8 +1848,13 @@ An :init is a function with no arguments.
 
 (declare-function counsel-set-async-exit-code "counsel")
 
+(defvar ivy--parents-alist nil
+  "Configure parent caller for child caller.
+The child caller inherits and can override the settings of the parent.")
+
 (cl-defun ivy-configure (caller
                          &key
+                         parent
                          initial-input
                          height
                          occur
@@ -1867,6 +1872,8 @@ An :init is a function with no arguments.
                          exit-codes)
   "Configure `ivy-read' params for CALLER."
   (declare (indent 1))
+  (when parent
+    (ivy--alist-set 'ivy--parents-alist caller parent))
   (when initial-input
     (ivy--alist-set 'ivy-initial-inputs-alist caller initial-input))
   (when height
@@ -1942,9 +1949,13 @@ Directories come first."
   "Return the value associated with KEY in ALIST, using `assq'.
 KEY defaults to the last caller of `ivy-read'; if no entry is
 found, it falls back to the key t."
-  (cdr (or (let ((caller (or key (ivy-state-caller ivy-last))))
-             (and caller (assq caller alist)))
-           (assq t alist))))
+  (let ((caller (or key (ivy-state-caller ivy-last))))
+    (or
+     (and caller (cdr (assq caller alist)))
+     (let ((parent (cdr (assq caller ivy--parents-alist))))
+       (when parent
+         (ivy-alist-setting alist parent)))
+     (cdr (assq t alist)))))
 
 (defun ivy--height (caller)
   (let ((v (or (ivy-alist-setting ivy-height-alist caller)
@@ -4508,8 +4519,8 @@ CANDS are the candidates to be displayed."
             :caller 'ivy-switch-buffer))
 
 (ivy-configure 'ivy-switch-buffer
-  :occur #'ivy-switch-buffer-occur
-  :display-transformer-fn #'ivy-switch-buffer-transformer)
+  :parent 'internal-complete-buffer
+  :occur #'ivy-switch-buffer-occur)
 
 ;;;###autoload
 (defun ivy-switch-view ()
@@ -4531,7 +4542,7 @@ CANDS are the candidates to be displayed."
             :caller 'ivy-switch-buffer-other-window))
 
 (ivy-configure 'ivy-switch-buffer-other-window
-  :occur #'ivy-switch-buffer-occur)
+  :parent 'ivy-switch-buffer)
 
 (defun ivy--yank-handle-case-fold (text)
   (if (and (> (length ivy-text) 0)
