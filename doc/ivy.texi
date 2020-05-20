@@ -1082,14 +1082,6 @@ The @code{format}-style switches this variable uses are described
 in the @code{format} documentation.
 @end defopt
 
-@defopt ivy-display-style
-Specifies highlighting candidates in the minibuffer.
-
-The default setting is @code{'fancy} in Emacs versions 24.4 or newer.
-
-Set @code{ivy-display-style} to @code{nil} for a plain minibuffer.
-@end defopt
-
 @defopt ivy-on-del-error-function
 Specifies what to do when @kbd{DEL} (@code{ivy-backward-delete-char}) fails.
 

@@ -196,17 +196,6 @@ Set this to \"(%d/%d) \" to display both the index and the count."
   "When non-nil, wrap around after the first and the last candidate."
   :type 'boolean)
 
-(defcustom ivy-display-style 'fancy
-  "The style for formatting the minibuffer.
-
-By default, the matched strings are copied as is.
-
-The fancy display style highlights matching parts of the regexp,
-a behavior similar to `swiper'."
-  :type '(choice
-          (const :tag "Plain" nil)
-          (const :tag "Fancy" fancy)))
-
 (defcustom ivy-on-del-error-function #'abort-recursive-edit
   "Function to call when deletion fails during completion.
 The usual reason for `ivy-backward-delete-char' to fail is when
@@ -4087,16 +4076,14 @@ in this case."
 (defun ivy--format-minibuffer-line (str)
   "Format line STR for use in minibuffer."
   (let* ((str (ivy-cleanup-string (copy-sequence str)))
-         (str (if (eq ivy-display-style 'fancy)
-                  (if (memq (ivy-state-caller ivy-last)
-                            ivy-highlight-grep-commands)
-                      (let* ((start (if (string-match "\\`[^:]+:\\(?:[^:]+:\\)?" str)
-                                        (match-end 0) 0))
-                             (file (substring str 0 start))
-                             (match (substring str start)))
-                        (concat file (funcall ivy--highlight-function match)))
-                    (funcall ivy--highlight-function str))
-                str))
+         (str (if (memq (ivy-state-caller ivy-last)
+                        ivy-highlight-grep-commands)
+                  (let* ((start (if (string-match "\\`[^:]+:\\(?:[^:]+:\\)?" str)
+                                    (match-end 0) 0))
+                         (file (substring str 0 start))
+                         (match (substring str start)))
+                    (concat file (funcall ivy--highlight-function match)))
+                (funcall ivy--highlight-function str)))
          (olen (length str))
          (annot (plist-get completion-extra-properties :annotation-function)))
     (add-text-properties

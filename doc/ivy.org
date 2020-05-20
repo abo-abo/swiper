@@ -809,13 +809,6 @@ installed.
      The =format=-style switches this variable uses are described
      in the =format= documentation.
 
-- User Option =ivy-display-style= ::
-     Specifies highlighting candidates in the minibuffer.
-
-     The default setting is ='fancy= in Emacs versions 24.4 or newer.
-
-     Set =ivy-display-style= to =nil= for a plain minibuffer.
-
 - User Option =ivy-on-del-error-function= ::
      Specifies what to do when ~DEL~ (=ivy-backward-delete-char=) fails.
 
