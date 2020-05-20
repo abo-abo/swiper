@@ -37,6 +37,7 @@
   :group 'ivy)
 
 (defun ivy--avy-candidates ()
+  "List of candidates for `ivy-avy'."
   (let (candidates)
     (save-excursion
       (save-restriction
@@ -54,6 +55,7 @@
     (nreverse candidates)))
 
 (defun ivy--avy-action (pt)
+  "Select the candidate represented by PT."
   (when (number-or-marker-p pt)
     (let ((bnd (ivy--minibuffer-index-bounds
                 ivy--index ivy--length ivy-height)))
@@ -62,6 +64,7 @@
         (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
 
 (defun ivy--avy-handler-function (char)
+  "Handle CHAR that's not on `avy-keys'."
   (let (cmd)
     (cond ((memq char '(?\C-\[ ?\C-g))
            ;; exit silently
@@ -99,3 +102,5 @@
 (add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style))
 
 (provide 'ivy-avy)
+
+;;; ivy-avy.el ends here
