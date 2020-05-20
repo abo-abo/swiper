@@ -908,6 +908,12 @@ Is is a cons cell, related to `tramp-get-completion-function'."
 (declare-function Info-read-node-name-1 "info")
 (declare-function tramp-get-completion-function "tramp")
 
+(defcustom ivy-alt-done-functions-alist nil
+  "Customize what `ivy-alt-done' does per-collection."
+  :type '(alist
+          :key-type symbol
+          :value-type function))
+
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
 When ARG is t, exit with current text, ignoring the candidates.
@@ -916,22 +922,23 @@ directory, continue completion from within that directory instead
 of exiting.  This function is otherwise like `ivy-done'."
   (interactive "P")
   (setq ivy-current-prefix-arg current-prefix-arg)
-  (cond ((or arg
-             (ivy--prompt-selected-p))
-         (ivy-immediate-done))
-        (ivy--directory
-         (ivy--directory-done))
-        ((eq (ivy-state-collection ivy-last) #'Info-read-node-name-1)
-         (if (member (ivy-state-current ivy-last) '("(./)" "(../)"))
-             (ivy-quit-and-run
-               (ivy-read "Go to file: " #'read-file-name-internal
-                         :action (lambda (x)
-                                   (Info-find-node
-                                    (expand-file-name x ivy--directory)
-                                    "Top"))))
-           (ivy-done)))
-        (t
-         (ivy-done))))
+  (let (alt-done-fn)
+    (cond ((or arg (ivy--prompt-selected-p))
+           (ivy-immediate-done))
+          ((setq alt-done-fn (ivy-alist-setting ivy-alt-done-functions-alist))
+           (funcall alt-done-fn))
+          (t
+           (ivy-done)))))
+
+(defun ivy--info-alt-done ()
+  (if (member (ivy-state-current ivy-last) '("(./)" "(../)"))
+      (ivy-quit-and-run
+        (ivy-read "Go to file: " #'read-file-name-internal
+                  :action (lambda (x)
+                            (Info-find-node
+                             (expand-file-name x ivy--directory)
+                             "Top"))))
+    (ivy-done)))
 
 (defvar ivy-auto-select-single-candidate nil
   "When non-nil, auto-select the candidate if it is the only one.
@@ -1854,6 +1861,7 @@ An :init is a function with no arguments.
                          format-fn
                          display-fn
                          display-transformer-fn
+                         alt-done-fn
                          more-chars
                          grep-p
                          exit-codes)
@@ -1881,6 +1889,8 @@ An :init is a function with no arguments.
     (ivy--alist-set 'ivy-display-functions-alist caller display-fn))
   (when display-transformer-fn
     (ivy-set-display-transformer caller display-transformer-fn))
+  (when alt-done-fn
+    (ivy--alist-set 'ivy-alt-done-functions-alist caller alt-done-fn))
   (when more-chars
     (ivy--alist-set 'ivy-more-chars-alist caller more-chars))
   (when grep-p
@@ -5207,10 +5217,14 @@ make decisions based on the whole marked list."
 
 (ivy-configure 'read-file-name-internal
   :sort-fn #'ivy-sort-file-function-default
-  :display-transformer-fn #'ivy-read-file-transformer)
+  :display-transformer-fn #'ivy-read-file-transformer
+  :alt-done-fn #'ivy--directory-done)
 
 (ivy-configure 'internal-complete-buffer
   :display-transformer-fn #'ivy-switch-buffer-transformer)
+
+(ivy-configure 'Info-read-node-name-1
+  :alt-done-fn #'ivy--info-alt-done)
 
 (provide 'ivy)
 

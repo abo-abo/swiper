@@ -2117,6 +2117,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
    'counsel-find-file))
 
 (ivy-configure 'counsel-find-file
+  :alt-done-fn #'ivy--directory-done
   :occur #'counsel-find-file-occur
   :display-transformer-fn #'ivy-read-file-transformer)
 
@@ -2354,6 +2355,7 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
      'counsel-dired)))
 
 (ivy-configure 'counsel-dired
+  :alt-done-fn #'ivy--directory-done
   :display-transformer-fn #'ivy-read-file-transformer)
 
 ;;** `counsel-recentf'
