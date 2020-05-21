@@ -1401,7 +1401,7 @@ See variable `ivy-recursive-restore' for further information."
          (multi-action (ivy--get-multi-action ivy-last)))
     (if multi-action
         (let ((default-directory (ivy-state-directory ivy-last)))
-          (funcall multi-action marked-candidates))
+          (funcall multi-action (mapcar #'ivy--call-cand marked-candidates)))
       (dolist (c marked-candidates)
         (let ((default-directory (ivy-state-directory ivy-last)))
           (funcall action (ivy--call-cand c)))))))
