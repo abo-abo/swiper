@@ -1542,11 +1542,13 @@ a buffer visiting a file."
             '("one" "two"))))
 
 (ert-deftest ivy-avy ()
-  (when (require 'ivy-avy nil t)
-    (let ((enable-recursive-minibuffers t)
-          (read-numbers '(ivy-read "test: " (mapcar #'number-to-string (number-sequence 1 100)))))
+  (skip-unless (require 'avy nil t))
+  (require 'ivy-avy)
+  (let ((enable-recursive-minibuffers t)
+        (read-numbers '(ivy-read "test: " (mapcar #'number-to-string
+                                                  (number-sequence 1 100)))))
       (should (string= (ivy-with read-numbers "C-' a") "1"))
-      (should (string= (ivy-with read-numbers "C-v C-' d") "7")))))
+      (should (string= (ivy-with read-numbers "C-v C-' d") "7"))))
 
 (ert-deftest ivy--yank-handle-case-fold ()
   (should (string=
