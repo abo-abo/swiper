@@ -219,7 +219,20 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
                  acc)
               "M-a RET")
     '(("Key 2" . "Data 2")
-      ("Key 1" . "Data 1")))))
+      ("Key 1" . "Data 1"))))
+  (should
+   (equal
+    (ivy-with
+     '(let (res)
+        (ivy-read "test: "
+                  '(("Key 1" . "Data 1") ("Key 2" . "Data 2"))
+                  :action (lambda (x) (push x res))
+                  :multi-action (lambda (xs) (setq res xs)))
+
+        res)
+     "M-a RET")
+    '(("Key 1" . "Data 1")
+      ("Key 2" . "Data 2")))))
 
 (ert-deftest ivy-read-sort-def ()
   (should (equal (ivy-with '(ivy-read "Test: " '("1" "2") :def '("a" "b" "c"))
