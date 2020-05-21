@@ -231,17 +231,16 @@ respectively."
     (set-process-filter proc (or filter #'counsel--async-filter))
     proc))
 
-(defcustom counsel-async-command-delay 0.0
+(defcustom counsel-async-command-delay 0
   "Number of seconds to wait before spawning another async command."
-  :type 'float
-  :group 'counsel)
+  :type 'number)
 
 (defun counsel--async-command (&rest args)
   "Like `counsel--async-command-1', with same ARGS, but debounced.
 Calls to `counsel--async-command-1' are separated by at least
 `counsel-async-command-delay' seconds, so as to avoid issues
 caused by spawning too many subprocesses too quickly."
-  (if (= counsel-async-command-delay 0.0)
+  (if (zerop counsel-async-command-delay)
       (apply #'counsel--async-command-1 args)
     (when counsel--async-timer
       (cancel-timer counsel--async-timer))
