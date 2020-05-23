@@ -3063,8 +3063,8 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                    cmd-template
                    (mapconcat #'shell-quote-argument all-args " "))
                 (cl-mapcan
-                 (lambda (x) (if (string= x "%s") all-args (list x)))
-                 (copy-sequence cmd-template))))))
+                 (lambda (x) (if (string= x "%s") (copy-sequence all-args) (list x)))
+                 cmd-template)))))
          (cands (counsel--split-string
                  (if (stringp cmd-template)
                      (shell-command-to-string cmd)
