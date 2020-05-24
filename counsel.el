@@ -3035,7 +3035,8 @@ Works for `counsel-git-grep', `counsel-ag', etc."
 (defun counsel--grep-smart-case-flag ()
   (if (ivy--case-fold-p ivy-text)
       "-i"
-    (if (string-match-p "\\`pt" counsel-ag-base-command)
+    (if (and (stringp counsel-ag-base-command)
+             (string-match-p "\\`pt" counsel-ag-base-command))
         "-S"
       "-s")))
 
