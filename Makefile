@@ -1,5 +1,4 @@
 emacs ?= emacs
-elmake = $(emacs) -batch -l makefi.el -f
 
 LOAD = -l elpa.el -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el
 RM ?= rm -f
@@ -16,7 +15,7 @@ checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
 
 compile:
-	$(emacs) -batch -L . -f batch-byte-compile colir.el ivy-faces.el ivy-overlay.el ivy.el swiper.el counsel.el
+	$(emacs) -batch -l elpa.el -L . -f batch-byte-compile colir.el ivy-faces.el ivy-overlay.el ivy.el ivy-avy.el swiper.el counsel.el
 
 plain:
 	$(emacs) --version
@@ -24,9 +23,6 @@ plain:
 
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
-
-update-issues:
-	$(elmake) update-issues
 
 clean:
 	$(RM) *.elc
