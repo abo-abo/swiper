@@ -229,7 +229,9 @@ ACTIONS that have the same key."
              ("o" identity "default")
              ,@extra-actions))
           (t
-           (delete-dups (append action extra-actions))))))
+           `(1
+             ,@(cl-delete-duplicates (cdr (append action extra-actions))
+                                     :key #'car :test #'equal :from-end t))))))
 
 (defvar ivy--prompts-list nil)
 
