@@ -2251,7 +2251,7 @@ This is useful for recursive `ivy-read'."
                                (delete-dups
                                 (all-completions "(" collection predicate)))
                      (all-completions "" collection predicate))))
-            ((eq collection #'read-file-name-internal)
+            ((memq collection '(read-file-name-internal ffap-read-file-or-url-internal))
              (require 'tramp)
              (when (and (equal def initial-input)
                         (member "./" ivy-extra-directories))
