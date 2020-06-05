@@ -1095,7 +1095,9 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (when (and
          (eq (ivy-state-collection ivy-last) #'read-file-name-internal)
          (= 1 (length
-               (ivy--re-filter ivy-regex ivy--all-candidates)))
+               (ivy--re-filter
+                (concat "^" (string-remove-prefix "^" ivy-regex))
+                ivy--all-candidates)))
          (let ((default-directory ivy--directory))
            (file-directory-p (ivy-state-current ivy-last))))
     (ivy--directory-done)))
