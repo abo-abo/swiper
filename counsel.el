@@ -2144,10 +2144,11 @@ See variable `counsel-up-directory-level'."
 (defun counsel-find-file-undo ()
   (interactive)
   (if (string= ivy-text "")
-      (progn
-        (ivy-backward-delete-char)
-        (ivy--exhibit)
-        (ivy-insert-current))
+      (let ((dir (progn
+                   (pop ivy--directory-hist)
+                   (pop ivy--directory-hist))))
+        (when dir
+          (ivy--cd dir)))
     (undo)))
 
 (defun counsel-at-git-issue-p ()

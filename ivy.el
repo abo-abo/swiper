@@ -1588,6 +1588,7 @@ If so, move to that directory, while keeping only the file name."
   "When completing file names, move to directory DIR."
   (if (null ivy--directory)
       (error "Unexpected")
+    (push dir ivy--directory-hist)
     (setq ivy--old-cands nil)
     (setq ivy--old-re nil)
     (ivy-set-index 0)
@@ -1602,15 +1603,7 @@ If so, move to that directory, while keeping only the file name."
               #'string<))))
     (ivy-set-text "")
     (setf (ivy-state-directory ivy-last) dir)
-    (delete-minibuffer-contents)
-    (when (equal dir (car ivy--directory-hist))
-      (pop ivy--directory-hist)
-      (setf (ivy-state-preselect ivy-last)
-            (if ivy--directory-hist
-                (file-name-nondirectory
-                 (directory-file-name
-                  (car ivy--directory-hist)))
-              nil)))))
+    (delete-minibuffer-contents)))
 
 (defun ivy--parent-dir (filename)
   "Return parent directory of absolute FILENAME."
@@ -1624,11 +1617,8 @@ minibuffer."
   (interactive)
   (if (and ivy--directory (= (minibuffer-prompt-end) (point)))
       (progn
-        (push ivy--directory ivy--directory-hist)
-        (if (fboundp 'counsel-up-directory)
-            (counsel-up-directory)
-          (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
-          (ivy--exhibit)))
+        (ivy--cd (ivy--parent-dir (expand-file-name ivy--directory)))
+        (ivy--exhibit))
     (setq prefix-arg current-prefix-arg)
     (condition-case nil
         (call-interactively #'delete-backward-char)
@@ -2223,7 +2213,7 @@ This is useful for recursive `ivy-read'."
       (setq preselect nil))
     (setq ivy--extra-candidates (ivy--compute-extra-candidates caller))
     (setq ivy--directory nil)
-    (setq ivy--directory-hist nil)
+    (setq ivy--directory-hist (list default-directory))
     (setq ivy-case-fold-search ivy-case-fold-search-default)
     (setf (ivy-state-re-builder ivy-last)
           (setq ivy--regex-function
