@@ -1527,16 +1527,18 @@ a buffer visiting a file."
              "tests/find-file/directories-with-spaces/bar baz ii/file2"))))
 
 (ert-deftest counsel-find-file-single-match-directories ()
-  (should (string= (let ((ivy-extra-directories nil))
-                     (file-relative-name
-                      (ivy-with '(counsel-find-file) "a TAB TAB TAB"
-                                :dir "tests/find-file/single-match-directories/")))
-                   "tests/find-file/single-match-directories/a/file_in_a.txt"))
-  (should (string= (let ((ivy-extra-directories nil))
-                     (file-relative-name
-                      (ivy-with '(counsel-find-file) "b TAB TAB TAB"
-                                :dir "tests/find-file/single-match-directories/")))
-                   "tests/find-file/single-match-directories/ba/file_in_ba.txt")))
+  (dolist (ivy-re-builders-alist '(((t . ivy--regex-plus))
+                                   ((t . ivy--regex-ignore-order))))
+    (should (string= (let ((ivy-extra-directories nil))
+                       (file-relative-name
+                        (ivy-with '(counsel-find-file) "a TAB TAB TAB"
+                                  :dir "tests/find-file/single-match-directories/")))
+                     "tests/find-file/single-match-directories/a/file_in_a.txt"))
+    (should (string= (let ((ivy-extra-directories nil))
+                       (file-relative-name
+                        (ivy-with '(counsel-find-file) "b TAB TAB TAB"
+                                  :dir "tests/find-file/single-match-directories/")))
+                     "tests/find-file/single-match-directories/ba/file_in_ba.txt"))))
 
 (ert-deftest counsel--split-string-with-eol-cr ()
   (should
