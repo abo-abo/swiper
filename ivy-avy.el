@@ -100,7 +100,7 @@
            res)
       (while (eq (setq res (avy-process (ivy-avy--candidates))) t))
       (when res
-        (ivy--avy-action res)))))
+        (ivy-avy--action res)))))
 
 (put 'ivy-avy 'no-counsel-M-x t)
 (define-key ivy-minibuffer-map (kbd "C-'") 'ivy-avy)
