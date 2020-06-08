@@ -3,6 +3,9 @@
 ;; Copyright (C) 2020  Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
+;; URL: https://github.com/abo-abo/swiper
+;; Version: 0.13.0
+;; Package-Requires: ((emacs "24.5") (ivy "0.13.0") (avy "0.5.0"))
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -19,6 +22,8 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;;
+;; This package adds a "C-'" binding to Ivy minibuffer that uses Avy.
 
 ;;; Code:
 
@@ -36,7 +41,7 @@
           (const :tag "Words" words))
   :group 'ivy)
 
-(defun ivy--avy-candidates ()
+(defun ivy-avy--candidates ()
   "List of candidates for `ivy-avy'."
   (let (candidates)
     (save-excursion
@@ -54,7 +59,7 @@
           (forward-line))))
     (nreverse candidates)))
 
-(defun ivy--avy-action (pt)
+(defun ivy-avy--action (pt)
   "Select the candidate represented by PT."
   (when (number-or-marker-p pt)
     (let ((bnd (ivy--minibuffer-index-bounds
@@ -63,7 +68,7 @@
        (substring-no-properties
         (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
 
-(defun ivy--avy-handler-function (char)
+(defun ivy-avy--handler-function (char)
   "Handle CHAR that's not on `avy-keys'."
   (let (cmd)
     (cond ((memq char '(?\C-\[ ?\C-g))
@@ -91,9 +96,9 @@
            (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
                           avy-style))
            (avy-action #'identity)
-           (avy-handler-function #'ivy--avy-handler-function)
+           (avy-handler-function #'ivy-avy--handler-function)
            res)
-      (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
+      (while (eq (setq res (avy-process (ivy-avy--candidates))) t))
       (when res
         (ivy--avy-action res)))))
 
