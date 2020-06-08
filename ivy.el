@@ -1336,7 +1336,8 @@ If the input is empty, select the previous history element instead."
                (nth 3 (nth (car action) action)))))
     (if multi-action
         multi-action
-      (ivy-state-multi-action state))))
+      (when (eq (car action) 1)
+        (ivy-state-multi-action state)))))
 
 (defun ivy--get-window (state)
   "Get the window from STATE."
@@ -1419,7 +1420,7 @@ See variable `ivy-recursive-restore' for further information."
                  cand)))
            ivy-marked-candidates))
          (multi-action (ivy--get-multi-action ivy-last)))
-    (if (and multi-action (eq (car (ivy-state-action ivy-last)) 1))
+    (if multi-action
         (let ((default-directory (ivy-state-directory ivy-last)))
           (funcall multi-action (mapcar #'ivy--call-cand marked-candidates)))
       (dolist (c marked-candidates)

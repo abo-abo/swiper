@@ -234,18 +234,34 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
     '(("Key 1" . "Data 1")
       ("Key 2" . "Data 2")))))
 
-(ert-deftest ivy-read-multi-action ()
+(ert-deftest ivy-read-multi-action-1 ()
   (should (equal (let ((res nil))
-                   (ivy-add-actions 'test-ivy-read-multi-action
+                   (ivy-add-actions 'test-ivy-read-multi-action-1
                                     (list (list "a" (lambda (x) (push x res)) "action-a")))
                    (ivy-with
                     '(ivy-read "test: " '("x" "y")
                                :action (lambda (x) (message "Default: %s" x))
                                :multi-action (lambda (xs) (message "Default: %S" xs))
-                               :caller 'test-ivy-read-multi-action)
+                               :caller 'test-ivy-read-multi-action-1)
                     "M-a M-o a")
                    res)
                  '("y" "x"))))
+
+(ert-deftest ivy-read-multi-action-2 ()
+  (should (equal (let ((res nil))
+                   (ivy-add-actions 'test-ivy-read-multi-action-2
+                                    (list (list "a"
+                                                (lambda (x) (push x res))
+                                                "action-a"
+                                                (lambda (xs) (push xs res)))))
+                   (ivy-with
+                    '(ivy-read "test: " '("x" "y")
+                               :action (lambda (x) (message "Default: %s" x))
+                               :multi-action (lambda (_xs) (message "default"))
+                               :caller 'test-ivy-read-multi-action-2)
+                    "M-a M-o a")
+                   res)
+                 '(("x" "y")))))
 
 (ert-deftest ivy-read-sort-def ()
   (should (equal (ivy-with '(ivy-read "Test: " '("1" "2") :def '("a" "b" "c"))
