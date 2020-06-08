@@ -55,8 +55,7 @@
                 (cl-decf ivy-height))
     (window-resize nil -1)))
 
-(defhydra hydra-ivy (:hint nil
-                           :color pink)
+(defhydra hydra-ivy (:hint nil :color pink)
   "
 ^ ^ ^ ^ ^ ^ | ^Call^      ^ ^  | ^Cancel^ | ^Options^ | Action _w_/_s_/_a_: %-14s(ivy-action-name)
 ^-^-^-^-^-^-+-^-^---------^-^--+-^-^------+-^-^-------+-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^---------------------------
@@ -99,6 +98,17 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
   ("D" (ivy-exit-with-action
         (lambda (_) (find-function 'hydra-ivy/body)))
    :exit t))
+(dolist (sym '(
+               ;; these cmds have a binding here
+               ivy-next-action ivy-prev-action
+               ivy-unmark-backward ivy-toggle-case-fold
+               ivy-minibuffer-grow ivy-minibuffer-shrink
+               ivy-rotate-preferred-builders ivy-toggle-calling
+               ;; no binding
+               ivy-next-line-or-history ivy-previous-line-or-history
+               ivy-toggle-fuzzy ivy-yank-symbol
+               ivy-occur-next-error))
+  (put sym 'no-counsel-M-x t))
 
 (defvar ivy-dispatching-done-columns 2
   "Number of columns to use if the hint does not fit on one line.")
@@ -112,7 +122,6 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
 
 (defun ivy-hydra-read-action (actions)
   "Select one of the available actions and call `ivy-done'."
-  (interactive)
   (let* ((extra-actions ivy-dispatching-done-hydra-exit-keys)
          (doc (concat "action: "
                       (mapconcat
