@@ -3069,7 +3069,7 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                  (lambda (x) (if (string= x "%s") (copy-sequence all-args) (list x)))
                  cmd-template)))))
          (cands (counsel--split-string
-                 (if (stringp cmd-template)
+                 (if (stringp cmd)
                      (shell-command-to-string cmd)
                    (counsel--call cmd)))))
     (swiper--occur-insert-lines (mapcar #'counsel--normalize-grep-match cands))))
