@@ -4738,7 +4738,7 @@ An extra action allows to switch to the process buffer."
              counsel-slime-repl-history--index-last snd)))
     (ivy-completion-in-region-action (car pair))))
 
-(defun counsel--browse-history (ring &key caller)
+(cl-defun counsel--browse-history (ring &key caller)
   "Use Ivy to navigate through RING."
   (let* ((proc (get-buffer-process (current-buffer)))
          (end (point))
