@@ -90,7 +90,7 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
       (unwind-protect
            (progn
              (when dir
-               (setq dir (expand-file-name dir (counsel-locate-git-root))))
+               (setq dir (expand-file-name dir)))
              (setq ivy-eval-dir dir)
              (execute-kbd-macro
               (vconcat (kbd "C-c e")
