@@ -884,7 +884,7 @@ packages are, in order of precedence, `amx' and `smex'."
 
 (defun counsel-M-x-action (cmd)
   "Execute CMD."
-  (setq cmd (intern (string-remove-prefix "^" cmd)))
+  (setq cmd (intern (replace-regexp-in-string " " "-" (string-remove-prefix "^" cmd))))
   (cond ((bound-and-true-p amx-initialized)
          (amx-rank cmd))
         ((bound-and-true-p smex-initialized-p)
