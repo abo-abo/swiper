@@ -301,7 +301,7 @@ action functions.")
 ;;* Keymap
 (require 'delsel)
 (defun ivy-define-key (keymap key def)
-  "Forward to (`ivy-define-key' KEYMAP KEY DEF).
+  "Forward to (`define-key' KEYMAP KEY DEF).
 Remove DEF from `counsel-M-x' list."
   (put def 'no-counsel-M-x t)
   (define-key keymap key def))
