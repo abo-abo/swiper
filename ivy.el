@@ -889,7 +889,8 @@ will be called for each element of this list.")
 
 (defun ivy-shrink-after-dispatching ()
   "Shrink the window after dispatching when action list is too large."
-  (window-resize nil (- ivy-height (window-height))))
+  (when (window-minibuffer-p)
+    (window-resize nil (- ivy-height (window-height)))))
 
 (defun ivy-dispatching-done ()
   "Select one of the available actions and call `ivy-done'."
