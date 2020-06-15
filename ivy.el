@@ -1469,9 +1469,6 @@ See variable `ivy-recursive-restore' for further information."
           (cond
            ((null action)
             current)
-           ((eq action #'identity)
-            (prog1 x
-              (ivy-recursive-restore)))
            (t
             (select-window (ivy--get-window ivy-last))
             (set-buffer (ivy-state-buffer ivy-last))
