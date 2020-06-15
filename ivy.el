@@ -1478,7 +1478,6 @@ See variable `ivy-recursive-restore' for further information."
             (prog1 (unwind-protect
                        (if ivy-marked-candidates
                            (ivy--call-marked action)
-                         (setq default-directory (ivy-state-directory ivy-last))
                          (funcall action x))
                      (ivy-recursive-restore))
               (unless (or (eq ivy-exit 'done)
