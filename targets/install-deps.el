@@ -36,3 +36,4 @@
         (package-menu-execute t))
     (error
      (message "All packages up to date"))))
+(provide 'targets/install-deps)
