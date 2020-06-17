@@ -124,7 +124,9 @@ To skip the `executable-find' check, start the string with a space."
                      (car (split-string cmd)))))
       (or (and (stringp program)
                (not (string= program ""))
-               (executable-find program))
+               (executable-find program
+                                (and (version<= "27.1" emacs-version)
+                                     (tramp-tramp-file-p default-directory))))
           (user-error "Required program \"%s\" not found in your path" program)))))
 
 (declare-function eshell-split-path "esh-util")
