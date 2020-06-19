@@ -4980,11 +4980,12 @@ Intended as a value for the `:outline-title' setting in
   "Return title of current outline heading.
 Like `counsel-outline-title' (which see), but for `org-mode'
 buffers."
-  (let ((statistics-re "\\[[0-9]*\\(?:%\\|/[0-9]*\\)\\]")
+  (let ((statistics-re "\\[[0-9]*\\(?:%\\|/[0-9]*\\)]")
         (heading (apply #'org-get-heading (counsel--org-get-heading-args))))
-    (if counsel-org-headline-display-statistics
-        heading
-      (org-trim (replace-regexp-in-string statistics-re " " heading)))))
+    (cond (counsel-org-headline-display-statistics
+           heading)
+          (heading
+           (org-trim (replace-regexp-in-string statistics-re " " heading))))))
 
 (defun counsel-outline-title-markdown ()
   "Return title of current outline heading.
