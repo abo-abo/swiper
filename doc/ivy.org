@@ -148,15 +148,18 @@ version that runs Ivy with fancy faces display.
 :CUSTOM_ID: installing-from-emacs-package-manager
 :END:
 
-~M-x~ =package-install= ~RET~ =ivy= ~RET~
+~M-x~ =package-install= ~RET~ =counsel= ~RET~
 
-Ivy is installed as part of =ivy= package, which is available from two
-different package archives, GNU ELPA and MELPA. For the latest stable
-version, use the GNU ELPA archives using the above M-x command.
+Ivy is installed as part of the =counsel= package, which is available
+from two different package archives, GNU ELPA and MELPA.  For the
+latest stable version, use the GNU ELPA archives.  For current hourly
+builds, use the MELPA archives.
 
-For current hourly builds, use the MELPA archives. In MELPA, Ivy is
-split into three packages: =ivy=, =swiper= and =counsel=; you can simply
-install =counsel= which will bring in the other two as dependencies.
+Ivy is split into three packages: =ivy=, =swiper= and =counsel=; by
+installing =counsel=, the other two are brought in as dependencies.
+If you are not interested in the extra functionality provided by
+=swiper= and =counsel=, you can install only =ivy=.
+
 See the code below for adding MELPA to the list of package archives:
 
 #+begin_src elisp
