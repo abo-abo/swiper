@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2020-05-17 Sun 13:48 -->
+<!-- 2020-06-24 Wed 13:40 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Ivy User Manual</title>
@@ -240,19 +240,24 @@ version that runs Ivy with fancy faces display.
 <h3 id="installing-from-emacs-package-manager"><span class="section-number-3">3.1</span> Installing from Emacs Package Manager</h3>
 <div class="outline-text-3" id="text-installing-from-emacs-package-manager">
 <p>
-<kbd>M-x</kbd> <code>package-install</code> <kbd>RET</kbd> <code>ivy</code> <kbd>RET</kbd>
+<kbd>M-x</kbd> <code>package-install</code> <kbd>RET</kbd> <code>counsel</code> <kbd>RET</kbd>
 </p>
 
 <p>
-Ivy is installed as part of <code>ivy</code> package, which is available from two
-different package archives, GNU ELPA and MELPA. For the latest stable
-version, use the GNU ELPA archives using the above M-x command.
+Ivy is installed as part of the <code>counsel</code> package, which is available
+from two different package archives, GNU ELPA and MELPA.  For the
+latest stable version, use the GNU ELPA archives.  For current hourly
+builds, use the MELPA archives.
 </p>
 
 <p>
-For current hourly builds, use the MELPA archives. In MELPA, Ivy is
-split into three packages: <code>ivy</code>, <code>swiper</code> and <code>counsel</code>; you can simply
-install <code>counsel</code> which will bring in the other two as dependencies.
+Ivy is split into three packages: <code>ivy</code>, <code>swiper</code> and <code>counsel</code>; by
+installing <code>counsel</code>, the other two are brought in as dependencies.
+If you are not interested in the extra functionality provided by
+<code>swiper</code> and <code>counsel</code>, you can install only <code>ivy</code>.
+</p>
+
+<p>
 See the code below for adding MELPA to the list of package archives:
 </p>
 
