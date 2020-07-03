@@ -6286,7 +6286,8 @@ Use the presence of a `dir-locals-file' to determine the root."
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
     counsel-compile-get-build-directories
-    counsel-compile-get-make-invocation)
+    counsel-compile-get-make-invocation
+    counsel-compile-get-make-help-invocations)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocation strings or
@@ -6326,6 +6327,10 @@ list is passed to `compilation-environment'."
 (defvar counsel-compile-phony-pattern "^\\.PHONY:[\t ]+\\(.+\\)$"
   "Regexp for extracting phony targets from Makefiles.")
 
+(defvar counsel-compile-help-pattern
+  "\\(?:^\\(\\*\\)?[[:space:]]+\\([^[:space:]]+\\)[[:space:]]+-\\)"
+  "Regexp for extracting help targets from a make help call.")
+
 ;; This is loosely based on the Bash Make completion code which
 ;; relies on GNUMake having the following return codes:
 ;;   0 = no-rebuild, -q & 1 needs rebuild, 2 error
@@ -6356,12 +6361,13 @@ text with FACE."
                       'font-lock-warning-face)
           (propertize text 'face face)))
 
-(defun counsel--compile-get-make-targets (srcdir &optional blddir)
-  "Return a list of Make targets for a given SRCDIR/BLDDIR combination.
+(defun counsel--compile-get-make-targets (probe-fn srcdir &optional blddir)
+  "Return propertized make targets returned by PROBE-FN in SRCDIR.
 
-We search the Makefile for a list of phony targets which are
-generally the top level targets a Make system provides.
-The resulting strings are tagged with properties that
+The optional BLDDIR allows for handling build directories.  We
+search the Makefile for a list of phony targets which are
+generally the top level targets a Make system provides.  The
+resulting strings are tagged with properties that
 `counsel-compile-history' can use for filtering results."
   (let ((fmt (format (propertize "make %s %%s" 'cmd t)
                      counsel-compile-make-args))
@@ -6378,7 +6384,7 @@ The resulting strings are tagged with properties that
               (setq target (concat (format fmt target) suffix build-env))
               (add-text-properties 0 (length target) props target)
               target)
-            (counsel-compile--probe-make-targets (or blddir srcdir)))))
+            (funcall probe-fn (or blddir srcdir)))))
 
 (defun counsel-compile-get-make-invocation (&optional blddir)
   "Have a look in the root directory for any build control files.
@@ -6388,7 +6394,41 @@ sub-directories that builds may be invoked in."
   (let ((srcdir (counsel--compile-root)))
     (when (directory-files (or blddir srcdir) nil
                            counsel-compile-make-pattern t)
-      (counsel--compile-get-make-targets srcdir blddir))))
+      (counsel--compile-get-make-targets
+       #'counsel-compile--probe-make-targets srcdir blddir))))
+
+(defun counsel-compile--probe-make-help (dir)
+  "Return a list of Make targets based on help for DIR.
+
+It is quite common for a 'make help' invocation to return a human
+readable list of targets.  Often common targets are marked with a
+leading asterisk.  The exact search pattern is controlled by
+`counsel-compile-help-pattern'."
+  (let ((default-directory dir)
+        primary-targets targets)
+    ;; Only proceed if the help target exists.
+    (when (eql 1 (apply #'call-process "make" nil nil nil "-q" "help"
+                        counsel-compile-env))
+      (with-temp-buffer
+        (when (eql 0 (apply #'call-process "make" nil t nil "help"
+                            counsel-compile-env))
+          (goto-char (point-min))
+          (while (re-search-forward counsel-compile-help-pattern nil t)
+            (push (match-string 2)
+                  (if (match-beginning 1) primary-targets targets)))
+          (nconc (sort primary-targets #'string-lessp)
+                 (sort targets #'string-lessp)))))))
+
+(defun counsel-compile-get-make-help-invocations (&optional blddir)
+  "Query the root directory for makefiles with help output.
+
+The optional BLDDIR is useful for other helpers that have found
+sub-directories that builds may be invoked in."
+  (let ((srcdir (counsel--compile-root)))
+    (when (directory-files (or blddir srcdir) nil
+                           counsel-compile-make-pattern t)
+      (counsel--compile-get-make-targets
+       #'counsel-compile--probe-make-help srcdir blddir))))
 
 (defun counsel--find-build-subdir (srcdir)
   "Return builds subdirectory of SRCDIR, if one exists."
@@ -6503,34 +6543,35 @@ specified by the `blddir' property."
           (remove-hook 'compilation-start-hook #'counsel-compile--update-history))))))
 
 (defun counsel-compile-edit-command ()
-  "Insert current compile command into mini-buffer for editing.
+  "Insert current compile command into the minibuffer for editing.
 
-This mirrors the behaviour of `ivy-insert-current' but with specific
-handling for the counsel-compile metadata."
+This mirrors the behavior of `ivy-insert-current' but with specific
+handling for the `counsel-compile' metadata."
   (interactive)
   (delete-minibuffer-contents)
   (let* ((cmd (ivy-state-current ivy-last))
          (blddir (get-text-property 0 'blddir cmd)))
     (when blddir
       (setq counsel-compile--current-build-dir blddir))
-    (if (get-char-property 0 'cmd cmd)
-        (insert (substring-no-properties
-                 cmd 0 (next-single-property-change 0 'cmd cmd)))
-      (insert (substring-no-properties cmd)))))
+    (insert (substring-no-properties
+             cmd 0 (and (get-text-property 0 'cmd cmd)
+                        (next-single-property-change 0 'cmd cmd))))))
 
 ;; Currently the only thing we do is override ivy's default insert
 ;; operation which doesn't include the metadata we want.
 (defvar counsel-compile-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-i") #'counsel-compile-edit-command)
+    (define-key map [remap ivy-insert-current] #'counsel-compile-edit-command)
     map)
-  "Additional ivy keybindings during command selection")
+  "Additional ivy keybindings during command selection.")
 
 ;;;###autoload
 (defun counsel-compile (&optional dir)
   "Call `compile' completing with smart suggestions, optionally for DIR.
 
-Additional actions:\\<ivy-minibuffer-map>"
+Additional actions:
+
+\\{counsel-compile-map}"
   (interactive)
   (setq counsel-compile--current-build-dir (or dir
                                                (counsel--compile-root)
