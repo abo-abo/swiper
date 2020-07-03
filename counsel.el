@@ -6326,26 +6326,26 @@ list is passed to `compilation-environment'."
 (defvar counsel-compile-phony-pattern "^\\.PHONY:[\t ]+\\(.+\\)$"
   "Regexp for extracting phony targets from Makefiles.")
 
-;; This is loosely based on the Bash Make completion code
+;; This is loosely based on the Bash Make completion code which
+;; relies on GNUMake having the following return codes:
+;;   0 = no-rebuild, -q & 1 needs rebuild, 2 error
 (defun counsel-compile--probe-make-targets (dir)
   "Return a list of Make targets for DIR.
 
-Return an empty list is Make exits with an error.  This might
-happen because some sort of configuration needs to be done first
-or the source tree is pristine and being used for multiple build
-trees."
-  (let ((default-directory dir)
-        (targets nil))
-    (with-temp-buffer
-      ;; 0 = no-rebuild, -q & 1 needs rebuild, 2 error (for GNUMake at
-      ;; least)
-      (when (< (call-process "make" nil t nil "-nqp") 2)
+Return a single blank target (so we invoke the default target)
+if Make exits with an error.  This might happen because some sort
+of configuration needs to be done first or the source tree is
+pristine and being used for multiple build trees."
+  (with-temp-buffer
+    (let* ((default-directory dir)
+           (res (call-process "make" nil t nil "-nqp"))
+           targets)
+      (if (or (not (numberp res)) (> res 1))
+          (list "")
         (goto-char (point-min))
         (while (re-search-forward counsel-compile-phony-pattern nil t)
-          (setq targets
-                (nconc targets (split-string
-                                (match-string-no-properties 1)))))))
-    (sort targets #'string-lessp)))
+          (push (split-string (match-string-no-properties 1)) targets))
+        (sort (apply #'nconc targets) #'string-lessp)))))
 
 (defun counsel-compile--pretty-propertize (leader text face)
   "Return a pretty string of the form \" LEADER TEXT\".
@@ -6516,7 +6516,7 @@ handling for the counsel-compile metadata."
     (if (get-char-property 0 'cmd cmd)
         (insert (substring-no-properties
                  cmd 0 (next-single-property-change 0 'cmd cmd)))
-      (substring-no-properties last 0 end))))
+      (insert (substring-no-properties cmd)))))
 
 ;; Currently the only thing we do is override ivy's default insert
 ;; operation which doesn't include the metadata we want.
