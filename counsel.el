@@ -2964,24 +2964,33 @@ NEEDLE is the search string."
 ;;;###autoload
 (cl-defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt
                       &key caller)
-  "Grep for a string in the current directory using ag.
+  "Grep for a string in a root directory using ag.
+
+By default, the root directory is the first directory containing a .git subdirectory.
+
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
-EXTRA-AG-ARGS string, if non-nil, is appended to `counsel-ag-base-command'.
+EXTRA-AG-ARGS, if non-nil, is appended to `counsel-ag-base-command'.
 AG-PROMPT, if non-nil, is passed as `ivy-read' prompt argument.
-CALLER is passed to `ivy-read'."
+CALLER is passed to `ivy-read'.
+
+With a `\\[universal-argument]' prefix argument, prompt for INITIAL-DIRECTORY.
+With a `\\[universal-argument] \\[universal-argument]' prefix argument, \
+prompt additionally for EXTRA-AG-ARGS."
   (interactive)
   (setq counsel-ag-command counsel-ag-base-command)
   (setq counsel--regex-look-around counsel--grep-tool-look-around)
   (counsel-require-program counsel-ag-command)
   (let ((prog-name (car (if (listp counsel-ag-command) counsel-ag-command
-                          (split-string counsel-ag-command)))))
-    (when current-prefix-arg
+                          (split-string counsel-ag-command))))
+        (arg (prefix-numeric-value current-prefix-arg)))
+    (when (>= arg 4)
       (setq initial-directory
             (or initial-directory
                 (counsel-read-directory-name (concat
                                               prog-name
-                                              " in directory: "))))
+                                              " in directory: ")))))
+    (when (>= arg 16)
       (setq extra-ag-args
             (or extra-ag-args
                 (read-from-minibuffer (format "%s args: " prog-name)))))
