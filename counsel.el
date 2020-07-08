@@ -6502,9 +6502,35 @@ specified by the `blddir' property."
              (compile cmd)
           (remove-hook 'compilation-start-hook #'counsel-compile--update-history))))))
 
+(defun counsel-compile-edit-command ()
+  "Insert current compile command into mini-buffer for editing.
+
+This mirrors the behaviour of `ivy-insert-current' but with specific
+handling for the counsel-compile metadata."
+  (interactive)
+  (delete-minibuffer-contents)
+  (let* ((cmd (ivy-state-current ivy-last))
+         (blddir (get-text-property 0 'blddir cmd)))
+    (when blddir
+      (setq counsel-compile--current-build-dir blddir))
+    (if (get-char-property 0 'cmd cmd)
+        (insert (substring-no-properties
+                 cmd 0 (next-single-property-change 0 'cmd cmd)))
+      (substring-no-properties last 0 end))))
+
+;; Currently the only thing we do is override ivy's default insert
+;; operation which doesn't include the metadata we want.
+(defvar counsel-compile-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-i") #'counsel-compile-edit-command)
+    map)
+  "Additional ivy keybindings during command selection")
+
 ;;;###autoload
 (defun counsel-compile (&optional dir)
-  "Call `compile' completing with smart suggestions, optionally for DIR."
+  "Call `compile' completing with smart suggestions, optionally for DIR.
+
+Additional actions:\\<ivy-minibuffer-map>"
   (interactive)
   (setq counsel-compile--current-build-dir (or dir
                                                (counsel--compile-root)
@@ -6512,6 +6538,7 @@ specified by the `blddir' property."
   (ivy-read "Compile command: "
             (delete-dups (counsel--get-compile-candidates dir))
             :action #'counsel-compile--action
+            :keymap counsel-compile-map
             :caller 'counsel-compile))
 
 (ivy-add-actions
