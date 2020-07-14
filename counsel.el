@@ -3836,17 +3836,31 @@ include attachments of other Org buffers."
   (require 'org-capture)
   (ivy-read "Capture template: "
             (delq nil
-                  (mapcar
-                   (lambda (x)
-                     (when (> (length x) 2)
-                       (format "%-5s %s" (nth 0 x) (nth 1 x))))
-                   ;; We build the list of capture templates as in
-                   ;; `org-capture-select-template':
-                   (or (org-contextualize-keys
-                        (org-capture-upgrade-templates org-capture-templates)
-                        org-capture-templates-contexts)
-                       '(("t" "Task" entry (file+headline "" "Tasks")
-                          "* TODO %?\n  %u\n  %a")))))
+                  (let (messages prefixes)
+                    ;; We build the list of capture templates as in
+                    ;; `org-capture-select-template':
+                    (dolist (x (or (org-contextualize-keys
+                                    (org-capture-upgrade-templates org-capture-templates)
+                                    org-capture-templates-contexts)
+                                   '(("t" "Task" entry (file+headline "" "Tasks")
+                                      "* TODO %?\n  %u\n  %a")))
+                               messages)
+                      (let ((x-keys (nth 0 x)))
+                        ;; Remove prefixed keys until we get one that matches the current item x.
+                        (while (and prefixes
+                                    (let ((p1-keys (nth 0 (car prefixes))))
+                                      (or
+                                       (<= (length x-keys) (length p1-keys))
+                                       (not (string-equal (substring x-keys 0 (length p1-keys)) p1-keys)))))
+                          (pop prefixes))
+                        (if (> (length x) 2)
+                            (setq messages (cons (format "%-5s %s" x-keys
+                                                         (string-join
+                                                          (mapcar (lambda (x) (nth 1 x))
+                                                                  (reverse (cons x prefixes)))
+                                                          " | "))
+                                                 messages))
+                          (setq prefixes (cons x prefixes)))))))
             :require-match t
             :action (lambda (x)
                       (org-capture nil (car (split-string x))))
