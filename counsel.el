@@ -3844,7 +3844,7 @@ include attachments of other Org buffers."
                                     org-capture-templates-contexts)
                                    '(("t" "Task" entry (file+headline "" "Tasks")
                                       "* TODO %?\n  %u\n  %a")))
-                               messages)
+                               (reverse messages))
                       (let ((x-keys (nth 0 x)))
                         ;; Remove prefixed keys until we get one that matches the current item x.
                         (while (and prefixes
