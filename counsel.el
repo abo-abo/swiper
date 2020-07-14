@@ -3837,18 +3837,28 @@ include attachments of other Org buffers."
   (interactive)
   (require 'org-capture)
   (ivy-read "Capture template: "
-            (delq nil
-                  (mapcar
-                   (lambda (x)
-                     (when (> (length x) 2)
-                       (format "%-5s %s" (nth 0 x) (nth 1 x))))
-                   ;; We build the list of capture templates as in
-                   ;; `org-capture-select-template':
-                   (or (org-contextualize-keys
-                        (org-capture-upgrade-templates org-capture-templates)
-                        org-capture-templates-contexts)
-                       '(("t" "Task" entry (file+headline "" "Tasks")
-                          "* TODO %?\n  %u\n  %a")))))
+            ;; We build the list of capture templates as in `org-capture-select-template':
+            (let (prefixes)
+              (cl-mapcan
+               (lambda (x)
+                 (let ((x-keys (car x)))
+                   ;; Remove prefixed keys until we get one that matches the current item.
+                   (while (and prefixes
+                               (let ((p1-keys (caar prefixes)))
+                                 (or
+                                  (<= (length x-keys) (length p1-keys))
+                                  (not (string-prefix-p p1-keys x-keys)))))
+                     (pop prefixes))
+                   (if (> (length x) 2)
+                       (let ((desc (mapconcat #'cadr (reverse (cons x prefixes)) " | ")))
+                         (list (format "%-5s %s" x-keys desc)))
+                     (push x prefixes)
+                     nil)))
+               (or (org-contextualize-keys
+                    (org-capture-upgrade-templates org-capture-templates)
+                    org-capture-templates-contexts)
+                   '(("t" "Task" entry (file+headline "" "Tasks")
+                      "* TODO %?\n  %u\n  %a")))))
             :require-match t
             :action (lambda (x)
                       (org-capture nil (car (split-string x))))
