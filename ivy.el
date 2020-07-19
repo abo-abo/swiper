@@ -1182,6 +1182,7 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
                            ivy-text)
                        (ivy-read "Choose ivy session: "
                                  ivy--sessions
+                                 :caller 'ivy--restore-session
                                  :require-match t)))))
     (setq ivy-last (or (cdr (assq session ivy--sessions))
                        ivy-last)))
