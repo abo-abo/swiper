@@ -3066,7 +3066,8 @@ Works for `counsel-git-grep', `counsel-ag', etc."
                    (all-args (append
                               (when (car command-args)
                                 (split-string (car command-args)))
-                              (counsel--ag-extra-switches regex)
+                              (when-let ((extra-switches (counsel--ag-extra-switches regex)))
+                                (split-string extra-switches))
                               (list
                                (counsel--grep-smart-case-flag)
                                regex))))
