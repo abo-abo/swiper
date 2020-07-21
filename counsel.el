@@ -3088,10 +3088,12 @@ Works for `counsel-git-grep', `counsel-ag', etc."
               (funcall cmd-template ivy-text)
             (let* ((command-args (counsel--split-command-args ivy-text))
                    (regex (counsel--grep-regex (cdr command-args)))
+                   (extra-switches (counsel--ag-extra-switches regex))
                    (all-args (append
                               (when (car command-args)
                                 (split-string (car command-args)))
-                              (counsel--ag-extra-switches regex)
+                              (when extra-switches
+                                (split-string extra-switches))
                               (list
                                (counsel--grep-smart-case-flag)
                                regex))))
