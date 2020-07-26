@@ -4460,7 +4460,11 @@ Skip buffers that match `ivy-ignore-buffers'."
                  (string-match-p regexp (buffer-local-value 'default-directory b))
                  (not (string-match-p "^\\*" s)))))
         candidates))
-    (let ((res (ivy--re-filter regexp candidates)))
+    (let ((res (ivy--re-filter regexp candidates))
+          (buf-name (buffer-name)))
+      ;; Downrank our current buffer to end of res, if present.
+      (when (and buf-name (member buf-name res))
+        (setq res (nconc (delete buf-name res) (list buf-name))))
       (if (or (null ivy-use-ignore)
               (null ivy-ignore-buffers))
           res
