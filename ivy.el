@@ -2235,7 +2235,8 @@ This is useful for recursive `ivy-read'."
     (setq ivy-use-ignore ivy-use-ignore-default)
     (setf (ivy-state-ignore state) ivy-use-ignore)
     (setq ivy--highlight-function
-          (or (cdr (assq ivy--regex-function ivy-highlight-functions-alist))
+          (or (cdr (assq (ivy-alist-setting ivy-re-builders-alist)
+                         ivy-highlight-functions-alist))
               #'ivy--highlight-default))
     (let ((ivy-recursive-restore nil)
           coll sort-fn)
