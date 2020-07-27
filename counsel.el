@@ -2013,7 +2013,8 @@ When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
 
 (ivy-configure 'counsel-find-file
   :parent 'read-file-name-internal
-  :occur #'counsel-find-file-occur)
+  :occur #'counsel-find-file-occur
+  :alt-done-fn #'ivy--directory-done)
 
 (defvar counsel-find-file-occur-cmd "ls -a | %s | xargs -d '\\n' ls -d --group-directories-first"
   "Format string for `counsel-find-file-occur'.")
