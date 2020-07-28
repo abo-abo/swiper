@@ -3837,30 +3837,27 @@ include attachments of other Org buffers."
   (ivy-read "Capture template: "
             ;; We build the list of capture templates as in
             ;; `org-capture-select-template':
-            (reverse
-             (car
-              (cl-reduce
-               (lambda (mp x)
+            (let (prefixes)
+              (cl-mapcan
+               (lambda (x)
                  (let ((x-keys (car x)))
-                   ;; Remove prefixed keys until we get one that matches the current item x.
-                   (while (and (cadr mp)
-                               (let ((p1-keys (caar (cadr mp))))
+                   ;; Remove prefixed keys until we get one that matches the current item.
+                   (while (and prefixes
+                               (let ((p1-keys (caar prefixes)))
                                  (or
                                   (<= (length x-keys) (length p1-keys))
                                   (not (string-prefix-p p1-keys x-keys)))))
-                     (pop (cadr mp)))
+                     (pop prefixes))
                    (if (> (length x) 2)
-                       (let ((description (mapconcat #'cadr (reverse (cons x (cadr mp))) " | ")))
-                         (push (format "%-5s %s" x-keys description) (car mp)))
-                     (push x (cadr mp)))
-                   mp))
-               (delq nil
-                     (or (org-contextualize-keys
-                          (org-capture-upgrade-templates org-capture-templates)
-                          org-capture-templates-contexts)
-                         '(("t" "Task" entry (file+headline "" "Tasks")
-                            "* TODO %?\n  %u\n  %a"))))
-               :initial-value '(nil nil))))
+                       (let ((desc (mapconcat #'cadr (reverse (cons x prefixes)) " | ")))
+                         (list (format "%-5s %s" x-keys desc)))
+                     (push x prefixes)
+                     nil)))
+               (or (org-contextualize-keys
+                    (org-capture-upgrade-templates org-capture-templates)
+                    org-capture-templates-contexts)
+                   '(("t" "Task" entry (file+headline "" "Tasks")
+                      "* TODO %?\n  %u\n  %a")))))
             :require-match t
             :action (lambda (x)
                       (org-capture nil (car (split-string x))))
