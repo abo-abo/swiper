@@ -124,7 +124,7 @@ To skip the `executable-find' check, start the string with a space."
                      (car (split-string cmd)))))
       (or (and (stringp program)
                (not (string= program ""))
-               (if (< 27 emacs-major-version)
+               (if (<= 27 emacs-major-version)
                    (executable-find program (file-remote-p default-directory))
                  (executable-find program)))
           (user-error "Required program \"%s\" not found in your path" program)))))
