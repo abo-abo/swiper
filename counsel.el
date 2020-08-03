@@ -6573,9 +6573,7 @@ Additional actions:
 
 \\{counsel-compile-map}"
   (interactive)
-  (setq counsel-compile--current-build-dir (or dir
-                                               (counsel--compile-root)
-                                               default-directory))
+  (setq counsel-compile--current-build-dir (or dir (counsel--compile-root)))
   (ivy-read "Compile command: "
             (delete-dups (counsel--get-compile-candidates dir))
             :action #'counsel-compile--action
