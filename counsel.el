@@ -6244,7 +6244,8 @@ This variable is suitable for addition to
     counsel--project-current
     counsel--configure-root
     counsel--git-root
-    counsel--dir-locals-root)
+    counsel--dir-locals-root
+    counsel--single-file-root)
   "Special hook to find the project root for compile commands.
 Each function on this hook is called in turn with no arguments
 and should return either a directory, or nil if no root was
@@ -6282,6 +6283,23 @@ Use the presence of a \".git\" file to determine the root."
   "Return root of current project or nil on failure.
 Use the presence of a `dir-locals-file' to determine the root."
   (counsel--dominating-file dir-locals-file))
+
+(defun counsel--single-file-root ()
+  "Return the root of a single standalone file.
+This is to support the case of compiling a single standalone file that
+is outside of any sort of project. If we can support such a file we
+locally override `counsel-compile-local-builds' to offer a simplified
+direct compile option.
+
+This should be the last function in `counsel-compile-root-functions'
+after giving all the other project root finders a chance."
+  (cond
+   ((string-suffix-p ".c" (buffer-file-name))
+    (progn
+      (setq-local counsel-compile-local-builds
+                  '(counsel-compile-get-compiler-invocations))
+      (file-name-directory (buffer-file-name))))
+   (t nil)))
 
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
@@ -6330,6 +6348,10 @@ list is passed to `compilation-environment'."
 (defvar counsel-compile-help-pattern
   "\\(?:^\\(\\*\\)?[[:space:]]+\\([^[:space:]]+\\)[[:space:]]+-\\)"
   "Regexp for extracting help targets from a make help call.")
+
+(defvar counsel-compile-compilers
+  '("gcc" "clang" "icc")
+  "List of compilers we search for.")
 
 ;; This is loosely based on the Bash Make completion code which
 ;; relies on GNUMake having the following return codes:
@@ -6480,6 +6502,25 @@ list as it may also be a build directory."
                   (and blddir (file-in-directory-p blddir root)))
           (push item history))))
     (nreverse history)))
+
+;; Fall back function to compile a single file
+;;
+;; You wouldn't generally want this in counsel-compile-local-builds
+;; but when we detect a standalone file you create a buffer-local
+;; version that might have this function in it.
+;;
+;; NB: in future it would be nice to search exec-path for wildcard
+;;expansions so we can find cross compilers like foo-bar-abi-gcc
+
+(defun counsel-compile-get-compiler-invocations (&optional dir)
+  "Return some direct compile stanzas."
+  (let* ((f (buffer-file-name))
+         (o (string-remove-suffix ".c" f))
+         (cmds))
+    (dolist (cc counsel-compile-compilers)
+      (when (executable-find cc)
+        (push (format "%s %s -o %s" cc f o) cmds)))
+    cmds))
 
 (defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands.
