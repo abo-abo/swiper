@@ -6305,7 +6305,8 @@ after giving all the other project root finders a chance."
   '(counsel-compile-get-filtered-history
     counsel-compile-get-build-directories
     counsel-compile-get-make-invocation
-    counsel-compile-get-make-help-invocations)
+    counsel-compile-get-make-help-invocations
+    counsel-compile-get-cargo-invocations)
   "Additional compile invocations to feed into `counsel-compile'.
 
 This can either be a list of compile invocation strings or
@@ -6348,6 +6349,10 @@ list is passed to `compilation-environment'."
 (defvar counsel-compile-help-pattern
   "\\(?:^\\(\\*\\)?[[:space:]]+\\([^[:space:]]+\\)[[:space:]]+-\\)"
   "Regexp for extracting help targets from a make help call.")
+
+(defvar counsel-compile-cargo-list-pattern
+  "\\(?:^[[:space:]]+\\([^[:space:]]+\\)\\)"
+  "Regexp for extracting commands from cargo --list.")
 
 (defvar counsel-compile-compilers
   '("gcc" "clang" "icc")
@@ -6521,6 +6526,23 @@ list as it may also be a build directory."
       (when (executable-find cc)
         (push (format "%s %s -o %s" cc f o) cmds)))
     cmds))
+
+;; Rust support
+;;
+;; We look for a Cargo.toml and is that exits offer the list of cargo
+;; commands to the user.
+(defun counsel-compile-get-cargo-invocations (&optional dir)
+  "Return a list of cargo targets if we find Cargo.toml."
+  (let ((srcdir (counsel--compile-root))
+        (targets))
+    (when (directory-files (or dir srcdir) nil "Cargo.toml" t)
+      (with-temp-buffer
+        (when (eql 0 (apply #'call-process "cargo" nil t nil '("--list")))
+          (goto-char (point-min))
+          (while (re-search-forward counsel-compile-cargo-list-pattern nil t)
+            (push (format "cargo %s" (match-string 1)) targets))))
+      targets)))
+
 
 (defun counsel--get-compile-candidates (&optional dir)
   "Return the list of compile commands.
