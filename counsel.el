@@ -6265,6 +6265,9 @@ The properties include:
 
 `srcdir'
     the root directory of the source code
+`buffer-file-name'
+    the file where compile invoked from (used for single source file
+    builds)
 `blddir'
     the root directory of the build (in or outside the `srcdir')
 `bldenv'
@@ -6277,12 +6280,24 @@ The properties include:
 This variable is suitable for addition to
 `savehist-additional-variables'.")
 
+(defvar-local counsel-compile-history-match-buffer-file-name nil
+  "Make `counsel-compile-get-filtered-history' match buffer name.
+This is usually set to nil except for the special case of
+standalone files where matching what is usually $HOME can cause
+confusion.")
+
+(defvar counsel-compile-buffer-file-name nil
+  "Used to pass current file name to `counsel-compile--update-history'.
+This allows per-file filtering of history when
+`counsel-compile-history-match-buffer-file-name' is set.")
+
 (defvar counsel-compile-root-functions
   '(counsel--projectile-root
     counsel--project-current
     counsel--configure-root
     counsel--git-root
-    counsel--dir-locals-root)
+    counsel--dir-locals-root
+    counsel--buffer-default-directory)
   "Special hook to find the project root for compile commands.
 Each function on this hook is called in turn with no arguments
 and should return either a directory, or nil if no root was
@@ -6320,6 +6335,19 @@ Use the presence of a \".git\" file to determine the root."
   "Return root of current project or nil on failure.
 Use the presence of a `dir-locals-file' to determine the root."
   (counsel--dominating-file dir-locals-file))
+
+(defun counsel--buffer-default-directory ()
+  "Return the `default-directory' of the current buffer.
+
+To avoid catching unrelated history for this one file we locally
+override `counsel-compile-history' and leave the user to fill in their
+preferred build stanza.
+
+This should be the last function in `counsel-compile-root-functions'
+after giving all the other project root finders a chance."
+  (unless (local-variable-p 'counsel-compile-history-match-buffer-file-name)
+    (setq counsel-compile-history-match-buffer-file-name t))
+  default-directory)
 
 (defvar counsel-compile-local-builds
   '(counsel-compile-get-filtered-history
@@ -6514,8 +6542,11 @@ list as it may also be a build directory."
     (dolist (item counsel-compile-history)
       (let ((srcdir (get-text-property 0 'srcdir item))
             (blddir (get-text-property 0 'blddir item)))
-        (when (or (and srcdir (file-in-directory-p srcdir root))
-                  (and blddir (file-in-directory-p blddir root)))
+        (when (if counsel-compile-history-match-buffer-file-name
+                  (let ((bfm (get-text-property 0 'buffer-file-name item)))
+                    (and bfm (string= bfm buffer-file-name)))
+                (or (and srcdir (file-in-directory-p srcdir root))
+                    (and blddir (file-in-directory-p blddir root))))
           (push item history))))
     (nreverse history)))
 
@@ -6548,7 +6579,10 @@ This is determined by `counsel-compile-local-builds', which see."
                                                      (mapconcat #'identity bldenv " ")
                                                      'font-lock-variable-name-face)))))
     (add-text-properties 0 (length cmd)
-                         `(srcdir ,srcdir blddir ,blddir bldenv ,bldenv) cmd)
+                         `(srcdir ,srcdir
+                                  buffer-file-name ,counsel-compile-buffer-file-name
+                                  blddir ,blddir bldenv ,bldenv)
+                         cmd)
     (add-to-history 'counsel-compile-history cmd)))
 
 (defvar counsel-compile--current-build-dir nil
@@ -6573,7 +6607,8 @@ specified by the `blddir' property."
       (let ((default-directory (or blddir
                                    counsel-compile--current-build-dir
                                    default-directory))
-            (compilation-environment bldenv))
+            (compilation-environment bldenv)
+            (counsel-compile-buffer-file-name buffer-file-name))
         ;; No need to specify `:history' because of this hook.
         (add-hook 'compilation-start-hook #'counsel-compile--update-history)
         (unwind-protect
@@ -6611,9 +6646,7 @@ Additional actions:
 
 \\{counsel-compile-map}"
   (interactive)
-  (setq counsel-compile--current-build-dir (or dir
-                                               (counsel--compile-root)
-                                               default-directory))
+  (setq counsel-compile--current-build-dir (or dir (counsel--compile-root)))
   (ivy-read "Compile command: "
             (delete-dups (counsel--get-compile-candidates dir))
             :action #'counsel-compile--action
