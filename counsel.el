@@ -1188,6 +1188,15 @@ back to the face of the character after point, and finally the
   "Customize face with NAME in another window."
   (customize-face-other-window (intern name)))
 
+(declare-function hi-lock-set-pattern "hi-lock")
+(defun counsel-highlight-with-face (face)
+  "Highlight thing-at-point with FACE."
+  (hi-lock-mode 1)
+  (let ((thing (ivy-thing-at-point)))
+    (when (use-region-p)
+      (deactivate-mark))
+    (hi-lock-set-pattern (regexp-quote thing) face)))
+
 (ivy-set-actions
  'counsel-describe-face
  '(("c" counsel-customize-face "customize")
@@ -1232,7 +1241,8 @@ selected face."
 (ivy-set-actions
  'counsel-faces
  '(("c" counsel-customize-face "customize")
-   ("C" counsel-customize-face-other-window "customize other window")))
+   ("C" counsel-customize-face-other-window "customize other window")
+   ("h" counsel-highlight-with-face "highlight")))
 
 ;;* Git
 ;;** `counsel-git'
