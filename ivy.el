@@ -3676,8 +3676,9 @@ CANDS are the current candidates."
                                         cands
                                         :test #'ivy--case-fold-string=)))
                      ((and (eq caller 'ivy-switch-buffer)
-                           (not empty)
-                           0))
+                           (not empty))
+                      (or (cl-position current cands :test #'string=)
+                          0))
                      ((and (not empty)
                            (not (eq caller 'swiper))
                            (not (and ivy--flx-featurep
