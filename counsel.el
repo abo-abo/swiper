@@ -114,6 +114,14 @@ complex regexes."
      str)
     str))
 
+(defalias 'counsel--executable-find
+  ;; Gained optional argument in 27.1.
+  (if (>= emacs-major-version 27)
+      #'executable-find
+    (lambda (command &optional _remote)
+      (executable-find command)))
+  "Compatibility shim for `executable-find'.")
+
 (defun counsel-require-program (cmd)
   "Check system for program used in CMD, printing error if not found.
 CMD is either a string or a list of strings.
@@ -124,9 +132,7 @@ To skip the `executable-find' check, start the string with a space."
                      (car (split-string cmd)))))
       (or (and (stringp program)
                (not (string= program ""))
-               (if (<= 27 emacs-major-version)
-                   (executable-find program t)
-                 (executable-find program)))
+               (counsel--executable-find program t))
           (user-error "Required program \"%s\" not found in your path" program)))))
 
 (declare-function eshell-split-path "esh-util")
