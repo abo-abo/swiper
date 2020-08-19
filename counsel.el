@@ -1201,7 +1201,7 @@ back to the face of the character after point, and finally the
   (let ((thing (ivy-thing-at-point)))
     (when (use-region-p)
       (deactivate-mark))
-    (hi-lock-set-pattern (regexp-quote thing) face)))
+    (hi-lock-set-pattern (regexp-quote thing) (intern face))))
 
 (ivy-set-actions
  'counsel-describe-face
