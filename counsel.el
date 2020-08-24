@@ -4246,7 +4246,8 @@ Additional actions:\\<ivy-minibuffer-map>
             :history 'counsel-package-history
             :caller 'counsel-package))
 
-(cl-pushnew '(counsel-package . "^+") ivy-initial-inputs-alist :key #'car)
+(ivy-configure 'counsel-package
+  :initial-input "^+")
 
 (defun counsel-package-action (package)
   "Delete or install PACKAGE."
