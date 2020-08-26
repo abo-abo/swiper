@@ -1851,17 +1851,20 @@ An :init is a function with no arguments.
 
 (defun ivy--alist-set (alist-sym key val)
   (let ((curr-val (symbol-value alist-sym))
+        (customized-val (get alist-sym 'customized-value))
         (default-val (eval (car (get alist-sym 'standard-value)))))
-    ;; only works if the value wasn't customized by the user
-    (when (or (null default-val) (equal curr-val default-val))
-      (let ((cell (assoc key curr-val)))
-        (if cell
-            (setcdr cell val)
-          (set alist-sym (cons (cons key val)
-                               (symbol-value alist-sym)))))
-      (when default-val
-        (put alist-sym 'standard-value
-             (list (list 'quote (symbol-value alist-sym))))))))
+    ;; when the value was set by `customize-set-variable', don't touch it
+    (unless customized-val
+      ;; only works if the value wasn't customized by the user
+      (when (or (null default-val) (equal curr-val default-val))
+        (let ((cell (assoc key curr-val)))
+          (if cell
+              (setcdr cell val)
+            (set alist-sym (cons (cons key val)
+                                 (symbol-value alist-sym)))))
+        (when default-val
+          (put alist-sym 'standard-value
+               (list (list 'quote (symbol-value alist-sym)))))))))
 
 (declare-function counsel-set-async-exit-code "counsel")
 
