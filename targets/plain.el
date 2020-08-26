@@ -1,4 +1,5 @@
 ;; (package-initialize)
+(require 'counsel)
 (ivy-mode)
 (counsel-mode)
 (setq enable-recursive-minibuffers t)

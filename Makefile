@@ -19,7 +19,7 @@ compile:
 
 plain:
 	$(emacs) --version
-	$(emacs) -Q $(LOAD) -l targets/plain.el
+	$(emacs) -Q -l elpa.el -l targets/plain.el
 
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
