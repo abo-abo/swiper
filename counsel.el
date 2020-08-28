@@ -731,6 +731,25 @@ With a prefix arg, restrict list to variables defined using
       (when doc
         (lv-delete-window)))))
 
+;;** `counsel-tab-bar'
+(defun counsel--tab-name (tab)
+  "Return a name for a tab."
+  (cdr (car (cdr tab))))
+
+;;;###autoload
+(defun counsel-tab-bar ()
+  "Switch between tabs."
+  (interactive)
+  (ivy-read
+   "Select tab: "
+   (mapcar #'counsel--tab-name (funcall tab-bar-tabs-function))
+   :Keymap counsel-mode-map
+   :preselect (counsel--tab-name (tab-bar--current-tab))
+   :require-match t
+   :action (lambda (x)
+             (tab-bar-switch-to-tab x))
+   :caller 'counsel-tab-bar))
+
 ;;** `counsel-apropos'
 ;;;###autoload
 (defun counsel-apropos ()
