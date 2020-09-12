@@ -4777,15 +4777,17 @@ An extra action allows to switch to the process buffer."
              counsel-slime-repl-history--index-last snd)))
     (ivy-completion-in-region-action (car pair))))
 
-(cl-defun counsel--browse-history (ring &key caller)
+(cl-defun counsel--browse-history (ring &key input caller)
   "Use Ivy to navigate through RING."
   (let* ((proc (get-buffer-process (current-buffer)))
          (end (point))
          (beg (if proc
                   (min (process-mark proc) end)
                 end))
-         (input (when (< beg end)
-                  (concat "^" (buffer-substring beg end)))))
+         (input (concat "^"
+                        (or input
+                            (when (< beg end)
+                              (buffer-substring beg end))))))
     (setq ivy-completion-beg beg)
     (setq ivy-completion-end end)
     (ivy-read "History: " (ivy-history-contents ring)
@@ -4800,13 +4802,28 @@ An extra action allows to switch to the process buffer."
 (defvar counsel-esh--index-last nil
   "Index corresponding to last selection with `counsel-esh-history'.")
 
+(defvar eshell-skip-prompt-function
+  "A function called from beginning of line to skip the prompt.")
+
 ;;;###autoload
 (defun counsel-esh-history ()
   "Browse Eshell history."
   (interactive)
   (require 'em-hist)
-  (counsel--browse-history eshell-history-ring
-                           :caller #'counsel-esh-history))
+  (require 'esh-mode)
+  (let ((tmp-input ""))
+    (progn
+      (setq tmp-input
+            (save-excursion
+              (beginning-of-line)
+              (and eshell-skip-prompt-function
+                   (funcall eshell-skip-prompt-function))
+              (let ((beg (point)))
+                (end-of-line)
+                (buffer-substring beg (point)))))
+      (counsel--browse-history eshell-history-ring
+                               :input tmp-input
+                               :caller #'counsel-esh-history))))
 
 (defadvice eshell-previous-matching-input (before
                                            counsel-set-eshell-history-index
