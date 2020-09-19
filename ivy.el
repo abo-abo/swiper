@@ -3227,12 +3227,12 @@ Otherwise, ~/ will move home."
 
 (defvar ivy--exhibit-timer nil)
 
-(let (last-pos)
-  (defun ivy-input-changed? ()
-    (let* ((pos (line-end-position))
-           (changed (not (eq pos last-pos))))
-      (setq last-pos pos)
-      changed)))
+(defalias 'ivy-input-changed-p
+  (let (last-pos)
+    (lambda  ()
+      (let ((pos (line-end-position)))
+        (prog1 (not (eql pos last-pos))
+          (setq last-pos pos))))))
 
 (defun ivy--queue-exhibit ()
   "Insert Ivy completions display, possibly after a timeout for
@@ -3240,7 +3240,7 @@ dynamic collections.
 Should be run via minibuffer `post-command-hook'."
   (if (and (> ivy-dynamic-exhibit-delay-ms 0)
            (ivy-state-dynamic-collection ivy-last)
-           (ivy-input-changed?))
+           (ivy-input-changed-p))
       (progn
         (when ivy--exhibit-timer (cancel-timer ivy--exhibit-timer))
         (setq ivy--exhibit-timer
