@@ -3228,11 +3228,20 @@ Otherwise, ~/ will move home."
 (defvar ivy--exhibit-timer nil)
 
 (defalias 'ivy-input-changed-p
-  (let (last-pos)
-    (lambda  ()
-      (let ((pos (line-end-position)))
-        (prog1 (not (eql pos last-pos))
-          (setq last-pos pos))))))
+  (let (last-len)
+    (lambda ()
+      (let ((len (length ivy-text))
+            (more-chars-len (ivy-alist-setting ivy-more-chars-alist)))
+        (prog1 (cond ((< len more-chars-len)
+                      ;; force ui update, changed
+                      nil)
+                     (t ;; changed if len is different
+                      (not (eql len last-len))))
+          (setq last-len len)))))
+  "Return t when lenght of `ivy-text' is changed,
+But force return nil when current `ivy-text' len is smaller than `(ivy-alist-setting ivy-more-chars-alist)'.
+This closure function stores a previous `ivy-text' length.")
+
 
 (defun ivy--queue-exhibit ()
   "Insert Ivy completions display, possibly after a timeout for
