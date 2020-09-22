@@ -1807,9 +1807,16 @@ currently checked out."
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-DEL") 'counsel-up-directory)
     (define-key map (kbd "C-<backspace>") 'counsel-up-directory)
-    (define-key map (kbd "`") (ivy-make-magic-action 'counsel-find-file "b"))
+    (define-key map (kbd "`") #'counsel-file-jump-from-find)
+    (define-key map (kbd "C-`") (ivy-make-magic-action 'counsel-find-file "b"))
     (define-key map [remap undo] 'counsel-find-file-undo)
     map))
+
+(defun counsel-file-jump-from-find ()
+  "Switch to `counsel-file-jump' from `counsel-find-file'."
+  (interactive)
+  (ivy-quit-and-run
+    (counsel-file-jump ivy-text)))
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
