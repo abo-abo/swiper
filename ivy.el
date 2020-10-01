@@ -2413,8 +2413,6 @@ This is useful for recursive `ivy-read'."
                    prompt)))
         ((string-match-p "%.*d" ivy-count-format)
          (concat ivy-count-format prompt))
-        (ivy--directory
-         prompt)
         (t
          prompt)))
 
