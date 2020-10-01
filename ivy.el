@@ -931,6 +931,12 @@ Is is a cons cell, related to `tramp-get-completion-function'."
   "Customize what `ivy-alt-done' does per-collection."
   :type '(alist :key-type symbol :value-type function))
 
+(defun ivy--completing-fname-p ()
+  (eq 'file (cdr (assoc
+                  'category
+                  (ignore-errors
+                    (funcall (ivy-state-collection ivy-last) ivy-text nil 'metadata))))))
+
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
 When ARG is t, exit with current text, ignoring the candidates.
@@ -944,6 +950,8 @@ of exiting.  This function is otherwise like `ivy-done'."
            (ivy-immediate-done))
           ((setq alt-done-fn (ivy-alist-setting ivy-alt-done-functions-alist))
            (funcall alt-done-fn))
+          ((ivy--completing-fname-p)
+           (ivy--directory-done))
           (t
            (ivy-done)))))
 
