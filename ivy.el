@@ -1013,38 +1013,37 @@ contains a single candidate.")
 (defun ivy--directory-done ()
   "Handle exit from the minibuffer when completing file names."
   (let ((dir (ivy--handle-directory ivy-text)))
-    (cond
-      ((equal (ivy-state-current ivy-last) (ivy-state-def ivy-last))
-       (ivy-done))
-      ((and (ivy-state-require-match ivy-last)
-            (equal ivy-text "")
-            (null ivy--old-cands))
-       (ivy-immediate-done))
-      (dir
-       (let ((inhibit-message t))
-         (ivy--cd dir)))
-      ((ivy--directory-enter))
-      ((unless (string= ivy-text "")
-         ;; Obsolete since 26.1 and removed in 28.1.
-         (defvar tramp-completion-mode)
-         (with-no-warnings
-           (let* ((tramp-completion-mode t)
-                  (file (expand-file-name
-                         (if (> ivy--length 0) (ivy-state-current ivy-last) ivy-text)
-                         ivy--directory)))
-             (when (ignore-errors (file-exists-p file))
-               (if (file-directory-p file)
-                   (ivy--cd (file-name-as-directory file))
-                 (ivy-done))
-               ivy-text)))))
-      ((or (and (equal ivy--directory "/")
-                (string-match-p "\\`[^/]+:.*:.*\\'" ivy-text))
-           (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
-       (ivy-done))
-      ((ivy--tramp-prefix-p)
-       (ivy--tramp-candidates))
-      (t
-       (ivy-done)))))
+    (cond ((equal (ivy-state-current ivy-last) (ivy-state-def ivy-last))
+           (ivy-done))
+          ((and (ivy-state-require-match ivy-last)
+                (equal ivy-text "")
+                (null ivy--old-cands))
+           (ivy-immediate-done))
+          (dir
+           (let ((inhibit-message t))
+             (ivy--cd dir)))
+          ((ivy--directory-enter))
+          ((unless (string= ivy-text "")
+             ;; Obsolete since 26.1 and removed in 28.1.
+             (defvar tramp-completion-mode)
+             (with-no-warnings
+               (let* ((tramp-completion-mode t)
+                      (file (expand-file-name
+                             (if (> ivy--length 0) (ivy-state-current ivy-last) ivy-text)
+                             ivy--directory)))
+                 (when (ignore-errors (file-exists-p file))
+                   (if (file-directory-p file)
+                       (ivy--cd (file-name-as-directory file))
+                     (ivy-done))
+                   ivy-text)))))
+          ((or (and (equal ivy--directory "/")
+                    (string-match-p "\\`[^/]+:.*:.*\\'" ivy-text))
+               (string-match-p "\\`/[^/]+:.*:.*\\'" ivy-text))
+           (ivy-done))
+          ((ivy--tramp-prefix-p)
+           (ivy--tramp-candidates))
+          (t
+           (ivy-done)))))
 
 (defun ivy--tramp-prefix-p ()
   (or (and (equal ivy--directory "/")
@@ -1596,24 +1595,25 @@ If so, move to that directory, while keeping only the file name."
 
 (defun ivy--cd (dir)
   "When completing file names, move to directory DIR."
-  (if (null ivy--directory)
-      (error "Unexpected")
-    (push dir ivy--directory-hist)
-    (setq ivy--old-cands nil)
-    (setq ivy--old-re nil)
-    (ivy-set-index 0)
-    (setq ivy--all-candidates
-          (append
-           (ivy--sorted-files (setq ivy--directory dir))
-           (when (and (string= dir "/") (featurep 'tramp))
-             (sort
-              (mapcar
-               (lambda (s) (substring s 1))
-               (tramp-get-completion-methods ""))
-              #'string<))))
-    (ivy-set-text "")
-    (setf (ivy-state-directory ivy-last) dir)
-    (delete-minibuffer-contents)))
+  (if (ivy--completing-fname-p)
+      (progn
+        (push dir ivy--directory-hist)
+        (setq ivy--old-cands nil)
+        (setq ivy--old-re nil)
+        (ivy-set-index 0)
+        (setq ivy--all-candidates
+              (append
+               (ivy--sorted-files (setq ivy--directory dir))
+               (when (and (string= dir "/") (featurep 'tramp))
+                 (sort
+                  (mapcar
+                   (lambda (s) (substring s 1))
+                   (tramp-get-completion-methods ""))
+                  #'string<))))
+        (ivy-set-text "")
+        (setf (ivy-state-directory ivy-last) dir)
+        (delete-minibuffer-contents))
+    (error "Unexpected")))
 
 (defun ivy--parent-dir (filename)
   "Return parent directory of absolute FILENAME."
@@ -3689,7 +3689,7 @@ CANDS are the current candidates."
                      ((cl-position (string-remove-prefix "^" re-str)
                                    cands
                                    :test #'ivy--case-fold-string=))
-                     ((and ivy--directory
+                     ((and (ivy--completing-fname-p)
                            (cl-position (concat re-str "/")
                                         cands
                                         :test #'ivy--case-fold-string=)))
