@@ -3170,6 +3170,11 @@ Note: don't use single quotes for the regex."
           (repeat :tag "List to be used in `process-file'." string)
           (string :tag "String to be used in `shell-command-to-string'.")))
 
+(defvar counsel-rg-target-function #'counsel--rg-targets
+  "A function that determines the target files for `counsel-rg'.
+The function should take no arguments and return a list of file
+names for `counsel-rg' to operate on.")
+
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
   (when (eq major-mode 'dired-mode)
@@ -3196,9 +3201,12 @@ Example input with inclusion and exclusion file patterns:
   (interactive)
   (let ((counsel-ag-base-command
          (if (listp counsel-rg-base-command)
-             (append counsel-rg-base-command (counsel--rg-targets))
+             (append counsel-rg-base-command
+                     (funcall counsel-rg-target-function))
            (concat counsel-rg-base-command " "
-                   (mapconcat #'shell-quote-argument (counsel--rg-targets) " "))))
+                   (mapconcat #'shell-quote-argument
+                              (funcall counsel-rg-target-function)
+                              " "))))
         (counsel--grep-tool-look-around
          (let ((rg (car (if (listp counsel-rg-base-command) counsel-rg-base-command
                           (split-string counsel-rg-base-command))))
