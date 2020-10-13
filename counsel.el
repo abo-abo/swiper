@@ -6182,6 +6182,17 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
   "When non-nil, `counsel-switch-buffer' will preview virtual buffers."
   :type 'boolean)
 
+(defcustom counsel-switch-buffer-display-empty-buffer-when-no-preview nil
+  "How `counsel-switch-buffer' behaves when not displaying a preview.
+
+When non-nil, `counsel-switch-buffer' will display an empty
+buffer when the current candidate is not previewed (either a
+virtual buffer when
+`counsel-switch-buffer-preview-virtual-buffers' is nil or a large
+file).  When nil, `counsel-switch-buffer' will instead display
+the buffer it was called from."
+  :type 'boolean)
+
 (defun counsel--switch-buffer-update-fn ()
   (unless counsel--switch-buffer-previous-buffers
     (setq counsel--switch-buffer-previous-buffers (buffer-list)))
@@ -6206,7 +6217,10 @@ The buffers are those opened during a session of `counsel-switch-buffer'."
            (message ""))))
       (t
        (with-ivy-window
-         (switch-to-buffer (ivy-state-buffer ivy-last)))))))
+         (if counsel-switch-buffer-display-empty-buffer-when-no-preview
+             (push (switch-to-buffer " *counsel no preview*")
+                   counsel--switch-buffer-temporary-buffers)
+           (switch-to-buffer (ivy-state-buffer ivy-last))))))))
 
 ;;;###autoload
 (defun counsel-switch-buffer ()
