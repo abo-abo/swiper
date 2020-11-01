@@ -1096,8 +1096,7 @@ See `describe-buffer-bindings' for further information."
                        "<vertical-scroll-bar>" "<horizontal-scroll-bar>")))
         res)
     (with-temp-buffer
-      (let ((standard-output (current-buffer))
-            (indent-tabs-mode t))
+      (let ((indent-tabs-mode t))
         (describe-buffer-bindings buffer prefix))
       (goto-char (point-min))
       ;; Skip the "Key translations" section
