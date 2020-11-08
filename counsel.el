@@ -4432,13 +4432,18 @@ Signal a `buffer-read-only' error if called from a read-only
 buffer position."
   (with-ivy-window
     (barf-if-buffer-read-only)
-    (setq last-command 'yank)
     (setq yank-window-start (window-start))
+    (unless (eq last-command 'yank)
+      ;; Avoid unexpected deletions with `yank-handler' properties.
+      (setq yank-undo-function nil))
     (condition-case nil
-        ;; Avoid unexpected additions to `kill-ring'
-        (let (interprogram-paste-function)
+        (let (;; Deceive `yank-pop'.
+              (last-command 'yank)
+              ;; Avoid unexpected additions to `kill-ring'.
+              interprogram-paste-function)
           (yank-pop (counsel--yank-pop-position s)))
       (error
+       ;; Support strings not present in the kill ring.
        (insert s)))
     (when (funcall (if counsel-yank-pop-after-point #'> #'<)
                    (point) (mark t))
