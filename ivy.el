@@ -3976,7 +3976,8 @@ in this case."
               (let ((beg (match-beginning i))
                     (end (match-end i)))
                 (when (and beg end)
-                  (unless (and prev (= prev beg))
+                  (unless (or (and prev (= prev beg))
+                              (zerop i))
                     (cl-incf n))
                   (let ((face
                          (cond ((and ivy-use-group-face-if-no-groups
