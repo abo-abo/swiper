@@ -1713,6 +1713,7 @@ Prioritize directories."
            (if (consp y) (car y) y)))
 
 (defun ivy-length< (x y)
+  "Compares the length of x and y, or their CARs when given cons cells."
   (< (length (if (consp x) (car x) x))
      (length (if (consp y) (car y) y))))
 
