@@ -4672,7 +4672,7 @@ PREFIX is used to create the key."
 
 (defun counsel-imenu-action-other-window (x)
   (with-ivy-window
-    (switch-to-buffer-other-window (buffer-name))
+    (pop-to-buffer (current-buffer) t)
     (imenu (cdr x))))
 
 (ivy-add-actions 'counsel-imenu '(("j" counsel-imenu-action-other-window "other window")))
@@ -4906,7 +4906,7 @@ An extra action allows to switch to the process buffer."
 
 (defun counsel-semantic-action-other-window (x)
     (with-ivy-window
-      (switch-to-buffer-other-window (buffer-name))
+      (pop-to-buffer (current-buffer) t)
       (goto-char (semantic-tag-start (cdr x)))))
 
 (ivy-add-actions 'counsel-semantic '(("j" counsel-semantic-action-other-window "other window")))
