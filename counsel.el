@@ -4670,6 +4670,13 @@ PREFIX is used to create the key."
                `(("Functions" ,@fns)))
       items)))
 
+(defun counsel-imenu-action-other-window (x)
+  (with-ivy-window
+    (switch-to-buffer-other-window (buffer-name))
+    (imenu (cdr x))))
+
+(ivy-add-actions 'counsel-imenu '(("j" counsel-imenu-action-other-window "other window")))
+
 (defun counsel-imenu-action (x)
   (with-ivy-window
     (imenu (cdr x))))
@@ -4896,6 +4903,13 @@ An extra action allows to switch to the process buffer."
 (declare-function semantic-fetch-tags "semantic")
 (declare-function semantic-format-tag-summarize "semantic/format")
 (declare-function semantic-active-p "semantic/fw")
+
+(defun counsel-semantic-action-other-window (x)
+    (with-ivy-window
+      (switch-to-buffer-other-window (buffer-name))
+      (goto-char (semantic-tag-start (cdr x)))))
+
+(ivy-add-actions 'counsel-semantic '(("j" counsel-semantic-action-other-window "other window")))
 
 (defun counsel-semantic-action (x)
   "Got to semantic TAG."
@@ -5179,6 +5193,13 @@ the face to apply."
 ;;** `counsel-ibuffer'
 (defvar counsel-ibuffer--buffer-name nil
   "Name of the buffer to use for `counsel-ibuffer'.")
+
+
+(defun counsel-ibuffer-kill-buffer (x)
+  (kill-buffer (cdr x)))
+
+(ivy-add-actions 'counsel-ibuffer
+                 '(("k" counsel-ibuffer-kill-buffer "kill buffer")))
 
 ;;;###autoload
 (defun counsel-ibuffer (&optional name)
