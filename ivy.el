@@ -1714,8 +1714,8 @@ Prioritize directories."
 
 (defun ivy-length< (x y)
   "Compares the length of x and y, or their CARs when given cons cells."
-  (< (length (if (consp x) (car x) x))
-     (length (if (consp y) (car y) y))))
+  (< (string-width (if (consp x) (car x) x))
+     (string-width (if (consp y) (car y) y))))
 
 (define-obsolete-function-alias 'ivy-sort-file-function-using-ido
     'ido-file-extension-lessp "<2019-10-12 Sat>")
