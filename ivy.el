@@ -2226,7 +2226,7 @@ This is useful for recursive `ivy-read'."
          (dynamic-collection (ivy-state-dynamic-collection state))
          (require-match (ivy-state-require-match state))
          (caller (or (ivy-state-caller state) this-command))
-         (sort (or (ivy-state-sort state) (assoc caller ivy-sort-functions-alist)))
+         (sort (or (ivy-state-sort state) (ivy--sort-function caller)))
          (initial-input
           (or (ivy-state-initial-input state)
               (let ((init (ivy-alist-setting ivy-initial-inputs-alist caller)))
