@@ -1752,10 +1752,10 @@ See also `ivy-sort-max-size'."
                  (function :tag "Custom function")
                  (repeat (function :tag "Custom function")))))
 
-(defun ivy--sort-function (collection)
+(defun ivy--sort-function (collection &optional ignore-last-state)
   "Retrieve sort function for COLLECTION from `ivy-sort-functions-alist'."
   (let ((entry (cdr (or (assq collection ivy-sort-functions-alist)
-                        (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist)
+                        (when (not ignore-last-state) (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist))
                         (assq t ivy-sort-functions-alist)))))
     (and (or (functionp entry)
              (functionp (setq entry (car-safe entry))))
@@ -2226,7 +2226,7 @@ This is useful for recursive `ivy-read'."
          (dynamic-collection (ivy-state-dynamic-collection state))
          (require-match (ivy-state-require-match state))
          (caller (or (ivy-state-caller state) this-command))
-         (sort (or (ivy-state-sort state) (ivy--sort-function caller)))
+         (sort (or (ivy-state-sort state) (ivy--sort-function caller t)))
          (initial-input
           (or (ivy-state-initial-input state)
               (let ((init (ivy-alist-setting ivy-initial-inputs-alist caller)))
