@@ -1576,15 +1576,14 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
 (defun counsel-git-grep-switch-cmd ()
   "Set `counsel-git-grep-cmd' to a different value."
   (interactive)
-  (let ((enable-recursive-minibuffers t))
-    (setq counsel-git-grep-cmd
-          (ivy-read "cmd: " counsel-git-grep-cmd-history
-                    :history 'counsel-git-grep-cmd-history))
-    (setq counsel-git-grep-cmd-history
-          (delete-dups counsel-git-grep-cmd-history))
-    (unless (ivy-state-dynamic-collection ivy-last)
-      (setq ivy--all-candidates
-            (all-completions "" 'counsel-git-grep-function)))))
+  (setq counsel-git-grep-cmd
+        (ivy-read "cmd: " counsel-git-grep-cmd-history
+                  :history 'counsel-git-grep-cmd-history))
+  (setq counsel-git-grep-cmd-history
+        (delete-dups counsel-git-grep-cmd-history))
+  (unless (ivy-state-dynamic-collection ivy-last)
+    (setq ivy--all-candidates
+          (all-completions "" 'counsel-git-grep-function))))
 
 (defun counsel--normalize-grep-match (str)
   ;; Prepend ./ if necessary:
