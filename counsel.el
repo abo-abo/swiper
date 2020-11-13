@@ -1509,6 +1509,7 @@ When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command."
   (interactive)
   (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
+        (enable-recursive-minibuffers t)
         proj)
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
