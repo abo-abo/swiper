@@ -86,6 +86,21 @@
   "Face for current `swiper' line."
   :group 'ivy-faces)
 
+(defface swiper-line-number-face
+  (cond
+    ((facep 'line-number) '((t :inherit line-number)))
+    ((facep 'linum)       '((t :inherit linum)))
+    (:else                '((t :inherit (shadow default)))))
+  "Face for `swiper' line numbers."
+  :group 'ivy-faces)
+
+(defface swiper-current-line-number-face
+  (if (facep 'line-number-current-line)
+      '((t :inherit line-number-current-line))
+    '((t :inherit swiper-line-number-face)))
+  "Face for current `swiper' line number."
+  :group 'ivy-faces)
+
 (defcustom swiper-faces '(swiper-match-face-1
                           swiper-match-face-2
                           swiper-match-face-3
@@ -514,6 +529,28 @@ such as `scroll-conservatively' are set to a high value.")
   "A predicate that decides whether `line-move' or `forward-line' is used.
 Note that `line-move' can be very slow.")
 
+(defun swiper--format-function (candidates)
+  "Format function for swiper CANDIDATES.
+
+Highlight current line number as in `display-line-numbers-mode'."
+  (ivy--format-function-generic
+   (lambda (str)
+     (let ((ln (if swiper-include-line-number-in-search str
+                 (copy-sequence (get-text-property 0 'display str)))))
+       (when (and ln
+                  (eq (get-text-property 0 'face ln)
+                      'swiper-line-number-face))
+         (put-text-property 0 (next-single-property-change 0 'face
+                                                           ln (length ln))
+                            'face 'swiper-current-line-number-face
+                            ln)
+         (unless swiper-include-line-number-in-search
+           (put-text-property 0 1 'display ln str))))
+     (ivy--add-face str 'ivy-current-match))
+   #'identity
+   candidates
+   "\n"))
+
 (defun swiper--candidates (&optional numbers-width)
   "Return a list of this buffer lines.
 
@@ -536,7 +573,7 @@ numbers; replaces calculating the width from buffer line count."
       (setq swiper--width (or numbers-width
                               (1+ (floor (log n-lines 10)))))
       (setq swiper--format-spec
-            (format "%%-%dd " swiper--width))
+            (format " %%%dd " swiper--width))
       (let ((line-number 1)
             (advancer (if swiper-use-visual-line
                           (lambda (arg) (line-move arg t))
@@ -551,6 +588,9 @@ numbers; replaces calculating the width from buffer line count."
                 (setq str (ivy-cleanup-string str))
                 (let ((line-number-str
                        (format swiper--format-spec line-number)))
+                  (put-text-property 0 (length line-number-str)
+                                     'face 'swiper-line-number-face
+                                     line-number-str)
                   (if swiper-include-line-number-in-search
                       (setq str (concat line-number-str str))
                     (put-text-property
@@ -830,7 +870,8 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   :occur #'swiper-occur
   :update-fn #'swiper--update-input-ivy
   :unwind-fn #'swiper--cleanup
-  :index-fn #'ivy-recompute-index-swiper)
+  :index-fn #'ivy-recompute-index-swiper
+  :format-fn #'swiper--format-function)
 
 (defun swiper-toggle-face-matching ()
   "Toggle matching only the candidates with `swiper-invocation-face'."
