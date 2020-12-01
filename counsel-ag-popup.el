@@ -53,22 +53,25 @@
    transient-args
    " "))
 
+(defconst counsel-ag-popup-file-types
+  '("actionscript" "ada" "asciidoc" "asm" "batch" "bitbake" "bro" "cc" "cfmx"
+    "chpl" "clojure" "coffee" "cpp" "crystal" "csharp" "css" "cython" "delphi"
+    "dot" "ebuild" "elisp" "elixir" "elm" "erlang" "factor" "fortran" "fsharp"
+    "gettext" "glsl" "go" "groovy" "haml" "handlebars" "haskell" "haxe" "hh"
+    "html" "ini" "ipython" "jade" "java" "js" "json" "jsp" "julia" "kotlin"
+    "less" "liquid" "lisp" "log" "lua" "m4" "make" "mako" "markdown" "mason"
+    "matlab" "mathematica" "md" "mercury" "nim" "nix" "objc" "objcpp" "ocaml"
+    "octave" "org" "parrot" "perl" "php" "pike" "plist" "plone" "proto" "puppet"
+    "python" "qml" "racket" "rake" "restructuredtext" "rs" "r" "rdoc" "ruby"
+    "rust" "salt" "sass" "scala" "scheme" "shell" "smalltalk" "sml" "sql"
+    "stylus" "swift" "tcl" "tex" "tt" "toml" "ts" "twig" "vala" "vb" "velocity"
+    "verilog" "vhdl" "vim" "wix" "wsdl" "wadl" "xml" "yaml"))
+
 (defun counsel-ag-popup-read-file-types (prompt initial-input history)
   "Prompt for Ag file type with PROMPT INITIAL-INPUT HISTORY."
   (completing-read-multiple
    prompt
-   '("actionscript" "ada" "asciidoc" "asm" "batch" "bitbake" "bro" "cc" "cfmx"
-     "chpl" "clojure" "coffee" "cpp" "crystal" "csharp" "css" "cython" "delphi"
-     "dot" "ebuild" "elisp" "elixir" "elm" "erlang" "factor" "fortran" "fsharp"
-     "gettext" "glsl" "go" "groovy" "haml" "handlebars" "haskell" "haxe" "hh"
-     "html" "ini" "ipython" "jade" "java" "js" "json" "jsp" "julia" "kotlin"
-     "less" "liquid" "lisp" "log" "lua" "m4" "make" "mako" "markdown" "mason"
-     "matlab" "mathematica" "md" "mercury" "nim" "nix" "objc" "objcpp" "ocaml"
-     "octave" "org" "parrot" "perl" "php" "pike" "plist" "plone" "proto" "puppet"
-     "python" "qml" "racket" "rake" "restructuredtext" "rs" "r" "rdoc" "ruby"
-     "rust" "salt" "sass" "scala" "scheme" "shell" "smalltalk" "sml" "sql"
-     "stylus" "swift" "tcl" "tex" "tt" "toml" "ts" "twig" "vala" "vb" "velocity"
-     "verilog" "vhdl" "vim" "wix" "wsdl" "wadl" "xml" "yaml")
+   counsel-ag-popup-file-types
    nil nil
    initial-input
    history))
