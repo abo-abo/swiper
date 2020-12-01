@@ -20,11 +20,8 @@
 
 ;;; Commentary:
 
-;; Interactive search with ag.
-;; To enable, put this code in your init file:
-;; (use-package counsel-ag-popup
-;;  :after counsel
-;;  :bind ("C-c s" . counsel-ag-popup))
+;; Just call the interactive function `counsel-ag-popup' and use the
+;; popup to configure the search.
 
 ;;; Code:
 
