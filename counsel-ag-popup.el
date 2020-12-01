@@ -82,7 +82,7 @@ All remaining arguments are treated as file types.
 They become the value of this argument.")
 
 (cl-defmethod transient-format-value ((obj counsel-ag-popup-file-types))
-  "Format OBJ’s value for display and return the result."
+  "Format OBJ's value for display and return the result."
   (let ((argument (oref obj argument)))
     (if-let ((value (oref obj value)))
         (propertize (mapconcat (lambda (f) (concat argument f))
@@ -105,7 +105,7 @@ which is not the same as nil."
     (cons (oref obj argument) value)))
 
 (transient-define-argument counsel-ag-popup:-- ()
-  "Restrict the search to a certain types of files."
+  "Restrict the search to certain types of files."
   :description "Limit to file types"
   :class 'counsel-ag-popup-file-types
   :key "--"
@@ -115,7 +115,7 @@ which is not the same as nil."
   :reader 'counsel-ag-popup-read-file-types)
 
 (transient-define-prefix counsel-ag-popup ()
-  "Recursive search with ag."
+  "Recursive search with Ag."
   ["Output options"
    ("-A" "After" "--after=" transient-read-number-N+)
    ("-B" "Before" "--before=" transient-read-number-N+)
