@@ -112,7 +112,7 @@ which is not the same as nil."
   :argument "--"
   :prompt "Limit to file type(s): "
   :multi-value t
-  :reader 'counsel-ag-popup-read-file-types)
+  :reader #'counsel-ag-popup-read-file-types)
 
 (transient-define-prefix counsel-ag-popup ()
   "Recursive search with Ag."
