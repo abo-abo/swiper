@@ -1,6 +1,6 @@
 ;;; counsel-ag-popup.el --- Interactive search with ag -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2019  Eder Elorriaga
+;; Copyright (C) 2019-2020  Eder Elorriaga
 
 ;; Author: Eder Elorriaga <gexplorer8@gmail.com>
 ;; Keywords: convenience, matching, tools
