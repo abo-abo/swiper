@@ -47,7 +47,7 @@
   (mapconcat
    (lambda (arg)
      (if (listp arg)
-         (let ((args (last arg (- (length arg) 1))))
+         (let ((args (cdr arg)))
            (mapconcat (lambda (x) (concat "--" x)) args " "))
        arg))
    transient-args
