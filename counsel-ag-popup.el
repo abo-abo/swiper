@@ -74,8 +74,9 @@
    prompt
    counsel-ag-popup-file-types
    nil nil
-   initial-input
-   history))
+   nil
+   history
+   initial-input))
 
 (defclass counsel-ag-popup-file-types (transient-infix) ()
   "Class used for the \"--\" argument.
