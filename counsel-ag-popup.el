@@ -68,15 +68,15 @@
     "verilog" "vhdl" "vim" "wix" "wsdl" "wadl" "xml" "yaml")
   "List of supported file types.")
 
-(defun counsel-ag-popup-read-file-types (prompt initial-input history)
-  "Prompt for Ag file type with PROMPT INITIAL-INPUT HISTORY."
+(defun counsel-ag-popup-read-file-types (prompt def history)
+  "Prompt for Ag file type with PROMPT DEF HISTORY."
   (completing-read-multiple
    prompt
    counsel-ag-popup-file-types
    nil nil
    nil
    history
-   initial-input))
+   def))
 
 (defclass counsel-ag-popup-file-types (transient-infix) ()
   "Class used for the \"--\" argument.
