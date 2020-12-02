@@ -53,7 +53,7 @@
    transient-args
    " "))
 
-(defconst counsel-ag-popup-file-types
+(defvar counsel-ag-popup-file-types
   '("actionscript" "ada" "asciidoc" "asm" "batch" "bitbake" "bro" "cc" "cfmx"
     "chpl" "clojure" "coffee" "cpp" "crystal" "csharp" "css" "cython" "delphi"
     "dot" "ebuild" "elisp" "elixir" "elm" "erlang" "factor" "fortran" "fsharp"
@@ -65,7 +65,8 @@
     "python" "qml" "racket" "rake" "restructuredtext" "rs" "r" "rdoc" "ruby"
     "rust" "salt" "sass" "scala" "scheme" "shell" "smalltalk" "sml" "sql"
     "stylus" "swift" "tcl" "tex" "tt" "toml" "ts" "twig" "vala" "vb" "velocity"
-    "verilog" "vhdl" "vim" "wix" "wsdl" "wadl" "xml" "yaml"))
+    "verilog" "vhdl" "vim" "wix" "wsdl" "wadl" "xml" "yaml")
+  "List of supported file types.")
 
 (defun counsel-ag-popup-read-file-types (prompt initial-input history)
   "Prompt for Ag file type with PROMPT INITIAL-INPUT HISTORY."
