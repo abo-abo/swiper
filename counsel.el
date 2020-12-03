@@ -5904,6 +5904,7 @@ as arguments."
           (const :tag "Command : Name - Comment" counsel-linux-app-format-function-default)
           (const :tag "Name - Comment (Command)" counsel-linux-app-format-function-name-first)
           (const :tag "Name - Comment" counsel-linux-app-format-function-name-only)
+          (const :tag "Name - Comment (Pretty)" counsel-linux-app-format-function-name-pretty)
           (const :tag "Command" counsel-linux-app-format-function-command-only)
           (function :tag "Custom")))
 
@@ -6006,6 +6007,16 @@ EXEC is the command to launch the application."
 (defun counsel-linux-app-format-function-command-only (_name _comment exec)
   "Display only the command EXEC when formatting Linux application names."
   exec)
+
+(defun counsel-linux-app-format-function-name-pretty (name comment _exec)
+  "Format Linux application names with the NAME (and COMMENT) only, but pretty."
+  (format "% -45s%s"
+          (propertize
+           (ivy--truncate-string name 45)
+           'face 'counsel-application-name)
+          (if comment
+              (concat ": " comment)
+            "")))
 
 (defun counsel-linux-apps-list-desktop-files ()
   "Return an alist of all Linux applications.
