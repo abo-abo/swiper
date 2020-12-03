@@ -6137,7 +6137,7 @@ Any desktop entries that fail to parse are recorded in
   "Launch a Linux desktop application, similar to Alt-<F2>.
 When ARG is non-nil, ignore NoDisplay property in *.desktop files."
   (interactive "P")
-  (ivy-read "Run a command: " (counsel-linux-apps-list)
+  (ivy-read "Run application: " (counsel-linux-apps-list)
             :predicate (unless arg (lambda (x) (get-text-property 0 'visible (car x))))
             :action #'counsel-linux-app-action-default
             :caller 'counsel-linux-app))
