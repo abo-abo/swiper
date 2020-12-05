@@ -3796,7 +3796,7 @@ include attachments of other Org buffers."
   (let (dirs)
     (save-excursion
       (goto-char (point-min))
-      (while (re-search-forward "^:\\(ATTACH_DIR\\|ID\\):[\t ]+\\(.*\\)$" nil t)
+      (while (re-search-forward "^:\\(?:ATTACH_DIR\\|ID\\):[\t ]+.*$" nil t)
         (let ((dir (org-attach-dir)))
           (when dir
             (push dir dirs)))))
