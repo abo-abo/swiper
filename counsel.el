@@ -1252,7 +1252,13 @@ selected face."
 
 ;;* Git
 ;;** `counsel-git'
-(defvar counsel-git-cmd "git ls-files -z --full-name --"
+(defvar counsel-git-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-x C-d") 'counsel-cd)
+    map)
+  "Additional keybindings for `counsel-git'.")
+
+(defvar counsel-git-cmd "git ls-files -z --"
   "Command for `counsel-git'.")
 
 (ivy-set-actions
@@ -1280,14 +1286,18 @@ Like `locate-dominating-file', but DIR defaults to
      t)))
 
 ;;;###autoload
-(defun counsel-git (&optional initial-input)
+(defun counsel-git (&optional initial-input initial-directory)
   "Find file in the current Git repository.
-INITIAL-INPUT can be given as the initial minibuffer input."
+INITIAL-INPUT can be given as the initial minibuffer input.
+INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
   (interactive)
   (counsel-require-program counsel-git-cmd)
-  (let ((default-directory (counsel-locate-git-root)))
+  (let ((enable-recursive-minibuffers t)
+        (default-directory (or initial-directory
+                               (counsel-locate-git-root))))
     (ivy-read "Find file: " (counsel-git-cands default-directory)
               :initial-input initial-input
+              :keymap counsel-git-map
               :action #'counsel-git-action
               :caller 'counsel-git)))
 
