@@ -4031,7 +4031,7 @@ This variable has no effect unless
 ;; Misc. Emacs
 ;;** `counsel-mark-ring'
 (defface counsel--mark-ring-highlight
-  '((t (:inherit highlight)))
+  '((t :inherit highlight))
   "Face for current `counsel-mark-ring' line."
   :group 'ivy-faces)
 
@@ -4588,7 +4588,7 @@ matching the register's value description against a regexp in
 
 ;;** `counsel-evil-registers'
 (defface counsel-evil-register-face
-  '((t (:inherit counsel-outline-1)))
+  '((t :inherit counsel-outline-1))
   "Face for highlighting `evil' registers in ivy."
   :group 'ivy-faces)
 

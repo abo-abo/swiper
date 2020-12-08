@@ -42,47 +42,47 @@
   :prefix "swiper-")
 
 (defface swiper-match-face-1
-  '((t (:inherit lazy-highlight)))
+  '((t :inherit lazy-highlight))
   "The background face for `swiper' matches."
   :group 'ivy-faces)
 
 (defface swiper-match-face-2
-  '((t (:inherit isearch)))
+  '((t :inherit isearch))
   "Face for `swiper' matches modulo 1."
   :group 'ivy-faces)
 
 (defface swiper-match-face-3
-  '((t (:inherit match)))
+  '((t :inherit match))
   "Face for `swiper' matches modulo 2."
   :group 'ivy-faces)
 
 (defface swiper-match-face-4
-  '((t (:inherit isearch-fail)))
+  '((t :inherit isearch-fail))
   "Face for `swiper' matches modulo 3."
   :group 'ivy-faces)
 
 (defface swiper-background-match-face-1
-  '((t (:inherit swiper-match-face-1)))
+  '((t :inherit swiper-match-face-1))
   "The background face for non-current `swiper' matches."
   :group 'ivy-faces)
 
 (defface swiper-background-match-face-2
-  '((t (:inherit swiper-match-face-2)))
+  '((t :inherit swiper-match-face-2))
   "Face for non-current `swiper' matches modulo 1."
   :group 'ivy-faces)
 
 (defface swiper-background-match-face-3
-  '((t (:inherit swiper-match-face-3)))
+  '((t :inherit swiper-match-face-3))
   "Face for non-current `swiper' matches modulo 2."
   :group 'ivy-faces)
 
 (defface swiper-background-match-face-4
-  '((t (:inherit swiper-match-face-4)))
+  '((t :inherit swiper-match-face-4))
   "Face for non-current `swiper' matches modulo 3."
   :group 'ivy-faces)
 
 (defface swiper-line-face
-  '((t (:inherit highlight)))
+  '((t :inherit highlight))
   "Face for current `swiper' line."
   :group 'ivy-faces)
 
