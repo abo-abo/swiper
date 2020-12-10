@@ -1986,15 +1986,14 @@ Skip some dotfiles unless `ivy-text' requires them."
 
 (defun counsel-find-file-action (x)
   "Find file X."
-  (with-ivy-window
-    (cond ((and counsel-find-file-speedup-remote
-                (file-remote-p ivy--directory))
-           (let ((find-file-hook nil))
-             (find-file (expand-file-name x ivy--directory))))
-          ((member (file-name-extension x) counsel-find-file-extern-extensions)
-           (counsel-find-file-extern x))
-          (t
-           (find-file (expand-file-name x ivy--directory))))))
+  (cond ((and counsel-find-file-speedup-remote
+              (file-remote-p ivy--directory))
+         (let ((find-file-hook nil))
+           (find-file (expand-file-name x ivy--directory))))
+        ((member (file-name-extension x) counsel-find-file-extern-extensions)
+         (counsel-find-file-extern x))
+        (t
+         (find-file (expand-file-name x ivy--directory)))))
 
 (defun counsel--preselect-file ()
   "Return candidate to preselect during filename completion.
