@@ -5976,7 +5976,9 @@ NAME is the name of the application, COMMENT its comment and EXEC
 the command to launch it."
   (format "% -45s: %s%s"
           (propertize
-           (ivy--truncate-string exec 45)
+           (ivy--truncate-string
+            (replace-regexp-in-string "env +[^ ]+ +" "" exec)
+            45)
            'face 'counsel-application-name)
           name
           (if comment
