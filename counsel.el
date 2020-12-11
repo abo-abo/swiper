@@ -1812,11 +1812,25 @@ currently checked out."
     (define-key map [remap undo] 'counsel-find-file-undo)
     map))
 
+;;* File
+;;** `counsel-file-jump'
+(defvar counsel-file-jump-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "`") #'counsel-file-find-from-jump)
+    map))
+
 (defun counsel-file-jump-from-find ()
   "Switch to `counsel-file-jump' from `counsel-find-file'."
   (interactive)
   (ivy-quit-and-run
     (counsel-file-jump ivy-text (ivy-state-directory ivy-last))))
+
+(defun counsel-file-find-from-jump ()
+  "Switch to `counsel-find-file' from `counsel-file-jump'."
+  (interactive)
+  (ivy-quit-and-run
+    (counsel-find-file ivy-text (ivy-state-directory ivy-last)))
+  )
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
@@ -2011,11 +2025,11 @@ The preselect behavior can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
-(defun counsel--find-file-1 (prompt initial-input action caller)
+(defun counsel--find-file-1 (prompt initial-input action caller initial-directory)
   (let ((default-directory
-         (if (eq major-mode 'dired-mode)
-             (dired-current-directory)
-           default-directory)))
+          (if (eq major-mode 'dired-mode)
+              (dired-current-directory)
+            (or initial-directory default-directory))))
     (ivy-read prompt #'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -2027,14 +2041,15 @@ The preselect behavior can be customized via user options
               :caller caller)))
 
 ;;;###autoload
-(defun counsel-find-file (&optional initial-input)
+(defun counsel-find-file (&optional initial-input initial-directory)
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
   (counsel--find-file-1
    "Find file: " initial-input
    #'counsel-find-file-action
-   'counsel-find-file))
+   'counsel-find-file
+   initial-directory))
 
 (ivy-configure 'counsel-find-file
   :parent 'read-file-name-internal
@@ -2864,6 +2879,7 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
               :preselect (counsel--preselect-file)
               :require-match 'confirm-after-completion
               :history 'file-name-history
+              :keymap counsel-file-jump-map
               :caller 'counsel-file-jump)))
 
 (ivy-set-actions
