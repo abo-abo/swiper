@@ -1816,8 +1816,9 @@ currently checked out."
 ;;** `counsel-file-jump'
 (defvar counsel-file-jump-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "`") #'counsel-file-find-from-jump)
-    map))
+    (define-key map (kbd "`") #'counsel-find-file-from-jump)
+    map)
+  "Key bindings to be used when in a file-jump minibuffer.")
 
 (defun counsel-file-jump-from-find ()
   "Switch to `counsel-file-jump' from `counsel-find-file'."
@@ -1825,12 +1826,11 @@ currently checked out."
   (ivy-quit-and-run
     (counsel-file-jump ivy-text (ivy-state-directory ivy-last))))
 
-(defun counsel-file-find-from-jump ()
+(defun counsel-find-file-from-jump ()
   "Switch to `counsel-find-file' from `counsel-file-jump'."
   (interactive)
   (ivy-quit-and-run
-    (counsel-find-file ivy-text (ivy-state-directory ivy-last)))
-  )
+    (counsel-find-file ivy-text (ivy-state-directory ivy-last))))
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
@@ -2027,9 +2027,9 @@ The preselect behavior can be customized via user options
 
 (defun counsel--find-file-1 (prompt initial-input action caller &optional initial-directory)
   (let ((default-directory
-          (if (eq major-mode 'dired-mode)
-              (dired-current-directory)
-            (or initial-directory default-directory))))
+         (if (eq major-mode 'dired-mode)
+             (dired-current-directory)
+           (or initial-directory default-directory))))
     (ivy-read prompt #'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
