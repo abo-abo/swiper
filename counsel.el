@@ -2025,7 +2025,7 @@ The preselect behavior can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
-(defun counsel--find-file-1 (prompt initial-input action caller initial-directory)
+(defun counsel--find-file-1 (prompt initial-input action caller &optional initial-directory)
   (let ((default-directory
           (if (eq major-mode 'dired-mode)
               (dired-current-directory)
