@@ -2025,11 +2025,11 @@ The preselect behavior can be customized via user options
         buffer-file-name
         (file-name-nondirectory buffer-file-name))))
 
-(defun counsel--find-file-1 (prompt initial-input action caller &optional initial-directory)
+(defun counsel--find-file-1 (prompt initial-input action caller)
   (let ((default-directory
          (if (eq major-mode 'dired-mode)
              (dired-current-directory)
-           (or initial-directory default-directory))))
+           default-directory)))
     (ivy-read prompt #'read-file-name-internal
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
@@ -2045,11 +2045,10 @@ The preselect behavior can be customized via user options
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
-  (counsel--find-file-1
-   "Find file: " initial-input
-   #'counsel-find-file-action
-   'counsel-find-file
-   initial-directory))
+  (let ((default-directory (or initial-directory default-directory)))
+    (counsel--find-file-1 "Find file: " initial-input
+                          #'counsel-find-file-action
+                          'counsel-find-file)))
 
 (ivy-configure 'counsel-find-file
   :parent 'read-file-name-internal
