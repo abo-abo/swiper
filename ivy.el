@@ -5115,7 +5115,7 @@ EVENT gives the mouse position."
   (ivy--occur-press-update-window)
   (when (save-excursion
           (beginning-of-line)
-          (looking-at "\\(?:./\\|    \\)\\(.*\\)$"))
+          (looking-at "\\(?:.[/\\]\\|    \\)\\(.*\\)$"))
     (let* ((ivy-last ivy-occur-last)
            (ivy-text (ivy-state-text ivy-last))
            (str (buffer-substring
