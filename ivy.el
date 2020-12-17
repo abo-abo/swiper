@@ -2627,6 +2627,12 @@ See `ivy-set-prompt'."
   "When non-nil `ivy-mode' will set `completion-in-region-function'."
   :type 'boolean)
 
+(defvar ivy--old-crf nil
+  "Store previous value of `completing-read-function'.")
+
+(defvar ivy--old-cirf nil
+  "Store previous value of `completion-in-region-function'.")
+
 ;;;###autoload
 (define-minor-mode ivy-mode
   "Toggle Ivy mode on or off.
@@ -2645,11 +2651,21 @@ Minibuffer bindings:
   :lighter " ivy"
   (if ivy-mode
       (progn
-        (setq completing-read-function 'ivy-completing-read)
+        (unless (eq completing-read-function #'ivy-completing-read)
+          (setq ivy--old-crf completing-read-function)
+          (setq completing-read-function #'ivy-completing-read))
         (when ivy-do-completion-in-region
-          (setq completion-in-region-function 'ivy-completion-in-region)))
-    (setq completing-read-function 'completing-read-default)
-    (setq completion-in-region-function 'completion--in-region)))
+          (unless (eq completion-in-region-function #'ivy-completion-in-region)
+            (setq ivy--old-cirf completion-in-region-function)
+            (setq completion-in-region-function #'ivy-completion-in-region))))
+    (when (eq completing-read-function #'ivy-completing-read)
+      (setq completing-read-function (or ivy--old-crf
+                                         #'completing-read-default))
+      (setq ivy--old-crf nil))
+    (when (eq completion-in-region-function #'ivy-completion-in-region)
+      (setq completion-in-region-function (or ivy--old-cirf
+                                              #'completion--in-region))
+      (setq ivy--old-cirf nil))))
 
 (defun ivy--preselect-index (preselect candidates)
   "Return the index of PRESELECT in CANDIDATES."
