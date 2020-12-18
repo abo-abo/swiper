@@ -1689,6 +1689,7 @@ minibuffer."
   (interactive)
   (setq ivy--old-re nil)
   (cl-rotatef ivy--regex-function ivy--regexp-quote)
+  (setq ivy--old-text "")
   (setq ivy-regex (funcall ivy--regex-function ivy-text)))
 
 (defcustom ivy-format-functions-alist
