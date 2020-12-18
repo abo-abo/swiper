@@ -1812,25 +1812,11 @@ currently checked out."
     (define-key map [remap undo] 'counsel-find-file-undo)
     map))
 
-;;* File
-;;** `counsel-file-jump'
-(defvar counsel-file-jump-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "`") #'counsel-find-file-from-jump)
-    map)
-  "Key bindings to be used when in a file-jump minibuffer.")
-
 (defun counsel-file-jump-from-find ()
   "Switch to `counsel-file-jump' from `counsel-find-file'."
   (interactive)
   (ivy-quit-and-run
     (counsel-file-jump ivy-text (ivy-state-directory ivy-last))))
-
-(defun counsel-find-file-from-jump ()
-  "Switch to `counsel-find-file' from `counsel-file-jump'."
-  (interactive)
-  (ivy-quit-and-run
-    (counsel-find-file ivy-text (ivy-state-directory ivy-last))))
 
 (when (executable-find "git")
   (add-to-list 'ivy-ffap-url-functions 'counsel-github-url-p)
@@ -2858,6 +2844,18 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
   :type '(repeat string))
 
 ;;** `counsel-file-jump'
+(defvar counsel-file-jump-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "`") #'counsel-find-file-from-jump)
+    map)
+  "Key bindings to be used when in a file-jump minibuffer.")
+
+(defun counsel-find-file-from-jump ()
+  "Switch to `counsel-find-file' from `counsel-file-jump'."
+  (interactive)
+  (ivy-quit-and-run
+    (counsel-find-file ivy-text (ivy-state-directory ivy-last))))
+
 ;;;###autoload
 (defun counsel-file-jump (&optional initial-input initial-directory)
   "Jump to a file below the current directory.
