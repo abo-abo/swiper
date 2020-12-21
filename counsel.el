@@ -4770,9 +4770,11 @@ An extra action allows to switch to the process buffer."
 (defvar eshell-history-index)
 (defvar slime-repl-input-history-position)
 
-(defvar counsel-esh--index-last)
-(defvar counsel-shell-history--index-last)
-(defvar counsel-slime-repl-history--index-last)
+(defvar counsel-esh--index-last nil
+  "Index corresponding to last selection with `counsel-esh-history'.")
+
+(defvar counsel-shell-history--index-last nil
+  "Index corresponding to last selection with `counsel-shell-history'.")
 
 (defun counsel--browse-history-action (pair)
   (let ((snd (cdr pair)))
@@ -4783,9 +4785,12 @@ An extra action allows to switch to the process buffer."
       (counsel-shell-history
        (setq comint-input-ring-index snd
              counsel-shell-history--index-last snd))
+      ;; Leave this as a no-op. If someone decides to patch
+      ;; `slime-repl-previous-input' or one of its utility functions,
+      ;; or to add history-replay to Slime, then this section can be
+      ;; updated to add the relevant support for those commands.
       (counsel-slime-repl-history
-       (setq slime-repl-input-history-position snd
-             counsel-slime-repl-history--index-last snd)))
+       nil))
     (ivy-completion-in-region-action (car pair))))
 
 (cl-defun counsel--browse-history (ring &key caller)
@@ -4808,9 +4813,6 @@ An extra action allows to switch to the process buffer."
 (defvar eshell-history-ring)
 (defvar eshell-matching-input-from-input-string)
 
-(defvar counsel-esh--index-last nil
-  "Index corresponding to last selection with `counsel-esh-history'.")
-
 ;;;###autoload
 (defun counsel-esh-history ()
   "Browse Eshell history."
@@ -4830,9 +4832,6 @@ An extra action allows to switch to the process buffer."
 (defvar comint-input-ring)
 (defvar comint-matching-input-from-input-string)
 
-(defvar counsel-shell-history--index-last nil
-  "Index corresponding to last selection with `counsel-shell-history'.")
-
 ;;;###autoload
 (defun counsel-shell-history ()
   "Browse shell history."
@@ -4851,9 +4850,6 @@ An extra action allows to switch to the process buffer."
 
 (defvar slime-repl-input-history)
 
-(defvar counsel-slime-repl-history--index-last nil
-  "Index corresponding to last selection with `counsel-slime-repl-history'.")
-
 ;;;###autoload
 (defun counsel-slime-repl-history ()
   "Browse Slime REPL history."
@@ -4863,7 +4859,9 @@ An extra action allows to switch to the process buffer."
                            :caller #'counsel-slime-repl-history))
 
 ;; TODO: add advice for slime-repl-input-previous/next to properly
-;; reassign the ring index and match string
+;; reassign the ring index and match string.  This requires a case for
+;; `counsel-slime-repl-history' within
+;; `counsel--browse-history-action'.
 
 ;;** `counsel-hydra-heads'
 (defvar hydra-curr-body-fn)
