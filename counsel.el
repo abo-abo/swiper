@@ -4078,7 +4078,7 @@ Obeys `widen-automatically', which see."
             (cons (copy-marker (mark-marker)) marks)))
          (candidates (counsel-mark--get-candidates marks)))
     (if candidates
-        (counsel-mark--ivy-read candidates 'counsel-mark-ring)
+        (counsel-mark--ivy-read "Mark: " candidates 'counsel-mark-ring)
       (message "Mark ring is empty"))))
 
 (defun counsel-mark--get-candidates (marks)
@@ -4102,7 +4102,7 @@ point to indicarte where the candidate mark is."
                       (propertize (format fmt linum line) 'point (point))))
                   marks))))))
 
-(defun counsel-mark--ivy-read (candidates caller)
+(defun counsel-mark--ivy-read (prompt candidates caller)
   "call `ivy-read' with sane defaults for traversing marks.
 CANDIDATES should be an alist with the `car' of the list being
 the string displayed by ivy and the `cdr' being the point that
@@ -4110,7 +4110,7 @@ mark should take you to.
 
 NOTE This has been abstracted out into it's own method so it can
 be used by both `counsel-mark-ring' and `counsel-evil-marks'"
-  (ivy-read "Mark: " candidates
+  (ivy-read prompt candidates
             :require-match t
             :update-fn #'counsel--mark-ring-update-fn
             :action (lambda (cand)
@@ -4191,8 +4191,8 @@ When ARG is non-nil, display all active evil registers."
       (let* ((counsel--mark-ring-calling-point (point))
              (candidates (counsel-mark--get-evil-candidates arg)))
         (if candidates
-            (counsel-mark--ivy-read candidates 'counsel-evil-marks)
-          (message "no evil marks are active")))
+            (counsel-mark--ivy-read "Evil mark: " candidates 'counsel-evil-marks)
+          (message "No evil marks are active")))
     (user-error "Required feature `evil' not installed or loaded")))
 
 ;;** `counsel-package'
