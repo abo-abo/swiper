@@ -6805,7 +6805,7 @@ We update it in the callback with `ivy-update-candidates'."
   (browse-url
    (concat
     (nth 2 (assoc counsel-search-engine counsel-search-engines-alist))
-    x)))
+    (url-hexify-string x))))
 
 (defun counsel-search ()
   "Ivy interface for dynamically querying a search engine."
