@@ -6268,6 +6268,14 @@ in the current window."
  '(("x" counsel-open-buffer-file-externally "open externally")
    ("j" ivy--switch-buffer-other-window-action "other window")))
 
+(defun counsel-kill-buffer ()
+  "Kill a buffer interactively using `ivy'."
+  (interactive)
+  (ivy-read "Kill buffer: " #'internal-complete-buffer
+            :action #'ivy--kill-buffer-action
+            :matcher #'ivy--switch-buffer-matcher
+            :caller 'counsel-kill-buffer))
+
 ;;** `counsel-compile'
 (defvar counsel-compile-history nil
   "History for `counsel-compile'.
