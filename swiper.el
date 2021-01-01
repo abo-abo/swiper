@@ -206,24 +206,20 @@ If the input is empty, select the previous history element instead."
               (let* ((enable-recursive-minibuffers t)
                      (from (ivy-re-to-str ivy-regex))
                      (groups (number-sequence 1 ivy--subexps))
-                     (default
-                      (list
-                       (mapconcat (lambda (i) (format "\\%d" i)) groups " ")
-                       (format "\\,(concat %s)"
-                               (if (<= ivy--subexps 1)
-                                   "\\&"
-                                 (mapconcat
-                                  (lambda (i) (format "\\%d" i))
-                                  groups
-                                  " \" \" ")))))
+                     (hist (delq t (mapcar (lambda (elt)
+                                             (if (string-equal from (car elt))
+                                                 (cdr elt)
+                                               t))
+                                           query-replace-defaults)))
                      (to
                       (query-replace-compile-replacement
                        (ivy-read
-                        (format "Query replace %s with: " from) nil
-                        :def default
+                        (format "Query replace %s with: " from) hist
+                        :history query-replace-to-history-variable
                         :caller 'swiper-query-replace)
                        t)))
                 (swiper--cleanup)
+                (add-to-history 'query-replace-defaults (cons from to))
                 (ivy-exit-with-action
                  (lambda (_)
                    (with-ivy-window
