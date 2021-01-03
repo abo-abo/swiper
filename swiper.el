@@ -152,6 +152,17 @@ If the input is empty, select the previous history element instead."
     map)
   "Keymap for swiper.")
 
+(defun swiper--regex-plain (str)
+  "Use STR literally as an ivy regex."
+  (if-let (re (ivy--regex-p str))
+      (with-temp-buffer
+        (insert re)
+        (goto-char (point-min))
+        (setq ivy--subexps (count-matches "\\\\("))
+        re)
+    (setq ivy--subexps 0)
+    (regexp-quote str)))
+
 (defvar swiper--query-replace-overlays nil)
 
 (defun swiper--query-replace-updatefn ()
@@ -193,45 +204,76 @@ If the input is empty, select the previous history element instead."
           (unless (> (match-end 0) (match-beginning 0))
             (forward-char)))))))
 
-(defun swiper-query-replace ()
-  "Start `query-replace' with string to replace from last search string."
-  (interactive)
-  (cond ((null (window-minibuffer-p))
-         (user-error "Should only be called in the minibuffer through `swiper-map'"))
-        ((string= "" ivy-text)
-         (user-error "Empty input"))
-        (t
-         (swiper--query-replace-setup)
-         (unwind-protect
-              (let* ((enable-recursive-minibuffers t)
-                     (from (ivy-re-to-str ivy-regex))
-                     (groups (number-sequence 1 ivy--subexps))
-                     (hist (delq t (mapcar (lambda (elt)
-                                             (if (string-equal from (car elt))
-                                                 (cdr elt)
-                                               t))
-                                           query-replace-defaults)))
-                     (to
-                      (query-replace-compile-replacement
-                       (ivy-read
-                        (format "Query replace %s with: " from) hist
-                        :history query-replace-to-history-variable
-                        :caller 'swiper-query-replace)
-                       t)))
-                (swiper--cleanup)
-                (add-to-history 'query-replace-defaults (cons from to))
-                (ivy-exit-with-action
-                 (lambda (_)
-                   (with-ivy-window
-                     (move-beginning-of-line 1)
-                     (let ((inhibit-read-only t))
-                       (perform-replace from to
-                                        t t nil))))))
-           (swiper--query-replace-cleanup)))))
+(defun swiper-query-replace (&optional initial-input start end)
+  "Read a regex with Swiper and start a query replace operation.
+INITIAL-INPUT is an initial value for the regex.  START and END
+specify the region to operate on.  When called interactively from
+outside the minibuffer, the current region is used if active.
 
-(ivy-configure 'swiper-query-replace
-  :update-fn #'swiper--query-replace-updatefn)
-(put 'swiper-query-replace 'no-counsel-M-x t)
+When called during a Swiper search, use its current input as
+regex and query directly for a replacement text.  To signal this
+situation, INITIAL-VALUE should be t."
+  (interactive (list nil
+                     (when (use-region-p) (region-beginning))
+                     (when (use-region-p) (region-end))))
+  (barf-if-buffer-read-only)
+  (if (window-minibuffer-p)
+      (ivy-exit-with-action
+       (lambda (x)
+         (swiper-isearch-action x) ;; TODO: what if we're in regular swiper?
+         (swiper-query-replace t)))
+    (when (string-or-null-p initial-input)
+      (when start
+        (deactivate-mark)
+        ;; TODO: maybe add a fake active region as overlay
+        (goto-char start))
+      (let ((ivy-fixed-height-minibuffer t)
+            (cursor-in-non-selected-windows nil)
+            (swiper-min-highlight 1))
+        (ivy-read
+         "Swiper query replace: "
+         #'swiper-isearch-function
+         :initial-input initial-input
+         :keymap swiper-isearch-map
+         :dynamic-collection t
+         :require-match t
+         :action #'swiper-isearch-action
+         :re-builder #'swiper--regex-plain
+         :history query-replace-from-history-variable
+         :extra-props (list :fname (buffer-file-name))
+         :caller 'swiper-isearch)))
+    (when (string= "" ivy-text) (user-error "Empty input"))
+    (swiper--delayed-add-overlays)
+    (swiper--add-cursor-overlay (ivy-state-window ivy-last))
+    (swiper--query-replace-setup)
+    (unwind-protect
+        (let* ((from (ivy-re-to-str ivy-regex))
+               (ivy-count-format "")
+               (to
+                (query-replace-compile-replacement
+                 (ivy-read
+                  (format "Query replace %s with: " from) nil
+                  :history query-replace-to-history-variable
+                  ;; TODO: M-n here could insert (assoc from query-replace-defaults)
+                  :update-fn #'swiper--query-replace-updatefn)
+                 t)))
+          (swiper--cleanup)
+          (add-to-history 'query-replace-defaults (cons from to))
+          (with-ivy-window
+            (move-beginning-of-line 1)
+            (let ((inhibit-read-only t)) ;; TODO: What's this for?
+              (perform-replace from to t t nil nil nil start end))))
+      (swiper--cleanup)
+      (swiper--query-replace-cleanup))))
+
+(ivy-add-actions 'swiper '(("q" (lambda (x)
+                                  (swiper--action x)
+                                  (swiper-query-replace t))
+                            "query replace")))
+(ivy-add-actions 'swiper-isearch '(("q" (lambda (x)
+                                          (swiper-isearch-action x)
+                                          (swiper-query-replace t))
+                                    "query replace")))
 
 (defvar inhibit-message)
 
