@@ -154,14 +154,9 @@ If the input is empty, select the previous history element instead."
 
 (defun swiper--regex-plain (str)
   "Use STR literally as an ivy regex."
-  (if-let (re (ivy--regex-p str))
-      (with-temp-buffer
-        (insert re)
-        (goto-char (point-min))
-        (setq ivy--subexps (count-matches "\\\\("))
-        re)
-    (setq ivy--subexps 0)
-    (regexp-quote str)))
+  (let ((regex (or (ivy--regex-p str) (regexp-quote str))))
+    (setq ivy--subexps (regexp-opt-depth regex))
+    regex))
 
 (defvar swiper--query-replace-overlays nil)
 
