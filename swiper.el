@@ -199,16 +199,21 @@ If the input is empty, select the previous history element instead."
           (unless (> (match-end 0) (match-beginning 0))
             (forward-char)))))))
 
-(defun swiper-query-replace (&optional initial-input start end)
-  "Read a regex with Swiper and start a query replace operation.
-INITIAL-INPUT is an initial value for the regex.  START and END
-specify the region to operate on.  When called interactively from
-outside the minibuffer, the current region is used if active.
+(defun swiper-query-replace (&optional initial-regexp initial-replacement start end)
+  "Read a regexp with Swiper and start a query replace operation.
+INITIAL-REGEXP and INITIAL-REPLACEMENT are the initial inputs of
+the respective prompts.  When called interactively with a prefix
+argument, the values of the previous query replace are used.
 
-When called during a Swiper search, use its current input as
-regex and query directly for a replacement text.  To signal this
-situation, INITIAL-VALUE should be t."
-  (interactive (list nil
+START and END specify the region to operate on.  When called
+interactively from outside the minibuffer, the current region is
+used if active.
+
+This command can also be called from within a Swiper session.  In
+this case, don't ask for a regexp, and instead use the current
+Swiper input."
+  (interactive (list (when current-prefix-arg (caar query-replace-defaults))
+                     (when current-prefix-arg (cdar query-replace-defaults))
                      (when (use-region-p) (region-beginning))
                      (when (use-region-p) (region-end))))
   (barf-if-buffer-read-only)
@@ -217,7 +222,7 @@ situation, INITIAL-VALUE should be t."
        (lambda (x)
          (swiper-isearch-action x) ;; TODO: what if we're in regular swiper?
          (swiper-query-replace t)))
-    (when (string-or-null-p initial-input)
+    (when (string-or-null-p initial-regexp)
       (when start
         (deactivate-mark)
         ;; TODO: maybe add a fake active region as overlay
@@ -228,7 +233,7 @@ situation, INITIAL-VALUE should be t."
         (ivy-read
          "Swiper query replace: "
          #'swiper-isearch-function
-         :initial-input initial-input
+         :initial-input initial-regexp
          :keymap swiper-isearch-map
          :dynamic-collection t
          :require-match t
@@ -248,13 +253,16 @@ situation, INITIAL-VALUE should be t."
                 (query-replace-compile-replacement
                  (ivy-read
                   (format "Query replace %s with: " from) nil
+                  :initial-input initial-replacement
                   :history query-replace-to-history-variable
-                  ;; TODO: M-n here could insert (assoc from query-replace-defaults)
+                  ;; TODO: M-n here could insert (map-elt query-replace-defaults from)
                   :update-fn #'swiper--query-replace-updatefn)
                  t)))
           (swiper--cleanup)
           (add-to-history 'query-replace-defaults (cons from to))
           (with-ivy-window
+             ;; TODO: Ideally, move to beginning of the Swiper match
+             ;; instead of beginning of line.
             (move-beginning-of-line 1)
             (let ((inhibit-read-only t)) ;; TODO: What's this for?
               (perform-replace from to t t nil nil nil start end))))
