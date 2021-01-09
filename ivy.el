@@ -3284,14 +3284,10 @@ The function was added in Emacs 26.1.")
           "~"
         home)))))
 
-(defvar ivy--minibuffer-metadata nil)
-
 (defun ivy-update-candidates (cands)
-  (let ((ivy--minibuffer-metadata
-         (completion-metadata "" minibuffer-completion-table minibuffer-completion-predicate)))
-    (ivy--insert-minibuffer
-     (ivy--format
-      (setq ivy--all-candidates cands)))))
+  (ivy--insert-minibuffer
+   (ivy--format
+    (setq ivy--all-candidates cands))))
 
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
@@ -4034,8 +4030,7 @@ in this case."
                     (funcall ivy--highlight-function str))
                 str))
          (olen (length str))
-         (annot (or (completion-metadata-get ivy--minibuffer-metadata 'annotation-function)
-                    (plist-get completion-extra-properties :annotation-function))))
+         (annot (plist-get completion-extra-properties :annotation-function)))
     (add-text-properties
      0 olen
      '(mouse-face
