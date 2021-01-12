@@ -1180,7 +1180,8 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 
 (defun ivy--restore-session (&optional session)
   "Resume a recorded completion SESSION, if any exists."
-  (when ivy--sessions
+  (if (not ivy--sessions)
+      (user-error "No resumable session exists")
     (unless session
       (setq session (intern
                      (let ((ivy-last ivy-last)
@@ -1196,6 +1197,11 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
       (setq ivy--all-candidates (plist-get data :all-candidates))
       (setq ivy-text (plist-get data :text)))))
 
+(defun ivy--current-session-resumable-p ()
+  "Whether current `ivy-last' is resumable or not."
+  (and (ivy-state-action ivy-last)
+       (not (eq (ivy--get-action ivy-last) #'identity))))
+
 ;;;###autoload
 (defun ivy-resume (&optional session)
   "Resume the last completion session, or SESSION if non-nil.
@@ -1205,36 +1211,40 @@ if one exists."
   (when (or current-prefix-arg session)
     (ivy--restore-session session))
 
-  (if (or (null (ivy-state-action ivy-last))
-          (eq (ivy--get-action ivy-last) #'identity))
-      (user-error "The last session isn't compatible with `ivy-resume'")
-    (when (memq (ivy-state-caller ivy-last)
-                '(swiper
-                  swiper-isearch swiper-backward
-                  swiper-isearch-backward
-                  counsel-grep))
-      (switch-to-buffer (ivy-state-buffer ivy-last)))
-    (with-current-buffer (ivy-state-buffer ivy-last)
-      (let ((default-directory (ivy-state-directory ivy-last))
-            (ivy-use-ignore-default (ivy-state-ignore ivy-last)))
-        (ivy-read
-         (ivy-state-prompt ivy-last)
-         (ivy-state-collection ivy-last)
-         :predicate (ivy-state-predicate ivy-last)
-         :require-match (ivy-state-require-match ivy-last)
-         :initial-input ivy-text
-         :history (ivy-state-history ivy-last)
-         :preselect (ivy-state-current ivy-last)
-         :keymap (ivy-state-keymap ivy-last)
-         :update-fn (ivy-state-update-fn ivy-last)
-         :sort (ivy-state-sort ivy-last)
-         :action (ivy-state-action ivy-last)
-         :unwind (ivy-state-unwind ivy-last)
-         :re-builder (ivy-state-re-builder ivy-last)
-         :matcher (ivy-state-matcher ivy-last)
-         :dynamic-collection (ivy-state-dynamic-collection ivy-last)
-         :extra-props (ivy-state-extra-props ivy-last)
-         :caller (ivy-state-caller ivy-last))))))
+  (unless (ivy--current-session-resumable-p)
+    (if current-prefix-arg
+        (user-error "The last session isn't compatible with `ivy-resume'")
+      ;; Try to restore to last resumable session
+      (setq session (caar ivy--sessions))
+      (ivy--restore-session session)))
+
+  (when (memq (ivy-state-caller ivy-last)
+              '(swiper
+                swiper-isearch swiper-backward
+                swiper-isearch-backward
+                counsel-grep))
+    (switch-to-buffer (ivy-state-buffer ivy-last)))
+  (with-current-buffer (ivy-state-buffer ivy-last)
+    (let ((default-directory (ivy-state-directory ivy-last))
+          (ivy-use-ignore-default (ivy-state-ignore ivy-last)))
+      (ivy-read
+       (ivy-state-prompt ivy-last)
+       (ivy-state-collection ivy-last)
+       :predicate (ivy-state-predicate ivy-last)
+       :require-match (ivy-state-require-match ivy-last)
+       :initial-input ivy-text
+       :history (ivy-state-history ivy-last)
+       :preselect (ivy-state-current ivy-last)
+       :keymap (ivy-state-keymap ivy-last)
+       :update-fn (ivy-state-update-fn ivy-last)
+       :sort (ivy-state-sort ivy-last)
+       :action (ivy-state-action ivy-last)
+       :unwind (ivy-state-unwind ivy-last)
+       :re-builder (ivy-state-re-builder ivy-last)
+       :matcher (ivy-state-matcher ivy-last)
+       :dynamic-collection (ivy-state-dynamic-collection ivy-last)
+       :extra-props (ivy-state-extra-props ivy-last)
+       :caller (ivy-state-caller ivy-last)))))
 
 (defvar-local ivy-calling nil
   "When non-nil, call the current action when `ivy--index' changes.")
@@ -2163,15 +2173,15 @@ customizations apply to the current completion session."
              (when (eq ivy-exit 'done)
                (ivy--update-history hist))))
       (let ((session (or (plist-get extra-props :session)
-                         (unless (or (minibufferp)
-                                     (null (ivy-state-action ivy-last))
-                                     (eq (ivy--get-action ivy-last) #'identity))
+                         (when (and (not (minibufferp))
+                                    (ivy--current-session-resumable-p))
                            caller))))
         (when session
           (setf (ivy-state-extra-props ivy-last)
                 (plist-put extra-props :ivy-data `(:all-candidates ,ivy--all-candidates
                                                    :text ,ivy-text)))
-          (ivy--alist-set 'ivy--sessions session ivy-last)))
+          (setq ivy--sessions (delete (assq session ivy--sessions) ivy--sessions))
+          (push (cons session ivy-last) ivy--sessions)))
       (ivy--cleanup))
     (ivy-call)))
 
