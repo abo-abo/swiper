@@ -1769,7 +1769,8 @@ specified for the current collection in
 `ivy-sort-functions-alist'."
   (interactive)
   (let ((cell (or (assq (ivy-state-collection ivy-last) ivy-sort-functions-alist)
-                  (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist))))
+                  (assq (ivy-state-caller ivy-last) ivy-sort-functions-alist)
+                  (assq t ivy-sort-functions-alist))))
     (when (consp (cdr cell))
       (setcdr cell (nconc (cddr cell) (list (cadr cell))))
       (ivy--reset-state ivy-last))))
