@@ -154,7 +154,7 @@ If the input is empty, select the previous history element instead."
 
 (defun swiper--regex-plain (str)
   "Use STR literally as an ivy regex."
-  (let ((regex (or (ivy--regex-p str) (regexp-quote str))))
+  (let ((regex (ivy--regex-or-literal str)))
     (setq ivy--subexps (regexp-opt-depth regex))
     regex))
 
@@ -234,7 +234,7 @@ current Swiper input."
          "Swiper query replace: "
          #'swiper-isearch-function
          :initial-input initial-regexp
-         :keymap swiper-isearch-map
+         :keymap swiper-map
          :dynamic-collection t
          :require-match t
          :action #'swiper-isearch-action
@@ -270,13 +270,13 @@ current Swiper input."
       (swiper--cleanup)
       (swiper--query-replace-cleanup))))
 
-(ivy-add-actions 'swiper '(("q" (lambda (x)
-                                  (swiper--action x)
-                                  (swiper-query-replace t))
+(ivy-add-actions 'swiper `(("q" ,(lambda (x)
+                                   (swiper--action x)
+                                   (swiper-query-replace t))
                             "query replace")))
-(ivy-add-actions 'swiper-isearch '(("q" (lambda (x)
-                                          (swiper-isearch-action x)
-                                          (swiper-query-replace t))
+(ivy-add-actions 'swiper-isearch `(("q" ,(lambda (x)
+                                           (swiper-isearch-action x)
+                                           (swiper-query-replace t))
                                     "query replace")))
 
 (defvar inhibit-message)
