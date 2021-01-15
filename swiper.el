@@ -199,6 +199,7 @@ If the input is empty, select the previous history element instead."
           (unless (> (match-end 0) (match-beginning 0))
             (forward-char)))))))
 
+;;;###autoload
 (defun swiper-query-replace (&optional initial-regexp initial-replacement start end)
   "Read a regexp with Swiper and start a query replace operation.
 INITIAL-REGEXP and INITIAL-REPLACEMENT are the initial inputs of
@@ -210,8 +211,8 @@ interactively from outside the minibuffer, the current region is
 used if active.
 
 This command can also be called from within a Swiper session.  In
-this case, don't ask for a regexp, and instead use the current
-Swiper input."
+this case, it doesn't ask for a regexp, and instead uses the
+current Swiper input."
   (interactive (list (when current-prefix-arg (caar query-replace-defaults))
                      (when current-prefix-arg (cdar query-replace-defaults))
                      (when (use-region-p) (region-beginning))
@@ -220,13 +221,12 @@ Swiper input."
   (if (window-minibuffer-p)
       (ivy-exit-with-action
        (lambda (x)
-         (swiper-isearch-action x) ;; TODO: what if we're in regular swiper?
+         (swiper-isearch-action x)
          (swiper-query-replace t)))
+    (when start
+      (deactivate-mark) ;; TODO: maybe add a fake active region as overlay
+      (goto-char start))
     (when (string-or-null-p initial-regexp)
-      (when start
-        (deactivate-mark)
-        ;; TODO: maybe add a fake active region as overlay
-        (goto-char start))
       (let ((ivy-fixed-height-minibuffer t)
             (cursor-in-non-selected-windows nil)
             (swiper-min-highlight 1))
@@ -261,11 +261,12 @@ Swiper input."
           (swiper--cleanup)
           (add-to-history 'query-replace-defaults (cons from to))
           (with-ivy-window
-             ;; TODO: Ideally, move to beginning of the Swiper match
-             ;; instead of beginning of line.
-            (move-beginning-of-line 1)
-            (let ((inhibit-read-only t)) ;; TODO: What's this for?
-              (perform-replace from to t t nil nil nil start end))))
+            (perform-replace from to t t nil nil nil
+                             (or start
+                                 (if (looking-back from (line-beginning-position))
+                                     (match-beginning 0)
+                                   (point)))
+                             (or end (point-max)))))
       (swiper--cleanup)
       (swiper--query-replace-cleanup))))
 
