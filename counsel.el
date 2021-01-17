@@ -422,7 +422,8 @@ Update the minibuffer with the amount of lines collected every
   (cons (concat (car x) (irony-completion-annotation x))
         (car x)))
 
-(add-to-list 'ivy-display-functions-alist '(counsel-irony . ivy-display-function-overlay))
+(ivy-configure #'counsel-irony
+  :display-fn #'ivy-display-function-overlay)
 
 ;;* Elisp symbols
 ;;** `counsel-describe-variable'
