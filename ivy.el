@@ -842,7 +842,7 @@ selection, non-nil otherwise."
 
 (defcustom ivy-exit-keys-from-actions '("ESC" "M-o")
   "A list of extra keys to exit ivy actions list."
-  :type '(list string))
+  :type '(repeat key-sequence))
 
 (defvar set-message-function)
 
