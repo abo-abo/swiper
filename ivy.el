@@ -840,6 +840,10 @@ selection, non-nil otherwise."
       (let ((ivy--directory ivy--directory))
         (funcall ivy-read-action-function actions)))))
 
+(defcustom ivy-exit-keys-from-actions '("ESC" "M-o")
+  "A list of extra keys to exit ivy actions list."
+  :type '(list string))
+
 (defvar set-message-function)
 
 (defun ivy-read-action-by-key (actions)
@@ -855,7 +859,7 @@ selection, non-nil otherwise."
                 (not (string= key (car (nth action-idx (cdr actions))))))
       (setq key (concat key (key-description (vector (read-key hint))))))
     (ivy-shrink-after-dispatching)
-    (cond ((member key '("ESC" "C-g" "M-o"))
+    (cond ((member key (cons "C-g" ivy-exit-keys-from-actions))
            nil)
           ((null action-idx)
            (message "%s is not bound" key)
