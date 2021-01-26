@@ -2991,11 +2991,11 @@ NEEDLE is the search string."
        (ivy-more-chars))
      (let* ((default-directory (ivy-state-directory ivy-last))
             (regex (counsel--grep-regex search-term))
-            (switches (concat (car command-args)
-                              (counsel--ag-extra-switches regex)
-                              (if (ivy--case-fold-p string)
+            (switches (concat (if (ivy--case-fold-p string)
                                   " -i "
-                                " -s "))))
+                                " -s ")
+                              (counsel--ag-extra-switches regex)
+                              (car command-args))))
        (counsel--async-command (counsel--format-ag-command
                                 switches
                                 (funcall (if (listp counsel-ag-command) #'identity
