@@ -621,29 +621,35 @@ to `ivy-highlight-face'."
 (defun counsel-read-setq-expression (sym)
   "Read and eval a setq expression for SYM."
   (setq this-command 'eval-expression)
-  (let* ((minibuffer-completing-symbol t)
-         (sym-value (symbol-value sym))
-         (expr (minibuffer-with-setup-hook
-                   (lambda ()
-                     ;; Functions `elisp-eldoc-documentation-function' and
-                     ;; `elisp-completion-at-point' added in Emacs 25.1.
-                     (add-function :before-until (local 'eldoc-documentation-function)
-                                   #'elisp-eldoc-documentation-function)
-                     (add-hook 'completion-at-point-functions #'elisp-completion-at-point nil t)
-                     (run-hooks 'eval-expression-minibuffer-setup-hook)
-                     (goto-char (minibuffer-prompt-end))
-                     (forward-char 6)
-                     (insert (format "%S " sym)))
-                 (read-from-minibuffer "Eval: "
-                                       (format
-                                        (if (and sym-value (or (consp sym-value)
-                                                               (symbolp sym-value)))
-                                            "(setq '%S)"
-                                          "(setq %S)")
-                                        sym-value)
-                                       read-expression-map t
-                                       'read-expression-history))))
-    expr))
+  (let* ((sym-value (symbol-value sym))
+         (init (format "(setq %s%S)"
+                       (if (or (consp sym-value)
+                               (and sym-value (symbolp sym-value)))
+                           "'"
+                         "")
+                       sym-value)))
+    ;; Most of this duplicates `read--expression'.
+    (minibuffer-with-setup-hook
+        (lambda ()
+          (set-syntax-table emacs-lisp-mode-syntax-table)
+          ;; Added in Emacs 25.1.
+          (when (fboundp 'elisp-completion-at-point)
+            (add-hook 'completion-at-point-functions
+                      #'elisp-completion-at-point nil t))
+          ;; Emacs 27+ already sets up ElDoc in this hook.  Emacs 25 added
+          ;; `elisp-eldoc-documentation-function' and Emacs 28 obsoletes it.
+          (when (< emacs-major-version 27)
+            (when (fboundp 'elisp-eldoc-documentation-function)
+              (add-function :before-until (local 'eldoc-documentation-function)
+                            #'elisp-eldoc-documentation-function))
+            (eldoc-mode))
+          (run-hooks 'eval-expression-minibuffer-setup-hook)
+          ;; The following diverges from `read--expression'.
+          (goto-char (minibuffer-prompt-end))
+          (forward-char 6)
+          (insert (format "%S " sym)))
+      (read-from-minibuffer "Eval: " init read-expression-map t
+                            'read-expression-history))))
 
 (defun counsel--setq-doconst (x)
   "Return a cons of description and value for X.
