@@ -29,6 +29,7 @@ or any later version published by the Free Software Foundation;
 with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU
 Free Documentation License".
+
 @end quotation
 @end copying
 
@@ -217,7 +218,7 @@ version that runs Ivy with fancy faces display.
 @kbd{M-x} @code{package-install} @kbd{RET} @code{counsel} @kbd{RET}
 
 Ivy is installed as part of the @code{counsel} package, which is available
-from two different package archives, GNU ELPA and MELPA.  For the
+from two different package archives, GNU ELPA and MELPA@.  For the
 latest stable version, use the GNU ELPA archives.  For current hourly
 builds, use the MELPA archives.
 
@@ -516,12 +517,16 @@ keystrokes followed by @kbd{C-m}.
 @subsection Key bindings for multiple selections and actions, keep minibuffer open
 
 For repeatedly applying multiple actions or acting on multiple
-candidates, Ivy does not close the minibuffer between commands. It
+candidates, Ivy does not close the minibuffer between commands.  It
 keeps the minibuffer open for applying subsequent actions.
 
 Adding an extra meta key to the normal key chord invokes the special
 version of the regular commands that enables applying multiple
 actions.
+
+Note that these operations are supported only by completion sessions
+that use the @code{ivy-read} API, rather than the built-in
+@code{completing-read}.
 
 @subsubheading @kbd{C-M-m} (@code{ivy-call})
 @vindex ivy-call
@@ -1811,12 +1816,12 @@ then retrieves that value and displays it.
 @end itemize
 
 @node Variable Index
-@unnumbered Variable Index
+@chapter Variable Index
 
 @printindex vr
 
 @node Keystroke Index
-@unnumbered Keystroke Index
+@chapter Keystroke Index
 
 @printindex ky
 

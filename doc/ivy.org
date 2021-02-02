@@ -405,12 +405,16 @@ extends usability of lists in Emacs.
 :END:
 
 For repeatedly applying multiple actions or acting on multiple
-candidates, Ivy does not close the minibuffer between commands. It
+candidates, Ivy does not close the minibuffer between commands.  It
 keeps the minibuffer open for applying subsequent actions.
 
 Adding an extra meta key to the normal key chord invokes the special
 version of the regular commands that enables applying multiple
 actions.
+
+Note that these operations are supported only by completion sessions
+that use the =ivy-read= API, rather than the built-in
+=completing-read=.
 
 - ~C-M-m~ (=ivy-call=) ::
      Is the non-exiting version of ~C-m~ (=ivy-done=).
