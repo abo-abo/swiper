@@ -1141,11 +1141,11 @@ WND, when specified is the window."
 (defun swiper-from-isearch ()
   "Invoke `swiper' from isearch."
   (interactive)
-  (let ((query (if isearch-regexp
-                   isearch-string
-                 (regexp-quote isearch-string))))
-    (isearch-exit)
-    (swiper query)))
+  (swiper (prog1 (if isearch-regexp
+                     isearch-string
+                   (regexp-quote isearch-string))
+            (let ((search-nonincremental-instead nil))
+              (isearch-exit)))))
 
 (defvar swiper-multi-buffers nil
   "Store the current list of buffers.")
