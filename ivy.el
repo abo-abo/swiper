@@ -99,7 +99,8 @@ a behavior similar to `swiper'."
 The usual reason for `ivy-backward-delete-char' to fail is when
 there is no text left to delete, i.e., when it is called at the
 beginning of the minibuffer.
-The default setting provides a quick exit from completion."
+The default setting provides a quick exit from completion.
+Another common option is `ignore', which does nothing."
   :type '(choice
           (const :tag "Exit completion" abort-recursive-edit)
           (const :tag "Do nothing" ignore)

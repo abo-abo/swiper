@@ -1106,6 +1106,8 @@ i.e., when @kbd{DEL} is typed at the beginning of the minibuffer.
 
 The default behavior is to quit the completion after @kbd{DEL} -- a
 handy key to invoke after mistakenly triggering a completion.
+
+Another common option is @code{ignore}, which does nothing.
 @end defopt
 
 @node Actions

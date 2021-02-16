@@ -832,6 +832,8 @@ installed.
      The default behavior is to quit the completion after ~DEL~ -- a
      handy key to invoke after mistakenly triggering a completion.
 
+     Another common option is =ignore=, which does nothing.
+
 ** Actions
 :PROPERTIES:
 :CUSTOM_ID: actions
