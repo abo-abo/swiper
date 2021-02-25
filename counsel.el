@@ -3098,8 +3098,9 @@ Works for `counsel-git-grep', `counsel-ag', etc."
     (ivy-occur-grep-mode)
     (setq default-directory (ivy-state-directory ivy-last)))
   (ivy-set-text
-   (and (string-match "\"\\(.*\\)\"" (buffer-name))
-        (match-string 1 (buffer-name))))
+   (if (string-match "\"\\(.*\\)\"" (buffer-name))
+       (match-string 1 (buffer-name))
+     (ivy-state-text ivy-occur-last)))
   (let* ((cmd
           (if (functionp cmd-template)
               (funcall cmd-template ivy-text)
