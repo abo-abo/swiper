@@ -881,6 +881,23 @@ packages are, in order of precedence, `amx' and `smex'."
            (smex-update))
          smex-ido-cache)))
 
+(defun counsel--M-x-externs-predicate (cand)
+  "Return non-nil if `counsel-M-x' should complete CAND.
+CAND is a string returned by `counsel--M-x-externs'."
+  (not (get (intern cand) 'no-counsel-M-x)))
+
+(defun counsel--M-x-make-predicate ()
+  "Return a predicate for `counsel-M-x' in the current buffer."
+  (defvar read-extended-command-predicate)
+  (let ((buf (current-buffer)))
+    (lambda (sym)
+      (and (commandp sym)
+           (not (get sym 'byte-obsolete-info))
+           (not (get sym 'no-counsel-M-x))
+           (or (not (bound-and-true-p read-extended-command-predicate))
+               (and (functionp read-extended-command-predicate)
+                    (funcall read-extended-command-predicate sym buf)))))))
+
 (defun counsel--M-x-prompt ()
   "String for `M-x' plus the string representation of `current-prefix-arg'."
   (concat (cond ((null current-prefix-arg)
@@ -926,12 +943,8 @@ when available, in that order of precedence."
   (let ((externs (counsel--M-x-externs)))
     (ivy-read (counsel--M-x-prompt) (or externs obarray)
               :predicate (if externs
-                             (lambda (x)
-                               (not (get (intern x) 'no-counsel-M-x)))
-                           (lambda (sym)
-                             (and (commandp sym)
-                                  (not (get sym 'byte-obsolete-info))
-                                  (not (get sym 'no-counsel-M-x)))))
+                             #'counsel--M-x-externs-predicate
+                           (counsel--M-x-make-predicate))
               :require-match t
               :history 'counsel-M-x-history
               :action #'counsel-M-x-action
