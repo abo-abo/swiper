@@ -3464,13 +3464,7 @@ height < `ivy-height', auto-shrink the minibuffer."
          (font-lock-append-text-property 0 len 'face face str)))))
   str)
 
-(declare-function flx-make-string-cache "ext:flx")
-(declare-function flx-score "ext:flx")
-
-(defvar ivy--flx-cache nil)
-
-(with-eval-after-load 'flx
-  (setq ivy--flx-cache (flx-make-string-cache)))
+(declare-function flx-score "ext:flx" (str query &optional cache))
 
 (defun ivy-toggle-case-fold ()
   "Toggle `case-fold-search' for Ivy operations.
@@ -3609,7 +3603,13 @@ The alist VAL is a sorting function with the signature of
   (let ((default-directory ivy--directory))
     (sort (copy-sequence candidates) #'file-newer-than-file-p)))
 
-(defvar ivy--flx-featurep (require 'flx nil 'noerror))
+(defalias 'ivy--flx-featurep
+  (let (val done)
+    (lambda ()
+      (or done (setq done t val (require 'flx nil t)))
+      val))
+  "Try loading `flx' once and return non-nil on success.
+Cache the result.")
 
 (defun ivy--sort (name candidates)
   "Re-sort candidates by NAME.
@@ -3617,8 +3617,8 @@ All CANDIDATES are assumed to match NAME."
   (let (fun)
     (cond ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist))
            (funcall fun name candidates))
-          ((and ivy--flx-featurep
-                (eq ivy--regex-function 'ivy--regex-fuzzy))
+          ((and (ivy--flx-featurep)
+                (eq ivy--regex-function #'ivy--regex-fuzzy))
            (ivy--flx-sort name candidates))
           (t
            candidates))))
@@ -3688,7 +3688,7 @@ before substring matches."
 (defvar ivy-flx-limit 200
   "Used to conditionally turn off flx sorting.
 
-When the amount of matching candidates exceeds this limit, then
+When the number of matching candidates exceeds this limit, then
 no sorting is done.")
 
 (defvar ivy--recompute-index-inhibit nil
@@ -3724,8 +3724,8 @@ CANDS are the current candidates."
                           0))
                      ((and (not empty)
                            (not (eq caller 'swiper))
-                           (not (and ivy--flx-featurep
-                                     (eq ivy--regex-function 'ivy--regex-fuzzy)
+                           (not (and (ivy--flx-featurep)
+                                     (eq ivy--regex-function #'ivy--regex-fuzzy)
                                      ;; Limit to configured number of candidates
                                      (null (nthcdr ivy-flx-limit cands))))
                            ;; If there was a preselected candidate, don't try to
@@ -3855,6 +3855,25 @@ N wraps around, but skips the first element of the list."
       (add-face-text-property j (1+ j) (ivy--minibuffer-face i) nil str))
     str))
 
+(defvar ivy-flx-cache 'auto
+  "Type of `flx' cache to use for Ivy sorting and highlighting.
+
+The possible values are:
+ `strings'  Always use a generic string cache.
+ `file'     Always use a file name cache.
+ `auto'     Like `file' if file name completion is detected;
+            otherwise like `strings'.  This is the default.")
+
+(defun ivy--flx-cache ()
+  "Return appropriate `flx' cache based on `ivy-flx-cache'."
+  (defvar flx-file-cache)
+  (defvar flx-strings-cache)
+  (if (or (and (eq ivy-flx-cache 'auto)
+               (ivy--completing-fname-p))
+          (eq ivy-flx-cache 'file))
+      flx-file-cache
+    flx-strings-cache))
+
 (defun ivy--flx-sort (name cands)
   "Sort according to closeness to string NAME the string list CANDS."
   (condition-case nil
@@ -3871,6 +3890,7 @@ N wraps around, but skips the first element of the list."
                                    "")))
              ;; Strip off the leading "^" for flx matching
              (flx-name (if bolp (substring name 1) name))
+             (cache (ivy--flx-cache))
              cands-left
              cands-to-sort)
 
@@ -3883,8 +3903,10 @@ N wraps around, but skips the first element of the list."
         (setq cands-left (cl-sort cands-left #'< :key #'length))
 
         ;; partition the candidates into sorted and unsorted groups
-        (dotimes (_ (min (length cands-left) ivy-flx-limit))
-          (push (pop cands-left) cands-to-sort))
+        (let ((i 0))
+          (while (and cands-left (< i ivy-flx-limit))
+            (push (pop cands-left) cands-to-sort)
+            (setq i (1+ i))))
 
         (nconc
          ;; Compute all of the flx scores in one pass and sort
@@ -3892,7 +3914,7 @@ N wraps around, but skips the first element of the list."
                  (sort (mapcar
                         (lambda (cand)
                           (cons cand
-                                (car (flx-score cand flx-name ivy--flx-cache))))
+                                (car (flx-score cand flx-name cache))))
                         cands-to-sort)
                        (lambda (c1 c2)
                          ;; Break ties by length
@@ -3971,11 +3993,11 @@ It has it by default, but the current theme also needs to set it."
 
 (defun ivy--highlight-fuzzy (str)
   "Highlight STR, using the fuzzy method."
-  (if (and ivy--flx-featurep
-           (eq (ivy-alist-setting ivy-re-builders-alist) 'ivy--regex-fuzzy))
+  (if (and (ivy--flx-featurep)
+           (eq (ivy-alist-setting ivy-re-builders-alist) #'ivy--regex-fuzzy))
       (let ((flx-name (string-remove-prefix "^" ivy-text)))
         (ivy--flx-propertize
-         (cons (flx-score str flx-name ivy--flx-cache) str)))
+         (cons (flx-score str flx-name (ivy--flx-cache)) str)))
     (ivy--highlight-default str)))
 
 (defcustom ivy-use-group-face-if-no-groups t
@@ -4747,9 +4769,9 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
   "Toggle the re builder between `ivy--regex-fuzzy' and `ivy--regex-plus'."
   (interactive)
   (setq ivy--old-re nil)
-  (if (eq ivy--regex-function 'ivy--regex-fuzzy)
-      (setq ivy--regex-function 'ivy--regex-plus)
-    (setq ivy--regex-function 'ivy--regex-fuzzy)))
+  (if (eq ivy--regex-function #'ivy--regex-fuzzy)
+      (setq ivy--regex-function #'ivy--regex-plus)
+    (setq ivy--regex-function #'ivy--regex-fuzzy)))
 
 (defun ivy--label-and-delete-dups (entries)
   "Label ENTRIES with history indices."
