@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper)
-
 ***flexible, simple tools for minibuffer completion in Emacs***
 
 This repository contains:
