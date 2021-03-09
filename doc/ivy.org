@@ -1041,6 +1041,9 @@ bindings that work here:
 
      Switch to matching literally since file names include =.=, which
      is for matching any char in regexp mode.
+- ~M-C~ (=ivy-toggle-case-fold=) ::
+     Toggle case folding (match both upper and lower case characters for lower
+     case input).
 
 - User Option =ivy-extra-directories= ::
      Decide if you want to see =../= and =./= during file name

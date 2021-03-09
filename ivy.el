@@ -343,6 +343,7 @@ Remove DEF from `counsel-M-x' list."
     (ivy-define-key map (kbd "C-M-p") 'ivy-previous-line-and-call)
     (ivy-define-key map (kbd "M-a") 'ivy-toggle-marks)
     (ivy-define-key map (kbd "M-r") 'ivy-toggle-regexp-quote)
+    (ivy-define-key map (kbd "M-C") 'ivy-toggle-case-fold)
     (ivy-define-key map (kbd "M-j") 'ivy-yank-word)
     (ivy-define-key map (kbd "M-i") 'ivy-insert-current)
     (ivy-define-key map (kbd "C-M-y") 'ivy-insert-current-full)
