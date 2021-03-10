@@ -2940,14 +2940,24 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
     (define-key map (kbd "C-x C-d") 'counsel-cd)
     map))
 
-(defcustom counsel-ag-base-command "ag --vimgrep %s"
-  "Format string to use in `counsel-ag-function' to construct the command.
-The %s will be replaced by optional extra ag arguments followed by the
-regex string."
-  :type '(radio
-          (const "ag --vimgrep %s")
-          (const "ag --nocolor --nogroup %s")
-          (string :tag "custom")))
+(defcustom counsel-ag-base-command (list "ag" "--vimgrep" "%s")
+  "Template for default `counsel-ag' command.
+The value should be either a list of strings, starting with the
+`ag' executable file name and followed by its arguments, or a
+single string describing a full `ag' shell command.
+
+If the command is specified as a list, `ag' is called directly
+using `process-file'; otherwise, it is called as a shell command.
+Calling `ag' directly avoids various shell quoting pitfalls, so
+it is generally recommended.
+
+If the string \"%s\" appears as an element of the list, or as a
+substring of the command string, it is replaced by any optional
+`ag' arguments followed by the search regexp specified during the
+`counsel-ag' session."
+  :package-version '(counsel . "0.14.0")
+  :type '(choice (repeat :tag "Command list to call directly" string)
+                 (string :tag "Shell command")))
 
 (defvar counsel-ag-command nil)
 
@@ -3020,9 +3030,10 @@ NEEDLE is the search string."
 ;;;###autoload
 (cl-defun counsel-ag (&optional initial-input initial-directory extra-ag-args ag-prompt
                       &key caller)
-  "Grep for a string in a root directory using ag.
+  "Grep for a string in a root directory using `ag'.
 
-By default, the root directory is the first directory containing a .git subdirectory.
+By default, the root directory is the first directory containing
+a .git subdirectory.
 
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
@@ -3190,19 +3201,23 @@ This uses `counsel-ag' with `counsel-ack-base-command' replacing
      initial-input nil nil nil
      :caller 'counsel-ack)))
 
-
 ;;** `counsel-rg'
 (defcustom counsel-rg-base-command
-  (split-string
-   (if (memq system-type '(ms-dos windows-nt))
-       "rg -M 240 --with-filename --no-heading --line-number --color never %s --path-separator / ."
-     "rg -M 240 --with-filename --no-heading --line-number --color never %s"))
-  "Alternative to `counsel-ag-base-command' using ripgrep.
+  `("rg"
+    "--max-columns" "240"
+    "--with-filename"
+    "--no-heading"
+    "--line-number"
+    "--color" "never"
+    "%s"
+    ,@(and (memq system-type '(ms-dos windows-nt))
+           (list "--path-separator" "/" ".")))
+  "Like `counsel-ag-base-command', but for `counsel-rg'.
 
-Note: don't use single quotes for the regex."
-  :type '(choice
-          (repeat :tag "List to be used in `process-file'." string)
-          (string :tag "String to be used in `shell-command-to-string'.")))
+Note: don't use single quotes for the regexp."
+  :package-version '(counsel . "0.14.0")
+  :type '(choice (repeat :tag "Command list to call directly" string)
+                 (string :tag "Shell command")))
 
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
@@ -3219,7 +3234,7 @@ Note: don't use single quotes for the regex."
 
 ;;;###autoload
 (defun counsel-rg (&optional initial-input initial-directory extra-rg-args rg-prompt)
-  "Grep for a string in the current directory using rg.
+  "Grep for a string in the current directory using `rg'.
 INITIAL-INPUT can be given as the initial minibuffer input.
 INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 EXTRA-RG-ARGS string, if non-nil, is appended to `counsel-rg-base-command'.
