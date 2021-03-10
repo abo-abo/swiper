@@ -4570,6 +4570,8 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
+(put #'counsel-yank-pop 'delete-selection 'yank)
+
 (ivy-configure 'counsel-yank-pop
   :height 5
   :format-fn #'counsel--yank-pop-format-function)
