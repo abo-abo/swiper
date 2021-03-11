@@ -217,22 +217,23 @@ version that runs Ivy with fancy faces display.
 
 @kbd{M-x} @code{package-install} @kbd{RET} @code{counsel} @kbd{RET}
 
-Ivy is installed as part of the @code{counsel} package, which is available
+Ivy is installed alongside the @code{counsel} package, which is available
 from two different package archives, GNU ELPA and MELPA@.  For the
-latest stable version, use the GNU ELPA archives.  For current hourly
-builds, use the MELPA archives.
+latest stable version, use the GNU ELPA archive.  For the latest
+development snaphshot, use the GNU-devel ELPA archive.
 
 Ivy is split into three packages: @code{ivy}, @code{swiper} and @code{counsel}; by
 installing @code{counsel}, the other two are brought in as dependencies.
 If you are not interested in the extra functionality provided by
 @code{swiper} and @code{counsel}, you can install only @code{ivy}.
 
-See the code below for adding MELPA to the list of package archives:
+See the code below for adding GNU-devel ELPA to your list of package
+archives:
 
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+             '("gnu-devel" . "https://elpa.gnu.org/devel/"))
 @end lisp
 
 After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by @kbd{M-x}
@@ -247,7 +248,7 @@ For package manager details, see @ref{Packages,,,emacs,}.
 @indentedblock
 @itemize
 @item
-No need to wait for MELPA's hourly builds
+No need to wait for GNU ELPA / MELPA builds
 @item
 Easy to revert to previous versions
 @item

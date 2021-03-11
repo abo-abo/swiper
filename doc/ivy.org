@@ -150,22 +150,23 @@ version that runs Ivy with fancy faces display.
 
 ~M-x~ =package-install= ~RET~ =counsel= ~RET~
 
-Ivy is installed as part of the =counsel= package, which is available
+Ivy is installed alongside the =counsel= package, which is available
 from two different package archives, GNU ELPA and MELPA.  For the
-latest stable version, use the GNU ELPA archives.  For current hourly
-builds, use the MELPA archives.
+latest stable version, use the GNU ELPA archive.  For the latest
+development snaphshot, use the GNU-devel ELPA archive.
 
 Ivy is split into three packages: =ivy=, =swiper= and =counsel=; by
 installing =counsel=, the other two are brought in as dependencies.
 If you are not interested in the extra functionality provided by
 =swiper= and =counsel=, you can install only =ivy=.
 
-See the code below for adding MELPA to the list of package archives:
+See the code below for adding GNU-devel ELPA to your list of package
+archives:
 
 #+begin_src elisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
+             '("gnu-devel" . "https://elpa.gnu.org/devel/"))
 #+end_src
 
 After this do ~M-x~ =package-refresh-contents= ~RET~, followed by ~M-x~
@@ -180,7 +181,7 @@ For package manager details, see [[info:emacs#Packages]].
 
 - Why install from Git? ::
 
-    - No need to wait for MELPA's hourly builds
+    - No need to wait for GNU ELPA / MELPA builds
     - Easy to revert to previous versions
     - Contribute to Ivy's development; send patches; pull requests
 

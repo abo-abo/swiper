@@ -9,10 +9,12 @@ This repository contains:
 **Counsel**, a collection of Ivy-enhanced versions of common Emacs
 commands.
 
-**Swiper**, an Ivy-enhanced alternative to isearch.
+**Swiper**, an Ivy-enhanced alternative to Isearch.
 
 # Ivy
 
+[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/ivy.html)
+[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/ivy.html)
 [![MELPA](https://melpa.org/packages/ivy-badge.svg)](https://melpa.org/#/ivy)
 [![MELPA Stable](https://stable.melpa.org/packages/ivy-badge.svg)](https://stable.melpa.org/#/ivy)
 
@@ -27,7 +29,7 @@ buffer names.
 
 ### Installation
 
-Install the `ivy` package from MELPA / GNU ELPA.
+Install the `ivy` package from GNU ELPA or MELPA.
 
 Users of Debian ≥10 (and derivatives such as Ubuntu ≥18.04) can
 install Ivy, Counsel, and Swiper with `sudo apt install elpa-counsel`.
@@ -38,10 +40,10 @@ To add Hydra support `sudo apt install elpa-ivy-hydra`.
 ### Manual
 The manual is available as [HTML](https://oremacs.com/swiper/).
 
-After installing from MELPA, the manual is also available through the `(ivy)` Info node.
+Installing `ivy` from GNU ELPA or MELPA also installs the manual under
+the `(ivy)` Info node.
 
-The source file for the Info page is
-[here](https://github.com/abo-abo/swiper/blob/master/doc/ivy.org).
+The source file for the Info page is [here](doc/ivy.org).
 
 ### Wiki
 Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
@@ -49,7 +51,7 @@ Ivy and Swiper wiki is here: [the wiki](https://github.com/abo-abo/swiper/wiki).
 ### Small config example
 
 ```elisp
-(ivy-mode 1)
+(ivy-mode)
 (setq ivy-use-virtual-buffers t)
 (setq enable-recursive-minibuffers t)
 ;; enable this if you want `swiper' to use it
@@ -77,6 +79,8 @@ Note: parts of this config can be replaced by using `counsel-mode`.
 
 # Counsel
 
+[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/counsel.html)
+[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/counsel.html)
 [![MELPA](https://melpa.org/packages/counsel-badge.svg)](https://melpa.org/#/counsel)
 [![MELPA Stable](https://stable.melpa.org/packages/counsel-badge.svg)](https://stable.melpa.org/#/counsel)
 
@@ -84,43 +88,45 @@ Note: parts of this config can be replaced by using `counsel-mode`.
 `completing-read-function` uses ivy for completion.
 
 Counsel takes this further, providing versions of common Emacs
-commands that are customised to make the best use of ivy. For example,
+commands that are customised to make the best use of Ivy. For example,
 `counsel-find-file` has some additional keybindings. Pressing
 <kbd>DEL</kbd> will move you to the parent directory.
 
 Enabling `counsel-mode` remaps built-in Emacs functions that have
 counsel replacements:
 
-| Emacs command            | Counsel equivalent         |
-|--------------------------|----------------------------|
-| execute-extended-command | counsel-M-x                |
-| describe-bindings        | counsel-descbinds          |
-| describe-function        | counsel-describe-function  |
-| describe-variable        | counsel-describe-variable  |
-| apropos-command          | counsel-apropos            |
-| describe-face            | counsel-describe-face      |
-| list-faces-display       | counsel-faces              |
-| find-file                | counsel-find-file          |
-| find-library             | counsel-find-library       |
-| imenu                    | counsel-imenu              |
-| load-library             | counsel-load-library       |
-| load-theme               | counsel-load-theme         |
-| yank-pop                 | counsel-yank-pop           |
-| info-lookup-symbol       | counsel-info-lookup-symbol |
-| pop-to-mark-command      | counsel-mark-ring          |
-| bookmark-jump            | counsel-bookmark           |
+| Emacs command              | Counsel equivalent           |
+|----------------------------|------------------------------|
+| `execute-extended-command` | `counsel-M-x`                |
+| `describe-bindings`        | `counsel-descbinds`          |
+| `describe-function`        | `counsel-describe-function`  |
+| `describe-variable`        | `counsel-describe-variable`  |
+| `apropos-command`          | `counsel-apropos`            |
+| `describe-face`            | `counsel-describe-face`      |
+| `list-faces-display`       | `counsel-faces`              |
+| `find-file`                | `counsel-find-file`          |
+| `find-library`             | `counsel-find-library`       |
+| `imenu`                    | `counsel-imenu`              |
+| `load-library`             | `counsel-load-library`       |
+| `load-theme`               | `counsel-load-theme`         |
+| `yank-pop`                 | `counsel-yank-pop`           |
+| `info-lookup-symbol`       | `counsel-info-lookup-symbol` |
+| `pop-to-mark-command`      | `counsel-mark-ring`          |
+| `bookmark-jump`            | `counsel-bookmark`           |
 
 # Swiper
 
+[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/swiper.html)
+[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/swiper.html)
 [![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
 [![MELPA Stable](https://stable.melpa.org/packages/swiper-badge.svg)](https://stable.melpa.org/#/swiper)
 
-Swiper is an alternative to isearch that uses ivy to show an overview
+Swiper is an alternative to isearch that uses Ivy to show an overview
 of all matches.
 
 ![swiper.png](https://oremacs.com/download/swiper.png)
 
-A helm version of swiper is also available:
+A Helm version of Swiper is also available:
 [swiper-helm](https://github.com/abo-abo/swiper-helm).
 
 ## Screenshots
@@ -139,4 +145,4 @@ A: Press <kbd>C-M-j</kbd>. Alternatively, you can make the prompt line selectabl
 
 # Contributing
 
-Please see the [guidelines](https://github.com/abo-abo/swiper/blob/master/CONTRIBUTING.org) for reporting issues and opening pull requests.
+Please see the [guidelines](CONTRIBUTING.org) for reporting issues and opening pull requests.
