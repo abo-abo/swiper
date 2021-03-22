@@ -5448,6 +5448,9 @@ Return nil if NAME does not designate a valid color."
                      'face (list :foreground fg :background hex))))
      formatter colors "\n")))
 
+;; No longer preloaded in Emacs 28.
+(autoload 'list-colors-duplicates "facemenu")
+
 ;;;###autoload
 (defun counsel-colors-emacs ()
   "Show a list of all supported colors for a particular frame.
