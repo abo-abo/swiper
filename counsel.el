@@ -5431,6 +5431,8 @@ Return nil if NAME does not designate a valid color."
                      'face (list :foreground fg :background hex))))
      formatter colors "\n")))
 
+(declare-function list-colors-duplicates "facemenu")
+
 ;;;###autoload
 (defun counsel-colors-emacs ()
   "Show a list of all supported colors for a particular frame.
@@ -5438,6 +5440,7 @@ Return nil if NAME does not designate a valid color."
 You can insert or kill the name or hexadecimal RGB value of the
 selected color."
   (interactive)
+  (require 'facemenu)
   (let* ((colors
           (delete nil
                   (mapcar (lambda (cell)
