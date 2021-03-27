@@ -894,9 +894,12 @@ CAND is a string returned by `counsel--M-x-externs'."
       (and (commandp sym)
            (not (get sym 'byte-obsolete-info))
            (not (get sym 'no-counsel-M-x))
-           (or (not (bound-and-true-p read-extended-command-predicate))
-               (and (functionp read-extended-command-predicate)
-                    (funcall read-extended-command-predicate sym buf)))))))
+           (cond ((not (bound-and-true-p read-extended-command-predicate)))
+                 ((functionp read-extended-command-predicate)
+                  (condition-case-unless-debug err
+                      (funcall read-extended-command-predicate sym buf)
+                    (error (message "read-extended-command-predicate: %s: %s"
+                                    sym (error-message-string err))))))))))
 
 (defun counsel--M-x-prompt ()
   "String for `M-x' plus the string representation of `current-prefix-arg'."
