@@ -370,9 +370,11 @@ Update the minibuffer with the amount of lines collected every
   (let ((len (cond ((let (l)
                       (and company-common
                            (string= company-common
-                                    (buffer-substring
-                                     (- (point) (setq l (length company-common)))
-                                     (point)))
+                                    (downcase
+                                      (buffer-substring
+                                        (- (point) (setq l (length company-common)))
+                                        (point))))
+                           (setq company-prefix company-common)
                            l)))
                    (company-prefix
                     (length company-prefix)))))
