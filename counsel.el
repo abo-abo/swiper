@@ -369,23 +369,11 @@ Update the minibuffer with the amount of lines collected every
   (company-mode 1)
   (unless company-candidates
     (company-complete))
-  (let ((len (cond ((let (l)
-                      (and company-common
-                           (string= company-common
-                                    (downcase
-                                      (buffer-substring
-                                        (- (point) (setq l (length company-common)))
-                                        (point))))
-                           (setq company-prefix company-common)
-                           l)))
-                   (company-prefix
-                    (length company-prefix)))))
-    (when len
-      (setq ivy-completion-beg (- (point) len))
-      (setq ivy-completion-end (point))
-      (ivy-read "Candidate: " company-candidates
-                :action 'company-finish
-                :caller 'counsel-company))))
+  (company--continue)
+  (when company-candidates
+    (ivy-read "Candidate: " company-candidates
+              :action 'company-finish
+              :caller 'counsel-company)))
 
 (ivy-configure 'counsel-company
   :display-transformer-fn #'counsel--company-display-transformer
