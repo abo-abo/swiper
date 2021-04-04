@@ -1969,7 +1969,7 @@ but the leading dot is a lot faster."
           (const :tag "None" nil)
           (const :tag "Dotfiles and Lockfiles" "\\(?:\\`\\|[/\\]\\)\\(?:[#.]\\)")
           (const :tag "Ignored Extensions"
-                 ,(regexp-opt completion-ignored-extensions))
+                 ,(concat (regexp-opt completion-ignored-extensions) "\\'"))
           (regexp :tag "Regex")))
 
 (defvar counsel--find-file-predicate nil
