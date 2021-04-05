@@ -84,6 +84,7 @@
           (t
            (throw 'done 'restart)))))
 
+;;;###autoload
 (defun ivy-avy ()
   "Jump to one of the current ivy candidates."
   (interactive)
