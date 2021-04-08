@@ -4918,6 +4918,26 @@ An extra action allows to switch to the process buffer."
 ;; `counsel-slime-repl-history' within
 ;; `counsel--browse-history-action'.
 
+;;** `counsel-esh-dir-history'
+(declare-function eshell/cd "eshell")
+
+(defun counsel--esh-dir-history-action-cd (pair)
+  "Default action for counsel-esh-dir-history. It changes the
+current working directory to the one selected by the user."
+  (eshell/cd (car pair)))
+
+(defvar eshell-last-dir-ring)
+
+;;;###autoload
+(cl-defun counsel-esh-dir-history ()
+  "Use Ivy to navigate and jump through Eshell's directory stack."
+  (interactive)
+  (require 'em-dirs)
+  (ivy-read "Directory to change to: " (ivy-history-contents eshell-last-dir-ring)
+            :keymap ivy-reverse-i-search-map
+            :action #'counsel--esh-dir-history-action-cd
+            :caller #'counsel-esh-dir-history))
+
 ;;** `counsel-hydra-heads'
 (defvar hydra-curr-body-fn)
 (declare-function hydra-keyboard-quit "ext:hydra")
