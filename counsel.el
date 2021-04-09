@@ -4926,6 +4926,12 @@ An extra action allows to switch to the process buffer."
 current working directory to the one selected by the user."
   (eshell/cd (car pair)))
 
+(defun counsel--esh-dir-history-action-edit (pair)
+  "Action for counsel-esh-dir-history to insert the selected
+directory to the Eshell buffer prefixed by \"cd \", allowing the
+caller to modify parts of the directory before switching to it."
+  (ivy--action-insert (format "cd %s" (car pair))))
+
 (defvar eshell-last-dir-ring)
 
 ;;;###autoload
@@ -4937,6 +4943,10 @@ current working directory to the one selected by the user."
             :keymap ivy-reverse-i-search-map
             :action #'counsel--esh-dir-history-action-cd
             :caller #'counsel-esh-dir-history))
+
+(ivy-set-actions
+ 'counsel-esh-dir-history
+ '(("e" counsel--esh-dir-history-action-edit "edit")))
 
 ;;** `counsel-hydra-heads'
 (defvar hydra-curr-body-fn)
