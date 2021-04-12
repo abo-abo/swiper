@@ -4909,13 +4909,12 @@ directory to the Eshell buffer prefixed by \"cd \", allowing the
 caller to modify parts of the directory before switching to it."
   (ivy--action-insert (format "cd %s" (car pair))))
 
-(defvar eshell-last-dir-ring)
-
 ;;;###autoload
 (cl-defun counsel-esh-dir-history ()
   "Use Ivy to navigate and jump through Eshell's directory stack."
   (interactive)
   (require 'em-dirs)
+  (defvar eshell-last-dir-ring)
   (ivy-read "Directory to change to: " (ivy-history-contents eshell-last-dir-ring)
             :keymap ivy-reverse-i-search-map
             :action #'counsel--esh-dir-history-action-cd
