@@ -4915,7 +4915,7 @@ This function is an action for `counsel-esh-dir-history' to
 insert the selected directory (provided as the `car' of PAIR) to
 the Eshell buffer prefixed by \"cd \", allowing the caller to
 modify parts of the directory before switching to it."
-  (insert (format "cd %s" (car pair))))
+  (insert "cd " (car pair)))
 
 ;;;###autoload
 (defun counsel-esh-dir-history ()
