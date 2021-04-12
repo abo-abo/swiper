@@ -4899,14 +4899,18 @@ An extra action allows to switch to the process buffer."
 (declare-function eshell/cd "em-dirs")
 
 (defun counsel--esh-dir-history-action-cd (pair)
-  "Default action for counsel-esh-dir-history. It changes the
-current working directory to the one selected by the user."
+  "Change the current working directory to the selection.
+This function is the default action for `counsel-esh-dir-history'
+and changes the working directory in Eshell to the selected
+candidate which must be provided as the `car' of PAIR."
   (eshell/cd (car pair)))
 
 (defun counsel--esh-dir-history-action-edit (pair)
-  "Action for counsel-esh-dir-history to insert the selected
-directory to the Eshell buffer prefixed by \"cd \", allowing the
-caller to modify parts of the directory before switching to it."
+  "Insert the selection to the Eshell buffer prefixed by \"cd \".
+This function is an action for `counsel-esh-dir-history' to
+insert the selected directory (provided as the `car' of PAIR) to
+the Eshell buffer prefixed by \"cd \", allowing the caller to
+modify parts of the directory before switching to it."
   (insert (format "cd %s" (car pair))))
 
 ;;;###autoload
