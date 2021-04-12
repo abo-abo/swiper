@@ -4910,7 +4910,7 @@ caller to modify parts of the directory before switching to it."
   (ivy--action-insert (format "cd %s" (car pair))))
 
 ;;;###autoload
-(cl-defun counsel-esh-dir-history ()
+(defun counsel-esh-dir-history ()
   "Use Ivy to navigate and jump through Eshell's directory stack."
   (interactive)
   (require 'em-dirs)
