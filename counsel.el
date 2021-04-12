@@ -4848,7 +4848,11 @@ An extra action allows to switch to the process buffer."
        nil))
     (ivy-completion-in-region-action (car pair))))
 
-(cl-defun counsel--browse-history (ring &key caller)
+(cl-defun counsel--browse-history (ring
+                                   &key
+                                     caller
+                                     (prompt "History: ")
+                                     (action #'counsel--browse-history-action))
   "Use Ivy to navigate through RING."
   (let* ((proc (get-buffer-process (current-buffer)))
          (end (point))
@@ -4859,10 +4863,10 @@ An extra action allows to switch to the process buffer."
                   (concat "^" (buffer-substring beg end)))))
     (setq ivy-completion-beg beg)
     (setq ivy-completion-end end)
-    (ivy-read "History: " (ivy-history-contents ring)
+    (ivy-read prompt (ivy-history-contents ring)
               :keymap ivy-reverse-i-search-map
               :initial-input input
-              :action #'counsel--browse-history-action
+              :action action
               :caller caller)))
 
 (defvar eshell-history-ring)
@@ -4919,10 +4923,10 @@ modify parts of the directory before switching to it."
   (interactive)
   (require 'em-dirs)
   (defvar eshell-last-dir-ring)
-  (ivy-read "Directory to change to: " (ivy-history-contents eshell-last-dir-ring)
-            :keymap ivy-reverse-i-search-map
-            :action #'counsel--esh-dir-history-action-cd
-            :caller #'counsel-esh-dir-history))
+  (counsel--browse-history eshell-last-dir-ring
+                           :caller #'counsel-esh-dir-history
+                           :action #'counsel--esh-dir-history-action-cd
+                           :prompt "Directory to change to: "))
 
 (ivy-set-actions
  'counsel-esh-dir-history
