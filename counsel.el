@@ -4896,7 +4896,7 @@ An extra action allows to switch to the process buffer."
                            :caller #'counsel-shell-history))
 
 ;;** `counsel-esh-dir-history'
-(declare-function eshell/cd "eshell")
+(declare-function eshell/cd "em-dirs")
 
 (defun counsel--esh-dir-history-action-cd (pair)
   "Default action for counsel-esh-dir-history. It changes the
