@@ -4886,7 +4886,8 @@ modify parts of the directory before switching to it."
                                      caller
                                      (prompt "History: ")
                                      (action #'counsel--browse-history-action))
-  "Use Ivy to navigate through RING."
+  "Use Ivy to navigate through RING.
+A custom PROMPT and a default ACTION may be provided."
   (let* ((proc (get-buffer-process (current-buffer)))
          (end (point))
          (beg (if proc
