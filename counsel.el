@@ -4911,7 +4911,7 @@ caller to modify parts of the directory before switching to it."
 
 ;;;###autoload
 (defun counsel-esh-dir-history ()
-  "Use Ivy to navigate and jump through Eshell's directory stack."
+  "Use Ivy to browse Eshell's directory stack."
   (interactive)
   (require 'em-dirs)
   (defvar eshell-last-dir-ring)
