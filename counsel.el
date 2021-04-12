@@ -4895,29 +4895,6 @@ An extra action allows to switch to the process buffer."
   (counsel--browse-history comint-input-ring
                            :caller #'counsel-shell-history))
 
-(defadvice comint-previous-matching-input (before
-                                           counsel-set-comint-history-index
-                                           activate)
-  "Reassign `comint-input-ring-index'."
-  (when (and (memq last-command '(ivy-alt-done ivy-done))
-             (equal (ivy-state-caller ivy-last) 'counsel-shell-history))
-    (setq comint-input-ring-index counsel-shell-history--index-last)))
-
-(defvar slime-repl-input-history)
-
-;;;###autoload
-(defun counsel-slime-repl-history ()
-  "Browse Slime REPL history."
-  (interactive)
-  (require 'slime-repl)
-  (counsel--browse-history slime-repl-input-history
-                           :caller #'counsel-slime-repl-history))
-
-;; TODO: add advice for slime-repl-input-previous/next to properly
-;; reassign the ring index and match string.  This requires a case for
-;; `counsel-slime-repl-history' within
-;; `counsel--browse-history-action'.
-
 ;;** `counsel-esh-dir-history'
 (declare-function eshell/cd "eshell")
 
@@ -4947,6 +4924,29 @@ caller to modify parts of the directory before switching to it."
 (ivy-set-actions
  'counsel-esh-dir-history
  '(("e" counsel--esh-dir-history-action-edit "edit")))
+
+(defadvice comint-previous-matching-input (before
+                                           counsel-set-comint-history-index
+                                           activate)
+  "Reassign `comint-input-ring-index'."
+  (when (and (memq last-command '(ivy-alt-done ivy-done))
+             (equal (ivy-state-caller ivy-last) 'counsel-shell-history))
+    (setq comint-input-ring-index counsel-shell-history--index-last)))
+
+(defvar slime-repl-input-history)
+
+;;;###autoload
+(defun counsel-slime-repl-history ()
+  "Browse Slime REPL history."
+  (interactive)
+  (require 'slime-repl)
+  (counsel--browse-history slime-repl-input-history
+                           :caller #'counsel-slime-repl-history))
+
+;; TODO: add advice for slime-repl-input-previous/next to properly
+;; reassign the ring index and match string.  This requires a case for
+;; `counsel-slime-repl-history' within
+;; `counsel--browse-history-action'.
 
 ;;** `counsel-hydra-heads'
 (defvar hydra-curr-body-fn)
