@@ -4846,8 +4846,8 @@ modify parts of the directory before switching to it."
   (defvar eshell-last-dir-ring)
   (counsel--browse-history eshell-last-dir-ring
                            :caller #'counsel-esh-dir-history
-                           :action #'counsel--esh-dir-history-action-cd
-                           :prompt "Directory to change to: "))
+                           :prompt "Directory to change to: "
+                           :action #'counsel--esh-dir-history-action-cd))
 
 (ivy-set-actions
  'counsel-esh-dir-history
