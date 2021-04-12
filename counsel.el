@@ -4907,7 +4907,7 @@ current working directory to the one selected by the user."
   "Action for counsel-esh-dir-history to insert the selected
 directory to the Eshell buffer prefixed by \"cd \", allowing the
 caller to modify parts of the directory before switching to it."
-  (ivy--action-insert (format "cd %s" (car pair))))
+  (insert (format "cd %s" (car pair))))
 
 ;;;###autoload
 (defun counsel-esh-dir-history ()
