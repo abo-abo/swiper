@@ -540,7 +540,7 @@ Hydra menu offers these additional bindings:
      Toggle calling the action after each candidate change. It
      modifies ~j~ to ~jg~, ~k~ to ~kg~ etc.
 
-- ~m~ (=ivy-rotate-preferred-builders=) ::
+- ~M~ (=ivy-rotate-preferred-builders=) ::
      Rotate the current regexp matcher.
 
 - ~>~ (=ivy-minibuffer-grow=) ::
