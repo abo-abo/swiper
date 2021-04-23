@@ -2214,6 +2214,13 @@ customizations apply to the current completion session."
 
 (defvar Info-complete-menu-buffer)
 
+(defun ivy--alist-to-cands (alist)
+  "Transform ALIST to a list of strings."
+  (let ((i -1))
+    (mapcar (lambda (x)
+              (propertize x 'idx (cl-incf i)))
+            (all-completions "" alist))))
+
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
@@ -2335,10 +2342,7 @@ This is useful for recursive `ivy-read'."
                (setq collection (sort (copy-sequence collection) sort-fn))
                (setq sort nil))
              (setf (ivy-state-collection ivy-last) collection)
-             (setq coll (let ((i -1))
-                          (mapcar (lambda (x)
-                                    (propertize x 'idx (cl-incf i)))
-                                  (all-completions "" collection)))))
+             (setq coll (ivy--alist-to-cands collection)))
             ((or (functionp collection)
                  (byte-code-function-p collection)
                  (vectorp collection)
