@@ -1240,11 +1240,11 @@ otherwise continue prompting for buffers."
       (t (buffer-file-name buffer)))))
 
 ;;* `swiper-all'
-(defun swiper-all-function (str)
-  "Search in all open buffers for STR."
+(defun swiper-all-buffers-function (str buffers)
+  "Search in all given BUFFERS for STR."
   (or
    (ivy-more-chars)
-   (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p (buffer-list)))
+   (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p buffers))
           (re-full ivy-regex)
           re re-tail
           cands match
@@ -1275,6 +1275,10 @@ otherwise continue prompting for buffers."
      (if (null cands)
          (list "")
        (setq ivy--old-cands (nreverse cands))))))
+
+(defun swiper-all-function (str)
+  "Search in all buffers for STR."
+  (swiper-all-buffers-function str (buffer-list)))
 
 (defun swiper--all-format-function (cands)
   "Format CANDS for `swiper-all'.
