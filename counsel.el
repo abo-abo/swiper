@@ -2617,18 +2617,27 @@ string - the full shell command to run."
   "Use `dired-jump' on X."
   (dired-jump nil x))
 
+(defun counsel--locate-executable ()
+  "Return an available `locate' implementation's executable name."
+  (cond
+   ((counsel-require-program "plocate" 'noerror)
+    "plocate")
+   ((counsel-require-program "locate")
+    "locate")))
+
 (defun counsel-locate-cmd-default (input)
   "Return a `locate' shell command based on regexp INPUT."
-  (counsel-require-program "locate")
-  (format "locate -i --regex %s"
+  (format "%s -i --regex %s"
+          (counsel--locate-executable)
           (shell-quote-argument
            (counsel--elisp-to-pcre
             (ivy--regex input)))))
 
 (defun counsel-locate-cmd-noregex (input)
   "Return a `locate' shell command based on INPUT."
-  (counsel-require-program "locate")
-  (format "locate -i %s" (shell-quote-argument input)))
+  (format "%s -i %s"
+          (counsel--locate-executable)
+          (shell-quote-argument input)))
 
 (defun counsel-locate-cmd-mdfind (input)
   "Return a `mdfind' shell command based on INPUT."
