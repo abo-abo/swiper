@@ -380,8 +380,8 @@ extends usability of lists in Emacs.
      (should
       (equal (ivy-with
               '(progn
-                (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-                ivy-text)
+                 (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+                 ivy-text)
               "c <tab>")
              "can"))
      #+end_src
@@ -1376,8 +1376,8 @@ displayed strings.
   (ivy-read "Find symbols: "
             #'find-candidates-function
             :action (lambda (x)
-                      (message "Value: %s" (get-text-property 0 'property x)
-                       ))))
+                      (message "Value: %s"
+                               (get-text-property 0 'property x)))))
 #+END_SRC
 
 Here are the interesting features of the above function:
