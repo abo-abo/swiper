@@ -1894,6 +1894,7 @@ The child caller inherits and can override the settings of the parent.")
                          unwind-fn
                          index-fn
                          sort-fn
+                         sort-matches-fn
                          format-fn
                          display-fn
                          display-transformer-fn
@@ -1921,6 +1922,8 @@ The child caller inherits and can override the settings of the parent.")
     (ivy--alist-set 'ivy-index-functions-alist caller index-fn))
   (when sort-fn
     (ivy--alist-set 'ivy-sort-functions-alist caller sort-fn))
+  (when sort-matches-fn
+    (ivy--alist-set 'ivy-sort-matches-functions-alist caller sort-matches-fn))
   (when format-fn
     (ivy--alist-set 'ivy-format-functions-alist caller format-fn))
   (when display-fn
