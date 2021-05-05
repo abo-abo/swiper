@@ -1098,6 +1098,7 @@ Usable with `ivy-resume', `ivy-next-line-and-call' and
   (ivy-read "Load custom theme: "
             (mapcar 'symbol-name
                     (custom-available-themes))
+            :preselect (symbol-name (car custom-enabled-themes))
             :action #'counsel-load-theme-action
             :caller 'counsel-load-theme))
 
