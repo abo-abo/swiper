@@ -2620,7 +2620,9 @@ string - the full shell command to run."
 (defvar locate-command)
 
 (defun counsel-locate-cmd-default (input)
-  "Return a `locate' shell command based on regexp INPUT."
+  "Return a `locate' shell command based on regexp INPUT.
+This uses the user option `locate-command' from the `locate'
+library, which see."
   (counsel-require-program locate-command)
   (format "%s -i --regex %s"
           locate-command
@@ -2629,7 +2631,9 @@ string - the full shell command to run."
             (ivy--regex input)))))
 
 (defun counsel-locate-cmd-noregex (input)
-  "Return a `locate' shell command based on INPUT."
+  "Return a `locate' shell command based on INPUT.
+This uses the user option `locate-command' from the `locate'
+library, which see."
   (counsel-require-program locate-command)
   (format "%s -i %s"
           locate-command
