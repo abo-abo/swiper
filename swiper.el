@@ -1398,24 +1398,20 @@ See `ivy-format-functions-alist' for further information."
         (nreverse cands)))))
 
 (defun swiper--isearch-next-item (re cands)
-  (if swiper--isearch-backward
-      (or
-       (cl-position-if
-        (lambda (x)
-          (and
-           (< x swiper--isearch-start-point)
-           (eq 0 (string-match-p
-                  re
-                  (buffer-substring-no-properties
-                   x swiper--isearch-start-point)))))
-        cands
-        :from-end t)
-       0)
-    (or
-     (cl-position-if
-      (lambda (x) (> x swiper--isearch-start-point))
-      cands)
-     0)))
+  (or (if swiper--isearch-backward
+          (save-excursion
+            ;; Match RE starting at each position in CANDS.
+            (setq re (concat "\\=\\(?:" re "\\)"))
+            (cl-position-if
+             (lambda (x)
+               (when (< x swiper--isearch-start-point)
+                 (goto-char x)
+                 ;; Note: Not quite the same as `looking-at' + `match-end'.
+                 (re-search-forward re swiper--isearch-start-point t)))
+             cands
+             :from-end t))
+        (cl-position swiper--isearch-start-point cands :test #'<))
+      0))
 
 (defun swiper--isearch-filter-ignore-order (re-full cands)
   (let (filtered-cands)
