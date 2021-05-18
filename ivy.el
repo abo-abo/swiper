@@ -3068,6 +3068,26 @@ parts beyond their respective faces `ivy-confirm-face' and
            (funcall fn (ivy-state-prompt ivy-last))))
       ivy--prompt)))
 
+(defun ivy--break-lines (str width)
+  "Break each line in STR with newlines to fit into WIDTH columns."
+  (if (<= width 0)
+      str
+    (let (lines)
+      (dolist (line (split-string str "\n"))
+        (while (and line (> (string-width line) width))
+          (let ((prefix "") (extra 0))
+            (while (string-empty-p prefix)
+              ;; Grow `width' until it fits at least one char from `line'.
+              (setq prefix (truncate-string-to-width line (+ width extra)))
+              (setq extra (1+ extra)))
+            ;; Avoid introducing spurious newline if `prefix' and `line' are
+            ;; equal, i.e., if `line' couldn't be truncated to `width'.
+            (setq line (and (> (length line) (length prefix))
+                            (substring line (length prefix))))
+            (push prefix lines)))
+        (when line (push line lines)))
+      (string-join (nreverse lines) "\n"))))
+
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when (setq ivy--prompt (ivy-prompt))
@@ -3122,14 +3142,7 @@ parts beyond their respective faces `ivy-confirm-face' and
             (setq n-str (concat (funcall ivy-pre-prompt-function) n-str)))
           (when ivy-add-newline-after-prompt
             (setq n-str (concat n-str "\n")))
-          ;; FIXME: This does not take character widths into account!
-          ;; Should ideally let the display engine wrap text, otherwise
-          ;; use `window-text-pixel-size'.  See e.g. #2869.
-          (let ((regex (format "\\([^\n]\\{%d\\}\\)[^\n]" (window-width))))
-            (while (string-match regex n-str)
-              (setq n-str (replace-match
-                           (concat (match-string 1 n-str) "\n")
-                           nil t n-str 1))))
+          (setq n-str (ivy--break-lines n-str (window-width)))
           (set-text-properties 0 (length n-str)
                                `(face minibuffer-prompt ,@std-props)
                                n-str)
