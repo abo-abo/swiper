@@ -355,16 +355,19 @@ If the input is empty, select the previous history element instead."
 
 ;;;###autoload
 (defun swiper-avy ()
-  "Jump to one of the current swiper candidates."
+  "Jump to one of the current swiper candidates with `avy'."
   (interactive)
   (unless (require 'avy nil 'noerror)
-    (error "Package avy isn't installed"))
+    (user-error "Package avy isn't installed"))
   (cl-case (length ivy-text)
     (0
      (user-error "Need at least one char of input"))
     (1
-     (let ((swiper-min-highlight 1))
-       (swiper--update-input-ivy))))
+     ;; FIXME: `swiper--update-input-ivy' expects string candidates,
+     ;; but `swiper-isearch' now uses buffer positions.
+     (when (stringp (ivy-state-current ivy-last))
+       (let ((swiper-min-highlight 1))
+         (swiper--update-input-ivy)))))
   (swiper--avy-goto (swiper--avy-candidate)))
 
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
