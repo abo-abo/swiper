@@ -3328,16 +3328,10 @@ The function was added in Emacs 26.1.")
           "~"
         home)))))
 
-(defvar ivy--minibuffer-metadata nil)
-
 (defun ivy-update-candidates (cands)
-  (let ((ivy--minibuffer-metadata
-         (unless (ivy-state-dynamic-collection ivy-last)
-           (completion-metadata "" minibuffer-completion-table
-                                minibuffer-completion-predicate))))
-    (ivy--insert-minibuffer
-     (ivy--format
-      (setq ivy--all-candidates cands)))))
+  (ivy--insert-minibuffer
+   (ivy--format
+    (setq ivy--all-candidates cands))))
 
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
@@ -4066,7 +4060,7 @@ in this case."
               (cl-incf i)))))))
   str)
 
-(defun ivy--format-minibuffer-line (str)
+(defun ivy--format-minibuffer-line (str annot)
   "Format line STR for use in minibuffer."
   (let* ((str (ivy-cleanup-string (copy-sequence str)))
          (str (if (eq ivy-display-style 'fancy)
@@ -4079,9 +4073,7 @@ in this case."
                         (concat file (funcall ivy--highlight-function match)))
                     (funcall ivy--highlight-function str))
                 str))
-         (olen (length str))
-         (annot (or (completion-metadata-get ivy--minibuffer-metadata 'annotation-function)
-                    (plist-get completion-extra-properties :annotation-function))))
+         (olen (length str)))
     (add-text-properties
      0 olen
      '(mouse-face
@@ -4138,13 +4130,18 @@ CANDS is a list of candidates that :display-transformer can turn into strings."
       (ivy--wnd-cands-to-str wnd-cands))))
 
 (defun ivy--wnd-cands-to-str (wnd-cands)
-  (let ((str (concat "\n"
-                     (funcall (ivy-alist-setting ivy-format-functions-alist)
-                              (condition-case nil
-                                  (mapcar
-                                   #'ivy--format-minibuffer-line
-                                   wnd-cands)
-                                (error wnd-cands))))))
+  (let* ((metadata (unless (ivy-state-dynamic-collection ivy-last)
+                     (completion-metadata "" minibuffer-completion-table
+                                          minibuffer-completion-predicate)))
+         (annot (or (completion-metadata-get metadata 'annotation-function)
+                    (plist-get completion-extra-properties :annotation-function)))
+         (str (concat "\n"
+                      (funcall (ivy-alist-setting ivy-format-functions-alist)
+                               (condition-case nil
+                                   (mapcar
+                                    (lambda (cand) (ivy--format-minibuffer-line cand annot))
+                                    wnd-cands)
+                                 (error wnd-cands))))))
     (put-text-property 0 (length str) 'read-only nil str)
     str))
 
