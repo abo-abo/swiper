@@ -332,19 +332,28 @@ If the input is empty, select the previous history element instead."
            (avy-push-mark))
       (avy--done))))
 
+(defun swiper--avy-index (pos)
+  "Return `ivy--index' for `avy' candidate at minibuffer POS."
+  ;; Position in original buffer.
+  (let ((opos (get-text-property pos 'point)))
+    (or
+     ;; Find `swiper-isearch' index based on buffer position.
+     (and opos (cl-position opos ivy--all-candidates))
+     ;; Find `swiper' index based on line number.
+     (let ((nlines (count-lines (point-min) (point-max))))
+       (+ (car (ivy--minibuffer-index-bounds
+                ivy--index ivy--length ivy-height))
+          (line-number-at-pos pos)
+          (if (or (= nlines (1+ ivy-height))
+                  (< ivy--length ivy-height))
+              0
+            (- ivy-height nlines))
+          -2)))))
+
 (defun swiper--avy-goto (candidate)
   (cond ((let ((win (cdr-safe candidate)))
            (and win (window-minibuffer-p win)))
-         (let ((nlines (count-lines (point-min) (point-max))))
-           (ivy-set-index
-            (+ (car (ivy--minibuffer-index-bounds
-                     ivy--index ivy--length ivy-height))
-               (line-number-at-pos (car candidate))
-               (if (or (= nlines (1+ ivy-height))
-                       (< ivy--length ivy-height))
-                   0
-                 (- ivy-height nlines))
-               -2)))
+         (setq ivy--index (swiper--avy-index (car candidate)))
          (ivy--exhibit)
          (ivy-done)
          (ivy-call))
