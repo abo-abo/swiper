@@ -4088,7 +4088,7 @@ in this case."
     (when annot
       (setq str (concat str (funcall annot str)))
       (add-face-text-property
-       olen (length str) 'ivy-completions-annotations nil str))
+       olen (length str) 'ivy-completions-annotations t str))
     str))
 
 (defun ivy-read-file-transformer (str)
