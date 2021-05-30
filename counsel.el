@@ -4833,6 +4833,39 @@ An extra action allows to switch to the process buffer."
                         (insert (substring-no-properties (car x))))
               :caller 'counsel-minibuffer-history)))
 
+;;** `counsel-esh-dir-history'
+(declare-function eshell/cd "em-dirs")
+
+(defun counsel--esh-dir-history-action-cd (pair)
+  "Change the current working directory to the selection.
+This function is the default action for `counsel-esh-dir-history'
+and changes the working directory in Eshell to the selected
+candidate which must be provided as the `car' of PAIR."
+  (eshell/cd (car pair)))
+
+(defun counsel--esh-dir-history-action-edit (pair)
+  "Insert the selection to the Eshell buffer prefixed by \"cd \".
+This function is an action for `counsel-esh-dir-history' to
+insert the selected directory (provided as the `car' of PAIR) to
+the Eshell buffer prefixed by \"cd \", allowing the caller to
+modify parts of the directory before switching to it."
+  (insert "cd " (car pair)))
+
+;;;###autoload
+(defun counsel-esh-dir-history ()
+  "Use Ivy to browse Eshell's directory stack."
+  (interactive)
+  (require 'em-dirs)
+  (defvar eshell-last-dir-ring)
+  (counsel--browse-history eshell-last-dir-ring
+                           :caller #'counsel-esh-dir-history
+                           :prompt "Directory to change to: "
+                           :action #'counsel--esh-dir-history-action-cd))
+
+(ivy-set-actions
+ 'counsel-esh-dir-history
+ '(("e" counsel--esh-dir-history-action-edit "edit")))
+
 ;;** `counsel-esh-history'
 (defvar comint-input-ring-index)
 (defvar eshell-history-index)
@@ -4861,8 +4894,13 @@ An extra action allows to switch to the process buffer."
        nil))
     (ivy-completion-in-region-action (car pair))))
 
-(cl-defun counsel--browse-history (ring &key caller)
-  "Use Ivy to navigate through RING."
+(cl-defun counsel--browse-history (ring
+                                   &key
+                                     caller
+                                     (prompt "History: ")
+                                     (action #'counsel--browse-history-action))
+  "Use Ivy to navigate through RING.
+A custom PROMPT and a default ACTION may be provided."
   (let* ((proc (get-buffer-process (current-buffer)))
          (end (point))
          (beg (if proc
@@ -4872,10 +4910,10 @@ An extra action allows to switch to the process buffer."
                   (concat "^" (buffer-substring beg end)))))
     (setq ivy-completion-beg beg)
     (setq ivy-completion-end end)
-    (ivy-read "History: " (ivy-history-contents ring)
+    (ivy-read prompt (ivy-history-contents ring)
               :keymap ivy-reverse-i-search-map
               :initial-input input
-              :action #'counsel--browse-history-action
+              :action action
               :caller caller)))
 
 (defvar eshell-history-ring)
