@@ -4050,12 +4050,10 @@ in this case."
 
 (defun ivy--highlight-default (str)
   "Highlight STR, using the default method."
-  (unless ivy--old-re
-    (setq ivy--old-re ivy-regex))
   (let ((regexps
-         (if (listp ivy--old-re)
-             (mapcar #'car (cl-remove-if-not #'cdr ivy--old-re))
-           (list ivy--old-re)))
+         (if (listp ivy-regex)
+             (mapcar #'car (cl-remove-if-not #'cdr ivy-regex))
+           (list ivy-regex)))
         start)
     (dolist (re regexps)
       (ignore-errors
