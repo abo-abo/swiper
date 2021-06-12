@@ -1179,6 +1179,10 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
   (setq ivy-exit 'done)
   (exit-minibuffer))
 
+(defcustom ivy-resume-with-stale-data nil
+  "Allow to use stale results when resuming from dynamic collection."
+  :type 'boolean)
+
 (defun ivy--restore-session (&optional session)
   "Resume a recorded completion SESSION, if any exists."
   (when ivy--sessions
@@ -1204,7 +1208,8 @@ With a prefix arg, try to restore a recorded completion session,
 if one exists."
   (interactive)
   (when (or current-prefix-arg session)
-    (ivy--restore-session session))
+    (ivy--restore-session session)
+    (setq this-command 'ivy-resume))
 
   (if (or (null (ivy-state-action ivy-last))
           (eq (ivy--get-action ivy-last) #'identity))
@@ -2336,7 +2341,9 @@ This is useful for recursive `ivy-read'."
                                                counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
-             (setq coll (if (and (eq this-command 'ivy-resume) (not (buffer-modified-p)))
+             (setq coll (if (and (eq this-command 'ivy-resume)
+                                 (not (and (eq caller 'swiper-isearch)
+                                           (buffer-modified-p))))
                             ivy--all-candidates
                           (ivy--dynamic-collection-cands (or initial-input "")))))
             ((consp (car-safe collection))
@@ -3361,7 +3368,10 @@ Should be run via minibuffer `post-command-hook'."
             (unless (or (equal ivy--old-text ivy-text)
                         (eq this-command 'ivy-resume))
               (while-no-input
-                (setq coll (ivy--dynamic-collection-cands ivy-text))
+                (setq coll (if (and ivy-resume-with-stale-data
+                                    ivy--trying-to-resume-dynamic-collection)
+                               ivy--all-candidates
+                             (ivy--dynamic-collection-cands ivy-text)))
                 (when (eq coll 0)
                   (setq coll nil)
                   (setq ivy--old-re nil)
