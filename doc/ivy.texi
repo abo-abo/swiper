@@ -486,11 +486,11 @@ Example ERT test:
 @lisp
 (should
  (equal (ivy-with
-	 '(progn
-	   (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-	   ivy-text)
-	 "c <tab>")
-	"can"))
+         '(progn
+            (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+            ivy-text)
+         "c <tab>")
+        "can"))
 @end lisp
 @end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
@@ -711,9 +711,9 @@ Hydra menu offers these additional bindings:
 Toggle calling the action after each candidate change. It
 modifies @kbd{j} to @kbd{jg}, @kbd{k} to @kbd{kg} etc.
 @end indentedblock
-@subsubheading @kbd{m} (@code{ivy-rotate-preferred-builders})
+@subsubheading @kbd{M} (@code{ivy-rotate-preferred-builders})
 @vindex ivy-rotate-preferred-builders
-@kindex m
+@kindex M
 @indentedblock
 Rotate the current regexp matcher.
 @end indentedblock
@@ -872,7 +872,7 @@ completion:
 @lisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
-	(t . ivy--regex-plus)))
+        (t . ivy--regex-plus)))
 @end lisp
 
 Here, @code{read-file-name-internal} is a function that is passed as the
@@ -1241,10 +1241,10 @@ Use the command name as the key:
 (defun my-command-with-3-actions ()
   (interactive)
   (ivy-read "test: " '("foo" "bar" "baz")
-	    :action '(1
-		      ("o" my-action-1 "action 1")
-		      ("j" my-action-2 "action 2")
-		      ("k" my-action-3 "action 3"))))
+            :action '(1
+                      ("o" my-action-1 "action 1")
+                      ("j" my-action-2 "action 2")
+                      ("k" my-action-3 "action 3"))))
 @end lisp
 
 The number 1 above is the index of the default action. Each
@@ -1644,20 +1644,20 @@ later use yourself. However, it's recommended that you use the
   "Forward to `describe-function'."
   (interactive)
   (ivy-read "Describe function: "
-	    (let (cands)
-	      (mapatoms
-	       (lambda (x)
-		 (when (fboundp x)
-		   (push (symbol-name x) cands))))
-	      cands)
-	    :keymap counsel-describe-map
-	    :preselect (ivy-thing-at-point)
-	    :history 'counsel-describe-symbol-history
-	    :require-match t
-	    :action (lambda (x)
-		      (describe-function
-		       (intern x)))
-	    :caller 'counsel-describe-function))
+            (let (cands)
+              (mapatoms
+               (lambda (x)
+                 (when (fboundp x)
+                   (push (symbol-name x) cands))))
+              cands)
+            :keymap counsel-describe-map
+            :preselect (ivy-thing-at-point)
+            :history 'counsel-describe-symbol-history
+            :require-match t
+            :action (lambda (x)
+                      (describe-function
+                       (intern x)))
+            :caller 'counsel-describe-function))
 @end lisp
 
 Here are the interesting features of the above function, in the order that they appear:
@@ -1721,9 +1721,9 @@ narrowing) or select a candidate from the visible collection.
    (progn
      (counsel--async-command
       (format "locate %s '%s'"
-	      (mapconcat #'identity counsel-locate-options " ")
-	      (counsel--elisp-to-pcre
-	       (ivy--regex str))))
+              (mapconcat #'identity counsel-locate-options " ")
+              (counsel--elisp-to-pcre
+               (ivy--regex str))))
      '("" "working..."))))
 
 ;;;###autoload
@@ -1732,15 +1732,15 @@ narrowing) or select a candidate from the visible collection.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (ivy-read "Locate: " #'counsel-locate-function
-	    :initial-input initial-input
-	    :dynamic-collection t
-	    :history 'counsel-locate-history
-	    :action (lambda (file)
-		      (with-ivy-window
-			(when file
-			  (find-file file))))
-	    :unwind #'counsel-delete-process
-	    :caller 'counsel-locate))
+            :initial-input initial-input
+            :dynamic-collection t
+            :history 'counsel-locate-history
+            :action (lambda (file)
+                      (with-ivy-window
+                        (when file
+                          (find-file file))))
+            :unwind #'counsel-delete-process
+            :caller 'counsel-locate))
 @end lisp
 
 Here are the interesting features of the above functions, in the order
@@ -1789,18 +1789,18 @@ displayed strings.
 @lisp
 (defun find-candidates-function (str pred _)
   (let ((props '(1 2))
-	(strs '("foo" "foo2")))
+        (strs '("foo" "foo2")))
     (cl-mapcar (lambda (s p) (propertize s 'property p))
-	       strs
-	       props)))
+               strs
+               props)))
 
 (defun find-candidates ()
   (interactive)
   (ivy-read "Find symbols: "
-	    #'find-candidates-function
-	    :action (lambda (x)
-		      (message "Value: %s" (get-text-property 0 'property x)
-		       ))))
+            #'find-candidates-function
+            :action (lambda (x)
+                      (message "Value: %s"
+                               (get-text-property 0 'property x)))))
 @end lisp
 
 Here are the interesting features of the above function:

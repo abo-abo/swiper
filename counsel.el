@@ -123,10 +123,11 @@ complex regexes."
       (executable-find command)))
   "Compatibility shim for `executable-find'.")
 
-(defun counsel-require-program (cmd)
+(defun counsel-require-program (cmd &optional noerror)
   "Check system for program used in CMD, printing error if not found.
 CMD is either a string or a list of strings.
-To skip the `executable-find' check, start the string with a space."
+To skip the `executable-find' check, start the string with a space.
+When NOERROR is non-nil, return nil instead of raising an error."
   (unless (and (stringp cmd) (string-prefix-p " " cmd))
     (let ((program (if (listp cmd)
                        (car cmd)
@@ -134,7 +135,8 @@ To skip the `executable-find' check, start the string with a space."
       (or (and (stringp program)
                (not (string= program ""))
                (counsel--executable-find program t))
-          (user-error "Required program \"%s\" not found in your path" program)))))
+          (unless noerror
+            (user-error "Required program \"%s\" not found in your path" program))))))
 
 (declare-function eshell-split-path "esh-util")
 
@@ -1959,7 +1961,7 @@ but the leading dot is a lot faster."
           (const :tag "None" nil)
           (const :tag "Dotfiles and Lockfiles" "\\(?:\\`\\|[/\\]\\)\\(?:[#.]\\)")
           (const :tag "Ignored Extensions"
-                 ,(regexp-opt completion-ignored-extensions))
+                 ,(concat (regexp-opt completion-ignored-extensions) "\\'"))
           (regexp :tag "Regex")))
 
 (defvar counsel--find-file-predicate nil
@@ -2200,34 +2202,34 @@ See variable `counsel-up-directory-level'."
 
 (defun counsel-github-url-p ()
   "Return a Github issue URL at point."
-  (counsel-require-program "git")
-  (let ((url (counsel-at-git-issue-p)))
-    (when url
-      (let ((origin (shell-command-to-string
-                     "git remote get-url origin"))
-            user repo)
-        (cond ((string-match "\\`git@github.com:\\([^/]+\\)/\\(.*\\)\\.git$"
-                             origin)
-               (setq user (match-string 1 origin))
-               (setq repo (match-string 2 origin)))
-              ((string-match "\\`https://github.com/\\([^/]+\\)/\\(.*\\)$"
-                             origin)
-               (setq user (match-string 1 origin))
-               (setq repo (match-string 2 origin))))
-        (when user
-          (setq url (format "https://github.com/%s/%s/issues/%s"
-                            user repo (substring url 1))))))))
+  (when (counsel-require-program "git" t)
+    (let ((url (counsel-at-git-issue-p)))
+      (when url
+        (let ((origin (shell-command-to-string
+                       "git remote get-url origin"))
+              user repo)
+          (cond ((string-match "\\`git@github.com:\\([^/]+\\)/\\(.*\\)\\.git$"
+                               origin)
+                 (setq user (match-string 1 origin))
+                 (setq repo (match-string 2 origin)))
+                ((string-match "\\`https://github.com/\\([^/]+\\)/\\(.*\\)$"
+                               origin)
+                 (setq user (match-string 1 origin))
+                 (setq repo (match-string 2 origin))))
+          (when user
+            (setq url (format "https://github.com/%s/%s/issues/%s"
+                              user repo (substring url 1)))))))))
 
 (defun counsel-emacs-url-p ()
   "Return a Debbugs issue URL at point."
-  (counsel-require-program "git")
-  (let ((url (counsel-at-git-issue-p)))
-    (when url
-      (let ((origin (shell-command-to-string
-                     "git remote get-url origin")))
-        (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
-          (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
-                  (substring url 1)))))))
+  (when (counsel-require-program "git" t)
+    (let ((url (counsel-at-git-issue-p)))
+      (when url
+        (let ((origin (shell-command-to-string
+                       "git remote get-url origin")))
+          (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
+            (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
+                    (substring url 1))))))))
 
 (defvar counsel-url-expansions-alist nil
   "Map of regular expressions to expansions.
@@ -2605,18 +2607,27 @@ string - the full shell command to run."
   "Use `dired-jump' on X."
   (dired-jump nil x))
 
+(defvar locate-command)
+
 (defun counsel-locate-cmd-default (input)
-  "Return a `locate' shell command based on regexp INPUT."
-  (counsel-require-program "locate")
-  (format "locate -i --regex %s"
+  "Return a `locate' shell command based on regexp INPUT.
+This uses the user option `locate-command' from the `locate'
+library, which see."
+  (counsel-require-program locate-command)
+  (format "%s -i --regex %s"
+          locate-command
           (shell-quote-argument
            (counsel--elisp-to-pcre
             (ivy--regex input)))))
 
 (defun counsel-locate-cmd-noregex (input)
-  "Return a `locate' shell command based on INPUT."
-  (counsel-require-program "locate")
-  (format "locate -i %s" (shell-quote-argument input)))
+  "Return a `locate' shell command based on INPUT.
+This uses the user option `locate-command' from the `locate'
+library, which see."
+  (counsel-require-program locate-command)
+  (format "%s -i %s"
+          locate-command
+          (shell-quote-argument input)))
 
 (defun counsel-locate-cmd-mdfind (input)
   "Return a `mdfind' shell command based on INPUT."
@@ -2672,6 +2683,8 @@ string - the full shell command to run."
   "Call a \"locate\" style shell command.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
+  ;; For `locate-command', which is honored in some options of `counsel-locate-cmd'.
+  (require 'locate)
   (counsel--locate-updatedb)
   (ivy-read "Locate: " #'counsel-locate-function
             :initial-input initial-input

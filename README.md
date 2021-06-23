@@ -13,8 +13,8 @@ commands.
 
 # Ivy
 
-[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/ivy.html)
-[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/ivy.html)
+[![GNU-devel ELPA](https://elpa.gnu.org/devel/ivy.svg)](https://elpa.gnu.org/devel/ivy.html)
+[![GNU ELPA](https://elpa.gnu.org/packages/ivy.svg)](https://elpa.gnu.org/packages/ivy.html)
 [![MELPA](https://melpa.org/packages/ivy-badge.svg)](https://melpa.org/#/ivy)
 [![MELPA Stable](https://stable.melpa.org/packages/ivy-badge.svg)](https://stable.melpa.org/#/ivy)
 
@@ -79,8 +79,8 @@ Note: parts of this config can be replaced by using `counsel-mode`.
 
 # Counsel
 
-[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/counsel.html)
-[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/counsel.html)
+[![GNU-devel ELPA](https://elpa.gnu.org/devel/counsel.svg)](https://elpa.gnu.org/devel/counsel.html)
+[![GNU ELPA](https://elpa.gnu.org/packages/counsel.svg)](https://elpa.gnu.org/packages/counsel.html)
 [![MELPA](https://melpa.org/packages/counsel-badge.svg)](https://melpa.org/#/counsel)
 [![MELPA Stable](https://stable.melpa.org/packages/counsel-badge.svg)](https://stable.melpa.org/#/counsel)
 
@@ -116,8 +116,8 @@ counsel replacements:
 
 # Swiper
 
-[![GNU-devel ELPA](https://img.shields.io/badge/gnu_elpa-devel-922793)](https://elpa.gnu.org/devel/swiper.html)
-[![GNU ELPA](https://img.shields.io/badge/gnu_elpa-stable-3e999f)](https://elpa.gnu.org/packages/swiper.html)
+[![GNU-devel ELPA](https://elpa.gnu.org/devel/swiper.svg)](https://elpa.gnu.org/devel/swiper.html)
+[![GNU ELPA](https://elpa.gnu.org/packages/swiper.svg)](https://elpa.gnu.org/packages/swiper.html)
 [![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
 [![MELPA Stable](https://stable.melpa.org/packages/swiper-badge.svg)](https://stable.melpa.org/#/swiper)
 
