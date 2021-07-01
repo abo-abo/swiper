@@ -1120,34 +1120,45 @@ If the text hasn't changed as a result, forward to `ivy-alt-done'."
 (defun ivy-partial ()
   "Complete the minibuffer text as much as possible."
   (interactive)
-  (let* ((parts (or (ivy--split-spaces ivy-text) (list "")))
-         (tail (last parts))
-         (postfix (car tail))
-         (case-fold-search (ivy--case-fold-p ivy-text))
-         (completion-ignore-case case-fold-search)
-         (new (try-completion (string-remove-prefix "^" postfix)
-                              (if (ivy-state-dynamic-collection ivy-last)
-                                  ivy--all-candidates
+  (if (ivy-state-dynamic-collection ivy-last)
+      (let* ((bnd
+              (ignore-errors
+                (funcall
+                 (ivy-state-collection ivy-last)
+                 ivy-text nil (cons 'boundaries (buffer-substring (point) (line-end-position))))))
+             (beg (+ (minibuffer-prompt-end)
+                     (if bnd (cadr bnd) 0))))
+        (delete-region beg (point-max))
+        (insert
+         (ivy-state-current ivy-last))
+        t)
+    (let* ((parts (or (ivy--split-spaces ivy-text) (list "")))
+           (tail (last parts))
+           (postfix (car tail))
+           (case-fold-search (ivy--case-fold-p ivy-text))
+           (completion-ignore-case case-fold-search)
+           (new (try-completion (string-remove-prefix "^" postfix)
                                 (mapcar (lambda (str)
                                           (let ((i (string-match-p postfix str)))
                                             (and i (substring str i))))
-                                        ivy--old-cands)))))
-    (cond ((eq new t) nil)
-          ((string= new ivy-text) nil)
-          ((string= (car tail) (car (ivy--split-spaces new))) nil)
-          (new
-           (delete-region (minibuffer-prompt-end) (point-max))
-           (setcar tail
-                   (if (= (string-to-char postfix) ?^)
-                       (concat "^" new)
-                     new))
-           (ivy-set-text
-            (concat
-             (mapconcat #'identity parts " ")
-             (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " ")))
-           (insert ivy-text)
-           (ivy--partial-cd-for-single-directory)
-           t))))
+                                        ivy--old-cands))))
+      (cond
+        ((eq new t) nil)
+        ((string= new ivy-text) nil)
+        ((string= (car tail) (car (ivy--split-spaces new))) nil)
+        (new
+         (delete-region (minibuffer-prompt-end) (point-max))
+         (setcar tail
+                 (if (= (string-to-char postfix) ?^)
+                     (concat "^" new)
+                   new))
+         (ivy-set-text
+          (concat
+           (mapconcat #'identity parts " ")
+           (and ivy-tab-space (not (= (length ivy--old-cands) 1)) " ")))
+         (insert ivy-text)
+         (ivy--partial-cd-for-single-directory)
+         t)))))
 
 (defvar ivy-completion-beg nil
   "Completion bounds start.")
