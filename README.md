@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/abo-abo/swiper/actions/workflows/test.yml/badge.svg)](https://github.com/abo-abo/swiper/actions/workflows/test.yml)
+
 ***flexible, simple tools for minibuffer completion in Emacs***
 
 This repository contains:
