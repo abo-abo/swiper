@@ -2322,8 +2322,11 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
   (recentf-mode)
   (ivy-read "Recentf: " (counsel-recentf-candidates)
             :action (lambda (f)
-                      (with-ivy-window
-                        (find-file f)))
+                      (if-let* ((buffer (find-file-noselect f t))
+                                (buffer-window (get-buffer-window buffer)))
+                          (select-window buffer-window)
+                        (with-ivy-window
+                          (find-file f))))
             :require-match t
             :caller 'counsel-recentf))
 
