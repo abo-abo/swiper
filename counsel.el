@@ -2679,7 +2679,7 @@ library, which see."
      seconds))
 
 (defun counsel--locate-updatedb ()
-  (when (file-exists-p "~/.Private")
+  (when (file-exists-p (file-name-directory counsel-locate-db-path))
     (let ((db-fname (expand-file-name counsel-locate-db-path)))
       (setenv "LOCATE_PATH" db-fname)
       (when (or (not (file-exists-p db-fname))
