@@ -3377,7 +3377,9 @@ Should be run via minibuffer `post-command-hook'."
               (ivy--set-index-dynamic-collection)
               (ivy--format ivy--all-candidates)))
         (cond (ivy--directory
-               (cond ((or (string= "~/" ivy-text)
+               (cond ((string= "/" ivy-text)
+                      (ivy--cd "/"))
+                     ((or (string= "~/" ivy-text)
                           (and (string= "~" ivy-text)
                                ivy-magic-tilde))
                       (ivy--cd (ivy--magic-tilde-directory ivy--directory)))
