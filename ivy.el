@@ -5238,11 +5238,16 @@ EVENT gives the mouse position."
         (delete cand ivy-marked-candidates)))
 
 (defun ivy--mark (cand)
-  (let ((marked-cand (concat ivy-mark-prefix cand)))
+  (let ((marked-cand (copy-sequence (concat ivy-mark-prefix cand))))
+    ;; Primarily for preserving `idx'.  FIXME: the mark
+    ;; prefix shouldn't become part of the candidate!
+    (add-text-properties 0 (length ivy-mark-prefix)
+                         (text-properties-at 0 cand)
+                         marked-cand)
     (setcar (member cand ivy--all-candidates)
             (setcar (member cand ivy--old-cands) marked-cand))
     (setq ivy-marked-candidates
-          (append ivy-marked-candidates (list marked-cand)))))
+          (nconc ivy-marked-candidates (list marked-cand)))))
 
 (defun ivy-mark ()
   "Mark the selected candidate and move to the next one.
