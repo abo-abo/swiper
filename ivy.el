@@ -2986,8 +2986,11 @@ tries to ensure that it does not change depending on the number of candidates."
 
 (defun ivy--minibuffer-setup ()
   "Setup ivy completion in the minibuffer."
-  (setq-local mwheel-scroll-up-function 'ivy-next-line)
-  (setq-local mwheel-scroll-down-function 'ivy-previous-line)
+  ;; Guard for --without-x builds where `mwheel' is not preloaded.
+  (when (boundp 'mwheel-scroll-up-function)
+    (setq-local mwheel-scroll-up-function 'ivy-next-line))
+  (when (boundp 'mwheel-scroll-down-function)
+    (setq-local mwheel-scroll-down-function 'ivy-previous-line))
   (setq-local completion-show-inline-help nil)
   (setq-local line-spacing nil)
   (setq-local minibuffer-default-add-function
