@@ -2490,7 +2490,8 @@ By default `counsel-bookmark' opens a dired buffer for directories."
 
 (ivy-set-actions
  'counsel-bookmark
- `(("d" bookmark-delete "delete")
+ `(("j" bookmark-jump-other-window "other window")
+   ("d" bookmark-delete "delete")
    ("e" bookmark-rename "edit")
    ("s" bookmark-set "overwrite")
    ("x" ,(counsel--apply-bookmark-fn #'counsel-find-file-extern)
