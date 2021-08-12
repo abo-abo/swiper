@@ -4155,7 +4155,7 @@ CANDS is a list of candidates that :display-transformer can turn into strings."
     (let* ((bnd (ivy--minibuffer-index-bounds
                  ivy--index ivy--length ivy-height))
            (wnd-cands (cl-subseq cands (car bnd) (cadr bnd)))
-           (case-fold-search (ivy--case-fold-p ivy-text))
+           (case-fold-search (ivy--case-fold-p (ivy-re-to-str ivy-regex)))
            transformer-fn)
       (setq ivy--window-index (nth 2 bnd))
       (when (setq transformer-fn (ivy-state-display-transformer-fn ivy-last))
