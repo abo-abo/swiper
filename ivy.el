@@ -2239,10 +2239,14 @@ customizations apply to the current completion session."
               (propertize x 'idx (cl-incf i)))
             (all-completions "" alist))))
 
+(defvar ivy--minibuffer-metadata nil
+  "Store `completion-metadata'.")
+
 (defun ivy--reset-state (state)
   "Reset the ivy to STATE.
 This is useful for recursive `ivy-read'."
   (setq ivy-marked-candidates nil)
+  (setq ivy--minibuffer-metadata nil)
   (unless (equal (selected-frame) (ivy-state-frame state))
     (select-window (active-minibuffer-window)))
   (let* ((prompt (or (ivy-state-prompt state) ""))
@@ -2351,6 +2355,12 @@ This is useful for recursive `ivy-read'."
                                                counsel-switch-buffer)))
                          predicate)))
             (dynamic-collection
+             (setq ivy--minibuffer-metadata
+                   (ignore-errors
+                     (completion-metadata
+                      ""
+                      (ivy-state-collection ivy-last)
+                      (ivy-state-predicate ivy-last))))
              (setq coll (if (and (eq this-command 'ivy-resume) (not (buffer-modified-p)))
                             ivy--all-candidates
                           (ivy--dynamic-collection-cands (or initial-input "")))))
