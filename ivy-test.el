@@ -1136,6 +1136,9 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
            :dir "/tmp/"))))
 
 (ert-deftest ivy-partial-files ()
+  ;; FIXME: Can't catch `quit' condition.
+  ;; See issue #2906 and https://bugs.gnu.org/48603.
+  (skip-unless (< emacs-major-version 28))
   (when (file-exists-p "/tmp/ivy-partial-test")
     (delete-directory "/tmp/ivy-partial-test" t))
   (mkdir "/tmp/ivy-partial-test/test1" t)
