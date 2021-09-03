@@ -855,7 +855,8 @@ selection, non-nil otherwise."
                                   (cdr actions)))
                 (not (string= key (car (nth action-idx (cdr actions))))))
       (setq key (concat key (key-description (vector (read-key hint))))))
-    (ivy-shrink-after-dispatching)
+    ;; Ignore resize errors with minibuffer-only frames (#2726).
+    (ignore-errors (ivy-shrink-after-dispatching))
     (cond ((member key '("ESC" "C-g" "M-o"))
            nil)
           ((null action-idx)
