@@ -1481,11 +1481,15 @@ that we search only for one character."
     (dolist (re (swiper--positive-regexps))
       (swiper--add-overlays re))))
 
+(defun swiper--isearch-candidate-pos (cand)
+  "Return the buffer position of `swiper-isearch' CAND, or nil."
+  (cond ((integer-or-marker-p cand) cand)
+        ((and (stringp cand) (> (length cand) 0))
+         (get-text-property 0 'point cand))))
+
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
-  (if (or (numberp x)
-          (and (> (length x) 0)
-               (setq x (get-text-property 0 'point x))))
+  (if (setq x (swiper--isearch-candidate-pos x))
       (with-ivy-window
         (goto-char x)
         (when (and (or (eq this-command 'ivy-previous-line-or-history)
@@ -1495,7 +1499,11 @@ that we search only for one character."
           (goto-char (match-beginning 0)))
         (funcall isearch-filter-predicate (point) (1+ (point)))
         (swiper--maybe-recenter)
-        (if (eq ivy-exit 'done)
+        (if (or (eq ivy-exit 'done)
+                ;; FIXME: With the default action 'M-o o', `ivy-exit' remains
+                ;; nil for some reason, so check `this-command' instead to
+                ;; tell whether we're "done".
+                (eq this-command #'ivy-dispatching-done))
             (progn
               (swiper--push-mark)
               (swiper--remember-search-history (ivy--regex ivy-text)))
@@ -1512,7 +1520,20 @@ that we search only for one character."
     (line-beginning-position) (line-end-position)))
   (goto-char swiper--opoint))
 
-(ivy-add-actions 'swiper-isearch '(("w" swiper-action-copy "copy")))
+(defun swiper-isearch-action-copy (cand)
+  "Save `swiper-isearch' candidate CAND to `kill-ring'.
+Return to original position."
+  (unwind-protect
+      (progn
+        (unless (and (setq cand (swiper--isearch-candidate-pos cand))
+                     ;; FIXME: Better way of getting current candidate?
+                     (goto-char cand)
+                     (looking-back (ivy-re-to-str ivy-regex) (point-min)))
+          (error "Could not copy `swiper-isearch' candidate: %S" cand))
+        (kill-new (match-string 0)))
+    (goto-char swiper--opoint)))
+
+(ivy-add-actions 'swiper-isearch '(("w" swiper-isearch-action-copy "copy")))
 (ivy-add-actions 'swiper '(("w" swiper-action-copy "copy")))
 
 (defun swiper-isearch-thing-at-point ()
