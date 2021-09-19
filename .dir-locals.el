@@ -2,8 +2,12 @@
 ;;; For more information see (info "(emacs) Directory Variables")
 
 ((nil
-  (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")
-  (bug-reference-url-format . "https://github.com/abo-abo/swiper/issues/%s")
+  ;; Emacs 28+ automatically sets up these `bug-reference-mode' variables
+  ;; in a more general way, so setting them here is not future-proof.  If
+  ;; you still need these settings in older Emacs versions, you can add
+  ;; them to your personal `.dir-locals-2.el' file in the meantime.
+  ;; (bug-reference-bug-regexp . "\\(#\\([[:digit:]]+\\)\\)")
+  ;; (bug-reference-url-format . "https://github.com/abo-abo/swiper/issues/%s")
   (copyright-names-regexp . "Free Software Foundation, Inc\\.")
   (sentence-end-double-space . t))
  (emacs-lisp-mode
