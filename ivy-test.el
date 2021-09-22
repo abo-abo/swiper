@@ -1590,7 +1590,6 @@ a buffer visiting a file."
 
 (ert-deftest ivy-avy ()
   (skip-unless (require 'avy nil t))
-  (require 'ivy-avy)
   (let ((enable-recursive-minibuffers t)
         (read-numbers '(ivy-read "test: " (mapcar #'number-to-string
                                                   (number-sequence 1 100)))))

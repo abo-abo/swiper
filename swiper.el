@@ -4,8 +4,8 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.13.4
-;; Package-Requires: ((emacs "24.5") (ivy "0.13.4"))
+;; Version: 0.13.5
+;; Package-Requires: ((emacs "24.5") (ivy "0.13.5"))
 ;; Keywords: matching
 
 ;; This file is part of GNU Emacs.
@@ -262,21 +262,6 @@ If the input is empty, select the previous history element instead."
              (set-window-configuration wnd-conf))))))))
 (put 'swiper-all-query-replace 'no-counsel-M-x t)
 
-(defvar avy-all-windows)
-(defvar avy-style)
-(defvar avy-keys)
-(declare-function avy--overlay-post "ext:avy")
-(declare-function avy-action-goto "ext:avy")
-(declare-function avy-candidate-beg "ext:avy")
-(declare-function avy--done "ext:avy")
-(declare-function avy--make-backgrounds "ext:avy")
-(declare-function avy-window-list "ext:avy")
-(declare-function avy-read "ext:avy")
-(declare-function avy-read-de-bruijn "ext:avy")
-(declare-function avy-tree "ext:avy")
-(declare-function avy-push-mark "ext:avy")
-(declare-function avy--remove-leading-chars "ext:avy")
-
 (defun swiper--avy-candidates ()
   (let* (
          ;; We'll have overlapping overlays, so we sort all the
@@ -317,6 +302,18 @@ If the input is empty, select the previous history element instead."
            cands))))))
 
 (defun swiper--avy-candidate ()
+  (defvar avy-all-windows)
+  (defvar avy-keys)
+  (defvar avy-style)
+  (declare-function avy--done "ext:avy" ())
+  (declare-function avy--make-backgrounds "ext:avy" (wnd-list))
+  (declare-function avy--overlay-post "ext:avy" (path leaf))
+  (declare-function avy--remove-leading-chars "ext:avy" ())
+  (declare-function avy-push-mark "ext:avy" ())
+  (declare-function avy-read "ext:avy" (tree display-fn cleanup-fn))
+  (declare-function avy-read-de-bruijn "ext:avy" (lst keys))
+  (declare-function avy-tree "ext:avy" (lst keys))
+  (declare-function avy-window-list "ext:avy" ())
   (let ((candidates (swiper--avy-candidates))
         (avy-all-windows nil))
     (unwind-protect
@@ -351,6 +348,8 @@ If the input is empty, select the previous history element instead."
           -2)))))
 
 (defun swiper--avy-goto (candidate)
+  (declare-function avy-action-goto "ext:avy" (pt))
+  (declare-function avy-candidate-beg "ext:avy" (leaf))
   (cond ((let ((win (cdr-safe candidate)))
            (and win (window-minibuffer-p win)))
          (setq ivy--index (swiper--avy-index (car candidate)))
@@ -364,10 +363,10 @@ If the input is empty, select the previous history element instead."
 
 ;;;###autoload
 (defun swiper-avy ()
-  "Jump to one of the current swiper candidates with `avy'."
+  "Jump to one of the current `swiper' candidates with `avy'."
   (interactive)
   (unless (require 'avy nil 'noerror)
-    (user-error "Package avy isn't installed"))
+    (user-error "Package `avy' is not installed"))
   (cl-case (length ivy-text)
     (0
      (user-error "Need at least one char of input"))

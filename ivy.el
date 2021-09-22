@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.13.4
+;; Version: 0.13.5
 ;; Package-Requires: ((emacs "24.5"))
 ;; Keywords: matching
 
@@ -303,8 +303,8 @@ action functions.")
 (require 'delsel)
 (defun ivy-define-key (keymap key def)
   "Forward to (`define-key' KEYMAP KEY DEF).
-Remove DEF from `counsel-M-x' list."
-  (put def 'no-counsel-M-x t)
+Remove DEF (a function symbol) from `counsel-M-x' completion."
+  (function-put def 'no-counsel-M-x t)
   (define-key keymap key def))
 
 (defvar ivy-minibuffer-map
@@ -353,6 +353,7 @@ Remove DEF from `counsel-M-x' list."
     (ivy-define-key map [remap kill-whole-line] 'ivy-kill-whole-line)
     (ivy-define-key map (kbd "S-SPC") 'ivy-restrict-to-matches)
     (ivy-define-key map [remap kill-ring-save] 'ivy-kill-ring-save)
+    (ivy-define-key map (kbd "C-'") 'ivy-avy)
     (ivy-define-key map (kbd "C-M-a") 'ivy-read-action)
     (ivy-define-key map (kbd "C-c C-o") 'ivy-occur)
     (ivy-define-key map (kbd "C-c C-a") 'ivy-toggle-ignore)
@@ -1709,6 +1710,84 @@ This string is inserted into the minibuffer."
            (const :tag "Arrow prefix + full line"
                   ivy-format-function-arrow-line)
            (function :tag "Custom function"))))
+
+(defcustom ivy-avy-style 'pre
+  "The `avy-style' setting for `ivy-avy'."
+  :type '(choice
+          (const :tag "Pre" pre)
+          (const :tag "At" at)
+          (const :tag "At Full" at-full)
+          (const :tag "Post" post)
+          (const :tag "De Bruijn" de-bruijn)
+          (const :tag "Words" words)
+          (const :tag "Default" nil)))
+
+(defun ivy--avy-candidates ()
+  "List of candidates for `ivy-avy'."
+  (let (candidates)
+    (save-excursion
+      (save-restriction
+        (narrow-to-region (window-start) (window-end))
+        (goto-char (point-min))
+        (forward-line)
+        (while (< (point) (point-max))
+          (push (cons (point) (selected-window))
+                candidates)
+          (forward-line))))
+    (nreverse candidates)))
+
+(defun ivy--avy-action (pt)
+  "Select the candidate represented by PT."
+  (when (number-or-marker-p pt)
+    (let ((bnd (ivy--minibuffer-index-bounds
+                ivy--index ivy--length ivy-height)))
+      (ivy--done
+       (substring-no-properties
+        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
+
+(defun ivy--avy-handler-function (char)
+  "Handle CHAR that's not on `avy-keys'."
+  (cond ((memql char '(?\C-\[ ?\C-g))
+         ;; Exit silently.
+         (throw 'done 'abort))
+        ((let ((cmd (lookup-key ivy-minibuffer-map (vector char))))
+           (when (memq cmd '(ivy-scroll-up-command
+                             ivy-scroll-down-command))
+             (funcall cmd)
+             (ivy--exhibit)
+             (throw 'done 'exit))))
+        ;; Ignore wrong key.
+        ((throw 'done 'restart))))
+
+(defun ivy-avy ()
+  "Jump to one of the current `ivy' candidates with `avy'."
+  (interactive)
+  (unless (require 'avy nil t)
+    (user-error "Package `avy' is not installed"))
+  (when (zerop (minibuffer-depth))
+    (user-error
+     "Command `ivy-avy' is intended to be called from within `ivy-read'"))
+  (defvar avy-action)
+  (defvar avy-all-windows)
+  (defvar avy-handler-function)
+  (defvar avy-keys)
+  (defvar avy-keys-alist)
+  (defvar avy-style)
+  (defvar avy-styles-alist)
+  (declare-function avy-process "avy"
+                    (candidates &optional overlay-fn cleanup-fn))
+  (let ((avy-all-windows nil)
+        (avy-keys (or (cdr (assq #'ivy-avy avy-keys-alist))
+                      avy-keys))
+        (avy-style (or ivy-avy-style
+                       (cdr (assq #'ivy-avy avy-styles-alist))
+                       avy-style))
+        (avy-action #'identity)
+        (avy-handler-function #'ivy--avy-handler-function)
+        res)
+    (while (eq (setq res (avy-process (ivy--avy-candidates))) t))
+    (when res
+      (ivy--avy-action res))))
 
 (defun ivy-sort-file-function-default (x y)
   "Compare two files X and Y.
