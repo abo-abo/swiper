@@ -4441,6 +4441,17 @@ BUFFER may be a string or nil."
           (find-file-other-window (cdr virtual))
         (switch-to-buffer-other-window buffer)))))
 
+(defun ivy--switch-buffer-other-tab-action (buffer)
+  "Switch to BUFFER in other tab.
+BUFFER may be a string or nil."
+  (if (zerop (length buffer))
+      (switch-to-buffer-other-tab ivy-text)
+    (let ((virtual (assoc buffer ivy--virtual-buffers)))
+      (if (and virtual
+               (not (get-buffer buffer)))
+          (find-file-other-tab (cdr virtual))
+        (switch-to-buffer-other-tab buffer)))))
+
 (defun ivy--rename-buffer-action (buffer)
   "Rename BUFFER."
   (let ((new-name (read-string "Rename buffer (to new name): ")))
@@ -4505,12 +4516,16 @@ Otherwise, forward to `ivy-kill-line'."
 
 (ivy-set-actions
  'ivy-switch-buffer
- '(("f"
+ `(("f"
     ivy--find-file-action
     "find file")
    ("j"
     ivy--switch-buffer-other-window-action
     "other window")
+   ,@(and (fboundp 'find-file-other-tab)
+          '(("t"
+             ivy--switch-buffer-other-tab-action
+             "other tab")))
    ("k"
     ivy--kill-buffer-action
     "kill")
