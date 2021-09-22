@@ -1080,9 +1080,10 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   (unless (file-exists-p ivy-empty)
     (make-directory ivy-empty))
   (should (equal (expand-file-name ivy-empty)
-                 (ivy-with
-                  '(read-directory-name "cd: " ivy-empty nil t)
-                  "RET")))
+                 (expand-file-name
+                  (ivy-with
+                   '(read-directory-name "cd: " ivy-empty nil t)
+                   "RET"))))
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
