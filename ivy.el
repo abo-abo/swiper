@@ -784,10 +784,11 @@ key (a string), cmd and doc (a string)."
            "\n")))
 
 (defun ivy-read-action-format-columns (actions)
-  "Create a docstring from ACTIONS, using several columns if needed to preserve `ivy-height'.
+  "Create a potentially multi-column docstring from ACTIONS.
+Several columns are used as needed to preserve `ivy-height'.
 
-ACTIONS is a list.  Each list item is a list of 3 items: key (a
-string), cmd and doc (a string)."
+ACTIONS is a list with elements of the form (KEY COMMAND DOC),
+where KEY and DOC are strings."
   (let ((length (length actions))
         (i 0)
         (max-rows (- ivy-height 1))
