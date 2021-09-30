@@ -4,8 +4,8 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.13.4
-;; Package-Requires: ((emacs "24.5") (ivy "0.13.4") (avy "0.5.0"))
+;; Version: 0.13.5
+;; Package-Requires: ((ivy "0.13.5") (avy "0.5.0"))
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -22,90 +22,28 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+
+;; *N.B.:* This package has been absorbed, and is therefore made
+;; obsolete, by the `ivy' package, version 0.13.5.
 ;;
-;; This package adds a "C-'" binding to Ivy minibuffer that uses Avy.
+;; If you maintain a package that depends on `ivy-avy', then you
+;; should change that to instead depend on `ivy' version 0.13.5, and
+;; remove all references to `ivy-avy'.
+;;
+;; If you use any packages that depend on `ivy-avy', either directly
+;; or indirectly, then you will have to wait until all of them have
+;; transitioned away from it before you can uninstall it.
 
 ;;; Code:
 
-(require 'ivy)
 (require 'avy)
+(require 'ivy)
 
-(defcustom ivy-avy-style 'pre
-  "The `avy-style' setting for `ivy-avy'."
-  :type '(choice
-          (const :tag "Pre" pre)
-          (const :tag "At" at)
-          (const :tag "At Full" at-full)
-          (const :tag "Post" post)
-          (const :tag "De Bruijn" de-bruijn)
-          (const :tag "Words" words))
-  :group 'ivy)
-
-(defun ivy-avy--candidates ()
-  "List of candidates for `ivy-avy'."
-  (let (candidates)
-    (save-excursion
-      (save-restriction
-        (narrow-to-region
-         (window-start)
-         (window-end))
-        (goto-char (point-min))
-        (forward-line)
-        (while (< (point) (point-max))
-          (push
-           (cons (point)
-                 (selected-window))
-           candidates)
-          (forward-line))))
-    (nreverse candidates)))
-
-(defun ivy-avy--action (pt)
-  "Select the candidate represented by PT."
-  (when (number-or-marker-p pt)
-    (let ((bnd (ivy--minibuffer-index-bounds
-                ivy--index ivy--length ivy-height)))
-      (ivy--done
-       (substring-no-properties
-        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
-
-(defun ivy-avy--handler-function (char)
-  "Handle CHAR that's not on `avy-keys'."
-  (let (cmd)
-    (cond ((memq char '(?\C-\[ ?\C-g))
-           ;; exit silently
-           (throw 'done 'abort))
-          ((memq (setq cmd (lookup-key ivy-minibuffer-map (vector char)))
-                 '(ivy-scroll-up-command
-                   ivy-scroll-down-command))
-           (funcall cmd)
-           (ivy--exhibit)
-           (throw 'done 'exit))
-          ;; ignore wrong key
-          (t
-           (throw 'done 'restart)))))
-
-(defun ivy-avy ()
-  "Jump to one of the current ivy candidates."
-  (interactive)
-  (if (= (minibuffer-depth) 0)
-      (user-error
-       "This command is intended to be called from within `ivy-read'")
-    (let* ((avy-all-windows nil)
-           (avy-keys (or (cdr (assq 'ivy-avy avy-keys-alist))
-                         avy-keys))
-           (avy-style (or (cdr (assq 'ivy-avy avy-styles-alist))
-                          avy-style))
-           (avy-action #'identity)
-           (avy-handler-function #'ivy-avy--handler-function)
-           res)
-      (while (eq (setq res (avy-process (ivy-avy--candidates))) t))
-      (when res
-        (ivy-avy--action res)))))
-
-(put 'ivy-avy 'no-counsel-M-x t)
-(unless (lookup-key ivy-minibuffer-map (kbd "C-'"))
-  (define-key ivy-minibuffer-map (kbd "C-'") 'ivy-avy))
-(add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style))
+(eval-and-compile
+  (let ((msg "Package ivy-avy is obsolete; use ivy 0.13.5 instead"))
+    (if (and noninteractive (fboundp 'byte-compile-warn))
+        (byte-compile-warn msg)
+      (message "%s" msg))))
 
 (provide 'ivy-avy)
 
