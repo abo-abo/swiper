@@ -6360,7 +6360,7 @@ in the current window."
  'counsel-switch-buffer
  `(("x" counsel-open-buffer-file-externally "open externally")
    ("j" ivy--switch-buffer-other-window-action "other window")
-   ,@(and (fboundp 'find-file-other-tab)
+   ,@(and (fboundp 'ivy--switch-buffer-other-tab-action)
           '(("t" ivy--switch-buffer-other-tab-action "other tab")))))
 
 ;;** `counsel-compile'
