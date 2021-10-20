@@ -816,7 +816,7 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
                    (if initial-input
                        (cl-position-if
                         (lambda (x)
-                          (= (1+ preselect) (swiper--line-number x)))
+                          (<= (1+ preselect) (swiper--line-number x)))
                         (progn
                           (setq ivy--old-re nil)
                           (ivy--filter initial-input candidates)))
