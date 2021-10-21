@@ -696,29 +696,33 @@ candidate, not the prompt."
   (if (ivy--prompt-selected-p)
       (ivy-immediate-done)
     (setq ivy-current-prefix-arg current-prefix-arg)
-    (delete-minibuffer-contents)
-    (cond ((and (= ivy--length 0)
-                (eq this-command 'ivy-dispatching-done))
-           (ivy--done ivy-text))
-          ((or (> ivy--length 0)
-               ;; the action from `ivy-dispatching-done' may not need a
-               ;; candidate at all
-               (eq this-command 'ivy-dispatching-done))
-           (ivy--done (ivy-state-current ivy-last)))
-          ((and (memq (ivy-state-collection ivy-last)
-                      '(read-file-name-internal internal-complete-buffer))
-                (eq confirm-nonexistent-file-or-buffer t)
-                (not (string= " (confirm)" ivy--prompt-extra)))
-           (setq ivy--prompt-extra " (confirm)")
-           (insert ivy-text)
-           (ivy--exhibit))
-          ((memq (ivy-state-require-match ivy-last)
-                 '(nil confirm confirm-after-completion))
-           (ivy--done ivy-text))
-          (t
-           (setq ivy--prompt-extra " (match required)")
-           (insert ivy-text)
-           (ivy--exhibit)))))
+    (let ((require-match (ivy-state-require-match ivy-last))
+          (input (ivy--input)))
+      (delete-minibuffer-contents)
+      (cond ((and (= ivy--length 0)
+                  (eq this-command 'ivy-dispatching-done))
+             (ivy--done ivy-text))
+            ((or (> ivy--length 0)
+                 ;; the action from `ivy-dispatching-done' may not need a
+                 ;; candidate at all
+                 (eq this-command 'ivy-dispatching-done))
+             (ivy--done (ivy-state-current ivy-last)))
+            ((string= " (confirm)" ivy--prompt-extra)
+             (ivy--done ivy-text))
+            ((or (and (memq (ivy-state-collection ivy-last)
+                            '(read-file-name-internal internal-complete-buffer))
+                      (eq confirm-nonexistent-file-or-buffer t))
+                 (and (functionp require-match)
+                      (setq require-match (funcall require-match))))
+             (setq ivy--prompt-extra " (confirm)")
+             (insert input)
+             (ivy--exhibit))
+            ((memq require-match '(nil confirm confirm-after-completion))
+             (ivy--done ivy-text))
+            (t
+             (setq ivy--prompt-extra " (match required)")
+             (insert ivy-text)
+             (ivy--exhibit))))))
 
 (defvar ivy-mouse-1-tooltip
   "Exit the minibuffer with the selected candidate."
@@ -2052,7 +2056,7 @@ PREDICATE is applied to filter out the COLLECTION immediately.
 This argument is for compatibility with `completing-read'.
 
 When REQUIRE-MATCH is non-nil, only members of COLLECTION can be
-selected.
+selected. In can also be a lambda.
 
 If INITIAL-INPUT is non-nil, then insert that input in the
 minibuffer initially.
