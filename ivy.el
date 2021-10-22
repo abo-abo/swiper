@@ -1676,7 +1676,9 @@ minibuffer."
   "Forward to `kill-line'."
   (interactive)
   (if (eolp)
-      (kill-region (minibuffer-prompt-end) (point))
+      (progn
+        (kill-region (minibuffer-prompt-end) (point))
+        (setq ivy--old-text (current-kill 0 t)))
     (kill-line)))
 
 (defun ivy-kill-whole-line ()
