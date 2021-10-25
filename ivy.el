@@ -939,10 +939,10 @@ Is is a cons cell, related to `tramp-get-completion-function'."
   :type '(alist :key-type symbol :value-type function))
 
 (defun ivy--completing-fname-p ()
-  (eq 'file (cdr (assoc
-                  'category
-                  (ignore-errors
-                    (funcall (ivy-state-collection ivy-last) ivy-text nil 'metadata))))))
+  (let ((meta (ignore-errors
+                (funcall (ivy-state-collection ivy-last) ivy-text nil 'metadata))))
+    (and (consp meta)
+         (eq 'file (cdr (assoc 'category meta))))))
 
 (defun ivy-alt-done (&optional arg)
   "Exit the minibuffer with the selected candidate.
