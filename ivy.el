@@ -245,6 +245,11 @@ PROMPT-FN is a function of no arguments that returns a prompt string."
 (defvar ivy--display-transformers-alist nil
   "A list of str->str transformers per command.")
 
+(defvar ivy--should-filter-transformed-candidates-p-alist nil
+  "A list of caller (aka. command) / boolean pairs, specifiying whether
+the candidates for that particular caller (the key) should be filtered on
+their transformed values, if a transformer for that caller has been defined.")
+
 (defun ivy-set-display-transformer (cmd transformer)
   "Set CMD a displayed candidate TRANSFORMER.
 
@@ -1902,6 +1907,7 @@ The child caller inherits and can override the settings of the parent.")
                          format-fn
                          display-fn
                          display-transformer-fn
+                         should-filter-transformed-candidates-p
                          alt-done-fn
                          more-chars
                          grep-p
@@ -1934,6 +1940,7 @@ The child caller inherits and can override the settings of the parent.")
     (ivy--alist-set 'ivy-display-functions-alist caller display-fn))
   (when display-transformer-fn
     (ivy--alist-set 'ivy--display-transformers-alist caller display-transformer-fn))
+  (ivy--alist-set 'ivy--should-filter-transformed-candidates-p-alist caller should-filter-transformed-candidates-p)
   (when alt-done-fn
     (ivy--alist-set 'ivy-alt-done-functions-alist caller alt-done-fn))
   (when more-chars
@@ -3537,20 +3544,30 @@ In any Ivy completion session, the case folding starts with
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
-  (if (equal re "")
-      candidates
-    (ignore-errors
-      (dolist (re (if (stringp re) (list (cons re t)) re))
-        (let* ((re-str (car re))
-               (pred
-                (if mkpred
-                    (funcall mkpred re-str)
-                  (lambda (x) (string-match-p re-str x)))))
-          (setq candidates
-                (cl-remove nil candidates
-                           (if (cdr re) :if-not :if)
-                           pred))))
-      candidates)))
+  (let* ((should-filter-transformed-candidates-p (ivy-alist-setting ivy--should-filter-transformed-candidates-p-alist))
+         (transformer-fn (ivy-alist-setting ivy--display-transformers-alist))
+         (filter-transformed-candidates-p (and should-filter-transformed-candidates-p transformer-fn)))
+    (when filter-transformed-candidates-p
+      ;; Augment the list of candidates with their transformed version, in which the filtering will be performed.
+      (setq candidates (cl-mapcar 'cons candidates (mapcar transformer-fn candidates))))
+    (if (equal re "")
+        (if should-filter-transformed-candidates-p
+            (mapcar 'car candidates)
+          candidates)
+      (ignore-errors
+        (dolist (re (if (stringp re) (list (cons re t)) re))
+          (let* ((re-str (car re))
+                 (pred
+                  (if mkpred
+                      (funcall mkpred re-str)
+                    (lambda (x) (string-match-p re-str (if filter-transformed-candidates-p (cdr x) x))))))
+            (setq candidates
+                  (cl-remove nil candidates
+                             (if (cdr re) :if-not :if)
+                             pred))))
+        (if filter-transformed-candidates-p
+            (mapcar 'car candidates)
+          candidates)))))
 
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
