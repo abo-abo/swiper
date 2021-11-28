@@ -381,9 +381,10 @@ Update the minibuffer with the amount of lines collected every
     (when len
       (setq ivy-completion-beg (- (point) len))
       (setq ivy-completion-end (point))
-      (ivy-read "Candidate: " company-candidates
-                :action #'ivy-completion-in-region-action
-                :caller 'counsel-company))))
+      (when company-candidates
+        (ivy-read "Candidate: " company-candidates
+                  :action #'ivy-completion-in-region-action
+                  :caller 'counsel-company)))))
 
 (ivy-configure 'counsel-company
   :display-transformer-fn #'counsel--company-display-transformer
