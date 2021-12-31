@@ -468,7 +468,7 @@ that use the =ivy-read= API, rather than the built-in
      into the minibuffer.
 
 - ~M-p~ (=ivy-previous-history-element=) ::
-     Cycles forward through the Ivy command history.
+     Cycles backwards through the Ivy command history.
 
 - ~M-i~ (=ivy-insert-current=) ::
      Inserts the current candidate into the minibuffer.
