@@ -1262,7 +1262,9 @@ if one exists."
   (setq ivy--index index)
   (when ivy-calling
     (ivy--exhibit)
-    (ivy-call)))
+    (pcase ivy-calling
+      ('rc (ivy-call-and-recenter))
+      (_ (ivy-call)))))
 
 (defun ivy-beginning-of-buffer ()
   "Select the first completion candidate."
@@ -1330,8 +1332,10 @@ If the input is empty, select the previous history element instead."
 (defun ivy-toggle-calling ()
   "Flip `ivy-calling'."
   (interactive)
-  (when (setq ivy-calling (not ivy-calling))
-    (ivy-call)))
+  (setq ivy-calling (pcase ivy-calling
+                      ('on 'rc)
+                      ('rc nil)
+                      (_ 'on))))
 
 (defun ivy-toggle-ignore ()
   "Toggle user-configured candidate filtering."
@@ -1515,7 +1519,7 @@ See variable `ivy-recursive-restore' for further information."
   (interactive)
   (ivy-call)
   (with-ivy-window
-    (recenter-top-bottom)))
+    (recenter)))
 
 (defun ivy-next-line-and-call (&optional arg)
   "Move cursor vertically down ARG candidates.
