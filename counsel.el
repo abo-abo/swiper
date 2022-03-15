@@ -4705,9 +4705,12 @@ S will be of the form \"[register]: content\"."
                                      imenu-auto-rescan-maxout))
          (items (imenu--make-index-alist t))
          (items (delete (assoc "*Rescan*" items) items))
-         (items (if (eq major-mode 'emacs-lisp-mode)
-                    (counsel-imenu-categorize-functions items)
-                  items)))
+         (items (cond ((eq major-mode 'emacs-lisp-mode)
+                       (counsel-imenu-categorize-functions items))
+                      ((eq major-mode 'python-mode)
+                       (python-imenu-create-flat-index))
+                      (t
+                       items))))
     (counsel-imenu-get-candidates-from items)))
 
 (defun counsel-imenu-get-candidates-from (alist &optional prefix)
@@ -4747,8 +4750,7 @@ PREFIX is used to create the key."
       items)))
 
 (defun counsel-imenu-action (x)
-  (with-ivy-window
-    (imenu (cdr x))))
+  (imenu (cdr x)))
 
 (defvar counsel-imenu-history nil
   "History for `counsel-imenu'.")
