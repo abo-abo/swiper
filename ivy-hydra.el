@@ -157,3 +157,6 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
 (provide 'ivy-hydra)
 
 ;;; ivy-hydra.el ends here
+;; Local Variables:
+;; byte-compile-warnings: (not docstrings)
+;; End:
