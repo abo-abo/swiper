@@ -27,6 +27,7 @@
 ;;; Code:
 
 (eval-when-compile
+  (require 'cl-lib)
   (require 'subr-x))
 
 (defface ivy-cursor
@@ -97,13 +98,28 @@ Then attach the overlay to the character before point."
 (declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
 
+(defun ivy-overlay--current-column ()
+  "Return `current-column', ignoring `ivy-overlay-at'.
+Temporarily make `ivy-overlay-at' invisible so that the
+`string-width' of its `display' property is not included in the
+`current-column' calculation by Emacs >= 29.
+See URL `https://bugs.gnu.org/53795'."
+  (if (overlayp ivy-overlay-at)
+      (cl-letf (((overlay-get ivy-overlay-at 'invisible) t))
+        (1+ (current-column)))
+    (current-column)))
+
 (defun ivy-overlay-impossible-p (_str)
   (or
    (and (eq major-mode 'org-mode)
-        (plist-get (text-properties-at (point)) 'src-block))
+        ;; If this breaks, an alternative is to call the canonical function
+        ;; `org-in-src-block-p', which is slower.  Neither approach works
+        ;; in Org versions that shipped with Emacs < 26, however.
+        (get-text-property (point) 'src-block))
    (<= (window-height) (+ ivy-height 2))
-   (= (point) (point-min))
-   (< (- (+ (window-width) (window-hscroll)) (current-column))
+   (bobp)
+   (< (- (+ (window-width) (window-hscroll))
+         (ivy-overlay--current-column))
       30)))
 
 (defun ivy-display-function-overlay (str)
@@ -144,7 +160,7 @@ Hide the minibuffer contents and cursor."
                            (save-excursion
                              (when ivy-completion-beg
                                (goto-char ivy-completion-beg))
-                             (current-column)))))))))
+                             (ivy-overlay--current-column)))))))))
         (let ((cursor-offset (1+ (length ivy-text))))
           (add-face-text-property cursor-offset (1+ cursor-offset)
                                   'ivy-cursor t overlay-str))
