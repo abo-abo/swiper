@@ -55,6 +55,25 @@
                 (cl-decf ivy-height))
     (window-resize nil -1)))
 
+(defun ivy-hydra--read-action ()
+  "Read one of the available actions.
+Like `ivy-read-action', but unaffected by
+`ivy-read-action-function'."
+  (interactive)
+  (let ((ivy-read-action-function #'ivy-read-action-by-key))
+    (ivy-read-action)))
+
+(defun ivy-hydra--toggle-truncate-lines ()
+  "Toggle `truncate-lines'."
+  (interactive)
+  (setq truncate-lines (not truncate-lines)))
+
+(defun ivy-hydra--find-definition ()
+  "Find the definition of `hydra-ivy'."
+  (interactive)
+  (ivy-exit-with-action
+   (lambda (_) (find-function #'hydra-ivy/body))))
+
 (defhydra hydra-ivy (:hint nil :color pink)
   "
 ^ ^ ^ ^ ^ ^ | ^Call^      ^ ^  | ^Cancel^ | ^Options^ | Action _w_/_s_/_a_: %-14s(ivy-action-name)
@@ -90,25 +109,24 @@ _h_ ^+^ _l_ | _d_one      ^ ^  | _o_ops   | _M_: matcher %-5s(ivy--matcher-desc)
   ("<" ivy-minibuffer-shrink)
   ("w" ivy-prev-action)
   ("s" ivy-next-action)
-  ("a" (let ((ivy-read-action-function #'ivy-read-action-by-key))
-         (ivy-read-action)))
-  ("T" (setq truncate-lines (not truncate-lines)))
+  ("a" ivy-hydra--read-action)
+  ("T" ivy-hydra--toggle-truncate-lines)
   ("C" ivy-toggle-case-fold)
   ("U" ivy-occur :exit t)
-  ("D" (ivy-exit-with-action
-        (lambda (_) (find-function 'hydra-ivy/body)))
-   :exit t))
-(dolist (sym '(
-               ;; these cmds have a binding here
+  ("D" ivy-hydra--find-definition :exit t))
+(dolist (cmd '(;; These commands have a binding here.
+               ivy-hydra--find-definition
+               ivy-hydra--read-action
+               ivy-hydra--toggle-truncate-lines
                ivy-next-action ivy-prev-action
                ivy-unmark-backward ivy-toggle-case-fold
                ivy-minibuffer-grow ivy-minibuffer-shrink
                ivy-rotate-preferred-builders ivy-toggle-calling
-               ;; no binding
+               ;; No binding.
                ivy-next-line-or-history ivy-previous-line-or-history
                ivy-toggle-fuzzy ivy-yank-symbol
                ivy-occur-next-error))
-  (put sym 'no-counsel-M-x t))
+  (function-put cmd 'no-counsel-M-x t))
 
 (defvar ivy-dispatching-done-columns 2
   "Number of columns to use if the hint does not fit on one line.")
