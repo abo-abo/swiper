@@ -2056,6 +2056,7 @@ The preselect behavior can be customized via user options
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
+  (defvar tramp-archive-enabled)
   (let ((tramp-archive-enabled nil)
         (default-directory (or initial-directory default-directory)))
     (counsel--find-file-1 "Find file: " initial-input
