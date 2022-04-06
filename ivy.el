@@ -2202,18 +2202,18 @@ customizations apply to the current completion session."
     (ivy-call)))
 
 (defun ivy--update-history (hist)
-  (let ((item
-         (if (or (string= ivy-text "")
-                 (eq
-                  (plist-get (ivy-state-extra-props ivy-last) :caller)
-                  'ivy-completing-read)
-                 (eq (ivy-state-history ivy-last) 'file-name-history))
-             (ivy-state-current ivy-last)
-           ivy-text)))
-    (cond ((equal item ""))
-          ((stringp item)
-           (set hist (cons (propertize item 'ivy-index ivy--index)
-                           (delete item (symbol-value hist))))))))
+  (unless (eq hist t)
+    (let ((item
+           (if (or (string= ivy-text "")
+                   (eq (plist-get (ivy-state-extra-props ivy-last) :caller)
+                       #'ivy-completing-read)
+                   (eq (ivy-state-history ivy-last) 'file-name-history))
+               (ivy-state-current ivy-last)
+             ivy-text)))
+      (cond ((equal item ""))
+            ((stringp item)
+             (set hist (cons (propertize item 'ivy-index ivy--index)
+                             (delete item (symbol-value hist)))))))))
 
 (defun ivy--cleanup ()
   ;; Fixes a bug in ESS, #1660
@@ -4846,7 +4846,7 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
 
 (defun ivy--label-and-delete-dups (entries)
   "Label ENTRIES with history indices."
-  (let ((ht (make-hash-table :test 'equal))
+  (let ((ht (and entries (make-hash-table :test #'equal)))
         (idx 0)
         entry
         accum)
@@ -4857,22 +4857,21 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
       (cl-incf idx))
     (nreverse accum)))
 
-(defvar ivy--reverse-i-search-symbol nil
-  "Store the history symbol.")
+(defvar ivy--reverse-i-search-history nil
+  "Store the minibuffer history variable.")
 
 (defun ivy-reverse-i-search-kill ()
-  "Remove the current item from history"
+  "Remove the current item from minibuffer history."
   (interactive)
   (if (not (eolp))
       (ivy-kill-line)
-    (let ((current (ivy-state-current ivy-last)))
-      (if (symbolp ivy--reverse-i-search-symbol)
-          (set
-           ivy--reverse-i-search-symbol
-           (delete current (symbol-value ivy--reverse-i-search-symbol)))
-        (ring-remove
-         ivy--reverse-i-search-symbol
-         (ring-member ivy--reverse-i-search-symbol (ivy-state-current ivy-last)))))
+    (let ((current (ivy-state-current ivy-last))
+          (history ivy--reverse-i-search-history))
+      (cond ((booleanp history))
+            ((symbolp history)
+             (set history (delete current (symbol-value history))))
+            ((ring-p history)
+             (ring-remove history (ring-member history current)))))
     (ivy--kill-current-candidate)))
 
 (defvar ivy-reverse-i-search-map
@@ -4883,20 +4882,17 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
 (defun ivy-history-contents (history)
   "Copy contents of HISTORY.
 A copy is necessary so that we don't clobber any string attributes.
-Also set `ivy--reverse-i-search-symbol' to HISTORY."
-  (setq ivy--reverse-i-search-symbol history)
-  (cond ((symbolp history)
-         (ivy--label-and-delete-dups
-          (copy-sequence (symbol-value history))))
-        ((ring-p history)
-         (ivy--label-and-delete-dups
-          (when (> (ring-size history) 0)
-            (ring-elements history))))
-        ((sequencep history)
-         (ivy--label-and-delete-dups
-          (copy-sequence history)))
-        (t
-         (error "Expected a symbol, ring, or sequence: %S" history))))
+Also set `ivy--reverse-i-search-history' to HISTORY."
+  (prog1 (ivy--label-and-delete-dups
+          (cond ((booleanp history) ())
+                ((symbolp history)
+                 (copy-sequence (symbol-value history)))
+                ((ring-p history)
+                 (ring-elements history))
+                ((sequencep history)
+                 (copy-sequence history))
+                ((error "Expected a symbol, ring, or sequence: %S" history))))
+    (setq ivy--reverse-i-search-history history)))
 
 (defun ivy-reverse-i-search ()
   "Enter a recursive `ivy-read' session using the current history.
