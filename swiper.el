@@ -1533,7 +1533,21 @@ Return to original position."
         (kill-new (match-string 0)))
     (goto-char swiper--opoint)))
 
+(defun swiper-isearch-action-insert (cand)
+  "Insert `swiper-isearch' candidate CAND where invoked."
+  (unwind-protect
+       (progn
+         (unless (and (setq cand (swiper--isearch-candidate-pos cand))
+                      ;; FIXME: Better way of getting current candidate?
+                      (goto-char cand)
+                      (looking-back (ivy-re-to-str ivy-regex) (point-min)))
+           (error "Could not insert `swiper-isearch' candidate: %S" cand))
+         (goto-char swiper--opoint)
+         (insert (match-string 0)))
+    (goto-char swiper--opoint)))
+
 (ivy-add-actions 'swiper-isearch '(("w" swiper-isearch-action-copy "copy")))
+(ivy-add-actions 'swiper-isearch '(("i" swiper-isearch-action-insert "insert")))
 (ivy-add-actions 'swiper '(("w" swiper-action-copy "copy")))
 
 (defun swiper-isearch-thing-at-point ()
