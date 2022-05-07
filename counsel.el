@@ -4747,7 +4747,7 @@ PREFIX is used to create the key."
 
 (defun counsel-imenu-action (x)
   (with-ivy-window
-    (imenu (cdr x))))
+    (imenu x)))
 
 (defvar counsel-imenu-history nil
   "History for `counsel-imenu'.")
