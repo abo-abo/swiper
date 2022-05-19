@@ -1795,7 +1795,8 @@ currently checked out."
                (and (string-match "\\`[[:blank:]]+" line)
                     (list (substring line (match-end 0)))))
              (let ((default-directory (counsel-locate-git-root)))
-               (split-string (shell-command-to-string "git branch -vv --all")
+               (split-string (shell-command-to-string
+                              "git branch -vv --all --no-color")
                              "\n" t))))
 
 ;;;###autoload
