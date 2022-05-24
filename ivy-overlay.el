@@ -152,7 +152,8 @@ Hide the minibuffer contents and cursor."
                           (string-remove-prefix "\n" str)
                           (+
                            (if (and (eq major-mode 'org-mode)
-                                    (bound-and-true-p org-indent-mode))
+                                    (bound-and-true-p org-indent-mode)
+                                    (version< emacs-version "28.1"))
                                (if (org-at-heading-p)
                                    (1- (org-current-level))
                                  (* org-indent-indentation-per-level (or (org-current-level) 1)))
