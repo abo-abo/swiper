@@ -1388,8 +1388,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defcustom counsel-grep-post-action-hook nil
   "Hook that runs after the point moves to the next candidate.
-Typical value: '(recenter)."
-  :type 'hook)
+A typical example of what to add to this hook is the function
+`recenter'."
+  :type 'hook
+  :options '(recenter))
 
 (defcustom counsel-git-grep-cmd-function #'counsel-git-grep-cmd-function-default
   "How a git-grep shell call is built from the input.
@@ -2234,40 +2236,38 @@ See variable `counsel-up-directory-level'."
 
 (defun counsel-emacs-url-p ()
   "Return a Debbugs issue URL at point."
-  (when (counsel-require-program "git" t)
-    (let ((url (counsel-at-git-issue-p)))
-      (when url
-        (let ((origin (shell-command-to-string
-                       "git remote get-url origin")))
-          (when (string-match "git.sv.gnu.org:/srv/git/emacs.git" origin)
-            (format "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=%s"
-                    (substring url 1))))))))
+  (let ((url (and (counsel-require-program "git" t)
+                  (counsel-at-git-issue-p))))
+    (when url
+      (let ((origin (shell-command-to-string "git remote get-url origin")))
+        (when (string-match-p "git.sv.gnu.org:/srv/git/emacs.git" origin)
+          (format "https://bugs.gnu.org/%s" (substring url 1)))))))
 
 (defvar counsel-url-expansions-alist nil
   "Map of regular expressions to expansions.
 
-This variable should take the form of a list of (REGEXP . FORMAT)
-pairs.
+The value of this variable is a list of pairs (REGEXP . FORMAT).
 
-`counsel-url-expand' will expand the word at point according to
+`counsel-url-expand' expands the word at point according to
 FORMAT for the first matching REGEXP.  FORMAT can be either a
-string or a function.  If it is a string, it will be used as the
-format string for the `format' function, with the word at point
-as the next argument.  If it is a function, it will be called
-with the word at point as the sole argument.
+string or a function.  If it is a string, it is used as the
+format string for the function `format', with the word at point
+as the next argument.  If it is a function, it is called with the
+word at point as the sole argument.
 
 For example, a pair of the form:
-  '(\"\\`BSERV-[[:digit:]]+\\'\" . \"https://jira.atlassian.com/browse/%s\")
-will expand to URL `https://jira.atlassian.com/browse/BSERV-100'
-when the word at point is BSERV-100.
+  \\='(\"\\\\\\=`BSERV-[[:digit:]]+\\\\\\='\" .
+    \"https://jira.atlassian.com/browse/%s\")
+expands to the URL `https://jira.atlassian.com/browse/BSERV-100'
+when the word at point is \"BSERV-100\".
 
-If the format element is a function, more powerful
-transformations are possible.  As an example,
-  '(\"\\`issue\\([[:digit:]]+\\)\\'\" .
+If FORMAT is a function, more powerful transformations are
+possible.  As an example,
+  \\='(\"\\\\\\=`issue\\\\([[:digit:]]+\\\\)\\\\\\='\" .
     (lambda (word)
-      (concat \"https://debbugs.gnu.org/cgi/bugreport.cgi?bug=\"
-              (match-string 1 word))))
-trims the \"issue\" prefix from the word at point before creating the URL.")
+      (concat \"https://bugs.gnu.org/\" (match-string 1 word))))
+trims the \"issue\" prefix from the word at point before creating
+the URL.")
 
 (defun counsel-url-expand ()
   "Expand word at point using `counsel-url-expansions-alist'.
@@ -6544,10 +6544,10 @@ sub-directories that builds may be invoked in."
 (defun counsel-compile--probe-make-help (dir)
   "Return a list of Make targets based on help for DIR.
 
-It is quite common for a 'make help' invocation to return a human
-readable list of targets.  Often common targets are marked with a
-leading asterisk.  The exact search pattern is controlled by
-`counsel-compile-help-pattern'."
+It is quite common for a \"make help\" invocation to return a
+human readable list of targets.  Often common targets are marked
+with a leading asterisk.  The exact search pattern is controlled
+by `counsel-compile-help-pattern'."
   (let ((default-directory dir)
         primary-targets targets)
     ;; Only proceed if the help target exists.

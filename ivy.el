@@ -277,8 +277,8 @@ Example:
       (cl-subseq recentf-list 0 20))
 
     (ivy-set-sources
-     'counsel-locate
-     '((small-recentf)
+     \\='counsel-locate
+     \\='((small-recentf)
        (original-source)))"
   (setq ivy--sources-list
         (plist-put ivy--sources-list cmd sources)))
@@ -1822,7 +1822,7 @@ Possible choices: `ivy--regex', `regexp-quote',
 `ivy--regex-plus', `ivy--regex-fuzzy', `ivy--regex-ignore-order'.
 
 If a function returns a list, it should format like this:
-'((\"matching-regexp\" . t) (\"non-matching-regexp\") ...).
+\\='((\"matching-regexp\" . t) (\"non-matching-regexp\") ...).
 
 The matches will be filtered in a sequence, you can mix the
 regexps that should match and that should not match as you
@@ -3205,10 +3205,11 @@ parts beyond their respective faces `ivy-confirm-face' and
         (sort (copy-sequence collection) sort)
       collection)))
 
-(defcustom ivy-magic-slash-non-match-action 'ivy-magic-slash-non-match-cd-selected
-  "Action to take when a slash is added to the end of a non existing directory.
-Possible choices are 'ivy-magic-slash-non-match-cd-selected,
-'ivy-magic-slash-non-match-create, or nil"
+(defcustom ivy-magic-slash-non-match-action
+  'ivy-magic-slash-non-match-cd-selected
+  "Action to take when a slash is appended to a nonexistent directory.
+Possible choices are `ivy-magic-slash-non-match-cd-selected',
+`ivy-magic-slash-non-match-create', or nil"
   :type '(choice
           (const :tag "Use currently selected directory"
            ivy-magic-slash-non-match-cd-selected)
