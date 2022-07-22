@@ -4499,24 +4499,26 @@ mark, as per \\[universal-argument] \\[yank]."
   "Like `yank-pop', but insert the kill corresponding to S.
 Signal a `buffer-read-only' error if called from a read-only
 buffer position."
-  (with-ivy-window
-    (barf-if-buffer-read-only)
-    (setq yank-window-start (window-start))
-    (unless (eq last-command 'yank)
-      ;; Avoid unexpected deletions with `yank-handler' properties.
-      (setq yank-undo-function nil))
-    (condition-case nil
-        (let (;; Deceive `yank-pop'.
-              (last-command 'yank)
-              ;; Avoid unexpected additions to `kill-ring'.
-              interprogram-paste-function)
-          (yank-pop (counsel--yank-pop-position s)))
-      (error
-       ;; Support strings not present in the kill ring.
-       (insert s)))
-    (when (funcall (if counsel-yank-pop-after-point #'> #'<)
-                   (point) (mark t))
-      (exchange-point-and-mark t))))
+  (if (eq major-mode 'vterm-mode)
+      (let ((inhibit-read-only t))
+        (vterm-insert s)))
+  (barf-if-buffer-read-only)
+  (setq yank-window-start (window-start))
+  (unless (eq last-command 'yank)
+    ;; Avoid unexpected deletions with `yank-handler' properties.
+    (setq yank-undo-function nil))
+  (condition-case nil
+      (let (;; Deceive `yank-pop'.
+            (last-command 'yank)
+            ;; Avoid unexpected additions to `kill-ring'.
+            interprogram-paste-function)
+        (yank-pop (counsel--yank-pop-position s)))
+    (error
+     ;; Support strings not present in the kill ring.
+     (insert s)))
+  (when (funcall (if counsel-yank-pop-after-point #'> #'<)
+                 (point) (mark t))
+    (exchange-point-and-mark t)))
 
 (defun counsel-yank-pop-action-remove (s)
   "Remove all occurrences of S from the kill ring."
