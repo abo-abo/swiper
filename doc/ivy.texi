@@ -8,7 +8,7 @@
 
 @copying
 @ifnottex
-Ivy manual, version 0.13.0
+Ivy manual, version 0.13.4
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -20,7 +20,7 @@ final candidate is either through simple keyboard character inputs or
 through powerful regular expressions.
 @end ifnottex
 
-Copyright (C) 2015-2019 Free Software Foundation, Inc.
+Copyright (C) 2015--2021 Free Software Foundation, Inc.
 
 @quotation
 Permission is granted to copy, distribute and/or modify this document
@@ -29,6 +29,7 @@ or any later version published by the Free Software Foundation;
 with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU
 Free Documentation License".
+
 @end quotation
 @end copying
 
@@ -216,22 +217,23 @@ version that runs Ivy with fancy faces display.
 
 @kbd{M-x} @code{package-install} @kbd{RET} @code{counsel} @kbd{RET}
 
-Ivy is installed as part of the @code{counsel} package, which is available
-from two different package archives, GNU ELPA and MELPA.  For the
-latest stable version, use the GNU ELPA archives.  For current hourly
-builds, use the MELPA archives.
+Ivy is installed alongside the @code{counsel} package, which is available
+from two different package archives, GNU ELPA and MELPA@.  For the
+latest stable version, use the GNU ELPA archive.  For the latest
+development snaphshot, use the GNU-devel ELPA archive.
 
 Ivy is split into three packages: @code{ivy}, @code{swiper} and @code{counsel}; by
 installing @code{counsel}, the other two are brought in as dependencies.
 If you are not interested in the extra functionality provided by
 @code{swiper} and @code{counsel}, you can install only @code{ivy}.
 
-See the code below for adding MELPA to the list of package archives:
+See the code below for adding GNU-devel ELPA to your list of package
+archives:
 
 @lisp
 (require 'package)
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+             '("gnu-devel" . "https://elpa.gnu.org/devel/"))
 @end lisp
 
 After this do @kbd{M-x} @code{package-refresh-contents} @kbd{RET}, followed by @kbd{M-x}
@@ -246,7 +248,7 @@ For package manager details, see @ref{Packages,,,emacs,}.
 @indentedblock
 @itemize
 @item
-No need to wait for MELPA's hourly builds
+No need to wait for GNU ELPA / MELPA builds
 @item
 Easy to revert to previous versions
 @item
@@ -484,11 +486,11 @@ Example ERT test:
 @lisp
 (should
  (equal (ivy-with
-	 '(progn
-	   (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-	   ivy-text)
-	 "c <tab>")
-	"can"))
+         '(progn
+            (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+            ivy-text)
+         "c <tab>")
+        "can"))
 @end lisp
 @end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
@@ -516,12 +518,16 @@ keystrokes followed by @kbd{C-m}.
 @subsection Key bindings for multiple selections and actions, keep minibuffer open
 
 For repeatedly applying multiple actions or acting on multiple
-candidates, Ivy does not close the minibuffer between commands. It
+candidates, Ivy does not close the minibuffer between commands.  It
 keeps the minibuffer open for applying subsequent actions.
 
 Adding an extra meta key to the normal key chord invokes the special
 version of the regular commands that enables applying multiple
 actions.
+
+Note that these operations are supported only by completion sessions
+that use the @code{ivy-read} API, rather than the built-in
+@code{completing-read}.
 
 @subsubheading @kbd{C-M-m} (@code{ivy-call})
 @vindex ivy-call
@@ -593,7 +599,7 @@ into the minibuffer.
 @vindex ivy-previous-history-element
 @kindex M-p
 @indentedblock
-Cycles forward through the Ivy command history.
+Cycles backwards through the Ivy command history.
 @end indentedblock
 @subsubheading @kbd{M-i} (@code{ivy-insert-current})
 @vindex ivy-insert-current
@@ -705,9 +711,9 @@ Hydra menu offers these additional bindings:
 Toggle calling the action after each candidate change. It
 modifies @kbd{j} to @kbd{jg}, @kbd{k} to @kbd{kg} etc.
 @end indentedblock
-@subsubheading @kbd{m} (@code{ivy-rotate-preferred-builders})
+@subsubheading @kbd{M} (@code{ivy-rotate-preferred-builders})
 @vindex ivy-rotate-preferred-builders
-@kindex m
+@kindex M
 @indentedblock
 Rotate the current regexp matcher.
 @end indentedblock
@@ -866,7 +872,7 @@ completion:
 @lisp
 (setq ivy-re-builders-alist
       '((read-file-name-internal . ivy--regex-fuzzy)
-	(t . ivy--regex-plus)))
+        (t . ivy--regex-plus)))
 @end lisp
 
 Here, @code{read-file-name-internal} is a function that is passed as the
@@ -1101,6 +1107,8 @@ i.e., when @kbd{DEL} is typed at the beginning of the minibuffer.
 
 The default behavior is to quit the completion after @kbd{DEL} -- a
 handy key to invoke after mistakenly triggering a completion.
+
+Another common option is @code{ignore}, which does nothing.
 @end defopt
 
 @node Actions
@@ -1233,10 +1241,10 @@ Use the command name as the key:
 (defun my-command-with-3-actions ()
   (interactive)
   (ivy-read "test: " '("foo" "bar" "baz")
-	    :action '(1
-		      ("o" my-action-1 "action 1")
-		      ("j" my-action-2 "action 2")
-		      ("k" my-action-3 "action 3"))))
+            :action '(1
+                      ("o" my-action-1 "action 1")
+                      ("j" my-action-2 "action 2")
+                      ("k" my-action-3 "action 3"))))
 @end lisp
 
 The number 1 above is the index of the default action. Each
@@ -1636,20 +1644,20 @@ later use yourself. However, it's recommended that you use the
   "Forward to `describe-function'."
   (interactive)
   (ivy-read "Describe function: "
-	    (let (cands)
-	      (mapatoms
-	       (lambda (x)
-		 (when (fboundp x)
-		   (push (symbol-name x) cands))))
-	      cands)
-	    :keymap counsel-describe-map
-	    :preselect (ivy-thing-at-point)
-	    :history 'counsel-describe-symbol-history
-	    :require-match t
-	    :action (lambda (x)
-		      (describe-function
-		       (intern x)))
-	    :caller 'counsel-describe-function))
+            (let (cands)
+              (mapatoms
+               (lambda (x)
+                 (when (fboundp x)
+                   (push (symbol-name x) cands))))
+              cands)
+            :keymap counsel-describe-map
+            :preselect (ivy-thing-at-point)
+            :history 'counsel-describe-symbol-history
+            :require-match t
+            :action (lambda (x)
+                      (describe-function
+                       (intern x)))
+            :caller 'counsel-describe-function))
 @end lisp
 
 Here are the interesting features of the above function, in the order that they appear:
@@ -1713,9 +1721,9 @@ narrowing) or select a candidate from the visible collection.
    (progn
      (counsel--async-command
       (format "locate %s '%s'"
-	      (mapconcat #'identity counsel-locate-options " ")
-	      (counsel--elisp-to-pcre
-	       (ivy--regex str))))
+              (mapconcat #'identity counsel-locate-options " ")
+              (counsel--elisp-to-pcre
+               (ivy--regex str))))
      '("" "working..."))))
 
 ;;;###autoload
@@ -1724,15 +1732,15 @@ narrowing) or select a candidate from the visible collection.
 INITIAL-INPUT can be given as the initial minibuffer input."
   (interactive)
   (ivy-read "Locate: " #'counsel-locate-function
-	    :initial-input initial-input
-	    :dynamic-collection t
-	    :history 'counsel-locate-history
-	    :action (lambda (file)
-		      (with-ivy-window
-			(when file
-			  (find-file file))))
-	    :unwind #'counsel-delete-process
-	    :caller 'counsel-locate))
+            :initial-input initial-input
+            :dynamic-collection t
+            :history 'counsel-locate-history
+            :action (lambda (file)
+                      (with-ivy-window
+                        (when file
+                          (find-file file))))
+            :unwind #'counsel-delete-process
+            :caller 'counsel-locate))
 @end lisp
 
 Here are the interesting features of the above functions, in the order
@@ -1781,18 +1789,18 @@ displayed strings.
 @lisp
 (defun find-candidates-function (str pred _)
   (let ((props '(1 2))
-	(strs '("foo" "foo2")))
+        (strs '("foo" "foo2")))
     (cl-mapcar (lambda (s p) (propertize s 'property p))
-	       strs
-	       props)))
+               strs
+               props)))
 
 (defun find-candidates ()
   (interactive)
   (ivy-read "Find symbols: "
-	    #'find-candidates-function
-	    :action (lambda (x)
-		      (message "Value: %s" (get-text-property 0 'property x)
-		       ))))
+            #'find-candidates-function
+            :action (lambda (x)
+                      (message "Value: %s"
+                               (get-text-property 0 'property x)))))
 @end lisp
 
 Here are the interesting features of the above function:
@@ -1811,12 +1819,12 @@ then retrieves that value and displays it.
 @end itemize
 
 @node Variable Index
-@unnumbered Variable Index
+@chapter Variable Index
 
 @printindex vr
 
 @node Keystroke Index
-@unnumbered Keystroke Index
+@chapter Keystroke Index
 
 @printindex ky
 

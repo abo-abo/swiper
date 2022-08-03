@@ -2111,7 +2111,7 @@ See [[https://github.com/abo-abo/swiper/issues/577][#577]].
 See [[https://github.com/abo-abo/swiper/issues/601][#601]].
 **** Added info on associating values
 See [[https://github.com/abo-abo/swiper/issues/714][#714]].
-**** Update package names on ELPA/MELPA
+**** Update package names on GNU ELPA / MELPA
 See [[https://github.com/abo-abo/swiper/issues/833][#833]].
 -----
 *** =ivy--filter=

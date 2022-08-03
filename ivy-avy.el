@@ -1,11 +1,11 @@
 ;;; ivy-avy.el --- Avy integration for Ivy -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020  Free Software Foundation, Inc.
+;; Copyright (C) 2020-2021 Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.13.0
-;; Package-Requires: ((emacs "24.5") (ivy "0.13.0") (avy "0.5.0"))
+;; Version: 0.13.4
+;; Package-Requires: ((emacs "24.5") (ivy "0.13.4") (avy "0.5.0"))
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -62,11 +62,15 @@
 (defun ivy-avy--action (pt)
   "Select the candidate represented by PT."
   (when (number-or-marker-p pt)
-    (let ((bnd (ivy--minibuffer-index-bounds
-                ivy--index ivy--length ivy-height)))
+    (let* ((bnd (ivy--minibuffer-index-bounds
+                 ivy--index ivy--length ivy-height))
+           (idx (+ (car bnd) (- (line-number-at-pos pt) 2)))
+           (coll (if (ivy-state-dynamic-collection ivy-last)
+                     ivy--all-candidates
+                   ivy--old-cands)))
       (ivy--done
        (substring-no-properties
-        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
+        (nth idx coll))))))
 
 (defun ivy-avy--handler-function (char)
   "Handle CHAR that's not on `avy-keys'."

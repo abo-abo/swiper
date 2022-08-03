@@ -1,6 +1,6 @@
 INFO_INSTALL_DIR="${HOME}/git/gnu-elpa/packages/ivy"
 
-ivy.texi: ivy.org
+ivy.texi: ivy.org ivy-ox.el scripts.el
 	emacs -batch -l ivy-ox.el -l scripts.el --eval "(org-to-texi \"ivy.org\")"
 
 ivy.info: ivy.texi

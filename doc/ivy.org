@@ -58,7 +58,7 @@ ivy-ox.el then ~C-c C-e i t~ in the ivy.org buffer.
 :CUSTOM_ID: copying
 :END:
 #+TEXINFO: @ifnottex
-Ivy manual, version 0.13.0
+Ivy manual, version 0.13.4
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -70,7 +70,7 @@ final candidate is either through simple keyboard character inputs or
 through powerful regular expressions.
 #+TEXINFO: @end ifnottex
 
-Copyright (C) 2015-2019 Free Software Foundation, Inc.
+Copyright (C) 2015--2021 Free Software Foundation, Inc.
 
 #+BEGIN_QUOTE
 Permission is granted to copy, distribute and/or modify this document
@@ -150,22 +150,23 @@ version that runs Ivy with fancy faces display.
 
 ~M-x~ =package-install= ~RET~ =counsel= ~RET~
 
-Ivy is installed as part of the =counsel= package, which is available
+Ivy is installed alongside the =counsel= package, which is available
 from two different package archives, GNU ELPA and MELPA.  For the
-latest stable version, use the GNU ELPA archives.  For current hourly
-builds, use the MELPA archives.
+latest stable version, use the GNU ELPA archive.  For the latest
+development snaphshot, use the GNU-devel ELPA archive.
 
 Ivy is split into three packages: =ivy=, =swiper= and =counsel=; by
 installing =counsel=, the other two are brought in as dependencies.
 If you are not interested in the extra functionality provided by
 =swiper= and =counsel=, you can install only =ivy=.
 
-See the code below for adding MELPA to the list of package archives:
+See the code below for adding GNU-devel ELPA to your list of package
+archives:
 
 #+begin_src elisp
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/"))
+             '("gnu-devel" . "https://elpa.gnu.org/devel/"))
 #+end_src
 
 After this do ~M-x~ =package-refresh-contents= ~RET~, followed by ~M-x~
@@ -180,7 +181,7 @@ For package manager details, see [[info:emacs#Packages]].
 
 - Why install from Git? ::
 
-    - No need to wait for MELPA's hourly builds
+    - No need to wait for GNU ELPA / MELPA builds
     - Easy to revert to previous versions
     - Contribute to Ivy's development; send patches; pull requests
 
@@ -379,8 +380,8 @@ extends usability of lists in Emacs.
      (should
       (equal (ivy-with
               '(progn
-                (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-                ivy-text)
+                 (ivy-read "Test: " '("can do" "can't, sorry" "other"))
+                 ivy-text)
               "c <tab>")
              "can"))
      #+end_src
@@ -405,12 +406,16 @@ extends usability of lists in Emacs.
 :END:
 
 For repeatedly applying multiple actions or acting on multiple
-candidates, Ivy does not close the minibuffer between commands. It
+candidates, Ivy does not close the minibuffer between commands.  It
 keeps the minibuffer open for applying subsequent actions.
 
 Adding an extra meta key to the normal key chord invokes the special
 version of the regular commands that enables applying multiple
 actions.
+
+Note that these operations are supported only by completion sessions
+that use the =ivy-read= API, rather than the built-in
+=completing-read=.
 
 - ~C-M-m~ (=ivy-call=) ::
      Is the non-exiting version of ~C-m~ (=ivy-done=).
@@ -463,7 +468,7 @@ actions.
      into the minibuffer.
 
 - ~M-p~ (=ivy-previous-history-element=) ::
-     Cycles forward through the Ivy command history.
+     Cycles backwards through the Ivy command history.
 
 - ~M-i~ (=ivy-insert-current=) ::
      Inserts the current candidate into the minibuffer.
@@ -535,7 +540,7 @@ Hydra menu offers these additional bindings:
      Toggle calling the action after each candidate change. It
      modifies ~j~ to ~jg~, ~k~ to ~kg~ etc.
 
-- ~m~ (=ivy-rotate-preferred-builders=) ::
+- ~M~ (=ivy-rotate-preferred-builders=) ::
      Rotate the current regexp matcher.
 
 - ~>~ (=ivy-minibuffer-grow=) ::
@@ -827,6 +832,8 @@ installed.
 
      The default behavior is to quit the completion after ~DEL~ -- a
      handy key to invoke after mistakenly triggering a completion.
+
+     Another common option is =ignore=, which does nothing.
 
 ** Actions
 :PROPERTIES:
@@ -1369,8 +1376,8 @@ displayed strings.
   (ivy-read "Find symbols: "
             #'find-candidates-function
             :action (lambda (x)
-                      (message "Value: %s" (get-text-property 0 'property x)
-                       ))))
+                      (message "Value: %s"
+                               (get-text-property 0 'property x)))))
 #+END_SRC
 
 Here are the interesting features of the above function:
