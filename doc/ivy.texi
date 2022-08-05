@@ -599,7 +599,7 @@ into the minibuffer.
 @vindex ivy-previous-history-element
 @kindex M-p
 @indentedblock
-Cycles forward through the Ivy command history.
+Cycles backwards through the Ivy command history.
 @end indentedblock
 @subsubheading @kbd{M-i} (@code{ivy-insert-current})
 @vindex ivy-insert-current

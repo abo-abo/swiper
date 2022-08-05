@@ -62,11 +62,15 @@
 (defun ivy-avy--action (pt)
   "Select the candidate represented by PT."
   (when (number-or-marker-p pt)
-    (let ((bnd (ivy--minibuffer-index-bounds
-                ivy--index ivy--length ivy-height)))
+    (let* ((bnd (ivy--minibuffer-index-bounds
+                 ivy--index ivy--length ivy-height))
+           (idx (+ (car bnd) (- (line-number-at-pos pt) 2)))
+           (coll (if (ivy-state-dynamic-collection ivy-last)
+                     ivy--all-candidates
+                   ivy--old-cands)))
       (ivy--done
        (substring-no-properties
-        (nth (+ (car bnd) (- (line-number-at-pos pt) 2)) ivy--old-cands))))))
+        (nth idx coll))))))
 
 (defun ivy-avy--handler-function (char)
   "Handle CHAR that's not on `avy-keys'."

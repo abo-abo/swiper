@@ -1080,9 +1080,10 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   (unless (file-exists-p ivy-empty)
     (make-directory ivy-empty))
   (should (equal (expand-file-name ivy-empty)
-                 (ivy-with
-                  '(read-directory-name "cd: " ivy-empty nil t)
-                  "RET")))
+                 (expand-file-name
+                  (ivy-with
+                   '(read-directory-name "cd: " ivy-empty nil t)
+                   "RET"))))
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
@@ -1136,23 +1137,26 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
            :dir "/tmp/"))))
 
 (ert-deftest ivy-partial-files ()
-  (when (file-exists-p "/tmp/ivy-partial-test")
-    (delete-directory "/tmp/ivy-partial-test" t))
-  (mkdir "/tmp/ivy-partial-test/test1" t)
-  (mkdir "/tmp/ivy-partial-test/test2")
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial)
-  (should
-   (equal
-    (save-window-excursion
-      (condition-case nil
-          (ivy-with
-           '(let ((default-directory "/tmp/ivy-partial-test/"))
-             (counsel-find-file))
-           "t TAB TAB TAB C-g")
-        (quit ivy--old-cands)))
-    '("test1/" "test2/")))
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial-or-done)
-  (delete-directory "/tmp/ivy-partial-test" t))
+  (let (dir)
+    (unwind-protect
+        (let ((ivy-minibuffer-map
+               ;; Avoid modifying global `ivy-minibuffer-map'.
+               (easy-mmode-define-keymap
+                '(("\t" . ivy-partial)
+                  ;; Allow quitting during `execute-kbd-macro'.
+                  ;; See issue #2906 and URL `https://bugs.gnu.org/48603'.
+                  ("\C-g" . abort-recursive-edit))
+                nil nil `(:inherit ,ivy-minibuffer-map)))
+              (subdirs '("test1/" "test2/")))
+          (setq dir (file-name-as-directory (make-temp-file "ivy-test-" t)))
+          (dolist (subdir subdirs)
+            (make-directory (expand-file-name subdir dir)))
+          (should (equal (condition-case nil
+                             (ivy-with `(counsel-find-file nil ,dir)
+                                       "t TAB TAB TAB C-g")
+                           (quit ivy--old-cands))
+                         subdirs)))
+      (when dir (delete-directory dir t)))))
 
 (defun ivy-with-temp-buffer (expr keys)
   (let ((temp-buffer (generate-new-buffer " *temp*")))

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/abo-abo/swiper.svg?branch=master)](https://travis-ci.org/abo-abo/swiper)
+[![Build Status](https://github.com/abo-abo/swiper/actions/workflows/test.yml/badge.svg)](https://github.com/abo-abo/swiper/actions/workflows/test.yml)
 
 ***flexible, simple tools for minibuffer completion in Emacs***
 
