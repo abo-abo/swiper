@@ -1080,9 +1080,10 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   (unless (file-exists-p ivy-empty)
     (make-directory ivy-empty))
   (should (equal (expand-file-name ivy-empty)
-                 (ivy-with
-                  '(read-directory-name "cd: " ivy-empty nil t)
-                  "RET")))
+                 (expand-file-name
+                  (ivy-with
+                   '(read-directory-name "cd: " ivy-empty nil t)
+                   "RET"))))
   (should
    (equal (expand-file-name "/tmp/")
           (ivy-with
@@ -1136,23 +1137,26 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
            :dir "/tmp/"))))
 
 (ert-deftest ivy-partial-files ()
-  (when (file-exists-p "/tmp/ivy-partial-test")
-    (delete-directory "/tmp/ivy-partial-test" t))
-  (mkdir "/tmp/ivy-partial-test/test1" t)
-  (mkdir "/tmp/ivy-partial-test/test2")
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial)
-  (should
-   (equal
-    (save-window-excursion
-      (condition-case nil
-          (ivy-with
-           '(let ((default-directory "/tmp/ivy-partial-test/"))
-             (counsel-find-file))
-           "t TAB TAB TAB C-g")
-        (quit ivy--old-cands)))
-    '("test1/" "test2/")))
-  (define-key ivy-minibuffer-map (kbd "TAB") 'ivy-partial-or-done)
-  (delete-directory "/tmp/ivy-partial-test" t))
+  (let (dir)
+    (unwind-protect
+        (let ((ivy-minibuffer-map
+               ;; Avoid modifying global `ivy-minibuffer-map'.
+               (easy-mmode-define-keymap
+                '(("\t" . ivy-partial)
+                  ;; Allow quitting during `execute-kbd-macro'.
+                  ;; See issue #2906 and URL `https://bugs.gnu.org/48603'.
+                  ("\C-g" . abort-recursive-edit))
+                nil nil `(:inherit ,ivy-minibuffer-map)))
+              (subdirs '("test1/" "test2/")))
+          (setq dir (file-name-as-directory (make-temp-file "ivy-test-" t)))
+          (dolist (subdir subdirs)
+            (make-directory (expand-file-name subdir dir)))
+          (should (equal (condition-case nil
+                             (ivy-with `(counsel-find-file nil ,dir)
+                                       "t TAB TAB TAB C-g")
+                           (quit ivy--old-cands))
+                         subdirs)))
+      (when dir (delete-directory dir t)))))
 
 (defun ivy-with-temp-buffer (expr keys)
   (let ((temp-buffer (generate-new-buffer " *temp*")))
@@ -1687,6 +1691,41 @@ a buffer visiting a file."
     (should (equal (ivy-with '(ivy-resume 'test-c) "RET")
                    "k789"))
     (should (equal ivy-text "k7"))))
+
+(ert-deftest ivy--break-lines ()
+  "Test `ivy--break-lines' behavior."
+  (dolist (width '(-1 0))
+    (dolist (str '("" "\n" "a" "a\nb"))
+      (should (equal (ivy--break-lines str width) str))))
+  (should (equal (ivy--break-lines "" 1) ""))
+  (should (equal (ivy--break-lines "a" 1) "a"))
+  (should (equal (ivy--break-lines "a" 2) "a"))
+  (should (equal (ivy--break-lines "ab" 1) "a\nb"))
+  (should (equal (ivy--break-lines "ab" 2) "ab"))
+  (should (equal (ivy--break-lines "abc" 1) "a\nb\nc"))
+  (should (equal (ivy--break-lines "abc" 2) "ab\nc"))
+  (should (equal (ivy--break-lines "abc" 3) "abc"))
+  (should (equal (ivy--break-lines "\^X" 1) "\^X"))
+  (should (equal (ivy--break-lines "\^X" 2) "\^X"))
+  (should (equal (ivy--break-lines "a\^X" 1) "a\n\^X"))
+  (should (equal (ivy--break-lines "a\^X" 2) "a\n\^X"))
+  (should (equal (ivy--break-lines "a\^X" 3) "a\^X"))
+  (should (equal (ivy--break-lines "\^X\^X" 1) "\^X\n\^X"))
+  (should (equal (ivy--break-lines "\^X\^X" 2) "\^X\n\^X"))
+  (should (equal (ivy--break-lines "\^X\^X" 3) "\^X\n\^X"))
+  (should (equal (ivy--break-lines "\^X\^X" 4) "\^X\^X"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 1)
+                 "\nf\no\no\n\^X\n\^X\n\^X\nb\na\nr\n"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 2)
+                 "\nfo\no\n\^X\n\^X\n\^X\nba\nr\n"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 3)
+                 "\nfoo\n\^X\n\^X\n\^X\nbar\n"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 4)
+                 "\nfoo\n\^X\^X\n\^X\nbar\n"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 5)
+                 "\nfoo\n\^X\^X\n\^X\nbar\n"))
+  (should (equal (ivy--break-lines "\nfoo\n\^X\^X\^X\nbar\n" 6)
+                 "\nfoo\n\^X\^X\^X\nbar\n")))
 
 (defun ivy-test-run-tests ()
   (let ((test-sets

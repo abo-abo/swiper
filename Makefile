@@ -15,7 +15,7 @@ checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
 
 compile:
-	$(emacs) -batch -l elpa.el -L . -f batch-byte-compile colir.el ivy-faces.el ivy-overlay.el ivy.el ivy-avy.el swiper.el counsel.el
+	$(emacs) -batch -l elpa.el -L . -f batch-byte-compile colir.el ivy-faces.el ivy-overlay.el ivy.el ivy-avy.el ivy-hydra.el swiper.el counsel.el
 
 plain:
 	$(emacs) --version
