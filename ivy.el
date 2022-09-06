@@ -4963,6 +4963,7 @@ buffer would modify `ivy-last'.")
     (define-key map (kbd "q") 'quit-window)
     (define-key map (kbd "R") 'read-only-mode)
     (ivy-define-key map (kbd "C-d") 'ivy-occur-delete-candidate)
+    (ivy-define-key map (kbd "F") 'ivy-occur-flush-lines)
     map)
   "Keymap for Ivy Occur mode.")
 
@@ -5063,6 +5064,12 @@ When `ivy-calling' isn't nil, call `ivy-occur-press'."
   (let ((inhibit-read-only t))
     (delete-region (line-beginning-position)
                    (1+ (line-end-position)))))
+
+(defun ivy-occur-flush-lines ()
+  "Delete lines matching regex."
+  (interactive)
+  (let ((inhibit-read-only t))
+    (call-interactively 'flush-lines)))
 
 (define-derived-mode ivy-occur-grep-mode grep-mode "Ivy-Occur"
   "Major mode for output from \\[ivy-occur].
