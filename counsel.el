@@ -1305,6 +1305,9 @@ Like `locate-dominating-file', but DIR defaults to
      "\0"
      t)))
 
+(defvar counsel-git-history nil
+  "History for `counsel-git'.")
+
 ;;;###autoload
 (defun counsel-git (&optional initial-input)
   "Find file in the current Git repository.
@@ -1315,6 +1318,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
     (ivy-read "Find file: " (counsel-git-cands default-directory)
               :initial-input initial-input
               :action #'counsel-git-action
+              :history 'counsel-git-history
               :caller 'counsel-git)))
 
 (ivy-configure 'counsel-git
