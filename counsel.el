@@ -354,13 +354,12 @@ Update the minibuffer with the amount of lines collected every
 
 ;;** `counsel-company'
 (defvar company-candidates)
-(defvar company-common)
-(defvar company-prefix)
 (declare-function company-abort "ext:company")
 (declare-function company-complete "ext:company")
 (declare-function company-mode "ext:company")
 (declare-function company-call-backend "ext:company")
 (declare-function company--clean-string "ext:company")
+(declare-function company--continue "ext:company")
 
 ;;;###autoload
 (defun counsel-company ()
@@ -4493,9 +4492,10 @@ mark, as per \\[universal-argument] \\[yank]."
   "Like `yank-pop', but insert the kill corresponding to S.
 Signal a `buffer-read-only' error if called from a read-only
 buffer position."
-  (if (eq major-mode 'vterm-mode)
-      (let ((inhibit-read-only t))
-        (vterm-insert s)))
+  (when (and (eq major-mode 'vterm-mode)
+             (fboundp 'vterm-insert))
+    (let ((inhibit-read-only t))
+      (vterm-insert s)))
   (barf-if-buffer-read-only)
   (setq yank-window-start (window-start))
   (unless (eq last-command 'yank)
@@ -4692,6 +4692,7 @@ S will be of the form \"[register]: content\"."
 (defvar imenu-auto-rescan-maxout)
 (declare-function imenu--subalist-p "imenu")
 (declare-function imenu--make-index-alist "imenu")
+(declare-function python-imenu-create-flat-index "python")
 
 (defun counsel--imenu-candidates ()
   (require 'imenu)
