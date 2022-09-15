@@ -122,6 +122,27 @@ See URL `https://bugs.gnu.org/53795'."
          (ivy-overlay--current-column))
       30)))
 
+(defun ivy-overlay--org-indent ()
+  "Return `ivy-overlay-at' indentation due to `org-indent-mode'.
+That is, the additional number of columns needed under the mode."
+  ;; Emacs 28 includes the following fix for `https://bugs.gnu.org/49695':
+  ;;
+  ;; "Fix display of line/wrap-prefix when there's a display property at BOL"
+  ;; 662f91a795 2021-07-22 21:23:48 +0300
+  ;; `https://git.sv.gnu.org/cgit/emacs.git/commit/?id=662f91a795'
+  ;;
+  ;; This increasingly misindents `ivy-overlay-at' with each additional Org
+  ;; level.  See also `https://github.com/abo-abo/swiper/commit/ee7f7f8c79'.
+  ;; FIXME: Is there a better way to work around this?
+  (if (and (eq major-mode 'org-mode)
+           (bound-and-true-p org-indent-mode)
+           (< emacs-major-version 28))
+      (let ((level (org-current-level)))
+        (if (org-at-heading-p)
+            (1- level)
+          (* org-indent-indentation-per-level (or level 1))))
+    0))
+
 (defun ivy-display-function-overlay (str)
   "Called from the minibuffer, display STR in an overlay in Ivy window.
 Hide the minibuffer contents and cursor."
@@ -150,19 +171,11 @@ Hide the minibuffer contents and cursor."
                    (list "\n"
                          (ivy-left-pad
                           (string-remove-prefix "\n" str)
-                          (+
-                           (if (and (eq major-mode 'org-mode)
-                                    (bound-and-true-p org-indent-mode)
-                                    ;; FIXME: Should this check `org-version'?
-                                    (< emacs-major-version 28))
-                               (if (org-at-heading-p)
-                                   (1- (org-current-level))
-                                 (* org-indent-indentation-per-level (or (org-current-level) 1)))
-                             0)
-                           (save-excursion
-                             (when ivy-completion-beg
-                               (goto-char ivy-completion-beg))
-                             (ivy-overlay--current-column)))))))))
+                          (+ (ivy-overlay--org-indent)
+                             (save-excursion
+                               (when ivy-completion-beg
+                                 (goto-char ivy-completion-beg))
+                               (ivy-overlay--current-column)))))))))
         (let ((cursor-offset (1+ (length ivy-text))))
           (add-face-text-property cursor-offset (1+ cursor-offset)
                                   'ivy-cursor t overlay-str))
