@@ -4692,7 +4692,6 @@ S will be of the form \"[register]: content\"."
 (defvar imenu-auto-rescan-maxout)
 (declare-function imenu--subalist-p "imenu")
 (declare-function imenu--make-index-alist "imenu")
-(declare-function python-imenu-create-flat-index "python")
 
 (defun counsel--imenu-candidates ()
   (require 'imenu)
@@ -4704,7 +4703,8 @@ S will be of the form \"[register]: content\"."
          (items (delete (assoc "*Rescan*" items) items))
          (items (cond ((eq major-mode 'emacs-lisp-mode)
                        (counsel-imenu-categorize-functions items))
-                      ((eq major-mode 'python-mode)
+                      ((and (derived-mode-p 'python-mode)
+                            (fboundp 'python-imenu-create-flat-index))
                        (python-imenu-create-flat-index))
                       (t
                        items))))
