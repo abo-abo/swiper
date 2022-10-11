@@ -18,7 +18,7 @@ on:
     - '.elpaignore'
     - '.gitignore'
     - 'doc/**'
-
+permissions: {}
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,6 +36,7 @@ jobs:
           - 27.1
           - 27.2
           - 28.1
+          - 28.2
           - snapshot
 
     steps:
@@ -43,7 +44,9 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      with:
+        persist-credentials: false
 
     - name: Check Emacs version
       run: emacs --version
