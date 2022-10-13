@@ -368,8 +368,8 @@ Update the minibuffer with the amount of lines collected every
   (company-mode 1)
   (unless company-candidates
     (company-complete))
-  (company--continue)
   (when company-candidates
+    (company--continue)
     (ivy-read "Candidate: " company-candidates
               :action 'company-finish
               :caller 'counsel-company)))
