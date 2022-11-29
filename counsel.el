@@ -45,6 +45,7 @@
 
 (require 'compile)
 (require 'dired)
+(require 'project)
 
 (eval-when-compile
   (require 'subr-x))
@@ -6410,7 +6411,7 @@ Use `projectile-project-root' to determine the root."
   "Return root of current project or nil on failure.
 Use `project-current' to determine the root."
   (and (fboundp 'project-current)
-       (cdr (project-current))))
+       (project-root (project-current))))
 
 (defun counsel--configure-root ()
   "Return root of current project or nil on failure.
