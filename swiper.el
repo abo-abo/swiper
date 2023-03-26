@@ -1491,15 +1491,19 @@ that we search only for one character."
          (get-text-property 0 'point cand))))
 
 (defun swiper--isearch-candidate-string (cand)
-  "Return full match of `swiper-isearch' candidate CAND, or nil."
+  "Return full match of `swiper-isearch' candidate CAND.
+Signal an error on failure."
   ;; FIXME: Better way of getting current candidate?
-  (and (setq cand (swiper--isearch-candidate-pos cand))
-       (goto-char cand)
-       (let ((re (ivy-re-to-str ivy-regex)))
-         (if (or swiper--isearch-backward swiper-goto-start-of-match)
-             (looking-at re)
-           (looking-back re (point-min))))
-       (match-string 0)))
+  (or (let ((pos (swiper--isearch-candidate-pos cand))
+            (re (ivy-re-to-str ivy-regex)))
+        (save-match-data
+          (save-excursion
+            (and pos (goto-char pos)
+                 (if (or swiper--isearch-backward swiper-goto-start-of-match)
+                     (looking-at re)
+                   (looking-back re (point-min)))
+                 (match-string 0)))))
+      (error "Could not extract `swiper-isearch' candidate: %S" cand)))
 
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
@@ -1538,10 +1542,7 @@ that we search only for one character."
   "Save `swiper-isearch' candidate CAND to `kill-ring'.
 Return to original position."
   (unwind-protect
-      (let ((str (swiper--isearch-candidate-string cand)))
-        (unless str
-          (error "Could not copy `swiper-isearch' candidate: %S" cand))
-        (kill-new str))
+      (kill-new (swiper--isearch-candidate-string cand))
     ;; In case of unexpected error.
     (goto-char swiper--opoint)))
 
@@ -1549,20 +1550,25 @@ Return to original position."
   "Insert `swiper-isearch' candidate CAND where invoked.
 This cannot currently be called repeatedly without exiting
 completion."
+  (goto-char swiper--opoint)
   (unwind-protect
-      (let ((str (swiper--isearch-candidate-string cand)))
-        (unless str
-          (error "Could not insert `swiper-isearch' candidate: %S" cand))
-        (goto-char swiper--opoint)
-        ;; FIXME: This seems to invalidate many cached buffer positions, thus
-        ;; breaking `ivy-dispatching-call'.
-        (insert str))
+      ;; FIXME: This seems to invalidate many cached buffer positions, thus
+      ;; breaking `ivy-dispatching-call'.
+      (insert (swiper--isearch-candidate-string cand))
     ;; In case of unexpected error.
     (goto-char swiper--opoint)))
 
 (ivy-add-actions 'swiper-isearch '(("w" swiper-isearch-action-copy "copy")))
 (ivy-add-actions 'swiper-isearch '(("i" swiper-isearch-action-insert "insert")))
 (ivy-add-actions 'swiper '(("w" swiper-action-copy "copy")))
+
+(defun swiper--isearch-insert-current ()
+  "Replace minibuffer contents with the current candidate.
+Like `ivy-insert-current', but tailored for `swiper-isearch'."
+  (interactive)
+  (delete-minibuffer-contents)
+  (let ((cur (ivy-state-current ivy-last)))
+    (insert (with-ivy-window (swiper--isearch-candidate-string cur)))))
 
 (defun swiper-isearch-thing-at-point ()
   "Insert `symbol-at-point' into the minibuffer of `swiper-isearch'.
@@ -1604,8 +1610,9 @@ When the input is empty, browse the search history instead."
 (defvar swiper-isearch-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map swiper-map)
-    (define-key map (kbd "M-n") 'swiper-isearch-thing-at-point)
-    (define-key map (kbd "C-r") 'swiper-isearch-C-r)
+    (define-key map [remap ivy-insert-current] #'swiper--isearch-insert-current)
+    (define-key map (kbd "M-n") #'swiper-isearch-thing-at-point)
+    (define-key map (kbd "C-r") #'swiper-isearch-C-r)
     map)
   "Keymap for `swiper-isearch'.")
 
