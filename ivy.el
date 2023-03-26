@@ -2889,7 +2889,7 @@ When GREEDY is non-nil, join words in a greedy way."
 
 (defun ivy--regex-p (object)
   "Return OBJECT if it is a valid regular expression, else nil."
-  (ignore-errors (string-match-p object "") object))
+  (ignore-errors (ignore (string-match-p object "")) object))
 
 (defun ivy--regex-or-literal (str)
   "If STR isn't a legal regexp, escape it."

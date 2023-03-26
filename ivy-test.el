@@ -1476,8 +1476,8 @@ a buffer visiting a file."
 "))))
 
 (ert-deftest swiper--isearch-format ()
-  (setq swiper--isearch-start-point 0)
   (with-temp-buffer
+    (setq swiper--opoint (point-min))
     (insert
      "line0\nline1\nline line\nline line\nline5")
     (let* ((input "li")
