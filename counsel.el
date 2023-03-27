@@ -4353,13 +4353,21 @@ Additional actions:\\<ivy-minibuffer-map>
    ("h" counsel-package-action-homepage "open package homepage")))
 
 ;;** `counsel-tmm'
-(defvar tmm-km-list nil)
-(declare-function tmm-get-keymap "tmm")
-(declare-function tmm--completion-table "tmm")
-(declare-function tmm-get-keybind "tmm")
+(declare-function tmm-get-keymap "tmm" (elt &optional in-x-menu))
+(declare-function tmm--completion-table "tmm" (items))
+
+(defalias 'counsel--menu-keymap
+  ;; Added in Emacs 28.1.
+  (if (fboundp 'menu-bar-keymap)
+      #'menu-bar-keymap
+    (autoload 'tmm-get-keybind "tmm")
+    (declare-function tmm-get-keybind "tmm" (keyseq))
+    (lambda () (tmm-get-keybind [menu-bar])))
+  "Compatibility shim for `menu-bar-keymap'.")
 
 (defun counsel-tmm-prompt (menu)
   "Select and call an item from the MENU keymap."
+  (defvar tmm-km-list)
   (let (out
         choice
         chosen-string)
@@ -4377,16 +4385,15 @@ Additional actions:\\<ivy-minibuffer-map>
            (setq last-command-event chosen-string)
            (call-interactively choice)))))
 
-(defvar tmm-table-undef)
-
 ;;;###autoload
 (defun counsel-tmm ()
   "Text-mode emulation of looking and choosing from a menu bar."
   (interactive)
   (require 'tmm)
+  (defvar tmm-table-undef)
   (run-hooks 'menu-bar-update-hook)
   (setq tmm-table-undef nil)
-  (counsel-tmm-prompt (tmm-get-keybind [menu-bar])))
+  (counsel-tmm-prompt (counsel--menu-keymap)))
 
 ;;** `counsel-yank-pop'
 (defcustom counsel-yank-pop-truncate-radius 2
