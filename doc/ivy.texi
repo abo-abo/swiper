@@ -204,8 +204,7 @@ for documentation look-ups.
 Install Ivy automatically through Emacs's package manager, or manually
 from Ivy's development repository.
 
-Emacs 24.3 is the oldest version to run Ivy. Emacs 24.4 is the oldest
-version that runs Ivy with fancy faces display.
+Emacs 24.5 is the oldest version to run Ivy.
 
 @menu
 * Installing from Emacs Package Manager::
@@ -1094,7 +1093,7 @@ in the @code{format} documentation.
 @defopt ivy-display-style
 Specifies highlighting candidates in the minibuffer.
 
-The default setting is @code{'fancy} in Emacs versions 24.4 or newer.
+The default setting is @code{fancy}.
 
 Set @code{ivy-display-style} to @code{nil} for a plain minibuffer.
 @end defopt
