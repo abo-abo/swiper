@@ -4119,7 +4119,8 @@ in this case."
 
 (defun ivy--format-minibuffer-line (str annot)
   "Format line STR for use in minibuffer."
-  (let* ((str (ivy-cleanup-string (copy-sequence str)))
+  (let* ((str (if (consp str) (car str) str))
+         (str (ivy-cleanup-string (copy-sequence str)))
          (str (if (eq ivy-display-style 'fancy)
                   (if (memq (ivy-state-caller ivy-last)
                             ivy-highlight-grep-commands)
