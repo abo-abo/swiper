@@ -3386,7 +3386,7 @@ Should be run via minibuffer `post-command-hook'."
   (let ((coll (condition-case nil
                   (funcall (ivy-state-collection ivy-last) input)
                 (error
-                 (funcall (ivy-state-collection ivy-last) input nil nil)))))
+                 (funcall (ivy-state-collection ivy-last) input nil t)))))
     (if (listp coll)
         (mapcar (lambda (x) (if (consp x) (car x) x)) coll)
       coll)))
