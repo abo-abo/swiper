@@ -78,6 +78,12 @@ Set this to \"(%d/%d) \" to display both the index and the count."
 (defcustom ivy-add-newline-after-prompt nil
   "When non-nil, add a newline after the `ivy-read' prompt."
   :type 'boolean)
+(defcustom ivy-default-view-name-update-exist-p t
+  "When t, ivy-default-view-name will return the existing view name.
+ When nil, ivy-default-view-name will append a number as a suffix to make the view name unique."
+  :type 'boolean
+  :options '(t nil)
+  :group 'ivy)
 
 (defcustom ivy-wrap nil
   "When non-nil, wrap around after the first and the last candidate."
@@ -4308,7 +4314,7 @@ TREE is a nested list with the following valid cars:
 
 TREE can be nested multiple times to have multiple window splits.")
 
-(defun ivy-default-view-name ()
+(cl-defun ivy-default-view-name (&key (update t))
   "Return default name for new view."
   (let* ((default-view-name
           (concat "{} "
@@ -4327,19 +4333,20 @@ TREE can be nested multiple times to have multiple window splits.")
                                (regexp-quote default-view-name)
                                " \\([0-9]+\\)"))
          old-view)
-    (cond ((setq old-view
-                 (cl-find-if
-                  (lambda (x)
-                    (string-match view-name-re (car x)))
-                  ivy-views))
-           (format "%s %d"
-                   default-view-name
-                   (1+ (string-to-number
-                        (match-string 1 (car old-view))))))
-          ((assoc default-view-name ivy-views)
-           (concat default-view-name " 1"))
-          (t
-           default-view-name))))
+    (cond (update default-view-name)
+     ((setq old-view
+            (cl-find-if
+             (lambda (x)
+               (string-match view-name-re (car x)))
+             ivy-views))
+      (format "%s %d"
+              default-view-name
+              (1+ (string-to-number
+                   (match-string 1 (car old-view))))))
+     ((assoc default-view-name ivy-views)
+      (concat default-view-name " 1"))
+     (t
+      default-view-name))))
 
 (defun ivy--get-view-config ()
   "Get `current-window-configuration' for `ivy-views'."
@@ -4371,7 +4378,7 @@ Use `ivy-pop-view' to delete any item from `ivy-views'."
           (if arg
               (ivy-read "Update view: " ivy-views)
             (ivy-read "Name view: " nil
-                      :initial-input (ivy-default-view-name)))))
+                      :initial-input (ivy-default-view-name :update ivy-default-view-name-update-exist-p)))))
     (when view-name
       (let ((x (assoc view-name ivy-views)))
         (if x
