@@ -3,6 +3,7 @@
 ;; Copyright (C) 2015-2023 Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
+;; Maintainer: Basil L. Contovounesios <contovob@tcd.ie>
 ;; URL: https://github.com/abo-abo/swiper
 ;; Version: 0.14.1
 ;; Package-Requires: ((emacs "24.5"))
