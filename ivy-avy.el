@@ -5,8 +5,8 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; Maintainer: Basil L. Contovounesios <contovob@tcd.ie>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.14.1
-;; Package-Requires: ((emacs "24.5") (ivy "0.14.1") (avy "0.5.0"))
+;; Version: 0.14.2
+;; Package-Requires: ((emacs "24.5") (ivy "0.14.2") (avy "0.5.0"))
 ;; Keywords: convenience
 
 ;; This program is free software; you can redistribute it and/or modify
