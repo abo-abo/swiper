@@ -747,20 +747,21 @@ When capture groups are present in the input, print them instead of lines."
     (evil-set-jump)))
 
 (defun swiper--normalize-regex (re)
-  "Normalize the swiper regex RE.
-Add a space after a leading `^' if needed and apply
-`search-default-mode' if bound."
+  "Normalize the Swiper regexp RE.
+Add a space after a leading `^' for `swiper', and apply
+`search-default-mode' if bound in the original buffer."
   (replace-regexp-in-string
    "^\\(?:\\\\(\\)?\\^"
    (concat "\\&" (if (eq 'swiper (ivy-state-caller ivy-last)) " " ""))
-   (if (functionp (bound-and-true-p search-default-mode))
-       (mapconcat
-        (lambda (x)
-          (if (string-match-p "\\`[^$\\^]+\\'" x)
-              (funcall search-default-mode x)
-            x))
-        (split-string re "\\b") "")
-     re)
+   (let ((mode (with-ivy-window (bound-and-true-p search-default-mode))))
+     (if (functionp mode)
+         (mapconcat
+          (lambda (x)
+            (if (string-match-p "\\`[^$\\^]+\\'" x)
+                (funcall mode x)
+              x))
+          (split-string re "\\b") "")
+       re))
    t))
 
 (defun swiper--re-builder (str)
