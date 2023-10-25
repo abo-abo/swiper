@@ -1,3 +1,4 @@
+;; Copyright (C) 2019-2023 Free Software Foundation, Inc.
 (setq package-user-dir
       (expand-file-name
        (format "~/.elpa/%s/elpa"
