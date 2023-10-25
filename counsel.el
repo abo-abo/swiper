@@ -6872,7 +6872,7 @@ Additional actions:\\<ivy-minibuffer-map>
      "https://duckduckgo.com/html/?q="
      counsel--search-request-data-ddg))
   "Search engine parameters for `counsel-search'."
-  :type '(list))
+  :type '(alist :key-type symbol :value-type (list string string function)))
 
 (defun counsel--search-request-data-google (data)
   (mapcar #'identity (aref data 1)))
