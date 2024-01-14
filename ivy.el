@@ -255,7 +255,8 @@ plus some extra information.
 
 This lambda is called only on the `ivy-height' candidates that
 are about to be displayed, not on the whole collection."
-  (declare (obsolete "Use `ivy-configure' :display-transformer-fn" "<2020-05-20 Wed>"))
+  (declare (obsolete "use `ivy-configure' :display-transformer-fn instead."
+                     "0.13.2 (2020-05-20)"))
   (ivy--alist-set 'ivy--display-transformers-alist cmd transformer))
 
 (defvar ivy--sources-list nil
@@ -1747,7 +1748,7 @@ Prioritize directories."
            (if (consp y) (car y) y)))
 
 (define-obsolete-function-alias 'ivy-sort-file-function-using-ido
-    'ido-file-extension-lessp "<2019-10-12 Sat>")
+    'ido-file-extension-lessp "0.13.0 (2019-10-12)")
 
 (defcustom ivy-sort-functions-alist
   '((t . ivy-string<))
@@ -3473,7 +3474,7 @@ Should be run via minibuffer `post-command-hook'."
 
 (make-obsolete-variable 'ivy-auto-shrink-minibuffer
                         'ivy-auto-shrink-minibuffer-alist
-                        "<2020-04-28 Tue>")
+                        "0.13.2 (2020-04-28)")
 
 (defcustom ivy-auto-shrink-minibuffer-alist nil
   "An alist to configure auto-shrinking of the minibuffer.

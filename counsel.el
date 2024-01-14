@@ -348,10 +348,14 @@ Update the minibuffer with the amount of lines collected every
       (delete-process process))))
 
 ;;* Completion at point
-(define-obsolete-function-alias 'counsel-el #'complete-symbol "<2020-05-20 Wed>")
-(define-obsolete-function-alias 'counsel-cl #'complete-symbol "<2020-05-20 Wed>")
-(define-obsolete-function-alias 'counsel-jedi #'complete-symbol "<2020-05-20 Wed>")
-(define-obsolete-function-alias 'counsel-clj #'complete-symbol "<2020-05-20 Wed>")
+(define-obsolete-function-alias 'counsel-el
+  #'complete-symbol "0.13.2 (2020-05-20)")
+(define-obsolete-function-alias 'counsel-cl
+  #'complete-symbol "0.13.2 (2020-05-20)")
+(define-obsolete-function-alias 'counsel-jedi
+  #'complete-symbol "0.13.2 (2020-05-20)")
+(define-obsolete-function-alias 'counsel-clj
+  #'complete-symbol "0.13.2 (2020-05-20)")
 
 ;;** `counsel-company'
 (defvar company-candidates)
@@ -6919,7 +6923,7 @@ We update it in the callback with `ivy-update-candidates'."
             :caller 'counsel-search))
 
 (define-obsolete-function-alias 'counsel-google
-    #'counsel-search "<2019-10-17 Thu>")
+    #'counsel-search "0.13.2 (2019-10-17)")
 
 ;;** `counsel-compilation-errors'
 (defun counsel--compilation-errors-buffer (buf)
