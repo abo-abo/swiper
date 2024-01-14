@@ -735,6 +735,27 @@ candidate, not the prompt."
   "Display alternative actions."
   "The doc visible in the tooltip for mouse-3 binding in the minibuffer.")
 
+(make-obsolete-variable 'ivy-mouse-1-tooltip 'ivy-mouse-1-help
+                        "0.15.0 (2024-01-14)")
+(make-obsolete-variable 'ivy-mouse-3-tooltip 'ivy-mouse-3-help
+                        "0.15.0 (2024-01-14)")
+
+(defvar ivy-mouse-1-help
+  (eval-when-compile
+    (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
+            "mouse-1" "Exit the minibuffer with the selected candidate"))
+  "Tooltip doc for \\`mouse-1' binding in the minibuffer.")
+
+(defvar ivy-mouse-3-help
+  (eval-when-compile
+    (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
+            "mouse-3" "Display alternative actions"))
+  "Tooltip doc for \\`mouse-3' binding in the minibuffer.")
+
+(defun ivy--help-echo (_win _obj _pos)
+  "Return a `help-echo' string for mouse bindings on minibuffer candidates."
+  (concat ivy-mouse-1-help (if tooltip-mode "\n" "   ") ivy-mouse-3-help))
+
 (defun ivy-mouse-offset (event)
   "Compute the offset between the candidate at point and the selected one."
   (if event
@@ -4133,17 +4154,10 @@ in this case."
                     (funcall ivy--highlight-function str))
                 str))
          (olen (length str)))
-    (add-text-properties
-     0 olen
-     '(mouse-face
-       ivy-minibuffer-match-highlight
-       help-echo
-       (format
-        (if tooltip-mode
-            "mouse-1: %s\nmouse-3: %s"
-          "mouse-1: %s   mouse-3: %s")
-        ivy-mouse-1-tooltip ivy-mouse-3-tooltip))
-     str)
+    (add-text-properties 0 olen
+                         '( mouse-face ivy-minibuffer-match-highlight
+                            help-echo ivy--help-echo)
+                         str)
     (when annot
       (setq str (concat str (funcall annot str)))
       (add-face-text-property
