@@ -4140,29 +4140,31 @@ in this case."
               (cl-incf i)))))))
   str)
 
-(defun ivy--format-minibuffer-line (str annot)
-  "Format line STR for use in minibuffer."
+(defun ivy--format-minibuffer-line (str &optional affix)
+  "Format line STR for use in minibuffer.
+AFFIX is either the (PREFIX SUFFIX) cdr returned by
+`affixation-function', or the result of `annotation-function'."
   (let* ((str (ivy-cleanup-string (copy-sequence str)))
-         (str (if (eq ivy-display-style 'fancy)
-                  (if (memq (ivy-state-caller ivy-last)
-                            ivy-highlight-grep-commands)
-                      (let* ((start (if (string-match "\\`[^:]+:\\(?:[^:]+:\\)?" str)
-                                        (match-end 0) 0))
-                             (file (substring str 0 start))
-                             (match (substring str start)))
-                        (concat file (funcall ivy--highlight-function match)))
-                    (funcall ivy--highlight-function str))
-                str))
-         (olen (length str)))
-    (add-text-properties 0 olen
-                         '( mouse-face ivy-minibuffer-match-highlight
-                            help-echo ivy--help-echo)
-                         str)
-    (when annot
-      (setq str (concat str (funcall annot str)))
-      (add-face-text-property
-       olen (length str) 'ivy-completions-annotations t str))
-    str))
+         (str (cond
+               ((not (eq ivy-display-style 'fancy)) str)
+               ((memq (ivy-state-caller ivy-last) ivy-highlight-grep-commands)
+                (let* ((start (if (string-match "\\`[^:]+:\\(?:[^:]+:\\)?" str)
+                                  (match-end 0) 0))
+                       (file (substring str 0 start))
+                       (match (substring str start)))
+                  (concat file (funcall ivy--highlight-function match))))
+               ((funcall ivy--highlight-function str))))
+         (mouse '( mouse-face ivy-minibuffer-match-highlight
+                   help-echo ivy--help-echo)))
+    (add-text-properties 0 (length str) mouse str)
+    (cond ((consp affix)
+           (concat (nth 0 affix) str (nth 1 affix)))
+          (affix
+           ;; Existing face takes priority.
+           (unless (text-property-not-all 0 (length affix) 'face nil affix)
+             (setq affix (ivy-append-face affix 'ivy-completions-annotations)))
+           (concat str affix))
+          (str))))
 
 (defun ivy-read-file-transformer (str)
   "Transform candidate STR when reading files."
@@ -4202,21 +4204,37 @@ CANDS is a list of candidates that :display-transformer can turn into strings."
             (setq wnd-cands (mapcar transformer-fn wnd-cands)))))
       (ivy--wnd-cands-to-str wnd-cands))))
 
+(defalias 'ivy--metadata-get
+  (if (>= emacs-major-version 30)
+      #'completion-metadata-get
+    (lambda (metadata prop)
+      (or (completion-metadata-get metadata prop)
+          (plist-get completion-extra-properties
+                     (or (get prop 'ivy--metadata-kwd)
+                         (put prop 'ivy--metadata-kwd
+                              (intern (concat ":" (symbol-name prop)))))))))
+  "Compatibility shim for Emacs 30 `completion-metadata-get'.
+\n(fn METADATA PROP)")
+
 (defun ivy--wnd-cands-to-str (wnd-cands)
   (let* ((metadata (unless (ivy-state-dynamic-collection ivy-last)
                      (completion-metadata "" minibuffer-completion-table
                                           minibuffer-completion-predicate)))
-         (annot (or (completion-metadata-get metadata 'annotation-function)
-                    (plist-get completion-extra-properties :annotation-function)))
-         (str (concat "\n"
-                      (funcall (ivy-alist-setting ivy-format-functions-alist)
-                               (condition-case nil
-                                   (mapcar
-                                    (lambda (cand) (ivy--format-minibuffer-line cand annot))
-                                    wnd-cands)
-                                 (error wnd-cands))))))
-    (put-text-property 0 (length str) 'read-only nil str)
-    str))
+         (affix (ivy--metadata-get metadata 'affixation-function))
+         (annot (or affix (ivy--metadata-get metadata 'annotation-function)))
+         (fmt (cond (affix
+                     (lambda (triple)
+                       (ivy--format-minibuffer-line (car triple) (cdr triple))))
+                    (annot
+                     (lambda (cand)
+                       (ivy--format-minibuffer-line cand (funcall annot cand))))
+                    (#'ivy--format-minibuffer-line)))
+         (str (funcall (ivy-alist-setting ivy-format-functions-alist)
+                       (condition-case nil
+                           (mapcar fmt (if affix (funcall affix wnd-cands)
+                                         wnd-cands))
+                         (error wnd-cands)))))
+    (concat "\n" (ivy--remove-props str 'read-only))))
 
 (defvar recentf-list)
 (defvar bookmark-alist)
