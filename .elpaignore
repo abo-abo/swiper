@@ -2,6 +2,7 @@
 targets
 tests
 
+.mailmap
 CONTRIBUTING.org
 Makefile
 elpa.el
