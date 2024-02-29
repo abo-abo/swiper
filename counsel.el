@@ -318,13 +318,20 @@ caused by spawning too many subprocesses too quickly."
   "The amount of microseconds to wait until updating `counsel--async-filter'."
   :type 'integer)
 
+(defalias 'counsel--async-filter-update-time
+  (if (fboundp 'time-convert)
+      ;; Preferred (TICKS . HZ) format since Emacs 27.1.
+      (lambda () (cons counsel-async-filter-update-time 1000000))
+    (lambda () (list 0 0 counsel-async-filter-update-time)))
+  "Return `counsel-async-filter-update-time' as a time value.")
+
 (defun counsel--async-filter (process str)
   "Receive from PROCESS the output STR.
 Update the minibuffer with the amount of lines collected every
 `counsel-async-filter-update-time' microseconds since the last update."
   (with-current-buffer (process-buffer process)
     (insert str))
-  (when (time-less-p (list 0 0 counsel-async-filter-update-time)
+  (when (time-less-p (counsel--async-filter-update-time)
                      (time-since counsel--async-time))
     (let (numlines)
       (with-current-buffer (process-buffer process)
@@ -2677,7 +2684,7 @@ library, which see."
 
 (defun counsel-file-stale-p (fname seconds)
   "Return non-nil if FNAME was modified more than SECONDS ago."
-  (> (float-time (time-subtract nil (nth 5 (file-attributes fname))))
+  (> (float-time (time-since (nth 5 (file-attributes fname))))
      seconds))
 
 (defun counsel--locate-updatedb ()
