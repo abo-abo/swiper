@@ -179,6 +179,10 @@ Return a list or string depending on input."
                        formatter)))
    (t (apply #'format formatter args))))
 
+(defalias 'counsel--null-device
+  (if (fboundp 'null-device) #'null-device (lambda () null-device))
+  "Compatibility shim for Emacs 28 function `null-device'.")
+
 ;;* Async Utility
 (defvar counsel--async-time nil
   "Store the time when a new process was started.
@@ -2651,7 +2655,9 @@ library, which see."
 (defun counsel-locate-cmd-mdfind (input)
   "Return a `mdfind' shell command based on INPUT."
   (counsel-require-program "mdfind")
-  (format "mdfind -name %s 2> /dev/null" (shell-quote-argument input)))
+  (format "mdfind -name %s 2>%s"
+          (shell-quote-argument input)
+          (shell-quote-argument (counsel--null-device))))
 
 (defun counsel-locate-cmd-es (input)
   "Return a `es' shell command based on INPUT."
@@ -3368,14 +3374,12 @@ relative to the last position stored here.")
             (swiper--add-overlays (ivy--regex ivy-text))))))))
 
 (defun counsel-grep-occur (&optional _cands)
-  "Generate a custom occur buffer for `counsel-grep'."
-  (counsel-grep-like-occur
-   (format
-    "grep -niE %%s %s /dev/null"
-    (shell-quote-argument
-     (file-name-nondirectory
-      (buffer-file-name
-       (ivy-state-buffer ivy-last)))))))
+  "Generate a custom Occur buffer for `counsel-grep'."
+  (let ((file (buffer-file-name (ivy-state-buffer ivy-last))))
+    (counsel-grep-like-occur
+     (format "grep -niE %%s %s %s"
+             (if file (shell-quote-argument (file-name-nondirectory file)) "")
+             (shell-quote-argument (counsel--null-device))))))
 
 (defvar counsel-grep-history nil
   "History for `counsel-grep'.")
