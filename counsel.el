@@ -2651,7 +2651,7 @@ library, which see."
 (defun counsel-locate-cmd-mdfind (input)
   "Return a `mdfind' shell command based on INPUT."
   (counsel-require-program "mdfind")
-  (format "mdfind -name %s" (shell-quote-argument input)))
+  (format "mdfind -name %s 2> /dev/null" (shell-quote-argument input)))
 
 (defun counsel-locate-cmd-es (input)
   "Return a `es' shell command based on INPUT."
