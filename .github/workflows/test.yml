@@ -39,6 +39,7 @@ jobs:
           - 28.2
           - 29.1
           - 29.2
+          - 29.3
           - release-snapshot
           - snapshot
 
