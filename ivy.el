@@ -47,7 +47,16 @@
 (require 'ring)
 
 (eval-when-compile
-  (require 'subr-x))
+  (require 'subr-x)
+
+  (unless (fboundp 'static-if)
+    (defmacro static-if (condition then-form &rest else-forms)
+      "Expand to THEN-FORM or ELSE-FORMS based on compile-time CONDITION.
+Polyfill for Emacs 30 `static-if'."
+      (declare (debug (sexp sexp &rest sexp)) (indent 2))
+      (if (eval condition lexical-binding)
+          then-form
+        (macroexp-progn else-forms)))))
 
 ;;* Customization
 (defgroup ivy nil
@@ -741,15 +750,13 @@ candidate, not the prompt."
                         "0.15.0 (2024-01-14)")
 
 (defvar ivy-mouse-1-help
-  (eval-when-compile
-    (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
-            "mouse-1" "Exit the minibuffer with the selected candidate"))
+  (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
+          "mouse-1" "Exit the minibuffer with the selected candidate")
   "Tooltip doc for \\`mouse-1' binding in the minibuffer.")
 
 (defvar ivy-mouse-3-help
-  (eval-when-compile
-    (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
-            "mouse-3" "Display alternative actions"))
+  (format (if (> emacs-major-version 28) "\\`%s': %s" "%s: %s")
+          "mouse-3" "Display alternative actions")
   "Tooltip doc for \\`mouse-3' binding in the minibuffer.")
 
 (defun ivy--help-echo (_win _obj _pos)
@@ -3676,7 +3683,9 @@ CANDIDATES are assumed to be static."
   "Sort CANDS according to their length."
   (if (nthcdr ivy-sort-max-size cands)
       cands
-    (cl-sort (copy-sequence cands) #'< :key #'length)))
+    (static-if (fboundp 'value<)
+        (sort cands :key #'length)
+      (cl-sort (copy-sequence cands) #'< :key #'length))))
 
 (defcustom ivy-sort-matches-functions-alist
   '((t . nil)
@@ -3979,27 +3988,36 @@ N wraps around, but skips the first element of the list."
             (push cand cands-left)))
 
         ;; pre-sort the candidates by length before partitioning
-        (setq cands-left (cl-sort cands-left #'< :key #'length))
+        (setq cands-left (static-if (fboundp 'value<)
+                             (sort cands-left :key #'length :in-place t)
+                           (cl-sort cands-left #'< :key #'length)))
 
         ;; partition the candidates into sorted and unsorted groups
         (dotimes (_ (min (length cands-left) ivy-flx-limit))
           (push (pop cands-left) cands-to-sort))
 
         (nconc
-         ;; Compute all of the flx scores in one pass and sort
-         (mapcar #'car
-                 (sort (mapcar
-                        (lambda (cand)
-                          (cons cand
-                                (car (flx-score cand flx-name ivy--flx-cache))))
-                        cands-to-sort)
-                       (lambda (c1 c2)
-                         ;; Break ties by length
-                         (if (/= (cdr c1) (cdr c2))
-                             (> (cdr c1)
-                                (cdr c2))
-                           (< (length (car c1))
-                              (length (car c2)))))))
+         (static-if (fboundp 'value<)
+             (sort cands-to-sort :in-place t
+                   :key (lambda (cand)
+                          (let ((s (flx-score cand flx-name ivy--flx-cache)))
+                            ;; Sort by decreasing score, increasing length.
+                            (cons (- (car s)) (length cand)))))
+           ;; Compute all of the flx scores in one pass and sort.
+           (mapcar #'car
+                   (sort (mapcar
+                          (lambda (cand)
+                            (cons cand
+                                  (car (flx-score cand flx-name
+                                                  ivy--flx-cache))))
+                          cands-to-sort)
+                         (lambda (c1 c2)
+                           ;; Break ties by length
+                           (if (/= (cdr c1) (cdr c2))
+                               (> (cdr c1)
+                                  (cdr c2))
+                             (< (length (car c1))
+                                (length (car c2))))))))
 
          ;; Add the unsorted candidates
          cands-left))
