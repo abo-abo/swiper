@@ -1,30 +1,53 @@
 emacs ?= emacs
-
-LOAD = -l elpa.el -l colir.el -l ivy-overlay.el -l ivy.el -l swiper.el -l counsel.el
 RM ?= rm -f
 
-all: test
+src-elcs = \
+  colir.elc \
+  ivy-faces.elc \
+  ivy-overlay.elc \
+  ivy.elc \
+  ivy-avy.elc \
+  ivy-hydra.elc \
+  swiper.elc \
+  counsel.elc
 
+test-elcs = ivy-test.elc
+
+.PHONY: all
+all: compile
+
+.PHONY: deps
 deps:
-	$(emacs) -batch -l targets/install-deps.el
+	$(emacs) -Q -batch -l targets/install-deps.el
 
-test:
-	$(emacs) -batch $(LOAD) -l ivy-test.el -f ivy-test-run-tests
+.PHONY: test
+test: compile $(test-elcs)
+	$(emacs) -Q -batch -l elpa.el -L . -l ivy-test -f ivy-test-run-tests
 
+.PHONY: checkdoc
 checkdoc:
 	$(emacs) -batch -l targets/checkdoc.el
 
-compile:
-	$(emacs) -batch -l elpa.el -L . -f batch-byte-compile colir.el ivy-faces.el ivy-overlay.el ivy.el ivy-avy.el ivy-hydra.el swiper.el counsel.el
+.PHONY: compile
+compile: $(src-elcs)
 
-plain:
-	$(emacs) --version
-	$(emacs) -Q -l elpa.el -l targets/plain.el
+.PHONY: plain
+plain: compile
+	$(emacs) -version
+	$(emacs) -Q -l elpa.el -L . -l targets/plain.el
 
+.PHONY: obsolete
 obsolete:
 	$(emacs) -batch -l targets/obsolete-config.el
 
+.PHONY: clean
 clean:
-	$(RM) *.elc
+	$(RM) $(src-elcs) $(test-elcs)
 
-.PHONY: all test checkdoc compile plain obsolete update-issues clean
+%.elc: %.el
+	$(emacs) -Q -batch -L . -f batch-byte-compile $<
+
+ivy-avy.elc: ivy-avy.el
+ivy-hydra.elc: ivy-hydra.el
+ivy-avy.elc ivy-hydra.elc:
+	$(emacs) -Q -batch -l elpa.el -L . -f batch-byte-compile $<
