@@ -38,6 +38,16 @@
 (require 'cl-lib)
 (require 'ivy)
 
+(eval-when-compile
+  (unless (fboundp 'static-if)
+    (defmacro static-if (condition then-form &rest else-forms)
+      "Expand to THEN-FORM or ELSE-FORMS based on compile-time CONDITION.
+Polyfill for Emacs 30 `static-if'."
+      (declare (debug (sexp sexp &rest sexp)) (indent 2))
+      (if (eval condition lexical-binding)
+          then-form
+        (macroexp-progn else-forms)))))
+
 (defgroup swiper nil
   "`isearch' with an overview."
   :group 'matching
