@@ -4184,13 +4184,13 @@ point to indicarte where the candidate mark is."
                   marks))))))
 
 (defun counsel-mark--ivy-read (prompt candidates caller)
-  "call `ivy-read' with sane defaults for traversing marks.
+  "Call `ivy-read' with sane defaults for traversing marks.
 CANDIDATES should be an alist with the `car' of the list being
-the string displayed by ivy and the `cdr' being the point that
+the completion candidate string and the `cdr' being the point that
 mark should take you to.
 
-NOTE This has been abstracted out into it's own method so it can
-be used by both `counsel-mark-ring' and `counsel-evil-marks'"
+This subroutine is intended to be used by both `counsel-mark-ring' and
+`counsel-evil-marks'."
   (ivy-read prompt candidates
             :require-match t
             :update-fn #'counsel--mark-ring-update-fn
