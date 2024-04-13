@@ -6432,8 +6432,12 @@ Use `projectile-project-root' to determine the root."
 (defun counsel--project-current ()
   "Return root of current project or nil on failure.
 Use `project-current' to determine the root."
-  (and (fboundp 'project-current)
-       (cdr (project-current))))
+  (let ((proj (and (fboundp 'project-current)
+                   (project-current))))
+    (cond ((fboundp 'project-root)
+           (project-root proj))
+          ((fboundp 'project-roots)
+           (car (project-roots proj))))))
 
 (defun counsel--configure-root ()
   "Return root of current project or nil on failure.
