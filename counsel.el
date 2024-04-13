@@ -6434,7 +6434,8 @@ Use `projectile-project-root' to determine the root."
 Use `project-current' to determine the root."
   (let ((proj (and (fboundp 'project-current)
                    (project-current))))
-    (cond ((fboundp 'project-root)
+    (cond ((not proj) nil)
+          ((fboundp 'project-root)
            (project-root proj))
           ((fboundp 'project-roots)
            (car (project-roots proj))))))
