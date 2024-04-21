@@ -1163,6 +1163,40 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              (ivy-with-temp-buffer '(counsel-yank-pop) "C-m"))
            '(1 "foo"))))
 
+(ert-deftest counsel-string-non-blank-p ()
+  "Test `counsel-string-non-blank-p'."
+  (should-not (counsel-string-non-blank-p ""))
+  (should-not (counsel-string-non-blank-p " "))
+  (should-not (counsel-string-non-blank-p "  "))
+  (should (counsel-string-non-blank-p "a"))
+  (should (counsel-string-non-blank-p " a"))
+  (should (counsel-string-non-blank-p "a "))
+  (should (counsel-string-non-blank-p "aa")))
+
+(ert-deftest counsel--equal-w-props ()
+  "Sanity check for `sxhash-equal-including-properties'."
+  (let ((name 'counsel--equal-w-props)
+        (test (counsel--equal-w-props)))
+    (should (eq test (and (>= emacs-major-version 28) name)))
+    (if test
+        (should (make-hash-table :test test :size 0))
+      (should-not (get name 'hash-table-test)))))
+
+(ert-deftest counsel--yank-pop-filter ()
+  "Test `counsel--yank-pop-filter'."
+  (should-not (counsel--yank-pop-filter ()))
+  (dolist (len '(1 2 3 120))
+    (let (kills)
+      (dotimes (_ len)
+        (push (propertize "a" t nil) kills))
+      (should (equal (counsel--yank-pop-filter kills) '("a")))))
+  (dolist (len '(1 2 3 60))
+    (let (kills)
+      (dotimes (_ len)
+        (push (propertize "a" t nil) kills)
+        (push (propertize "a" t t) kills))
+      (should (equal (counsel--yank-pop-filter kills) '("a" "a"))))))
+
 (ert-deftest ivy-read-file-name-in-buffer-visiting-file ()
   "Test `ivy-immediate-done' command in `read-file-name' without any editing in
 a buffer visiting a file."
