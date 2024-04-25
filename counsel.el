@@ -1438,22 +1438,42 @@ This function should set `ivy--old-re'."
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
-  (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+  (when (string-match (counsel-git-grep-match-regex) x)
     (let ((file-name (match-string-no-properties 1 x))
           (line-number (match-string-no-properties 2 x)))
       (find-file (expand-file-name
                   file-name
                   (ivy-state-directory ivy-last)))
-      (goto-char (point-min))
-      (forward-line (1- (string-to-number line-number)))
-      (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-        (when swiper-goto-start-of-match
-          (goto-char (match-beginning 0))))
-      (swiper--ensure-visible)
-      (run-hooks 'counsel-grep-post-action-hook)
-      (unless (eq ivy-exit 'done)
-        (swiper--cleanup)
-        (swiper--add-overlays (ivy--regex ivy-text))))))
+      (counsel-git-grep-go-to-location line-number))))
+
+(defun counsel-git-grep-match-regex ()
+  "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'")
+
+(defun counsel-git-grep-action-other-window (x)
+  "Go to occurrence X in current Git repository, other window."
+  (when (string-match (counsel-git-grep-match-regex) x)
+    (let ((file-name (match-string-no-properties 1 x))
+          (line-number (match-string-no-properties 2 x)))
+      (find-file-other-window (expand-file-name
+                  file-name
+                  (ivy-state-directory ivy-last)))
+      (counsel-git-grep-go-to-location line-number))))
+
+(defun counsel-git-grep-go-to-location (line-number)
+  (goto-char (point-min))
+  (forward-line (1- (string-to-number line-number)))
+  (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+    (when swiper-goto-start-of-match
+      (goto-char (match-beginning 0))))
+  (swiper--ensure-visible)
+  (run-hooks 'counsel-grep-post-action-hook)
+  (unless (eq ivy-exit 'done)
+    (swiper--cleanup)
+    (swiper--add-overlays (ivy--regex ivy-text))))
+
+(ivy-set-actions
+ 'counsel-git-grep
+ '(("j" counsel-git-grep-action-other-window "other window")))
 
 (defun counsel-git-grep-transformer (str)
   "Highlight file and line number in STR."
