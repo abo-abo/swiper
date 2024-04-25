@@ -2426,7 +2426,7 @@ This function uses the `dom' library from Emacs 25.1 or later."
          (delq nil
                (mapcar (lambda (b)
                          (when (buffer-file-name b)
-                           (buffer-file-name b)))
+                           (abbreviate-file-name (buffer-file-name b))))
                        (buffer-list)))))
     (append
      buffers
