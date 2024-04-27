@@ -1438,27 +1438,29 @@ This function should set `ivy--old-re'."
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
-  (let ((file-and-line-number (counsel-git-grep-file-and-line-number x)))
+  (let ((file-and-line-number (counsel--git-grep-file-and-line-number x)))
     (when file-and-line-number
       (find-file (expand-file-name
                   (car file-and-line-number)
                   (ivy-state-directory ivy-last)))
-      (counsel-git-grep-go-to-location (cdr file-and-line-number)))))
+      (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
 
-(defun counsel-git-grep-file-and-line-number (x)
+(defun counsel--git-grep-file-and-line-number (x)
+  "Returns a cons cell of file-name and line number"
   (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
     (cons (match-string-no-properties 1 x) (match-string-no-properties 2 x))))
 
 (defun counsel-git-grep-action-other-window (x)
-  "Go to occurrence X in current Git repository, other window."
-  (let ((file-and-line-number (counsel-git-grep-file-and-line-number x)))
+  "Go to occurrence X in current Git repository in another window."
+  (let ((file-and-line-number (counsel--git-grep-file-and-line-number x)))
     (when file-and-line-number
       (find-file-other-window (expand-file-name
                                (car file-and-line-number)
                                (ivy-state-directory ivy-last)))
-      (counsel-git-grep-go-to-location (cdr file-and-line-number)))))
+      (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
 
-(defun counsel-git-grep-go-to-location (line-number)
+(defun counsel--git-grep-go-to-location (line-number)
+  "Go to line-number within current buffer"
   (goto-char (point-min))
   (forward-line (1- (string-to-number line-number)))
   (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
