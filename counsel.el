@@ -1445,11 +1445,6 @@ This function should set `ivy--old-re'."
                   (ivy-state-directory ivy-last)))
       (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
 
-(defun counsel--git-grep-file-and-line-number (x)
-  "Returns a cons cell of file-name and line number"
-  (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-    (cons (match-string-no-properties 1 x) (match-string-no-properties 2 x))))
-
 (defun counsel-git-grep-action-other-window (x)
   "Go to occurrence X in current Git repository in another window."
   (let ((file-and-line-number (counsel--git-grep-file-and-line-number x)))
@@ -1458,6 +1453,11 @@ This function should set `ivy--old-re'."
                                (car file-and-line-number)
                                (ivy-state-directory ivy-last)))
       (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
+
+(defun counsel--git-grep-file-and-line-number (x)
+  "Returns a cons cell of file-name and line number"
+  (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+    (cons (match-string-no-properties 1 x) (match-string-no-properties 2 x))))
 
 (defun counsel--git-grep-go-to-location (line-number)
   "Go to line-number within current buffer"
