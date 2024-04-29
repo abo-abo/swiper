@@ -1454,9 +1454,14 @@ This function should set `ivy--old-re'."
                                (ivy-state-directory ivy-last)))
       (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
 
+(rx-define grouped-regex-matches
+  (seq string-start (group (zero-or-more any))
+       ":" (group (+ digit)) ":"
+       (group (* any)) string-end))
+
 (defun counsel--git-grep-file-and-line-number (x)
   "Returns a cons cell of file-name and line number"
-  (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+  (when (string-match (rx grouped-regex-matches) x)
     (cons (match-string-no-properties 1 x) (match-string-no-properties 2 x))))
 
 (defun counsel--git-grep-go-to-location (line-number)
