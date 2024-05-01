@@ -1067,6 +1067,10 @@ contains a single candidate.")
              (defvar tramp-completion-mode)
              (with-no-warnings
                (let* ((tramp-completion-mode t)
+                      ;; Alternative to `tramp-completion-mode' in newer Tramp.
+                      (non-essential t)
+                      ;; Non-nil changes completion since Tramp 2.6.0.2.
+                      (minibuffer-completing-file-name nil)
                       (file (expand-file-name
                              (if (> ivy--length 0) (ivy-state-current ivy-last) ivy-text)
                              ivy--directory)))
