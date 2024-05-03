@@ -1455,12 +1455,13 @@ This function should set `ivy--old-re'."
       (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
 
 (defun counsel--git-grep-file-and-line-number (x)
-  "Returns a cons cell of file-name and line number"
+  "Extract file name and line number from `counsel-git-grep' line X.
+Return a pair (FILE . LINE) on success; nil otherwise."
   (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
     (cons (match-string-no-properties 1 x) (match-string-no-properties 2 x))))
 
 (defun counsel--git-grep-go-to-location (line-number)
-  "Go to line-number within current buffer"
+  "Go to LINE-NUMBER within current buffer."
   (goto-char (point-min))
   (forward-line (1- (string-to-number line-number)))
   (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
