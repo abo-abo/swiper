@@ -1429,49 +1429,44 @@ This function should set `ivy--old-re'."
   "Grep in the current Git repository for STRING."
   (or
    (ivy-more-chars)
-   (progn
-     (counsel--async-command
-      (concat
-       (funcall counsel-git-grep-cmd-function string)
-       (if (ivy--case-fold-p string) " -i" "")))
-     nil)))
+   (ignore
+    (counsel--async-command
+     (concat
+      (funcall counsel-git-grep-cmd-function string)
+      (and (ivy--case-fold-p string) " -i"))))))
 
 (defun counsel-git-grep-action (x)
   "Go to occurrence X in current Git repository."
-  (let ((file-and-line-number (counsel--git-grep-file-and-line-number x)))
-    (when file-and-line-number
-      (find-file (expand-file-name
-                  (car file-and-line-number)
-                  (ivy-state-directory ivy-last)))
-      (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
+  (counsel--git-grep-visit x))
 
 (defun counsel-git-grep-action-other-window (x)
   "Go to occurrence X in current Git repository in another window."
-  (let ((file-and-line-number (counsel--git-grep-file-and-line-number x)))
-    (when file-and-line-number
-      (find-file-other-window (expand-file-name
-                               (car file-and-line-number)
-                               (ivy-state-directory ivy-last)))
-      (counsel--git-grep-go-to-location (cdr file-and-line-number)))))
+  (counsel--git-grep-visit x t))
 
-(defun counsel--git-grep-file-and-line-number (x)
+(defun counsel--git-grep-file-and-line (x)
   "Extract file name and line number from `counsel-git-grep' line X.
 Return a pair (FILE . LINE) on success; nil otherwise."
-  (when (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-    (cons (match-string-no-properties 1 x) (string-to-number (match-string-no-properties 2 x)))))
+  (and (string-match "\\`\\(.*?\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+       (cons (match-string-no-properties 1 x)
+             (string-to-number (match-string-no-properties 2 x)))))
 
-(defun counsel--git-grep-go-to-location (line-number)
-  "Go to LINE-NUMBER within current buffer."
-  (goto-char (point-min))
-  (forward-line (1- line-number))
-  (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-    (when swiper-goto-start-of-match
-      (goto-char (match-beginning 0))))
-  (swiper--ensure-visible)
-  (run-hooks 'counsel-grep-post-action-hook)
-  (unless (eq ivy-exit 'done)
-    (swiper--cleanup)
-    (swiper--add-overlays (ivy--regex ivy-text))))
+(defun counsel--git-grep-visit (cand &optional other-window)
+  "Visit `counsel-git-grep' CAND, optionally in OTHER-WINDOW."
+  (let ((file-and-line (counsel--git-grep-file-and-line cand)))
+    (when file-and-line
+      (funcall (if other-window #'find-file-other-window #'find-file)
+               (expand-file-name (car file-and-line)
+                                 (ivy-state-directory ivy-last)))
+      (goto-char (point-min))
+      (forward-line (1- (cdr file-and-line)))
+      (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+        (when swiper-goto-start-of-match
+          (goto-char (match-beginning 0))))
+      (swiper--ensure-visible)
+      (run-hooks 'counsel-grep-post-action-hook)
+      (unless (eq ivy-exit 'done)
+        (swiper--cleanup)
+        (swiper--add-overlays (ivy--regex ivy-text))))))
 
 (ivy-set-actions
  'counsel-git-grep
