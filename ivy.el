@@ -3604,8 +3604,8 @@ In any Ivy completion session, the case folding starts with
 RE is a list of cons cells, with a regexp car and a boolean cdr.
 When the cdr is t, the car must match.
 Otherwise, the car must not match."
-  (if (equal re "")
-      candidates
+  (unless (member re '("" ()))
+    (setq candidates (copy-sequence candidates))
     (ignore-errors
       (dolist (re (if (stringp re) (list (cons re t)) re))
         (let* ((re-str (car re))
@@ -3614,10 +3614,10 @@ Otherwise, the car must not match."
                     (funcall mkpred re-str)
                   (lambda (x) (string-match-p re-str x)))))
           (setq candidates
-                (cl-remove nil candidates
+                (cl-delete nil candidates
                            (if (cdr re) :if-not :if)
-                           pred))))
-      candidates)))
+                           pred))))))
+  candidates)
 
 (defun ivy--filter (name candidates)
   "Return all items that match NAME in CANDIDATES.
