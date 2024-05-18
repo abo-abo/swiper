@@ -302,7 +302,7 @@ If the input is empty, select the previous history element instead."
             (cl-sort visible-overlays #'< :key #'overlay-start)))
          (min-overlay-start 0)
          (overlays-for-avy
-          (cl-remove-if-not
+          (cl-delete-if-not
            (lambda (ov)
              (when (and (>= (overlay-start ov)
                             min-overlay-start)
@@ -781,7 +781,7 @@ Add a space after a leading `^' for `swiper', and apply
 This is the regex used in the minibuffer where candidates have
 line numbers.  For the buffer, use `ivy--regex' instead."
   (let* ((re-builder (ivy-alist-setting ivy-re-builders-alist))
-         (str (replace-regexp-in-string "\\\\n" "\n" str))
+         (str (ivy--string-replace "\\n" "\n" str))
          (re (funcall re-builder str)))
     (if (consp re)
         (mapcar
@@ -948,24 +948,17 @@ the face, window and priority of the overlay."
   (or (display-graphic-p)
       (not recenter-redisplay)))
 
-(defun swiper--positive-regexps ()
-  (if (listp ivy-regex)
-      (mapcar #'car (cl-remove-if-not #'cdr ivy-regex))
-    (list ivy-regex)))
-
 (defun swiper--update-input-ivy ()
   "Called when `ivy' input is updated."
   (with-ivy-window
     (swiper--cleanup)
     (when (> (length (ivy-state-current ivy-last)) 0)
-      (let ((regexps (swiper--positive-regexps))
+      (let ((regexps (ivy--positive-regexps))
             (re-idx -1)
             (case-fold-search (ivy--case-fold-p ivy-text)))
         (dolist (re regexps)
           (setq re-idx (1+ re-idx))
-          (let* ((re (replace-regexp-in-string
-                      "    " "\t"
-                      re))
+          (let* ((re (ivy--string-replace "    " "\t" re))
                  (num (swiper--line-number (ivy-state-current ivy-last))))
             (unless (memq this-command '(ivy-yank-word
                                          ivy-yank-symbol
@@ -1272,7 +1265,7 @@ otherwise continue prompting for buffers."
   "Search in all open buffers for STR."
   (or
    (ivy-more-chars)
-   (let* ((buffers (cl-remove-if-not #'swiper-all-buffer-p (buffer-list)))
+   (let* ((buffers (cl-delete-if-not #'swiper-all-buffer-p (buffer-list)))
           (re-full ivy-regex)
           re re-tail
           cands match
@@ -1494,7 +1487,7 @@ that we search only for one character."
              (lambda ()
                (with-ivy-window
                  (swiper--add-overlays (ivy--regex ivy-text))))))
-    (dolist (re (swiper--positive-regexps))
+    (dolist (re (ivy--positive-regexps))
       (swiper--add-overlays re))))
 
 (defun swiper--isearch-candidate-pos (cand)
