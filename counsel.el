@@ -80,7 +80,7 @@ complex regexes."
         (mapconcat
          (lambda (pair)
            (let ((subexp (counsel--elisp-to-pcre (car pair))))
-             (if (string-match-p "|" subexp)
+             (if (ivy--string-search "|" subexp)
                  (format "(?:%s)" subexp)
                subexp)))
          (cl-remove-if-not #'cdr regex)
@@ -344,7 +344,7 @@ Update the minibuffer with the amount of lines collected every
          (let ((lines (counsel--split-string))
                (ignore-re (ivy-alist-setting counsel-async-ignore-re-alist)))
            (if (stringp ignore-re)
-               (cl-remove-if (lambda (line)
+               (cl-delete-if (lambda (line)
                                (string-match-p ignore-re line))
                              lines)
              lines))))
@@ -1341,7 +1341,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (counsel-cmd-to-dired
    (counsel--expand-ls
     (format "%s | %s | xargs ls"
-            (replace-regexp-in-string "\\(-0\\)\\|\\(-z\\)" "" counsel-git-cmd)
+            (replace-regexp-in-string
+             "\\(-0\\)\\|\\(-z\\)" "" counsel-git-cmd t t)
             (counsel--file-name-filter)))))
 
 (defvar counsel-dired-listing-switches "-alh"
@@ -1414,8 +1415,7 @@ This function should set `ivy--old-re'."
   (format counsel-git-grep-cmd
           (setq ivy--old-re
                 (if (eq ivy--regex-function #'ivy--regex-fuzzy)
-                    (replace-regexp-in-string
-                     "\n" "" (ivy--regex-fuzzy str))
+                    (ivy--string-replace "\n" "" (ivy--regex-fuzzy str))
                   (ivy--regex str t)))))
 
 (defun counsel-git-grep-cmd-function-ignore-order (str)
@@ -1478,7 +1478,7 @@ files in a project.")
        (if (setq proj
                  (cl-find-if
                   (lambda (x)
-                    (string-match (car x) dd))
+                    (string-match-p (car x) dd))
                   counsel-git-grep-projects-alist))
            (setq cmd (cdr proj))
          (setq cmd
@@ -1636,10 +1636,8 @@ When CMD is non-nil, prompt for a specific \"git grep\" command."
 
 (defun counsel--git-grep-occur-cmd (input)
   (let* ((regex ivy--old-re)
-         (positive-pattern (replace-regexp-in-string
-                            ;; git-grep can't handle .*?
-                            "\\.\\*\\?" ".*"
-                            (ivy-re-to-str regex)))
+         (positive-pattern ;; git-grep can't handle .*?
+          (ivy--string-replace ".*?" ".*" (ivy-re-to-str regex)))
          (negative-patterns
           (if (stringp regex) ""
             (mapconcat (lambda (x)
@@ -1717,8 +1715,7 @@ done") "\n" t)))
       ;; "git log --grep" likes to have groups quoted e.g. \(foo\).
       ;; But it doesn't like the non-greedy ".*?".
       (format counsel-git-log-cmd
-              (replace-regexp-in-string "\\.\\*\\?" ".*"
-                                        (ivy-re-to-str ivy--old-re))))
+              (ivy--string-replace ".*?" ".*" (ivy-re-to-str ivy--old-re))))
      nil)))
 
 (defun counsel-git-log-action (x)
@@ -1754,7 +1751,7 @@ TREE is the selected candidate."
 
 (defun counsel-git-worktree-parse-root (tree)
   "Return worktree from candidate TREE."
-  (substring tree 0 (string-match-p " " tree)))
+  (substring tree 0 (ivy--string-search " " tree)))
 
 (defun counsel-git-close-worktree-files-action (root-dir)
   "Close all buffers from the worktree located at ROOT-DIR."
@@ -1794,7 +1791,7 @@ character (#x20), or the string's end if it lacks a space."
   (shell-command
    (format "git checkout %s"
            (shell-quote-argument
-            (substring branch 0 (string-match-p " " branch))))))
+            (substring branch 0 (ivy--string-search " " branch))))))
 
 (defun counsel-git-branch-list ()
   "Return list of branches in the current Git repository.
@@ -2126,8 +2123,8 @@ If USE-IGNORE is non-nil, try to generate a command that respects
                           (cons ignore-re regex)))))
         (setq cmd (format (car filter-cmd)
                           (counsel--elisp-to-pcre regex (cdr filter-cmd))))
-        (if (string-match-p "csh\\'" shell-file-name)
-            (replace-regexp-in-string "\\?!" "?\\\\!" cmd)
+        (if (string-suffix-p "csh" shell-file-name)
+            (ivy--string-replace "?!" "?\\!" cmd)
           cmd)))))
 
 (defun counsel--occur-cmd-find ()
@@ -2141,10 +2138,9 @@ If USE-IGNORE is non-nil, try to generate a command that respects
 
 (defun counsel--cmd-to-dired-by-type (type cmd)
   (let ((exclude-dots
-         (if (string-match "^\\." ivy-text)
-             ""
-           " | grep -v '/\\\\.'")))
-    (replace-regexp-in-string
+         (unless (string-prefix-p "." ivy-text)
+           " | grep -v '/\\.'")))
+    (ivy--string-replace
      " | grep"
      (concat " -type " type exclude-dots " | grep") cmd)))
 
@@ -2158,7 +2154,7 @@ If USE-IGNORE is non-nil, try to generate a command that respects
     (counsel-cmd-to-dired
      (counsel--expand-ls
       (format counsel-find-file-occur-cmd
-              (if (string-match-p "grep" counsel-find-file-occur-cmd)
+              (if (ivy--string-search "grep" counsel-find-file-occur-cmd)
                   ;; for backwards compatibility
                   (counsel--elisp-to-pcre ivy--old-re)
                 (counsel--file-name-filter t)))))))
@@ -2219,9 +2215,10 @@ See variable `counsel-up-directory-level'."
 (defun counsel-at-git-issue-p ()
   "When point is at an issue in a Git-versioned file, return the issue string."
   (and (looking-at "#[0-9]+")
-       (or (eq (vc-backend buffer-file-name) 'Git)
-           (memq major-mode '(magit-commit-mode vc-git-log-view-mode))
-           (bound-and-true-p magit-commit-mode))
+       (save-match-data
+         (or (eq (vc-backend buffer-file-name) 'Git)
+             (memq major-mode '(magit-commit-mode vc-git-log-view-mode))
+             (bound-and-true-p magit-commit-mode)))
        (match-string-no-properties 0)))
 
 (defun counsel-github-url-p ()
@@ -2422,13 +2419,8 @@ This function uses the `dom' library from Emacs 25.1 or later."
   "Return candidates for `counsel-buffer-or-recentf'."
   (require 'recentf)
   (recentf-mode)
-  (let ((buffers
-         (delq nil
-               (mapcar (lambda (b)
-                         (when (buffer-file-name b)
-                           (buffer-file-name b)))
-                       (buffer-list)))))
-    (append
+  (let ((buffers (delq nil (mapcar #'buffer-file-name (buffer-list)))))
+    (nconc
      buffers
      (cl-remove-if (lambda (f) (member f buffers))
                    (counsel-recentf-candidates)))))
@@ -2515,7 +2507,7 @@ By default `counsel-bookmark' opens a dired buffer for directories."
 (defun counsel-bookmarked-directory--candidates ()
   "Get a list of bookmarked directories sorted by file path."
   (bookmark-maybe-load-default-file)
-  (sort (cl-remove-if-not
+  (sort (cl-delete-if-not
          #'ivy--dirname-p
          (delq nil (mapcar #'bookmark-get-filename bookmark-alist)))
         #'string<))
@@ -3147,7 +3139,7 @@ Works for `counsel-git-grep', `counsel-ag', etc."
   (if (ivy--case-fold-p ivy-text)
       "-i"
     (if (and (stringp counsel-ag-base-command)
-             (string-match-p "\\`pt" counsel-ag-base-command))
+             (string-prefix-p "pt" counsel-ag-base-command))
         "-S"
       "-s")))
 
@@ -3156,9 +3148,10 @@ Works for `counsel-git-grep', `counsel-ag', etc."
     (ivy-occur-grep-mode)
     (setq default-directory (ivy-state-directory ivy-last)))
   (ivy-set-text
-   (if (string-match "\"\\(.*\\)\"" (buffer-name))
-       (match-string 1 (buffer-name))
-     (ivy-state-text ivy-occur-last)))
+   (let ((name (buffer-name)))
+     (if (string-match "\"\\(.*\\)\"" name)
+         (match-string 1 name)
+       (ivy-state-text ivy-occur-last))))
   (let* ((cmd
           (if (functionp cmd-template)
               (funcall cmd-template ivy-text)
@@ -3258,7 +3251,7 @@ Note: don't use single quotes for the regexp."
     (let ((files
            (dired-get-marked-files 'no-dir nil nil t)))
       (when (or (cdr files)
-                (when (string-match-p "\\*ivy-occur" (buffer-name))
+                (when (ivy--string-search "*ivy-occur" (buffer-name))
                   (dired-toggle-marks)
                   (setq files (dired-get-marked-files 'no-dir))
                   (dired-toggle-marks)
@@ -4055,21 +4048,16 @@ This variable has no effect unless
             (text (nth 4 components))
             (tags (and counsel-org-headline-display-tags
                        (nth 5 components))))
-       (list
-        (mapconcat
-         #'identity
-         (cl-remove-if #'null
-                       (list
-                        level
-                        todo
-                        (and priority (format "[#%c]" priority))
-                        (mapconcat #'identity
-                                   (append path (list text))
-                                   counsel-outline-path-separator)
-                        tags))
-         " ")
-        buffer-file-name
-        (point))))
+       (list (string-join
+              (delq nil (list level
+                              todo
+                              (and priority (format "[#%c]" priority))
+                              (string-join (append path (list text))
+                                           counsel-outline-path-separator)
+                              tags))
+              " ")
+             buffer-file-name
+             (point))))
    nil
    'agenda))
 
@@ -4240,8 +4228,8 @@ register tied to a mark in the message string."
           ;; with prefix, ignore register exclusion list.
           (if all-markers-p
               all-markers
-            (cl-remove-if-not
-             (lambda (x) (not (member (car x) counsel-evil-marks-exclude-registers)))
+            (cl-remove-if
+             (lambda (x) (member (car x) counsel-evil-marks-exclude-registers))
              all-markers)))
          ;; separate the markers from the evil registers
          ;; for call to `counsel-mark--get-candidates'
@@ -4631,9 +4619,6 @@ preselected.  Otherwise, the prefix argument defaults to 0, which
 results in the most recent kill being preselected."
   :type 'boolean)
 
-;; Moved to subr.el in Emacs 27.1.
-(autoload 'xor "array")
-
 ;;;###autoload
 (defun counsel-yank-pop (&optional arg)
   "Ivy replacement for `yank-pop'.
@@ -4761,7 +4746,7 @@ matching the register's value description against a regexp in
 S will be of the form \"[register]: content\"."
   (with-ivy-window
     (insert
-     (replace-regexp-in-string "\\`\\[.*?\\]: " "" s))))
+     (replace-regexp-in-string "\\`\\[.*?]: " "" s t t))))
 
 ;;** `counsel-imenu'
 (defvar imenu-auto-rescan)
@@ -4818,8 +4803,8 @@ PREFIX is used to create the key."
   "Categorize all the functions of imenu."
   (let ((fns (cl-remove-if #'listp items :key #'cdr)))
     (if fns
-        (nconc (cl-remove-if #'nlistp items :key #'cdr)
-               `(("Functions" ,@fns)))
+        (append (cl-remove-if #'nlistp items :key #'cdr)
+                `(("Functions" ,@fns)))
       items)))
 
 (defun counsel-imenu-action (x)
@@ -5182,7 +5167,8 @@ buffers."
     (cond (counsel-org-headline-display-statistics
            heading)
           (heading
-           (org-trim (replace-regexp-in-string statistics-re " " heading))))))
+           (org-trim (replace-regexp-in-string
+                      statistics-re " " heading t t))))))
 
 (defun counsel-outline-title-markdown ()
   "Return title of current outline heading.
@@ -6144,7 +6130,7 @@ the command to launch it."
   (format "% -45s: %s%s"
           (propertize
            (ivy--truncate-string
-            (replace-regexp-in-string "env +[^ ]+ +" "" exec)
+            (replace-regexp-in-string "env +[^ ]+ +" "" exec t t)
             45)
            'face 'counsel-application-name)
           name
@@ -6356,11 +6342,10 @@ When ARG is non-nil, ignore NoDisplay property in *.desktop files."
   "Clear temporary file buffers and restore `buffer-list'.
 The buffers are those opened during a session of `counsel-switch-buffer'."
   (mapc #'kill-buffer counsel--switch-buffer-temporary-buffers)
-  (mapc #'bury-buffer (cl-remove-if-not
-                       #'buffer-live-p
-                       counsel--switch-buffer-previous-buffers))
-  (setq counsel--switch-buffer-temporary-buffers nil
-        counsel--switch-buffer-previous-buffers nil))
+  (dolist (buf counsel--switch-buffer-previous-buffers)
+    (when (buffer-live-p buf) (bury-buffer buf)))
+  (setq counsel--switch-buffer-temporary-buffers ())
+  (setq counsel--switch-buffer-previous-buffers ()))
 
 (defcustom counsel-switch-buffer-preview-virtual-buffers t
   "When non-nil, `counsel-switch-buffer' will preview virtual buffers."
@@ -6668,10 +6653,16 @@ If there are non-directory files in BLDDIR, include BLDDIR in the
 list as it may also be a build directory."
   (let* ((files (directory-files-and-attributes
                  blddir t directory-files-no-dot-files-regexp t))
-         (dirs (cl-remove-if-not #'cl-second files)))
+         (total (length files))
+         (dirs (cl-delete-if-not
+                (lambda (entry)
+                  (let ((dir (nth 1 entry)))
+                    (and dir (or (eq dir t)
+                                 ;; Symlink.
+                                 (file-directory-p (nth 0 entry))))))
+                files)))
     ;; Any non-dir files?
-    (when (< (length dirs)
-             (length files))
+    (when (< (length dirs) total)
       (push (cons blddir (file-attributes blddir)) dirs))
     (mapcar #'car (sort dirs (lambda (x y)
                                (time-less-p (nth 6 y) (nth 6 x)))))))
@@ -6918,7 +6909,8 @@ Additional actions:\\<ivy-minibuffer-map>
   (interactive)
   (ivy-read "Major modes: " obarray
             :predicate (lambda (f)
-                         (and (commandp f) (string-match "-mode$" (symbol-name f))
+                         (and (commandp f)
+                              (string-suffix-p "-mode" (symbol-name f))
                               (or (and (autoloadp (symbol-function f))
                                        (let ((doc-split (help-split-fundoc (documentation f) f)))
                                          ;; major mode starters have no arguments
