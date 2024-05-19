@@ -2560,7 +2560,7 @@ INHERIT-INPUT-METHOD is currently ignored."
                          (car initial-input))
                         ((and (stringp initial-input)
                               (not (eq collection #'read-file-name-internal)))
-                         (ivy--string-replace "+" "\\\\+" initial-input))
+                         (ivy--string-replace "+" "\\+" initial-input))
                         (initial-input))
                   :preselect def
                   :def def
