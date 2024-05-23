@@ -3375,6 +3375,7 @@ Otherwise, ~/ will move home."
   "Delay in ms before dynamic collections are refreshed"
   :type 'integer)
 
+(defvar ivy--queue-last-input nil)
 (defvar ivy--exhibit-timer nil)
 
 (defun ivy--queue-exhibit ()
@@ -3382,7 +3383,8 @@ Otherwise, ~/ will move home."
 dynamic collections.
 Should be run via minibuffer `post-command-hook'."
   (if (and (> ivy-dynamic-exhibit-delay-ms 0)
-           (ivy-state-dynamic-collection ivy-last))
+           (ivy-state-dynamic-collection ivy-last)
+           (not (equal ivy--queue-last-input (ivy--input))))
       (progn
         (when ivy--exhibit-timer (cancel-timer ivy--exhibit-timer))
         (setq ivy--exhibit-timer
@@ -3390,7 +3392,8 @@ Should be run via minibuffer `post-command-hook'."
                (/ ivy-dynamic-exhibit-delay-ms 1000.0)
                nil
                'ivy--exhibit)))
-    (ivy--exhibit)))
+    (ivy--exhibit))
+  (setq ivy--queue-last-input (ivy--input)))
 
 (defalias 'ivy--file-local-name
   (if (fboundp 'file-local-name)
