@@ -3609,26 +3609,31 @@ In any Ivy completion session, the case folding starts with
   ;; Reset cache so that the candidate list updates.
   (setq ivy--old-re nil))
 
-(defun ivy--re-filter (re candidates &optional mkpred)
-  "Return all RE matching CANDIDATES.
-RE is a list of cons cells, with a regexp car and a boolean cdr.
-When the cdr is t, the car must match.
-Otherwise, the car must not match."
-  (if (member re '("" ()))
+(defun ivy--re-filter (filter candidates &optional mkpred)
+  "Return all CANDIDATES matching FILTER, or nil on error.
+FILTER is either a string or a list of (REGEXP . BOOLEAN).
+The result includes those CANDIDATES which are matched by each REGEXP
+whose BOOLEAN is non-nil, and not matched by any other REGEXP.
+A string FILTER is equivalent to ((FILTER . t)).
+
+If MKPRED is non-nil, it is a function to be called on each REGEXP,
+returning a unary predicate for filtering CANDIDATES which overrides
+this function's default regexp matching behavior."
+  (if (member filter '("" ()))
       candidates
     (setq candidates (copy-sequence candidates))
     ;; Return nil (not candidates) on error, e.g., when we try to filter
     ;; `swiper-isearch' numeric candidates with `string-match-p'.
     (ignore-errors
-      (dolist (re (if (stringp re) (list (cons re t)) re))
-        (let* ((re-str (car re))
+      (dolist (matcher (if (stringp filter) (list (cons filter t)) filter))
+        (let* ((re (car matcher))
                (pred
                 (if mkpred
-                    (funcall mkpred re-str)
-                  (lambda (x) (string-match-p re-str x)))))
+                    (funcall mkpred re)
+                  (lambda (x) (string-match-p re x)))))
           (setq candidates
                 (cl-delete nil candidates
-                           (if (cdr re) :if-not :if)
+                           (if (cdr matcher) :if-not :if)
                            pred))))
       candidates)))
 
