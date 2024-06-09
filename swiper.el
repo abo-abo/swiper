@@ -1122,25 +1122,24 @@ WND, when specified is the window."
         (case-fold-search (ivy--case-fold-p ivy-text)))
     (if (null x)
         (user-error "No candidates")
-      (with-ivy-window
-        (unless (equal (current-buffer)
-                       (ivy-state-buffer ivy-last))
-          (switch-to-buffer (ivy-state-buffer ivy-last)))
-        (goto-char
-         (if (buffer-narrowed-p)
-             swiper--point-min
-           (point-min)))
-        (funcall (if swiper-use-visual-line
-                     #'line-move
-                   #'forward-line)
-                 ln)
-        (when (and (re-search-forward re (line-end-position) t)
-                   swiper-goto-start-of-match)
-          (goto-char (match-beginning 0)))
-        (swiper--ensure-visible)
-        (swiper--maybe-recenter)
-        (swiper--push-mark)
-        (swiper--remember-search-history re)))))
+      (unless (equal (current-buffer)
+                     (ivy-state-buffer ivy-last))
+        (switch-to-buffer (ivy-state-buffer ivy-last)))
+      (goto-char
+       (if (buffer-narrowed-p)
+           swiper--point-min
+         (point-min)))
+      (funcall (if swiper-use-visual-line
+                   #'line-move
+                 #'forward-line)
+               ln)
+      (when (and (re-search-forward re (line-end-position) t)
+                 swiper-goto-start-of-match)
+        (goto-char (match-beginning 0)))
+      (swiper--ensure-visible)
+      (swiper--maybe-recenter)
+      (swiper--push-mark)
+      (swiper--remember-search-history re))))
 
 (defun swiper--remember-search-history (re)
   "Add the search pattern RE to the search history ring."
@@ -1228,19 +1227,18 @@ otherwise continue prompting for buffers."
   (when (> (length x) 0)
     (let ((buffer-name (get-text-property 0 'buffer x)))
       (when buffer-name
-        (with-ivy-window
-          (switch-to-buffer buffer-name)
-          (goto-char (point-min))
-          (forward-line (1- (swiper--line-number x)))
-          (re-search-forward
-           (ivy--regex ivy-text)
-           (line-end-position) t)
-          (funcall isearch-filter-predicate
-                   (line-beginning-position)
-                   (line-end-position))
-          (unless (eq ivy-exit 'done)
-            (swiper--cleanup)
-            (swiper--add-overlays (ivy--regex ivy-text))))))))
+        (switch-to-buffer buffer-name)
+        (goto-char (point-min))
+        (forward-line (1- (swiper--line-number x)))
+        (re-search-forward
+         (ivy--regex ivy-text)
+         (line-end-position) t)
+        (funcall isearch-filter-predicate
+                 (line-beginning-position)
+                 (line-end-position))
+        (unless (eq ivy-exit 'done)
+          (swiper--cleanup)
+          (swiper--add-overlays (ivy--regex ivy-text)))))))
 
 (defun swiper-all-buffer-p (buffer)
   "Return non-nil if BUFFER should be considered by `swiper-all'."
@@ -1357,15 +1355,14 @@ See `ivy-format-functions-alist' for further information."
   (when (> (length x) 0)
     (let ((buffer-name (get-text-property 0 'buffer x)))
       (when buffer-name
-        (with-ivy-window
-          (switch-to-buffer buffer-name)
-          (goto-char (get-text-property 0 'point x))
-          (funcall isearch-filter-predicate
-                   (line-beginning-position)
-                   (line-end-position))
-          (unless (eq ivy-exit 'done)
-            (swiper--cleanup)
-            (swiper--add-overlays (ivy--regex ivy-text))))))))
+        (switch-to-buffer buffer-name)
+        (goto-char (get-text-property 0 'point x))
+        (funcall isearch-filter-predicate
+                 (line-beginning-position)
+                 (line-end-position))
+        (unless (eq ivy-exit 'done)
+          (swiper--cleanup)
+          (swiper--add-overlays (ivy--regex ivy-text)))))))
 
 (defun swiper--multi-candidates (buffers)
   "Extract candidates from BUFFERS."
@@ -1514,7 +1511,7 @@ Signal an error on failure."
 (defun swiper-isearch-action (x)
   "Move to X for `swiper-isearch'."
   (if (setq x (swiper--isearch-candidate-pos x))
-      (with-ivy-window
+      (progn
         (goto-char x)
         (when (and (or (eq this-command 'ivy-previous-line-or-history)
                        (and (eq this-command 'ivy-done)

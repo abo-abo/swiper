@@ -476,28 +476,27 @@ Used by commands `counsel-describe-symbol',
 
 (defun counsel--find-symbol (x)
   "Find symbol definition that corresponds to string X."
-  (with-ivy-window
-    (counsel--push-xref-marker)
-    (let ((full-name (get-text-property 0 'full-name x)))
-      (if full-name
-          (find-library full-name)
-        (let ((sym (read x)))
-          (cond ((and (eq (ivy-state-caller ivy-last)
-                          'counsel-describe-variable)
-                      (boundp sym))
-                 (find-variable sym))
-                ((fboundp sym)
-                 (find-function sym))
-                ((boundp sym)
-                 (find-variable sym))
-                ((or (featurep sym)
-                     (locate-library
-                      (prin1-to-string sym)))
-                 (find-library
-                  (prin1-to-string sym)))
-                (t
-                 (error "Couldn't find definition of %s"
-                        sym))))))))
+  (counsel--push-xref-marker)
+  (let ((full-name (get-text-property 0 'full-name x)))
+    (if full-name
+        (find-library full-name)
+      (let ((sym (read x)))
+        (cond ((and (eq (ivy-state-caller ivy-last)
+                        'counsel-describe-variable)
+                    (boundp sym))
+               (find-variable sym))
+              ((fboundp sym)
+               (find-function sym))
+              ((boundp sym)
+               (find-variable sym))
+              ((or (featurep sym)
+                   (locate-library
+                    (prin1-to-string sym)))
+               (find-library
+                (prin1-to-string sym)))
+              (t
+               (error "Couldn't find definition of %s"
+                      sym)))))))
 
 (defun counsel--variable-p (symbol)
   "Return non-nil if SYMBOL is a bound or documented variable."
@@ -1331,9 +1330,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defun counsel-git-action (x)
   "Find file X in current Git repository."
-  (with-ivy-window
-    (let ((default-directory (ivy-state-directory ivy-last)))
-      (find-file x))))
+  (let ((default-directory (ivy-state-directory ivy-last)))
+    (find-file x)))
 
 (defun counsel-git-occur (&optional _cands)
   "Occur function for `counsel-git' using `counsel-cmd-to-dired'."
@@ -2330,9 +2328,7 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
   (require 'recentf)
   (recentf-mode)
   (ivy-read "Recentf: " (counsel-recentf-candidates)
-            :action (lambda (f)
-                      (with-ivy-window
-                        (find-file f)))
+            :action 'find-file
             :require-match t
             :caller 'counsel-recentf))
 
@@ -2431,10 +2427,9 @@ This function uses the `dom' library from Emacs 25.1 or later."
   (interactive)
   (ivy-read "Buffer File or Recentf: " (counsel-buffer-or-recentf-candidates)
             :action (lambda (s)
-                      (with-ivy-window
-                        (if (bufferp s)
-                            (switch-to-buffer s)
-                          (find-file s))))
+                      (if (bufferp s)
+                          (switch-to-buffer s)
+                        (find-file s)))
             :require-match t
             :caller 'counsel-buffer-or-recentf))
 
@@ -2477,12 +2472,10 @@ By default `counsel-bookmark' opens a dired buffer for directories."
                       (cond ((and counsel-bookmark-avoid-dired
                                   (member x (bookmark-all-names))
                                   (file-directory-p (bookmark-location x)))
-                             (with-ivy-window
-                               (let ((default-directory (bookmark-location x)))
-                                 (counsel-find-file))))
+                             (let ((default-directory (bookmark-location x)))
+                               (counsel-find-file)))
                             ((member x (bookmark-all-names))
-                             (with-ivy-window
-                               (bookmark-jump x)))
+                             (bookmark-jump x))
                             (t
                              (bookmark-set x))))
             :caller 'counsel-bookmark))
@@ -2561,8 +2554,7 @@ can use `C-x r j i' to open that file."
             :require-match t
             :history 'counsel-file-register
             :caller 'counsel-file-register
-            :action (lambda (register-file)
-                      (with-ivy-window (find-file register-file)))))
+            :action 'find-file))
 
 (ivy-configure 'counsel-file-register
   :sort-fn #'ivy-string<)
@@ -2709,9 +2701,8 @@ INITIAL-INPUT can be given as the initial minibuffer input."
             :history 'counsel-locate-history
             :action (lambda (file)
                       (when file
-                        (with-ivy-window
-                          (find-file
-                           (concat (file-remote-p default-directory) file)))))
+                        (find-file
+                         (concat (file-remote-p default-directory) file))))
             :caller 'counsel-locate))
 
 (ivy-configure 'counsel-locate
@@ -2804,9 +2795,8 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
 
 (defun counsel-fzf-action (x)
   "Find file X in current fzf directory."
-  (with-ivy-window
-    (let ((default-directory counsel--fzf-dir))
-      (find-file x))))
+  (let ((default-directory counsel--fzf-dir))
+    (find-file x)))
 
 (defun counsel-fzf-occur (&optional _cands)
   "Occur function for `counsel-fzf' using `counsel-cmd-to-dired'."
@@ -3333,38 +3323,37 @@ relative to the last position stored here.")
 
 (defun counsel-grep-action (x)
   "Go to candidate X."
-  (with-ivy-window
-    (swiper--cleanup)
-    (let ((default-directory
-           (file-name-directory
-            (ivy-state-directory ivy-last)))
-          file-name line-number)
-      (when (cond ((string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
-                   (setq file-name (buffer-file-name (ivy-state-buffer ivy-last)))
-                   (setq line-number (match-string-no-properties 1 x)))
-                  ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
-                   (setq file-name (match-string-no-properties 1 x))
-                   (setq line-number (match-string-no-properties 2 x))))
-        ;; If the file buffer is already open, just get it. Prevent doing
-        ;; `find-file', as that file could have already been opened using
-        ;; `find-file-literally'.
-        (with-current-buffer (or (get-file-buffer file-name)
-                                 (find-file file-name))
-          (setq line-number (string-to-number line-number))
-          (if (and counsel--grep-last-pos (= (point) (car counsel--grep-last-pos)))
-              (forward-line (- line-number (cdr counsel--grep-last-pos)))
-            (goto-char (point-min))
-            (forward-line (1- line-number)))
-          (setq counsel--grep-last-pos (cons (point) line-number))
-          (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
-            (when swiper-goto-start-of-match
-              (goto-char (match-beginning 0))))
-          (run-hooks 'counsel-grep-post-action-hook)
-          (if (eq ivy-exit 'done)
-              (swiper--ensure-visible)
-            (isearch-range-invisible (line-beginning-position)
-                                     (line-end-position))
-            (swiper--add-overlays (ivy--regex ivy-text))))))))
+  (swiper--cleanup)
+  (let ((default-directory
+         (file-name-directory
+          (ivy-state-directory ivy-last)))
+        file-name line-number)
+    (when (cond ((string-match "\\`\\([0-9]+\\):\\(.*\\)\\'" x)
+                 (setq file-name (buffer-file-name (ivy-state-buffer ivy-last)))
+                 (setq line-number (match-string-no-properties 1 x)))
+                ((string-match "\\`\\([^:]+\\):\\([0-9]+\\):\\(.*\\)\\'" x)
+                 (setq file-name (match-string-no-properties 1 x))
+                 (setq line-number (match-string-no-properties 2 x))))
+      ;; If the file buffer is already open, just get it. Prevent doing
+      ;; `find-file', as that file could have already been opened using
+      ;; `find-file-literally'.
+      (with-current-buffer (or (get-file-buffer file-name)
+                               (find-file file-name))
+        (setq line-number (string-to-number line-number))
+        (if (and counsel--grep-last-pos (= (point) (car counsel--grep-last-pos)))
+            (forward-line (- line-number (cdr counsel--grep-last-pos)))
+          (goto-char (point-min))
+          (forward-line (1- line-number)))
+        (setq counsel--grep-last-pos (cons (point) line-number))
+        (when (re-search-forward (ivy--regex ivy-text t) (line-end-position) t)
+          (when swiper-goto-start-of-match
+            (goto-char (match-beginning 0))))
+        (run-hooks 'counsel-grep-post-action-hook)
+        (if (eq ivy-exit 'done)
+            (swiper--ensure-visible)
+          (isearch-range-invisible (line-beginning-position)
+                                   (line-end-position))
+          (swiper--add-overlays (ivy--regex ivy-text)))))))
 
 (defun counsel-grep-occur (&optional _cands)
   "Generate a custom Occur buffer for `counsel-grep'."
@@ -4744,9 +4733,8 @@ matching the register's value description against a regexp in
   "Paste contents of S, trimming the register part.
 
 S will be of the form \"[register]: content\"."
-  (with-ivy-window
-    (insert
-     (replace-regexp-in-string "\\`\\[.*?]: " "" s t t))))
+  (insert
+   (replace-regexp-in-string "\\`\\[.*?]: " "" s t t)))
 
 ;;** `counsel-imenu'
 (defvar imenu-auto-rescan)
@@ -5449,11 +5437,10 @@ COUNT defaults to 1."
   (ivy-read "Unicode name: " counsel--unicode-table
             :history 'counsel-unicode-char-history
             :action (lambda (name)
-                      (with-ivy-window
-                        (delete-region ivy-completion-beg ivy-completion-end)
-                        (setq ivy-completion-beg (point))
-                        (insert-char (get-text-property 0 'code name) count)
-                        (setq ivy-completion-end (point))))
+                      (delete-region ivy-completion-beg ivy-completion-end)
+                      (setq ivy-completion-beg (point))
+                      (insert-char (get-text-property 0 'code name) count)
+                      (setq ivy-completion-end (point)))
             :caller 'counsel-unicode-char))
 
 (ivy-configure 'counsel-unicode-char
