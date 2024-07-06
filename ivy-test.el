@@ -1012,6 +1012,11 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
               #("test/"
                 0 2 (face completions-common-part)
                 2 3 (face (completions-first-difference))))))
+  (should (= 2
+             (ivy-completion-common-length
+              #("test/"
+                0 2 (face completions-common-part)
+                2 3 (face completions-first-difference)))))
   (should (= 5
              (ivy-completion-common-length
               #("Math/E"
@@ -1020,7 +1025,8 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
   (should (= 3
              (ivy-completion-common-length
               #("vec"
-                0 3 (face (completions-common-part)))))))
+                0 3 (face (completions-common-part))))))
+  )
 
 (ert-deftest ivy--sort-function ()
   "Test `ivy--sort-function' behavior."

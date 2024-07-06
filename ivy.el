@@ -2649,11 +2649,18 @@ The first non-matching part is propertized:
         (i (1- (length str))))
     (catch 'done
       (while (>= i 0)
-        (when (equal (get-text-property i 'face str)
-                     '(completions-first-difference))
-          (throw 'done i))
+        (pcase (get-text-property i 'face str)
+          (`completions-first-difference (throw 'done i))
+          ((and (pred listp) (pred (member 'completions-first-difference)))
+           (throw 'done i)))
         (cl-decf i))
       (throw 'done (length str)))))
+
+(defun ivy--completion-prefix-offset (str md)
+  "Return the offset of the completion prefix in STR with its metadata MD."
+  (pcase (cdr (assoc 'category md))
+    (`file (length (file-name-directory str)))
+    (_ 0)))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'.
@@ -2680,14 +2687,16 @@ See `completion-in-region' for further information."
            (when (eq collection 'crm--collection-fn)
              (setq comps (delete-dups comps)))
            (let* ((len (ivy-completion-common-length (car comps)))
+                  (prefix-offset (ivy--completion-prefix-offset str md))
+                  (target-str (substring str prefix-offset))
                   (initial (cond ((= len 0)
                                   "")
-                                 ((let ((str-len (length str)))
+                                 ((let ((str-len (length target-str)))
                                     (when (> len str-len)
-                                      (setq len str-len)
-                                      str)))
+                                      (setq len str-len)))
+                                  target-str)
                                  (t
-                                  (substring str (- len))))))
+                                  (substring target-str (- len))))))
              (delete-region (- end len) end)
              (setq ivy-completion-beg (- end len))
              (setq ivy-completion-end ivy-completion-beg)
