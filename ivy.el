@@ -3699,11 +3699,18 @@ CANDIDATES are assumed to be static."
               (delete-dups res)
             res))))
 
+(eval-and-compile
+  (defconst ivy--new-sort-p
+    (condition-case nil
+        (with-no-warnings (sort []))
+      (wrong-number-of-arguments))
+    "Whether Emacs 30 `sort' calling convention is available."))
+
 (defun ivy--shorter-matches-first (_name cands)
   "Sort CANDS according to their length."
   (if (nthcdr ivy-sort-max-size cands)
       cands
-    (static-if (fboundp 'value<)
+    (static-if (bound-and-true-p ivy--new-sort-p)
         (sort cands :key #'length)
       (cl-sort (copy-sequence cands) #'< :key #'length))))
 
@@ -4001,7 +4008,7 @@ N wraps around, but skips the first element of the list."
             (push cand cands-left)))
 
         ;; pre-sort the candidates by length before partitioning
-        (setq cands-left (static-if (fboundp 'value<)
+        (setq cands-left (static-if (bound-and-true-p ivy--new-sort-p)
                              (sort cands-left :key #'length :in-place t)
                            (cl-sort cands-left #'< :key #'length)))
 
@@ -4010,7 +4017,7 @@ N wraps around, but skips the first element of the list."
           (push (pop cands-left) cands-to-sort))
 
         (nconc
-         (static-if (fboundp 'value<)
+         (static-if (bound-and-true-p ivy--new-sort-p)
              (sort cands-to-sort :in-place t
                    :key (lambda (cand)
                           (let ((s (flx-score cand flx-name ivy--flx-cache)))

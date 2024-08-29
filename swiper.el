@@ -297,7 +297,7 @@ If the input is empty, select the previous history element instead."
          ;; throw out non-Swiper overlays or overlapping Swiper
          ;; overlays.
          (visible-overlays
-          (static-if (fboundp 'value<)
+          (static-if (bound-and-true-p ivy--new-sort-p)
               (sort visible-overlays :key #'overlay-start :in-place t)
             (cl-sort visible-overlays #'< :key #'overlay-start)))
          (min-overlay-start 0)
