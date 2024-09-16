@@ -2864,12 +2864,12 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
                         (message (cdr x)))
               :caller 'counsel-rpm)))
 
-(defun counsel--find-return-list (args)
+(defun counsel--find-return-list (find-prog args)
   (unless (listp args)
     (user-error
      "`counsel-file-jump-args' is a list now; please customize accordingly"))
   (counsel--call
-   (cons find-program args)
+   (cons find-prog args)
    (lambda ()
      (let (files)
        (goto-char (point-min))
@@ -2880,8 +2880,13 @@ FZF-PROMPT, if non-nil, is passed as `ivy-read' prompt argument."
          (beginning-of-line 2))
        (nreverse files)))))
 
+(defcustom counsel-find-program find-program
+  "The default find program.
+This is used by commands like `counsel-file-jump', `counsel-dired-jump'."
+  :type 'file)
+
 (defcustom counsel-file-jump-args (split-string ". -name .git -prune -o -type f -print")
-  "Arguments for the `find-command' when using `counsel-file-jump'."
+  "Arguments for the `counsel-find-command' when using `counsel-file-jump'."
   :type '(repeat string))
 
 ;;** `counsel-file-jump'
@@ -2907,10 +2912,10 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (counsel-read-directory-name "From directory: "))))
-  (counsel-require-program find-program)
+  (counsel-require-program counsel-find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find file: "
-              (counsel--find-return-list counsel-file-jump-args)
+              (counsel--find-return-list counsel-find-program counsel-file-jump-args)
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action #'find-file
@@ -2941,11 +2946,11 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search."
    (list nil
          (when current-prefix-arg
            (counsel-read-directory-name "From directory: "))))
-  (counsel-require-program find-program)
+  (counsel-require-program counsel-find-program)
   (let ((default-directory (or initial-directory default-directory)))
     (ivy-read "Find directory: "
               (cdr
-               (counsel--find-return-list counsel-dired-jump-args))
+               (counsel--find-return-list counsel-find-program counsel-dired-jump-args))
               :matcher #'counsel--find-file-matcher
               :initial-input initial-input
               :action (lambda (d) (dired-jump nil (expand-file-name d)))
