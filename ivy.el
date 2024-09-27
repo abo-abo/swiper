@@ -1777,6 +1777,11 @@ Prioritize directories."
   (string< (if (consp x) (car x) x)
            (if (consp y) (car y) y)))
 
+(defun ivy-length< (x y)
+  "Compares the length of x and y, or their CARs when given cons cells."
+  (< (string-width (if (consp x) (car x) x))
+     (string-width (if (consp y) (car y) y))))
+
 (define-obsolete-function-alias 'ivy-sort-file-function-using-ido
     'ido-file-extension-lessp "0.13.0 (2019-10-12)")
 
@@ -1803,6 +1808,7 @@ See also `ivy-sort-max-size'."
                (symbol :tag "Collection"))
     :value-type (choice
                  (const :tag "Plain sort" ivy-string<)
+                 (const :tag "Shortest first" ivy-length<)
                  (const :tag "File sort" ivy-sort-file-function-default)
                  (const :tag "File sort using Ido" ido-file-extension-lessp)
                  (const :tag "No sort" nil)
