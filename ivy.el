@@ -2361,6 +2361,8 @@ This is useful for recursive `ivy-read'."
                      (all-completions "" collection predicate))))
             ((memq collection '(read-file-name-internal ffap-read-file-or-url-internal))
              (require 'tramp)
+             (when initial-input
+               (setq initial-input (substitute-in-file-name initial-input)))
              (when (and (equal def initial-input)
                         (member "./" ivy-extra-directories))
                (setq def nil))
