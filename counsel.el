@@ -6869,7 +6869,7 @@ and minor mode symbol."
                            (format " \"%s\""
                                    (format-mode-line (cons t lighter)))
                          "")
-                       'face font-lock-string-face))
+                       'face 'font-lock-string-face))
                      mode))))
          minor-mode-list)))
 
