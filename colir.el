@@ -35,7 +35,7 @@
 (require 'color)
 
 (defcustom colir-compose-method #'colir-compose-alpha
-  "Select a method to compose two color channels."
+  "The method `colir-blend' uses to compose two color channels."
   :group 'ivy
   :type '(radio
           (function-item colir-compose-alpha)
@@ -43,22 +43,25 @@
           (function-item colir-compose-soft-light)))
 
 (defun colir-compose-soft-light (a b)
-  "Compose A and B channels."
+  "Compose color channels A and B in Soft Light blend mode.
+See URL `https://en.wikipedia.org/wiki/Blend_modes#Soft_Light'."
   (if (< b 0.5)
       (+ (* 2 a b) (* a a (- 1 b b)))
-    (+ (* 2 a (- 1 b)) (* (sqrt a) (- (* 2 b) 1)))))
+    (+ (* 2 a (- 1 b)) (* (sqrt a) (+ b b -1)))))
 
 (defun colir-compose-overlay (a b)
-  "Compose A and B channels."
+  "Compose color channels A and B in Overlay blend mode.
+See URL `https://en.wikipedia.org/wiki/Blend_modes#Overlay'."
   (if (< a 0.5)
       (* 2 a b)
     (- 1 (* 2 (- 1 a) (- 1 b)))))
 
+;; Generalizes Emacs 31 `color-blend'.
 (defun colir-compose-alpha (a b &optional alpha gamma)
-  "Compose A and B channels.
-Optional argument ALPHA is a number between 0.0 and 1.0 which corresponds
-to the influence of A on the result.  Default value is 0.5.
-Optional argument GAMMA is used for gamma correction.  Default value is 2.2."
+  "Compose color channels A and B using alpha blending.
+Optional argument ALPHA controls the influence of A on the result.
+It is a number between 0.0 and 1.0, inclusive (default 0.5).
+Optional argument GAMMA controls gamma correction (default 2.2)."
   (setq alpha (or alpha 0.5))
   (setq gamma (or gamma 2.2))
   (+ (* (expt a gamma) alpha) (* (expt b gamma) (- 1 alpha))))
@@ -69,8 +72,8 @@ C1 and C2 are triples of floats in [0.0 1.0] range."
   (apply #'color-rgb-to-hex
          (cl-mapcar
           (if (eq (frame-parameter nil 'background-mode) 'dark)
-              ;; this method works nicely for dark themes
-              'colir-compose-soft-light
+              ;; This method works nicely for dark themes.
+              #'colir-compose-soft-light
             colir-compose-method)
           c1 c2)))
 
@@ -85,17 +88,16 @@ C1 and C2 are triples of floats in [0.0 1.0] range."
 
 (defun colir--blend-background (start next prevn face object)
   (let ((background-prev (face-background prevn)))
-    (progn
-      (put-text-property
-       start next 'face
-       (if background-prev
-           (cons `(background-color
-                   . ,(colir-blend
-                       (colir-color-parse background-prev)
-                       (colir-color-parse (face-background face nil t))))
-                 prevn)
-         (list face prevn))
-       object))))
+    (put-text-property
+     start next 'face
+     (if background-prev
+         (cons `(background-color
+                 . ,(colir-blend
+                     (colir-color-parse background-prev)
+                     (colir-color-parse (face-background face nil t))))
+               prevn)
+       (list face prevn))
+     object)))
 
 (defun colir-blend-face-background (start end face &optional object)
   "Append to the face property of the text from START to END the face FACE.
