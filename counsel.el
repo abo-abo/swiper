@@ -6856,22 +6856,19 @@ Additional actions:
 
 The alist element is cons of minor mode string with its lighter
 and minor mode symbol."
-  (delq nil
-        (mapcar
-         (lambda (mode)
-           (when (and (boundp mode) (commandp mode))
-             (let ((lighter (cdr (assq mode minor-mode-alist))))
-               (cons (concat
-                      (if (symbol-value mode) "-" "+")
-                      (symbol-name mode)
-                      (propertize
-                       (if lighter
-                           (format " \"%s\""
-                                   (format-mode-line (cons t lighter)))
-                         "")
-                       'face 'font-lock-string-face))
-                     mode))))
-         minor-mode-list)))
+  (cl-mapcan
+   (let ((suffix (propertize " \"%s\"" 'face 'font-lock-string-face)))
+     (lambda (mode)
+       (when (and (boundp mode) (commandp mode))
+         (let ((lighter (cdr (assq mode minor-mode-alist))))
+           (list (cons (concat
+                        (if (symbol-value mode) "-" "+")
+                        (symbol-name mode)
+                        (and lighter
+                             (format suffix
+                                     (format-mode-line (cons t lighter)))))
+                       mode))))))
+   minor-mode-list))
 
 ;;;###autoload
 (defun counsel-minor ()
