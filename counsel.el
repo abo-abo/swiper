@@ -2754,7 +2754,7 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar counsel--fzf-dir nil
   "Store the base fzf directory.")
 
-(defvar counsel-fzf-dir-function 'counsel-fzf-dir-function-projectile
+(defvar counsel-fzf-dir-function #'counsel-fzf-dir-function-projectile
   "Function that returns a directory for fzf to use.")
 
 (defun counsel-fzf-dir-function-projectile ()
