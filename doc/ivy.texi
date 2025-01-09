@@ -261,14 +261,14 @@ Contribute to Ivy's development; send patches; pull requests
 First clone the Swiper repository with:
 
 @example
-cd ~/git && git clone https://github.com/abo-abo/swiper
-cd swiper && make compile
+cd ~/git && git clone 'https://github.com/abo-abo/swiper.git'
+cd swiper && make deps compile
 @end example
 
 Second, add these lines to the Emacs init file:
 
 @lisp
-(add-to-list 'load-path "~/git/swiper/")
+(add-to-list 'load-path "~/git/swiper")
 (require 'ivy)
 @end lisp
 

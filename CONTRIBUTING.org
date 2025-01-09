@@ -14,9 +14,9 @@ init file.
 This shortcut will start =emacs -Q= for you with =ivy-mode= already
 loaded:
 #+begin_src sh
-git clone https://github.com/abo-abo/swiper/
-cd swiper
-make plain
+  git clone 'https://github.com/abo-abo/swiper.git'
+  cd swiper
+  make deps plain
 #+end_src
 
 * Contributing code
