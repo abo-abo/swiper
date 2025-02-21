@@ -2663,43 +2663,43 @@ The function completes the text between START and END using COLLECTION.
 PREDICATE (a function called with no arguments) says when to exit.
 See `completion-in-region' for further information."
   (let* ((enable-recursive-minibuffers t)
+         (reg (- end start))
          (str (buffer-substring-no-properties start end))
          (completion-ignore-case (ivy--case-fold-p str))
          (md (completion-metadata str collection predicate))
-         (reg (- end start))
-         (comps (completion-all-completions str collection predicate reg md))
          (try (completion-try-completion str collection predicate reg md))
+         (comps (completion-all-completions str collection predicate reg md))
          (ivy--minibuffer-table collection)
          (ivy--minibuffer-pred predicate))
     (cond ((null comps)
-           (message "No matches"))
+           (message "No matches")
+           nil)
           ((progn
              (nconc comps nil)
              (and (null (cdr comps))
                   (string= str (car comps))))
-           (message "Sole match"))
+           (message "Sole match")
+           t)
           (t
            (when (eq collection 'crm--collection-fn)
              (setq comps (delete-dups comps)))
-           (let* ((len (ivy-completion-common-length (car comps)))
-                  (initial (cond ((= len 0)
+           (let* ((cmn (ivy-completion-common-length (car comps)))
+                  (initial (cond ((= cmn 0)
                                   "")
-                                 ((let ((str-len (length str)))
-                                    (when (> len str-len)
-                                      (setq len str-len)
-                                      str)))
+                                 ((>= cmn reg)
+                                  (setq cmn reg)
+                                  str)
                                  (t
-                                  (substring str (- len))))))
-             (delete-region (- end len) end)
-             (setq ivy-completion-beg (- end len))
+                                  (substring str (- cmn))))))
+             (delete-region (- end cmn) end)
+             (setq ivy-completion-beg (- end cmn))
              (setq ivy-completion-end ivy-completion-beg)
              (if (null (cdr comps))
-                 (progn
+                 (let ((ivy--minibuffer-try try))
                    (unless (minibuffer-window-active-p (selected-window))
                      (setf (ivy-state-window ivy-last) (selected-window)))
-                   (let ((ivy--minibuffer-try try))
-                     (ivy-completion-in-region-action
-                      (substring-no-properties (car comps)))))
+                   (ivy-completion-in-region-action
+                    (substring-no-properties (car comps))))
                (dolist (s comps)
                  ;; Remove face `completions-first-difference'.
                  (ivy--remove-props s 'face))
@@ -2713,6 +2713,9 @@ See `completion-in-region' for further information."
                  (setq predicate nil))
                (ivy-read (format "(%s): " str) collection
                          :predicate predicate
+                         ;; FIXME: The anchor is intrusive and not easily
+                         ;; configurable by `ivy-initial-inputs-alist' or
+                         ;; `ivy-hooks-alist'.
                          :initial-input (concat
                                          (and (derived-mode-p #'emacs-lisp-mode)
                                               "^")
@@ -2724,7 +2727,7 @@ See `completion-in-region' for further information."
                                      (when initial
                                        (insert initial))))
                          :caller 'ivy-completion-in-region)))
-           ;; Return value should be non-nil on valid completion;
+           ;; Return value should be t on valid completion;
            ;; see `completion-in-region'.
            t))))
 
