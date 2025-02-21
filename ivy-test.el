@@ -1012,12 +1012,21 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
             (ert-info ((format "%S" str) :prefix "String: ")
               (should (= (ivy-completion-common-length str) (car pair))))))
         '((0 ""
+             #("a"   0 1 (face completions-first-difference))
+             #("ab"  0 1 (face completions-first-difference))
+             #("abc" 0 1 (face completions-first-difference))
              #("a"   0 1 (face (completions-first-difference)))
              #("ab"  0 1 (face (completions-first-difference)))
              #("abc" 0 1 (face (completions-first-difference)))
              #("a"   0 1 (font-lock-face (completions-first-difference)))
              #("ab"  0 1 (font-lock-face (completions-first-difference)))
              #("abc" 0 1 (font-lock-face (completions-first-difference)))
+             #("abc"
+               0 1 (face completions-first-difference)
+               1 2 (face default))
+             #("abc"
+               0 1 (face completions-first-difference)
+               2 3 (face default))
              #("abc"
                0 1 (face (completions-first-difference))
                1 2 (face default))
@@ -1026,6 +1035,10 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
                2 3 (face default)))
           (1 "a"
              #("a"   0 1 (face default))
+             #("ab"  1 2 (face completions-first-difference))
+             #("ab"  0 2 (face completions-first-difference))
+             #("abc" 1 2 (face completions-first-difference))
+             #("abc" 0 2 (face completions-first-difference))
              #("ab"  1 2 (face (completions-first-difference)))
              #("ab"  0 2 (face (completions-first-difference)))
              #("abc" 1 2 (face (completions-first-difference)))
@@ -1036,6 +1049,12 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              #("abc" 0 2 (font-lock-face (completions-first-difference)))
              #("abc"
                0 1 (face default)
+               1 2 (face completions-first-difference))
+             #("abc"
+               1 2 (face completions-first-difference)
+               2 3 (face default))
+             #("abc"
+               0 1 (face default)
                1 2 (face (completions-first-difference)))
              #("abc"
                1 2 (face (completions-first-difference))
@@ -1044,6 +1063,9 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              #("ab"  0 1 (face default))
              #("ab"  1 2 (face default))
              #("ab"  0 2 (face default))
+             #("abc" 2 3 (face completions-first-difference))
+             #("abc" 1 3 (face completions-first-difference))
+             #("abc" 0 3 (face completions-first-difference))
              #("abc" 2 3 (face (completions-first-difference)))
              #("abc" 1 3 (face (completions-first-difference)))
              #("abc" 0 3 (face (completions-first-difference)))
@@ -1052,10 +1074,19 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              #("abc" 0 3 (font-lock-face (completions-first-difference)))
              #("abc"
                0 1 (face default)
+               2 3 (face completions-first-difference))
+             #("abc"
+               1 2 (face default)
+               2 3 (face completions-first-difference))
+             #("abc"
+               0 1 (face default)
                2 3 (face (completions-first-difference)))
              #("abc"
                1 2 (face default)
                2 3 (face (completions-first-difference)))
+             #("test/"
+               0 2 (face completions-common-part)
+               2 3 (face completions-first-difference))
              #("test/"
                0 2 (face completions-common-part)
                2 3 (face (completions-first-difference))))
@@ -1067,6 +1098,9 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              #("abc" 1 3 (face default))
              #("abc" 0 3 (face default)))
           (5 #("Math/E"
+               0 5 (face completions-common-part)
+               5 6 (face completions-first-difference))
+             #("Math/E"
                0 5 (face completions-common-part)
                5 6 (face (completions-first-difference)))))))
 

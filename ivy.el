@@ -2639,24 +2639,44 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
           (set-marker (overlay-get cursor 'point) (point))
           (set-marker (overlay-get cursor 'mark) (point)))))))
 
+(defalias 'ivy--face-list-p
+  (if (fboundp 'face-list-p)
+      #'face-list-p
+    (lambda (face)
+      (and (listp face)
+           (listp (cdr face))
+           (not (keywordp (car face))))))
+  "Compatibility shim for Emacs 25 `face-list-p'.")
+
+;; FIXME: Should this return the smallest such index instead?
+;; Usually the two are equal, but perhaps there exist more
+;; exotic applications of `completions-first-difference'.
+;;
+;; Completing files under a directory foo/ can have a first difference at
+;; index 0 in some Emacs versions, and no such property in other versions.
+;; So perhaps this function should return 0 instead of (length str) when no
+;; property is found?  That still follows the 'largest index' definition.
 (defun ivy-completion-common-length (str)
-  "Return the amount of characters that match in  STR.
+  "Return the length of the completion-matching prefix of STR.
 
-`completion-all-completions' computes this and returns the result
-via text properties.
+That is, return the largest index into STR at which either the
+`face' or `font-lock-face' property value contains the face
+`completions-first-difference'.
+If no such index is found, return the length of STR.
 
-The first non-matching part is propertized:
-- either with: (face (completions-first-difference))
-- or: (font-lock-face completions-first-difference)."
-  (let ((char-property-alias-alist '((face font-lock-face)))
-        (i (1- (length str))))
-    (catch 'done
-      (while (>= i 0)
-        (when (equal (get-text-property i 'face str)
-                     '(completions-first-difference))
-          (throw 'done i))
-        (cl-decf i))
-      (throw 'done (length str)))))
+Typically the completion-matching parts of STR have previously been
+propertized by `completion-all-completions'."
+  (let* ((char-property-alias-alist '((face font-lock-face)))
+         (cmn (length str))
+         (i cmn))
+    (when (> i 0)
+      (while (if (let ((face (get-text-property (1- i) 'face str)))
+                   (or (eq 'completions-first-difference face)
+                       (and (ivy--face-list-p face)
+                            (memq 'completions-first-difference face))))
+                 (ignore (setq cmn (1- i)))
+               (setq i (previous-single-property-change i 'face str)))))
+    cmn))
 
 (defun ivy-completion-in-region (start end collection &optional predicate)
   "An Ivy function suitable for `completion-in-region-function'.
@@ -2685,6 +2705,10 @@ See `completion-in-region' for further information."
            (when (eq collection 'crm--collection-fn)
              (setq comps (delete-dups comps)))
            (let* ((cmn (ivy-completion-common-length (car comps)))
+                  ;; Translate a 'not found' result to 0.  Do this here (instead
+                  ;; of fixing `ivy-completion-common-length') for backward
+                  ;; compatibility, since it's a potentially public function.
+                  (cmn (if (= cmn (length (car comps))) 0 cmn))
                   (initial (cond ((= cmn 0)
                                   "")
                                  ((>= cmn reg)
