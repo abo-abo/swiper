@@ -2622,10 +2622,11 @@ The previous string is between `ivy-completion-beg' and `ivy-completion-end'."
                                            (ivy-state-collection ivy-last)))
             (minibuffer-completion-predicate (if (boundp 'ivy--minibuffer-pred)
                                                  ivy--minibuffer-pred
-                                               (ivy-state-predicate ivy-last))))
-        (completion--done str (cond ((eq ivy--minibuffer-try t) 'finished)
-                                    ((eq ivy-exit 'done) 'unknown)
-                                    ('exact))))
+                                               (ivy-state-predicate ivy-last)))
+            (newstr (or (car-safe ivy--minibuffer-try) str)))
+        (completion--done newstr (cond ((eq ivy--minibuffer-try t) 'finished)
+                                       ((eq ivy-exit 'done) 'unknown)
+                                       ('exact))))
       (setq ivy-completion-end (point))
       (save-excursion
         (dolist (cursor fake-cursors)
