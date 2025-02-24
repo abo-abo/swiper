@@ -3229,23 +3229,17 @@ parts beyond their respective faces `ivy-confirm-face' and
             (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
              (concat
-              (if (and (bound-and-true-p minibuffer-depth-indicate-mode)
-                       (> (minibuffer-depth) 1))
-                  (format "[%d] " (minibuffer-depth))
-                "")
-              (concat
-               (if (string-match "%d.*%d" ivy-count-format)
-                   (format head
-                           (1+ ivy--index)
-                           (or (and (ivy-state-dynamic-collection ivy-last)
+              (and (bound-and-true-p minibuffer-depth-indicate-mode)
+                   (> (minibuffer-depth) 1)
+                   (format "[%d] " (minibuffer-depth)))
+              (let ((count (or (and (ivy-state-dynamic-collection ivy-last)
                                     ivy--full-length)
-                               ivy--length))
-                 (format head
-                         (or (and (ivy-state-dynamic-collection ivy-last)
-                                  ivy--full-length)
-                             ivy--length)))
-               ivy--prompt-extra
-               tail)))
+                               ivy--length)))
+                (if (string-match-p "%d.*%d" ivy-count-format)
+                    (format head (min (1+ ivy--index) count) count)
+                  (format head count)))
+              ivy--prompt-extra
+              tail))
             (d-str (if ivy--directory
                        (abbreviate-file-name ivy--directory)
                      "")))
