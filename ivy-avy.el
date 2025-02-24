@@ -1,6 +1,6 @@
 ;;; ivy-avy.el --- Avy integration for Ivy -*- lexical-binding: t -*-
 
-;; Copyright (C) 2020-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2020-2025 Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; Maintainer: Basil L. Contovounesios <basil@contovou.net>

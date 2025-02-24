@@ -1,4 +1,4 @@
-;; Copyright (C) 2020-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2020-2025 Free Software Foundation, Inc.
 (setq org-confirm-babel-evaluate nil)
 (defun org-to-texi (fname)
   (find-file fname)

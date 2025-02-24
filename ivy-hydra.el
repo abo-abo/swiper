@@ -1,6 +1,6 @@
 ;;; ivy-hydra.el --- Additional key bindings for Ivy  -*- lexical-binding: t -*-
 
-;; Copyright (C) 2015-2024 Free Software Foundation, Inc.
+;; Copyright (C) 2015-2025 Free Software Foundation, Inc.
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; Maintainer: Basil L. Contovounesios <basil@contovou.net>
