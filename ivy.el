@@ -2665,7 +2665,9 @@ That is, return the largest index into STR at which either the
 If no such index is found, return the length of STR.
 
 Typically the completion-matching parts of STR have previously been
-propertized by `completion-all-completions'."
+propertized by `completion-all-completions', but then the base-size
+returned by that function should be preferred over
+`ivy-completion-common-length'."
   (let* ((char-property-alias-alist '((face font-lock-face)))
          (cmn (length str))
          (i cmn))
@@ -2690,15 +2692,16 @@ See `completion-in-region' for further information."
          (md (completion-metadata str collection predicate))
          (try (completion-try-completion str collection predicate reg md))
          (comps (completion-all-completions str collection predicate reg md))
+         (last (last comps))
+         (base-size (cdr last))
          (ivy--minibuffer-table collection)
          (ivy--minibuffer-pred predicate))
+    (when last (setcdr last ()))
     (cond ((null comps)
            (message "No matches")
            nil)
-          ((progn
-             (nconc comps nil)
-             (and (null (cdr comps))
-                  (string= str (car comps))))
+          ((and (null (cdr comps))
+                (string= str (car comps)))
            (message "Sole match")
            t)
           (t
@@ -2709,15 +2712,20 @@ See `completion-in-region' for further information."
                   ;; of fixing `ivy-completion-common-length') for backward
                   ;; compatibility, since it's a potentially public function.
                   (cmn (if (= cmn (length (car comps))) 0 cmn))
-                  (initial (cond ((= cmn 0)
+                  (initial (cond (base-size (substring str base-size))
+                                 ;; The remaining clauses should hopefully never
+                                 ;; be taken, since they rely on
+                                 ;; `ivy-completion-common-length'.
+                                 ((= cmn 0)
                                   "")
                                  ((>= cmn reg)
                                   (setq cmn reg)
                                   str)
                                  (t
-                                  (substring str (- cmn))))))
-             (delete-region (- end cmn) end)
-             (setq ivy-completion-beg (- end cmn))
+                                  (substring str (- cmn)))))
+                  (base-pos (if base-size (+ start base-size) (- end cmn))))
+             (delete-region base-pos end)
+             (setq ivy-completion-beg base-pos)
              (setq ivy-completion-end ivy-completion-beg)
              (if (null (cdr comps))
                  (let ((ivy--minibuffer-try try))
