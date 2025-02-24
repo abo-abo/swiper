@@ -8,7 +8,7 @@
 
 @copying
 @ifnottex
-Ivy manual, version 0.14.2
+Ivy manual, version 0.15.0
 
 Ivy is an interactive interface for completion in Emacs. Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,
@@ -219,7 +219,7 @@ Emacs 24.5 is the oldest version to run Ivy.
 Ivy is installed alongside the @code{counsel} package, which is available
 from two different package archives, GNU ELPA and MELPA@.  For the
 latest stable version, use the GNU ELPA archive.  For the latest
-development snaphshot, use the GNU-devel ELPA archive.
+development snapshot, use the GNU-devel ELPA archive.
 
 Ivy is split into three packages: @code{ivy}, @code{swiper} and @code{counsel}; by
 installing @code{counsel}, the other two are brought in as dependencies.
