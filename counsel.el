@@ -5670,8 +5670,11 @@ You can insert or kill the name of the selected font."
     map))
 
 (defun counsel-kmacro-kill ()
-  "Kill the line, or delete the keyboard macro."
+  "Kill the line, or delete the currently selected keyboard macro."
+  (declare (modes minibuffer-mode))
   (interactive)
+  (unless (window-minibuffer-p)
+    (user-error "No completion session is active"))
   (if (not (eolp))
       (ivy-kill-line)
     (counsel-kmacro-action-delete-kmacro
@@ -5680,36 +5683,41 @@ You can insert or kill the name of the selected font."
       (ivy-state-collection ivy-last)))
     (ivy--kill-current-candidate)))
 
-(defvar kmacro-ring)
-(defvar kmacro-initial-counter-value)
 (defvar kmacro-counter)
-(defvar kmacro-counter-value-start)
 (defvar kmacro-counter-format-start)
+(defvar kmacro-ring)
+(declare-function kmacro-cycle-ring-next "kmacro" (&optional arg))
+(declare-function kmacro-cycle-ring-previous "kmacro" (&optional arg))
+(declare-function kmacro-delete-ring-head "kmacro" (&optional arg))
+(declare-function kmacro-ring-head "kmacro" ())
+(declare-function kmacro-set-counter "kmacro" (arg))
+(declare-function kmacro-set-format "kmacro" (format))
+(declare-function kmacro-split-ring-element "kmacro" (elt))
 
 ;;;###autoload
 (defun counsel-kmacro ()
-  "Interactively choose and run a keyboard macro.
+  "Interactively choose and execute a keyboard macro.
 
-With prefix argument, run macro that many times.
+With a prefix argument, execute the macro that many times.
 
-Macros are run using the current value of `kmacro-counter-value'
-and their respective counter format. Displayed next to each macro is
-the counter's format and initial value.
+Macros are executed using their respective `kmacro-counter' value and
+counter format; these values are also displayed next to each completion
+candidate.
 
-One can use actions to copy the counter format or initial counter
-value of a macro, using them for a new macro."
+The default actions include the ability to copy one macro's counter
+value or format as the basis for another macro execution or definition.
+
+The following key bindings are also available:
+\\{counsel-kmacro-map}"
   (interactive)
-  (if (or last-kbd-macro kmacro-ring)
-      (ivy-read
-       (concat "Execute macro (counter at "
-               (number-to-string (or kmacro-initial-counter-value kmacro-counter))
-               "): ")
-       (counsel--kmacro-candidates)
-       :keymap counsel-kmacro-map
-       :require-match t
-       :action #'counsel-kmacro-action-run
-       :caller 'counsel-kmacro)
-    (user-error "No keyboard macros defined")))
+  (require 'kmacro)
+  (ivy-read "Execute macro: "
+            (or (counsel--kmacro-candidates)
+                (user-error "No keyboard macros defined"))
+            :keymap counsel-kmacro-map
+            :require-match t
+            :action #'counsel-kmacro-action-run
+            :caller 'counsel-kmacro))
 
 (ivy-configure 'counsel-kmacro
   :format-fn #'counsel--kmacro-format-function)
@@ -5722,176 +5730,186 @@ value of a macro, using them for a new macro."
   "Transform FORMATTED-KMACRO into a string for `counsel-kmacro'."
   (ivy--format-function-generic
    (lambda (str) (ivy--add-face str 'ivy-current-match))
-   (lambda (str) str)
+   #'identity
    formatted-kmacro
    (propertize counsel-kmacro-separator 'face 'ivy-separator)))
 
+(defmacro counsel--with-kmacro (kmacro &rest body)
+  "Split KMACRO slots into corresponding dynvars around BODY."
+  (declare (debug t) (indent 1))
+  `(let ((last-kbd-macro nil)
+         (kmacro-counter nil)
+         (kmacro-counter-format-start nil))
+     ;; Works with both older triplets and Emacs 29 OClosures.
+     (kmacro-split-ring-element ,kmacro)
+     ,@body))
+
+(defun counsel--format-kmacro ()
+  "Return string representation of current keyboard macro."
+  (format "(%s,%s): %s" kmacro-counter-format-start kmacro-counter
+          (condition-case err
+              (format-kbd-macro last-kbd-macro 1)
+            ;; Recover from error in `edmacro-fix-menu-commands',
+            ;; especially prior to mouse event support in Emacs 27.
+            (error
+             (format (propertize "[Unprintable macro: %s]" 'face 'warning)
+                     (error-message-string err))))))
+
 (defun counsel--kmacro-candidates ()
-  "Create the list of keyboard macros used by `counsel-kmacro'.
-This is a combination of `kmacro-ring' and, together in a list,
-`last-kbd-macro', `kmacro-counter-format-start', and
-`kmacro-counter-value-start'."
-  (mapcar
-   (lambda (kmacro)
-     (cons
-      (concat "(" (nth 2 kmacro) "," (number-to-string (nth 1 kmacro)) "): "
-              (condition-case nil
-                  (format-kbd-macro (if (listp kmacro) (car kmacro) kmacro) 1)
-                ;; Recover from error from `edmacro-fix-menu-commands'.
-                (error "Warning: Cannot display macros containing mouse clicks")))
-      kmacro))
-   (cons
-    (if (listp last-kbd-macro)
-        last-kbd-macro
-      (list
-       last-kbd-macro
-       kmacro-counter-value-start
-       kmacro-counter-format-start))
-    kmacro-ring)))
+  "Return an alist of known keyboard macros for `counsel-kmacro'.
+The cdrs are the original `kmacro' objects from `kmacro-ring-head' and
+`kmacro-ring'; the cars are a corresponding string representation."
+  (mapcar (lambda (km)
+            (cons (counsel--with-kmacro km
+                    (counsel--format-kmacro))
+                  km))
+          (let ((head (kmacro-ring-head)))
+            (and head (cons head kmacro-ring)))))
 
-(defun counsel-kmacro-action-run (x)
-  "Run keyboard macro."
-  (let* ((actual-kmacro (cdr x))
-         (kmacro-keys (nth 0 actual-kmacro))
-         (kmacro-counter-format-start (nth 2 actual-kmacro)))
-    ;; With prefix argument, call the macro that many times.
-    (kmacro-call-macro (or current-prefix-arg 1) t nil kmacro-keys)))
+(defun counsel--kmacro-exec (kmacro n)
+  "Execute KMACRO ring item N times."
+  (funcall (if (and (fboundp 'kmacro-p) (kmacro-p kmacro))
+               #'funcall ;; Emacs 29 OClosure.
+             'kmacro-exec-ring-item)
+           kmacro n))
 
-(defun counsel-kmacro-action-delete-kmacro (x)
-  "Delete a keyboard macro from within `counsel-kmacro'.
+(defun counsel-kmacro-action-run (candidate)
+  "Execute keyboard macro from `counsel-kmacro' CANDIDATE.
+With a prefix argument, execute the macro that many times."
+  ;; Action prefix overrides `counsel-kmacro' prefix.
+  (let* ((pre (or ivy-current-prefix-arg current-prefix-arg))
+         (km (cdr candidate))
+         (head (equal km (kmacro-ring-head))))
+    (counsel--kmacro-exec km (prefix-numeric-value pre))
+    (when head
+      ;; Executing pseudo `kmacro-ring-head' updates that object's counter,
+      ;; but not the current `kmacro-counter', so reconcile them here.
+      (kmacro-split-ring-element km))
+    ;; Update state for next `ivy-call'.
+    (counsel--with-kmacro km
+      (setcar candidate (counsel--format-kmacro))))
+  (setf (ivy-state-current ivy-last) (car candidate))
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  (ivy--reset-state ivy-last))
 
-Either delete a macro from `kmacro-ring', or set `last-kbd-macro'
+(defun counsel-kmacro-action-delete-kmacro (candidate)
+  "Delete the keyboard macro in `counsel-kmacro' CANDIDATE.
+Either delete it from `kmacro-ring', or set `last-kbd-macro'
 to the popped head of the ring."
-  (let ((actual-macro (cdr x)))
-    (if (eq (nth 0 actual-macro) last-kbd-macro)
-        (setq last-kbd-macro
-              (if (eq kmacro-ring nil)
-                  nil
-                (let ((prev-macro (pop kmacro-ring)))
-                  (if (listp prev-macro)
-                      (nth 0 prev-macro)
-                    prev-macro))))
-      (setq kmacro-ring (delq actual-macro kmacro-ring)))))
+  (let ((km (cdr candidate)))
+    (if (memq km kmacro-ring)
+        (setq kmacro-ring (delq km kmacro-ring))
+      (kmacro-delete-ring-head)))
+  ;; Update state for next `ivy-call'.
+  ;; TODO: Is `ivy--kill-current-candidate' required?
+  (let ((kms (ivy-state-collection ivy-last)))
+    (setf (ivy-state-collection ivy-last) (delq candidate kms))
+    (setf (ivy-state-preselect ivy-last)
+          (max 0 (min ivy--index (1- (length kms))))))
+  (ivy--reset-state ivy-last))
 
-(defun counsel-kmacro-action-copy-initial-counter-value (x)
-  "Pass an existing keyboard macro's original value to `kmacro-set-counter'.
-This value will be used by the next executed macro, or as an
-initial value by the next macro defined.
+(defun counsel-kmacro-action-copy-initial-counter-value (candidate)
+  "Pass `counsel-kmacro' CANDIDATE's counter value to `kmacro-set-counter'.
+This value will be used by the next executed macro, or as a
+starting value by the next macro defined.
 
-Note that calling an existing macro that itself uses a counter
-effectively resets the initial counter value for the next defined macro
-to 0."
-  ;; NOTE:
-  ;; Calling `kmacro-start-macro' without an argument sets `kmacro-counter'
-  ;; to 0 if `kmacro-initial-counter'is nil, and sets `kmacro-initial-counter'
-  ;; to nil regardless.
-  ;; Using `kmacro-insert-counter' sets `kmacro-initial-counter' to nil.
-  (let* ((actual-kmacro (cdr x))
-         (number (nth 1 actual-kmacro)))
-    (kmacro-set-counter number)))
+Note that executing an existing macro that itself uses a counter
+effectively resets the starting counter value for the next macro
+definition to 0."
+  (kmacro-set-counter (counsel--with-kmacro (cdr candidate)
+                        kmacro-counter)))
 
-(defun counsel-kmacro-action-copy-counter-format-for-new-macro (x)
-  "Set the default keyboard macro counter format.
-This sets `kmacro-default-counter-format' to the counter format
-of an existing keyboard macro.
+(defun counsel-kmacro-action-copy-counter-format-for-new-macro (candidate)
+  "Pass `counsel-kmacro' CANDIDATE's counter format to `kmacro-set-format'.
 
-This will apply to the next macro a user defines."
-  (let* ((actual-kmacro (cdr x))
-         (format (nth 2 actual-kmacro)))
-    (kmacro-set-format format)))
+When no keyboard macro is being defined or executed, this affects the
+default for all subsequent macro definitions."
+  (kmacro-set-format (counsel--with-kmacro (cdr candidate)
+                       kmacro-counter-format-start)))
 
-(declare-function kmacro-cycle-ring-previous "kmacro" (&optional arg))
-(declare-function kmacro-set-format "kmacro" (format))
-(declare-function kmacro-set-counter "kmacro" (arg))
+(defun counsel--kmacro-cycle-until (kmacro)
+  "Cycle macro ring until KMACRO is the head; return number of steps."
+  (let ((i 0)
+        ;; Purely defensive; infloop should never happen.
+        ;; Purely defensive; infloop should never happen.
+        ;; Purely defensive; infloop should never happen.[Quit]
+        (fuel (* 4 (1+ (length kmacro-ring)))))
+    (while (not (equal kmacro (kmacro-ring-head)))
+      (unless (natnump (cl-decf fuel))
+        (error "`counsel-kmacro' bug: exceeded cycle limit"))
+      (kmacro-cycle-ring-previous)
+      (cl-incf i))
+    i))
 
-(defun counsel-kmacro-action-cycle-ring-to-macro (x)
+(defun counsel-kmacro-action-cycle-ring-to-macro (candidate)
   "Cycle `kmacro-ring' until `last-kbd-macro' is the selected macro.
-This is convenient when using \\[kmacro-end-or-call-macro] to call macros.
-Note that cycling the ring changes the starting value of the current macro
-to changes the current macro counter."
-  (let ((actual-kmacro (cdr x)))
-    (unless (equal last-kbd-macro
-                   (if (listp last-kbd-macro)
-                       last-kbd-macro
-                     (car actual-kmacro)))
-      (while (not (equal actual-kmacro
-                         (car kmacro-ring)))
-        (kmacro-cycle-ring-previous))
-      ;; Once selected macro is at the head of the ring,
-      ;; cycle one last time.
-      (kmacro-cycle-ring-previous))))
+This is convenient when using \\[kmacro-end-or-call-macro] to call macros."
+  (counsel--kmacro-cycle-until (cdr candidate))
+  ;; Update state for next `ivy-call'.
+  (setf (ivy-state-collection ivy-last) (counsel--kmacro-candidates))
+  (ivy--reset-state ivy-last))
 
-(defun counsel-kmacro-action-set-saved-starting-counter (x)
-  "Set the starting counter value of the chosen macro.
+(defun counsel-kmacro-action-set-saved-starting-counter (candidate)
+  "Set the counter value of `counsel-kmacro' CANDIDATE.
+Interactively reads a new counter value from the minibuffer.
 
-By default, sets to current value of the counter. It has no
-effect when selecting the current macro.
+Note that this requires cycling the keyboard macro ring until CANDIDATE,
+and then cycling back."
+  (let* ((km (cdr candidate))
+         (cnt (counsel--with-kmacro km kmacro-counter))
+         (cnt (if (zerop cnt) cnt (list 0 cnt)))
+         (i (counsel--kmacro-cycle-until km)))
+    (setq kmacro-counter (read-number "New macro counter: " cnt))
+    (dotimes (_ i) (kmacro-cycle-ring-next)))
+  ;; Update state for next `ivy-call'.
+  (setf (ivy-state-collection ivy-last) (counsel--kmacro-candidates))
+  (setf (ivy-state-preselect ivy-last) ivy--index)
+  ;; Emacs 28 seems to have some bug where the text of the candidates
+  ;; in the minibuffer is not immediately refreshed.
+  (ivy--reset-state ivy-last))
 
-Normally, when cycling keyboard macro ring with \\[kmacro-cycle-ring-previous]
-or \\[kmacro-cycle-ring-next], the current value of the macro counter is
-included with the current macro definition. Then, when cycling
-back, that counter value is restored.  This function is meant to
-achieve something similar when cycling macros in the context of
-using `counsel-kmacro', which does not use different counter
-values when running different macros."
-  (let ((actual-kmacro (cdr x))
-        (default-kmacro-counter-string (number-to-string kmacro-counter)))
-    (setq kmacro-ring (mapcar (lambda (this-macro-in-ring)
-                                (if (equal this-macro-in-ring actual-kmacro)
-                                    (list (car this-macro-in-ring)
-                                          (read-from-minibuffer (concat "Set initial counter for macro (default: "
-                                                                        default-kmacro-counter-string
-                                                                        "): ")
-                                                                nil nil t nil
-                                                                default-kmacro-counter-string)
-                                          (cl-caddr this-macro-in-ring))
-                                  this-macro-in-ring))
-                              kmacro-ring))))
+(defun counsel-kmacro-action-execute-after-prompt (candidate)
+  "Execute selected keyboard macro with a different counter and format.
 
-(defun counsel-kmacro-action-execute-after-prompt (x)
-  "Execute an existing keyboard macro, prompting for a starting counter value, a
-counter format, and the number of times to execute the macro.
+Prompt for the number of times to execute the macro, the starting
+counter, and the counter format.  The corresponding values from the
+selected `counsel-kmacro' CANDIDATE serve as defaults.  If this action
+is called with a prefix argument, its numeric value also serves as a
+default option for the number of iterations and counter.
 
-If called with a prefix, will suggest that value for both the
-counter value and iteration amount."
-  (let* ((default-string (if current-prefix-arg
-                             (number-to-string current-prefix-arg)
-                           nil))
-         (actual-kmacro (cdr x))
-         (kmacro-keys (nth 0 actual-kmacro))
-         (kmacro-starting-counter (number-to-string (nth 1 actual-kmacro)))
-         (kmacro-starting-format (nth 2 actual-kmacro))
-         (number-of-iterations
-          (read-from-minibuffer
-           (concat "Enter number of iterations for macro (default: "
-                   (or default-string (number-to-string 2))
-                   "): ")
-           nil nil t nil
-           (or default-string (number-to-string 2))))
-         (kmacro-initial-counter-value
-          (read-from-minibuffer
-           (concat "Enter a starting counter for macro (default: "
-                   (or default-string kmacro-starting-counter)
-                   "): ")
-           nil nil t nil
-           (or default-string kmacro-starting-counter)))
-         (kmacro-counter-format-start
-          (symbol-name (read-from-minibuffer
-                        (concat "Enter format for macro counter (default: "
-                                kmacro-starting-format
-                                "): ")
-                        nil nil t nil
-                        kmacro-starting-format))))
-    (kmacro-call-macro number-of-iterations t nil kmacro-keys)))
+The existing CANDIDATE, its counter and format, are left unchanged."
+  (let* ((pre (or ivy-current-prefix-arg current-prefix-arg))
+         (pre (and pre (prefix-numeric-value pre))))
+    (counsel--with-kmacro (cdr candidate)
+      (let ((times (read-number "Number of macro iterations: "
+                                (let ((def '(1 2)))
+                                  (if pre (cons pre def) def)))))
+        (setq kmacro-counter
+              (read-number "Macro counter value: "
+                           (if pre (list pre kmacro-counter) kmacro-counter)))
+        (setq kmacro-counter-format-start
+              (let ((prompt "Macro counter format")
+                    (def kmacro-counter-format-start))
+                (read-string (if (fboundp 'format-prompt)
+                                 (format-prompt prompt def)
+                               (format "%s (default: %s): " prompt def))
+                             nil nil def)))
+        (counsel--kmacro-exec (kmacro-ring-head) times)))))
 
 (ivy-set-actions
  'counsel-kmacro
- '(("c" counsel-kmacro-action-cycle-ring-to-macro "cycle to")
-   ("d" counsel-kmacro-action-delete-kmacro "delete")
-   ("e" counsel-kmacro-action-execute-after-prompt "execute after prompt")
-   ("f" counsel-kmacro-action-copy-counter-format-for-new-macro "copy counter format for new macro")
-   ("s" counsel-kmacro-action-set-saved-starting-counter "set this counter value")
-   ("v" counsel-kmacro-action-copy-initial-counter-value "copy initial counter value")))
+ `(("c" ,#'counsel-kmacro-action-cycle-ring-to-macro
+    "cycle to")
+   ("d" ,#'counsel-kmacro-action-delete-kmacro
+    "delete")
+   ("e" ,#'counsel-kmacro-action-execute-after-prompt
+    "execute after prompt")
+   ("f" ,#'counsel-kmacro-action-copy-counter-format-for-new-macro
+    "copy counter format for new macro")
+   ("s" ,#'counsel-kmacro-action-set-saved-starting-counter
+    "set this counter value")
+   ("v" ,#'counsel-kmacro-action-copy-initial-counter-value
+    "copy starting counter value")))
 
 ;;** `counsel-geiser-doc-look-up-manual'
 (declare-function geiser-doc-manual-for-symbol "ext:geiser-doc")
