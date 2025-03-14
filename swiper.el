@@ -481,7 +481,7 @@ such as `scroll-conservatively' are set to a high value.")
   "List of major-modes that are incompatible with `font-lock-ensure'.")
 
 (defun swiper-font-lock-ensure-p ()
-  "Return non-nil if we should `font-lock-ensure'."
+  "Return non-nil if we should not `font-lock-ensure'."
   (or (derived-mode-p 'magit-mode)
       (bound-and-true-p magit-blame-mode)
       (memq major-mode swiper-font-lock-exclude)
@@ -489,12 +489,13 @@ such as `scroll-conservatively' are set to a high value.")
 
 (defun swiper-font-lock-ensure ()
   "Ensure the entire buffer is highlighted."
-  (unless (swiper-font-lock-ensure-p)
-    (unless (or (> (buffer-size) 100000) (null font-lock-mode))
-      (if (fboundp 'font-lock-ensure)
-          ;; Added in Emacs 25.1.
-          (font-lock-ensure)
-        (with-no-warnings (font-lock-fontify-buffer))))))
+  (unless (or (swiper-font-lock-ensure-p)
+              (> (buffer-size) 100000)
+              (not font-lock-mode))
+    (static-if (fboundp 'font-lock-ensure)
+        ;; Added in Emacs 25.1.
+        (font-lock-ensure)
+      (font-lock-fontify-buffer))))
 
 (defvar swiper--format-spec ""
   "Store the current candidates format spec.")
