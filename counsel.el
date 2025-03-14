@@ -1865,7 +1865,7 @@ currently checked out."
     (define-key map (kbd "C-<backspace>") #'counsel-up-directory)
     (define-key map (kbd "`") #'counsel-file-jump-from-find)
     (define-key map (kbd "C-`") (ivy-make-magic-action #'counsel-find-file "b"))
-    (define-key map [remap undo] #'counsel-find-file-undo)
+    (define-key map `[remap ,#'undo] #'counsel-find-file-undo)
     map))
 
 (defun counsel-file-jump-from-find ()
@@ -6825,7 +6825,8 @@ handling for the `counsel-compile' metadata."
 ;; operation which doesn't include the metadata we want.
 (defvar counsel-compile-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap ivy-insert-current] #'counsel-compile-edit-command)
+    (define-key map `[remap ,#'ivy-insert-current]
+                #'counsel-compile-edit-command)
     map)
   "Additional ivy keybindings during command selection.")
 
@@ -7215,29 +7216,28 @@ The user options `counsel-search-engine' and
 ;;* `counsel-mode'
 (defvar counsel-mode-map
   (let ((map (make-sparse-keymap)))
-    (dolist (binding
-              '((execute-extended-command . counsel-M-x)
-                (describe-bindings . counsel-descbinds)
-                (describe-function . counsel-describe-function)
-                (describe-variable . counsel-describe-variable)
-                (describe-symbol . counsel-describe-symbol)
-                (apropos-command . counsel-apropos)
-                (describe-face . counsel-describe-face)
-                (list-faces-display . counsel-faces)
-                (find-file . counsel-find-file)
-                (find-library . counsel-find-library)
-                (imenu . counsel-imenu)
-                (load-library . counsel-load-library)
-                (load-theme . counsel-load-theme)
-                (yank-pop . counsel-yank-pop)
-                (info-lookup-symbol . counsel-info-lookup-symbol)
-                (pop-to-mark-command . counsel-mark-ring)
-                (geiser-doc-look-up-manual . counsel-geiser-doc-look-up-manual)
-                (bookmark-jump . counsel-bookmark)))
-      (define-key map (vector 'remap (car binding)) (cdr binding)))
+    (define-key map `[remap ,#'execute-extended-command] #'counsel-M-x)
+    (define-key map `[remap ,#'describe-bindings] #'counsel-descbinds)
+    (define-key map `[remap ,#'describe-function] #'counsel-describe-function)
+    (define-key map `[remap ,#'describe-variable] #'counsel-describe-variable)
+    (define-key map [remap describe-symbol] #'counsel-describe-symbol)
+    (define-key map `[remap ,#'apropos-command] #'counsel-apropos)
+    (define-key map `[remap ,#'describe-face] #'counsel-describe-face)
+    (define-key map `[remap ,#'list-faces-display] #'counsel-faces)
+    (define-key map `[remap ,#'find-file] #'counsel-find-file)
+    (define-key map `[remap ,#'find-library] #'counsel-find-library)
+    (define-key map `[remap ,#'imenu] #'counsel-imenu)
+    (define-key map `[remap ,#'load-library] #'counsel-load-library)
+    (define-key map `[remap ,#'load-theme] #'counsel-load-theme)
+    (define-key map `[remap ,#'yank-pop] #'counsel-yank-pop)
+    (define-key map `[remap ,#'info-lookup-symbol] #'counsel-info-lookup-symbol)
+    (define-key map `[remap ,#'pop-to-mark-command] #'counsel-mark-ring)
+    (define-key map [remap geiser-doc-look-up-manual]
+                #'counsel-geiser-doc-look-up-manual)
+    (define-key map `[remap ,#'bookmark-jump] #'counsel-bookmark)
     map)
-  "Map for `counsel-mode'.
-Remaps built-in functions to counsel replacements.")
+  "Keymap for `counsel-mode'.
+Remaps built-in and external functions to Counsel replacements.")
 
 (defcustom counsel-mode-override-describe-bindings nil
   "Whether to override `describe-bindings' when `counsel-mode' is active."

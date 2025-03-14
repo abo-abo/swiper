@@ -155,12 +155,12 @@ If the input is empty, select the previous history element instead."
 
 (defvar swiper-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-s") 'swiper-C-s)
-    (define-key map (kbd "M-q") 'swiper-query-replace)
-    (define-key map (kbd "C-l") 'swiper-recenter-top-bottom)
-    (define-key map (kbd "C-'") 'swiper-avy)
-    (define-key map (kbd "C-7") 'swiper-mc)
-    (define-key map (kbd "C-c C-f") 'swiper-toggle-face-matching)
+    (define-key map (kbd "C-s") #'swiper-C-s)
+    (define-key map (kbd "M-q") #'swiper-query-replace)
+    (define-key map (kbd "C-l") #'swiper-recenter-top-bottom)
+    (define-key map (kbd "C-'") #'swiper-avy)
+    (define-key map (kbd "C-7") #'swiper-mc)
+    (define-key map (kbd "C-c C-f") #'swiper-toggle-face-matching)
     map)
   "Keymap for swiper.")
 
@@ -1332,7 +1332,7 @@ See `ivy-format-functions-alist' for further information."
 
 (defvar swiper-all-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-q") 'swiper-all-query-replace)
+    (define-key map (kbd "M-q") #'swiper-all-query-replace)
     map)
   "Keymap for `swiper-all'.")
 
@@ -1617,7 +1617,8 @@ When the input is empty, browse the search history instead."
 (defvar swiper-isearch-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map swiper-map)
-    (define-key map [remap ivy-insert-current] #'swiper--isearch-insert-current)
+    (define-key map `[remap ,#'ivy-insert-current]
+                #'swiper--isearch-insert-current)
     (define-key map (kbd "M-n") #'swiper-isearch-thing-at-point)
     (define-key map (kbd "C-r") #'swiper-isearch-C-r)
     map)
