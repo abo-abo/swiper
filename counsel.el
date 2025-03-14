@@ -455,7 +455,7 @@ Used by commands `counsel-describe-symbol',
   "Jump to the definition of the current symbol."
   (interactive)
   (ivy-exit-with-action #'counsel--find-symbol))
-(put 'counsel-find-symbol 'no-counsel-M-x t)
+(function-put #'counsel-find-symbol 'no-counsel-M-x t)
 
 (defun counsel--info-lookup-symbol ()
   "Lookup the current symbol in the info docs."
@@ -4677,7 +4677,7 @@ Note: Duplicate elements of `kill-ring' are always deleted."
               :action #'counsel-yank-pop-action
               :caller 'counsel-yank-pop)))
 
-(put #'counsel-yank-pop 'delete-selection 'yank)
+(function-put #'counsel-yank-pop 'delete-selection 'yank)
 
 (ivy-configure 'counsel-yank-pop
   :height 5

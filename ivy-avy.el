@@ -107,7 +107,7 @@
       (when res
         (ivy-avy--action res)))))
 
-(put 'ivy-avy 'no-counsel-M-x t)
+(function-put #'ivy-avy 'no-counsel-M-x t)
 (unless (lookup-key ivy-minibuffer-map (kbd "C-'"))
   (define-key ivy-minibuffer-map (kbd "C-'") 'ivy-avy))
 (add-to-list 'avy-styles-alist `(ivy-avy . ,ivy-avy-style))

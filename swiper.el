@@ -247,7 +247,7 @@ If the input is empty, select the previous history element instead."
 
 (ivy-configure 'swiper-query-replace
   :update-fn #'swiper--query-replace-updatefn)
-(put 'swiper-query-replace 'no-counsel-M-x t)
+(function-put #'swiper-query-replace 'no-counsel-M-x t)
 
 (defvar inhibit-message)
 
@@ -272,7 +272,7 @@ If the input is empty, select the previous history element instead."
                     (goto-char (point-min))
                     (perform-replace from to t t nil)))
              (set-window-configuration wnd-conf))))))))
-(put 'swiper-all-query-replace 'no-counsel-M-x t)
+(function-put #'swiper-all-query-replace 'no-counsel-M-x t)
 
 (defvar avy-all-windows)
 (defvar avy-style)

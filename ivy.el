@@ -315,7 +315,7 @@ action functions.")
 (defun ivy-define-key (keymap key def)
   "Forward to (`define-key' KEYMAP KEY DEF).
 Remove DEF from `counsel-M-x' list."
-  (put def 'no-counsel-M-x t)
+  (function-put def 'no-counsel-M-x t)
   (define-key keymap key def))
 
 (defvar ivy-minibuffer-map
