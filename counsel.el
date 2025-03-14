@@ -443,8 +443,8 @@ Update the minibuffer with the amount of lines collected every
 
 (ivy-set-actions
  'counsel-describe-variable
- '(("I" counsel-info-lookup-symbol "info")
-   ("d" counsel--find-symbol "definition")))
+ `(("I" ,#'counsel-info-lookup-symbol "info")
+   ("d" ,#'counsel--find-symbol "definition")))
 
 (defvar counsel-describe-symbol-history ()
   "History list for variable and function names.
@@ -540,8 +540,8 @@ Variables declared using `defcustom' are highlighted according to
 ;;** `counsel-describe-function'
 (ivy-set-actions
  'counsel-describe-function
- '(("I" counsel-info-lookup-symbol "info")
-   ("d" counsel--find-symbol "definition")))
+ `(("I" ,#'counsel-info-lookup-symbol "info")
+   ("d" ,#'counsel--find-symbol "definition")))
 
 (defcustom counsel-describe-function-function #'describe-function
   "Function to call to describe a function passed as parameter."
@@ -563,6 +563,10 @@ Variables declared using `defcustom' are highlighted according to
           (function-item ivy-thing-at-point)
           (function-item ivy-function-called-at-point)))
 
+(defun counsel--describe-function (candidate)
+  "Pass string CANDIDATE to `counsel-describe-function-function'."
+  (funcall counsel-describe-function-function (intern candidate)))
+
 ;;;###autoload
 (defun counsel-describe-function ()
   "Forward to `describe-function'.
@@ -579,8 +583,7 @@ to `ivy-highlight-face'."
               :history 'counsel-describe-symbol-history
               :keymap counsel-describe-map
               :preselect (funcall counsel-describe-function-preselect)
-              :action (lambda (x)
-                        (funcall counsel-describe-function-function (intern x)))
+              :action #'counsel--describe-function
               :caller 'counsel-describe-function)))
 
 (ivy-configure 'counsel-describe-function
@@ -969,8 +972,8 @@ when available, in that order of precedence."
 
 (ivy-set-actions
  'counsel-M-x
- `(("d" counsel--find-symbol "definition")
-   ("h" ,(lambda (x) (funcall counsel-describe-function-function (intern x))) "help")))
+ `(("d" ,#'counsel--find-symbol "definition")
+   ("h" ,#'counsel--describe-function "help")))
 
 ;;** `counsel-command-history'
 (defun counsel-command-history-action-eval (cmd)
@@ -1052,7 +1055,7 @@ The libraries are offered from `load-path'."
 
 (ivy-set-actions
  'counsel-load-library
- '(("d" counsel--find-symbol "definition")))
+ `(("d" ,#'counsel--find-symbol "definition")))
 
 ;;** `counsel-find-library'
 (declare-function find-library-name "find-func")
@@ -2544,9 +2547,9 @@ current value of `default-directory'."
             :action #'dired))
 
 (ivy-set-actions 'counsel-bookmarked-directory
-                 `(("j" dired-other-window "other window")
-                   ("x" counsel-find-file-extern "open externally")
-                   ("r" counsel-find-file-as-root "open as root")
+                 `(("j" ,#'dired-other-window "other window")
+                   ("x" ,#'counsel-find-file-extern "open externally")
+                   ("r" ,#'counsel-find-file-as-root "open as root")
                    ("f" ,(lambda (dir)
                            (let ((default-directory dir))
                              (call-interactively #'find-file)))
@@ -3905,37 +3908,44 @@ include attachments of other Org buffers."
             :caller 'counsel-org-file))
 
 ;;** `counsel-org-entity'
-(defvar org-entities)
-(defvar org-entities-user)
 
 ;;;###autoload
 (defun counsel-org-entity ()
   "Complete Org entities using Ivy."
   (interactive)
   (require 'org)
-  (ivy-read "Entity: " (cl-loop for element in (append org-entities org-entities-user)
-                          unless (stringp element)
-                          collect (cons
-                                   (format "%20s | %20s | %20s | %s"
-                                           (cl-first element)    ; name
-                                           (cl-second element)   ; latex
-                                           (cl-fourth element)   ; html
-                                           (cl-seventh element)) ; utf-8
-                                   element))
+  (defvar org-entities)
+  (defvar org-entities-user)
+  (ivy-read "Entity: "
+            (cl-loop for element in (append org-entities org-entities-user)
+                     when (consp element)
+                     collect (cons
+                              (format "%20s | %20s | %20s | %s"
+                                      (nth 0 element)  ; Name.
+                                      (nth 1 element)  ; LaTeX.
+                                      (nth 3 element)  ; HTML.
+                                      (nth 6 element)) ; UTF-8.
+                              element))
             :require-match t
-            :action '(1
-                      ("u" (lambda (candidate)
-                             (insert (cl-seventh (cdr candidate)))) "utf-8")
-                      ("o" (lambda (candidate)
-                             (insert "\\" (cl-first (cdr candidate)))) "org-entity")
-                      ("l" (lambda (candidate)
-                             (insert (cl-second (cdr candidate)))) "latex")
-                      ("h" (lambda (candidate)
-                             (insert (cl-fourth (cdr candidate)))) "html")
-                      ("a" (lambda (candidate)
-                             (insert (cl-fifth (cdr candidate)))) "ascii")
-                      ("L" (lambda (candidate)
-                             (insert (cl-sixth (cdr candidate))) "Latin-1")))))
+            :action `(1
+                      ("u" ,(lambda (candidate)
+                              (insert (nth 6 (cdr candidate))))
+                       "UTF-8")
+                      ("o" ,(lambda (candidate)
+                              (insert "\\" (nth 0 (cdr candidate))))
+                       "Org entity")
+                      ("l" ,(lambda (candidate)
+                              (insert (nth 1 (cdr candidate))))
+                       "LaTeX")
+                      ("h" ,(lambda (candidate)
+                              (insert (nth 3 (cdr candidate))))
+                       "HTML")
+                      ("a" ,(lambda (candidate)
+                              (insert (nth 4 (cdr candidate))))
+                       "ASCII")
+                      ("L" ,(lambda (candidate)
+                              (insert (nth 5 (cdr candidate))))
+                       "Latin-1"))))
 
 ;;** `counsel-org-capture'
 (defvar org-capture-templates)
