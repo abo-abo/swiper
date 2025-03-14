@@ -1,53 +1,67 @@
-emacs ?= emacs
+# Build and test Ivy from a source checkout.
+
+# Copyright (C) 2015-2025 Free Software Foundation, Inc.
+#
+# This file is part of GNU Emacs.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+EMACS ?= emacs
 RM ?= rm -f
 
-src-elcs = \
+opt-elcs := \
+  ivy-avy.elc \
+  ivy-hydra.elc
+
+src-elcs := \
   colir.elc \
   ivy-faces.elc \
   ivy-overlay.elc \
   ivy.elc \
-  ivy-avy.elc \
-  ivy-hydra.elc \
   swiper.elc \
-  counsel.elc
+  counsel.elc \
+  $(opt-elcs)
 
-test-elcs = ivy-test.elc
+test-elcs := ivy-test.elc
 
 .PHONY: all
 all: compile
 
 .PHONY: deps
 deps:
-	$(emacs) -Q -batch -l targets/install-deps.el
-
-.PHONY: test
-test: compile $(test-elcs)
-	$(emacs) -Q -batch -l elpa.el -L . -l ivy-test -f ivy-test-run-tests
-
-.PHONY: checkdoc
-checkdoc:
-	$(emacs) -batch -l targets/checkdoc.el
+	$(EMACS) -Q -batch -l targets/elpa.el -f ivy--elpa-install
 
 .PHONY: compile
 compile: $(src-elcs)
 
-.PHONY: plain
-plain: compile
-	$(emacs) -version
-	$(emacs) -Q -l elpa.el -L . -l targets/plain.el
-
-.PHONY: obsolete
-obsolete:
-	$(emacs) -batch -l targets/obsolete-config.el
+.PHONY: test
+test: compile $(test-elcs)
+	$(EMACS) -Q -batch -L . $(test-elcs:%.elc=-l %) -f ivy-test-run-tests
 
 .PHONY: clean
 clean:
 	$(RM) $(src-elcs) $(test-elcs)
 
-%.elc: %.el
-	$(emacs) -Q -batch -L . -f batch-byte-compile $<
+.PHONY: checkdoc
+checkdoc:
+	$(EMACS) -Q -batch -L . -l targets/checkdoc.el $(src-elcs:c=)
 
-ivy-avy.elc: ivy-avy.el
-ivy-hydra.elc: ivy-hydra.el
-ivy-avy.elc ivy-hydra.elc:
-	$(emacs) -Q -batch -l elpa.el -L . -f batch-byte-compile $<
+.PHONY: plain
+plain: compile
+	$(EMACS) -Q -L . -l targets/plain.el
+
+%.elc: %.el
+	$(EMACS) -Q -batch -L . $(ELCFLAGS) -f batch-byte-compile $<
+
+$(opt-elcs): ELCFLAGS += -l targets/elpa.el -f ivy--elpa-activate

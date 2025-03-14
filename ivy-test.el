@@ -26,6 +26,11 @@
 
 ;;; Code:
 
+;; Optional dependencies.
+(and (require 'targets/elpa nil t)
+     (fboundp 'ivy--elpa-activate)
+     (ivy--elpa-activate))
+
 (defvar ivy-empty "tests/find-file/empty-dir/")
 
 (defvar ivy-features nil
@@ -48,8 +53,6 @@ Intended as :after-while advice for `require'."
 (require 'ivy)
 
 (require 'ert)
-
-(message "%s" (emacs-version))
 
 (setq ivy-last (make-ivy-state))
 

@@ -57,7 +57,11 @@ jobs:
     - name: Check Emacs version
       run: emacs --version
 
+    - name: Dependencies
+      run: make deps
+
+    - name: Compile
+      run: make
+
     - name: Test
-      run: |
-        make deps
-        make test
+      run: make test
