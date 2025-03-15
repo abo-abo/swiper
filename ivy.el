@@ -4678,6 +4678,10 @@ Otherwise, forward to `ivy-kill-line'."
    ("k"
     ivy--kill-buffer-action
     "kill")
+   ("n"
+    ,(lambda (x)
+       (insert-and-inherit (prin1-to-string (get-buffer x))))
+    "insert buffer name")
    ("r"
     ivy--rename-buffer-action
     "rename")))
