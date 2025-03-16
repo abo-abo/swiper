@@ -576,10 +576,10 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
              (colir-blend-face-background 0 (length str) 'ivy-current-match str)
              str)
            #("Desktop" 0 7 (face (ivy-current-match (foreground-color . "#8ac6f2") bold))))))
+
+;;; Prefix arg tests
+;;;; Tests with no prefix
 
-
-;;* prefix arg tests
-;;** tests with no prefix
 (ert-deftest ivy-no-prefix-arg ()
   "Tests with no prefix arg."
   (should (equal
@@ -655,7 +655,8 @@ Since `execute-kbd-macro' doesn't pick up a let-bound `default-directory'.")
             "TAB TAB")
            nil)))
 
-;;** tests with one prefix
+;;;; Tests with one prefix
+
 (ert-deftest ivy-one-prefix-arg ()
   "Tests with no prefix arg."
   (should (equal

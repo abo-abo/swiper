@@ -57,8 +57,9 @@ Polyfill for Emacs 30 `static-if'."
       (if (eval condition lexical-binding)
           then-form
         (macroexp-progn else-forms)))))
+
+;;; Customization
 
-;;* Customization
 (defgroup ivy nil
   "Incremental vertical completion."
   :group 'convenience)
@@ -309,8 +310,8 @@ Example:
   "Prefix arg to pass to actions.
 This is a global variable that is set by ivy functions for use in
 action functions.")
-
-;;* Keymap
+
+;;; Keymap
 
 (autoload 'minibuffer-keyboard-quit "delsel" nil t)
 (autoload 'hydra-ivy/body "ivy-hydra" nil t)
@@ -388,8 +389,9 @@ Remove DEF from `counsel-M-x' list."
                     #'ivy-switch-buffer-other-window)
     map)
   "Keymap for `ivy-mode'.")
+
+;;; Globals
 
-;;* Globals
 (cl-defstruct ivy-state
   prompt collection
   predicate require-match initial-input
@@ -708,8 +710,9 @@ candidate, not the prompt."
   "Return t if the prompt line is selected."
   (and ivy--use-selectable-prompt
        (= ivy--index -1)))
+
+;;; Commands
 
-;;* Commands
 (defun ivy-done ()
   "Exit the minibuffer with the selected candidate."
   (interactive)
@@ -2098,7 +2101,8 @@ found, it falls back to the key t."
          ;; misearch.el
          (ivy--string-replace "RET to end" "C-M-j to end" prompt))))
 
-;;** Entry Point
+;;;; Entry Point
+
 ;;;###autoload
 (cl-defun ivy-read (prompt collection
                     &key
@@ -2825,9 +2829,10 @@ Minibuffer bindings:
             ((ivy--regex-p preselect)
              (cl-position preselect candidates :test #'string-match-p)))
       0))
+
+;;; Implementation
+;;;; Regexp
 
-;;* Implementation
-;;** Regex
 (defun ivy-re-match (re-seq str)
   "Return non-nil if RE-SEQ is matched by STR.
 
@@ -3095,7 +3100,8 @@ This effectively sets the minimum height at this level to `ivy-height' and
 tries to ensure that it does not change depending on the number of candidates."
   :type 'boolean)
 
-;;** Rest
+;;;; Rest
+
 (defcustom ivy-truncate-lines t
   "Minibuffer setting for `truncate-lines'."
   :type 'boolean)
@@ -5059,8 +5065,9 @@ You can also delete an element from history with \\[ivy-reverse-i-search-kill]."
         (setf (ivy-state-dynamic-collection ivy-last) nil))
     (setq ivy--all-candidates
           (ivy--filter ivy-text ivy--all-candidates))))
+
+;;; Occur
 
-;;* Occur
 (defvar-local ivy-occur-last nil
   "Buffer-local value of `ivy-last'.
 Can't re-use `ivy-last' because using e.g. `swiper' in the same

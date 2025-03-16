@@ -1260,8 +1260,9 @@ otherwise continue prompting for buffers."
       ((eq mode 'gnus-article-mode) t)
       ;; Otherwise, only consider the file if it's backed by a file.
       (t (buffer-file-name buffer)))))
+
+;;; `swiper-all'
 
-;;* `swiper-all'
 (defun swiper-all-function (str)
   "Search in all open buffers for STR."
   (or
@@ -1380,8 +1381,9 @@ See `ivy-format-functions-alist' for further information."
                 (swiper--candidates 4))
                res))))
     res))
+
+;;; `swiper-isearch'
 
-;;* `swiper-isearch'
 (defun swiper-isearch-function (str)
   "Collect STR matches in the current buffer for `swiper-isearch'."
   (with-ivy-window

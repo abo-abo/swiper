@@ -23,7 +23,8 @@
 
 ;;; Code:
 
-;;* ox-texinfo
+;;; `ox-texinfo'
+
 (require 'ox-texinfo)
 (eval-when-compile (require 'subr-x))
 (org-export-define-backend 'texinfo
@@ -169,7 +170,8 @@ contextual information."
       (push (match-string 1 str) res))
     (nreverse res)))
 
-;;* ox-html
+;;; `ox-html'
+
 (require 'ox-html)
 (setq org-html-validation-link nil)
 (setq org-html-postamble nil)
