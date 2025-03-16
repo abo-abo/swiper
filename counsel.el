@@ -588,7 +588,7 @@ to `ivy-highlight-face'."
   :display-transformer-fn #'counsel-describe-function-transformer)
 
 ;;** `counsel-describe-symbol'
-(defcustom counsel-describe-symbol-function #'describe-symbol
+(defcustom counsel-describe-symbol-function 'describe-symbol
   "Function to call to describe a symbol passed as parameter."
   :type 'function)
 
@@ -599,6 +599,7 @@ to `ivy-highlight-face'."
   (unless (functionp 'describe-symbol)
     (user-error "This command requires Emacs 25.1 or later"))
   (require 'help-mode)
+  (defvar describe-symbol-backends)
   (let ((enable-recursive-minibuffers t))
     (ivy-read "Describe symbol: " obarray
               :predicate (lambda (sym)
@@ -5669,9 +5670,10 @@ You can insert or kill the name of the selected font."
     (define-key map (kbd "C-k") #'counsel-kmacro-kill)
     map))
 
+;; Avoid (declare (modes ...)) warnings in Emacs < 28.
+(function-put #'counsel-kmacro-kill 'command-modes '(minibuffer-mode))
 (defun counsel-kmacro-kill ()
   "Kill the line, or delete the currently selected keyboard macro."
-  (declare (modes minibuffer-mode))
   (interactive)
   (unless (window-minibuffer-p)
     (user-error "No completion session is active"))
@@ -6215,7 +6217,8 @@ This function always returns its elements in a stable order."
       (when (file-exists-p dir)
         (let ((dir (file-name-as-directory dir)))
           ;; Function `directory-files-recursively' added in Emacs 25.1.
-          (dolist (file (directory-files-recursively dir "\\.desktop\\'"))
+          (dolist (file (and (fboundp 'directory-files-recursively)
+                             (directory-files-recursively dir "\\.desktop\\'")))
             (let ((id (subst-char-in-string ?/ ?- (file-relative-name file dir))))
               (when (and (not (gethash id hash)) (file-readable-p file))
                 (push (cons id file) result)
