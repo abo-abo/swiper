@@ -20,23 +20,15 @@
 
 ;;; Commentary:
 
-;; This package allows to setup Ivy's completion at point to actually
-;; show the candidates and the input at point, instead of in the
-;; minibuffer.
+;; Normally, Ivy displays completion candidates and entered text in
+;; the minibuffer.  This file enables in-buffer completion to be
+;; displayed at point instead.
 
 ;;; Code:
 
 (eval-when-compile
   (require 'cl-lib)
   (require 'subr-x))
-
-(defface ivy-cursor
-  '((((class color) (background light))
-     :background "black" :foreground "white")
-    (((class color) (background dark))
-     :background "white" :foreground "black"))
-  "Cursor face for inline completion."
-  :group 'ivy-faces)
 
 (defvar ivy--old-cursor-type t)
 
@@ -90,12 +82,10 @@ Then attach the overlay to the character before point."
 (declare-function org-current-level "org")
 (declare-function org-at-heading-p "org")
 (defvar org-indent-indentation-per-level)
-(defvar ivy-height)
 (defvar ivy-last)
 (defvar ivy-text)
 (defvar ivy-completion-beg)
 (declare-function ivy--get-window "ivy")
-(declare-function ivy-state-current "ivy")
 (declare-function ivy-state-window "ivy")
 
 (defun ivy-overlay--current-column ()

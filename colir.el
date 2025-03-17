@@ -32,7 +32,11 @@
 ;;; Code:
 
 (require 'cl-lib)
-(require 'color)
+
+(eval-and-compile
+  ;; Autoloaded since Emacs 31.
+  (unless (fboundp 'color-rgb-to-hex)
+    (autoload 'color-rgb-to-hex "color")))
 
 (defcustom colir-compose-method #'colir-compose-alpha
   "The method `colir-blend' uses to compose two color channels."

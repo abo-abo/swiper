@@ -27,6 +27,13 @@
   :group 'ivy
   :group 'faces)
 
+(defface ivy-cursor
+  '((((class color) (background light))
+     :background "black" :foreground "white")
+    (((class color) (background dark))
+     :background "white" :foreground "black"))
+  "Cursor face for inline completion.")
+
 (defface ivy-current-match
   '((((class color) (background light))
      :background "#1a4b77" :foreground "white" :extend t)

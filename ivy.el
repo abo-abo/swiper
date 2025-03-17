@@ -40,11 +40,11 @@
 ;;; Code:
 
 (require 'colir)
-(require 'ivy-overlay)
 (require 'ivy-faces)
+(autoload 'ivy-overlay-cleanup "ivy-overlay")
+(autoload 'ivy-display-function-overlay "ivy-overlay")
 
 (require 'cl-lib)
-(require 'ring)
 
 (eval-when-compile
   (require 'subr-x)
@@ -311,7 +311,11 @@ This is a global variable that is set by ivy functions for use in
 action functions.")
 
 ;;* Keymap
-(require 'delsel)
+
+(autoload 'minibuffer-keyboard-quit "delsel" nil t)
+(autoload 'hydra-ivy/body "ivy-hydra" nil t)
+(autoload 'ivy-hydra-read-action "ivy-hydra" nil t)
+
 (defun ivy-define-key (keymap key def)
   "Forward to (`define-key' KEYMAP KEY DEF).
 Remove DEF from `counsel-M-x' list."
@@ -376,8 +380,6 @@ Remove DEF from `counsel-M-x' list."
     (ivy-define-key map "$" #'ivy-magic-read-file-env)
     map)
   "Keymap used in the minibuffer.")
-(autoload 'hydra-ivy/body "ivy-hydra" "" t)
-(autoload 'ivy-hydra-read-action "ivy-hydra" "" t)
 
 (defvar ivy-mode-map
   (let ((map (make-sparse-keymap)))
@@ -488,7 +490,7 @@ This allows RET to reverse consecutive DEL.")
 (defvar ivy-regex ""
   "Store the regex value that corresponds to `ivy-text'.")
 
-(defvar ivy--regex-function 'ivy--regex
+(defvar ivy--regex-function #'ivy--regex
   "Current function for building a regex.")
 
 (defun ivy-set-text (str)
@@ -3773,7 +3775,12 @@ The alist VAL is a sorting function with the signature of
   (let ((default-directory ivy--directory))
     (sort (copy-sequence candidates) #'file-newer-than-file-p)))
 
-(defvar ivy--flx-featurep (require 'flx nil 'noerror))
+(defvar ivy--flx-available-p)
+(defun ivy--flx-available-p ()
+  "Try to load package `flx' once; return non-nil on success."
+  (if (boundp 'ivy--flx-available-p)
+      ivy--flx-available-p
+    (setq ivy--flx-available-p (require 'flx nil t))))
 
 (defun ivy--sort (name candidates)
   "Re-sort candidates by NAME.
@@ -3781,8 +3788,8 @@ All CANDIDATES are assumed to match NAME."
   (let (fun)
     (cond ((setq fun (ivy-alist-setting ivy-sort-matches-functions-alist))
            (funcall fun name candidates))
-          ((and ivy--flx-featurep
-                (eq ivy--regex-function 'ivy--regex-fuzzy))
+          ((and (eq ivy--regex-function #'ivy--regex-fuzzy)
+                (ivy--flx-available-p))
            (ivy--flx-sort name candidates))
           (t
            candidates))))
@@ -3881,8 +3888,8 @@ CANDS are the current candidates."
                           0))
                      ((and (not empty)
                            (not (eq caller 'swiper))
-                           (not (and ivy--flx-featurep
-                                     (eq ivy--regex-function 'ivy--regex-fuzzy)
+                           (not (and (eq ivy--regex-function #'ivy--regex-fuzzy)
+                                     (ivy--flx-available-p)
                                      ;; Limit to configured number of candidates
                                      (null (nthcdr ivy-flx-limit cands))))
                            ;; If there was a preselected candidate, don't try to
@@ -4156,8 +4163,8 @@ with the extended highlighting of `ivy-format-function-line'."
 
 (defun ivy--highlight-fuzzy (str)
   "Highlight STR, using the fuzzy method."
-  (if (and ivy--flx-featurep
-           (eq (ivy-alist-setting ivy-re-builders-alist) 'ivy--regex-fuzzy))
+  (if (and (eq (ivy-alist-setting ivy-re-builders-alist) #'ivy--regex-fuzzy)
+           (ivy--flx-available-p))
       (let ((flx-name (string-remove-prefix "^" ivy-text)))
         (ivy--flx-propertize
          (cons (flx-score str flx-name ivy--flx-cache) str)))
@@ -4979,6 +4986,9 @@ This list can be rotated with `ivy-rotate-preferred-builders'."
             ((symbolp history)
              (set history (delete current (symbol-value history))))
             ((ring-p history)
+             ;; `ring-p' is autoloaded.
+             (declare-function ring-member "ring")
+             (declare-function ring-remove "ring")
              (ring-remove history (ring-member history current)))))
     (ivy--kill-current-candidate)))
 
@@ -4996,6 +5006,8 @@ Also set `ivy--reverse-i-search-history' to HISTORY."
                 ((symbolp history)
                  (copy-sequence (symbol-value history)))
                 ((ring-p history)
+                 ;; `ring-p' is autoloaded.
+                 (declare-function ring-elements "ring")
                  (ring-elements history))
                 ((sequencep history)
                  (copy-sequence history))

@@ -44,11 +44,18 @@
 (require 'ivy)
 (require 'swiper)
 
-(require 'compile)
-(require 'dired)
-
 (eval-when-compile
   (require 'subr-x))
+
+(eval-when-compile
+  (unless (fboundp 'static-if)
+    (defmacro static-if (condition then-form &rest else-forms)
+      "Expand to THEN-FORM or ELSE-FORMS based on compile-time CONDITION.
+Polyfill for Emacs 30 `static-if'."
+      (declare (debug (sexp sexp &rest sexp)) (indent 2))
+      (if (eval condition lexical-binding)
+          then-form
+        (macroexp-progn else-forms)))))
 
 (defgroup counsel nil
   "Completion functions using Ivy."
@@ -462,17 +469,21 @@ Used by commands `counsel-describe-symbol',
   (interactive)
   (ivy-exit-with-action #'counsel-info-lookup-symbol))
 
-(defvar find-tag-marker-ring)
-(declare-function xref-push-marker-stack "xref")
-
-(defalias 'counsel--push-xref-marker
-  ;; Added in Emacs 25.1.
-  (if (require 'xref nil t)
-      #'xref-push-marker-stack
-    (require 'etags)
-    (lambda (&optional m)
-      (ring-insert (with-no-warnings find-tag-marker-ring) (or m (point-marker)))))
-  "Compatibility shim for `xref-push-marker-stack'.")
+(defun counsel--push-xref-marker (&optional m)
+  "Compatibility shim for `xref-push-marker-stack'."
+  (static-if (require 'xref nil t)
+      ;; Added in Emacs 25.1.
+      (progn
+        (unless (fboundp 'xref-push-marker-stack)
+          (require 'xref))
+        (xref-push-marker-stack m))
+    (unless (boundp 'find-tag-marker-ring)
+      (require 'etags))
+    (unless (fboundp 'ring-insert)
+      (require 'ring))
+    (defvar find-tag-marker-ring)
+    (declare-function ring-insert "ring" (ring item))
+    (ring-insert find-tag-marker-ring (or m (point-marker)))))
 
 (defun counsel--find-symbol (x)
   "Find symbol definition that corresponds to string X."
@@ -1357,6 +1368,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
   (let ((inhibit-read-only t))
     (erase-buffer)
     (dired-mode default-directory counsel-dired-listing-switches)
+    (defvar dired-sort-inhibit)
+    (defvar dired-subdir-alist)
+    (declare-function dired-insert-set-properties "dired")
+    (declare-function dired-move-to-filename "dired")
     (insert "  " default-directory ":\n")
     (let ((point (point)))
       (insert "  " full-cmd "\n")
@@ -1926,7 +1941,8 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-copy (x)
   "Copy file X."
-  (require 'dired-aux)
+  ;; Autoloaded by `dired'.
+  (declare-function dired-copy-file "dired-aux")
   (counsel--find-file-1 "Copy file to: "
                         ivy--directory
                         (lambda (new-name)
@@ -1935,6 +1951,9 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-delete (x)
   "Delete file X."
+  (defvar dired-recursive-deletes)
+  (declare-function dired-clean-up-after-deletion "dired")
+  (declare-function dired-delete-file "dired")
   (when (or delete-by-moving-to-trash
             ;; `dired-delete-file', which see, already prompts for directories
             (eq t (car (file-attributes x)))
@@ -1947,7 +1966,8 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (defun counsel-find-file-move (x)
   "Move or rename file X."
-  (require 'dired-aux)
+  ;; Autoloaded by `dired'.
+  (declare-function dired-rename-file "dired-aux")
   (counsel--find-file-1 "Rename file to: "
                         ivy--directory
                         (lambda (new-name)
@@ -2067,8 +2087,9 @@ The preselect behavior can be customized via user options
         (file-name-nondirectory buffer-file-name))))
 
 (defun counsel--find-file-1 (prompt initial-input action caller)
+  (declare-function dired-current-directory "dired")
   (let ((default-directory
-         (if (eq major-mode 'dired-mode)
+         (if (derived-mode-p 'dired-mode)
              (dired-current-directory)
            default-directory)))
     (ivy-read prompt #'read-file-name-internal
@@ -2086,6 +2107,7 @@ The preselect behavior can be customized via user options
   "Forward to `find-file'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
+  (require 'dired)
   (defvar tramp-archive-enabled)
   (let ((tramp-archive-enabled nil)
         (default-directory (or initial-directory default-directory)))
@@ -2316,13 +2338,13 @@ result as a URL."
        counsel-url-expansions-alist))))
 
 ;;** `counsel-dired'
-(declare-function dired "dired")
 
 ;;;###autoload
 (defun counsel-dired (&optional initial-input)
   "Forward to `dired'.
 When INITIAL-INPUT is non-nil, use it in the minibuffer during completion."
   (interactive)
+  (require 'dired)
   (let ((counsel--find-file-predicate #'file-directory-p))
     (counsel--find-file-1
      "Dired (directory): " initial-input
@@ -2348,7 +2370,6 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
 (defun counsel-recentf ()
   "Find a file on `recentf-list'."
   (interactive)
-  (require 'recentf)
   (recentf-mode)
   (ivy-read "Recentf: " (counsel-recentf-candidates)
             :action (lambda (f)
@@ -2438,7 +2459,6 @@ This function uses the `dom' library from Emacs 25.1 or later."
 
 (defun counsel-buffer-or-recentf-candidates ()
   "Return candidates for `counsel-buffer-or-recentf'."
-  (require 'recentf)
   (recentf-mode)
   (let ((buffers (delq nil (mapcar #'buffer-file-name (buffer-list)))))
     (nconc
@@ -2637,7 +2657,10 @@ string - the full shell command to run."
 
 (defalias 'counsel-find-file-extern #'counsel-locate-action-extern)
 
-(declare-function dired-jump "dired-x")
+(eval-and-compile
+  ;; Autoloaded by `dired' since Emacs 28.
+  (unless (fboundp 'dired-jump)
+    (autoload 'dired-jump "dired-x" nil t)))
 
 (defun counsel-locate-action-dired (x)
   "Use `dired-jump' on X."
@@ -3268,7 +3291,9 @@ Note: don't use single quotes for the regexp."
 
 (defun counsel--rg-targets ()
   "Return a list of files to operate on, based on `dired-mode' marks."
-  (when (eq major-mode 'dired-mode)
+  (when (derived-mode-p 'dired-mode)
+    (declare-function dired-get-marked-files "dired")
+    (declare-function dired-toggle-marks "dired")
     (let ((files
            (dired-get-marked-files 'no-dir nil nil t)))
       (when (or (cdr files)
@@ -4777,13 +4802,13 @@ S will be of the form \"[register]: content\"."
      (replace-regexp-in-string "\\`\\[.*?]: " "" s t t))))
 
 ;;** `counsel-imenu'
-(defvar imenu-auto-rescan)
-(defvar imenu-auto-rescan-maxout)
 (declare-function imenu--subalist-p "imenu")
 (declare-function imenu--make-index-alist "imenu")
 
 (defun counsel--imenu-candidates ()
   (require 'imenu)
+  (defvar imenu-auto-rescan)
+  (defvar imenu-auto-rescan-maxout)
   (let* ((imenu-auto-rescan t)
          (imenu-auto-rescan-maxout (if current-prefix-arg
                                        (buffer-size)
@@ -6761,6 +6786,8 @@ This is determined by `counsel-compile-local-builds', which see."
 ;; things like infer `default-directory' from 'cd's in the string.
 (defun counsel-compile--update-history (_proc)
   "Update `counsel-compile-history' from the compilation state."
+  (defvar compilation-arguments)
+  (defvar compilation-environment)
   (let* ((srcdir (counsel--compile-root))
          (blddir default-directory)
          (bldenv compilation-environment)
@@ -6789,6 +6816,7 @@ edited the command, thus losing our embedded state.")
 If CMD has the `recursive' property set we call `counsel-compile'
 again to further refine the compile options in the directory
 specified by the `blddir' property."
+  (defvar compilation-environment)
   (let ((blddir (get-text-property 0 'blddir cmd))
         (bldenv (get-text-property 0 'bldenv cmd)))
     (if (get-text-property 0 'recursive cmd)
@@ -6838,6 +6866,8 @@ Additional actions:
 
 \\{counsel-compile-map}"
   (interactive)
+  (require 'compile)
+  (require 'dired) ;; For face `dired-directory'.
   (setq counsel-compile--current-build-dir (or dir
                                                (counsel--compile-root)
                                                default-directory))
@@ -7123,6 +7153,12 @@ The user options `counsel-search-engine' and
     #'counsel-search "0.13.2 (2019-10-17)")
 
 ;;** `counsel-compilation-errors'
+
+(declare-function compilation--message->loc "compile")
+(declare-function compilation-buffer-p "compile")
+(declare-function compilation-next-single-property-change "compile")
+(declare-function compile-goto-error "compile")
+
 (defun counsel--compilation-errors-buffer (buf)
   (with-current-buffer buf
     (let ((res nil)
@@ -7156,6 +7192,7 @@ The user options `counsel-search-engine' and
 (defun counsel-compilation-errors ()
   "Compilation errors."
   (interactive)
+  (require 'compile)
   (ivy-read "compilation errors: " (counsel-compilation-errors-cands)
             :require-match t
             :action #'counsel-compilation-errors-action
