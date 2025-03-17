@@ -6965,31 +6965,107 @@ Additional actions:\\<ivy-minibuffer-map>
             :caller 'counsel-major))
 
 ;;** `counsel-search'
-(declare-function request "ext:request")
 
 (defcustom counsel-search-engine 'ddg
   "The search engine choice in `counsel-search-engines-alist'."
   :type '(choice
-          (const ddg)
-          (const google)))
+          (const :tag "DuckDuckGo" ddg)
+          (const :tag "Google" google)))
 
 (defcustom counsel-search-engines-alist
-  '((google
-     "http://suggestqueries.google.com/complete/search"
-     "https://www.google.com/search?q="
-     counsel--search-request-data-google)
-    (ddg
+  '((ddg
      "https://duckduckgo.com/ac/"
      "https://duckduckgo.com/html/?q="
-     counsel--search-request-data-ddg))
-  "Search engine parameters for `counsel-search'."
+     counsel--search-request-data-ddg)
+    (google
+     "https://suggestqueries.google.com/complete/search"
+     "https://www.google.com/search?q="
+     counsel--search-request-data-google))
+  "List of search engine parameters for `counsel-search'.
+Each element is of the form (SYMBOL SUGGEST BROWSE EXTRACT), where:
+SYMBOL identifies the search engine, as per `counsel-search-engine'.
+SUGGEST is the URL to query for suggestions.
+BROWSE is the URL prefix for visiting the selected result.
+EXTRACT is a function that takes the object parsed from the SUGGEST
+ endpoint and transforms it into a set of Ivy candidates."
+  :package-version '(counsel . "0.16.0")
   :type '(alist :key-type symbol :value-type (list string string function)))
 
 (defun counsel--search-request-data-google (data)
-  (mapcar #'identity (aref data 1)))
+  "Extract Google suggestions from parsed JSON DATA.
+Expects input of the form [\"a\" [\"ab\" \"ac\"] ...]."
+  (append (aref data 1) ()))
 
 (defun counsel--search-request-data-ddg (data)
+  "Extract DuckDuckGo suggestions from parsed JSON DATA.
+Expects input of the form [((phrase . \"ab\")) ...]."
   (mapcar #'cdar data))
+
+(defvar counsel--native-json)
+(put 'counsel--native-json 'variable-documentation
+     "Non-nil if Emacs supports JSON natively, or void.")
+
+(defun counsel--search-update (extract str type)
+  "Call EXTRACT on JSON STR of Content-TYPE."
+  (unless (fboundp 'mail-header-parse-content-type)
+    (require 'mail-parse))
+  (declare-function json-parse-string "json.c")
+  (declare-function json-read-from-string "json")
+  (declare-function mail-content-type-get "mail-parse")
+  (declare-function mail-header-parse-content-type "mail-parse")
+  (let* ((ct (and type (mail-header-parse-content-type type)))
+         (coding (coding-system-from-name (mail-content-type-get ct 'charset))))
+    (when coding
+      (setq str (decode-coding-string str coding t))))
+  (let ((obj (if counsel--native-json
+                 (json-parse-string str :object-type 'alist)
+               (defvar json-array-type)
+               (defvar json-object-type)
+               (let ((json-array-type 'vector)
+                     (json-object-type 'alist))
+                 (json-read-from-string str)))))
+    (ivy-update-candidates (funcall extract obj))))
+
+(defun counsel--search-plz (url extract)
+  "Fetch URL with `plz' and EXTRACT its JSON payload."
+  (declare-function plz "ext:plz")
+  (declare-function plz-response-body "ext:plz")
+  (declare-function plz-response-headers "ext:plz")
+  ;; Doesn't handle Content-Type, so defer decoding+parsing until :then.
+  ;; (See URL `https://github.com/alphapapa/plz.el/pull/66'.)
+  ;; Ask for a `plz-response' object because it already contains the parsed
+  ;; headers (though just widening the response buffer could be quicker).
+  (plz 'get url :as 'response :decode nil :noquery t
+    :then (lambda (response)
+            (let* ((heads (plz-response-headers response))
+                   (body (plz-response-body response))
+                   (ct (cdr (assq 'content-type heads))))
+              (counsel--search-update extract body ct)))))
+
+(defun counsel--search-request (url extract)
+  "Fetch URL with `request' and EXTRACT its JSON payload."
+  (declare-function request "ext:request")
+  (declare-function request-response-header "ext:request")
+  ;; Doesn't handle Content-Type (expects coding system a priori),
+  ;; so defer decoding+parsing until :success.
+  (request url :type "GET"
+    :success (cl-function
+              (lambda (&key data response &allow-other-keys)
+                (let ((ct (request-response-header response "content-type")))
+                  (counsel--search-update extract data ct))))))
+
+(defvar counsel--search-backend)
+(put 'counsel--search-backend 'variable-documentation
+     "Feature symbol indicating available HTTP library, or void.
+Valid values are the keys of `counsel--search-backends'.")
+
+(defvar counsel--search-backends
+  `((plz ,#'counsel--search-plz)
+    (request ,#'counsel--search-request))
+  "List of (BACKEND GETTER) for `counsel-search'.
+BACKEND is a feature symbol like `counsel--search-backend'.
+GETTER is a function taking a URL and an EXTRACT function as in
+ `counsel-search-engines-alist'.")
 
 (defun counsel-search-function (input)
   "Create a request to a search engine with INPUT.
@@ -6997,32 +7073,46 @@ Return 0 tells `ivy--exhibit' not to update the minibuffer.
 We update it in the callback with `ivy-update-candidates'."
   (or
    (ivy-more-chars)
-   (let ((engine (cdr (assoc counsel-search-engine counsel-search-engines-alist))))
-     (request
-      (nth 0 engine)
-      :type "GET"
-      :params (list
-               (cons "client" "firefox")
-               (cons "q" input))
-      :parser 'json-read
-      :success (cl-function
-                (lambda (&key data &allow-other-keys)
-                  (ivy-update-candidates
-                   (funcall (nth 2 engine) data)))))
+   (let* ((backend (assq counsel--search-backend counsel--search-backends))
+          (engine (assq counsel-search-engine counsel-search-engines-alist))
+          (suggest (nth 1 engine))
+          (extract (nth 3 engine))
+          (url (concat suggest (if (ivy--string-search "?" suggest) "&" "?")
+                       ;; FIXME: `client' needed only for `google'?
+                       (url-build-query-string `(("client" "firefox")
+                                                 ("q" ,input))))))
+     ;; Do we need to cancel requests already in flight?
+     (funcall (nth 1 backend) url extract)
      0)))
 
-(defun counsel-search-action (x)
-  "Search for X."
-  (browse-url
-   (concat
-    (nth 2 (assoc counsel-search-engine counsel-search-engines-alist))
-    (url-hexify-string x))))
+(defun counsel-search-action (candidate)
+  "Browse the search results for `counsel-search' CANDIDATE."
+  (let ((engine (assq counsel-search-engine counsel-search-engines-alist)))
+    (browse-url (concat (nth 2 engine) (url-hexify-string candidate)))))
 
 (defun counsel-search ()
-  "Ivy interface for dynamically querying a search engine."
+  "Ivy interface for querying a search engine.
+Dynamically displays search suggestions for the current input.
+The user options `counsel-search-engine' and
+`counsel-search-engines-alist' determine the engine."
   (interactive)
-  (require 'request)
-  (require 'json)
+  (unless (boundp 'counsel--search-backend)
+    (setq counsel--search-backend
+          ;; `plz' is on GNU ELPA; `request' on NonGNU ELPA.
+          (or (require 'plz nil t)
+              (require 'request nil t)
+              (user-error
+               "Required package `plz' (or `request') not installed"))))
+  ;; - Emacs 27: optional native JSON support.
+  ;; - Emacs 28: `json-available-p'.
+  ;; - Emacs 30: unconditional native JSON support.
+  ;; That means the following sets `counsel--native-json' to nil even for
+  ;; Emacs 27 with native JSON support, in the interest of simplicity.
+  (or (boundp 'counsel--native-json)
+      (setq counsel--native-json
+            (and (fboundp 'json-available-p)
+                 (json-available-p)))
+      (require 'json))
   (ivy-read "search: " #'counsel-search-function
             :action #'counsel-search-action
             :dynamic-collection t
