@@ -2668,6 +2668,7 @@ Typically the completion-matching parts of STR have previously been
 propertized by `completion-all-completions', but then the base-size
 returned by that function should be preferred over
 `ivy-completion-common-length'."
+  (declare (obsolete "it is no longer used." "0.15.1"))
   (let* ((char-property-alias-alist '((face font-lock-face)))
          (cmn (length str))
          (i cmn))
@@ -2693,16 +2694,18 @@ See `completion-in-region' for further information."
          (try (completion-try-completion str collection predicate reg md))
          (comps (completion-all-completions str collection predicate reg md))
          (last (last comps))
-         (base-size (cdr last))
+         (base-size (or (cdr last) 0))
          (ivy--minibuffer-table collection)
          (ivy--minibuffer-pred predicate))
     (when last (setcdr last ()))
-    (cond ((not try)
+    ;; For no/sole match:
+    ;; give priority to boolean `try', falling back on `comps'.
+    (cond ((not (and try (or (eq try t) comps)))
            (and (not completion-fail-discreetly)
                 completion-show-inline-help
                 (minibuffer-message "No matches"))
            nil)
-          ((eq try t)
+          ((and try (or (eq try t) (equal (list str) comps)))
            (goto-char end)
            (let ((minibuffer-completion-table collection)
                  (minibuffer-completion-predicate predicate))
@@ -2711,23 +2714,8 @@ See `completion-in-region' for further information."
           (t
            (when (eq collection 'crm--collection-fn)
              (setq comps (delete-dups comps)))
-           (let* ((cmn (ivy-completion-common-length (car comps)))
-                  ;; Translate a 'not found' result to 0.  Do this here (instead
-                  ;; of fixing `ivy-completion-common-length') for backward
-                  ;; compatibility, since it's a potentially public function.
-                  (cmn (if (= cmn (length (car comps))) 0 cmn))
-                  (initial (cond (base-size (substring str base-size))
-                                 ;; The remaining clauses should hopefully never
-                                 ;; be taken, since they rely on
-                                 ;; `ivy-completion-common-length'.
-                                 ((= cmn 0)
-                                  "")
-                                 ((>= cmn reg)
-                                  (setq cmn reg)
-                                  str)
-                                 (t
-                                  (substring str (- cmn)))))
-                  (base-pos (if base-size (+ start base-size) (- end cmn))))
+           (let ((initial (substring str base-size))
+                 (base-pos (+ start base-size)))
              (delete-region base-pos end)
              (setq ivy-completion-beg base-pos)
              (setq ivy-completion-end ivy-completion-beg)
