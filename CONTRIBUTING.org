@@ -51,6 +51,7 @@ Before submitting a change, run:
 - =make compile= - check for new compilation warnings
 - =make deps= - install dependencies for testing
 - =make test= - check for failing tests
+- =make check-declare= - check accuracy of function declarations
 - =make checkdoc= - check documentation guidelines
 
 Use your own judgment for the commit messages, I recommend a verbose

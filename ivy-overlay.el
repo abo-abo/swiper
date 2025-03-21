@@ -86,7 +86,7 @@ Then attach the overlay to the character before point."
 (defvar ivy-text)
 (defvar ivy-completion-beg)
 (declare-function ivy--get-window "ivy")
-(declare-function ivy-state-window "ivy")
+(declare-function ivy-state-window "ivy" t t)
 
 (defun ivy-overlay--current-column ()
   "Return `current-column', ignoring `ivy-overlay-at'.

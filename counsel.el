@@ -147,13 +147,16 @@ When NOERROR is non-nil, return nil instead of raising an error."
           (unless noerror
             (user-error "Required program \"%s\" not found in your path" program))))))
 
-(declare-function eshell-split-path "esh-util")
-
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
+  (declare (obsolete "it is no longer used." "0.16.0"))
   (require 'esh-util)
   (let* ((dir (ivy-state-directory ivy-last))
-         (parts (nthcdr 3 (eshell-split-path dir)))
+         (parts (nthcdr 3 (funcall (if (fboundp 'eshell-split-filename)
+                                       ;; New name since Emacs 30.
+                                       #'eshell-split-filename
+                                     'eshell-split-path)
+                                   dir)))
          (dir (format " [%s]: " (if parts (apply #'concat "..." parts) dir))))
     (ivy-add-prompt-count
      (replace-regexp-in-string          ; Insert dir before any trailing colon.
@@ -2533,26 +2536,26 @@ For convenience, BEG and END default to `point-min' and
 This information is parsed from the file \"recently-used.xbel\",
 which lists both files and directories, under `xdg-data-home'.
 This function uses the `dom' library from Emacs 25.1 or later."
-  (unless (require 'dom nil t)
+  (unless (eval-and-compile (require 'dom nil t))
     (user-error "This function requires Emacs 25.1 or later"))
-  (declare-function dom-attr "dom" (node attr))
   (declare-function dom-by-tag "dom" (dom tag))
   (let ((file-of-recent-files
          (expand-file-name "recently-used.xbel" (counsel--xdg-data-home))))
     (unless (file-readable-p file-of-recent-files)
       (user-error "List of XDG recent files not found: %s"
                   file-of-recent-files))
-    (cl-mapcan (lambda (bookmark-node)
-                 (let* ((file (dom-attr bookmark-node 'href))
-                        (file (string-remove-prefix "file://" file))
-                        (file (url-unhex-string file t))
-                        (file (decode-coding-string file 'utf-8 t)))
-                   (and (file-exists-p file)
-                        (list file))))
-               (let ((dom (with-temp-buffer
-                            (insert-file-contents file-of-recent-files)
-                            (counsel--xml-parse-region))))
-                 (nreverse (dom-by-tag dom 'bookmark))))))
+    (when (fboundp 'dom-attr) ;; Pacify Emacs 24.
+      (cl-mapcan (lambda (bookmark-node)
+                   (let* ((file (dom-attr bookmark-node 'href))
+                          (file (string-remove-prefix "file://" file))
+                          (file (url-unhex-string file t))
+                          (file (decode-coding-string file 'utf-8 t)))
+                     (and (file-exists-p file)
+                          (list file))))
+                 (let ((dom (with-temp-buffer
+                              (insert-file-contents file-of-recent-files)
+                              (counsel--xml-parse-region))))
+                   (nreverse (dom-by-tag dom 'bookmark)))))))
 
 (defun counsel-buffer-or-recentf-candidates ()
   "Return candidates for `counsel-buffer-or-recentf'."
@@ -3694,13 +3697,11 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 (defvar org-indent-mode)
 (defvar org-indent-indentation-per-level)
 (defvar org-tags-column)
-(declare-function org-get-tags-string "org")
 (declare-function org-get-tags "org")
-(declare-function org-make-tag-string "org")
 (declare-function org-move-to-column "org-compat")
 
 (defun counsel--org-make-tag-string ()
-  (if (fboundp #'org-make-tag-string)
+  (if (fboundp 'org-make-tag-string)
       ;; >= Org 9.2
       (org-make-tag-string (counsel--org-get-tags))
     (with-no-warnings
@@ -3751,7 +3752,10 @@ INITIAL-INPUT can be given as the initial minibuffer input."
 
 (defvar org-agenda-bulk-marked-entries)
 
-(declare-function org-get-at-bol "org")
+;; Moved from `org' to `org-macs' in Emacs 27.
+(declare-function org-get-at-bol "org-macs")
+(declare-function org-trim "org-macs")
+
 (declare-function org-agenda-error "org-agenda")
 
 (defun counsel-org-tag-action (x)
@@ -4152,17 +4156,23 @@ include attachments of other Org buffers."
 ;;;; `counsel-org-agenda-headlines'
 
 (defvar org-odd-levels-only)
-(declare-function org-set-startup-visibility "org")
-(declare-function org-show-entry "org")
 (declare-function org-map-entries "org")
 (declare-function org-heading-components "org")
 
 (defun counsel-org-agenda-headlines-action-goto (headline)
   "Go to the `org-mode' agenda HEADLINE."
   (find-file (nth 1 headline))
-  (org-set-startup-visibility)
+  (if (fboundp 'org-cycle-set-startup-visibility)
+      (org-cycle-set-startup-visibility)
+    ;; Obsolete alias since Org 9.6 / Emacs 29.
+    (with-no-warnings
+      (org-set-startup-visibility)))
   (goto-char (nth 2 headline))
-  (org-show-entry))
+  (if (fboundp 'org-fold-show-entry)
+      (org-fold-show-entry)
+    ;; Obsolete alias since Org 9.6 / Emacs 29.
+    (with-no-warnings
+      (org-show-entry))))
 
 (ivy-set-actions
  'counsel-org-agenda-headlines
@@ -4247,6 +4257,7 @@ This variable has no effect unless
 
 ;;;; `counsel-org-link'
 
+;; Moved from `org' to `ol' in Emacs 27.
 (declare-function org-insert-link "ol")
 (declare-function org-id-get-create "org-id")
 
@@ -4448,7 +4459,7 @@ When ARG is non-nil, display all active evil registers."
 (defvar package-user-dir)
 (declare-function package-installed-p "package")
 (declare-function package-delete "package")
-(declare-function package-desc-extras "package")
+(declare-function package-desc-extras "package" t t)
 
 (defvar counsel-package-history nil
   "History for `counsel-package'.")
@@ -4535,14 +4546,13 @@ Additional actions:\\<ivy-minibuffer-map>
 ;;;; `counsel-tmm'
 
 (declare-function tmm-get-keymap "tmm" (elt &optional in-x-menu))
-(declare-function tmm--completion-table "tmm" (items))
 
 (defalias 'counsel--menu-keymap
   ;; Added in Emacs 28.1.
   (if (fboundp 'menu-bar-keymap)
       #'menu-bar-keymap
-    (autoload 'tmm-get-keybind "tmm")
-    (declare-function tmm-get-keybind "tmm" (keyseq))
+    ;; Removed in Emacs 28.1.
+    (declare-function tmm-get-keybind "tmm" (keyseq) t)
     (lambda () (tmm-get-keybind [menu-bar])))
   "Compatibility shim for `menu-bar-keymap'.")
 
@@ -4554,9 +4564,14 @@ Additional actions:\\<ivy-minibuffer-map>
         chosen-string)
     (setq tmm-km-list nil)
     (map-keymap (lambda (k v) (tmm-get-keymap (cons k v))) menu)
-    (setq tmm-km-list (nreverse tmm-km-list))
-    (setq out (ivy-read "Menu bar: " (tmm--completion-table tmm-km-list)
-                        :require-match t))
+    (let ((items (setq tmm-km-list (nreverse tmm-km-list))))
+      (setq out (ivy-read "Menu bar: "
+                          ;; From `tmm--completion-table', removed in Emacs 31.
+                          (lambda (str pred action)
+                            (if (eq action 'metadata)
+                                '(metadata (display-sort-function . identity))
+                              (complete-with-action action items str pred)))
+                          :require-match t)))
     (setq choice (cdr (assoc out tmm-km-list)))
     (setq chosen-string (car choice))
     (setq choice (cdr choice))
@@ -5289,8 +5304,6 @@ TREEP is used to expand internal nodes."
     (counsel-imenu)))
 
 ;;;; `counsel-outline'
-
-(declare-function org-trim "org-macs")
 
 (defcustom counsel-outline-face-style nil
   "Determines how to style outline headings during completion.
@@ -7233,7 +7246,7 @@ The user options `counsel-search-engine' and
 
 ;;;; `counsel-compilation-errors'
 
-(declare-function compilation--message->loc "compile")
+(declare-function compilation--message->loc "compile" t t)
 (declare-function compilation-buffer-p "compile")
 (declare-function compilation-next-single-property-change "compile")
 (declare-function compile-goto-error "compile")

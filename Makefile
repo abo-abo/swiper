@@ -57,6 +57,10 @@ clean:
 checkdoc:
 	$(EMACS) -Q -batch -L . -l targets/checkdoc.el $(src-elcs:c=)
 
+.PHONY: check-declare
+check-declare:
+	$(EMACS) -Q -batch -eval '(check-declare-directory "$(CURDIR)")'
+
 .PHONY: plain
 plain: compile
 	$(EMACS) -Q -L . -l targets/plain.el

@@ -1086,7 +1086,7 @@ WND, when specified is the window."
 (defvar evil-ex-search-pattern)
 (defvar evil-ex-search-persistent-highlight)
 (defvar evil-ex-search-direction)
-(declare-function evil-ex-search-activate-highlight "evil-ex")
+(declare-function evil-ex-search-activate-highlight "ext:evil-search")
 
 (defun swiper--maybe-recenter ()
   (cond (swiper-action-recenter
