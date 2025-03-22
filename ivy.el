@@ -4935,7 +4935,7 @@ Don't finish completion."
              (ivy-state-current ivy-last) 0 end))))
 
 (defun ivy-insert-current-full ()
-  "Insert the full Yank the current directory into the minibuffer."
+  "Insert the current directory into the minibuffer."
   (interactive)
   (insert ivy--directory))
 

@@ -8,4 +8,8 @@
   (indent-tabs-mode . nil)
   ;; extra config here: https://github.com/abo-abo/oremacs/blob/github/modes/ora-elisp-style-guide.el
   ;; (lisp-indent-function . common-lisp-indent-function)
-  ))
+  )
+ (markdown-mode
+  (fill-column . 70))
+ (org-mode
+  (fill-column . 70)))
