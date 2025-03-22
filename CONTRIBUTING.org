@@ -2,7 +2,7 @@
 
 Before reporting a bug, please take a look at:
 - the [[https://github.com/abo-abo/swiper/blob/master/README.md][FAQ]]
-- the [[https://oremacs.com/swiper/][manual]]
+- the [[https://elpa.gnu.org/packages/doc/ivy.html][manual]]
 - the [[https://github.com/abo-abo/swiper/wiki][wiki]]
 - the [[https://github.com/abo-abo/swiper/issues][open issues]]
 

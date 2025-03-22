@@ -44,7 +44,7 @@ the `(ivy)` Info node.
 
 The source file for the Info page is [here](doc/ivy.org).
 
-The manual is also available as [HTML](https://oremacs.com/swiper/).
+The manual is also available as [HTML](https://elpa.gnu.org/packages/doc/ivy.html).
 
 ### Wiki
 
