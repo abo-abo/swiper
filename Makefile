@@ -59,7 +59,7 @@ checkdoc:
 
 .PHONY: check-declare
 check-declare:
-	$(EMACS) -Q -batch -eval '(check-declare-directory "$(CURDIR)")'
+	$(EMACS) -Q -batch -eval '(check-declare-directory ".")'
 
 .PHONY: plain
 plain: compile
