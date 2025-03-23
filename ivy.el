@@ -4912,16 +4912,12 @@ The \"pulse\" duration is determined by `ivy-pulse-delay'."
     (setq ivy--pulse-overlay nil)))
 
 (defun ivy-kill-ring-save ()
-  "Store the current candidates into the kill ring.
+  "Save the current candidates in the kill ring.
 If the region is active, forward to `kill-ring-save' instead."
   (interactive)
-  (if (region-active-p)
-      (call-interactively 'kill-ring-save)
-    (kill-new
-     (mapconcat
-      #'identity
-      ivy--old-cands
-      "\n"))))
+  (if (use-region-p)
+      (call-interactively #'kill-ring-save)
+    (kill-new (string-join ivy--old-cands "\n"))))
 
 (defun ivy-insert-current ()
   "Make the current candidate into current input.

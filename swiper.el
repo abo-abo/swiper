@@ -858,6 +858,9 @@ When non-nil, INITIAL-INPUT is the initial search pattern."
   :unwind-fn #'swiper--cleanup
   :index-fn #'ivy-recompute-index-swiper)
 
+(ivy-add-actions 'swiper
+                 `(("w" ,#'swiper-action-copy "copy")))
+
 (defun swiper-toggle-face-matching ()
   "Toggle matching only the candidates with `swiper-invocation-face'."
   (interactive)
@@ -1567,10 +1570,6 @@ completion."
     ;; In case of unexpected error.
     (goto-char swiper--opoint)))
 
-(ivy-add-actions 'swiper-isearch '(("w" swiper-isearch-action-copy "copy")))
-(ivy-add-actions 'swiper-isearch '(("i" swiper-isearch-action-insert "insert")))
-(ivy-add-actions 'swiper '(("w" swiper-action-copy "copy")))
-
 (defun swiper--isearch-insert-current ()
   "Replace minibuffer contents with the current candidate.
 Like `ivy-insert-current', but tailored for `swiper-isearch'."
@@ -1578,6 +1577,16 @@ Like `ivy-insert-current', but tailored for `swiper-isearch'."
   (delete-minibuffer-contents)
   (let ((cur (ivy-state-current ivy-last)))
     (insert (with-ivy-window (swiper--isearch-candidate-string cur)))))
+
+(defun swiper--isearch-kill-ring-save ()
+  "Save the current candidates in the kill ring.
+If the region is active, forward to `kill-ring-save' instead.
+Like `ivy-kill-ring-save', but tailored for `swiper-isearch'."
+  (interactive)
+  (if (use-region-p)
+      (call-interactively #'kill-ring-save)
+    (kill-new (with-ivy-window
+                (mapconcat #'swiper--line-at-point ivy--old-cands "\n")))))
 
 (defun swiper-isearch-thing-at-point ()
   "Insert `symbol-at-point' into the minibuffer of `swiper-isearch'.
@@ -1621,6 +1630,10 @@ When the input is empty, browse the search history instead."
     (set-keymap-parent map swiper-map)
     (define-key map `[remap ,#'ivy-insert-current]
                 #'swiper--isearch-insert-current)
+    (define-key map `[remap ,#'ivy-kill-ring-save]
+                #'swiper--isearch-kill-ring-save)
+    (define-key map `[remap ,#'kill-ring-save]
+                #'swiper--isearch-kill-ring-save)
     (define-key map (kbd "M-n") #'swiper-isearch-thing-at-point)
     (define-key map (kbd "C-r") #'swiper-isearch-C-r)
     map)
@@ -1768,6 +1781,10 @@ When the input is empty, browse the search history instead."
   :update-fn 'auto
   :unwind-fn #'swiper--isearch-unwind
   :format-fn #'swiper-isearch-format-function)
+
+(ivy-add-actions 'swiper-isearch
+                 `(("w" ,#'swiper-isearch-action-copy "copy")
+                   ("i" ,#'swiper-isearch-action-insert "insert")))
 
 ;;;###autoload
 (defun swiper-isearch-backward (&optional initial-input)
