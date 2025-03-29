@@ -5,8 +5,8 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; Maintainer: Basil L. Contovounesios <basil@contovou.net>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.15.0
-;; Package-Requires: ((emacs "24.5") (ivy "0.15.0"))
+;; Version: 0.15.1
+;; Package-Requires: ((emacs "24.5") (ivy "0.15.1"))
 ;; Keywords: matching
 
 ;; This file is part of GNU Emacs.

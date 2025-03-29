@@ -8,7 +8,7 @@
 
 @copying
 @ifnottex
-Ivy manual, version 0.15.0
+Ivy manual, version 0.15.1
 
 Ivy is an interactive interface for completion in Emacs.  Emacs uses
 completion mechanism in a variety of contexts: code, menus, commands,

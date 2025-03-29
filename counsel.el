@@ -5,8 +5,8 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; Maintainer: Basil L. Contovounesios <basil@contovou.net>
 ;; URL: https://github.com/abo-abo/swiper
-;; Version: 0.15.0
-;; Package-Requires: ((emacs "24.5") (ivy "0.15.0") (swiper "0.15.0"))
+;; Version: 0.15.1
+;; Package-Requires: ((emacs "24.5") (ivy "0.15.1") (swiper "0.15.1"))
 ;; Keywords: convenience, matching, tools
 
 ;; This file is part of GNU Emacs.
@@ -149,7 +149,7 @@ When NOERROR is non-nil, return nil instead of raising an error."
 
 (defun counsel-prompt-function-dir ()
   "Return prompt appended with the parent directory."
-  (declare (obsolete "it is no longer used." "0.16.0"))
+  (declare (obsolete "it is no longer used." "0.15.1"))
   (require 'esh-util)
   (let* ((dir (ivy-state-directory ivy-last))
          (parts (nthcdr 3 (funcall (if (fboundp 'eshell-split-filename)
@@ -7111,7 +7111,7 @@ SUGGEST is the URL to query for suggestions.
 BROWSE is the URL prefix for visiting the selected result.
 EXTRACT is a function that takes the object parsed from the SUGGEST
  endpoint and transforms it into a set of Ivy candidates."
-  :package-version '(counsel . "0.16.0")
+  :package-version '(counsel . "0.15.1")
   :type '(alist :key-type symbol :value-type (list string string function)))
 
 (defun counsel--search-request-data-google (data)
