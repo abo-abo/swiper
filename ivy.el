@@ -3409,28 +3409,29 @@ Otherwise, ~/ will move home."
   :type 'boolean)
 
 (defcustom ivy-dynamic-exhibit-delay-ms 0
-  "Delay in ms before dynamic collections are refreshed"
+  "Delay in milliseconds before dynamic collections are refreshed."
   :type 'integer)
 
-(defvar ivy--queue-last-input nil)
-(defvar ivy--exhibit-timer nil)
+(defvar ivy--exhibit-timer nil
+  "Timer for debouncing calls to `ivy--exhibit'.")
+
+(defvar ivy--queue-last-input nil
+  "Value of `ivy--input' from last `post-command-hook'.")
 
 (defun ivy--queue-exhibit ()
-  "Insert Ivy completions display, possibly after a timeout for
-dynamic collections.
+  "Refresh Ivy completions display, with debouncing.
+This is like `ivy--exhibit', but dynamic collections are delayed by
+`ivy-dynamic-exhibit-delay-ms' to avoid issues with rapid refreshes.
 Should be run via minibuffer `post-command-hook'."
-  (if (and (> ivy-dynamic-exhibit-delay-ms 0)
-           (ivy-state-dynamic-collection ivy-last)
-           (not (equal ivy--queue-last-input (ivy--input))))
-      (progn
-        (when ivy--exhibit-timer (cancel-timer ivy--exhibit-timer))
-        (setq ivy--exhibit-timer
-              (run-with-timer
-               (/ ivy-dynamic-exhibit-delay-ms 1000.0)
-               nil
-               'ivy--exhibit)))
-    (ivy--exhibit))
-  (setq ivy--queue-last-input (ivy--input)))
+  (if (or (<= ivy-dynamic-exhibit-delay-ms 0)
+          (not (ivy-state-dynamic-collection ivy-last))
+          (equal ivy--queue-last-input
+                 (setq ivy--queue-last-input (ivy--input))))
+      (ivy--exhibit)
+    (when ivy--exhibit-timer (cancel-timer ivy--exhibit-timer))
+    (setq ivy--exhibit-timer
+          (run-with-timer (/ ivy-dynamic-exhibit-delay-ms 1000.0)
+                          nil #'ivy--exhibit))))
 
 (defalias 'ivy--file-local-name
   (if (fboundp 'file-local-name)
@@ -3458,8 +3459,8 @@ The function was added in Emacs 26.1.")
 
 (defun ivy--exhibit ()
   "Insert Ivy completions display.
-Should be run via minibuffer `post-command-hook'."
-  (when (memq 'ivy--queue-exhibit post-command-hook)
+Should be run in the minibuffer."
+  (when (memq #'ivy--queue-exhibit post-command-hook)
     (let ((inhibit-field-text-motion nil))
       (constrain-to-field nil (point-max)))
     (ivy-set-text (ivy--input))
