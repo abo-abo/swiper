@@ -1252,6 +1252,8 @@ otherwise continue prompting for buffers."
     (cond
       ;; Ignore TAGS buffers, they tend to add duplicate results.
       ((eq mode #'tags-table-mode) nil)
+      ;; Ignore buffers being displayed as images
+      ((eq mode 'image-mode) nil)
       ;; Always consider dired buffers, even though they're not backed
       ;; by a file.
       ((eq mode #'dired-mode) t)
