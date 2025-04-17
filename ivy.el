@@ -2279,8 +2279,9 @@ customizations apply to the current completion session."
              ivy-text)))
       (cond ((equal item ""))
             ((stringp item)
-             (set hist (cons (propertize item 'ivy-index ivy--index)
-                             (delete item (symbol-value hist)))))))))
+             (let ((history-delete-duplicates t))
+               (add-to-history
+                hist (propertize item 'ivy-index ivy--index))))))))
 
 (defun ivy--cleanup ()
   ;; Fixes a bug in ESS, #1660
