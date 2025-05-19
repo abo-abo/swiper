@@ -1,22 +1,22 @@
-[![Build Status](https://github.com/abo-abo/swiper/actions/workflows/test.yml/badge.svg)](https://github.com/abo-abo/swiper/actions/workflows/test.yml)
+[![CI build badge][ci-badge]][ci]
 
-***flexible, simple tools for minibuffer completion in Emacs***
+***Flexible, simple tools for minibuffer completion in Emacs***
 
 This repository contains:
 
-**Ivy**, a generic completion mechanism for Emacs.
+- [**Ivy**](#ivy), a generic completion mechanism for Emacs.
 
-**Counsel**, a collection of Ivy-enhanced versions of common Emacs
-commands.
+- [**Counsel**](#counsel), a collection of Ivy-enhanced versions of
+  common Emacs commands.
 
-**Swiper**, an Ivy-enhanced alternative to Isearch.
+- [**Swiper**](#swiper), an Ivy-enhanced alternative to Isearch.
 
 # Ivy
 
-[![GNU-devel ELPA](https://elpa.gnu.org/devel/ivy.svg)](https://elpa.gnu.org/devel/ivy.html)
-[![GNU ELPA](https://elpa.gnu.org/packages/ivy.svg)](https://elpa.gnu.org/packages/ivy.html)
-[![MELPA](https://melpa.org/packages/ivy-badge.svg)](https://melpa.org/#/ivy)
-[![MELPA Stable](https://stable.melpa.org/packages/ivy-badge.svg)](https://stable.melpa.org/#/ivy)
+[![Ivy badge from GNU-devel ELPA][ivy-dev-badge]][ivy-dev]
+[![Ivy badge from GNU ELPA][ivy-badge]][ivy]
+[![Ivy badge from MELPA][ivy-melpa-badge]][ivy-melpa]
+[![Ivy badge from MELPA Stable][ivy-stable-badge]][ivy-stable]
 
 Ivy is a generic completion mechanism for Emacs.  While it operates
 similarly to other completion schemes such as `icomplete-mode`, Ivy
@@ -27,7 +27,7 @@ To try Ivy, just call <kbd>M-x</kbd> `ivy-mode`.  This will enable
 generic Ivy completion, including specific completion for file and
 buffer names.
 
-### Installation
+## Installation
 
 Install the `ivy` package from GNU ELPA or MELPA.
 
@@ -42,13 +42,13 @@ To add Hydra support: `sudo apt install elpa-ivy-hydra`.
 Installing `ivy` from GNU ELPA or MELPA also installs the manual under
 the `(ivy)` Info node.
 
-The source file for the Info page is [here](doc/ivy.org).
+The source file for the Info manual is [`ivy.org`](doc/ivy.org).
 
-The manual is also available as [HTML](https://elpa.gnu.org/packages/doc/ivy.html).
+The manual is also available as [HTML][ivy-manual].
 
 ### Wiki
 
-Ivy and Swiper wiki [is here](https://github.com/abo-abo/swiper/wiki).
+There is an Ivy and Swiper [wiki on GitHub][ivy-wiki].
 
 ### Small config example
 
@@ -81,10 +81,10 @@ Note: parts of this config can be replaced by using `counsel-mode`.
 
 # Counsel
 
-[![GNU-devel ELPA](https://elpa.gnu.org/devel/counsel.svg)](https://elpa.gnu.org/devel/counsel.html)
-[![GNU ELPA](https://elpa.gnu.org/packages/counsel.svg)](https://elpa.gnu.org/packages/counsel.html)
-[![MELPA](https://melpa.org/packages/counsel-badge.svg)](https://melpa.org/#/counsel)
-[![MELPA Stable](https://stable.melpa.org/packages/counsel-badge.svg)](https://stable.melpa.org/#/counsel)
+[![Counsel badge from GNU-devel ELPA][counsel-dev-badge]][counsel-dev]
+[![Counsel badge from GNU ELPA][counsel-badge]][counsel]
+[![Counsel badge from MELPA][counsel-melpa-badge]][counsel-melpa]
+[![Counsel badge from MELPA Stable][counsel-stable-badge]][counsel-stable]
 
 `ivy-mode` ensures that any Emacs command invoking `completing-read`
 or `completion-in-region` will use Ivy for completion.
@@ -98,7 +98,7 @@ Enabling `counsel-mode` remaps built-in Emacs functions that have
 Counsel replacements:
 
 | Emacs command              | Counsel counterpart          |
-|----------------------------|------------------------------|
+| -------------------------- | ---------------------------- |
 | `execute-extended-command` | `counsel-M-x`                |
 | `describe-bindings`        | `counsel-descbinds`          |
 | `describe-function`        | `counsel-describe-function`  |
@@ -117,26 +117,32 @@ Counsel replacements:
 | `pop-to-mark-command`      | `counsel-mark-ring`          |
 | `bookmark-jump`            | `counsel-bookmark`           |
 
+## Installation
+
+Install the `counsel` package from GNU ELPA or MELPA.
+
 # Swiper
 
-[![GNU-devel ELPA](https://elpa.gnu.org/devel/swiper.svg)](https://elpa.gnu.org/devel/swiper.html)
-[![GNU ELPA](https://elpa.gnu.org/packages/swiper.svg)](https://elpa.gnu.org/packages/swiper.html)
-[![MELPA](https://melpa.org/packages/swiper-badge.svg)](https://melpa.org/#/swiper)
-[![MELPA Stable](https://stable.melpa.org/packages/swiper-badge.svg)](https://stable.melpa.org/#/swiper)
+[![Swiper badge from GNU-devel ELPA][swiper-dev-badge]][swiper-dev]
+[![Swiper badge from GNU ELPA][swiper-badge]][swiper]
+[![Swiper badge from MELPA][swiper-melpa-badge]][swiper-melpa]
+[![Swiper badge from MELPA Stable][swiper-stable-badge]][swiper-stable]
 
 Swiper is an alternative to Isearch that uses Ivy to show an overview
 of all matches.
 
-![swiper.png](https://oremacs.com/download/swiper.png)
-
 A Helm version of Swiper is also available:
-[`swiper-helm`](https://github.com/abo-abo/swiper-helm).
+[`swiper-helm`][swiper-helm].
+
+## Installation
+
+Install the `swiper` package from GNU ELPA or MELPA.
 
 ## Screenshots
 
-![ivy-swiper-1.png](https://oremacs.com/download/ivy-swiper-1.png)
+![Screenshot of Swiper in Emacs][swiper-shot]
 
-There's also a ten minute [video demo](https://youtu.be/VvnJQpTFVDc).
+There's also a ~ten minute [video demo][swiper-demo].
 
 # Frequently asked questions
 
@@ -154,3 +160,100 @@ There's also a ten minute [video demo](https://youtu.be/VvnJQpTFVDc).
 
 Please see the [guidelines](CONTRIBUTING.org) for reporting issues and
 opening pull requests.
+
+[ci]:
+  https://github.com/abo-abo/swiper/actions/workflows/test.yml
+  'CI build'
+[ci-badge]:
+  https://github.com/abo-abo/swiper/actions/workflows/test.yml/badge.svg
+  'CI build status'
+
+[ivy-dev]:
+  https://elpa.gnu.org/devel/ivy.html
+  'Ivy on GNU-devel ELPA'
+[ivy-dev-badge]:
+  https://elpa.gnu.org/devel/ivy.svg
+  'Ivy version on GNU-devel ELPA'
+[ivy]:
+  https://elpa.gnu.org/packages/ivy.html
+  'Ivy on GNU ELPA'
+[ivy-badge]:
+  https://elpa.gnu.org/packages/ivy.svg
+  'Ivy version on GNU ELPA'
+[ivy-melpa]:
+  https://melpa.org/#/ivy
+  'Ivy on MELPA'
+[ivy-melpa-badge]:
+  https://melpa.org/packages/ivy-badge.svg
+  'Ivy version on MELPA'
+[ivy-stable]:
+  https://stable.melpa.org/#/ivy
+  'Ivy on MELPA Stable'
+[ivy-stable-badge]:
+  https://stable.melpa.org/packages/ivy-badge.svg
+  'Ivy version on MELPA Stable'
+[ivy-manual]:
+  https://elpa.gnu.org/packages/doc/ivy.html
+  'Ivy manual on GNU ELPA'
+[ivy-wiki]:
+  https://github.com/abo-abo/swiper/wiki
+  'Ivy wiki on GitHub'
+
+[counsel-dev]:
+  https://elpa.gnu.org/devel/counsel.html
+  'Counsel on GNU-devel ELPA'
+[counsel-dev-badge]:
+  https://elpa.gnu.org/devel/counsel.svg
+  'Counsel version on GNU-devel ELPA'
+[counsel]:
+  https://elpa.gnu.org/packages/counsel.html
+  'Counsel on GNU ELPA'
+[counsel-badge]:
+  https://elpa.gnu.org/packages/counsel.svg
+  'Counsel version on GNU ELPA'
+[counsel-melpa]:
+  https://melpa.org/#/counsel
+  'Counsel on MELPA'
+[counsel-melpa-badge]:
+  https://melpa.org/packages/counsel-badge.svg
+  'Counsel version on MELPA'
+[counsel-stable]:
+  https://stable.melpa.org/#/counsel
+  'Counsel on MELPA Stable'
+[counsel-stable-badge]:
+  https://stable.melpa.org/packages/counsel-badge.svg
+  'Counsel version on MELPA Stable'
+
+[swiper-dev]:
+  https://elpa.gnu.org/devel/swiper.html
+  'Swiper on GNU-devel ELPA'
+[swiper-dev-badge]:
+  https://elpa.gnu.org/devel/swiper.svg
+  'Swiper version on GNU-devel ELPA'
+[swiper]:
+  https://elpa.gnu.org/packages/swiper.html
+  'Swiper on GNU ELPA'
+[swiper-badge]:
+  https://elpa.gnu.org/packages/swiper.svg
+  'Swiper version on GNU ELPA'
+[swiper-melpa]:
+  https://melpa.org/#/swiper
+  'Swiper on MELPA'
+[swiper-melpa-badge]:
+  https://melpa.org/packages/swiper-badge.svg
+  'Swiper version on MELPA'
+[swiper-stable]:
+  https://stable.melpa.org/#/swiper
+  'Swiper on MELPA Stable'
+[swiper-stable-badge]:
+  https://stable.melpa.org/packages/swiper-badge.svg
+  'Swiper version on MELPA Stable'
+[swiper-helm]:
+  https://github.com/abo-abo/swiper-helm
+  'Swiper-Helm on GitHub'
+[swiper-shot]:
+  swiper.svg
+  'Swiper search for def and wip but not face'
+[swiper-demo]:
+  https://youtu.be/VvnJQpTFVDc
+  'Swiper demo on YouTube'
