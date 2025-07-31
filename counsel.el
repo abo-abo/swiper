@@ -1675,7 +1675,8 @@ INITIAL-DIRECTORY, if non-nil, is used as the root directory for search.
 When CMD is a string, use it as a \"git grep\" command.
 When CMD is non-nil, prompt for a specific \"git grep\" command."
   (interactive)
-  (let ((proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
+  (let ((enable-recursive-minibuffers t)
+        (proj-and-cmd (counsel--git-grep-cmd-and-proj cmd))
         proj)
     (setq proj (car proj-and-cmd))
     (setq counsel-git-grep-cmd (cdr proj-and-cmd))
