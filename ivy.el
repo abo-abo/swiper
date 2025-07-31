@@ -3329,7 +3329,8 @@ Possible choices are `ivy-magic-slash-non-match-cd-selected',
                  (eolp))
             (eq this-command #'ivy-partial-or-done))
     (let ((canonical (expand-file-name ivy-text ivy--directory))
-          (magic (not (string= ivy-text "/"))))
+          (magic (not (string= ivy-text "/")))
+          dest-dir)
       (cond ((member ivy-text ivy--all-candidates)
              (ivy--cd canonical))
             ((and (eq system-type 'windows-nt) (string= ivy-text "//")))
@@ -3353,9 +3354,12 @@ Possible choices are `ivy-magic-slash-non-match-cd-selected',
                     (file-directory-p (ivy-state-current ivy-last))
                     (or (eq ivy-magic-slash-non-match-action
                             'ivy-magic-slash-non-match-cd-selected)
-                        (eq this-command #'ivy-partial-or-done))))
-             (ivy--cd
-              (expand-file-name (ivy-state-current ivy-last) ivy--directory)))
+                        (eq this-command #'ivy-partial-or-done))
+                    ;; No point in visiting directory we’re already in.
+                    (not (equal ivy--directory
+                                (setf dest-dir
+                                      (expand-file-name (ivy-state-current ivy-last) ivy--directory))))))
+             (ivy--cd dest-dir))
             ((and (eq ivy-magic-slash-non-match-action
                       'ivy-magic-slash-non-match-create)
                   magic)
