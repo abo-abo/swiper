@@ -257,6 +257,9 @@ respectively."
     (setq counsel--async-start counsel--async-time)
     (set-process-sentinel proc (or sentinel #'counsel--async-sentinel))
     (set-process-filter proc (or filter #'counsel--async-filter))
+    ;; immediately update the display
+    (let ((counsel-async-filter-update-time 0))
+      (funcall (process-filter proc) proc ""))
     proc))
 
 (defcustom counsel-async-command-delay 0
