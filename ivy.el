@@ -2249,7 +2249,7 @@ customizations apply to the current completion session."
                     (ivy-state-initial-input ivy-last)
                     (make-composed-keymap keymap ivy-minibuffer-map)
                     nil
-                    hist)
+                    (copy-sequence hist))
                  (error
                   (unless (equal err '(error "Selecting deleted buffer"))
                     (signal (car err) (cdr err))))))
