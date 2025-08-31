@@ -3263,9 +3263,14 @@ parts beyond their respective faces `ivy-confirm-face' and
           (when ivy-add-newline-after-prompt
             (setq n-str (concat n-str "\n")))
           (setq n-str (ivy--break-lines n-str (window-width)))
-          (set-text-properties 0 (length n-str)
-                               `(face minibuffer-prompt ,@std-props)
-                               n-str)
+          (let ((old-props (when (fboundp 'object-intervals)
+                             (object-intervals n-str))))
+            (set-text-properties 0 (length n-str)
+                                 `(face minibuffer-prompt ,@std-props)
+                                 n-str)
+            (dolist (propdata old-props)
+              (cl-destructuring-bind (beg end props) propdata
+                (add-text-properties beg end props n-str))))
           (setq n-str (funcall ivy-set-prompt-text-properties-function
                                n-str std-props))
           (insert n-str))
