@@ -3214,6 +3214,25 @@ parts beyond their respective faces `ivy-confirm-face' and
         (when line (push line lines)))
       (string-join (nreverse lines) "\n"))))
 
+(defun ivy--propertize-prompt (prompt)
+  "Propertize PROMPT like `read-from-minibuffer' would.
+Also handle `ivy-set-prompt-text-properties-function'."
+  (let ((len (length prompt))
+        ;; Added unconditionally by `read-from-minibuffer'.
+        (props (list 'front-sticky t 'rear-nonsticky t 'field t))
+        ;; Configurable.
+        (extras minibuffer-prompt-properties))
+    ;; Filter out `face'; it is documented as being appended instead, and was
+    ;; historically excluded from `ivy-set-prompt-text-properties-function'.
+    (while extras
+      (let ((key (pop extras))
+            (val (pop extras)))
+        (if (eq key 'face)
+            (add-face-text-property 0 len val t prompt)
+          (setq props (plist-put props key val)))))
+    (add-text-properties 0 len props prompt)
+    (funcall ivy-set-prompt-text-properties-function prompt props)))
+
 (defun ivy--insert-prompt ()
   "Update the prompt according to `ivy--prompt'."
   (when (setq ivy--prompt (ivy-prompt))
@@ -3228,7 +3247,6 @@ parts beyond their respective faces `ivy-confirm-face' and
         (setq head ivy--prompt)
         (setq tail ""))
       (let ((inhibit-read-only t)
-            (std-props '(front-sticky t rear-nonsticky t field t read-only t))
             (n-str
              (concat
               (and (bound-and-true-p minibuffer-depth-indicate-mode)
@@ -3263,12 +3281,7 @@ parts beyond their respective faces `ivy-confirm-face' and
           (when ivy-add-newline-after-prompt
             (setq n-str (concat n-str "\n")))
           (setq n-str (ivy--break-lines n-str (window-width)))
-          (set-text-properties 0 (length n-str)
-                               `(face minibuffer-prompt ,@std-props)
-                               n-str)
-          (setq n-str (funcall ivy-set-prompt-text-properties-function
-                               n-str std-props))
-          (insert n-str))
+          (insert (ivy--propertize-prompt n-str)))
         ;; Mark prompt as selected if the user moves there or it is the only
         ;; option left.  Since the user input stays put, we have to manually
         ;; remove the face as well.
