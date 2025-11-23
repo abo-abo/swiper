@@ -4618,16 +4618,38 @@ BUFFER may be a string or nil."
              (switch-to-buffer
               buffer nil 'force-same-window))))))
 
+(defun ivy--switch-buffer-elsewhere (bufname switch visit)
+  "Switch to BUFNAME in other window/frame/tab/etc.
+If BUFNAME is nil or empty use `ivy-text' in its place.
+SWITCH and VISIT are the desired buffer-switching and
+file-visiting functions to use, respectively.  Which one is used
+depends on whether BUFNAME corresponds to a virtual buffer."
+  (let* ((empty (zerop (length bufname)))
+         (virtual (and (not empty)
+                       (assoc bufname ivy--virtual-buffers))))
+    (if (and virtual (not (get-buffer bufname)))
+        (funcall visit (cdr virtual))
+      (funcall switch (if empty ivy-text bufname)))))
+
 (defun ivy--switch-buffer-other-window-action (buffer)
-  "Switch to BUFFER in other window.
-BUFFER may be a string or nil."
-  (if (zerop (length buffer))
-      (switch-to-buffer-other-window ivy-text)
-    (let ((virtual (assoc buffer ivy--virtual-buffers)))
-      (if (and virtual
-               (not (get-buffer buffer)))
-          (find-file-other-window (cdr virtual))
-        (switch-to-buffer-other-window buffer)))))
+  "Switch to BUFFER (a string or nil) in other window.
+If BUFFER is nil or empty use `ivy-text' in its place.
+This function also handles the case where BUFFER is virtual;
+see `ivy-use-virtual-buffers'."
+  (ivy--switch-buffer-elsewhere buffer
+                                #'switch-to-buffer-other-window
+                                #'find-file-other-window))
+
+(when (and (fboundp 'switch-to-buffer-other-tab)
+           (fboundp 'find-file-other-tab))
+  (defun ivy--switch-buffer-other-tab-action (buffer)
+    "Switch to BUFFER (a string or nil) in other tab.
+If BUFFER is nil or empty use `ivy-text' in its place.
+This function also handles the case where BUFFER is virtual;
+see `ivy-use-virtual-buffers'."
+    (ivy--switch-buffer-elsewhere buffer
+                                  #'switch-to-buffer-other-tab
+                                  #'find-file-other-tab)))
 
 (defun ivy--rename-buffer-action (buffer)
   "Rename BUFFER."
@@ -4693,12 +4715,14 @@ Otherwise, forward to `ivy-kill-line'."
 
 (ivy-set-actions
  'ivy-switch-buffer
- '(("f"
+ `(("f"
     ivy--find-file-action
     "find file")
    ("j"
     ivy--switch-buffer-other-window-action
     "other window")
+   ,@(and (fboundp 'ivy--switch-buffer-other-tab-action)
+          '(("t" ivy--switch-buffer-other-tab-action "other tab")))
    ("k"
     ivy--kill-buffer-action
     "kill")

@@ -2084,8 +2084,10 @@ choose between `yes-or-no-p' and `y-or-n-p'; otherwise default to
 
 (ivy-set-actions
  'counsel-find-file
- '(("j" find-file-other-window "other window")
+ `(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
+   ,@(and (fboundp 'find-file-other-tab)
+          '(("t" find-file-other-tab "other tab")))
    ("b" counsel-find-file-cd-bookmark-action "cd bookmark")
    ("x" counsel-find-file-extern "open externally")
    ("r" counsel-find-file-as-root "open as root")
@@ -2482,6 +2484,8 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
  'counsel-recentf
  `(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
+   ,@(and (fboundp 'find-file-other-tab)
+          '(("t" find-file-other-tab "other tab")))
    ("x" counsel-find-file-extern "open externally")
    ("d" ,(lambda (file) (setq recentf-list (delete file recentf-list)))
     "delete from recentf")))
@@ -2584,8 +2588,10 @@ This function uses the `dom' library from Emacs 25.1 or later."
 
 (ivy-set-actions
  'counsel-buffer-or-recentf
- '(("j" find-file-other-window "other window")
+ `(("j" find-file-other-window "other window")
    ("f" find-file-other-frame "other frame")
+   ,@(and (fboundp 'find-file-other-tab)
+          '(("t" find-file-other-tab "other tab")))
    ("x" counsel-find-file-extern "open externally")))
 
 (defun counsel-buffer-or-recentf-transformer (var)
@@ -2634,9 +2640,15 @@ By default `counsel-bookmark' opens a dired buffer for directories."
   (lambda (bookmark)
     (funcall fn (bookmark-location bookmark))))
 
+(defun counsel--bookmark-jump-other-tab (bookmark)
+  "Jump to BOOKMARK in another tab."
+  (bookmark-jump bookmark 'switch-to-buffer-other-tab))
+
 (ivy-set-actions
  'counsel-bookmark
  `(("j" bookmark-jump-other-window "other window")
+   ,@(and (fboundp 'switch-to-buffer-other-tab)
+          `(("t" counsel--bookmark-jump-other-tab "other tab")))
    ("d" bookmark-delete "delete")
    ("e" bookmark-rename "edit")
    ("s" bookmark-set "overwrite")
@@ -6652,8 +6664,10 @@ in the current window."
 
 (ivy-set-actions
  'counsel-switch-buffer
- '(("x" counsel-open-buffer-file-externally "open externally")
-   ("j" ivy--switch-buffer-other-window-action "other window")))
+ `(("x" counsel-open-buffer-file-externally "open externally")
+   ("j" ivy--switch-buffer-other-window-action "other window")
+   ,@(and (fboundp 'ivy--switch-buffer-other-tab-action)
+          '(("t" ivy--switch-buffer-other-tab-action "other tab")))))
 
 ;;;; `counsel-compile'
 
