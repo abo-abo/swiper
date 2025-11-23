@@ -3170,11 +3170,11 @@ parts beyond their respective faces `ivy-confirm-face' and
 `ivy-match-required-face'."
   (dolist (pair '(("confirm" . ivy-confirm-face)
                   ("match required" . ivy-match-required-face)))
-    (let ((i (string-match-p (car pair) prompt)))
-      (when i
-        (add-text-properties i (+ i (length (car pair)))
-                             `(face ,(cdr pair) ,@props)
-                             prompt))))
+    (let* ((beg (ivy--string-search (car pair) prompt))
+           (end (and beg (+ beg (length (car pair))))))
+      (when beg
+        (add-face-text-property beg end (cdr pair) nil prompt)
+        (add-text-properties beg end props prompt))))
   prompt)
 
 (defun ivy-prompt ()
