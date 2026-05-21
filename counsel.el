@@ -2892,7 +2892,7 @@ Also return non-nil if FILE does not exist."
            seconds))))
 
 (defun counsel--locate-updatedb ()
-  (when (file-exists-p "~/.Private")
+  (when (file-exists-p (file-name-directory counsel-locate-db-path))
     (let ((db-fname (expand-file-name counsel-locate-db-path)))
       (setenv "LOCATE_PATH" db-fname)
       (when (counsel-file-stale-p db-fname 60)
