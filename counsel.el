@@ -2523,6 +2523,37 @@ Examples of such environments are GNOME and KDE.  See the URL
   :link '(url-link "\
 https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
 
+(defcustom counsel-recentf-show-icons t
+  "When non-nil, display nerd-icons before each `counsel-recentf' candidate.
+Requires the optional `nerd-icons' package."
+  :type 'boolean
+  :group 'counsel)
+
+(declare-function nerd-icons-icon-for-file "ext:nerd-icons" (file &rest arg-overrides))
+(declare-function nerd-icons-icon-for-dir "ext:nerd-icons" (dir &rest arg-overrides))
+
+(defun counsel-recentf--file-icon (file)
+  "Return nerd icon string for FILE, or nil if unavailable."
+  (when (fboundp 'nerd-icons-icon-for-file)
+    (let ((icon (cond
+                 ((or (ivy--dirname-p file)
+                      (and (file-exists-p file) (file-directory-p file)))
+                  (when (fboundp 'nerd-icons-icon-for-dir)
+                    (nerd-icons-icon-for-dir file)))
+                 ((not (string-empty-p file))
+                  (nerd-icons-icon-for-file (file-name-nondirectory file))))))
+      (unless (or (null icon) (symbolp icon))
+        (propertize icon 'display '(raise 0.0))))))
+
+(defun counsel-recentf-transformer (file)
+  "Display transformer for `counsel-recentf'."
+  (if counsel-recentf-show-icons
+      (let ((icon (counsel-recentf--file-icon file)))
+        (if icon
+            (concat icon " " file)
+          file))
+    file))
+
 ;;;###autoload
 (defun counsel-recentf ()
   "Find a file on `recentf-list'."
@@ -2542,6 +2573,9 @@ https://www.freedesktop.org/wiki/Specifications/desktop-bookmark-spec"))
    ("x" counsel-find-file-extern "open externally")
    ("d" ,(lambda (file) (setq recentf-list (delete file recentf-list)))
     "delete from recentf")))
+
+(ivy-configure 'counsel-recentf
+  :display-transformer-fn #'counsel-recentf-transformer)
 
 (defun counsel-recentf-candidates ()
   "Return candidates for `counsel-recentf'.

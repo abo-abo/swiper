@@ -4511,6 +4511,16 @@ CANDS is a list of candidates that :display-transformer can turn into strings."
   "Store face customizations for `ivy-switch-buffer'.
 Each KEY is `major-mode', each VALUE is a face name.")
 
+(defcustom ivy-switch-buffer-show-icons t
+  "When non-nil, display nerd-icons before each `ivy-switch-buffer' candidate.
+Requires the optional `nerd-icons' package."
+  :type 'boolean
+  :group 'ivy)
+
+(declare-function nerd-icons-icon-for-file "ext:nerd-icons" (file &rest arg-overrides))
+(declare-function nerd-icons-icon-for-dir "ext:nerd-icons" (dir &rest arg-overrides))
+(declare-function nerd-icons-icon-for-mode "ext:nerd-icons" (mode &rest arg-overrides))
+
 (defun ivy--buffer-list (str &optional virtual predicate)
   "Return the buffers that match STR.
 If VIRTUAL is non-nil, add virtual buffers.
@@ -4877,21 +4887,52 @@ connection."
   (let ((dir (buffer-local-value 'default-directory buffer)))
     (ignore-errors (file-remote-p dir))))
 
+(defun ivy-switch-buffer--icon (str)
+  "Return nerd icon string for buffer candidate STR, or nil if unavailable."
+  (let* ((buf (get-buffer str))
+         (virtual (assoc str ivy--virtual-buffers))
+         (file (or (and buf (buffer-file-name buf))
+                   (and buf (eq (buffer-local-value 'major-mode buf) 'dired-mode)
+                        (buffer-local-value 'default-directory buf))
+                   (cdr virtual)))
+         (icon (cond
+                ((and file (fboundp 'nerd-icons-icon-for-file))
+                 (cond
+                  ((and (fboundp 'nerd-icons-icon-for-dir)
+                        (or (ivy--dirname-p file)
+                            (and (file-exists-p file) (file-directory-p file))))
+                   (nerd-icons-icon-for-dir file))
+                  (t
+                   (nerd-icons-icon-for-file (file-name-nondirectory file)))))
+                ((and buf (fboundp 'nerd-icons-icon-for-mode))
+                 (nerd-icons-icon-for-mode
+                  (buffer-local-value 'major-mode buf)))
+                (t nil))))
+    (unless (or (null icon) (symbolp icon))
+      (propertize icon 'display '(raise 0.0)))))
+
 (defun ivy-switch-buffer-transformer (str)
   "Transform candidate STR when switching buffers."
-  (let ((buf (get-buffer str)))
-    (cond ((not buf) str)
-          ((let ((remote (ivy--remote-buffer-p buf)))
-             (when remote
-               (format "%s (%s)" (ivy-append-face str 'ivy-remote) remote))))
-          ((not (verify-visited-file-modtime buf))
-           (ivy-append-face str 'ivy-modified-outside-buffer))
-          ((buffer-modified-p buf)
-           (ivy-append-face str 'ivy-modified-buffer))
-          (t
-           (let* ((mode (buffer-local-value 'major-mode buf))
-                  (face (cdr (assq mode ivy-switch-buffer-faces-alist))))
-             (ivy-append-face str face))))))
+  (let ((result
+         (let ((buf (get-buffer str)))
+           (cond ((not buf) str)
+                 ((let ((remote (ivy--remote-buffer-p buf)))
+                    (when remote
+                      (format "%s (%s)" (ivy-append-face str 'ivy-remote) remote))))
+                 ((not (verify-visited-file-modtime buf))
+                  (ivy-append-face str 'ivy-modified-outside-buffer))
+                 ((buffer-modified-p buf)
+                  (ivy-append-face str 'ivy-modified-buffer))
+                 (t
+                  (let* ((mode (buffer-local-value 'major-mode buf))
+                         (face (cdr (assq mode ivy-switch-buffer-faces-alist))))
+                    (ivy-append-face str face)))))))
+    (if ivy-switch-buffer-show-icons
+        (let ((icon (ivy-switch-buffer--icon str)))
+          (if icon
+              (concat icon " " result)
+            result))
+      result)))
 
 (defun ivy-switch-buffer-occur (cands)
   "Occur function for `ivy-switch-buffer' using `ibuffer'.
