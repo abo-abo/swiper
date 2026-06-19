@@ -47,7 +47,8 @@ compile: $(src-elcs)
 
 .PHONY: test
 test: compile $(test-elcs)
-	$(EMACS) -Q -batch -L . $(test-elcs:%.elc=-l %) -f ivy-test-run-tests
+	$(EMACS) -Q -batch -L . $(test-elcs:%.elc=-l %) \
+	  -f ert-run-tests-batch-and-exit
 
 .PHONY: clean
 clean:

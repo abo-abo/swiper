@@ -373,18 +373,6 @@ actions extends usability of lists in Emacs.
      Attempts partial completion, extending current input as much as
      possible.  ~TAB TAB~ is the same as ~C-j~ (=ivy-alt-done=).
 
-     Example ERT test:
-
-     #+begin_src elisp
-     (should
-      (equal (ivy-with
-              '(progn
-                 (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-                 ivy-text)
-              "c <tab>")
-             "can"))
-     #+end_src
-
 - ~C-M-j~ (=ivy-immediate-done=) ::
      Exits with /the current input/ instead of /the current candidate/
      (like other commands).

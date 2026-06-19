@@ -457,12 +457,15 @@ the restoring themselves.")
   "Set the current `ivy-last' field to ACTION."
   (setf (ivy-state-action ivy-last) action))
 
+;; New in Emacs 25.
 (defvar inhibit-message)
 
-(defvar ffap-machine-p-known)
+(autoload 'ffap-url-p "ffap")
+(define-obsolete-function-alias 'ivy-ffap-url-p #'ffap-url-p "0.16.0")
 
 (defun ivy-thing-at-point ()
   "Return a string that corresponds to the current thing at point."
+  (defvar ffap-machine-p-known)
   (substring-no-properties
    (cond
      ((use-region-p)
@@ -1561,7 +1564,7 @@ See variable `ivy-recursive-restore' for further information."
 (defun ivy-call ()
   "Call the current action without exiting completion."
   (interactive)
-  ;; Testing with `ivy-with' seems to call `ivy-call' again,
+  ;; Testing with `ivy-test-exec' seems to call `ivy-call' again,
   ;; in which case `this-command' is nil; so check for this.
   (unless (memq this-command '(nil
                                ivy-done
@@ -1650,7 +1653,7 @@ Call the permanent action if possible."
         (when (and (with-ivy-window (derived-mode-p 'prog-mode))
                    (eq (ivy-state-caller ivy-last) 'swiper)
                    (not (file-exists-p ivy--default))
-                   (not (ivy-ffap-url-p ivy--default))
+                   (not (ffap-url-p ivy--default))
                    (not (ivy-state-dynamic-collection ivy-last))
                    (> (point) (minibuffer-prompt-end)))
           (ivy--insert-symbol-boundaries)))
@@ -1663,22 +1666,27 @@ Call the permanent action if possible."
 (defvar ivy-ffap-url-functions nil
   "List of functions that check if the point is on a URL.")
 
+(defun ivy-ffap-url-fetcher (url)
+  "Pass URL to `ffap-url-fetcher'."
+  (declare (obsolete ffap-url-fetcher "0.16.0"))
+  (require 'ffap)
+  (defvar ffap-url-fetcher)
+  (funcall ffap-url-fetcher url))
+
 (defun ivy--cd-maybe ()
   "Check if the current input points to a different directory.
 If so, move to that directory, while keeping only the file name."
   (when ivy--directory
-    (let ((input (ivy--input))
-          url)
-      (if (setq url (or (ivy-ffap-url-p input)
-                        (with-ivy-window
-                          (cl-reduce
-                           (lambda (a b)
-                             (or a (funcall b)))
-                           ivy-ffap-url-functions
-                           :initial-value nil))))
+    (let* ((input (ivy--input))
+           (url (or (ffap-url-p input)
+                    (with-ivy-window
+                      (run-hook-with-args-until-success
+                       'ivy-ffap-url-functions)))))
+      (defvar ffap-url-fetcher)
+      (if url
           (ivy-exit-with-action
            (lambda (_)
-             (ivy-ffap-url-fetcher url))
+             (funcall ffap-url-fetcher url))
            'no-update-history)
         (setq input (expand-file-name input))
         (let ((file (file-name-nondirectory input))
@@ -5676,19 +5684,6 @@ make decisions based on the whole marked list."
         (pop-to-buffer buf)))
     (view-mode)
     (goto-char (point-min))))
-
-(declare-function ffap-url-p "ffap")
-(defvar ffap-url-fetcher)
-
-(defun ivy-ffap-url-p (string)
-  "Forward to `ffap-url-p'."
-  (require 'ffap)
-  (ffap-url-p string))
-
-(defun ivy-ffap-url-fetcher (url)
-  "Calls `ffap-url-fetcher'."
-  (require 'ffap)
-  (funcall ffap-url-fetcher url))
 
 (ivy-configure 'read-file-name-internal
   :sort-fn #'ivy-sort-file-function-default

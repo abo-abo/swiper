@@ -479,18 +479,6 @@ it is the same as @code{ivy-done}.
 @indentedblock
 Attempts partial completion, extending current input as much as
 possible.  @kbd{TAB TAB} is the same as @kbd{C-j} (@code{ivy-alt-done}).
-
-Example ERT test:
-
-@lisp
-(should
- (equal (ivy-with
-         '(progn
-            (ivy-read "Test: " '("can do" "can't, sorry" "other"))
-            ivy-text)
-         "c <tab>")
-        "can"))
-@end lisp
 @end indentedblock
 @subsubheading @kbd{C-M-j} (@code{ivy-immediate-done})
 @vindex ivy-immediate-done
