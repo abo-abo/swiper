@@ -4,9 +4,13 @@ on:
     paths-ignore:
     - '**.md'
     - '**.org'
+    - '**.svg'
+    - '**.texi'
+    - '**.yml'
     - '.dir-locals.el'
     - '.elpaignore'
     - '.gitignore'
+    - '.mailmap'
     - 'doc/**'
     branches:
       - master
@@ -14,9 +18,13 @@ on:
     paths-ignore:
     - '**.md'
     - '**.org'
+    - '**.svg'
+    - '**.texi'
+    - '**.yml'
     - '.dir-locals.el'
     - '.elpaignore'
     - '.gitignore'
+    - '.mailmap'
     - 'doc/**'
 permissions: {}
 jobs:
@@ -43,6 +51,7 @@ jobs:
           - 29.4
           - 30.1
           - 30.2
+          - 31.1
           - release-snapshot
           - snapshot
 
@@ -51,7 +60,7 @@ jobs:
       with:
         version: ${{ matrix.emacs_version }}
 
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         persist-credentials: false
 
