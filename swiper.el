@@ -154,9 +154,19 @@ If the input is empty, select the previous history element instead."
     (ivy-next-line arg)))
 (ivy--no-M-x #'swiper-C-s #'ivy--minibuffer-p)
 
+(defun swiper-C-r (&optional arg)
+  "Move cursor vertically up ARG candidates.
+If the input is empty, select the previous history element instead."
+  (interactive "p")
+  (if (string= ivy-text "")
+      (ivy-previous-history-element 1)
+    (ivy-previous-line arg)))
+(ivy--no-M-x #'swiper-C-r #'ivy--minibuffer-p)
+
 (defvar swiper-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-s") #'swiper-C-s)
+    (define-key map (kbd "C-r") #'swiper-C-r)
     (define-key map (kbd "M-q") #'swiper-query-replace)
     (define-key map (kbd "C-l") #'swiper-recenter-top-bottom)
     (define-key map (kbd "C-'") #'swiper-avy)
