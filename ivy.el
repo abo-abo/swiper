@@ -2265,7 +2265,7 @@ customizations apply to the current completion session."
   ;; get un-stuck from an existing `read-key' overriding minibuffer keys
   (when (equal overriding-local-map '(keymap))
     (keyboard-quit))
-  (setq caller (or caller this-command))
+  (setq caller (or caller this-command 'ivy-read))
   (let* ((ivy-recursive-last (and (active-minibuffer-window) ivy-last))
          (ivy--display-function
           (when (or ivy-recursive-last
